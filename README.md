@@ -55,9 +55,15 @@ python -m http.server 8912 --directory site
 ### 第 2 步：Cloudflare Pages 连接仓库
 
 1. 打开 <https://dash.cloudflare.com/> 注册 / 登录（免费，不需要买域名）。
-2. 左侧菜单进入 **Workers & Pages** → 点 **Create** → 选 **Pages** 标签页 → **Connect to Git**。
-3. 授权 Cloudflare 访问 GitHub，选中仓库 **`MELEEYIN/Class_web`** → **Begin setup**。
-4. 构建设置这样填（关键，别填错）：
+2. 左侧边栏进入 **Build → Compute → Workers & Pages**（快捷链接：<https://dash.cloudflare.com/?to=/:account/workers-and-pages>）。
+
+   > 💡 **别在侧边栏里找 "Pages" —— 找不到是正常的。**
+   > 新版控制台已把 Pages 并入 Workers & Pages，侧边栏只有这一项，**没有独立的 Pages 菜单**。
+
+3. 点右上角蓝色的 **Create application** 按钮。
+4. 在弹出的选择界面里切到 **Pages** 标签页 → 点 **Connect to Git**。
+5. 授权 Cloudflare 访问 GitHub，选中仓库 **`MELEEYIN/Class_web`** → **Begin setup**。
+6. 构建设置这样填（关键，别填错）：
 
    | 项目 | 填写内容 |
    |---|---|
@@ -84,7 +90,7 @@ python -m http.server 8912 --directory site
    > 然后回到 Cloudflare 把 Build output directory 改填 `/`。
    > 两种结构都可以，**关键是自己填的和实际结构对得上**。
 
-5. 点 **Save and Deploy**。等约 30 秒，状态变成 **Success**。
+7. 点 **Save and Deploy**（新版界面可能是 **Deploy site**）。等约 30 秒，状态变成 **Success**。
 
 ### 第 3 步：拿到你的网址
 
