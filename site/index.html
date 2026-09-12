@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>我的主页 · My Site</title>
+  <meta name="description" content="一个用 GitHub + Cloudflare Pages 免费部署的个人网页。">
+  <meta name="theme-color" content="#0b1020">
+
+  <!-- 分享到社交平台时的预览信息 -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="我的主页 · My Site">
+  <meta property="og:description" content="一个用 GitHub + Cloudflare Pages 免费部署的个人网页。">
+
+  <!-- 站点图标：内联 SVG，不依赖外部文件 -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%236366f1'/%3E%3Ctext x='50' y='68' font-size='56' font-family='sans-serif' font-weight='700' fill='white' text-anchor='middle'%3EM%3C/text%3E%3C/svg%3E">
+
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主要内容</a>
+
+  <header class="nav" id="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="#top">
+        <span class="brand-dot" aria-hidden="true"></span>
+        <span>我的主页</span>
+      </a>
+
+      <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navMenu" aria-label="打开菜单">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav class="nav-menu" id="navMenu" aria-label="主导航">
+        <a href="#about">关于</a>
+        <a href="#works">作品</a>
+        <a href="#roadmap">计划</a>
+        <a href="#contact">联系</a>
+        <button class="theme-btn" id="themeToggle" aria-label="切换深色 / 浅色主题" title="切换主题">
+          <span class="theme-icon" aria-hidden="true">🌙</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- 首屏 -->
+    <section class="hero" id="top">
+      <div class="wrap hero-inner">
+        <p class="hero-badge" data-reveal>🚀 已上线 · GitHub + Cloudflare Pages</p>
+        <h1 data-reveal>
+          你好，我是 <span class="grad">这里的站长</span>
+        </h1>
+        <p class="hero-sub" data-reveal>
+          这是我的第一个网页。它托管在 Cloudflare 的全球网络上，
+          每次我把改动推送到 GitHub，它就会自动更新。
+        </p>
+        <div class="hero-actions" data-reveal>
+          <a class="btn btn-primary" href="#works">看看我的作品</a>
+          <a class="btn btn-ghost" href="#contact">联系我</a>
+        </div>
+
+        <div class="stats" data-reveal>
+          <div class="stat">
+            <strong id="statDays">1</strong>
+            <span>建站天数</span>
+          </div>
+          <div class="stat">
+            <strong>0 元</strong>
+            <span>托管费用</span>
+          </div>
+          <div class="stat">
+            <strong>∞</strong>
+            <span>可以改的地方</span>
+          </div>
+        </div>
+      </div>
+      <div class="glow" aria-hidden="true"></div>
+    </section>
+
+    <!-- 关于 -->
+    <section class="section" id="about">
+      <div class="wrap">
+        <p class="eyebrow" data-reveal>关于</p>
+        <h2 data-reveal>一点自我介绍</h2>
+        <div class="grid grid-2">
+          <div class="card" data-reveal>
+            <h3>我是谁</h3>
+            <p>
+              这里先用占位文字。等你确定好内容，只要打开
+              <code>index.html</code>，把这段文字换成你自己的介绍就行——
+              不需要懂编程框架。
+            </p>
+          </div>
+          <div class="card" data-reveal>
+            <h3>我在做什么</h3>
+            <p>
+              在学做一些小东西：网页、脚本、以及任何让我觉得"这个有意思"的事情。
+              这部分也可以随时改。
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 作品 -->
+    <section class="section" id="works">
+      <div class="wrap">
+        <p class="eyebrow" data-reveal>作品</p>
+        <h2 data-reveal>我在做的东西</h2>
+        <div class="grid grid-3">
+          <article class="card card-hover" data-reveal>
+            <div class="card-icon" aria-hidden="true">🌐</div>
+            <h3>这个网站</h3>
+            <p>纯 HTML / CSS / JavaScript 手写，没有任何构建步骤，push 上去就是最新版。</p>
+            <a class="card-link" href="https://github.com/" target="_blank" rel="noopener">查看源码 →</a>
+          </article>
+          <article class="card card-hover" data-reveal>
+            <div class="card-icon" aria-hidden="true">✍️</div>
+            <h3>写作 / 笔记</h3>
+            <p>以后可以在这里挂博客。工作区里已经有 Hexo 的骨架，需要时可以启用。</p>
+            <a class="card-link" href="#contact">敬请期待 →</a>
+          </article>
+          <article class="card card-hover" data-reveal>
+            <div class="card-icon" aria-hidden="true">🧪</div>
+            <h3>实验项目</h3>
+            <p>放着各种半成品和玩具。改这一个文件就能加一项，非常随意。</p>
+            <a class="card-link" href="#contact">来聊聊 →</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 计划 -->
+    <section class="section" id="roadmap">
+      <div class="wrap">
+        <p class="eyebrow" data-reveal>计划</p>
+        <h2 data-reveal>接下来想做的事</h2>
+        <ol class="timeline">
+          <li data-reveal>
+            <span class="dot" aria-hidden="true"></span>
+            <h3>第 1 步 · 已完成</h3>
+            <p>写出首页，用 GitHub 存代码，用 Cloudflare Pages 免费发布到公网。</p>
+          </li>
+          <li data-reveal>
+            <span class="dot" aria-hidden="true"></span>
+            <h3>第 2 步 · 下一步</h3>
+            <p>换成自己的域名，在 Cloudflare 里加一条 DNS 记录即可，HTTPS 自动搞定。</p>
+          </li>
+          <li data-reveal>
+            <span class="dot" aria-hidden="true"></span>
+            <h3>第 3 步 · 以后</h3>
+            <p>加博客、相册、留言板，慢慢长成一个真正的个人站点。</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- 联系 -->
+    <section class="section" id="contact">
+      <div class="wrap">
+        <p class="eyebrow" data-reveal>联系</p>
+        <h2 data-reveal>找我</h2>
+        <div class="contact" data-reveal>
+          <a class="contact-item" href="mailto:you@example.com">
+            <span aria-hidden="true">✉️</span>
+            <div><strong>邮箱</strong><small>you@example.com（记得改成你的）</small></div>
+          </a>
+          <a class="contact-item" href="https://github.com/" target="_blank" rel="noopener">
+            <span aria-hidden="true">🐙</span>
+            <div><strong>GitHub</strong><small>github.com/你的用户名</small></div>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <p>© <span id="year">2025</span> 我的主页 · 由 GitHub + Cloudflare Pages 驱动</p>
+      <p class="muted">双击 <code>index.html</code> 就能在本地预览；改完 push，线上自动更新。</p>
+    </div>
+  </footer>
+
+  <script src="./script.js"></script>
+</body>
+</html>

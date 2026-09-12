@@ -1,0 +1,21 @@
+# 忽略操作系统产生的杂项文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 忽略编辑器 / IDE 配置
+.vscode/
+.idea/
+*.swp
+
+# 我会在 README 里让用户自己生成部署用的 zip，产物不入库
+site-deploy.zip
+
+# 本地预览截图
+_preview.png
+
+# Hexo 的依赖与构建产物（如果以后启用 hexo/blog）
+hexo/blog/node_modules/
+hexo/blog/public/
+hexo/blog/db.json
+hexo/blog/.deploy_git/
