@@ -1,6 +1,6 @@
 # 我的网页
 
-一个**零构建**的静态个人主页：纯 HTML / CSS / JavaScript，push 到 GitHub，Cloudflare Pages 自动发布到全球 CDN。
+一个**零构建**的静态个人主页：纯 HTML / CSS / JavaScript，push 到 GitHub，Cloudflare 自动发布到全球 CDN。
 
 ```
 Class_web/
@@ -8,11 +8,15 @@ Class_web/
 │  ├─ index.html         ← 页面结构 / 文字内容
 │  ├─ styles.css         ← 样式（配色变量集中在文件顶部）
 │  ├─ script.js          ← 交互（菜单、主题、动画）
-│  └─ _headers           ← Cloudflare Pages 专用的安全响应头
+│  └─ _headers           ← 安全响应头（Pages / Workers 都支持）
+├─ wrangler.jsonc        ← ⚠️ 关键：告诉 Cloudflare 网站内容在 ./site
 ├─ hexo/blog/            ← 你原有的 Hexo 骨架，本方案未使用，保持原样
 ├─ .gitignore
 └─ README.md
 ```
+
+> **`wrangler.jsonc` 不能删。** 没有它，Cloudflare Workers 不知道去哪个目录取网站内容，
+> 部署会失败或得到一个空站点。它里面的 `assets.directory` 必须指向 `./site`。
 
 ---
 
@@ -29,9 +33,19 @@ python -m http.server 8912 --directory site
 
 ---
 
-## 二、部署路线：GitHub + Cloudflare Pages
+## 二、部署路线：GitHub + Cloudflare Workers 静态资源
 
-两步：**代码放上 GitHub → Cloudflare Pages 连上这个仓库**。之后每次 `git push`，几秒后线上自动更新。
+**先说一句结论：你现在走的是 Workers，不是 Pages。**
+新版 Cloudflare 控制台把 Pages 并入了 Workers & Pages，你的 `Create application` 弹窗
+给出的是 `Create an app → Set up your application` 这个 **Workers** 流程。
+
+这没关系——**Workers 静态资源托管一个纯静态网站，一样免费、一样有 HTTPS、一样 push 自动部署**，
+而且是 Cloudflare 现在主推的方向。代价只有一个：**必须有 `wrangler.jsonc` 告诉它网站内容在哪**，
+这个文件我已经建好了。
+
+> 如果你更想用传统的 Pages（网址是 `xxx.pages.dev`）：在 `Create application` 里
+> **切换到 `Pages` 标签页**再点 `Connect to Git`，然后 Build output directory 填 `site`。
+> 两条路都能用，**二选一即可，不要两个都建**。
 
 ### 第 1 步：把代码推上 GitHub —— ✅ 已完成
 
@@ -39,68 +53,42 @@ python -m http.server 8912 --directory site
 |---|---|
 | 远程仓库 | <https://github.com/MELEEYIN/Class_web> |
 | 分支 | `main` |
-| 线上最新提交 | `83aab44` |
 | git 身份 | `MELEEYIN <2878989597@qq.com>`（项目级，未改动全局配置） |
 
 代码已经推上去了，**第 1 步无需再做**，直接从第 2 步开始。
 
-> 想改提交里显示的名字/邮箱（只改这个项目，不动全局配置）：
-> ```powershell
-> cd "D:\DeepSeek Harness\Class_web"
-> git config user.name "新名字"
-> git config user.email "新邮箱@example.com"
-> ```
-> 注意：这**不会**改动已有的提交，历史里的作者信息仍是旧的。
+### 第 2 步：在 Cloudflare 创建应用
 
-### 第 2 步：Cloudflare Pages 连接仓库
+1. 打开 <https://dash.cloudflare.com/> → **Build → Compute → Workers & Pages**
+   （快捷链接：<https://dash.cloudflare.com/?to=/:account/workers-and-pages>）。
 
-1. 打开 <https://dash.cloudflare.com/> 注册 / 登录（免费，不需要买域名）。
-2. 左侧边栏进入 **Build → Compute → Workers & Pages**（快捷链接：<https://dash.cloudflare.com/?to=/:account/workers-and-pages>）。
+   > 💡 **别在侧边栏里找 "Pages" —— 找不到是正常的。** 侧边栏只有 Workers & Pages 一项。
 
-   > 💡 **别在侧边栏里找 "Pages" —— 找不到是正常的。**
-   > 新版控制台已把 Pages 并入 Workers & Pages，侧边栏只有这一项，**没有独立的 Pages 菜单**。
+2. 点 **Create application** → 选择 **Continue with GitHub** / **Import a repository**。
+3. 授权后选中仓库 **`MELEEYIN/Class_web`**。
+4. 进入 **Set up your application** 页面，字段这样填：
 
-3. 点右上角蓝色的 **Create application** 按钮。
-4. 在弹出的选择界面里切到 **Pages** 标签页 → 点 **Connect to Git**。
-5. 授权 Cloudflare 访问 GitHub，选中仓库 **`MELEEYIN/Class_web`** → **Begin setup**。
-6. 构建设置这样填（关键，别填错）：
+   | 字段 | 填写内容 | 说明 |
+   |---|---|---|
+   | Project name | `class-web` | 决定你的网址前缀 |
+   | Build command | **留空** | 我们是纯静态，没有构建步骤 |
+   | Deploy command | `npx wrangler deploy` | **默认值就对了，别改** |
 
-   | 项目 | 填写内容 |
-   |---|---|
-   | Project name | `class-web`（决定你的网址，只能用小写字母、数字和连字符） |
-   | Production branch | `main` |
-   | Framework preset | **None** |
-   | Build command | **留空** |
-   | Build output directory | **`site`** |
+5. 点 **Create and deploy**。
 
-   > ⚠️ **注意 `Build output directory` 必须填 `site`。**
-   > 网页文件在仓库的 `site/` 子目录里，如果填成 `/`，网站首页会变成这个 README 而不是你的网页。
-   >
-   > 如果想按 Cloudflare Pages 最常见的习惯，把网页放在仓库根目录，就在项目里执行
-   > （**文件必须逐个列出**，`git mv` 不支持 `*` 通配符，写 `git mv site/* .` 会报 `fatal: bad source`）：
-   >
-   > ```powershell
-   > cd "D:\DeepSeek Harness\Class_web"
-   > git mv site/index.html site/styles.css site/script.js site/_headers .
-   > Remove-Item site            # git mv 会留下一个空的 site 目录，手动删掉
-   > git commit -m "refactor: 网页文件移到仓库根目录"
-   > git push
-   > ```
-   >
-   > 然后回到 Cloudflare 把 Build output directory 改填 `/`。
-   > 两种结构都可以，**关键是自己填的和实际结构对得上**。
-
-7. 点 **Save and Deploy**（新版界面可能是 **Deploy site**）。等约 30 秒，状态变成 **Success**。
+> ⚠️ **`Deploy command` 必须是 `npx wrangler deploy`。**
+> 它会在仓库根目录找到 `wrangler.jsonc`，读出 `assets.directory = "./site"`，
+> 然后把 `site/` 里的 4 个文件发布出去。
+> 如果你把这条命令删掉或改掉，部署会因为「找不到要发布的内容」而失败。
 
 ### 第 3 步：拿到你的网址
 
-部署成功后会得到两个地址：
+部署成功后（约 30 秒，状态变 **Success**），网址形如：
 
-- `https://class-web.pages.dev` —— 正式网址，**HTTPS 自动配好**，直接分享给别人。
-- `https://<随机串>.class-web.pages.dev` —— 每次提交生成的预览地址。
-
-（如果 `class-web` 这个名字被占用了，Cloudflare 会要求你换一个，
-网址前缀就跟着变，不影响使用。）
+- `https://class-web.<你的子域>.workers.dev` —— 正式网址，**HTTPS 自动配好**
+  （你的子域在截图里是 `2878989597`，所以大概率是
+  `https://class-web.2878989597.workers.dev`）
+- 每次 push 还会生成一个预览地址
 
 之后每次改动（改完 `site/` 里的文件后执行这三条）：
 
@@ -112,6 +100,23 @@ git push
 ```
 
 Cloudflare 检测到推送会自动重新部署，无需任何手动操作。
+
+---
+
+## 二·补、本地校验配置（可选，不用登录）
+
+改过 `wrangler.jsonc` 之后，想确认配置有效再推上去：
+
+```powershell
+cd "D:\DeepSeek Harness\Class_web"
+npx.cmd --yes wrangler@latest deploy --dry-run
+```
+
+看到 `Read 4 files from the assets directory ...\site` 就说明配置正确——它确认了
+Cloudflare 会从 `site/` 取到那 4 个文件。
+
+> 注意用 `npx.cmd` 而不是 `npx`：PowerShell 默认禁止运行 `npx.ps1` 脚本
+> （会报「在此系统上禁止运行脚本」）。
 
 ---
 

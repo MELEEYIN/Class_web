@@ -1,0 +1,19 @@
+{
+  // Cloudflare Workers 静态资源配置
+  // 这个文件告诉 Cloudflare：把仓库里的 site/ 目录当作网站内容发布。
+  // 官方文档：https://developers.cloudflare.com/workers/static-assets/binding/
+  "$schema": "./node_modules/wrangler/config-schema.json",
+
+  "name": "class-web",
+
+  // 兼容性日期：建议设成接近当前的日期，Cloudflare 会据此启用对应的运行时行为
+  "compatibility_date": "2026-09-12",
+
+  "assets": {
+    // 关键：网站内容在 site/ 子目录里
+    "directory": "./site",
+
+    // 找不到文件时返回默认的 404 页面（而不是把 index.html 当作兜底）
+    "not_found_handling": "404-page"
+  }
+}

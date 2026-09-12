@@ -14,6 +14,14 @@ site-deploy.zip
 # 本地预览截图
 _preview.png
 
+# Wrangler 本地缓存与 dry-run 产物（校验用，不需要入库）
+.wrangler/
+.wrangler-dryrun/
+node_modules/
+
+# DSH 视觉工具产生的中间文件
+.dsh-vision-router/
+
 # Hexo 的依赖与构建产物（如果以后启用 hexo/blog）
 hexo/blog/node_modules/
 hexo/blog/public/
