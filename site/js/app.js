@@ -9,6 +9,8 @@
 
   var stack = [];              // 当前打开的弹窗 id 栈，最后一个是显示中的
   var lastFocus = null;
+  var openDrawer = function () {};
+  var closeDrawer = function () {};
 
   /* ======================================================================
      1. 弹窗管理
@@ -218,35 +220,41 @@
 
     var burger = U.$('#burger');
     var drawer = U.$('#drawer');
-    if (burger && drawer) {
-      burger.addEventListener('click', function () {
-        var open = drawer.classList.contains('open');
-        if (open) {
-          drawer.classList.remove('open');
-          burger.setAttribute('aria-expanded', 'false');
-          setTimeout(function () { if (!drawer.classList.contains('open')) drawer.hidden = true; }, 260);
-        } else {
-          drawer.hidden = false;
-          void drawer.offsetWidth;
-          drawer.classList.add('open');
-          burger.setAttribute('aria-expanded', 'true');
-        }
-      });
-      drawer.addEventListener('click', function (e) {
-        if (e.target.closest('a, button')) {
-          drawer.classList.remove('open');
-          burger.setAttribute('aria-expanded', 'false');
-          setTimeout(function () { drawer.hidden = true; }, 260);
-        }
-      });
-      document.addEventListener('click', function (e) {
-        if (drawer.hidden) return;
-        if (drawer.contains(e.target) || burger.contains(e.target)) return;
+    if (!burger || !drawer) return;
+
+    function setDrawer(open) {
+      if (open) {
+        drawer.hidden = false;
+        void drawer.offsetWidth;
+        drawer.classList.add('open');
+        burger.setAttribute('aria-expanded', 'true');
+      } else {
         drawer.classList.remove('open');
         burger.setAttribute('aria-expanded', 'false');
-        setTimeout(function () { drawer.hidden = true; }, 260);
-      });
+        setTimeout(function () { if (!drawer.classList.contains('open')) drawer.hidden = true; }, 260);
+      }
     }
+
+    openDrawer = function () { setDrawer(true); };
+    closeDrawer = function () { setDrawer(false); };
+
+    burger.addEventListener('click', function () {
+      setDrawer(!drawer.classList.contains('open'));
+    });
+
+    drawer.addEventListener('click', function (e) {
+      if (e.target.closest('a, button')) setDrawer(false);
+    });
+
+    // 点到别处就收起抽屉。注意要放过「明确用来打开抽屉的东西」——
+    // 底部标签栏的「更多」就是其中之一：它先打开抽屉，紧接着这次点击会冒泡到
+    // document，如果这里不排除掉，抽屉会开了又立刻关（看起来像点了没反应）。
+    document.addEventListener('click', function (e) {
+      if (drawer.hidden) return;
+      if (!e.target.closest) return;
+      if (e.target.closest('#drawer, #burger, #mtabs')) return;
+      setDrawer(false);
+    });
   }
 
   /* ======================================================================
@@ -422,6 +430,7 @@
     setTheme(theme, false);
 
     // 各模块
+    if (CW.view) CW.view.init();
     if (CW.map) CW.map.init();
     if (CW.bg) CW.bg.init();
     if (CW.importUI) CW.importUI.init();
@@ -476,7 +485,9 @@
     onClose: onClose,
     confirmThen: confirmThen,
     setTheme: setTheme,
-    toggleTheme: toggleTheme
+    toggleTheme: toggleTheme,
+    openDrawer: function () { openDrawer(); },
+    closeDrawer: function () { closeDrawer(); }
   };
 
   if (document.readyState === 'loading') {

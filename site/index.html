@@ -19,9 +19,11 @@
 <link rel="stylesheet" href="./css/base.css">
 <link rel="stylesheet" href="./css/layout.css">
 <link rel="stylesheet" href="./css/components.css">
+<link rel="stylesheet" href="./css/mobile.css">
 
 <!-- 首屏前先套用已保存的主题与背景，避免闪白 -->
 <script src="./js/boot.js"></script>
+
 </head>
 <body>
 
@@ -84,6 +86,10 @@
   <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8.6a6 6 0 1 0-12 0c0 5.2-2 6.9-2 6.9h16s-2-1.7-2-6.9Z"/><path d="M13.7 19a2 2 0 0 1-3.4 0"/></symbol>
   <symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/></symbol>
   <symbol id="i-warn-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.3M12 16.4h.01"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.6 12 3.8l8.5 6.8V20a1 1 0 0 1-1 1h-4.2v-6.2H8.7V21H4.5a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 12h.01M12 12h.01M18.5 12h.01"/></symbol>
+  <symbol id="i-smartphone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="2.6"/><path d="M10.6 18.6h2.8"/></symbol>
+  <symbol id="i-monitor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="13" rx="2"/><path d="M8.5 21h7M12 17.2V21"/></symbol>
 </svg>
 
 <!-- ======================================================================
@@ -138,6 +144,7 @@
   <button type="button" data-open="import"><svg class="ico" aria-hidden="true"><use href="#i-upload"/></svg>导入课表</button>
   <button type="button" data-open="bg"><svg class="ico" aria-hidden="true"><use href="#i-image"/></svg>自定义背景</button>
   <button type="button" data-open="help"><svg class="ico" aria-hidden="true"><use href="#i-keyboard"/></svg>快捷键与帮助</button>
+  <button type="button" id="viewQuick"><svg class="ico" aria-hidden="true"><use href="#i-smartphone"/></svg><span>切换到手机版</span></button>
   <hr>
   <a href="https://jwxt.sztu.edu.cn/jsxsd/framework/xsMain.jsp" target="_blank" rel="noopener">
     <svg class="ico" aria-hidden="true"><use href="#i-external"/></svg>去教务系统查课表
@@ -1150,6 +1157,20 @@
     <div class="modal-body">
       <div id="dataStats" class="grid grid-2" style="margin-bottom:20px"></div>
 
+      <p class="field-label" style="margin-bottom:9px">显示模式</p>
+      <div class="seg" id="viewSeg" role="tablist" aria-label="显示模式">
+        <button type="button" role="tab" data-view-pref="auto" aria-selected="true">自动</button>
+        <button type="button" role="tab" data-view-pref="mobile" aria-selected="false">手机版</button>
+        <button type="button" role="tab" data-view-pref="desktop" aria-selected="false">电脑版</button>
+      </div>
+      <p class="hint" id="viewHint" style="margin-top:9px"></p>
+      <p class="hint" style="margin-top:6px">
+        「自动」会按屏幕宽度和是否触摸屏判断，进入页面时立刻生效，之后转屏或改窗口大小也会跟着变。
+        手动选手机版/电脑版则会固定下来。
+      </p>
+
+      <hr style="margin:20px 0">
+
       <p class="field-label" style="margin-bottom:9px">备份与恢复</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-sm btn-primary" type="button" id="dataExport">
@@ -1323,7 +1344,30 @@
 
 <div class="toast-wrap" id="toastWrap" aria-live="polite" aria-atomic="false"></div>
 
+<!-- ======================================================================
+     手机版底部标签栏（只在手机版显示，规则见 css/mobile.css）
+     ====================================================================== -->
+<nav class="mtabs" id="mtabs" aria-label="手机版导航">
+  <button class="mtab" type="button" data-mtab="home">
+    <svg class="ico" aria-hidden="true"><use href="#i-home"/></svg><span>首页</span>
+  </button>
+  <button class="mtab" type="button" data-mtab="schedule">
+    <svg class="ico" aria-hidden="true"><use href="#i-calendar"/></svg><span>日程</span>
+  </button>
+  <button class="mtab" type="button" data-mtab="todo">
+    <svg class="ico" aria-hidden="true"><use href="#i-check-circle"/></svg><span>待办</span>
+    <b class="mtab-badge" id="mtabsTodo" hidden></b>
+  </button>
+  <button class="mtab" type="button" data-mtab="map">
+    <svg class="ico" aria-hidden="true"><use href="#i-map"/></svg><span>地图</span>
+  </button>
+  <button class="mtab" type="button" data-mtab="more">
+    <svg class="ico" aria-hidden="true"><use href="#i-more"/></svg><span>更多</span>
+  </button>
+</nav>
+
 <script src="./js/util.js"></script>
+<script src="./js/view.js"></script>
 <script src="./js/xls.js"></script>
 <script src="./js/parse.js"></script>
 <script src="./js/store.js"></script>

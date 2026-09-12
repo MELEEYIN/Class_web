@@ -1,0 +1,385 @@
+/* ==========================================================================
+   mobile.css — 「手机版」界面
+   全部规则都挂在 [data-view="mobile"] 下，所以：
+     · 手机上自动启用（见 boot.js 里的 CW_RESOLVE_VIEW）
+     · 宽屏上也能手动强制打开，方便预览
+   与 layout.css 里的媒体查询是互补关系：媒体查询负责「窄屏别撑破」，
+   这里负责「手机上要好用」——底部标签栏、单列信息流、大点击区、全屏弹窗。
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. 骨架：顶部两行导航 + 底部标签栏 + 单列信息流
+   -------------------------------------------------------------------------- */
+[data-view="mobile"] { --nav-h: 102px; --m-tab-h: 58px; }
+
+[data-view="mobile"] body {
+  font-size: 16px;
+  padding-bottom: calc(var(--m-tab-h) + env(safe-area-inset-bottom, 0px));
+}
+
+/* --- 顶部导航改成「品牌 + 图标」一行、「搜索框」一行的两行结构 --- */
+[data-view="mobile"] .nav { height: auto; }
+[data-view="mobile"] .nav-inner {
+  flex-wrap: wrap;
+  height: auto;
+  gap: 8px;
+  padding-block: 8px;
+}
+[data-view="mobile"] .nav-search {
+  display: block;
+  order: 3;
+  flex: 1 1 100%;
+  max-width: none;
+  margin: 0;
+}
+[data-view="mobile"] .nav-search input { height: 40px; font-size: 15px; }
+[data-view="mobile"] .nav-actions { margin-left: auto; }
+[data-view="mobile"] .nav-actions .btn .label { display: none; }
+[data-view="mobile"] .nav-actions .btn { width: 36px; height: 36px; padding: 0; }
+[data-view="mobile"] .nav-burger { display: none; }     /* 底部标签栏里有「更多」了 */
+[data-view="mobile"] .brand-mark { width: 32px; height: 32px; }
+[data-view="mobile"] .brand-text strong { font-size: 16px; }
+
+[data-view="mobile"] .drawer { inset: var(--nav-h) 0 auto 0; }
+
+/* --- 主体：把 rail / content 拆开，让每张卡片单独排顺序 --- */
+[data-view="mobile"] .board {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  padding: 16px 0 28px;
+}
+[data-view="mobile"] .rail,
+[data-view="mobile"] .content { display: contents; }
+
+/* 手机上最常看的是「今天有什么课」，所以日程排在最前 */
+[data-view="mobile"] #schedCard { order: 1; }
+[data-view="mobile"] #links     { order: 2; }
+[data-view="mobile"] #todoCard  { order: 3; }
+[data-view="mobile"] #cdCard    { order: 4; }
+[data-view="mobile"] #tools     { order: 5; }
+[data-view="mobile"] #about     { order: 6; }
+[data-view="mobile"] .content,
+[data-view="mobile"] .rail { position: static; max-height: none; overflow: visible; }
+
+[data-view="mobile"] .wrap { padding-inline: 14px; }
+[data-view="mobile"] .footer { padding: 24px 0 30px; }
+[data-view="mobile"] .footer-inner { flex-direction: column; gap: 14px; }
+
+/* --------------------------------------------------------------------------
+   2. 顶部信息条
+   -------------------------------------------------------------------------- */
+[data-view="mobile"] .dash { padding: 18px 0 2px; }
+[data-view="mobile"] .dash-inner { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+[data-view="mobile"] .dash h1 { font-size: 25px; margin-bottom: 8px; }
+[data-view="mobile"] .dash-side { flex-direction: column; gap: 10px; }
+[data-view="mobile"] .mini,
+[data-view="mobile"] .mini-quick {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+  padding: 15px 16px;
+}
+[data-view="mobile"] .qp-hero b { font-size: 30px; }
+[data-view="mobile"] .qp-act { padding: 11px 4px; font-size: 11.5px; }
+[data-view="mobile"] .qp-act .ico { width: 19px; height: 19px; }
+[data-view="mobile"] .qp-chip { padding: 6px 11px; font-size: 12px; }
+
+/* --------------------------------------------------------------------------
+   3. 日程卡：手机上给它最高的优先级，头部按钮铺满一行
+   -------------------------------------------------------------------------- */
+[data-view="mobile"] .sched-card { padding: 16px 14px; gap: 13px; }
+[data-view="mobile"] .sched-card .card-head { flex-wrap: wrap; gap: 10px; }
+[data-view="mobile"] .sched-card .card-title { font-size: 16px; }
+[data-view="mobile"] .sched-card .head-actions { flex: 1 1 100%; }
+[data-view="mobile"] .sched-card .head-actions .btn { flex: 1 1 auto; height: 40px; font-size: 14px; }
+[data-view="mobile"] .sched-card .head-actions .btn-icon { flex: 0 0 40px; width: 40px; }
+
+[data-view="mobile"] .sched-now { padding: 14px; }
+[data-view="mobile"] .sched-now .sn-title { font-size: 16px; }
+[data-view="mobile"] .sched-query { font-size: 12.5px; padding: 10px 11px; }
+
+[data-view="mobile"] .cal-day { min-height: 40px; font-size: 13.5px; border-radius: 11px; }
+[data-view="mobile"] .cal-week span { font-size: 11.5px; }
+[data-view="mobile"] .cal-grid { gap: 4px; }
+
+[data-view="mobile"] .sched-item { padding: 10px 9px; }
+[data-view="mobile"] .sched-item .si-title { font-size: 14.5px; }
+[data-view="mobile"] .sched-item .si-meta { font-size: 12.5px; }
+[data-view="mobile"] .sched-item .si-time { font-size: 12px; }
+
+[data-view="mobile"] .sched-stats .st b { font-size: 18px; }
+[data-view="mobile"] .sched-stats .st span { font-size: 11px; }
+
+/* --------------------------------------------------------------------------
+   4. 入口卡片：手机上收成紧凑列表（图标 + 名称 + 域名）
+      8 张卡片的说明文字会把页面撑得很长，收起来滚动距离少一半
+   -------------------------------------------------------------------------- */
+[data-view="mobile"] .link-grid { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+[data-view="mobile"] #linkGrid .link-card {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  min-height: 64px;
+}
+[data-view="mobile"] #linkGrid .link-card .lc-top { flex: 1; min-width: 0; gap: 13px; }
+[data-view="mobile"] #linkGrid .link-card .lc-icon { width: 42px; height: 42px; border-radius: 12px; }
+[data-view="mobile"] #linkGrid .link-card .lc-icon svg { width: 21px; height: 21px; }
+[data-view="mobile"] #linkGrid .link-card .lc-name { font-size: 16px; }
+[data-view="mobile"] #linkGrid .link-card .lc-host { font-size: 11.5px; }
+[data-view="mobile"] #linkGrid .link-card .lc-desc,
+[data-view="mobile"] #linkGrid .link-card .lc-foot { display: none; }
+/* 用右侧箭头代替被隐藏的「打开 →」 */
+[data-view="mobile"] #linkGrid .link-card::after {
+  content: "›";
+  font-size: 22px;
+  line-height: 1;
+  color: var(--faint);
+  flex: none;
+  margin-left: 2px;
+}
+
+/* 工具卡保留说明，但排成两列更紧凑 */
+[data-view="mobile"] #tools .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+[data-view="mobile"] #toolGrid .link-card { padding: 14px 13px; }
+[data-view="mobile"] #toolGrid .link-card .lc-name { font-size: 14px; }
+[data-view="mobile"] #toolGrid .link-card .lc-icon { width: 34px; height: 34px; }
+[data-view="mobile"] #toolGrid .link-card .lc-desc { font-size: 11.5px; }
+[data-view="mobile"] #toolGrid .link-card .lc-foot { display: none; }
+
+/* --------------------------------------------------------------------------
+   5. 待办 / 倒数日
+   -------------------------------------------------------------------------- */
+[data-view="mobile"] .todo-add .input { height: 42px; }
+[data-view="mobile"] .todo-add .btn-icon { width: 42px; height: 42px; }
+[data-view="mobile"] .todo-item { padding: 11px 8px; }
+[data-view="mobile"] .todo-item input[type="checkbox"] { width: 21px; height: 21px; }
+[data-view="mobile"] .todo-item .ti-text { font-size: 14.5px; }
+[data-view="mobile"] .todo-item .ti-del { opacity: 1; width: 30px; height: 30px; }
+[data-view="mobile"] .countdown-item { padding: 11px 12px; }
+[data-view="mobile"] .countdown-item .cd-days b { font-size: 20px; }
+
+/* --------------------------------------------------------------------------
+   6. 底部标签栏
+   -------------------------------------------------------------------------- */
+.mtabs { display: none; }
+
+[data-view="mobile"] .mtabs {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 70;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 2px;
+  padding: 6px 6px calc(6px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: saturate(180%) blur(16px);
+  -webkit-backdrop-filter: saturate(180%) blur(16px);
+  box-shadow: 0 -2px 18px rgba(15, 43, 85, .07);
+}
+[data-theme="dark"] [data-view="mobile"] .mtabs { box-shadow: 0 -2px 18px rgba(0, 0, 0, .45); }
+
+.mtab {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 2px;
+  min-height: 46px;
+  padding: 5px 2px;
+  border-radius: 11px;
+  color: var(--faint);
+  font-size: 10.5px;
+  font-weight: 700;
+  transition: color var(--t) var(--ease), background-color var(--t) var(--ease);
+  -webkit-tap-highlight-color: transparent;
+}
+.mtab .ico { width: 21px; height: 21px; }
+.mtab:active { background: var(--surface-3); }
+.mtab.is-active { color: var(--accent); background: var(--accent-soft); }
+
+.mtab-badge {
+  position: absolute;
+  top: 3px;
+  right: 50%;
+  transform: translateX(150%);
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 99px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 17px;
+  text-align: center;
+}
+
+/* --------------------------------------------------------------------------
+   7. 弹窗在手机上全屏，内容区独立滚动
+   -------------------------------------------------------------------------- */
+[data-view="mobile"] .modal { padding: 0; place-items: stretch; }
+[data-view="mobile"] .modal-panel,
+[data-view="mobile"] .modal-panel.mw-sm,
+[data-view="mobile"] .modal-panel.mw-md,
+[data-view="mobile"] .modal-panel.mw-lg,
+[data-view="mobile"] .modal-panel.mw-xl,
+[data-view="mobile"] .modal-panel.mw-full {
+  width: 100%;
+  height: 100%;
+  max-height: 100dvh;
+  border: 0;
+  border-radius: 0;
+  transform: translateY(3%);
+}
+[data-view="mobile"] .modal.open .modal-panel { transform: none; }
+
+[data-view="mobile"] .modal-head {
+  padding: 12px 14px calc(12px + env(safe-area-inset-top, 0px));
+  padding-top: max(12px, env(safe-area-inset-top, 0px));
+}
+[data-view="mobile"] .modal-head h2 { font-size: 16.5px; }
+[data-view="mobile"] .modal-head p { font-size: 12px; }
+[data-view="mobile"] .modal-head .mh-actions .btn .label { display: none; }
+[data-view="mobile"] .modal-head .mh-actions .btn {
+  width: 38px; padding: 0; justify-content: center;
+}
+[data-view="mobile"] .modal-body { padding: 14px; }
+[data-view="mobile"] .modal-foot {
+  padding: 11px 14px calc(11px + env(safe-area-inset-bottom, 0px));
+  position: sticky;
+  bottom: 0;
+}
+[data-view="mobile"] .modal-foot .btn { height: 42px; font-size: 14px; }
+
+/* 分段控件与标签页在手机上横向滚动更顺手 */
+[data-view="mobile"] .seg button { padding: 9px 14px; font-size: 13.5px; }
+[data-view="mobile"] .tabs button { padding: 11px 14px; font-size: 14px; }
+[data-view="mobile"] .tabs { margin-bottom: 14px; }
+
+/* 触屏没有 hover，去掉悬浮抬升，改成按下反馈 */
+[data-view="mobile"] .card-hover:hover,
+[data-view="mobile"] .link-card:hover,
+[data-view="mobile"] .mini:hover,
+[data-view="mobile"] .row-item:hover,
+[data-view="mobile"] .sched-item:hover,
+[data-view="mobile"] .map-thumb:hover { transform: none; }
+[data-view="mobile"] .link-card:active,
+[data-view="mobile"] .row-item:active { transform: scale(.985); }
+
+/* --------------------------------------------------------------------------
+   8. 月历 & 周课表（弹窗内）
+   -------------------------------------------------------------------------- */
+[data-view="mobile"] .cal-full .cal-grid { gap: 3px; }
+[data-view="mobile"] .cal-full .cal-day {
+  min-height: 66px;
+  padding: 5px 4px 4px;
+  border-radius: 9px;
+  gap: 2px;
+}
+[data-view="mobile"] .cal-full .cal-day .cd-num { font-size: 12.5px; }
+[data-view="mobile"] .cal-full .cal-day .cd-week { display: none; }   /* 格子太小，周次省掉 */
+[data-view="mobile"] .cd-event { font-size: 10px; padding: 2px 4px; }
+[data-view="mobile"] .cd-more { font-size: 9.5px; }
+
+[data-view="mobile"] .timetable-wrap {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+/* 列宽与 min-width 由 schedule.js 按显示模式计算（见 renderTimetable），
+   这里只调字号和内边距，不要用 !important 去改 grid-template-columns，
+   否则会和 JS 算出来的列数对不上。 */
+[data-view="mobile"] .tt-time { padding: 5px 4px; }
+[data-view="mobile"] .tt-time b { font-size: 10.5px; }
+[data-view="mobile"] .tt-time span { font-size: 9px; }
+[data-view="mobile"] .tt-course b { font-size: 11px; }
+[data-view="mobile"] .tt-cell { min-height: 56px; }
+
+/* 行内列表（清单 / 编辑）在手机上让按钮更好点 */
+[data-view="mobile"] .row-item { padding: 12px 12px; }
+[data-view="mobile"] .row-item .ri-title { font-size: 14.5px; }
+[data-view="mobile"] .row-item .btn-icon { width: 36px; height: 36px; }
+[data-view="mobile"] .row-list { gap: 9px; }
+
+/* 周次点选器：手指点得准一点 */
+[data-view="mobile"] .week-picker { grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 6px; }
+[data-view="mobile"] .wk-chip { height: 36px; font-size: 13px; border-radius: 8px; }
+
+/* --------------------------------------------------------------------------
+   9. 校园地图（弹窗内）
+   -------------------------------------------------------------------------- */
+[data-view="mobile"] .map-tabs { padding: 9px 12px; gap: 7px; }
+[data-view="mobile"] .map-tabs .btn { height: 36px; font-size: 13px; }
+[data-view="mobile"] .map-tools {
+  right: 10px;
+  bottom: 10px;
+  flex-direction: row;
+  display: flex;
+  gap: 2px;
+  padding: 5px;
+  border-radius: 99px;
+}
+[data-view="mobile"] .map-tools button { width: 38px; height: 38px; }
+[data-view="mobile"] .map-tools .zoom-pct { display: none; }
+[data-view="mobile"] .map-hint { left: 10px; bottom: 60px; font-size: 11px; }
+[data-view="mobile"] .map-thumbs { padding: 9px 12px calc(9px + env(safe-area-inset-bottom, 0px)); gap: 7px; }
+[data-view="mobile"] .map-thumb { width: 78px; }
+[data-view="mobile"] .map-thumb img { height: 48px; }
+
+/* --------------------------------------------------------------------------
+   10. 导入 / 背景 弹窗里的细节
+   -------------------------------------------------------------------------- */
+[data-view="mobile"] .dropzone { padding: 26px 16px; }
+[data-view="mobile"] .dropzone .ico { width: 30px; height: 30px; }
+[data-view="mobile"] .form-grid { grid-template-columns: minmax(0, 1fr); }
+[data-view="mobile"] .form-grid .col-span-2 { grid-column: auto; }
+[data-view="mobile"] .input, [data-view="mobile"] .select { min-height: 44px; font-size: 15px; }
+[data-view="mobile"] .field > label, [data-view="mobile"] .field-label { font-size: 13.5px; }
+[data-view="mobile"] .btn { height: 42px; font-size: 14px; }
+[data-view="mobile"] .btn-sm { height: 36px; font-size: 13px; }
+[data-view="mobile"] .btn-lg { height: 48px; }
+[data-view="mobile"] .bookmarklet { width: 100%; justify-content: center; padding: 14px 18px; }
+[data-view="mobile"] .bg-presets { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; }
+[data-view="mobile"] .bg-preset { height: 56px; }
+[data-view="mobile"] .modal-body { -webkit-overflow-scrolling: touch; }
+
+/* --------------------------------------------------------------------------
+   11. 横屏手机：底部标签栏占地方，改成更扁的一条
+   -------------------------------------------------------------------------- */
+@media (max-height: 460px) and (orientation: landscape) {
+  [data-view="mobile"] { --m-tab-h: 46px; }
+  [data-view="mobile"] .mtabs { padding-block: 3px; }
+  [data-view="mobile"] .mtab { min-height: 38px; font-size: 9.5px; }
+  [data-view="mobile"] .mtab .ico { width: 17px; height: 17px; }
+  [data-view="mobile"] .dash { padding-top: 10px; }
+  [data-view="mobile"] .dash-side { flex-direction: row; }
+}
+
+/* --------------------------------------------------------------------------
+   12. 在电脑上手动锁定「手机版」时，把内容收成手机宽度居中显示
+       这样它看起来是一个预览，而不是被拉宽的怪异布局
+       （data-view-pref="auto" 表示自动判定，不受这条影响）
+   -------------------------------------------------------------------------- */
+@media (min-width: 760px) {
+  [data-view="mobile"][data-view-pref="mobile"] .wrap { max-width: 600px; }
+  [data-view="mobile"][data-view-pref="mobile"] .mtabs {
+    left: 50%;
+    right: auto;
+    width: min(100%, 600px);
+    transform: translateX(-50%);
+    border-radius: 14px 14px 0 0;
+    border-left: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+  }
+  [data-view="mobile"][data-view-pref="mobile"] .drawer {
+    left: 50%;
+    right: auto;
+    width: min(100%, 600px);
+    transform: translateX(-50%) translateY(-12px);
+  }
+  [data-view="mobile"][data-view-pref="mobile"] .drawer.open { transform: translateX(-50%); }
+}

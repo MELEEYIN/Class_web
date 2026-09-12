@@ -492,7 +492,9 @@
 
         // 注意：<button> 里只能放行内元素，所以这里用 span + display:grid
         var evBox = U.el('span', { class: 'cd-events' });
-        var shown = items.slice(0, 3);
+        // 手机版的格子小，少放两条，剩下的用「+N 项」表示
+        var perDay = (CW.view && CW.view.isMobile && CW.view.isMobile()) ? 2 : 3;
+        var shown = items.slice(0, perDay);
         shown.forEach(function (it) {
           evBox.appendChild(U.el('span', {
             class: 'cd-event' + (it.allDay ? '' : ' is-time'),
@@ -632,9 +634,16 @@
     }
 
     var cols = days.length + 1;
+    // 手机版把每列收窄、时间列也收窄；列数保持一致，靠横向滚动看全天
+    var isMobile = !!(CW.view && CW.view.isMobile && CW.view.isMobile());
+    var timeCol = isMobile ? 54 : 76;
+    var dayCol = isMobile ? 94 : 112;
     var grid = U.el('div', {
       class: 'timetable',
-      style: { 'grid-template-columns': '76px repeat(' + days.length + ', minmax(112px, 1fr))' }
+      style: {
+        'grid-template-columns': timeCol + 'px repeat(' + days.length + ', minmax(' + dayCol + 'px, 1fr))',
+        'min-width': (timeCol + days.length * dayCol) + 'px'
+      }
     });
 
     // 表头
