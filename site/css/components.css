@@ -840,6 +840,40 @@ body.modal-open { overflow: hidden; }
   background: linear-gradient(transparent, rgba(0, 0, 0, .45));
 }
 
+/* 周次点选器：1..总周数 */
+.week-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
+  gap: 4px;
+  margin-top: 9px;
+  padding: 9px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+}
+.wk-chip {
+  height: 26px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  transition: background-color var(--t-fast) var(--ease),
+              color var(--t-fast) var(--ease),
+              border-color var(--t-fast) var(--ease),
+              transform var(--t-fast) var(--ease);
+}
+.wk-chip:hover { transform: translateY(-1px); border-color: var(--accent-line); color: var(--accent); }
+.wk-chip.is-on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: 0 2px 6px rgba(37, 99, 235, .24);
+}
+.wk-chip.is-even { opacity: .88; }
+
 /* --------------------------------------------------------------------------
    10. 工具小组件（待办 / 倒数日 / 便签）
    -------------------------------------------------------------------------- */

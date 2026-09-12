@@ -545,14 +545,21 @@
 
     var weeksInput = U.el('input', {
       class: 'input', type: 'text', value: c.weeksText || '',
-      placeholder: '例如：1-16 或 2-3,5-6,9-18，留空 = 全学期', maxlength: '60'
+      placeholder: '例如：1-16 或 2-3,5-6,9-18 或 1-16周(单)，留空 = 全学期',
+      maxlength: '60'
     });
     var weekQuick = U.el('div', { style: { display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '7px' } }, [
       quickWeek('全学期', function () { weeksInput.value = ''; }),
-      quickWeek('单周', function () { weeksInput.value = oddEven(1); }),
-      quickWeek('双周', function () { weeksInput.value = oddEven(2); }),
-      quickWeek('1-16', function () { weeksInput.value = '1-16'; }),
-      quickWeek('1-18', function () { weeksInput.value = '1-18'; })
+      quickWeek('单周', function () { weeksInput.value = '单周'; }),
+      quickWeek('双周', function () { weeksInput.value = '双周'; }),
+      quickWeek('前半学期', function () {
+        var half = Math.ceil(CW.store.state.schedule.settings.totalWeeks / 2);
+        weeksInput.value = '1-' + half;
+      }),
+      quickWeek('后半学期', function () {
+        var total = CW.store.state.schedule.settings.totalWeeks;
+        weeksInput.value = (Math.ceil(total / 2) + 1) + '-' + total;
+      })
     ]);
 
     function quickWeek(label, run) {
@@ -560,37 +567,89 @@
         type: 'button', class: 'badge badge-plain',
         style: { cursor: 'pointer', border: '1px solid var(--line)' },
         text: label,
-        onclick: function () { run(); updateSummary(); }
+        onclick: function () { run(); renderWeekPicker(); updateSummary(); }
       });
     }
 
-    function oddEven(parity) {
+    /* ---------------------------------------------------------------
+       周次点选器：1..总周数 一格一周，点一下就切换。
+       「有些课不是每周都上」这件事，光看文字容易漏，点选更不容易出错。
+       --------------------------------------------------------------- */
+    var weekPicker = U.el('div', { class: 'week-picker' });
+    var weekPickerHint = U.el('p', { class: 'hint', style: { marginTop: '5px' } });
+
+    function currentWeeks() {
+      return CW.parse.parseWeekSpec(
+        weeksInput.value, CW.store.state.schedule.settings.totalWeeks
+      ).weeks;
+    }
+
+    function renderWeekPicker() {
       var total = CW.store.state.schedule.settings.totalWeeks;
-      var out = [];
-      for (var i = parity; i <= total; i += 2) out.push(i);
-      return CW.parse.compressRanges(out);
+      var active = {};
+      currentWeeks().forEach(function (w) { active[w] = 1; });
+
+      // 用单独的工厂函数，别在 for 循环里直接写 onclick ——
+      // var 是函数作用域，循环结束后所有闭包看到的都是最后一个 w。
+      function makeChip(w) {
+        return U.el('button', {
+          type: 'button',
+          class: 'wk-chip' + (active[w] ? ' is-on' : '') + (w % 2 === 0 ? ' is-even' : ''),
+          'aria-pressed': active[w] ? 'true' : 'false',
+          title: '第 ' + w + ' 周',
+          text: String(w),
+          onclick: function () {
+            var cur = currentWeeks();
+            var idx = cur.indexOf(w);
+            var next = idx >= 0 ? cur.filter(function (x) { return x !== w; })
+                               : cur.concat([w]);
+            // 反推成文字区间，保持输入框是唯一的数据来源
+            weeksInput.value = next.length ? CW.parse.compressRanges(next) : '';
+            renderWeekPicker();
+            updateSummary();
+          }
+        });
+      }
+
+      var chips = [];
+      for (var w = 1; w <= total; w++) chips.push(makeChip(w));
+
+      var on = currentWeeks().length;
+      weekPickerHint.textContent = on
+        ? '已选 ' + on + ' 周（点方格可增删；上面输入框里是等价的文字写法）'
+        : '一格都没选 = 全学期每周都上';
+
+      U.render(weekPicker, chips);
     }
 
     var summary = U.el('div', { class: 'notice', style: { marginTop: '14px' } });
 
     function updateSummary() {
       var codes = CW.parse.expandCodes(codesInput.value);
-      var weeks = CW.parse.expandWeeks(weeksInput.value, CW.store.state.schedule.settings.totalWeeks);
+      var total = CW.store.state.schedule.settings.totalWeeks;
+      var spec = CW.parse.parseWeekSpec(weeksInput.value, total);
+      var weeks = spec.weeks;
       var t2 = CW.store.timesForCodes(codes);
       var times = t2.start ? t2.start + '–' + t2.end : '时间未知（节次对不上节次表）';
+
+      var weekLine = weeks.length
+        ? '第 ' + (spec.text || CW.parse.compressRanges(weeks)) + ' 周（共 ' + weeks.length + ' 周，不是每周都上）'
+        : '全学期每周';
+
       U.render(summary, [
         U.icon('i-info', 'ico'),
         U.el('div', {}, [
           U.el('span', { text: '节次：' + (codes.length ? '第 ' + codes.join('/') + ' 节 · ' + times : '未指定') }),
           U.el('br'),
-          U.el('span', { text: '周次：' + (weeks.length ? '第 ' + CW.parse.compressRanges(weeks) + ' 周（共 ' + weeks.length + ' 周）' : '全学期每周') })
+          U.el('span', { text: '周次：' + weekLine })
         ])
       ]);
     }
 
     codesInput.addEventListener('input', function () { renderChips(); updateSummary(); });
-    weeksInput.addEventListener('input', updateSummary);
+    weeksInput.addEventListener('input', function () { renderWeekPicker(); updateSummary(); });
     renderChips();
+    renderWeekPicker();
     updateSummary();
 
     U.render(el.itemBody, [
@@ -611,7 +670,11 @@
           U.el('label', { class: 'field-label', text: '节次' }), codesInput, chipBox
         ]),
         U.el('div', { class: 'field col-span-2' }, [
-          U.el('label', { class: 'field-label', text: '上课周次' }), weeksInput, weekQuick
+          U.el('label', { class: 'field-label', text: '上课周次' }),
+          weeksInput,
+          weekQuick,
+          weekPicker,
+          weekPickerHint
         ])
       ]),
       summary
@@ -660,7 +723,8 @@
     if (!cname) { U.toast('请填写课程名称。', 'warn'); form.name.focus(); return; }
 
     var codes = CW.parse.expandCodes(form.codes.value);
-    var weeks = CW.parse.expandWeeks(form.weeks.value, CW.store.state.schedule.settings.totalWeeks);
+    var wspec = CW.parse.parseWeekSpec(form.weeks.value, CW.store.state.schedule.settings.totalWeeks);
+    var weeks = wspec.weeks;
 
     var courseData = {
       name: cname,
@@ -669,7 +733,7 @@
       day: Number(form.day.value) || 0,
       codes: codes,
       weeks: weeks,
-      weeksText: weeks.length ? CW.parse.compressRanges(weeks) : ''
+      weeksText: weeks.length ? (wspec.text || CW.parse.compressRanges(weeks)) : ''
     };
 
     if (!courseData.day) U.toast('没有指定星期，这门课不会出现在月历和周课表里。', 'warn', { timeout: 4000 });

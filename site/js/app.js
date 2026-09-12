@@ -393,49 +393,22 @@
   }
 
   /* ======================================================================
-     8. 首次进入：没有数据就先放一份示例，让页面不至于空着
+     8. 首次进入
+     刻意不放任何示例课表：课表里有姓名、班级、上课时间和教室，
+     这个页面是给全班人用的，不能把任何人的真实数据写进网站里。
+     没有数据时左栏会显示空状态，引导去「导入」。
      ====================================================================== */
   function firstRun() {
-    var st = CW.store.stats();
-    if (st.hasData) return;
+    if (CW.store.stats().hasData) return;
 
     var hinted = CW.store.state.ui.dismissedHints || {};
-    if (hinted.demoLoaded) return;
+    if (hinted.welcomeShown) return;
+    CW.store.dismissHint('welcomeShown');
 
-    var load = function () {
-      var doc = window.CW_DEMO_SCHEDULE;
-      if (!doc) return;
-      CW.store.replaceSchedule({
-        kind: 'schedule',
-        meta: doc.meta || {},
-        periods: doc.periods || null,
-        courses: doc.courses || [],
-        events: doc.events || [],
-        notes: doc.notes || [],
-        settings: doc.settings || null,
-        label: doc.label || '',
-        warnings: []
-      }, { mode: 'replace', adoptMeta: true, adoptPeriods: true });
-
-      if (doc.settings) {
-        if (doc.settings.termStart) CW.store.setSettings({ termStart: doc.settings.termStart });
-        if (doc.settings.totalWeeks) CW.store.setSettings({ totalWeeks: doc.settings.totalWeeks });
-      }
-      if (doc.meta && doc.meta.student) CW.store.setSettings({ studentName: doc.meta.student });
-      CW.store.dismissHint('demoLoaded');
-
-      U.toast('先给你放了一份示例课表（深技大 2026-2027-1），方便看效果。', 'info', {
-        timeout: 14000,
-        action: { label: '换成我自己的课表 →', run: function () { openModal('import'); } }
-      });
-    };
-
-    if (window.CW_DEMO_SCHEDULE) { load(); return; }
-
-    var s = document.createElement('script');
-    s.src = './data/demo-schedule.js';
-    s.onload = load;
-    document.head.appendChild(s);
+    U.toast('还没有课表。点「导入」上传教务系统导出的文件，或直接粘贴课表页面。', 'info', {
+      timeout: 12000,
+      action: { label: '现在导入 →', run: function () { openModal('import'); } }
+    });
   }
 
   /* ======================================================================

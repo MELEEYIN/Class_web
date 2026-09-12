@@ -68,6 +68,16 @@
     if (!(day >= 1 && day <= 7)) day = 0;
     var weeks = Array.isArray(c.weeks) ? c.weeks.map(Number).filter(function (n) { return n >= 1 && n <= 30; }) : [];
     var codes = Array.isArray(c.codes) ? c.codes.map(Number).filter(function (n) { return n >= 1 && n <= 20; }) : [];
+    var weeksText = String(c.weeksText || '').trim();
+    // 保险：只给了文字周次（手工填写、或旧版本存下来的数据）就再解析一次，
+    // 免得「1-16周(单)」这类写法退化成「整学期每周都上」。
+    if (!weeks.length && weeksText && weeksText !== '全学期') {
+      var spec = CW.parse.parseWeekSpec(weeksText, 30);
+      if (spec.weeks.length) {
+        weeks = spec.weeks;
+        weeksText = spec.text || weeksText;
+      }
+    }
     return {
       id: c.id || U.uid('co'),
       name: name,
@@ -76,7 +86,7 @@
       day: day,
       codes: uniqNums(codes),
       weeks: uniqNums(weeks),
-      weeksText: String(c.weeksText || CW.parse.compressRanges(weeks)),
+      weeksText: weeksText || CW.parse.compressRanges(weeks),
       note: String(c.note || '').trim(),
       color: typeof c.color === 'number' ? c.color % 8 : CW.parse.defaultColor(name)
     };

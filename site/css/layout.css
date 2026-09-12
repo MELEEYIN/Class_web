@@ -164,7 +164,7 @@
   .dash-side { justify-content: flex-start; }
 }
 
-/* 信息小卡（天气 / 下一节课） */
+/* 信息小卡（天气 / 今日速览） */
 .mini {
   min-width: 168px;
   padding: 13px 15px;
@@ -176,6 +176,109 @@
 }
 .mini:hover { transform: translateY(-2px); box-shadow: var(--sh-2); border-color: var(--accent-line); }
 @media (max-width: 480px) { .mini { min-width: 0; flex: 1 1 0; } }
+
+/* 「今日速览」比天气卡宽一些 */
+.mini-quick { min-width: 268px; padding: 13px 15px 11px; }
+@media (max-width: 1080px) { .mini-quick { min-width: 240px; } }
+@media (max-width: 620px) {
+  .dash-side { flex-wrap: wrap; }
+  .mini-quick { flex: 1 1 100%; min-width: 0; }
+}
+
+.qp-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.qp-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 750;
+  letter-spacing: .01em;
+  color: var(--ink-2);
+}
+.qp-title .ico { width: 14px; height: 14px; color: var(--accent); flex: none; }
+
+.qp-hero {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+.qp-hero b {
+  font-size: 26px;
+  font-weight: 780;
+  letter-spacing: -.03em;
+  line-height: 1;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.qp-hero span { font-size: 12.5px; font-weight: 650; color: var(--ink-2); }
+.qp-hero em {
+  font-style: normal;
+  font-size: 11.5px;
+  color: var(--faint);
+  margin-left: auto;
+}
+.qp-hero.is-empty span { font-size: 13px; font-weight: 650; color: var(--muted); }
+
+.qp-bars { display: grid; gap: 6px; }
+.qp-bar { display: flex; align-items: center; gap: 8px; }
+.qp-bar-label { font-size: 10.5px; font-weight: 700; color: var(--faint); width: 26px; flex: none; }
+.qp-bar .bar { flex: 1; }
+.qp-bar b { font-size: 10px; color: var(--faint); font-weight: 700; width: 30px; text-align: right; flex: none; }
+
+.qp-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 10px;
+}
+.qp-chip {
+  padding: 3px 8px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: color var(--t) var(--ease), border-color var(--t) var(--ease), background-color var(--t) var(--ease);
+}
+button.qp-chip:hover { color: var(--accent); border-color: var(--accent-line); background: var(--accent-soft); }
+.qp-chip.is-static { cursor: default; }
+
+.qp-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+  margin-top: 11px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+.qp-act {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  padding: 7px 3px;
+  border-radius: var(--r-xs);
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  transition: color var(--t) var(--ease), background-color var(--t) var(--ease), transform var(--t) var(--ease);
+}
+.qp-act .ico { width: 15px; height: 15px; }
+.qp-act:hover { color: var(--accent); background: var(--accent-soft); transform: translateY(-1px); }
+.qp-act span { white-space: nowrap; }
+
+@media (max-width: 380px) {
+  .qp-act span { display: none; }
+  .qp-actions { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
 
 /* --------------------------------------------------------------------------
    3. 主体双栏：左栏日程（rail）+ 右栏内容（content）

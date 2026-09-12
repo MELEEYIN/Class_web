@@ -44,7 +44,7 @@
     bindPaste();
     bindBookmarklet();
     bindIcs();
-    bindDemo();
+    bindManual();
     bindActions();
   }
 
@@ -386,41 +386,50 @@
   }
 
   /* ======================================================================
-     6. 示例数据
+     6. 手动录入 / CSV 模板
      ====================================================================== */
-  function bindDemo() {
-    var btn = U.$('#loadDemo');
-    if (!btn) return;
-    btn.addEventListener('click', function () {
-      loadDemo().then(function (doc) {
-        if (!doc) { U.toast('示例数据没找到（site/data/demo-schedule.js 缺失？）。', 'error'); return; }
-        var res = {
-          kind: 'schedule',
-          meta: doc.meta || {},
-          periods: doc.periods || null,
-          courses: doc.courses || [],
-          events: doc.events || [],
-          notes: doc.notes || [],
-          settings: doc.settings || null,
-          warnings: [],
-          label: doc.label || '',
-          sourceFormat: 'demo'
-        };
-        setResult(res, '示例课表');
-        if (el.merge) el.merge.value = 'replace';
-      });
+  function bindManual() {
+    var addCourse = U.$('#manualAddCourse');
+    if (addCourse) addCourse.addEventListener('click', function () {
+      CW.app.closeModal('import');
+      CW.editUI.openCourseForm(null);
     });
+
+    var addEvent = U.$('#manualAddEvent');
+    if (addEvent) addEvent.addEventListener('click', function () {
+      CW.app.closeModal('import');
+      CW.editUI.openEventForm(null);
+    });
+
+    var openEdit = U.$('#openEditFromImport');
+    if (openEdit) openEdit.addEventListener('click', function () {
+      CW.app.closeModal('import');
+      CW.app.openModal('edit');
+    });
+
+    var tpl = U.$('#downloadCsvTemplate');
+    if (tpl) tpl.addEventListener('click', downloadCsvTemplate);
   }
 
-  function loadDemo() {
-    if (window.CW_DEMO_SCHEDULE) return Promise.resolve(window.CW_DEMO_SCHEDULE);
-    return new Promise(function (resolve) {
-      var s = document.createElement('script');
-      s.src = './data/demo-schedule.js';
-      s.onload = function () { resolve(window.CW_DEMO_SCHEDULE || null); };
-      s.onerror = function () { resolve(null); };
-      document.head.appendChild(s);
-    });
+  /**
+   * CSV 模板。周次里带逗号（比如 2-3,5-6,9-18）时必须用双引号包起来，
+   * 否则会被当成两列——所以示例里特意放了一条带引号的。
+   */
+  function csvTemplate() {
+    return [
+      '课程,教师,教室,星期,节次,周次',
+      '高等数学B1,何俊锋,C-5-103,星期二,3-4,1-16',
+      '大学英语A1,王曦兮,C-5-554,星期一,6-7,"2-3,5-6,9-18"',
+      '大学物理,李四,C-2-201,星期四,6-7,1-16周(双)',
+      '体育（游泳）,王五,体育馆,星期三,3-4,单周',
+      '形势与政策,赵六,C-5-109,星期五,11-12,13'
+    ].join('\r\n') + '\r\n';
+  }
+
+  function downloadCsvTemplate() {
+    // 带 BOM，Excel 打开中文才不会乱码
+    U.download('课表模板.csv', '\ufeff' + csvTemplate(), 'text/csv;charset=utf-8');
+    U.toast('模板已下载。填好后回到「上传文件」把它拖进来即可。', 'ok', { timeout: 5000 });
   }
 
   /* ======================================================================
@@ -524,6 +533,21 @@
         U.el('div', {}, [
           U.el('strong', { text: '课表附注（不会变成课程，只是提醒）' }),
           U.el('div', { class: 'tiny', style: { marginTop: '3px' }, text: res.notes.join('；') })
+        ])
+      ]));
+    }
+
+    // 周次没读出来的课要单独说清楚，否则它们会按「整学期每周都上」铺满整个学期
+    var noWeeks = (res.courses || []).filter(function (c) {
+      return !c.weeks || !c.weeks.length;
+    }).length;
+    if (noWeeks) {
+      nodes.push(U.el('div', { class: 'notice notice-warn', style: { marginTop: '12px' } }, [
+        U.icon('i-alert', 'ico'),
+        U.el('div', {}, [
+          U.el('strong', { text: '有 ' + noWeeks + ' 门课没读到上课周次，将按「整学期每周都上」处理。' }),
+          U.el('div', { class: 'tiny', style: { marginTop: '3px' },
+            text: '如果其中有不每周都上的课，导入后到「修改 → 课程」里点周次方格改一下即可。' })
         ])
       ]));
     }
@@ -707,6 +731,7 @@
     switchTab: switchTab,
     setResult: setResult,
     buildBookmarklet: buildBookmarklet,
+    csvTemplate: csvTemplate,
     hasPending: function () { return !!pending; }
   };
 })();

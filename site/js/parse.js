@@ -38,8 +38,10 @@
   var DAY_RE = /(?:星期|周)([一二三四五六日天])/;
   var DAY_MAP = { '一': 1, '二': 2, '三': 3, '四': 4, '五': 5, '六': 6, '日': 7, '天': 7 };
 
-  /* 「2-3,5-6,9-18([周])[01-02节]」这种教务系统标准写法 */
-  var WP_RE = /^([\d,\-\s]+)\s*\(\s*\[\s*周\s*\]\s*\)\s*\[\s*([\d\-]+)\s*节\s*\]$/;
+  /* 「2-3,5-6,9-18([周])[01-02节]」这种教务系统标准写法。
+     三个捕获组分别是：周次 / 括号里的修饰词（周、单周、双周）/ 节次。
+     注意不能拿整行去解析周次——节次那一串「03-04」里的数字会被当成周次。 */
+  var WP_RE = /^([\d,\-\s]+)\s*\(\s*\[([^\]]*)\]\s*\)\s*\[\s*([\d\-]+)\s*节\s*\]$/;
 
   /* 宽松版：一行里同时出现周次和节次，顺序不限 */
   var WEEK_TOKEN = /(\d{1,2}(?:\s*-\s*\d{1,2})?(?:\s*,\s*\d{1,2}(?:\s*-\s*\d{1,2})?)*)\s*周/;
@@ -88,6 +90,83 @@
       }
     });
     return uniqSorted(out);
+  }
+
+  /* ----------------------------------------------------------------------
+     周次：单周 / 双周 / 奇偶
+     国内课表里「不是每周都上」的课非常多，写法也很杂：
+       2-3,5-6,9-18      1-16周(单)      1-16单周      单周      1,3,5,7周
+     以前的实现只认纯数字，遇到「单周」会解析出空数组，而空数组在
+     courseInWeek() 里等于「整学期每周都上」——课表就会把单周课画到每一周。
+     ---------------------------------------------------------------------- */
+  var PARITY_ODD = /单|奇/;
+  var PARITY_EVEN = /双|偶/;
+
+  /**
+   * 解析一整行周次描述，返回 { weeks, parity, text }
+   *   '1-16周(单)' -> weeks=[1,3,..,15]  parity='odd'   text='1-16 单周'
+   *   '单周'       -> weeks=[1,3,..,29]  parity='odd'   text='单周'
+   *   '2-3,5-6'    -> weeks=[2,3,5,6]    parity=''      text='2-3,5-6'
+   */
+  function parseWeekSpec(text, maxWeek) {
+    maxWeek = maxWeek || 30;
+    var s = String(text || '');
+    var odd = PARITY_ODD.test(s);
+    var even = PARITY_EVEN.test(s);
+    // 「单双周」两个词同时出现（比如「1-16周(单双)」）就不当奇偶处理
+    var parity = (odd && !even) ? 'odd' : (even && !odd) ? 'even' : '';
+
+    var nums = [];
+    var re = /(\d{1,2})\s*[-－~至]\s*(\d{1,2})|(\d{1,2})/g;
+    var m;
+    while ((m = re.exec(s)) !== null) {
+      if (m[1] !== undefined) {
+        var a = Number(m[1]), b = Number(m[2]);
+        if (a > b) { var t = a; a = b; b = t; }
+        for (var i = a; i <= b && i <= maxWeek; i++) nums.push(i);
+      } else if (m[3] !== undefined) {
+        var n = Number(m[3]);
+        if (n >= 1 && n <= maxWeek) nums.push(n);
+      }
+    }
+
+    var base = uniqSorted(nums);
+    var weeks;
+    var text;
+
+    if (!base.length) {
+      // 只写了「单周 / 双周」没说范围：先按整个学期摊开，交由界面提示用户确认
+      if (!parity) return { weeks: [], parity: '', text: '' };
+      weeks = [];
+      for (var w = 1; w <= maxWeek; w++) weeks.push(w);
+      text = parity === 'odd' ? '单周' : '双周';
+    } else {
+      weeks = base.slice();
+      // 显示用的是「过滤前」的范围，这样「1-16周(单)」显示成「1-16 单周」而不是一长串数字
+      text = compressRanges(base) + (parity ? (parity === 'odd' ? ' 单周' : ' 双周') : '');
+    }
+
+    if (parity === 'odd') weeks = weeks.filter(function (x) { return x % 2 === 1; });
+    else if (parity === 'even') weeks = weeks.filter(function (x) { return x % 2 === 0; });
+
+    return { weeks: weeks, parity: parity, text: weeks.length ? text : '' };
+  }
+
+  function parseWeekText(text, maxWeek) {
+    return parseWeekSpec(text, maxWeek).weeks;
+  }
+
+  /**
+   * 这一行是不是「周次行」？
+   * 判据：整行只有数字/区间符号，或者除了数字、周、单双奇偶、括号、第 之外没有别的字。
+   * 这样既能认下「1-16周(单)」，又不会把「军事训练 1-18周」或「C-5-103」误判成周次。
+   */
+  function isWeekLine(line) {
+    var s = String(line || '').replace(/\s/g, '');
+    if (!s) return false;
+    if (/^[\d,，、\-~至]+$/.test(s)) return true;
+    if (s.indexOf('周') < 0) return false;
+    return s.replace(/[\d,，、\-~至周单双奇偶()（）第]/g, '') === '';
   }
 
   /** 节次：'01-02' -> [1,2]；'08-09-10' -> [8,9,10]；'06,07' -> [6,7] */
@@ -178,14 +257,16 @@
 
     var wpIdx = -1, weeks = [], codes = [], weeksText = '';
 
-    // ① 先找「周次 + 节次」写在同一行的情况
+    // ① 先找「周次 + 节次」写在同一行的情况（教务系统 .xls 导出就是这种）
     for (var i = 0; i < lines.length; i++) {
       var m = WP_RE.exec(lines[i]);
       if (m) {
         wpIdx = i;
-        weeksText = m[1].replace(/\s/g, '');
-        weeks = expandWeeks(weeksText);
-        codes = expandCodes(m[2]);
+        // 只拿「周次 + 括号里的修饰词」去解析，别把节次的数字也算进来
+        var spec = parseWeekSpec(m[1] + ' ' + m[2]);
+        weeks = spec.weeks;
+        weeksText = spec.text || m[1].replace(/\s/g, '');
+        codes = expandCodes(m[3]);
         break;
       }
     }
@@ -194,24 +275,18 @@
     var weekIdx = -1, periodIdx = -1;
     if (wpIdx < 0) {
       for (var j = 0; j < lines.length; j++) {
-        var line = lines[j];
-        if (weekIdx < 0 && WEEK_ONLY_RE.test(line)) {
-          weekIdx = j;
-          weeksText = line.replace(/第|周|\s/g, '');
-          weeks = expandWeeks(weeksText);
-          continue;
+        // 节次行
+        if (periodIdx < 0 && /节/.test(lines[j])) {
+          var pm = PERIOD_TOKEN.exec(lines[j]);
+          if (pm) { periodIdx = j; codes = expandCodes(pm[1]); continue; }
         }
-        if (periodIdx < 0 && /节/.test(line)) {
-          var pm = PERIOD_TOKEN.exec(line);
-          if (pm) { periodIdx = j; codes = expandCodes(pm[1]); }
-        }
-      }
-      // 一行里只有周次（没有「周」字结尾，如「2-3,5-6,9-18」）
-      if (weekIdx < 0) {
-        for (var k = lines.length - 1; k >= 0; k--) {
-          if (/^[\d,\-\s]+$/.test(lines[k]) && /\d/.test(lines[k])) {
-            var cand = expandWeeks(lines[k]);
-            if (cand.length) { weekIdx = k; weeks = cand; weeksText = lines[k].replace(/\s/g, ''); break; }
+        // 周次行：1-16周(单) / 单周 / 2-3,5-6 / 第1-16周 都算
+        if (weekIdx < 0 && isWeekLine(lines[j])) {
+          var spec2 = parseWeekSpec(lines[j]);
+          if (spec2.weeks.length) {
+            weekIdx = j;
+            weeks = spec2.weeks;
+            weeksText = spec2.text;
           }
         }
       }
@@ -358,7 +433,8 @@
       if (!day) { warnings.push('第 ' + (r + 1) + ' 行「' + U.truncate(name, 12) + '」没有可识别的星期，已跳过。'); continue; }
 
       var codes = expandCodes(cell('codes'));
-      var weeks = expandWeeks(cell('weeks'));
+      var wspec = parseWeekSpec(cell('weeks'), 30);
+      var weeks = wspec.weeks;
 
       courses.push({
         name: name,
@@ -367,7 +443,7 @@
         day: day,
         codes: codes,
         weeks: weeks,
-        weeksText: compressRanges(weeks)
+        weeksText: wspec.text || compressRanges(weeks)
       });
     }
     return { courses: courses, events: events, warnings: warnings };
@@ -1054,6 +1130,9 @@
     expandWeeks: expandWeeks,
     expandCodes: expandCodes,
     compressRanges: compressRanges,
+    parseWeekSpec: parseWeekSpec,
+    parseWeekText: parseWeekText,
+    isWeekLine: isWeekLine,
     periodLabel: periodLabel,
     splitBlocks: splitBlocks,
     parseBlock: parseBlock,

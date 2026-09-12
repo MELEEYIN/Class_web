@@ -4,8 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>校园主页 · 常用入口 · 课表日程 · 校园地图</title>
-<meta name="description" content="深圳技术大学校园导航主页：公文通、教务系统、选课、学生邮箱、图书馆等常用入口，个人课表导入与日程管理，校园地图与 C5 楼层平面图，纯静态、数据保存在本地。">
-<meta name="author" content="李奕楠">
+<meta name="description" content="深圳技术大学校园导航主页：公文通、教务系统、选课、学生邮箱、图书馆等常用入口，课表导入与日程管理，校园地图与 C5 楼层平面图，纯静态、数据只保存在本地。">
 <meta name="theme-color" content="#2563eb">
 <meta name="color-scheme" content="light dark">
 
@@ -165,7 +164,7 @@
         <div class="mini" id="weatherBox" aria-live="polite">
           <div class="loading-inline"><span class="spinner-sm"></span>正在获取天气…</div>
         </div>
-        <div class="mini" id="nextBox" aria-live="polite"></div>
+        <div class="mini mini-quick" id="quickBox"></div>
       </div>
     </div>
   </section>
@@ -719,7 +718,7 @@
         <button type="button" role="tab" data-itab="paste" aria-selected="false">复制粘贴</button>
         <button type="button" role="tab" data-itab="auto" aria-selected="false">自动抓取（书签）</button>
         <button type="button" role="tab" data-itab="ics" aria-selected="false">日历 / 事务</button>
-        <button type="button" role="tab" data-itab="demo" aria-selected="false">示例数据</button>
+        <button type="button" role="tab" data-itab="manual" aria-selected="false">手动录入 / 模板</button>
       </div>
 
       <!-- 上传文件 -->
@@ -835,17 +834,52 @@
         </div>
       </div>
 
-      <!-- 示例 -->
-      <div class="tab-panel" data-ipanel="demo" hidden>
-        <div class="card" style="background:var(--surface-2);box-shadow:none">
-          <h3 class="card-title" style="margin-bottom:8px"><svg class="ico" aria-hidden="true"><use href="#i-graduation"/></svg>载入示例课表</h3>
-          <p class="small muted" style="margin-bottom:12px">
-            仓库里带了一份真实的深圳技术大学课表导出示例（26 级光源与照明 · 2026-2027 学年第一学期，22 条课程、9 个节次），
-            用来演示界面效果。它会<strong>覆盖</strong>当前数据，请先确认你没在编辑自己的课表。
+      <!-- 手动录入 / CSV 模板 -->
+      <div class="tab-panel" data-ipanel="manual" hidden>
+        <div class="grid grid-2" style="align-items:start">
+          <div class="card" style="background:var(--surface-2);box-shadow:none">
+            <h3 class="card-title" style="margin-bottom:8px"><svg class="ico" aria-hidden="true"><use href="#i-calendar-plus"/></svg>手动加一门课</h3>
+            <p class="small muted" style="margin-bottom:12px">
+              只有一两门要补（实验课、调课、临时课），直接手填最快。
+              星期、节次、上课周次都可以点着选，不用背写法。
+            </p>
+            <button class="btn btn-primary btn-sm" type="button" id="manualAddCourse">
+              <svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg>新增课程
+            </button>
+          </div>
+          <div class="card" style="background:var(--surface-2);box-shadow:none">
+            <h3 class="card-title" style="margin-bottom:8px"><svg class="ico" aria-hidden="true"><use href="#i-flag"/></svg>手动加一条事务</h3>
+            <p class="small muted" style="margin-bottom:12px">
+              考试、交作业、社团活动。也可以在日程浮窗的月历上直接双击某一天。
+            </p>
+            <button class="btn btn-primary btn-sm" type="button" id="manualAddEvent">
+              <svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg>新增事务
+            </button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:14px;background:var(--surface-2);box-shadow:none">
+          <h3 class="card-title" style="margin-bottom:8px"><svg class="ico" aria-hidden="true"><use href="#i-download"/></svg>下载 CSV 模板，批量填</h3>
+          <p class="small muted" style="margin-bottom:10px">
+            想一次录一学期（比如整学期的实验课安排），下载这个模板，用 Excel 或记事本按列填好，
+            再回到「上传文件」把它拖进来就行。表头就是下面这一行：
           </p>
-          <button class="btn btn-primary btn-sm" type="button" id="loadDemo">
-            <svg class="ico" aria-hidden="true"><use href="#i-download"/></svg>载入示例课表
-          </button>
+          <div class="mono tiny" style="padding:10px;background:var(--surface-3);border-radius:var(--r-sm);overflow-x:auto;white-space:nowrap">课程,教师,教室,星期,节次,周次<br>高等数学B1,何俊锋,C-5-103,星期二,3-4,1-16<br>大学物理,李四,C-2-201,星期四,6-7,1-16周(双)</div>
+          <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+            <button class="btn btn-sm" type="button" id="downloadCsvTemplate">
+              <svg class="ico" aria-hidden="true"><use href="#i-download"/></svg>下载 CSV 模板
+            </button>
+            <button class="btn btn-sm btn-ghost" type="button" id="openEditFromImport">
+              <svg class="ico" aria-hidden="true"><use href="#i-edit"/></svg>打开「修改」面板
+            </button>
+          </div>
+          <p class="hint" style="margin-top:10px">
+            <strong>周次</strong>支持这些写法：<code>1-16</code>、<code>2-3,5-6,9-18</code>、<code>1-16周(单)</code>、
+            <code>单周</code>、<code>双周</code>。留空表示整学期每周都上。<br>
+            <strong>周次里带逗号时必须用双引号包起来</strong>（写成 <code>"2-3,5-6,9-18"</code>），否则会被当成两列。<br>
+            <strong>星期</strong>写 <code>星期一</code>…<code>星期日</code>（<code>周一</code> 也认）；
+            <strong>节次</strong>写 <code>3-4</code> 或 <code>3,4</code>。
+          </p>
         </div>
       </div>
 
@@ -955,7 +989,7 @@
         <div class="form-grid">
           <div class="field">
             <label for="setName" class="field-label">我的名字（用于问候语）</label>
-            <input class="input" id="setName" type="text" maxlength="24" placeholder="例如：李奕楠">
+            <input class="input" id="setName" type="text" maxlength="24" placeholder="例如：小明">
           </div>
           <div class="field">
             <label for="setTerm" class="field-label">学期名称</label>

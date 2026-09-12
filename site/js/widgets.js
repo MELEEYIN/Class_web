@@ -653,6 +653,7 @@
     }
 
     renderChips();
+    renderQuickPanel();
   }
 
   function renderChips() {
@@ -699,6 +700,168 @@
   function pad2(n) { return (n < 10 ? '0' : '') + n; }
 
   /* ======================================================================
+     右上角第二张小卡片：今日速览 + 快捷操作
+     ====================================================================== */
+  function renderQuickPanel() {
+    var box = U.$('#quickBox');
+    if (!box) return;
+
+    var sch = CW.store.state.schedule;
+    var today = U.today();
+    var week = CW.schedule.weekOf(today);
+    var inTermNow = CW.schedule.inTerm(week);
+    var total = sch.settings.totalWeeks || 18;
+
+    var todays = CW.schedule.coursesOn(today);
+    var now = new Date();
+    var nowMin = now.getHours() * 60 + now.getMinutes();
+
+    var remaining = todays.filter(function (c) {
+      var e = U.timeToMin(c.end);
+      return e < 0 || nowMin <= e;
+    });
+
+    // 今日进度：第一节课开始 → 最后一节课结束
+    var first = -1, last = -1;
+    todays.forEach(function (c) {
+      var s = U.timeToMin(c.start), e = U.timeToMin(c.end);
+      if (s >= 0 && (first < 0 || s < first)) first = s;
+      if (e >= 0 && e > last) last = e;
+    });
+    var dayPct = (first >= 0 && last > first)
+      ? U.clamp((nowMin - first) / (last - first), 0, 1)
+      : (todays.length ? 0 : 1);
+
+    var termPct = U.clamp(week / total, 0, 1);
+
+    /* --- 头部 --- */
+    var head = U.el('div', { class: 'qp-head' }, [
+      U.el('span', { class: 'qp-title' }, [U.icon('i-sparkles', 'ico'), '今日速览']),
+      inTermNow
+        ? U.el('span', { class: 'badge badge-plain', text: '第 ' + week + ' 周' })
+        : U.el('span', { class: 'badge badge-plain', text: '假期' })
+    ]);
+
+    /* --- 主数字 --- */
+    var hero;
+    if (!sch.courses.length) {
+      hero = U.el('div', { class: 'qp-hero is-empty' }, [U.el('span', { text: '还没有课表' })]);
+    } else if (!todays.length) {
+      hero = U.el('div', { class: 'qp-hero is-empty' }, [U.el('span', { text: '今天没课，休息一下' })]);
+    } else {
+      hero = U.el('div', { class: 'qp-hero' }, [
+        U.el('b', { text: String(todays.length) }),
+        U.el('span', { text: '节课' }),
+        U.el('em', { text: remaining.length ? '还剩 ' + remaining.length + ' 节' : '都上完了' })
+      ]);
+    }
+
+    /* --- 两个进度条 --- */
+    function barRow(label, pct, tip) {
+      return U.el('div', { class: 'qp-bar', title: tip }, [
+        U.el('span', { class: 'qp-bar-label', text: label }),
+        U.el('div', { class: 'bar' }, [U.el('span', { style: { width: Math.round(pct * 100) + '%' } })]),
+        U.el('b', { class: 'mono', text: Math.round(pct * 100) + '%' })
+      ]);
+    }
+
+    var bars = U.el('div', { class: 'qp-bars' }, [
+      barRow('今日', dayPct, '今天的课程进度'),
+      barRow('学期', termPct, '第 ' + week + ' / ' + total + ' 教学周')
+    ]);
+
+    /* --- 关键数字小条 --- */
+    var st = CW.store.stats();
+    var todayEvents = CW.schedule.eventsOn(today).length;
+    var nextCd = nearestCountdownItem();
+    var chips = [];
+
+    if (st.todo - st.todoDone > 0) {
+      chips.push(U.el('button', {
+        type: 'button', class: 'qp-chip', 'data-qp': 'todo',
+        title: '跳到待办清单',
+        text: '待办 ' + (st.todo - st.todoDone)
+      }));
+    }
+    if (todayEvents) {
+      chips.push(U.el('button', {
+        type: 'button', class: 'qp-chip', 'data-qp': 'today',
+        title: '查看今天的安排',
+        text: '今日事务 ' + todayEvents
+      }));
+    }
+    if (nextCd) {
+      chips.push(U.el('button', {
+        type: 'button', class: 'qp-chip', 'data-qp': 'countdown',
+        title: nextCd.c.title + '（' + nextCd.c.date + '）',
+        text: '距 ' + U.truncate(nextCd.c.title, 6) + ' ' + nextCd.days + ' 天'
+      }));
+    }
+
+    /* --- 快捷操作 --- */
+    function actionBtn(label, iconId, key) {
+      return U.el('button', {
+        type: 'button', class: 'qp-act', 'data-qp': key, title: label, 'aria-label': label
+      }, [U.icon(iconId, 'ico'), U.el('span', { text: label })]);
+    }
+
+    U.render(box, [
+      head,
+      hero,
+      bars,
+      chips.length ? U.el('div', { class: 'qp-chips' }, chips) : null,
+      U.el('div', { class: 'qp-actions' }, [
+        actionBtn('导入课表', 'i-upload', 'import'),
+        actionBtn('新建事务', 'i-calendar-plus', 'event'),
+        actionBtn('校园地图', 'i-map', 'map'),
+        actionBtn('完整日程', 'i-calendar', 'schedule')
+      ])
+    ]);
+  }
+
+  /** 最近一个还没到的倒数日 */
+  function nearestCountdownItem() {
+    var today = U.today();
+    var best = null, bestDays = Infinity;
+    CW.store.state.countdown.forEach(function (c) {
+      var d = U.diffDays(today, U.parseDate(c.date));
+      if (d >= 0 && d < bestDays) { bestDays = d; best = c; }
+    });
+    return best ? { c: best, days: bestDays } : null;
+  }
+
+  /** 卡片里的按钮走事件委托（卡片内容会整体重绘） */
+  function bindQuickActions() {
+    var box = U.$('#quickBox');
+    if (!box) return;
+
+    box.addEventListener('click', function (e) {
+      var btn = e.target.closest ? e.target.closest('[data-qp]') : null;
+      if (!btn) return;
+      var key = btn.getAttribute('data-qp');
+      e.preventDefault();
+
+      if (key === 'import') { CW.app.openModal('import'); return; }
+      if (key === 'map') { CW.app.openModal('map'); return; }
+      if (key === 'event') { CW.editUI.openEventForm(null, U.today()); return; }
+      if (key === 'schedule' || key === 'today') { CW.schedule.openFull(U.today()); return; }
+      if (key === 'countdown') {
+        var card = U.$('#cdCard');
+        if (card && card.scrollIntoView) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      if (key === 'todo') {
+        var card2 = U.$('#todoCard');
+        if (card2 && card2.scrollIntoView) card2.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(function () {
+          var input = U.$('#todoInput');
+          if (input) input.focus();
+        }, 380);
+      }
+    });
+  }
+
+  /* ======================================================================
      初始化
      ====================================================================== */
   function init() {
@@ -707,6 +870,7 @@
     initCountdown();
     initSearch();
     initReminder();
+    bindQuickActions();
     renderDash();
 
     CW.store.on('schedule', function () { renderDash(); });
@@ -714,13 +878,14 @@
       if (evt === 'schedule' || evt === 'todo' || evt === 'countdown') renderDash();
     }, 200));
 
-    // 每 30 秒刷新问候条（时间在走）
+    // 每 30 秒刷新（时间和进度在走）
     setInterval(function () { renderDash(); }, 30000);
   }
 
   CW.widgets = {
     init: init,
     renderDash: renderDash,
+    renderQuickPanel: renderQuickPanel,
     renderTodo: renderTodo,
     renderCountdown: renderCountdown,
     runSearch: runSearch,

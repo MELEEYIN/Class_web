@@ -46,7 +46,8 @@
      ====================================================================== */
   function courseInWeek(course, week) {
     var w = course.weeks;
-    if (!w || !w.length) return inTerm(week);     // 没写周次 => 整学期
+    // 没有周次信息 = 整学期都上（比如「军事训练 1-18周」这类没写进格子的课）
+    if (!w || !w.length) return inTerm(week);
     return w.indexOf(week) >= 0;
   }
 
