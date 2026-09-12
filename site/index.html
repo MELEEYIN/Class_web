@@ -1,187 +1,1306 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="light">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>我的主页 · My Site</title>
-  <meta name="description" content="一个用 GitHub + Cloudflare Pages 免费部署的个人网页。">
-  <meta name="theme-color" content="#0b1020">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>校园主页 · 常用入口 · 课表日程 · 校园地图</title>
+<meta name="description" content="深圳技术大学校园导航主页：公文通、教务系统、选课、学生邮箱、图书馆等常用入口，个人课表导入与日程管理，校园地图与 C5 楼层平面图，纯静态、数据保存在本地。">
+<meta name="author" content="李奕楠">
+<meta name="theme-color" content="#2563eb">
+<meta name="color-scheme" content="light dark">
 
-  <!-- 分享到社交平台时的预览信息 -->
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="我的主页 · My Site">
-  <meta property="og:description" content="一个用 GitHub + Cloudflare Pages 免费部署的个人网页。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="校园主页 · 常用入口 · 课表日程 · 校园地图">
+<meta property="og:description" content="一站式校园导航：8 个常用入口、课表导入与日程管理、校园地图与 C5 楼层平面图。">
 
-  <!-- 站点图标：内联 SVG，不依赖外部文件 -->
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%236366f1'/%3E%3Ctext x='50' y='68' font-size='56' font-family='sans-serif' font-weight='700' fill='white' text-anchor='middle'%3EM%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./assets/favicon.svg">
+<link rel="manifest" href="./site.webmanifest">
 
-  <link rel="stylesheet" href="./styles.css">
+<link rel="stylesheet" href="./css/base.css">
+<link rel="stylesheet" href="./css/layout.css">
+<link rel="stylesheet" href="./css/components.css">
+
+<!-- 首屏前先套用已保存的主题与背景，避免闪白 -->
+<script src="./js/boot.js"></script>
 </head>
 <body>
-  <a class="skip-link" href="#main">跳到主要内容</a>
 
-  <header class="nav" id="nav">
-    <div class="wrap nav-inner">
-      <a class="brand" href="#top">
-        <span class="brand-dot" aria-hidden="true"></span>
-        <span>我的主页</span>
-      </a>
+<a class="skip-link" href="#main">跳到主要内容</a>
 
-      <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navMenu" aria-label="打开菜单">
-        <span></span><span></span><span></span>
+<!-- ======================================================================
+     SVG 图标精灵（内联，避免额外请求，也能在 file:// 下工作）
+     ====================================================================== -->
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;overflow:hidden">
+  <defs>
+    <g id="_stroke" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></g>
+  </defs>
+  <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></symbol>
+  <symbol id="i-map" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3 3 5.4v15.2L9 18l6 3 6-2.4V3.4L15 6 9 3Z"/><path d="M9 3v15M15 6v15"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-calendar-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4M12 13.4v4M10 15.4h4"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16.5V4"/><path d="m7.5 8.5 4.5-4.5 4.5 4.5"/><path d="M4 15v3.5A2.5 2.5 0 0 0 6.5 21h11a2.5 2.5 0 0 0 2.5-2.5V15"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12.5"/><path d="m7.5 12 4.5 4.5 4.5-4.5"/><path d="M4 15v3.5A2.5 2.5 0 0 0 6.5 21h11a2.5 2.5 0 0 0 2.5-2.5V15"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9a2.5 2.5 0 0 0-3.5-3.5L4.5 16.5 4 20Z"/><path d="m14 7 3 3"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6 18 18M18 6 6 18"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="8.5" cy="9.5" r="1.8"/><path d="m4 18 5-5 4 4 3-2.5 4 3.5"/></symbol>
+  <symbol id="i-database" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></symbol>
+  <symbol id="i-external" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M20 4 11 13"/><path d="M18 14v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.7 7-11a7 7 0 1 0-14 0c0 5.3 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5C10.5 5 8.3 4.2 5 4.2c-1 0-1.8.1-2.5.3v14c.7-.2 1.5-.3 2.5-.3 3.3 0 5.5.8 7 2.3 1.5-1.5 3.7-2.3 7-2.3 1 0 1.8.1 2.5.3v-14c-.7-.2-1.5-.3-2.5-.3-3.3 0-5.5.8-7 2.3Z"/><path d="M12 6.5v14"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4.5 7.5 7.5 5.5 7.5-5.5"/></symbol>
+  <symbol id="i-building" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v15"/><path d="M15 10h3a2 2 0 0 1 2 2v9"/><path d="M2.5 21h19"/><path d="M8 8h3M8 12h3M8 16h3"/></symbol>
+  <symbol id="i-cpu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/></symbol>
+  <symbol id="i-cart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h2.2l2.6 12A2 2 0 0 0 9.3 17h9.2a2 2 0 0 0 1.9-1.4L22 7.5H6"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="1.8"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.8"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.8"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.8"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></symbol>
+  <symbol id="i-reset" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4v5h5"/></symbol>
+  <symbol id="i-fit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5.5A1.5 1.5 0 0 1 5.5 4H9M15 4h3.5A1.5 1.5 0 0 1 20 5.5V9M20 15v3.5A1.5 1.5 0 0 1 18.5 20H15M9 20H5.5A1.5 1.5 0 0 1 4 18.5V15"/></symbol>
+  <symbol id="i-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H5.5A1.5 1.5 0 0 0 4 4.5V8M15 3h3.5A1.5 1.5 0 0 1 20 4.5V8M20 16v3.5A1.5 1.5 0 0 1 18.5 21H15M9 21H5.5A1.5 1.5 0 0 1 4 19.5V16"/></symbol>
+  <symbol id="i-compress" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5h4.5V4M20 8.5h-4.5V4M20 15.5h-4.5V20M4 15.5h4.5V20"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="m4.5 12.5 5 5 10-11"/></symbol>
+  <symbol id="i-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12.2 2.8 2.8L16 9.4"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 2.5 20h19L12 3.5Z"/><path d="M12 9.5v4.6M12 17.2h.01"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.8h.01"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="M6.2 7l.9 13a2 2 0 0 0 2 1.9h5.8a2 2 0 0 0 2-1.9l.9-13"/><path d="M10 11v6M14 11v6"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-chev-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5 8 12l6.5 7"/></symbol>
+  <symbol id="i-chev-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 5 16 12l-6.5 7"/></symbol>
+  <symbol id="i-chev-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9.5 12 16l7-6.5"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4"/><path d="M5 5h11l-1.6 4L16 13H5"/></symbol>
+  <symbol id="i-note" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h9l6 6v12H5z"/><path d="M14 3v6h6"/><path d="M9 13h7M9 17h4"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 6h12M8.5 12h12M8.5 18h12"/><path d="M3.6 6h.01M3.6 12h.01M3.6 18h.01"/></symbol>
+  <symbol id="i-graduation" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8.6 12 4.2l9.5 4.4L12 13 2.5 8.6Z"/><path d="M6.2 10.9V16c0 1.4 2.6 2.6 5.8 2.6s5.8-1.2 5.8-2.6v-5.1"/><path d="M21.5 9.4v5.2"/></symbol>
+  <symbol id="i-sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m11 3 1.8 4.7L17.5 9.5l-4.7 1.8L11 16l-1.8-4.7L4.5 9.5l4.7-1.8L11 3Z"/><path d="m18.5 15.5.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8.8-2Z"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 12a8.5 8.5 0 1 1-2.6-6.1"/><path d="M21 3.5v5h-5"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-keyboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2.2"/><path d="M6 10h.01M9.5 10h.01M13 10h.01M16.5 10h.01M6 13.6h.01M18 13.6h.01M8.5 16.6h7"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M4.2 6.9l2.6 1.5M17.2 15.6l2.6 1.5M2.5 12h3M18.5 12h3M4.2 17.1l2.6-1.5M17.2 8.4l2.6-1.5"/></symbol>
+  <symbol id="i-arrow-ur" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8.5 7H17v8.5"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3.2 9.5h17.6M3.2 14.5h17.6"/><path d="M12 3c2.4 2.6 3.6 5.6 3.6 9S14.4 18.4 12 21c-2.4-2.6-3.6-5.6-3.6-9S9.6 5.6 12 3Z"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8.6a6 6 0 1 0-12 0c0 5.2-2 6.9-2 6.9h16s-2-1.7-2-6.9Z"/><path d="M13.7 19a2 2 0 0 1-3.4 0"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/></symbol>
+  <symbol id="i-warn-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.3M12 16.4h.01"/></symbol>
+</svg>
+
+<!-- ======================================================================
+     顶部导航
+     ====================================================================== -->
+<header class="nav" id="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#top" aria-label="回到顶部">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8.6 12 4.2l9.5 4.4L12 13 2.5 8.6Z"/><path d="M6.2 10.9V16c0 1.4 2.6 2.6 5.8 2.6s5.8-1.2 5.8-2.6v-5.1"/></svg></span>
+      <span class="brand-text">
+        <strong>校园主页</strong>
+        <small>leeyin.xyz</small>
+      </span>
+    </a>
+
+    <div class="nav-search">
+      <svg class="ico" aria-hidden="true"><use href="#i-search"/></svg>
+      <label class="visually-hidden" for="q">搜索入口、课程或功能</label>
+      <input id="q" type="search" placeholder="搜索入口 / 课程 / 功能…" autocomplete="off" spellcheck="false">
+      <kbd>/</kbd>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn" type="button" data-open="map" title="校园地图（快捷键 M）">
+        <svg class="ico" aria-hidden="true"><use href="#i-map"/></svg><span class="label">地图</span>
       </button>
-
-      <nav class="nav-menu" id="navMenu" aria-label="主导航">
-        <a href="#about">关于</a>
-        <a href="#works">作品</a>
-        <a href="#roadmap">计划</a>
-        <a href="#contact">联系</a>
-        <button class="theme-btn" id="themeToggle" aria-label="切换深色 / 浅色主题" title="切换主题">
-          <span class="theme-icon" aria-hidden="true">🌙</span>
-        </button>
-      </nav>
+      <button class="btn" type="button" data-open="schedule" title="日程表（快捷键 K）">
+        <svg class="ico" aria-hidden="true"><use href="#i-calendar"/></svg><span class="label">日程</span>
+      </button>
+      <button class="btn btn-icon" type="button" id="themeBtn" title="切换深色 / 浅色" aria-label="切换深色或浅色主题">
+        <svg class="ico" aria-hidden="true" id="themeIco"><use href="#i-moon"/></svg>
+      </button>
+      <button class="btn btn-icon" type="button" data-open="bg" title="自定义背景" aria-label="自定义背景">
+        <svg class="ico" aria-hidden="true"><use href="#i-image"/></svg>
+      </button>
+      <button class="btn btn-icon" type="button" data-open="data" title="数据与设置" aria-label="数据与设置">
+        <svg class="ico" aria-hidden="true"><use href="#i-database"/></svg>
+      </button>
+      <button class="btn btn-icon nav-burger" type="button" id="burger" aria-label="打开菜单" aria-expanded="false" aria-controls="drawer">
+        <svg class="ico" aria-hidden="true"><use href="#i-menu"/></svg>
+      </button>
     </div>
-  </header>
+  </div>
+</header>
 
-  <main id="main">
-    <!-- 首屏 -->
-    <section class="hero" id="top">
-      <div class="wrap hero-inner">
-        <p class="hero-badge" data-reveal>🚀 已上线 · GitHub + Cloudflare Pages</p>
-        <h1 data-reveal>
-          你好，我是 <span class="grad">这里的站长</span>
-        </h1>
-        <p class="hero-sub" data-reveal>
-          这是我的第一个网页。它托管在 Cloudflare 的全球网络上，
-          每次我把改动推送到 GitHub，它就会自动更新。
+<!-- 移动端抽屉 -->
+<div class="drawer" id="drawer" hidden>
+  <a href="#links"><svg class="ico" aria-hidden="true"><use href="#i-grid"/></svg>常用入口</a>
+  <a href="#tools"><svg class="ico" aria-hidden="true"><use href="#i-sparkles"/></svg>实用工具</a>
+  <button type="button" data-open="map"><svg class="ico" aria-hidden="true"><use href="#i-map"/></svg>校园地图</button>
+  <button type="button" data-open="schedule"><svg class="ico" aria-hidden="true"><use href="#i-calendar"/></svg>日程表</button>
+  <button type="button" data-open="import"><svg class="ico" aria-hidden="true"><use href="#i-upload"/></svg>导入课表</button>
+  <button type="button" data-open="bg"><svg class="ico" aria-hidden="true"><use href="#i-image"/></svg>自定义背景</button>
+  <button type="button" data-open="help"><svg class="ico" aria-hidden="true"><use href="#i-keyboard"/></svg>快捷键与帮助</button>
+  <hr>
+  <a href="https://jwxt.sztu.edu.cn/jsxsd/framework/xsMain.jsp" target="_blank" rel="noopener">
+    <svg class="ico" aria-hidden="true"><use href="#i-external"/></svg>去教务系统查课表
+  </a>
+</div>
+
+<main id="main">
+
+  <!-- ====================================================================
+       顶部信息条：问候 / 日期 / 周次 / 天气 / 下一节课
+       ==================================================================== -->
+  <section class="dash" id="top">
+    <div class="wrap dash-inner">
+      <div class="dash-hello" data-reveal>
+        <p class="dash-date">
+          <span id="dashDate">—</span>
+          <i class="dot" aria-hidden="true"></i>
+          <span id="dashLunar" class="muted"></span>
         </p>
-        <div class="hero-actions" data-reveal>
-          <a class="btn btn-primary" href="#works">看看我的作品</a>
-          <a class="btn btn-ghost" href="#contact">联系我</a>
-        </div>
-
-        <div class="stats" data-reveal>
-          <div class="stat">
-            <strong id="statDays">1</strong>
-            <span>建站天数</span>
-          </div>
-          <div class="stat">
-            <strong>0 元</strong>
-            <span>托管费用</span>
-          </div>
-          <div class="stat">
-            <strong>∞</strong>
-            <span>可以改的地方</span>
-          </div>
-        </div>
+        <h1><span id="dashGreet">你好</span>，<span class="grad" id="dashName">同学</span></h1>
+        <div class="dash-chips" id="dashChips"></div>
       </div>
-      <div class="glow" aria-hidden="true"></div>
-    </section>
-
-    <!-- 关于 -->
-    <section class="section" id="about">
-      <div class="wrap">
-        <p class="eyebrow" data-reveal>关于</p>
-        <h2 data-reveal>一点自我介绍</h2>
-        <div class="grid grid-2">
-          <div class="card" data-reveal>
-            <h3>我是谁</h3>
-            <p>
-              这里先用占位文字。等你确定好内容，只要打开
-              <code>index.html</code>，把这段文字换成你自己的介绍就行——
-              不需要懂编程框架。
-            </p>
-          </div>
-          <div class="card" data-reveal>
-            <h3>我在做什么</h3>
-            <p>
-              在学做一些小东西：网页、脚本、以及任何让我觉得"这个有意思"的事情。
-              这部分也可以随时改。
-            </p>
-          </div>
+      <div class="dash-side" data-reveal>
+        <div class="mini" id="weatherBox" aria-live="polite">
+          <div class="loading-inline"><span class="spinner-sm"></span>正在获取天气…</div>
         </div>
+        <div class="mini" id="nextBox" aria-live="polite"></div>
       </div>
-    </section>
-
-    <!-- 作品 -->
-    <section class="section" id="works">
-      <div class="wrap">
-        <p class="eyebrow" data-reveal>作品</p>
-        <h2 data-reveal>我在做的东西</h2>
-        <div class="grid grid-3">
-          <article class="card card-hover" data-reveal>
-            <div class="card-icon" aria-hidden="true">🌐</div>
-            <h3>这个网站</h3>
-            <p>纯 HTML / CSS / JavaScript 手写，没有任何构建步骤，push 上去就是最新版。</p>
-            <a class="card-link" href="https://github.com/MELEEYIN/Class_web" target="_blank" rel="noopener">查看源码 →</a>
-          </article>
-          <article class="card card-hover" data-reveal>
-            <div class="card-icon" aria-hidden="true">✍️</div>
-            <h3>写作 / 笔记</h3>
-            <p>以后可以在这里挂博客。工作区里已经有 Hexo 的骨架，需要时可以启用。</p>
-            <a class="card-link" href="#contact">敬请期待 →</a>
-          </article>
-          <article class="card card-hover" data-reveal>
-            <div class="card-icon" aria-hidden="true">🧪</div>
-            <h3>实验项目</h3>
-            <p>放着各种半成品和玩具。改这一个文件就能加一项，非常随意。</p>
-            <a class="card-link" href="#contact">来聊聊 →</a>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- 计划 -->
-    <section class="section" id="roadmap">
-      <div class="wrap">
-        <p class="eyebrow" data-reveal>计划</p>
-        <h2 data-reveal>接下来想做的事</h2>
-        <ol class="timeline">
-          <li data-reveal>
-            <span class="dot" aria-hidden="true"></span>
-            <h3>第 1 步 · 已完成</h3>
-            <p>写出首页，用 GitHub 存代码，用 Cloudflare Pages 免费发布到公网。</p>
-          </li>
-          <li data-reveal>
-            <span class="dot" aria-hidden="true"></span>
-            <h3>第 2 步 · 下一步</h3>
-            <p>换成自己的域名，在 Cloudflare 里加一条 DNS 记录即可，HTTPS 自动搞定。</p>
-          </li>
-          <li data-reveal>
-            <span class="dot" aria-hidden="true"></span>
-            <h3>第 3 步 · 以后</h3>
-            <p>加博客、相册、留言板，慢慢长成一个真正的个人站点。</p>
-          </li>
-        </ol>
-      </div>
-    </section>
-
-    <!-- 联系 -->
-    <section class="section" id="contact">
-      <div class="wrap">
-        <p class="eyebrow" data-reveal>联系</p>
-        <h2 data-reveal>找我</h2>
-        <div class="contact" data-reveal>
-          <a class="contact-item" href="mailto:you@example.com">
-            <span aria-hidden="true">✉️</span>
-            <div><strong>邮箱</strong><small>you@example.com（记得改成你的）</small></div>
-          </a>
-          <a class="contact-item" href="https://github.com/MELEEYIN" target="_blank" rel="noopener">
-            <span aria-hidden="true">🐙</span>
-            <div><strong>GitHub</strong><small>github.com/MELEEYIN</small></div>
-          </a>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer class="footer">
-    <div class="wrap">
-      <p>© <span id="year">2025</span> 我的主页 · 由 GitHub + Cloudflare Pages 驱动</p>
-      <p class="muted">双击 <code>index.html</code> 就能在本地预览；改完 push，线上自动更新。</p>
     </div>
-  </footer>
+  </section>
 
-  <script src="./script.js"></script>
+  <!-- ====================================================================
+       主体双栏：左栏日程 / 右栏入口与工具
+       ==================================================================== -->
+  <div class="wrap board">
+
+    <!-- ================= 左栏 ================= -->
+    <aside class="rail" aria-label="日程与待办">
+
+      <!-- 日程表 -->
+      <section class="card sched-card" id="schedCard">
+        <div class="card-head">
+          <h3 class="card-title">
+            <svg class="ico" aria-hidden="true"><use href="#i-calendar"/></svg>日程表
+          </h3>
+          <div class="head-actions">
+            <button class="btn btn-sm btn-primary" type="button" data-open="import" title="导入课表或事务">
+              <svg class="ico" aria-hidden="true"><use href="#i-upload"/></svg>导入
+            </button>
+            <button class="btn btn-sm" type="button" data-open="edit" title="修改课程与事务">
+              <svg class="ico" aria-hidden="true"><use href="#i-edit"/></svg>修改
+            </button>
+            <button class="btn btn-sm btn-icon" type="button" data-open="schedule" title="展开完整日程" aria-label="展开完整日程">
+              <svg class="ico" aria-hidden="true"><use href="#i-expand"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- 查询链接备注（用户指定） -->
+        <p class="sched-query">
+          <svg class="ico" aria-hidden="true"><use href="#i-info"/></svg>
+          <span class="truncate">课表/成绩查询：<a href="https://jwxt.sztu.edu.cn/jsxsd/framework/xsMain.jsp#" target="_blank" rel="noopener">教务系统 xsMain.jsp</a></span>
+        </p>
+
+        <!-- 正在上课 / 下一节课 -->
+        <div id="schedNow"></div>
+
+        <!-- 本月迷你日历 -->
+        <div id="schedMiniCal"></div>
+
+        <!-- 未来若干天 -->
+        <div id="schedUpcoming"></div>
+
+        <!-- 统计 -->
+        <div class="sched-stats" id="schedStats"></div>
+      </section>
+
+      <!-- 待办 -->
+      <section class="card" id="todoCard">
+        <div class="card-head">
+          <h3 class="card-title"><svg class="ico" aria-hidden="true"><use href="#i-check-circle"/></svg>待办</h3>
+          <span class="card-sub" id="todoCount"></span>
+        </div>
+        <form class="todo-add" id="todoForm">
+          <label class="visually-hidden" for="todoInput">新的待办事项</label>
+          <input class="input" id="todoInput" type="text" placeholder="加一条待办，回车保存" maxlength="120" autocomplete="off">
+          <button class="btn btn-icon btn-primary" type="submit" aria-label="添加待办">
+            <svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg>
+          </button>
+        </form>
+        <div class="todo-list" id="todoList" style="margin-top:10px"></div>
+      </section>
+
+      <!-- 倒数日 -->
+      <section class="card" id="cdCard">
+        <div class="card-head">
+          <h3 class="card-title"><svg class="ico" aria-hidden="true"><use href="#i-flag"/></svg>倒数日</h3>
+          <button class="btn btn-sm btn-icon" type="button" id="cdAdd" aria-label="添加倒数日" title="添加倒数日">
+            <svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg>
+          </button>
+        </div>
+        <div class="countdown-list" id="cdList"></div>
+      </section>
+
+    </aside>
+
+    <!-- ================= 右栏 ================= -->
+    <div class="content">
+
+      <!-- 常用入口 -->
+      <section class="section" id="links">
+        <div class="section-head" data-reveal>
+          <div>
+            <p class="eyebrow">Campus</p>
+            <h2>常用入口</h2>
+            <p>学校官网直达，点击卡片新标签页打开。</p>
+          </div>
+          <div class="head-actions">
+            <button class="btn btn-sm btn-ghost" type="button" id="linksReset" hidden>
+              <svg class="ico" aria-hidden="true"><use href="#i-close"/></svg>清除筛选
+            </button>
+          </div>
+        </div>
+
+        <div class="link-grid" id="linkGrid">
+
+          <a class="link-card" data-color="0" data-key="公文通 通知 公告 校内 公文"
+             href="https://nbw.sztu.edu.cn/list.jsp?urltype=tree.TreeTempUrl&amp;wbtreeid=1029"
+             target="_blank" rel="noopener" data-reveal>
+            <span class="lc-top">
+              <span class="lc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h9l6 6v12H5z"/><path d="M14 3v6h6"/><path d="M9 13h7M9 17h4"/></svg></span>
+              <span>
+                <span class="lc-name">公文通</span>
+                <span class="lc-host">nbw.sztu.edu.cn</span>
+              </span>
+            </span>
+            <span class="lc-desc">校内公文、通知公告、会议与事务发布的第一入口。</span>
+            <span class="lc-foot">
+              <span>通知公告</span>
+              <span class="lc-go">打开 <svg aria-hidden="true"><use href="#i-arrow-ur"/></svg></span>
+            </span>
+          </a>
+
+          <a class="link-card" data-color="1" data-key="教务系统 成绩 课表 学分 jwxt"
+             href="https://jwxt.sztu.edu.cn/jsxsd/framework/xsMain.jsp"
+             target="_blank" rel="noopener" data-reveal>
+            <span class="lc-top">
+              <span class="lc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M7.5 14h3M7.5 17.5h6"/></svg></span>
+              <span>
+                <span class="lc-name">教务系统</span>
+                <span class="lc-host">jwxt.sztu.edu.cn</span>
+              </span>
+            </span>
+            <span class="lc-desc">查成绩、查课表、看学分与培养方案，学生端主界面。</span>
+            <span class="lc-foot">
+              <span>成绩 · 课表</span>
+              <span class="lc-go">打开 <svg aria-hidden="true"><use href="#i-arrow-ur"/></svg></span>
+            </span>
+          </a>
+
+          <a class="link-card" data-color="2" data-key="选课 抢课 补选 退选 xsrxkz"
+             href="https://jwxt.sztu.edu.cn/jsxsd/framework/xsrkxz.htmlx"
+             target="_blank" rel="noopener" data-reveal>
+            <span class="lc-top">
+              <span class="lc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 5.5h15v13h-15z"/><path d="M8 9.5h8M8 13h5"/><path d="m15.5 16.5 1.6 1.6 3-3.2"/></svg></span>
+              <span>
+                <span class="lc-name">选课系统</span>
+                <span class="lc-host">jwxt.sztu.edu.cn</span>
+              </span>
+            </span>
+            <span class="lc-desc">学期选课、补选退选、通识课与体育课志愿填报。</span>
+            <span class="lc-foot">
+              <span>选课 · 退补选</span>
+              <span class="lc-go">打开 <svg aria-hidden="true"><use href="#i-arrow-ur"/></svg></span>
+            </span>
+          </a>
+
+          <a class="link-card" data-color="3" data-key="学生邮箱 邮件 mail stumail"
+             href="https://mail.stumail.sztu.edu.cn/" target="_blank" rel="noopener" data-reveal>
+            <span class="lc-top">
+              <span class="lc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4.5 7.5 7.5 5.5 7.5-5.5"/></svg></span>
+              <span>
+                <span class="lc-name">学生邮箱</span>
+                <span class="lc-host">mail.stumail.sztu.edu.cn</span>
+              </span>
+            </span>
+            <span class="lc-desc">学校官方学生邮箱，接收教务、图书馆与各类系统通知。</span>
+            <span class="lc-foot">
+              <span>邮件</span>
+              <span class="lc-go">打开 <svg aria-hidden="true"><use href="#i-arrow-ur"/></svg></span>
+            </span>
+          </a>
+
+          <a class="link-card" data-color="4" data-key="图书馆 借阅 数据库 座位 论文 lib"
+             href="https://lib.sztu.edu.cn/" target="_blank" rel="noopener" data-reveal>
+            <span class="lc-top">
+              <span class="lc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5C10.5 5 8.3 4.2 5 4.2c-1 0-1.8.1-2.5.3v14c.7-.2 1.5-.3 2.5-.3 3.3 0 5.5.8 7 2.3 1.5-1.5 3.7-2.3 7-2.3 1 0 1.8.1 2.5.3v-14c-.7-.2-1.5-.3-2.5-.3-3.3 0-5.5.8-7 2.3Z"/><path d="M12 6.5v14"/></svg></span>
+              <span>
+                <span class="lc-name">图书馆</span>
+                <span class="lc-host">lib.sztu.edu.cn</span>
+              </span>
+            </span>
+            <span class="lc-desc">借阅查询、续借、电子数据库、研讨间与座位预约。</span>
+            <span class="lc-foot">
+              <span>借阅 · 数据库</span>
+              <span class="lc-go">打开 <svg aria-hidden="true"><use href="#i-arrow-ur"/></svg></span>
+            </span>
+          </a>
+
+          <a class="link-card" data-color="5" data-key="教务部 教学 培养方案 考试 校历 jw"
+             href="https://jw.sztu.edu.cn/" target="_blank" rel="noopener" data-reveal>
+            <span class="lc-top">
+              <span class="lc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v15"/><path d="M15 10h3a2 2 0 0 1 2 2v9"/><path d="M2.5 21h19"/><path d="M8 8h3M8 12h3M8 16h3"/></svg></span>
+              <span>
+                <span class="lc-name">教务部</span>
+                <span class="lc-host">jw.sztu.edu.cn</span>
+              </span>
+            </span>
+            <span class="lc-desc">教学通知、校历、考试安排、培养方案与规章制度。</span>
+            <span class="lc-foot">
+              <span>校历 · 考试</span>
+              <span class="lc-go">打开 <svg aria-hidden="true"><use href="#i-arrow-ur"/></svg></span>
+            </span>
+          </a>
+
+          <a class="link-card" data-color="6" data-key="信息中心 网络 校园网 一卡通 VPN it"
+             href="https://it.sztu.edu.cn/" target="_blank" rel="noopener" data-reveal>
+            <span class="lc-top">
+              <span class="lc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/></svg></span>
+              <span>
+                <span class="lc-name">信息中心</span>
+                <span class="lc-host">it.sztu.edu.cn</span>
+              </span>
+            </span>
+            <span class="lc-desc">校园网与账号、一卡通、VPN、正版软件与报修服务。</span>
+            <span class="lc-foot">
+              <span>网络 · 账号</span>
+              <span class="lc-go">打开 <svg aria-hidden="true"><use href="#i-arrow-ur"/></svg></span>
+            </span>
+          </a>
+
+          <a class="link-card" data-color="7" data-key="教材网 教材 订购 领书 tubook textbooks"
+             href="https://tubook.textbooks.wang/" target="_blank" rel="noopener" data-reveal>
+            <span class="lc-top">
+              <span class="lc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h2.2l2.6 12A2 2 0 0 0 9.3 17h9.2a2 2 0 0 0 1.9-1.4L22 7.5H6"/></svg></span>
+              <span>
+                <span class="lc-name">教材网</span>
+                <span class="lc-host">tubook.textbooks.wang</span>
+              </span>
+            </span>
+            <span class="lc-desc">教材征订、发放通知与个人领书查询。</span>
+            <span class="lc-foot">
+              <span>教材征订</span>
+              <span class="lc-go">打开 <svg aria-hidden="true"><use href="#i-arrow-ur"/></svg></span>
+            </span>
+          </a>
+
+        </div>
+
+        <div class="empty" id="linksEmpty" hidden>
+          <svg class="ico" aria-hidden="true"><use href="#i-search"/></svg>
+          <strong>没有匹配的入口</strong>
+          <span>试试「教务」「课表」「邮箱」这类关键词，或直接回车用搜索引擎查。</span>
+        </div>
+      </section>
+
+      <!-- 实用工具 -->
+      <section class="section" id="tools">
+        <div class="section-head" data-reveal>
+          <div>
+            <p class="eyebrow">Tools</p>
+            <h2>实用工具</h2>
+            <p>不需要登录、数据只存在你自己浏览器里的几个小工具。</p>
+          </div>
+        </div>
+
+        <div class="grid grid-4" id="toolGrid">
+          <button class="link-card" type="button" data-color="0" data-open="map" data-reveal>
+            <span class="lc-top">
+              <span class="lc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3 3 5.4v15.2L9 18l6 3 6-2.4V3.4L15 6 9 3Z"/><path d="M9 3v15M15 6v15"/></svg></span>
+              <span><span class="lc-name">校园地图</span><span class="lc-host">含 C5 楼层平面图</span></span>
+            </span>
+            <span class="lc-desc">校园总览地图，以及 C5 教学楼一至五层的平面图，可缩放拖动。</span>
+            <span class="lc-foot"><span>6 张图</span><span class="lc-go">查看 <svg aria-hidden="true"><use href="#i-arrow-ur"/></svg></span></span>
+          </button>
+
+          <button class="link-card" type="button" data-color="1" data-open="import" data-reveal>
+            <span class="lc-top">
+              <span class="lc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16.5V4"/><path d="m7.5 8.5 4.5-4.5 4.5 4.5"/><path d="M4 15v3.5A2.5 2.5 0 0 0 6.5 21h11a2.5 2.5 0 0 0 2.5-2.5V15"/></svg></span>
+              <span><span class="lc-name">导入课表</span><span class="lc-host">.xls / 粘贴 / 书签</span></span>
+            </span>
+            <span class="lc-desc">从教务系统导出的课表文件、复制粘贴，或一键书签自动抓取。</span>
+            <span class="lc-foot"><span>3 种方式</span><span class="lc-go">导入 <svg aria-hidden="true"><use href="#i-arrow-ur"/></svg></span></span>
+          </button>
+
+          <button class="link-card" type="button" data-color="2" data-open="periods" data-reveal>
+            <span class="lc-top">
+              <span class="lc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg></span>
+              <span><span class="lc-name">上课时间</span><span class="lc-host">作息与节次</span></span>
+            </span>
+            <span class="lc-desc">各节次对应的起止时间，可修改后应用到课表与提醒。</span>
+            <span class="lc-foot"><span>节次表</span><span class="lc-go">查看 <svg aria-hidden="true"><use href="#i-arrow-ur"/></svg></span></span>
+          </button>
+
+          <button class="link-card" type="button" data-color="3" data-open="export" data-reveal>
+            <span class="lc-top">
+              <span class="lc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12.5"/><path d="m7.5 12 4.5 4.5 4.5-4.5"/><path d="M4 15v3.5A2.5 2.5 0 0 0 6.5 21h11a2.5 2.5 0 0 0 2.5-2.5V15"/></svg></span>
+              <span><span class="lc-name">导出日历</span><span class="lc-host">.ics 订阅文件</span></span>
+            </span>
+            <span class="lc-desc">把课程与事务导出成 .ics，导入手机系统日历或其他日历 App。</span>
+            <span class="lc-foot"><span>备份 · 同步</span><span class="lc-go">导出 <svg aria-hidden="true"><use href="#i-arrow-ur"/></svg></span></span>
+          </button>
+
+          <button class="link-card" type="button" data-color="4" data-open="data" data-reveal>
+            <span class="lc-top">
+              <span class="lc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></span>
+              <span><span class="lc-name">数据备份</span><span class="lc-host">JSON 导入导出</span></span>
+            </span>
+            <span class="lc-desc">导出全部课表、事务、待办与设置，换设备时一键恢复。</span>
+            <span class="lc-foot"><span>换机必备</span><span class="lc-go">管理 <svg aria-hidden="true"><use href="#i-arrow-ur"/></svg></span></span>
+          </button>
+
+          <button class="link-card" type="button" data-color="5" data-open="remind" data-reveal>
+            <span class="lc-top">
+              <span class="lc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8.6a6 6 0 1 0-12 0c0 5.2-2 6.9-2 6.9h16s-2-1.7-2-6.9Z"/><path d="M13.7 19a2 2 0 0 1-3.4 0"/></svg></span>
+              <span><span class="lc-name">上课提醒</span><span class="lc-host">浏览器通知</span></span>
+            </span>
+            <span class="lc-desc">在课前若干分钟弹出桌面通知，页面开着就行，不上传任何数据。</span>
+            <span class="lc-foot"><span id="remindState">未开启</span><span class="lc-go">设置 <svg aria-hidden="true"><use href="#i-arrow-ur"/></svg></span></span>
+          </button>
+
+          <button class="link-card" type="button" data-color="6" data-open="bg" data-reveal>
+            <span class="lc-top">
+              <span class="lc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="8.5" cy="9.5" r="1.8"/><path d="m4 18 5-5 4 4 3-2.5 4 3.5"/></svg></span>
+              <span><span class="lc-name">自定义背景</span><span class="lc-host">本地图片</span></span>
+            </span>
+            <span class="lc-desc">用本地图片或预设渐变做背景，可调模糊与压暗，图片只存在本机。</span>
+            <span class="lc-foot"><span>个性化</span><span class="lc-go">设置 <svg aria-hidden="true"><use href="#i-arrow-ur"/></svg></span></span>
+          </button>
+
+          <button class="link-card" type="button" data-color="7" data-open="help" data-reveal>
+            <span class="lc-top">
+              <span class="lc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2.2"/><path d="M6 10h.01M9.5 10h.01M13 10h.01M16.5 10h.01M6 13.6h.01M18 13.6h.01M8.5 16.6h7"/></svg></span>
+              <span><span class="lc-name">快捷键</span><span class="lc-host">与使用说明</span></span>
+            </span>
+            <span class="lc-desc">键盘快捷键、数据存放位置、部署与换域名注意事项。</span>
+            <span class="lc-foot"><span>帮助</span><span class="lc-go">打开 <svg aria-hidden="true"><use href="#i-arrow-ur"/></svg></span></span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 关于 -->
+      <section class="section" id="about">
+        <div class="section-head" data-reveal>
+          <div>
+            <p class="eyebrow">About</p>
+            <h2>关于这个页面</h2>
+          </div>
+        </div>
+        <div class="grid grid-3">
+          <article class="card" data-reveal>
+            <h3 class="card-title" style="margin-bottom:8px"><svg class="ico" aria-hidden="true"><use href="#i-globe"/></svg>纯静态 · 零构建</h3>
+            <p class="small muted">手写 HTML / CSS / JavaScript，没有打包步骤。推到 GitHub，Cloudflare 自动发布到全球 CDN，国内走自定义域名可直连。</p>
+          </article>
+          <article class="card" data-reveal>
+            <h3 class="card-title" style="margin-bottom:8px"><svg class="ico" aria-hidden="true"><use href="#i-database"/></svg>数据只在本机</h3>
+            <p class="small muted">课表、事务、待办都存在浏览器 localStorage 里，背景图片存在 IndexedDB。没有后端，不上传任何个人数据。</p>
+          </article>
+          <article class="card" data-reveal>
+            <h3 class="card-title" style="margin-bottom:8px"><svg class="ico" aria-hidden="true"><use href="#i-sparkles"/></svg>可自由改造</h3>
+            <p class="small muted">配色集中在 <code>css/base.css</code> 顶部的变量里，入口链接是 <code>index.html</code> 里的卡片，改完刷新即可。</p>
+          </article>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div>
+      <p>© <span id="year">2026</span> 校园主页 · 由 GitHub + Cloudflare 驱动</p>
+      <p class="tiny faint" style="margin-top:4px">入口链接版权归深圳技术大学各系统所有，本页仅作快捷导航。</p>
+    </div>
+    <nav class="footer-links" aria-label="页脚导航">
+      <a href="#links">常用入口</a>
+      <a href="#tools">实用工具</a>
+      <button type="button" data-open="help" style="color:var(--muted);font-weight:600">帮助</button>
+      <button type="button" data-open="data" style="color:var(--muted);font-weight:600">数据</button>
+      <a href="https://github.com/MELEEYIN/Class_web" target="_blank" rel="noopener">源码</a>
+    </nav>
+  </div>
+</footer>
+
+<!-- ======================================================================
+     弹窗 1：校园地图
+     ====================================================================== -->
+<div class="modal" id="modal-map" role="dialog" aria-modal="true" aria-labelledby="mapTitle" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-panel mw-full">
+    <div class="modal-head">
+      <span class="lc-icon" style="--cc:var(--accent);--cc-soft:var(--accent-soft);width:34px;height:34px;border-radius:10px;display:grid;place-items:center" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:17px;height:17px"><use href="#i-map"/></svg>
+      </span>
+      <div class="mh-text">
+        <h2 id="mapTitle">校园地图</h2>
+        <p id="mapSub">校园总览与 C5 教学楼各层平面图 · 滚轮缩放，拖动平移</p>
+      </div>
+      <div class="mh-actions">
+        <a class="btn btn-sm btn-ghost" id="mapOpenRaw" href="#" target="_blank" rel="noopener" title="在新标签页打开原图">
+          <svg class="ico" aria-hidden="true"><use href="#i-external"/></svg><span class="label">原图</span>
+        </a>
+        <button class="modal-close" type="button" data-close aria-label="关闭地图">
+          <svg aria-hidden="true"><use href="#i-close"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="map-tabs" id="mapTabs" role="tablist" aria-label="选择地图"></div>
+
+    <div class="map-stage" id="mapStage">
+      <div class="map-canvas" id="mapCanvas">
+        <img id="mapImg" alt="校园地图" decoding="async">
+      </div>
+      <div class="map-tools">
+        <button type="button" id="mapZoomIn" title="放大（+）" aria-label="放大"><svg aria-hidden="true"><use href="#i-plus"/></svg></button>
+        <button type="button" id="mapZoomOut" title="缩小（−）" aria-label="缩小"><svg aria-hidden="true"><use href="#i-minus"/></svg></button>
+        <span class="zoom-pct" id="mapZoomPct">100%</span>
+        <button type="button" id="mapFit" title="适应窗口（0）" aria-label="适应窗口"><svg aria-hidden="true"><use href="#i-fit"/></svg></button>
+        <button type="button" id="mapActual" title="原始大小（1）" aria-label="原始大小"><svg aria-hidden="true"><use href="#i-reset"/></svg></button>
+        <button type="button" id="mapFull" title="全屏（F）" aria-label="切换全屏"><svg aria-hidden="true"><use href="#i-expand"/></svg></button>
+      </div>
+      <div class="map-hint" id="mapHint">
+        <svg aria-hidden="true"><use href="#i-info"/></svg>滚轮缩放 · 拖动平移 · 双击放大 · ← → 切换楼层
+      </div>
+      <div class="map-loading" id="mapLoading">
+        <span class="spinner"></span>
+        <span id="mapLoadingText">正在加载地图…</span>
+      </div>
+    </div>
+
+    <div class="map-thumbs" id="mapThumbs"></div>
+  </div>
+</div>
+
+<!-- ======================================================================
+     弹窗 2：日程表（完整 / 多月份 / 课表视图）
+     ====================================================================== -->
+<div class="modal" id="modal-schedule" role="dialog" aria-modal="true" aria-labelledby="schedTitle" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-panel mw-xl">
+    <div class="modal-head">
+      <span class="lc-icon" style="--cc:var(--accent);--cc-soft:var(--accent-soft);width:34px;height:34px;border-radius:10px;display:grid;place-items:center" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:17px;height:17px"><use href="#i-calendar"/></svg>
+      </span>
+      <div class="mh-text">
+        <h2 id="schedTitle">日程表</h2>
+        <p id="schedSub">—</p>
+      </div>
+      <div class="mh-actions">
+        <button class="btn btn-sm btn-primary" type="button" data-open="import">
+          <svg class="ico" aria-hidden="true"><use href="#i-upload"/></svg><span class="label">导入</span>
+        </button>
+        <button class="btn btn-sm" type="button" data-open="edit">
+          <svg class="ico" aria-hidden="true"><use href="#i-edit"/></svg><span class="label">修改</span>
+        </button>
+        <button class="modal-close" type="button" data-close aria-label="关闭日程">
+          <svg aria-hidden="true"><use href="#i-close"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="modal-body">
+      <div class="tabs" role="tablist" aria-label="日程视图">
+        <button type="button" role="tab" data-tab="month" aria-selected="true">月历</button>
+        <button type="button" role="tab" data-tab="week" aria-selected="false">周课表</button>
+        <button type="button" role="tab" data-tab="list" aria-selected="false">清单</button>
+      </div>
+
+      <!-- 月历 -->
+      <div class="tab-panel" data-panel="month">
+        <div class="card-head" style="margin-bottom:12px">
+          <div class="head-actions">
+            <button class="btn btn-sm btn-icon" type="button" id="calPrev" aria-label="上一个月"><svg class="ico" aria-hidden="true"><use href="#i-chev-left"/></svg></button>
+            <button class="btn btn-sm" type="button" id="calToday">今天</button>
+            <button class="btn btn-sm btn-icon" type="button" id="calNext" aria-label="下一个月"><svg class="ico" aria-hidden="true"><use href="#i-chev-right"/></svg></button>
+            <strong id="calLabel" style="font-size:15px;font-weight:750;margin-left:6px">—</strong>
+            <span class="badge badge-plain" id="calTermBadge" hidden></span>
+          </div>
+          <div class="head-actions">
+            <label class="switch" title="在月历里显示课程">
+              <input type="checkbox" id="calShowCourses" checked><span class="track"></span><span>显示课程</span>
+            </label>
+          </div>
+        </div>
+        <div class="cal-full" id="calFull"></div>
+        <div id="calDayDetail" style="margin-top:18px"></div>
+      </div>
+
+      <!-- 周课表 -->
+      <div class="tab-panel" data-panel="week" hidden>
+        <div class="card-head" style="margin-bottom:12px">
+          <div class="head-actions">
+            <button class="btn btn-sm btn-icon" type="button" id="wkPrev" aria-label="上一周"><svg class="ico" aria-hidden="true"><use href="#i-chev-left"/></svg></button>
+            <button class="btn btn-sm" type="button" id="wkThis">本周</button>
+            <button class="btn btn-sm btn-icon" type="button" id="wkNext" aria-label="下一周"><svg class="ico" aria-hidden="true"><use href="#i-chev-right"/></svg></button>
+            <strong id="wkLabel" style="font-size:15px;font-weight:750;margin-left:6px">—</strong>
+          </div>
+          <div class="head-actions">
+            <button class="btn btn-sm btn-ghost" type="button" id="wkPrint">
+              <svg class="ico" aria-hidden="true"><use href="#i-note"/></svg>打印课表
+            </button>
+          </div>
+        </div>
+        <div class="timetable-wrap" id="timetableWrap"></div>
+      </div>
+
+      <!-- 清单 -->
+      <div class="tab-panel" data-panel="list" hidden>
+        <div class="card-head">
+          <h3 class="card-title"><svg class="ico" aria-hidden="true"><use href="#i-book"/></svg>课程 <span class="badge badge-plain" id="listCourseCount">0</span></h3>
+          <div class="head-actions">
+            <button class="btn btn-sm" type="button" id="listAddCourse"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg>加课程</button>
+          </div>
+        </div>
+        <div class="row-list" id="listCourses"></div>
+
+        <div class="card-head" style="margin-top:26px">
+          <h3 class="card-title"><svg class="ico" aria-hidden="true"><use href="#i-flag"/></svg>事务 <span class="badge badge-plain" id="listEventCount">0</span></h3>
+          <div class="head-actions">
+            <button class="btn btn-sm" type="button" id="listAddEvent"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg>加事务</button>
+          </div>
+        </div>
+        <div class="row-list" id="listEvents"></div>
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <div class="foot-left">
+        <span class="small muted" id="schedFootStats"></span>
+      </div>
+      <button class="btn btn-sm btn-ghost" type="button" data-open="export">
+        <svg class="ico" aria-hidden="true"><use href="#i-download"/></svg>导出 .ics
+      </button>
+      <button class="btn btn-sm btn-ghost" type="button" data-open="periods">
+        <svg class="ico" aria-hidden="true"><use href="#i-clock"/></svg>上课时间
+      </button>
+      <button class="btn btn-sm btn-primary" type="button" data-open="edit">
+        <svg class="ico" aria-hidden="true"><use href="#i-edit"/></svg>修改
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================================
+     弹窗 3：导入课表 / 事务
+     ====================================================================== -->
+<div class="modal" id="modal-import" role="dialog" aria-modal="true" aria-labelledby="importTitle" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-panel mw-lg">
+    <div class="modal-head">
+      <span class="lc-icon" style="--cc:var(--ok);--cc-soft:var(--ok-soft);width:34px;height:34px;border-radius:10px;display:grid;place-items:center" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:17px;height:17px"><use href="#i-upload"/></svg>
+      </span>
+      <div class="mh-text">
+        <h2 id="importTitle">导入课表 / 事务</h2>
+        <p>支持教务系统导出的 .xls、.xlsx、.csv，以及 .ics 日历文件和直接粘贴。</p>
+      </div>
+      <button class="modal-close" type="button" data-close aria-label="关闭导入">
+        <svg aria-hidden="true"><use href="#i-close"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="tabs" role="tablist" aria-label="导入方式">
+        <button type="button" role="tab" data-itab="file" aria-selected="true">上传文件</button>
+        <button type="button" role="tab" data-itab="paste" aria-selected="false">复制粘贴</button>
+        <button type="button" role="tab" data-itab="auto" aria-selected="false">自动抓取（书签）</button>
+        <button type="button" role="tab" data-itab="ics" aria-selected="false">日历 / 事务</button>
+        <button type="button" role="tab" data-itab="demo" aria-selected="false">示例数据</button>
+      </div>
+
+      <!-- 上传文件 -->
+      <div class="tab-panel" data-ipanel="file">
+        <div class="dropzone" id="importDrop" tabindex="0" role="button" aria-label="选择或拖放课表文件">
+          <svg class="ico" aria-hidden="true"><use href="#i-upload"/></svg>
+          <strong>把课表文件拖到这里</strong>
+          <span>或者点击选择文件 · 也可以按 Ctrl+V 直接粘贴</span>
+          <span class="formats">
+            <span class="badge badge-plain">.xls</span>
+            <span class="badge badge-plain">.xlsx</span>
+            <span class="badge badge-plain">.csv</span>
+            <span class="badge badge-plain">.ics</span>
+            <span class="badge badge-plain">.json</span>
+          </span>
+        </div>
+        <input type="file" id="importFile" accept=".xls,.xlsx,.xlsm,.csv,.tsv,.txt,.ics,.json" hidden multiple>
+        <p class="hint" style="margin-top:10px">
+          在教务系统里：<strong>信息查询 → 学生个人课表</strong> → 右上角「导出」或「打印」，得到 <code>.xls</code> 文件后拖进来即可。
+          所有解析都在你的浏览器里完成，文件不会被上传。
+        </p>
+      </div>
+
+      <!-- 粘贴 -->
+      <div class="tab-panel" data-ipanel="paste" hidden>
+        <div class="field">
+          <label for="pasteArea" class="field-label">把课表页面复制的内容粘贴到这里</label>
+          <textarea class="textarea" id="pasteArea" style="min-height:190px" placeholder="在教务系统课表页面按 Ctrl+A 全选、Ctrl+C 复制，然后在这里 Ctrl+V 粘贴。&#10;表格、纯文本、JSON 都能识别。"></textarea>
+          <span class="hint">提示：直接粘贴网页表格时，粘贴板里会带上表格结构，识别率比纯文本更高。</span>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+          <button class="btn btn-sm" type="button" id="pasteFromClipboard">
+            <svg class="ico" aria-hidden="true"><use href="#i-download"/></svg>从剪贴板读取
+          </button>
+          <button class="btn btn-sm btn-ghost" type="button" id="pasteClear">清空</button>
+        </div>
+      </div>
+
+      <!-- 自动抓取 -->
+      <div class="tab-panel" data-ipanel="auto" hidden>
+        <div class="notice" style="margin-bottom:16px">
+          <svg class="ico" aria-hidden="true"><use href="#i-info"/></svg>
+          <div>
+            <strong>为什么这里不能直接读教务系统？</strong><br>
+            教务系统在你登录后才返回课表，而且不允许别的网站跨域读取它的页面（浏览器安全策略）。
+            所以「自动抓取」用的是<strong>书签小工具</strong>：它运行在教务系统页面自己身上，
+            读到你自己的课表后，再跳回本页自动填好。
+          </div>
+        </div>
+
+        <ol class="steps" aria-hidden="true">
+          <li class="st is-active"><i>1</i>拖书签</li><li class="sep"></li>
+          <li class="st"><i>2</i>打开课表页</li><li class="sep"></li>
+          <li class="st"><i>3</i>点书签</li><li class="sep"></li>
+          <li class="st"><i>4</i>自动回来</li>
+        </ol>
+
+        <div style="display:grid;gap:12px">
+          <div>
+            <p class="field-label" style="margin-bottom:6px">① 把这个按钮拖到浏览器书签栏</p>
+            <a class="bookmarklet" id="bookmarkletLink" href="#" draggable="true" title="拖我到书签栏">
+              <svg class="ico" aria-hidden="true" style="width:16px;height:16px"><use href="#i-sparkles"/></svg>
+              抓取本校课表
+            </a>
+            <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+              <button class="btn btn-sm" type="button" id="copyBookmarklet">
+                <svg class="ico" aria-hidden="true"><use href="#i-list"/></svg>复制书签代码
+              </button>
+              <button class="btn btn-sm btn-ghost" type="button" id="showBookmarklet" aria-expanded="false">
+                <svg class="ico" aria-hidden="true"><use href="#i-eye"/></svg>手动创建说明
+              </button>
+            </div>
+          </div>
+
+          <div id="bookmarkletHelp" hidden class="notice notice-warn">
+            <strong>手机上不好拖书签？用这个办法：</strong>
+            <ol style="margin:8px 0 0 18px;padding:0;list-style:decimal;line-height:1.9">
+              <li>桌面浏览器里新建一个书签，名称随便填（例如「抓课表」）。</li>
+              <li>把「网址」整段改成下面复制的代码。</li>
+              <li>打开教务系统的课表页面，等课表显示出来，再点这个书签。</li>
+              <li>它会自动跳回本页并把课表填进导入预览。</li>
+            </ol>
+            <div style="margin-top:10px">
+              <textarea class="textarea" id="bookmarkletCode" readonly style="min-height:110px"></textarea>
+            </div>
+          </div>
+
+          <p class="hint">
+            书签只在你的浏览器里跑，不联网、不上传。抓取到的内容会通过网址片段（<code>#data=</code>）传回本页，随后自动从地址栏清掉。
+            如果装不了书签，用「复制粘贴」也一样快。
+          </p>
+        </div>
+      </div>
+
+      <!-- 日历 / 事务 -->
+      <div class="tab-panel" data-ipanel="ics" hidden>
+        <div class="grid grid-2" style="align-items:start">
+          <div class="field">
+            <label for="icsArea" class="field-label">粘贴 .ics 日历内容</label>
+            <textarea class="textarea" id="icsArea" style="min-height:150px" placeholder="BEGIN:VCALENDAR&#10;VERSION:2.0&#10;BEGIN:VEVENT&#10;SUMMARY:…"></textarea>
+          </div>
+          <div class="card" style="background:var(--surface-2);box-shadow:none">
+            <h3 class="card-title" style="margin-bottom:8px"><svg class="ico" aria-hidden="true"><use href="#i-info"/></svg>说明</h3>
+            <p class="small muted">
+              .ics 是通用日历格式。手机日历（iOS / Android）、Google 日历、Outlook 里都可以「导出」，把导出的内容贴到这里，
+              就会变成本页的事务。<br><br>
+              反过来，本页也能把课程和事务导出成 .ics，在手机日历里订阅。
+            </p>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn btn-sm" type="button" id="parseIcs">解析为事务</button>
+        </div>
+      </div>
+
+      <!-- 示例 -->
+      <div class="tab-panel" data-ipanel="demo" hidden>
+        <div class="card" style="background:var(--surface-2);box-shadow:none">
+          <h3 class="card-title" style="margin-bottom:8px"><svg class="ico" aria-hidden="true"><use href="#i-graduation"/></svg>载入示例课表</h3>
+          <p class="small muted" style="margin-bottom:12px">
+            仓库里带了一份真实的深圳技术大学课表导出示例（26 级光源与照明 · 2026-2027 学年第一学期，22 条课程、9 个节次），
+            用来演示界面效果。它会<strong>覆盖</strong>当前数据，请先确认你没在编辑自己的课表。
+          </p>
+          <button class="btn btn-primary btn-sm" type="button" id="loadDemo">
+            <svg class="ico" aria-hidden="true"><use href="#i-download"/></svg>载入示例课表
+          </button>
+        </div>
+      </div>
+
+      <!-- 解析预览 -->
+      <div id="importPreview" hidden style="margin-top:20px">
+        <hr style="margin-bottom:16px">
+        <div class="card-head">
+          <h3 class="card-title"><svg class="ico" aria-hidden="true"><use href="#i-eye"/></svg>解析结果预览</h3>
+          <span class="badge" id="previewBadge">—</span>
+        </div>
+        <div id="previewSummary"></div>
+        <div id="previewWarnings"></div>
+        <div style="max-height:300px;overflow:auto;border:1px solid var(--line);border-radius:var(--r-sm);margin-top:12px">
+          <table class="preview-table" id="previewTable"></table>
+        </div>
+        <div class="field" style="margin-top:14px;max-width:320px">
+          <label for="mergeMode" class="field-label">导入方式</label>
+          <select class="select" id="mergeMode">
+            <option value="merge">合并到现有数据（推荐）</option>
+            <option value="replace">替换现有课程与事务</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <div class="foot-left">
+        <button class="btn btn-sm btn-ghost" type="button" id="importReset">重来</button>
+      </div>
+      <button class="btn btn-sm" type="button" data-close>取消</button>
+      <button class="btn btn-sm btn-primary" type="button" id="importConfirm" disabled>
+        <svg class="ico" aria-hidden="true"><use href="#i-check"/></svg>确认导入
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================================
+     弹窗 4：修改（课程 / 事务 / 学期设置）
+     ====================================================================== -->
+<div class="modal" id="modal-edit" role="dialog" aria-modal="true" aria-labelledby="editTitle" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-panel mw-lg">
+    <div class="modal-head">
+      <span class="lc-icon" style="--cc:var(--accent);--cc-soft:var(--accent-soft);width:34px;height:34px;border-radius:10px;display:grid;place-items:center" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:17px;height:17px"><use href="#i-edit"/></svg>
+      </span>
+      <div class="mh-text">
+        <h2 id="editTitle">修改日程</h2>
+        <p>自己加事务、改课程、设学期开始日期。改动即时保存到本机。</p>
+      </div>
+      <button class="modal-close" type="button" data-close aria-label="关闭修改">
+        <svg aria-hidden="true"><use href="#i-close"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="tabs" role="tablist" aria-label="修改分类">
+        <button type="button" role="tab" data-etab="events" aria-selected="true">事务</button>
+        <button type="button" role="tab" data-etab="courses" aria-selected="false">课程</button>
+        <button type="button" role="tab" data-etab="term" aria-selected="false">学期与节次</button>
+      </div>
+
+      <!-- 事务 -->
+      <div class="tab-panel" data-epanel="events">
+        <div class="card-head">
+          <h3 class="card-title"><svg class="ico" aria-hidden="true"><use href="#i-flag"/></svg>我的事务</h3>
+          <button class="btn btn-sm btn-primary" type="button" id="evAdd">
+            <svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg>新增事务
+          </button>
+        </div>
+        <div class="row-list" id="evList"></div>
+        <div class="empty" id="evEmpty" hidden>
+          <svg class="ico" aria-hidden="true"><use href="#i-flag"/></svg>
+          <strong>还没有事务</strong>
+          <span>考试、交作业、社团活动、约会，都可以加进来，会显示在月历里。</span>
+        </div>
+      </div>
+
+      <!-- 课程 -->
+      <div class="tab-panel" data-epanel="courses" hidden>
+        <div class="card-head">
+          <h3 class="card-title"><svg class="ico" aria-hidden="true"><use href="#i-book"/></svg>我的课程</h3>
+          <div class="head-actions">
+            <button class="btn btn-sm" type="button" data-open="import">
+              <svg class="ico" aria-hidden="true"><use href="#i-upload"/></svg>导入覆盖
+            </button>
+            <button class="btn btn-sm btn-primary" type="button" id="coAdd">
+              <svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg>新增课程
+            </button>
+          </div>
+        </div>
+        <div class="notice" style="margin-bottom:12px">
+          <svg class="ico" aria-hidden="true"><use href="#i-info"/></svg>
+          <div>一般不用手改：教务系统导出课表后导入最省事。这里适合加实验课、调教室或补一条临时课。</div>
+        </div>
+        <div class="row-list" id="coList"></div>
+        <div class="empty" id="coEmpty" hidden>
+          <svg class="ico" aria-hidden="true"><use href="#i-book"/></svg>
+          <strong>还没有课程</strong>
+          <span>点「导入课表」上传教务系统导出的文件，就可以一秒填满。</span>
+        </div>
+      </div>
+
+      <!-- 学期与节次 -->
+      <div class="tab-panel" data-epanel="term" hidden>
+        <div class="form-grid">
+          <div class="field">
+            <label for="setName" class="field-label">我的名字（用于问候语）</label>
+            <input class="input" id="setName" type="text" maxlength="24" placeholder="例如：李奕楠">
+          </div>
+          <div class="field">
+            <label for="setTerm" class="field-label">学期名称</label>
+            <input class="input" id="setTerm" type="text" maxlength="32" placeholder="例如：2026-2027-1">
+          </div>
+          <div class="field">
+            <label for="setTermStart" class="field-label">第 1 周周一</label>
+            <input class="input" id="setTermStart" type="date">
+            <span class="hint" id="termStartHint">课表里的「第几周」就是从这里开始算的。</span>
+          </div>
+          <div class="field">
+            <label for="setTotalWeeks" class="field-label">学期总周数</label>
+            <input class="input" id="setTotalWeeks" type="number" min="1" max="30" step="1" value="18">
+          </div>
+          <div class="field col-span-2">
+            <span class="field-label">快捷校准</span>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+              <label class="field-label" for="setWeekNow" style="font-weight:500">按今天算，今天是第</label>
+              <input class="input" id="setWeekNow" type="number" min="1" max="30" step="1" style="width:74px">
+              <span class="field-label" style="font-weight:500">周</span>
+              <button class="btn btn-sm" type="button" id="applyWeekNow">反推开学日期</button>
+            </div>
+            <span class="hint">不确定第 1 周是哪天？看一眼教务系统上显示的当前周次，填进来反推即可。</span>
+          </div>
+        </div>
+
+        <hr style="margin:20px 0 16px">
+        <div class="card-head">
+          <h3 class="card-title"><svg class="ico" aria-hidden="true"><use href="#i-clock"/></svg>节次时间</h3>
+          <button class="btn btn-sm" type="button" id="periodReset">
+            <svg class="ico" aria-hidden="true"><use href="#i-reset"/></svg>恢复默认
+          </button>
+        </div>
+        <div id="periodEditor"></div>
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <div class="foot-left">
+        <span class="small muted" id="editSaved">改动会自动保存</span>
+      </div>
+      <button class="btn btn-sm" type="button" id="editUndoAll">撤销本次全部改动</button>
+      <button class="btn btn-sm btn-primary" type="button" data-close>完成</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================================
+     弹窗 5：编辑单条（事务 / 课程）
+     ====================================================================== -->
+<div class="modal" id="modal-item" role="dialog" aria-modal="true" aria-labelledby="itemTitle" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-panel mw-md">
+    <div class="modal-head">
+      <div class="mh-text">
+        <h2 id="itemTitle">编辑</h2>
+        <p id="itemSub">填好后点保存</p>
+      </div>
+      <button class="modal-close" type="button" data-close aria-label="关闭">
+        <svg aria-hidden="true"><use href="#i-close"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="itemBody"></div>
+    <div class="modal-foot">
+      <div class="foot-left">
+        <button class="btn btn-sm btn-danger" type="button" id="itemDelete" hidden>
+          <svg class="ico" aria-hidden="true"><use href="#i-trash"/></svg>删除
+        </button>
+      </div>
+      <button class="btn btn-sm" type="button" data-close>取消</button>
+      <button class="btn btn-sm btn-primary" type="button" id="itemSave">
+        <svg class="ico" aria-hidden="true"><use href="#i-check"/></svg>保存
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================================
+     弹窗 6：自定义背景
+     ====================================================================== -->
+<div class="modal" id="modal-bg" role="dialog" aria-modal="true" aria-labelledby="bgTitle" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-panel mw-md">
+    <div class="modal-head">
+      <span class="lc-icon" style="--cc:var(--accent);--cc-soft:var(--accent-soft);width:34px;height:34px;border-radius:10px;display:grid;place-items:center" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:17px;height:17px"><use href="#i-image"/></svg>
+      </span>
+      <div class="mh-text">
+        <h2 id="bgTitle">自定义背景</h2>
+        <p>图片只保存在这台设备的浏览器里，不会上传到任何服务器。</p>
+      </div>
+      <button class="modal-close" type="button" data-close aria-label="关闭背景设置">
+        <svg aria-hidden="true"><use href="#i-close"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p class="field-label" style="margin-bottom:9px">预设</p>
+      <div class="bg-presets" id="bgPresets"></div>
+
+      <p class="field-label" style="margin:20px 0 9px">本地图片</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-sm btn-primary" type="button" id="bgPick">
+          <svg class="ico" aria-hidden="true"><use href="#i-upload"/></svg>选择本地图片
+        </button>
+        <button class="btn btn-sm" type="button" id="bgPasteUrl">
+          <svg class="ico" aria-hidden="true"><use href="#i-globe"/></svg>用图片网址
+        </button>
+        <button class="btn btn-sm btn-ghost" type="button" id="bgClear">
+          <svg class="ico" aria-hidden="true"><use href="#i-trash"/></svg>清除背景
+        </button>
+        <input type="file" id="bgFile" accept="image/*" hidden>
+      </div>
+      <p class="hint" style="margin-top:8px">建议用 1920×1080 以上的横向图片。大图会自动压缩到最长边 2560px 再存，避免占满浏览器配额。</p>
+
+      <div id="bgCurrent" style="margin-top:16px"></div>
+
+      <p class="field-label" style="margin:20px 0 9px">微调</p>
+      <div style="display:grid;gap:14px">
+        <div class="field">
+          <label for="bgDim" class="field-label">压暗遮罩 <span class="mono faint" id="bgDimVal">0%</span></label>
+          <input type="range" id="bgDim" min="0" max="80" step="2" value="0">
+          <span class="hint">背景太花、文字看不清时往右拉。</span>
+        </div>
+        <div class="field">
+          <label for="bgBlur" class="field-label">背景模糊 <span class="mono faint" id="bgBlurVal">0px</span></label>
+          <input type="range" id="bgBlur" min="0" max="24" step="1" value="0">
+        </div>
+        <label class="check">
+          <input type="checkbox" id="bgGlass" checked>
+          <span>卡片使用半透明玻璃效果（推荐）</span>
+        </label>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-sm" type="button" data-close>完成</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================================
+     弹窗 7：数据与设置
+     ====================================================================== -->
+<div class="modal" id="modal-data" role="dialog" aria-modal="true" aria-labelledby="dataTitle" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-panel mw-md">
+    <div class="modal-head">
+      <span class="lc-icon" style="--cc:var(--accent);--cc-soft:var(--accent-soft);width:34px;height:34px;border-radius:10px;display:grid;place-items:center" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:17px;height:17px"><use href="#i-database"/></svg>
+      </span>
+      <div class="mh-text">
+        <h2 id="dataTitle">数据与设置</h2>
+        <p>本页没有后端，所有内容都在你自己的浏览器里。</p>
+      </div>
+      <button class="modal-close" type="button" data-close aria-label="关闭">
+        <svg aria-hidden="true"><use href="#i-close"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div id="dataStats" class="grid grid-2" style="margin-bottom:20px"></div>
+
+      <p class="field-label" style="margin-bottom:9px">备份与恢复</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-sm btn-primary" type="button" id="dataExport">
+          <svg class="ico" aria-hidden="true"><use href="#i-download"/></svg>导出全部数据
+        </button>
+        <button class="btn btn-sm" type="button" id="dataImportBtn">
+          <svg class="ico" aria-hidden="true"><use href="#i-upload"/></svg>从备份恢复
+        </button>
+        <input type="file" id="dataImportFile" accept=".json" hidden>
+      </div>
+      <p class="hint" style="margin-top:8px">导出的 JSON 里包含课表、事务、待办、倒数日与全部设置。换电脑、换浏览器时用它恢复。</p>
+
+      <hr style="margin:20px 0">
+
+      <p class="field-label" style="margin-bottom:9px">提醒</p>
+      <div class="field" style="max-width:220px">
+        <label for="remindMin" class="field-label" style="font-weight:500">课前提前</label>
+        <select class="select" id="remindMin">
+          <option value="5">5 分钟</option>
+          <option value="10">10 分钟</option>
+          <option value="15">15 分钟</option>
+          <option value="20">20 分钟</option>
+          <option value="30">30 分钟</option>
+          <option value="60">60 分钟</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <button class="btn btn-sm" type="button" id="notifyEnable">
+          <svg class="ico" aria-hidden="true"><use href="#i-bell"/></svg>开启桌面通知
+        </button>
+        <button class="btn btn-sm btn-ghost" type="button" id="notifyTest">发一条测试通知</button>
+      </div>
+      <p class="hint" id="notifyState" style="margin-top:8px"></p>
+
+      <hr style="margin:20px 0">
+
+      <p class="field-label" style="margin-bottom:9px">危险操作</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-sm btn-danger" type="button" id="clearSchedule">
+          <svg class="ico" aria-hidden="true"><use href="#i-trash"/></svg>清空课程与事务
+        </button>
+        <button class="btn btn-sm btn-danger" type="button" id="clearAll">
+          <svg class="ico" aria-hidden="true"><use href="#i-alert"/></svg>清空全部本地数据
+        </button>
+      </div>
+      <p class="hint" style="margin-top:8px">这两个操作不可撤销，建议先导出备份。</p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-sm" type="button" data-close>关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================================
+     弹窗 8：上课时间 / 导出 / 提醒 / 帮助
+     ====================================================================== -->
+<div class="modal" id="modal-periods" role="dialog" aria-modal="true" aria-labelledby="periodsTitle" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-panel mw-sm">
+    <div class="modal-head">
+      <div class="mh-text"><h2 id="periodsTitle">上课时间</h2><p>各节次作息（可在「修改 → 学期与节次」里调整）</p></div>
+      <button class="modal-close" type="button" data-close aria-label="关闭"><svg aria-hidden="true"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="modal-body" id="periodsBody"></div>
+    <div class="modal-foot">
+      <button class="btn btn-sm" type="button" data-open="edit">去修改</button>
+      <button class="btn btn-sm btn-primary" type="button" data-close>知道了</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modal-export" role="dialog" aria-modal="true" aria-labelledby="exportTitle" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-panel mw-md">
+    <div class="modal-head">
+      <div class="mh-text"><h2 id="exportTitle">导出日历</h2><p>把课程与事务导出为 .ics，导入手机系统日历</p></div>
+      <button class="modal-close" type="button" data-close aria-label="关闭"><svg aria-hidden="true"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field">
+          <label for="icsWeeks" class="field-label">导出周数</label>
+          <input class="input" id="icsWeeks" type="number" min="1" max="30" step="1" value="18">
+          <span class="hint">从第 1 周开始，逐周展开为具体日期。</span>
+        </div>
+        <div class="field">
+          <label for="icsScope" class="field-label">包含内容</label>
+          <select class="select" id="icsScope">
+            <option value="all">课程 + 事务</option>
+            <option value="courses">只导课程</option>
+            <option value="events">只导事务</option>
+          </select>
+        </div>
+      </div>
+      <div class="notice" style="margin-top:16px">
+        <svg class="ico" aria-hidden="true"><use href="#i-info"/></svg>
+        <div>导出的文件用手机打开即可导入系统日历。iOS 用「文件」App 点开，安卓用日历 App 的「导入」功能。</div>
+      </div>
+      <div id="icsPreview" class="mono small muted" style="margin-top:14px;max-height:150px;overflow:auto;padding:11px;background:var(--surface-3);border-radius:var(--r-sm);white-space:pre-wrap"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-sm" type="button" id="icsCopy">复制内容</button>
+      <button class="btn btn-sm btn-primary" type="button" id="icsDownload">
+        <svg class="ico" aria-hidden="true"><use href="#i-download"/></svg>下载 .ics
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modal-remind" role="dialog" aria-modal="true" aria-labelledby="remindTitle" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-panel mw-sm">
+    <div class="modal-head">
+      <div class="mh-text"><h2 id="remindTitle">上课提醒</h2><p>页面开着时，课前弹一条桌面通知</p></div>
+      <button class="modal-close" type="button" data-close aria-label="关闭"><svg aria-hidden="true"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="modal-body" id="remindBody"></div>
+    <div class="modal-foot">
+      <button class="btn btn-sm" type="button" data-open="data">更多设置</button>
+      <button class="btn btn-sm btn-primary" type="button" data-close>完成</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modal-help" role="dialog" aria-modal="true" aria-labelledby="helpTitle" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-panel mw-md">
+    <div class="modal-head">
+      <div class="mh-text"><h2 id="helpTitle">快捷键与使用说明</h2><p>几个能省事的操作</p></div>
+      <button class="modal-close" type="button" data-close aria-label="关闭"><svg aria-hidden="true"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <p class="field-label" style="margin-bottom:11px">键盘快捷键</p>
+      <div class="kbd-list">
+        <div class="kr"><span>聚焦搜索框</span><kbd>/</kbd></div>
+        <div class="kr"><span>打开日程表</span><kbd>K</kbd></div>
+        <div class="kr"><span>打开校园地图</span><kbd>M</kbd></div>
+        <div class="kr"><span>导入课表</span><kbd>I</kbd></div>
+        <div class="kr"><span>切换深色 / 浅色</span><kbd>D</kbd></div>
+        <div class="kr"><span>回到今天</span><kbd>T</kbd></div>
+        <div class="kr"><span>年月导航 / 楼层切换</span><kbd>←</kbd> <kbd>→</kbd></div>
+        <div class="kr"><span>地图缩放</span><kbd>+</kbd> <kbd>−</kbd> <kbd>0</kbd></div>
+        <div class="kr"><span>关闭当前弹窗</span><kbd>Esc</kbd></div>
+        <div class="kr"><span>打开本说明</span><kbd>?</kbd></div>
+      </div>
+
+      <hr style="margin:20px 0">
+
+      <p class="field-label" style="margin-bottom:11px">数据存在哪里</p>
+      <ul class="small muted" style="display:grid;gap:9px;list-style:disc;padding-left:18px">
+        <li>课表、事务、待办、倒数日与设置 → 浏览器 <code>localStorage</code>（键名前缀 <code>cw.</code>）</li>
+        <li>自定义背景图片 → 浏览器 <code>IndexedDB</code>（数据库 <code>cw-bg</code>）</li>
+        <li>换浏览器、换设备、清理浏览器数据都会丢，所以请定期用「数据与设置 → 导出全部数据」备份</li>
+        <li>清除浏览器缓存不会丢数据，但「清除站点数据 / Cookie 及网站数据」会丢</li>
+      </ul>
+
+      <hr style="margin:20px 0">
+
+      <p class="field-label" style="margin-bottom:11px">域名与部署</p>
+      <ul class="small muted" style="display:grid;gap:9px;list-style:disc;padding-left:18px">
+        <li>本站是纯静态页面，仓库根目录的 <code>wrangler.jsonc</code> 指定发布 <code>site/</code> 目录</li>
+        <li>绑定 <code>leeyin.xyz</code> 时在 Cloudflare 用 <strong>Custom Domain</strong>，它会自动加 DNS 记录和证书，不要手动去加 A 记录</li>
+        <li>所有资源都是相对路径，换域名不用改代码</li>
+      </ul>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-sm btn-primary" type="button" data-close>知道了</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap" aria-live="polite" aria-atomic="false"></div>
+
+<script src="./js/util.js"></script>
+<script src="./js/xls.js"></script>
+<script src="./js/parse.js"></script>
+<script src="./js/store.js"></script>
+<script src="./js/schedule.js"></script>
+<script src="./js/map.js"></script>
+<script src="./js/background.js"></script>
+<script src="./js/widgets.js"></script>
+<script src="./js/import.js"></script>
+<script src="./js/edit.js"></script>
+<script src="./js/exporters.js"></script>
+<script src="./js/app.js"></script>
+
 </body>
 </html>

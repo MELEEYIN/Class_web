@@ -1,163 +1,290 @@
-# 我的网页
+# 校园主页 · Campus Home
 
-一个**零构建**的静态个人主页：纯 HTML / CSS / JavaScript，push 到 GitHub，Cloudflare 自动发布到全球 CDN。
+一个**零构建**的纯静态校园导航主页：常用网站入口、课表导入与日程管理、校园地图与 C5 楼层平面图。
+纯 HTML / CSS / JavaScript 手写，没有打包步骤，push 到 GitHub，Cloudflare 自动发布。
 
 ```
 Class_web/
-├─ site/                 ← 网页本体（要部署的就是这个目录）
-│  ├─ index.html         ← 页面结构 / 文字内容
-│  ├─ styles.css         ← 样式（配色变量集中在文件顶部）
-│  ├─ script.js          ← 交互（菜单、主题、动画）
-│  └─ _headers           ← 安全响应头（Pages / Workers 都支持）
-├─ wrangler.jsonc        ← ⚠️ 关键：告诉 Cloudflare 网站内容在 ./site
-├─ hexo/blog/            ← 你原有的 Hexo 骨架，本方案未使用，保持原样
-├─ .gitignore
+├─ site/                         ← 网页本体（要部署的就是这个目录）
+│  ├─ index.html                 ← 页面结构（8 个入口链接就写在这里）
+│  ├─ 404.html                   ← 找不到页面时显示的页面
+│  ├─ site.webmanifest           ← 可「添加到主屏幕」，像 App 一样打开
+│  ├─ _headers                   ← 安全响应头 + CSP + 缓存策略
+│  ├─ css/
+│  │  ├─ base.css                ← 🎨 配色变量、排版、按钮、动效（改配色只看这个文件顶部）
+│  │  ├─ layout.css              ← 导航、双栏骨架、响应式
+│  │  └─ components.css          ← 卡片、日历、弹窗、地图、提示条
+│  ├─ js/
+│  │  ├─ boot.js                 ← 首屏前套用主题/背景，避免闪白
+│  │  ├─ util.js                 ← DOM、日期、存储、Toast、下载等通用工具
+│  │  ├─ xls.js                  ← 自己写的 .xls(BIFF8) / .xlsx / .csv 解析器（无第三方库）
+│  │  ├─ parse.js                ← 把表格/HTML/文本/ICS 解析成课程与事务
+│  │  ├─ store.js                ← 状态、localStorage 持久化、增删改
+│  │  ├─ schedule.js             ← 周次计算、月历、周课表、下一节课
+│  │  ├─ map.js                  ← 校园地图查看器（缩放/平移/触屏）
+│  │  ├─ background.js           ← 自定义背景（预设 + 本地图片 + 调模糊/压暗）
+│  │  ├─ widgets.js              ← 天气、待办、倒数日、搜索、上课提醒
+│  │  ├─ import.js               ← 导入流程（文件 / 粘贴 / 书签自动抓取）
+│  │  ├─ edit.js                 ← 修改课程、事务、学期与节次
+│  │  ├─ exporters.js            ← 导出 .ics / JSON 备份、数据统计
+│  │  └─ app.js                  ← 启动、弹窗管理、主题、快捷键
+│  ├─ data/
+│  │  └─ demo-schedule.js        ← 示例课表（深技大 2026-2027-1）
+│  └─ assets/
+│     ├─ favicon.svg
+│     └─ map/                    ← 地图图片（已压缩成 WebP）
+│        ├─ campus.webp          ← 校园总览（3200px 宽）
+│        └─ c5-1..c5-5.webp      ← C5 教学楼一~五层平面图
+├─ map/                          ← 你的原始图片与课表（不参与部署，assets 目录只指向 site/）
+│                                  ⚠️ 这里有 8.7MB 的 school_map.jpg 原图，`git add .` 会把它一起提交。
+│                                  网页用的是 site/assets/map/ 里压缩过的 WebP，原图入库只是当备份，
+│                                  在意仓库体积就把它加进 .gitignore。
+├─ wrangler.jsonc                ← ⚠️ 关键：告诉 Cloudflare 网站内容在 ./site
+├─ DOMAIN_SETUP.md               ← 🔴 域名 leeyin.xyz 的接入指南（先看这个）
+├─ check-domain.ps1              ← 一键体检脚本：跑一下就知道卡在哪一步
+├─ hexo/blog/                    ← 你原有的 Hexo 骨架，本方案未使用，保持原样
 └─ README.md
 ```
 
-> **`wrangler.jsonc` 不能删。** 没有它，Cloudflare Workers 不知道去哪个目录取网站内容，
-> 部署会失败或得到一个空站点。它里面的 `assets.directory` 必须指向 `./site`。
+> **`wrangler.jsonc` 不能删。** 没有它，Cloudflare 不知道去哪个目录取网站内容。
+> 它里面的 `assets.directory` 必须指向 `./site`。
 
 ---
 
-## 一、本地预览
+## 一、功能一览
 
-直接**双击 `site/index.html`** 就能看，不需要任何环境。
+### 首页入口（8 个，各自独立成框）
 
-想用本地服务器（更接近线上环境）：
+| 入口 | 地址 |
+|---|---|
+| 公文通 | nbw.sztu.edu.cn |
+| 教务系统 | jwxt.sztu.edu.cn |
+| 选课系统 | jwxt.sztu.edu.cn（选课页） |
+| 学生邮箱 | mail.stumail.sztu.edu.cn |
+| 图书馆 | lib.sztu.edu.cn |
+| 教务部 | jw.sztu.edu.cn |
+| 信息中心 | it.sztu.edu.cn |
+| 教材网 | tubook.textbooks.wang |
+
+页面顶部的搜索框会实时过滤这些卡片（也能顺手搜到你导入的课程），按 `/` 快速聚焦，回车直接打开第一个匹配项。
+
+### 日程表（页面左栏，一直可见）
+
+- **今日 / 正在上课 / 下一节课倒计时**，带进度条
+- **本月迷你月历**：有安排的日期显示彩色圆点
+- **未来 7 天** 的课程与事务列表
+- 统计：课程门数、周均节次、今日课程、当前第几周
+- 顶部固定一行查询备注：**课表/成绩查询 → 教务系统 xsMain.jsp**
+- **`导入`** 和 **`修改`** 两个按钮就在这里
+
+### 日程表浮窗（点左栏的「展开」或导航栏的「日程」）
+
+- **月历视图**：可一直往前、往后翻，显示每天的事，双击任意一天新建事务；下方是所选日期的详细清单
+- **周课表视图**：真正的课表网格，跨节次的课会自动合并成一格；支持「打印课表」
+- **清单视图**：所有课程与事务，逐条编辑/复制/删除
+- 弹窗头部和底部都放了**导入 / 修改**按钮
+
+### 校园地图（弹窗）
+
+- 6 张图切换：**校园总览 + C5 教学楼 1~5 层平面图**
+- 滚轮缩放、拖动平移、双击放大、触屏双指缩放
+- 底部缩略图、右侧缩放工具、`F` 浏览器全屏、可一键打开原图
+- 键盘 `←` `→` 切楼层，`+` `-` 缩放，`0` 适应窗口，`1` 原始大小
+
+### 其它小工具
+
+- **天气**（深圳坪山，Open-Meteo 免费接口，不需要 API Key，30 分钟缓存）
+- **待办清单**（可勾选、可清空已完成）
+- **倒数日**（自动算还有几天）
+- **导出 .ics**：把整个学期的课表按周展开成具体日程，导进手机系统日历
+- **上课提醒**：浏览器桌面通知，课前 N 分钟提醒（默认 20 分钟）
+- **数据备份 / 恢复**：全部内容导出成一个 JSON，换设备一键还原
+- **自定义背景**：8 套预设渐变 + 上传本地图片 + 图片网址，可调模糊与压暗
+- **深色 / 浅色主题**：不跟随系统也能手动切
+- **键盘快捷键**：`/` 搜索 · `K` 日程 · `M` 地图 · `I` 导入 · `D` 主题 · `T` 今天 · `?` 帮助 · `Esc` 关弹窗
+
+---
+
+## 二、本地预览
+
+直接**双击 `site/index.html`** 就能看（所有资源都是相对路径，`file://` 下也能跑）。
+
+想更接近线上环境，用本地服务器：
 
 ```powershell
-python -m http.server 8912 --directory site
-# 然后浏览器打开 http://127.0.0.1:8912
+cd "D:\DeepSeek Harness\Class_web"
+python -m http.server 8931 --directory site
+# 然后浏览器打开 http://127.0.0.1:8931
 ```
 
 ---
 
-## 二、部署路线：GitHub + Cloudflare Workers 静态资源
+## 三、怎么导入课表（三种方式）
 
-**先说一句结论：你现在走的是 Workers，不是 Pages。**
-新版 Cloudflare 控制台把 Pages 并入了 Workers & Pages，你的 `Create application` 弹窗
-给出的是 `Create an app → Set up your application` 这个 **Workers** 流程。
+### 方式 1：上传教务系统导出的文件（最稳，推荐）
+
+1. 进教务系统 → **信息查询 → 学生个人课表**
+2. 导出 / 打印成 `.xls`（教务系统的默认导出格式）
+3. 回到本页，点左栏日程卡片上的 **`导入`** → **上传文件**，把文件拖进去
+4. 核对预览表格，点 **确认导入**
+
+支持 `.xls`、`.xlsx`、`.csv`、`.tsv`、`.ics`、`.json`。
+**文件只在你的浏览器里解析，不会被上传到任何服务器**（本站根本没有后端）。
+
+> `.xls` 解析器是手写的（`js/xls.js`），实现了 OLE2 复合文档 + BIFF8 记录 + SST/CONTINUE 跨块字符串，
+> 专门针对国内教务系统的导出格式调过。不依赖 SheetJS 之类的第三方库，所以不用担心 CDN 被墙。
+
+### 方式 2：复制粘贴
+
+在课表页面按 `Ctrl+A`、`Ctrl+C`，回到本页点 **`导入` → `复制粘贴`**，按 `Ctrl+V`。
+粘贴板里带表格结构时识别率最高；纯文本、JSON 也认。
+
+### 方式 3：书签自动抓取（最省事）
+
+教务系统不允许别的网站跨域读它的页面（浏览器安全策略），所以「自动抓取」用的是**书签小工具**：
+
+1. 本页点 **`导入` → `自动抓取（书签）`**
+2. 把那个蓝色的「抓取本校课表」按钮**拖到浏览器书签栏**
+   （手机上不好拖的话，点「复制书签代码」，新建一个书签把网址整段替换掉）
+3. 打开教务系统的课表页面，**等课表显示出来**
+4. 点一下这个书签 —— 它会读到你自己登录后的课表，自动跳回本页并填好导入预览
+
+书签只在你的浏览器里跑，不联网、不上传。抓到的内容通过网址片段传回来，随后会自动从地址栏清掉。
+内容特别大时会自动改成「复制到剪贴板」，然后提示你改用粘贴方式。
+
+### 导入事务（不是课程）
+
+- 在日程浮窗的月历上**双击某一天**，直接新建事务
+- 或 **`修改` → `事务` → `新增事务`**
+- 也支持粘贴 `.ics`，或者粘贴一段「标题/日期/时间/地点」的表格
+
+---
+
+## 四、学期第几周是怎么算的 —— 第一次用记得核对
+
+课表里的「1-16 周」是个**相对**概念，本页需要知道**第 1 周的周一**是哪天，才能把课程铺到具体日期上。
+
+- 默认值是「今年 9 月 1 日所在周的周一」，**这个默认值不保证对**。
+- 示例数据按深圳技术大学 **2026-2027 学年第一学期 8 月 31 日开始上课** 设置（[校历通知](https://jw.sztu.edu.cn/info/1005/3336.htm)）。
+
+**对不上就在两处改：**
+
+1. **`修改` → `学期与节次` → 「第 1 周周一」** 直接选日期；
+2. 或者用下面的**快捷校准**：看一眼教务系统上显示的当前周次（比如「第 3 周」），
+   填进「按今天算，今天是第 N 周」，点 **`反推开学日期`**，本页会把第 1 周周一算好。
+
+导入预览里也能直接改这个日期，导入时一起生效。
+
+---
+
+## 五、数据存在哪里（很重要）
+
+**本站没有后端，所有内容都在你自己的浏览器里：**
+
+| 内容 | 存放位置 |
+|---|---|
+| 课表、事务、待办、倒数日、设置 | `localStorage`，键名前缀 `cw.` |
+| 自定义背景图片 | `IndexedDB`，数据库 `cw-bg` |
+| 主题选择 | `localStorage` 的 `cw.theme` |
+
+**这意味着：**
+
+- ✅ 换浏览器、换电脑、清理浏览器缓存中的「图片和文件」**不会**丢数据
+- ❌ 但「清除 Cookie 及网站数据 / 清除站点数据」**会全部丢掉**
+- ❌ 手机浏览器、电脑浏览器、无痕窗口之间**不共享**数据
+
+**所以请定期备份**：`数据与设置`（导航栏那个数据库图标）→ **`导出全部数据`**，
+拿到一个 JSON 文件。换设备时点 **`从备份恢复`** 选这个文件即可。
+
+备份文件里包含课表、事务、待办、倒数日与全部设置，可以放心地当存档。
+
+---
+
+## 六、部署：GitHub + Cloudflare Workers 静态资源
+
+**先说结论：这个仓库走的是 Workers，不是 Pages。**
+新版 Cloudflare 控制台把 Pages 并入了 Workers & Pages，你的 `Create application` 给出的是
+`Create an app → Set up your application` 这个 **Workers** 流程。
 
 这没关系——**Workers 静态资源托管一个纯静态网站，一样免费、一样有 HTTPS、一样 push 自动部署**，
-而且是 Cloudflare 现在主推的方向。代价只有一个：**必须有 `wrangler.jsonc` 告诉它网站内容在哪**，
-这个文件我已经建好了。
+而且是 Cloudflare 现在主推的方向。代价只有一个：**必须有 `wrangler.jsonc`**，这个文件已经建好了。
 
-> 如果你更想用传统的 Pages（网址是 `xxx.pages.dev`）：在 `Create application` 里
-> **切换到 `Pages` 标签页**再点 `Connect to Git`，然后 Build output directory 填 `site`。
-> 两条路都能用，**二选一即可，不要两个都建**。
-
-### 第 1 步：把代码推上 GitHub —— ✅ 已完成
-
-| 项目 | 当前状态 |
-|---|---|
-| 远程仓库 | <https://github.com/MELEEYIN/Class_web> |
-| 分支 | `main` |
-| git 身份 | `MELEEYIN <2878989597@qq.com>`（项目级，未改动全局配置） |
-
-代码已经推上去了，**第 1 步无需再做**，直接从第 2 步开始。
-
-### 第 2 步：在 Cloudflare 创建应用
-
-1. 打开 <https://dash.cloudflare.com/> → **Build → Compute → Workers & Pages**
-   （快捷链接：<https://dash.cloudflare.com/?to=/:account/workers-and-pages>）。
-
-   > 💡 **别在侧边栏里找 "Pages" —— 找不到是正常的。** 侧边栏只有 Workers & Pages 一项。
-
-2. 点 **Create application** → 选择 **Continue with GitHub** / **Import a repository**。
-3. 授权后选中仓库 **`MELEEYIN/Class_web`**。
-4. 进入 **Set up your application** 页面，字段这样填：
-
-   | 字段 | 填写内容 | 说明 |
-   |---|---|---|
-   | Project name | `class-web` | 决定你的网址前缀 |
-   | Build command | **留空** | 我们是纯静态，没有构建步骤 |
-   | Deploy command | `npx wrangler deploy` | **默认值就对了，别改** |
-
-5. 点 **Create and deploy**。
-
-> ⚠️ **`Deploy command` 必须是 `npx wrangler deploy`。**
-> 它会在仓库根目录找到 `wrangler.jsonc`，读出 `assets.directory = "./site"`，
-> 然后把 `site/` 里的 4 个文件发布出去。
-> 如果你把这条命令删掉或改掉，部署会因为「找不到要发布的内容」而失败。
-
-### 第 3 步：拿到你的网址 —— ✅ 已上线
+### 当前状态
 
 | 项目 | 值 |
 |---|---|
-| **线上地址** | <https://class-web.2878989597.workers.dev> |
-| 项目名 | `class-web` |
-| 绑定的仓库 | `MELEEYIN/Class-web` |
-| 部署状态 | Success（Cloudflare 构建耗时 1 分钟） |
+| 远程仓库 | <https://github.com/MELEEYIN/Class_web> |
+| 分支 | `main` |
+| 线上地址 | <https://class-web.2878989597.workers.dev>（⚠️ 国内被墙，见下） |
+| 计划域名 | `leeyin.xyz` —— 接入步骤见 [`DOMAIN_SETUP.md`](./DOMAIN_SETUP.md) |
 
-> ⚠️ **国内网络下这个网址打不开**（见下方「五、关于访问」）。
-> 在 Cloudflare 后台能看到站点健康运行，但在国内直连会被 DNS 污染 + SNI 阻断。
-> 这**不是部署失败**，是 `workers.dev` 域名在国内被墙。
-
-之后每次改动（改完 `site/` 里的文件后执行这三条）：
+### 每次改动后
 
 ```powershell
 cd "D:\DeepSeek Harness\Class_web"
 git add .
-git commit -m "更新文案"
+git commit -m "更新内容"
 git push
 ```
 
-Cloudflare 检测到推送会自动重新部署，无需任何手动操作。
+Cloudflare 检测到推送会自动重新部署，无需手动操作。
 
----
-
-## 二·补、本地校验配置（可选，不用登录）
-
-改过 `wrangler.jsonc` 之后，想确认配置有效再推上去：
+### 本地校验配置（可选，不用登录）
 
 ```powershell
 cd "D:\DeepSeek Harness\Class_web"
 npx.cmd --yes wrangler@latest deploy --dry-run
 ```
 
-看到 `Read 4 files from the assets directory ...\site` 就说明配置正确——它确认了
-Cloudflare 会从 `site/` 取到那 4 个文件。
+看到 `Read N files from the assets directory ...\site` 就说明配置正确。
 
 > 注意用 `npx.cmd` 而不是 `npx`：PowerShell 默认禁止运行 `npx.ps1` 脚本
-> （会报「在此系统上禁止运行脚本」）。
+> （会报「在此系统上禁止运行脚本」）。同理，`npm` 也要写成 `npm.cmd`。
 
 ---
 
-## 三、怎么改成你自己的内容
+## 七、怎么改成你自己的内容
 
 | 想改什么 | 改哪里 |
 |---|---|
-| 名字、自我介绍、作品、联系方式 | `site/index.html`，文字都在 `<!-- 注释 -->` 段落里，直接替换 |
-| 配色（主色 / 背景 / 文字色） | `site/styles.css` 最上面的 `:root { ... }`，改 `--accent`、`--bg` 等几个变量即可全站生效 |
-| 建站日期（用于算"建站天数"） | `site/script.js` 里的 `var LAUNCH = new Date(2026, 8, 12);`<br>注意月份从 **0** 开始：`8` 代表 9 月 |
-| 页脚署名 | `site/index.html` 底部的 `<footer>` |
+| **配色**（主色 / 背景 / 文字色） | `site/css/base.css` 最上面的 `:root { ... }`，改 `--accent`、`--bg` 等变量即可全站生效 |
+| **首页 8 个入口** | `site/index.html` 里的 `<div class="link-grid">`，每张卡片是一个 `<a class="link-card">`；`data-key` 里放搜索关键词 |
+| **底部 8 个工具卡** | 同文件里的 `<div class="grid grid-4" id="toolGrid">` |
+| **姓名（问候语）** | 页面里 `修改 → 学期与节次 → 我的名字`（存本地）；或改示例数据里 `meta.student` |
+| **默认开学日期** | `site/js/store.js` 的 `defaultTermStart()` |
+| **作息时间（节次）** | 页面里 `修改 → 学期与节次 → 节次时间`；默认值在 `site/js/parse.js` 的 `defaultPeriods()` |
+| **地图图片** | 换掉 `site/assets/map/` 里的 WebP 文件，同时改 `site/js/map.js` 顶部 `MAPS` 数组里的尺寸 |
+| **导航栏站名 / 域名** | `index.html` 里的 `.brand-text` |
 
 改完刷新浏览器就能看到效果，满意了再 `git push`。
 
----
+### 自定义背景怎么用
 
-## 四、关于原有的 hexo/blog
+导航栏的图片图标 → **自定义背景**：
 
-`hexo/blog` 是一个**未完成的 Hexo 脚手架**（默认 landscape 主题，`_config.yml` 里还是 `John Doe` / `http://example.com`）。本方案没有使用它，也没有改动它。
+- **预设**：8 套蓝白系渐变，深色主题下会自动换成对应的暗色版本
+- **本地图片**：会自动压缩到最长边 2560px、JPEG 质量 82 后存进 IndexedDB
+  （一张 8MB 的手机照片通常能压到 400KB 以内），图片**不会上传**
+- **图片网址**：填一个 `https://` 直链；如果那个站点不允许外链，浏览器会拒绝显示
+- **微调**：压暗遮罩（背景太花时用）、背景模糊、卡片半透明玻璃效果
 
-如果以后想要"Markdown 写博客"：
-
-- **简单路线**：继续用现在这套静态页面，写文章就复制一个新 HTML 文件。
-- **Hexo 路线**：在 Cloudflare Pages 里把构建命令改成 `pnpm install && pnpm build`，
-  输出目录改成 `hexo/blog/public`。但需要先把 Hexo 配好、主题选好，比现在这套重不少。
-
-建议先把当前网站跑通、换成自己的域名，之后需要博客时再启用 Hexo。
+在背景弹窗里直接 `Ctrl+V` 粘贴一张截图也能当背景。
 
 ---
 
-## 五、关于域名：只买 1 年可以吗？以后能换吗？
+## 八、关于原有的 hexo/blog
 
-**可以。换域名的成本极低，因为这个项目没有和任何域名绑定。**
+`hexo/blog` 是一个**未完成的 Hexo 脚手架**（默认 landscape 主题）。本方案没有使用它，也没有改动它。
 
-已核实（代码审计）：`site/` 里所有资源都用相对路径引用
-（`./styles.css`、`./script.js`），没有一个地方写死了域名。
-所以换域名**不需要改任何代码**，`wrangler.jsonc` 也不用动。
+如果以后想要「Markdown 写博客」，再看 `README` 旧版说明或直接启用 Hexo 构建。
+建议先把当前网站跑通、换成自己的域名，之后需要博客时再说。
+
+---
+
+## 九、关于域名与访问
+
+**换域名的成本极低，因为这个项目没有和任何域名绑定。**
+`site/` 里所有资源都用相对路径引用，没有一个地方写死了域名，换域名**不需要改任何代码**。
 
 Cloudflare 官方机制（[Custom Domains 文档](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/)）：
 
@@ -165,67 +292,43 @@ Cloudflare 官方机制（[Custom Domains 文档](https://developers.cloudflare.
 |---|---|
 | 一个 Worker 可绑**多个**自定义域名 | 旧新域名能并存，过渡期不用担心断档 |
 | 加/删自定义域名不用改代码 | Cloudflare 自动创建 DNS 记录、自动签发 HTTPS 证书 |
-| Custom Domain 是**路由**，域名是**可替换的配置** | Worker 本身完全独立于域名存在 |
-| 证书**不会**随域名一起删除 | 删域名后要手动去 `SSL/TLS → Edge Certificates` 清掉，否则残留 |
+| 用 **Custom Domain**，不要手动加 A 记录 | 手动加会缺证书，反而更麻烦 |
+| 证书**不会**随域名一起删除 | 删域名后要手动去 `SSL/TLS → Edge Certificates` 清掉 |
 
-### 换域名的完整流程
+`leeyin.xyz` 的接入步骤、当前卡在哪一步，全部写在 [`DOMAIN_SETUP.md`](./DOMAIN_SETUP.md)，
+配好之后跑一下 `check-domain.ps1` 就知道通没通。
 
-**新增**（可以和旧的并存）：Workers & Pages → `class-web` → Settings → Domains & Routes
-→ Add → Custom Domain → 填新域名。
-
-**切换到新域名**：确认新域名访问正常后，再删掉旧域名那条 Custom Domain，
-然后去 `SSL/TLS → Edge Certificates` 删掉旧域名的证书。
-
-### ⚠️ 只买 1 年的两个真实风险
-
-1. **旧域名过期后可能被别人抢注。** 如果别人注册了你的旧域名，
-   他就能控制那批旧链接的去向，甚至可能把访客引到别的地方。
-   **如果你曾把这个网址分享给很多人，建议续费**，或者至少等旧域名自然过期后
-   重新买回来做跳转。
-
-2. **每次换域名，网站都会被"重新认识"一遍。** 已经得到的搜索引擎收录、
-   别人收藏的链接、分享出去的 URL 全部作废，新域名要从头积累。
-
-> 便宜的 `.top` / `.xyz` 首年常在 ¥10 以内，但**续费价通常明显高于首年**，
-> 下单前看一下续费价格，别只看首年。
+> ⚠️ **`workers.dev` 在国内被墙**（DNS 污染 + SNI 阻断，实测见 `DOMAIN_SETUP.md`）。
+> 这不是部署失败——Cloudflare 后台能看到站点健康运行，只是国内直连打不开。
+> 挂上自定义域名后通常就好了，但也**不保证**，需要实测。
 
 ---
 
-## 六、关于访问：`workers.dev` 在国内被墙
+## 十、已知限制
 
-实测证据（2026-09-12，本机直连、无代理）：
+- **没有后端**，所以：不能跨设备同步、不能多人共享课表、不能查空教室/图书馆座位（那些需要学校接口）
+- **自动抓取依赖教务系统的页面结构**。学校改版后书签脚本可能要跟着改（`site/js/import.js` 里的 `buildBookmarklet()`）。
+  抓不到就退回「上传文件」或「复制粘贴」，这两条路不依赖页面结构。
+- **天气需要联网**访问 `api.open-meteo.com`。取不到会显示「天气获取失败」和重试按钮，不影响其它功能。
+- **桌面通知需要页面保持打开**（浏览器标签页在后台也算）。想要真正的手机推送，用导出的 `.ics` 交给系统日历。
+- **`.xlsx` 解析依赖浏览器的 `DecompressionStream`**（Chrome 80+ / Edge / Safari 16.4+ / Firefox 113+）。
+  浏览器太旧会提示改用 `.xls` 或 `.csv`——而教务系统导出的正是 `.xls`。
+- **地图图片体积**：校园总览压缩后约 840 KB，5 张楼层图各约 70–85 KB。首次打开地图时按需加载。
 
-| 站点 | 结果 |
-|---|---|
-| `github.com` | ✅ 通 |
-| `registry.npmjs.org` | ✅ 通 |
-| `developers.cloudflare.com` | ✅ 通 |
-| `www.cloudflare.com` | ❌ 被阻断 |
-| **`class-web.2878989597.workers.dev`** | ❌ **被阻断** |
+---
 
-具体表现（两层封锁）：
+## 十一、自己跑一遍检查
 
-1. **DNS 污染** —— `workers.dev` 被解析到 `69.171.224.36`（Facebook 的 IP 段），不是 Cloudflare 的真实地址
-2. **SNI 阻断** —— 即使手动用 `--resolve` 指定真实 Cloudflare IP，TCP 443 能连上（`TcpTestSucceeded: True`），
-   但 TLS 握手立刻被切断（curl 返回 `000`，0 字节）
+仓库里没放测试脚本（保持 `site/` 干净），但改动后可以这样自查：
 
-同时 `cloudflare.com` 解析正常（`104.16.x` / `162.159.x`），说明**被针对的是 `workers.dev` 这个域名，不是 Cloudflare 整体**。
+```powershell
+# 1. 语法检查
+Get-ChildItem site\js\*.js | ForEach-Object { node --check $_.FullName; if ($LASTEXITCODE -eq 0) { "OK $($_.Name)" } }
 
-### 这意味着什么
+# 2. 本地打开看一眼
+python -m http.server 8931 --directory site
+# 浏览器访问 http://127.0.0.1:8931
 
-- ✅ **网站在线上是正常的** —— Cloudflare 后台、构建记录、部署状态都能证明
-- ❌ **国内用户（包括你自己在不挂代理时）打不开它**
-- ⚠️ 用 `workers.dev` 分享给国内朋友，对方同样打不开
-
-### 可选的处理方式
-
-| 方式 | 效果 | 成本 |
-|---|---|---|
-| 挂代理访问 | 自己能用 | 已有 |
-| **换自定义域名** | 大概率可用（Cloudflare 免费版自定义域名国内连通性通常好于 `workers.dev`，但**不保证**，需实测） | 需买域名，约 ¥10–70/年 |
-| **迁到国内可直连的平台** | 国内直连可用 | 免费，但平台不同（如 Gitee Pages、腾讯 EdgeOne Pages 等） |
-
-> 换自定义域名的做法：在 Cloudflare 把域名接入（NS 指向 Cloudflare），
-> 然后在 Workers 项目里 **Settings → Domains & Routes → Add → Custom domain**，
-> 填 `www.你的域名.com`。之后 `wrangler.jsonc` 不需要改。
-
+# 3. 确认 Cloudflare 能取到文件
+npx.cmd --yes wrangler@latest deploy --dry-run
+```

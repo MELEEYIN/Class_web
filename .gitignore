@@ -27,3 +27,11 @@ hexo/blog/node_modules/
 hexo/blog/public/
 hexo/blog/db.json
 hexo/blog/.deploy_git/
+
+# 地图原图与教务系统导出的课表原件（约 10 MB）。
+# 网页用的是 site/assets/map/ 里压缩好的 WebP，部署不需要这里的东西；
+# 而且课表文件名里带学号，不适合放进公开仓库。
+# 注意开头的斜杠：只忽略仓库根目录的 map/，不要连 site/assets/map/ 一起忽略掉。
+# 想把原图也备份进仓库：注释掉下面这行，然后 git add -f map/
+/map/
+

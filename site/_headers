@@ -1,11 +1,33 @@
 /*
+  Cloudflare Workers 静态资源 / Pages 都支持这个文件。
+  这里只放「响应头」，没有任何服务器逻辑。
+*/
+
+/*
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: geolocation=(), microphone=(), camera=()
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), interest-cohort=()
 
-/styles.css
+  # 内容安全策略：
+  #   script-src 'self'            —— 站点里没有任何内联脚本，全部是外部 .js
+  #   style-src  'self' + inline   —— 需要 inline，因为很多状态是用 style 属性写的
+  #   img-src    'self' data: blob: https:  —— 地图/图标是本站资源，背景图可能是本地 Blob
+  #                                            或用户自己填的 https 图片地址
+  #   connect-src                  —— 只额外允许天气接口 Open-Meteo
+  Content-Security-Policy: default-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'; frame-ancestors 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://api.open-meteo.com; manifest-src 'self'; worker-src 'none'
+
+  /assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+  /css/*
   Cache-Control: public, max-age=0, must-revalidate
 
-/script.js
+  /js/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+  /data/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+  /index.html
   Cache-Control: public, max-age=0, must-revalidate

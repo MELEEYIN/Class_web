@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>页面不存在 · 校园主页</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#2563eb">
+<link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="./css/base.css">
+<style>
+  .err-wrap {
+    min-height: 100dvh;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+  }
+  .err-card {
+    width: min(100%, 460px);
+    text-align: center;
+    padding: 40px 30px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--surface);
+    box-shadow: var(--sh-3);
+    animation: cw-pop-in .5s var(--ease-out) both;
+  }
+  .err-code {
+    font-size: 62px;
+    font-weight: 800;
+    letter-spacing: -.04em;
+    line-height: 1;
+    background: linear-gradient(96deg, var(--blue-600), var(--blue-400) 60%, #38bdf8);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .err-card h1 { font-size: 20px; margin: 14px 0 8px; }
+  .err-card p { color: var(--muted); font-size: 13.5px; line-height: 1.7; }
+  .err-actions { display: flex; gap: 9px; justify-content: center; margin-top: 22px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+  <div class="err-wrap">
+    <div class="err-card">
+      <div class="err-code">404</div>
+      <h1>这个地址没有内容</h1>
+      <p>
+        可能是链接拼错了，或者这个页面还没建。<br>
+        回主页看看常用入口、课表日程和校园地图。
+      </p>
+      <div class="err-actions">
+        <a class="btn btn-primary" href="./">回到主页</a>
+        <a class="btn btn-ghost" href="https://jwxt.sztu.edu.cn/jsxsd/framework/xsMain.jsp" target="_blank" rel="noopener">去教务系统</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

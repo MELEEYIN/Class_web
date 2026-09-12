@@ -1,0 +1,26 @@
+{
+  "name": "校园主页 · 常用入口 · 课表日程 · 校园地图",
+  "short_name": "校园主页",
+  "description": "深圳技术大学校园导航主页：常用网站入口、课表导入与日程管理、校园地图与 C5 楼层平面图。",
+  "lang": "zh-CN",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f3f8ff",
+  "theme_color": "#2563eb",
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "./assets/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    { "name": "校园地图", "short_name": "地图", "url": "./#map" },
+    { "name": "导入课表", "short_name": "导入", "url": "./#import" }
+  ]
+}
