@@ -81,14 +81,18 @@ python -m http.server 8912 --directory site
 > 然后把 `site/` 里的 4 个文件发布出去。
 > 如果你把这条命令删掉或改掉，部署会因为「找不到要发布的内容」而失败。
 
-### 第 3 步：拿到你的网址
+### 第 3 步：拿到你的网址 —— ✅ 已上线
 
-部署成功后（约 30 秒，状态变 **Success**），网址形如：
+| 项目 | 值 |
+|---|---|
+| **线上地址** | <https://class-web.2878989597.workers.dev> |
+| 项目名 | `class-web` |
+| 绑定的仓库 | `MELEEYIN/Class-web` |
+| 部署状态 | Success（Cloudflare 构建耗时 1 分钟） |
 
-- `https://class-web.<你的子域>.workers.dev` —— 正式网址，**HTTPS 自动配好**
-  （你的子域在截图里是 `2878989597`，所以大概率是
-  `https://class-web.2878989597.workers.dev`）
-- 每次 push 还会生成一个预览地址
+> ⚠️ **国内网络下这个网址打不开**（见下方「五、关于访问」）。
+> 在 Cloudflare 后台能看到站点健康运行，但在国内直连会被 DNS 污染 + SNI 阻断。
+> 这**不是部署失败**，是 `workers.dev` 域名在国内被墙。
 
 之后每次改动（改完 `site/` 里的文件后执行这三条）：
 
@@ -144,3 +148,44 @@ Cloudflare 会从 `site/` 取到那 4 个文件。
   输出目录改成 `hexo/blog/public`。但需要先把 Hexo 配好、主题选好，比现在这套重不少。
 
 建议先把当前网站跑通、换成自己的域名，之后需要博客时再启用 Hexo。
+
+---
+
+## 五、关于访问：`workers.dev` 在国内被墙
+
+实测证据（2026-09-12，本机直连、无代理）：
+
+| 站点 | 结果 |
+|---|---|
+| `github.com` | ✅ 通 |
+| `registry.npmjs.org` | ✅ 通 |
+| `developers.cloudflare.com` | ✅ 通 |
+| `www.cloudflare.com` | ❌ 被阻断 |
+| **`class-web.2878989597.workers.dev`** | ❌ **被阻断** |
+
+具体表现（两层封锁）：
+
+1. **DNS 污染** —— `workers.dev` 被解析到 `69.171.224.36`（Facebook 的 IP 段），不是 Cloudflare 的真实地址
+2. **SNI 阻断** —— 即使手动用 `--resolve` 指定真实 Cloudflare IP，TCP 443 能连上（`TcpTestSucceeded: True`），
+   但 TLS 握手立刻被切断（curl 返回 `000`，0 字节）
+
+同时 `cloudflare.com` 解析正常（`104.16.x` / `162.159.x`），说明**被针对的是 `workers.dev` 这个域名，不是 Cloudflare 整体**。
+
+### 这意味着什么
+
+- ✅ **网站在线上是正常的** —— Cloudflare 后台、构建记录、部署状态都能证明
+- ❌ **国内用户（包括你自己在不挂代理时）打不开它**
+- ⚠️ 用 `workers.dev` 分享给国内朋友，对方同样打不开
+
+### 可选的处理方式
+
+| 方式 | 效果 | 成本 |
+|---|---|---|
+| 挂代理访问 | 自己能用 | 已有 |
+| **换自定义域名** | 大概率可用（Cloudflare 免费版自定义域名国内连通性通常好于 `workers.dev`，但**不保证**，需实测） | 需买域名，约 ¥10–70/年 |
+| **迁到国内可直连的平台** | 国内直连可用 | 免费，但平台不同（如 Gitee Pages、腾讯 EdgeOne Pages 等） |
+
+> 换自定义域名的做法：在 Cloudflare 把域名接入（NS 指向 Cloudflare），
+> 然后在 Workers 项目里 **Settings → Domains & Routes → Add → Custom domain**，
+> 填 `www.你的域名.com`。之后 `wrangler.jsonc` 不需要改。
+
