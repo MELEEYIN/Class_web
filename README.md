@@ -33,31 +33,20 @@ python -m http.server 8912 --directory site
 
 两步：**代码放上 GitHub → Cloudflare Pages 连上这个仓库**。之后每次 `git push`，几秒后线上自动更新。
 
-### 第 1 步：把代码推上 GitHub
+### 第 1 步：把代码推上 GitHub —— ✅ 已完成
 
-✅ **本仓库已经初始化完毕**（分支 `main`，首个提交 `1fa9f27` 已生成），
-git 身份也已按项目级配置写好：`MELEEYIN <2878989597@qq.com>`。
-所以**不需要**再执行 `git init`、`git add`、`git commit`。
+| 项目 | 当前状态 |
+|---|---|
+| 远程仓库 | <https://github.com/MELEEYIN/Class_web> |
+| 分支 | `main` |
+| 线上最新提交 | `83aab44` |
+| git 身份 | `MELEEYIN <2878989597@qq.com>`（项目级，未改动全局配置） |
 
-你只需要两步：
+代码已经推上去了，**第 1 步无需再做**，直接从第 2 步开始。
 
-**① 在 GitHub 网页上新建一个空仓库**，名字建议 `my-site`，
-**不要**勾选 "Add a README" / ".gitignore" / "license"（保持空仓库，否则 push 会被拒）。
-
-**② 回到项目里绑定远程仓库并推送**（把 `你的用户名` 换成真实的 GitHub 用户名）：
-
-```powershell
-cd "D:\DeepSeek Harness\Class_web"
-git remote add origin https://github.com/你的用户名/my-site.git
-git push -u origin main
-```
-
-> 第一次 `push` 会弹出浏览器让你登录 GitHub 授权，点同意即可。
-> 如果提示 `remote origin already exists`，改用：
-> `git remote set-url origin https://github.com/你的用户名/my-site.git`
-
-> 想改提交里显示的名字/邮箱，随时可以改（只改这个项目，不动全局配置）：
+> 想改提交里显示的名字/邮箱（只改这个项目，不动全局配置）：
 > ```powershell
+> cd "D:\DeepSeek Harness\Class_web"
 > git config user.name "新名字"
 > git config user.email "新邮箱@example.com"
 > ```
@@ -67,12 +56,12 @@ git push -u origin main
 
 1. 打开 <https://dash.cloudflare.com/> 注册 / 登录（免费，不需要买域名）。
 2. 左侧菜单进入 **Workers & Pages** → 点 **Create** → 选 **Pages** 标签页 → **Connect to Git**。
-3. 授权 Cloudflare 访问 GitHub，选中刚才的 `my-site` 仓库 → **Begin setup**。
+3. 授权 Cloudflare 访问 GitHub，选中仓库 **`MELEEYIN/Class_web`** → **Begin setup**。
 4. 构建设置这样填（关键，别填错）：
 
    | 项目 | 填写内容 |
    |---|---|
-   | Project name | `my-site`（决定你的网址） |
+   | Project name | `class-web`（决定你的网址，只能用小写字母、数字和连字符） |
    | Production branch | `main` |
    | Framework preset | **None** |
    | Build command | **留空** |
@@ -81,9 +70,19 @@ git push -u origin main
    > ⚠️ **注意 `Build output directory` 必须填 `site`。**
    > 网页文件在仓库的 `site/` 子目录里，如果填成 `/`，网站首页会变成这个 README 而不是你的网页。
    >
-   > 如果想按 Cloudflare Pages 最常见的习惯，把网页放在仓库根目录：
-   > 执行 `git mv site/* .` 把 4 个文件移到根目录，删掉空的 `site` 文件夹，
-   > 然后 Build output directory 改填 `/`。两种结构都可以，填对就行。
+   > 如果想按 Cloudflare Pages 最常见的习惯，把网页放在仓库根目录，就在项目里执行
+   > （**文件必须逐个列出**，`git mv` 不支持 `*` 通配符，写 `git mv site/* .` 会报 `fatal: bad source`）：
+   >
+   > ```powershell
+   > cd "D:\DeepSeek Harness\Class_web"
+   > git mv site/index.html site/styles.css site/script.js site/_headers .
+   > Remove-Item site            # git mv 会留下一个空的 site 目录，手动删掉
+   > git commit -m "refactor: 网页文件移到仓库根目录"
+   > git push
+   > ```
+   >
+   > 然后回到 Cloudflare 把 Build output directory 改填 `/`。
+   > 两种结构都可以，**关键是自己填的和实际结构对得上**。
 
 5. 点 **Save and Deploy**。等约 30 秒，状态变成 **Success**。
 
@@ -91,8 +90,11 @@ git push -u origin main
 
 部署成功后会得到两个地址：
 
-- `https://my-site.pages.dev` —— 正式网址，**HTTPS 自动配好**，直接分享给别人。
-- `https://<随机串>.my-site.pages.dev` —— 每次提交生成的预览地址。
+- `https://class-web.pages.dev` —— 正式网址，**HTTPS 自动配好**，直接分享给别人。
+- `https://<随机串>.class-web.pages.dev` —— 每次提交生成的预览地址。
+
+（如果 `class-web` 这个名字被占用了，Cloudflare 会要求你换一个，
+网址前缀就跟着变，不影响使用。）
 
 之后每次改动（改完 `site/` 里的文件后执行这三条）：
 
