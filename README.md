@@ -35,27 +35,33 @@ python -m http.server 8912 --directory site
 
 ### 第 1 步：把代码推上 GitHub
 
-先确认 git 身份（本机目前还没配过，**只需做一次**）：
+✅ **本仓库已经初始化完毕**（分支 `main`，首个提交 `1fa9f27` 已生成），
+git 身份也已按项目级配置写好：`MELEEYIN <2878989597@qq.com>`。
+所以**不需要**再执行 `git init`、`git add`、`git commit`。
 
-```powershell
-git config --global user.name "你的名字"
-git config --global user.email "你的邮箱@example.com"
-```
+你只需要两步：
 
-然后在 GitHub 网页上新建一个仓库，名字建议 `my-site`，**不要**勾选 "Add a README"（保持空仓库，避免冲突）。建好后在项目里执行：
+**① 在 GitHub 网页上新建一个空仓库**，名字建议 `my-site`，
+**不要**勾选 "Add a README" / ".gitignore" / "license"（保持空仓库，否则 push 会被拒）。
+
+**② 回到项目里绑定远程仓库并推送**（把 `你的用户名` 换成真实的 GitHub 用户名）：
 
 ```powershell
 cd "D:\DeepSeek Harness\Class_web"
-git init -b main
-git add .
-git commit -m "feat: 我的第一个网页"
 git remote add origin https://github.com/你的用户名/my-site.git
 git push -u origin main
 ```
 
 > 第一次 `push` 会弹出浏览器让你登录 GitHub 授权，点同意即可。
-> 如果提示 `remote origin already exists`，说明已经加过了，改用：
+> 如果提示 `remote origin already exists`，改用：
 > `git remote set-url origin https://github.com/你的用户名/my-site.git`
+
+> 想改提交里显示的名字/邮箱，随时可以改（只改这个项目，不动全局配置）：
+> ```powershell
+> git config user.name "新名字"
+> git config user.email "新邮箱@example.com"
+> ```
+> 注意：这**不会**改动已有的提交，历史里的作者信息仍是旧的。
 
 ### 第 2 步：Cloudflare Pages 连接仓库
 
@@ -88,9 +94,10 @@ git push -u origin main
 - `https://my-site.pages.dev` —— 正式网址，**HTTPS 自动配好**，直接分享给别人。
 - `https://<随机串>.my-site.pages.dev` —— 每次提交生成的预览地址。
 
-之后每次改动：
+之后每次改动（改完 `site/` 里的文件后执行这三条）：
 
 ```powershell
+cd "D:\DeepSeek Harness\Class_web"
 git add .
 git commit -m "更新文案"
 git push
