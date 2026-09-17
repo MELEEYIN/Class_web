@@ -1,0 +1,271 @@
+/* ==========================================================================
+   acm.css — ACM 子站（学习手册 / 题练场）的样式层
+   --------------------------------------------------------------------------
+   目标：让这两个页面看起来就是「校园主页」的一部分。
+
+   做法：
+     1) 把主页的配色令牌（site/css/base.css 里 :root 的值）映射成手册 /
+        题练场原本就在用的那一套变量（--bg-rgb / --panel-rgb / --accent …），
+        于是两个页面所有既有样式自动变成主页的蓝白配色，并跟随
+        data-theme="light|dark" 切换。
+     2) 顶部导航与页脚按主页的视觉语言重写。
+
+   注意：这里**故意不加载**主页的 base.css / components.css ——
+        主页的 .btn / .card / .mini / .seg / .badge 会和手册自己的同名类
+        互相覆盖（手册里 .mini 是文件按钮组、.seg 是配色开关）。
+        所以令牌值是照抄过来的，改主页配色时这里也要同步。
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. 令牌映射：浅色 = 主页浅色主题
+   -------------------------------------------------------------------------- */
+html[data-theme="light"] {
+  color-scheme: light;
+
+  --bg-rgb: 243 248 255;          /* --bg        #f3f8ff */
+  --panel-rgb: 255 255 255;       /* --surface   #ffffff */
+  --panel-a: 1;
+  --text: #0e1f38;                /* --ink       */
+  --text-2: #33475f;              /* --ink-2     */
+  --text-3: #697f9b;              /* --muted     */
+  --line: #e2ecf9;
+  --line-2: #cbdcf2;
+
+  --accent: #2563eb;              /* --blue-600  */
+  --accent-rgb: 37 99 235;
+  --accent-ink: #ffffff;
+
+  --code-bg: #f8fbff;
+  --code-line: #e2ecf9;
+  --code-text: #1f2328;
+
+  --ok-rgb: 14 159 122;
+  --warn-rgb: 194 117 26;
+  --danger-rgb: 214 69 69;
+  --vio-rgb: 109 40 217;
+
+  --acm-tint: linear-gradient(180deg, #f3f8ff 0%, #eaf2fe 55%, #f5f9ff 100%);
+}
+
+/* --------------------------------------------------------------------------
+   2. 令牌映射：深色 = 主页深色主题
+   -------------------------------------------------------------------------- */
+html[data-theme="dark"],
+html:not([data-theme]) {
+  color-scheme: dark;
+
+  --bg-rgb: 6 13 26;              /* --bg        #060d1a */
+  --panel-rgb: 14 28 48;          /* --surface   #0e1c30 */
+  --panel-a: .94;
+  --text: #e9f1fc;                /* --ink       */
+  --text-2: #b6c8e0;              /* --ink-2     */
+  --text-3: #8298b6;              /* --muted     */
+  --line: #1c3049;
+  --line-2: #29456b;
+
+  --accent: #4d8dff;
+  --accent-rgb: 77 141 255;
+  --accent-ink: #04101f;
+
+  --code-bg: rgb(3 8 18 / .70);
+  --code-line: #1c3049;
+  --code-text: #d9e6fb;
+
+  --ok-rgb: 43 199 155;
+  --warn-rgb: 224 160 74;
+  --danger-rgb: 240 115 111;
+  --vio-rgb: 167 139 250;
+
+  --acm-tint: linear-gradient(180deg, #060d1a 0%, #08111f 60%, #060d1a 100%);
+}
+
+/* 主界面使用的阴影与圆角（照抄主页 base.css，偏蓝、很轻） */
+:root {
+  --acm-nav-h: 60px;
+  --acm-ease: cubic-bezier(.22, .61, .36, 1);
+  --sh-1: 0 1px 2px rgba(15, 43, 85, .05), 0 1px 3px rgba(15, 43, 85, .04);
+  --sh-2: 0 4px 16px rgba(15, 43, 85, .07), 0 1px 3px rgba(15, 43, 85, .05);
+  --sh-3: 0 18px 46px rgba(15, 43, 85, .12), 0 4px 14px rgba(15, 43, 85, .06);
+  --ring: 0 0 0 3px rgb(var(--accent-rgb) / .16);
+}
+html[data-theme="dark"],
+html:not([data-theme]) {
+  --sh-1: 0 1px 2px rgba(0, 0, 0, .30);
+  --sh-2: 0 4px 16px rgba(0, 0, 0, .34);
+  --sh-3: 0 18px 46px rgba(0, 0, 0, .46);
+}
+
+/* --------------------------------------------------------------------------
+   3. 页面底板与滚动定位
+   -------------------------------------------------------------------------- */
+html {
+  /* 顶部多了 60px 的粘性导航，锚点跳转要留出这段距离 */
+  scroll-padding-top: calc(var(--acm-nav-h) + 14px);
+}
+
+body { background: rgb(var(--bg-rgb)); }
+
+/* 主页那层淡淡的蓝白渐变 */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  pointer-events: none;
+  background: var(--acm-tint);
+}
+
+/* 两个页面原有的壁纸层（.bgfx / .bgtint）默认透明度降低，
+   免得盖过主页渐变；用户仍可在「外观」里调回。 */
+.bgtint { opacity: .55; }
+html[data-theme="light"] .bgfx { opacity: calc(var(--fx-a, 1) * .6); }
+
+/* 导航与页脚要压在壁纸层之上 */
+.acm-nav, .acm-footer { position: relative; z-index: 40; }
+
+/* --------------------------------------------------------------------------
+   4. 顶部导航（复刻主页 .nav）
+   -------------------------------------------------------------------------- */
+.acm-nav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  height: var(--acm-nav-h);
+  border-bottom: 1px solid transparent;
+  background: rgb(var(--panel-rgb) / .86);
+  backdrop-filter: saturate(180%) blur(14px);
+  -webkit-backdrop-filter: saturate(180%) blur(14px);
+  transition: border-color .26s var(--acm-ease), box-shadow .26s var(--acm-ease);
+}
+.acm-nav.stuck {
+  border-bottom-color: var(--line);
+  box-shadow: var(--sh-2);
+}
+
+.acm-wrap { width: 100%; max-width: 1320px; margin-inline: auto; padding-inline: 22px; }
+
+.acm-nav-inner { display: flex; align-items: center; gap: 16px; height: 100%; }
+
+/* 品牌 */
+.acm-brand { display: flex; align-items: center; gap: 10px; color: var(--text); flex: none; text-decoration: none; }
+.acm-mark {
+  width: 34px; height: 34px; flex: none;
+  border-radius: 10px;
+  display: grid; place-items: center;
+  background: linear-gradient(140deg, var(--accent), rgb(var(--accent-rgb) / .72));
+  box-shadow: 0 3px 10px rgb(var(--accent-rgb) / .30);
+  color: var(--accent-ink);
+}
+.acm-mark svg { width: 19px; height: 19px; }
+.acm-brand-text { display: flex; flex-direction: column; line-height: 1.15; min-width: 0; }
+.acm-brand-text strong { font-size: 15px; font-weight: 750; letter-spacing: -.01em; }
+.acm-brand-text small { font-size: 10.5px; color: var(--text-3); font-weight: 600; letter-spacing: .04em; }
+@media (max-width: 520px) { .acm-brand-text small { display: none; } }
+
+/* 子站内的两个页面切换 */
+.acm-tabs { display: inline-flex; padding: 3px; gap: 2px; border: 1px solid var(--line); border-radius: 10px; background: rgb(var(--bg-rgb) / .55); }
+.acm-tabs a {
+  padding: 6px 13px;
+  border-radius: 7px;
+  font-size: 12.5px;
+  font-weight: 650;
+  color: var(--text-3);
+  text-decoration: none;
+  transition: color .2s var(--acm-ease), background-color .2s var(--acm-ease), box-shadow .2s var(--acm-ease);
+}
+.acm-tabs a:hover { color: var(--text); }
+.acm-tabs a.on { background: rgb(var(--panel-rgb)); color: var(--accent); box-shadow: var(--sh-1); }
+
+.acm-nav-actions { display: flex; align-items: center; gap: 6px; margin-left: auto; flex: none; }
+
+/* 按钮：主页 .btn / .btn-sm 的观感 */
+.acm-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  height: 34px; padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgb(var(--panel-rgb) / .9);
+  color: var(--text-2);
+  font-size: 13px; font-weight: 650;
+  text-decoration: none; white-space: nowrap;
+  box-shadow: var(--sh-1);
+  transition: transform .15s var(--acm-ease), box-shadow .26s var(--acm-ease),
+              border-color .26s var(--acm-ease), color .26s var(--acm-ease), background-color .26s var(--acm-ease);
+}
+.acm-btn:hover { transform: translateY(-1px); box-shadow: var(--sh-2); border-color: rgb(var(--accent-rgb) / .45); color: var(--accent); }
+.acm-btn:active { transform: translateY(0) scale(.985); }
+.acm-btn-icon { width: 34px; padding: 0; }
+.acm-btn .ico { width: 16px; height: 16px; flex: none; }
+@media (max-width: 560px) { .acm-btn .label { display: none; } .acm-btn:not(.acm-btn-icon) { width: 34px; padding: 0; } }
+
+/* 页面主体的两栏骨架：导航变高了，侧栏的粘性位置跟着往下挪 */
+body > .layout > aside { top: calc(var(--acm-nav-h) + 16px); }
+@media (min-width: 861px) {
+  .bar { top: var(--acm-nav-h); }        /* 手册里的搜索/筛选条 */
+}
+
+/* --------------------------------------------------------------------------
+   5. 主视觉区（沿用页面自己的 .top 页头，只做轻量对齐）
+   -------------------------------------------------------------------------- */
+header.top { padding-top: 26px; padding-bottom: 12px; }
+header.top h1 { letter-spacing: -.025em; }
+header.top .sub { color: var(--text-2); }
+
+/* 页头里的小圆标 —— 主页 .badge 的观感 */
+.stats .stat,
+.acm-chip {
+  background: rgb(var(--accent-rgb) / .10);
+  border: 1px solid rgb(var(--accent-rgb) / .26);
+  color: var(--accent);
+  border-radius: 999px;
+}
+
+/* 卡片式内容块：主页 .card 的观感 */
+.algo { border-radius: 14px; box-shadow: var(--sh-1); }
+.algo:hover { box-shadow: var(--sh-2); }
+
+/* 手册里的「做例题 / 相关练习」入口 —— 主页按钮观感 */
+.ah a.prac {
+  border-radius: 999px;
+  font-weight: 650;
+  transition: background-color .2s var(--acm-ease), color .2s var(--acm-ease), border-color .2s var(--acm-ease);
+}
+.ah a.prac.rel { opacity: .9; }
+
+/* --------------------------------------------------------------------------
+   6. 右下角「外观」面板：位置往上挪一点，避开贴底的边距
+   -------------------------------------------------------------------------- */
+.fab, .sheet { z-index: 45; }
+.sheet { box-shadow: var(--sh-3); border-radius: 14px; }
+#sheet .srow .lab { letter-spacing: .02em; }
+
+/* --------------------------------------------------------------------------
+   7. 页脚（复刻主页 .footer）
+   -------------------------------------------------------------------------- */
+.acm-footer {
+  margin-top: 40px;
+  border-top: 1px solid var(--line);
+  background: rgb(var(--panel-rgb) / .6);
+  padding: 30px 0 40px;
+}
+.acm-footer-inner {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 20px; flex-wrap: wrap;
+  font-size: 12.5px; color: var(--text-3);
+}
+.acm-footer-inner p { margin: 0; }
+.acm-footer-inner .acm-tiny { font-size: 11.5px; margin-top: 4px; opacity: .8; max-width: 620px; line-height: 1.6; }
+.acm-footer-links { display: flex; gap: 16px; flex-wrap: wrap; }
+.acm-footer-links a { color: var(--text-3); font-weight: 600; text-decoration: none; }
+.acm-footer-links a:hover { color: var(--accent); }
+
+/* --------------------------------------------------------------------------
+   8. 窄屏
+   -------------------------------------------------------------------------- */
+@media (max-width: 720px) {
+  .acm-wrap { padding-inline: 14px; }
+  .acm-tabs { padding: 2px; }
+  .acm-tabs a { padding: 6px 10px; font-size: 12px; }
+  header.top { padding-top: 18px; }
+  .acm-footer { margin-top: 24px; }
+}

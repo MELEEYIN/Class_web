@@ -80,6 +80,18 @@
   Cache-Control: public, max-age=0, must-revalidate
   Content-Security-Policy: default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://bgmapi.anibt.net https://graphql.anilist.co https://api.jikan.moe https://api.bgm.tv; media-src 'self' data:
 
+# ------------------------------ ACM 算法子站（/acm/） ------------------------------
+# · 学习手册与题练场都是单文件页面：样式和脚本内联，所以要放开 inline
+# · 题库（122 题的三语言题解）内嵌在 practice.html 里，不需要任何外部请求
+/acm/*
+  X-Robots-Tag: noindex, follow
+  Cache-Control: public, max-age=0, must-revalidate
+  Content-Security-Policy: default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:
+
+/acm
+  X-Robots-Tag: noindex, follow
+  Content-Security-Policy: default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:
+
 # ------------------------------ 缓存策略 ------------------------------
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
