@@ -48,6 +48,9 @@
   background: var(--surface);
   box-shadow: var(--sh-1);
   color: var(--ink);
+  /* 卡片有的是 <a>、有的是 <button>：按钮默认 text-align:center，
+     会让文字一会儿居中一会儿靠左。这里统一从左排。 */
+  text-align: left;
   overflow: hidden;
   isolation: isolate;
   transition: transform var(--t) var(--ease), box-shadow var(--t) var(--ease),
@@ -91,6 +94,23 @@
 
 .link-card .lc-name { font-size: 15px; font-weight: 720; letter-spacing: -.012em; }
 .link-card .lc-host { font-size: 11px; color: var(--faint); font-family: var(--mono); }
+
+/* 名称一行、小字一行（之前两者是内联的，会挤在同一行）：
+   统一成竖排后，各张卡片的名字和小字都对齐，整排看起来整齐 */
+.link-card .lc-top > span:not(.lc-icon) {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.link-card .lc-name { line-height: 1.35; }
+.link-card .lc-host {
+  line-height: 1.4;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;   /* 小字太长就省略，不撑破卡片 */
+}
 
 .link-card .lc-desc {
   font-size: 12.5px;
@@ -218,6 +238,36 @@
 .empty strong { color: var(--ink-2); font-size: 13px; }
 
 /* 统计条 */
+/* --------------------------------------------------------------------------
+   左栏「日程表」卡片：外框高度固定，只有里面的日期/内容会变
+
+   为什么：这两个区块的内容多少会变，卡片就会一直高矮跳（实测差 386px）——
+     · 下一节课：有课时 ~269px，没课时 ~119px
+     · 未来几天：6 项 ~430px，3 项 ~263px，空 ~194px
+   做法：给它们留出固定高度；「未来几天」超出的部分在自己内部滚动，
+   不再把整张卡片撑高（7 天全排满时最多 7×7 行，没有上限）。
+   迷你日历那边靠 JS 固定 6 行来保证高度一致（见 schedule.js）。
+   -------------------------------------------------------------------------- */
+#schedNow {
+  min-height: 272px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;   /* 内容少时居中，看起来是「留白」而不是「没渲染」 */
+}
+#schedNow > * { width: 100%; }
+
+#schedUpcoming {
+  height: 434px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+/* 条目少时别把「未来 7 天」那段提示挤在正中，靠上更自然 */
+#schedUpcoming .sched-list { align-content: start; }
+
+/* 完全没有任何课表/事务时，不必留那一大片固定空高（有内容后立刻锁死高度，见上） */
+#schedCard.is-empty #schedNow { min-height: 0; }
+#schedCard.is-empty #schedUpcoming { height: auto; }
+
 .sched-stats {
   display: flex;
   gap: 0;
@@ -481,6 +531,40 @@ body.modal-open { overflow: hidden; }
   max-height: 100dvh;
   border-radius: 0;
 }
+
+/* --------------------------------------------------------------------------
+   看番记录（内嵌 site/anime.html）
+   那个页面自己是一整屏的暗色界面，所以这里给它一块尽量大的舞台：
+   弹窗本体用 mw-xl（1180px），舞台撑满剩余高度，不要整页滚动条。
+   -------------------------------------------------------------------------- */
+.anime-stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  background: #0d0a1a;       /* 和看番页的底色一致，加载时不会闪白 */
+  display: flex;
+}
+.anime-frame {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  min-height: 62dvh;
+  border: 0;
+  display: block;
+  background: #0d0a1a;
+}
+.anime-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 10px;
+  color: #b0a0c8;
+  font-size: 13px;
+  background: #0d0a1a;
+}
+.anime-loading[hidden] { display: none; }
 
 .modal-head {
   display: flex;
@@ -807,6 +891,9 @@ body.modal-open { overflow: hidden; }
 .row-item .ri-title { font-size: 13.5px; font-weight: 650; }
 .row-item .ri-meta { font-size: 11.5px; color: var(--muted); display: flex; gap: 10px; flex-wrap: wrap; }
 .row-item .ri-actions { display: flex; gap: 4px; flex: none; }
+/* 已经处理过的条目（例如公共事务已经加进自己的日程）淡一点，但仍然可以点 */
+.row-item.is-dim .ri-bar { opacity: .45; }
+.row-item.is-dim .ri-title { color: var(--muted); font-weight: 600; }
 
 /* 表单栅格 */
 .form-grid { display: grid; gap: 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -944,6 +1031,10 @@ body.modal-open { overflow: hidden; }
   pointer-events: none;
   width: min(92vw, 420px);
 }
+/* Toast 的层级比弹窗高（这样才能压在弹窗上面提示），手机上就会盖住弹窗
+   底部那排按钮 —— 曾经出现「点『知道了』结果点到提示条、弹窗关不掉」。
+   弹窗打开时把提示条整体上移，让底部按钮始终可点。 */
+body.modal-open .toast-wrap { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
 .toast {
   display: flex;
   align-items: flex-start;
@@ -1003,3 +1094,250 @@ body.modal-open { overflow: hidden; }
   color: var(--ink-2);
   white-space: nowrap;
 }
+
+
+/* --------------------------------------------------------------------------
+   附件（通知 / 公共事务）
+   -------------------------------------------------------------------------- */
+.att-mount { display: grid; gap: 8px; margin-top: 4px; }
+.att-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.att-hint { min-width: 0; }
+.att-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.att-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 4px 6px 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  font-size: 12px;
+  color: var(--ink-2);
+}
+.att-chip.is-loading { opacity: .6; }
+.att-chip .ico { width: 14px; height: 14px; color: var(--accent); flex: none; }
+.att-chip-img { width: 22px; height: 22px; object-fit: cover; border-radius: 6px; flex: none; }
+.att-chip-name { max-width: 190px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.att-chip-x {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: transparent; color: var(--faint); flex: none;
+}
+.att-chip-x:hover { background: var(--surface-3); color: var(--danger); }
+.att-chip-x .ico { width: 12px; height: 12px; color: inherit; }
+
+.att-list { display: grid; gap: 8px; margin-top: 10px; }
+.att-thumbs { display: flex; flex-wrap: wrap; gap: 8px; }
+.att-thumb {
+  display: block;
+  width: 92px; height: 92px;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--surface-3);
+}
+/* 图片缩略图现在是 <button>（点了就地看大图），把浏览器默认样式清掉 */
+button.att-thumb { padding: 0; cursor: zoom-in; -webkit-tap-highlight-color: transparent; }
+.att-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform var(--t) var(--ease); }
+.att-thumb:hover img { transform: scale(1.06); }
+.att-list.is-compact .att-thumb { width: 60px; height: 60px; }
+.att-files { display: grid; gap: 6px; }
+.att-file {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  font-size: 12.5px;
+  color: var(--ink-2);
+  min-width: 0;
+}
+button.att-file {
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  cursor: zoom-in;
+  -webkit-tap-highlight-color: transparent;
+}
+.att-file:hover { border-color: var(--accent-line); color: var(--accent); }
+.att-file.is-image .ico { color: var(--accent); }
+.att-file .ico { width: 15px; height: 15px; color: var(--accent); flex: none; }
+.att-name { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.att-size { flex: none; }
+@media (max-width: 620px) {
+  .att-thumb { width: 76px; height: 76px; }
+  .att-name { max-width: 55vw; }
+}
+
+/* --------------------------------------------------------------------------
+   11.1 图片大图预览（附件 / 通知里的图片）
+   以前通知里的图片是 <a download>：手机点一下变成下载文件，看不到图、也退不出去。
+   现在统一走这一层：✕ / 点背景 / Esc 关闭，另给「下载」「新标签页」两个出口。
+   -------------------------------------------------------------------------- */
+.img-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 400;                 /* 在弹窗(120)、Toast(300) 之上 */
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--t) var(--ease), visibility var(--t);
+}
+.img-viewer.open { opacity: 1; visibility: visible; }
+.iv-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(6, 10, 20, .86);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+.iv-img {
+  position: relative;
+  max-width: 94vw;
+  max-height: 74vh;
+  border-radius: var(--r);
+  background: #0b1220;
+  box-shadow: var(--sh-4);
+}
+.iv-bar {
+  position: absolute;
+  left: 50%;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 94vw;
+  padding: 8px 10px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, .82);
+  -webkit-backdrop-filter: blur(9px);
+  backdrop-filter: blur(9px);
+  color: #fff;
+}
+.iv-name {
+  max-width: 34vw;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 12.5px;
+  font-weight: 650;
+}
+.iv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .14);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 650;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.iv-btn:hover { background: rgba(255, 255, 255, .26); }
+.iv-btn .ico { width: 14px; height: 14px; }
+.iv-close {
+  width: 34px; height: 34px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, .2);
+  color: #fff;
+}
+.iv-close:hover { background: rgba(255, 255, 255, .34); }
+.iv-close svg { width: 15px; height: 15px; }
+body.img-viewer-open { overflow: hidden; }
+@media (max-width: 620px) {
+  .iv-img { max-height: 66vh; }
+  .iv-name { max-width: 26vw; }
+  .iv-btn { padding: 0 10px; }
+  .iv-btn span { display: none; }      /* 窄屏只留图标，别挤爆 */
+  .iv-btn { width: 34px; justify-content: center; padding: 0; }
+}
+
+/* 附件区：可以拖文件进来 */
+.att-mount {
+  padding: 10px;
+  border: 1.5px dashed var(--line-strong, var(--line));
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  transition: border-color var(--t) var(--ease), background var(--t) var(--ease);
+}
+.att-mount.is-drop {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.att-mount.is-drop .att-hint { color: var(--accent); font-weight: 700; }
+.att-mount .att-chips { margin-top: 8px; }
+.att-mount .att-chips:empty { margin-top: 0; }
+
+/* --------------------------------------------------------------------------
+   问题反馈 + 投票
+   -------------------------------------------------------------------------- */
+.mini-poll { min-width: 190px; max-width: 260px; display: grid; align-content: start; gap: 7px; }
+.mp-head { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 750; color: var(--ink-2); }
+.mp-head .ico { width: 14px; height: 14px; color: var(--accent); flex: none; }
+.mp-title { flex: 1 1 auto; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.mp-count { font-size: 10.5px; font-weight: 650; color: var(--faint); flex: none; }
+.mp-body { min-width: 0; }
+
+.poll-list, .fb-list { display: grid; gap: 12px; }
+.poll-card { border: 1px solid var(--line); border-radius: var(--r-sm); padding: 12px; background: var(--surface-2); display: grid; gap: 8px; }
+.poll-card.is-compact { border: 0; background: transparent; padding: 0; gap: 6px; }
+.poll-head { display: flex; align-items: baseline; gap: 8px; }
+.poll-title { font-size: 13.5px; font-weight: 750; color: var(--ink); flex: 1 1 auto; min-width: 0; }
+.poll-total { flex: none; }
+.poll-rows { display: grid; gap: 6px; }
+.poll-row {
+  position: relative; display: grid; grid-template-columns: 1fr auto; gap: 2px 8px;
+  padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--r-sm);
+  background: var(--surface); text-align: left; width: 100%; overflow: hidden; cursor: pointer;
+  transition: border-color var(--t) var(--ease), background var(--t) var(--ease);
+}
+.poll-row:hover { border-color: var(--accent-line); }
+.poll-row.is-static { cursor: default; }
+.poll-row.is-picked { border-color: var(--accent); background: var(--accent-soft); }
+.poll-row.is-mine .poll-label { font-weight: 780; color: var(--accent); }
+.poll-label { font-size: 12.5px; font-weight: 650; color: var(--ink-2); min-width: 0; overflow-wrap: anywhere; }
+.poll-num { font-size: 11px; font-weight: 650; color: var(--faint); flex: none; }
+.poll-bar { grid-column: 1 / -1; height: 4px; border-radius: 999px; background: var(--surface-3); overflow: hidden; }
+.poll-bar i { display: block; height: 100%; background: var(--accent); opacity: .55; transition: width var(--t) var(--ease); }
+.poll-foot { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.poll-card.is-compact .poll-num { font-size: 10.5px; }
+
+.fb-item { border: 1px solid var(--line); border-radius: var(--r-sm); padding: 11px 12px; background: var(--surface-2); display: grid; gap: 7px; }
+.fb-head { display: flex; align-items: center; gap: 8px; }
+.fb-by { font-size: 12.5px; font-weight: 750; color: var(--ink-2); }
+.fb-del { margin-left: auto; }
+.fb-text { font-size: 13px; line-height: 1.7; color: var(--ink); white-space: pre-wrap; margin: 0; overflow-wrap: anywhere; }
+.fb-replies { display: grid; gap: 5px; padding-left: 10px; border-left: 2px solid var(--line); }
+.fb-reply { font-size: 12.5px; line-height: 1.6; color: var(--ink-2); overflow-wrap: anywhere; }
+.fb-reply-by { font-weight: 700; color: var(--muted); }
+.fb-reply-row { display: flex; gap: 7px; }
+.fb-reply-row .input { flex: 1 1 auto; min-width: 0; }
+@media (max-width: 620px) {
+  .mini-poll { max-width: none; min-width: 0; }
+  .fb-reply-row { flex-wrap: wrap; }
+}
+
+/* 有新版本时的提示条（右下角） */
+.pwa-update {
+  position: fixed; right: 16px; bottom: 16px; z-index: 40000;
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 12px;
+  background: var(--surface); border: 1px solid var(--accent-line, var(--line));
+  box-shadow: var(--sh-3, 0 12px 30px rgba(15,23,42,.22));
+  font-size: 13px; font-weight: 650; color: var(--ink-2);
+}
+.pwa-update button {
+  border: 0; border-radius: 9px; padding: 6px 11px;
+  background: var(--accent); color: #fff; font-size: 12.5px; font-weight: 700; cursor: pointer;
+}
+@media (max-width: 620px) { .pwa-update { left: 12px; right: 12px; justify-content: space-between; } }

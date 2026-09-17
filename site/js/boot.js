@@ -68,4 +68,16 @@
       if (cfg.glass === false) root.setAttribute('data-glass', 'off');
     }
   } catch (e) { /* 忽略 */ }
+  /* 装到桌面：beforeinstallprompt 有可能在 DOMContentLoaded 之前就触发
+     （尤其是二次访问、service worker 已就绪时），所以在首屏前先接住一份。
+     pwa.js 解析后会在 init / 打开弹窗时取走它 —— 错过这个事件，
+     「装到桌面」入口就永远不会出现。 */
+  try {
+    window.CW_INSTALL_PROMPT = null;
+    window.addEventListener('beforeinstallprompt', function (e) {
+      try { e.preventDefault(); } catch (err) { /* 忽略 */ }
+      window.CW_INSTALL_PROMPT = e;
+      try { window.dispatchEvent(new Event('cw:installprompt')); } catch (err) { /* 忽略 */ }
+    });
+  } catch (e) { /* 忽略 */ }
 })();

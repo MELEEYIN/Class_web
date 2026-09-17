@@ -1,0 +1,209 @@
+/* ==========================================================================
+   桌面版光效 / 动效补充（fx.css）
+
+   设计原则：
+     · 只在「桌面视图 + 有鼠标的宽屏」生效（html[data-view="desktop"]），
+       手机版（点「切换到手机版」或窄屏）完全不受影响，省电也不卡；
+     · 只用 transform / opacity / background-position 做动画，不触发重排；
+     · 「减少动效」偏好由 base.css 里的全局兜底规则统一关掉；
+     · 打印时不显示任何装饰（见文末）。
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. 顶栏：下沿一条缓慢流动的细光线
+   -------------------------------------------------------------------------- */
+@media (min-width: 900px) and (hover: hover) {
+  html[data-view="desktop"] .nav {
+    position: sticky;   /* 保持原样，这里只是确保伪元素定位有参照 */
+    isolation: isolate;
+  }
+  html[data-view="desktop"] .nav::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 1px;
+    pointer-events: none;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      color-mix(in srgb, var(--accent) 0%, transparent) 18%,
+      color-mix(in srgb, var(--accent) 55%, transparent) 46%,
+      color-mix(in srgb, var(--accent-2) 70%, transparent) 54%,
+      transparent 82%
+    );
+    background-size: 220% 100%;
+    background-position: -60% 0;
+    opacity: .75;
+    animation: cw-fx-sweep 9s linear infinite;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   2. 首屏问候区：两团极淡的柔光缓慢漂移
+   -------------------------------------------------------------------------- */
+@media (min-width: 900px) and (hover: hover) {
+  html[data-view="desktop"] .dash {
+    position: relative;
+    overflow: hidden;    /* 光斑不越出这一区，也不影响横向滚动 */
+  }
+  html[data-view="desktop"] .dash-inner {
+    position: relative;
+    z-index: 1;          /* 压住下面的光斑，保证文字清晰 */
+  }
+  html[data-view="desktop"] .dash::before {
+    content: "";
+    position: absolute;
+    inset: -30% -6% -40% -6%;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(30% 46% at 14% 26%, color-mix(in srgb, var(--accent) 13%, transparent), transparent 70%),
+      radial-gradient(26% 40% at 82% 18%, color-mix(in srgb, var(--accent-2) 12%, transparent), transparent 72%);
+    filter: blur(2px);
+    animation: cw-fx-drift 24s var(--ease) infinite alternate;
+  }
+  [data-theme="dark"] html[data-view="desktop"] .dash::before,
+  html[data-view="desktop"][data-theme="dark"] .dash::before {
+    opacity: .55;      /* 暗色下再淡一点，避免发灰 */
+  }
+}
+
+/* --------------------------------------------------------------------------
+   3. 卡片：悬停时一道光扫过 + 边框发光 + 阴影加深
+   -------------------------------------------------------------------------- */
+@media (min-width: 900px) and (hover: hover) {
+  html[data-view="desktop"] .link-card {
+    transition: transform var(--t) var(--ease), box-shadow var(--t-slow) var(--ease),
+                border-color var(--t) var(--ease);
+  }
+  html[data-view="desktop"] .link-card:hover {
+    transform: translateY(-4px);
+    border-color: color-mix(in srgb, var(--cc, var(--accent)) 42%, var(--line));
+    box-shadow:
+      var(--sh-3),
+      0 0 0 1px color-mix(in srgb, var(--cc, var(--accent)) 16%, transparent),
+      0 14px 44px color-mix(in srgb, var(--cc, var(--accent)) 16%, transparent);
+  }
+  /* 一道斜光从左扫到右（只扫一次，悬停时触发） */
+  html[data-view="desktop"] .link-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    border-radius: inherit;
+    background: linear-gradient(
+      104deg,
+      transparent 39%,
+      color-mix(in srgb, var(--cc, var(--accent)) 9%, transparent) 47%,
+      color-mix(in srgb, #fff 40%, transparent) 51%,
+      color-mix(in srgb, var(--cc, var(--accent)) 7%, transparent) 55%,
+      transparent 63%
+    );
+    background-size: 260% 100%;
+    background-position: 135% 0;
+    opacity: 0;
+  }
+  html[data-view="desktop"] .link-card:hover::after {
+    opacity: 1;
+    animation: cw-fx-sheen .95s var(--ease-out);
+  }
+  /* 图标：悬停时一圈柔和光晕 */
+  html[data-view="desktop"] .link-card:hover .lc-icon {
+    box-shadow:
+      0 8px 20px color-mix(in srgb, var(--cc, var(--accent)) 30%, transparent),
+      0 0 0 6px color-mix(in srgb, var(--cc, var(--accent)) 9%, transparent);
+  }
+  /* 图标本身轻微浮动，让卡片"活"起来 */
+  html[data-view="desktop"] .link-card:hover .lc-icon svg {
+    animation: cw-fx-bob 2.4s var(--ease) infinite;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   4. 普通卡片 / 统计块：悬停时也有一层柔光和浮起
+   -------------------------------------------------------------------------- */
+@media (min-width: 900px) and (hover: hover) {
+  html[data-view="desktop"] .card {
+    transition: transform var(--t) var(--ease), box-shadow var(--t-slow) var(--ease);
+  }
+  html[data-view="desktop"] .card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--sh-2);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   5. 按钮 / 徽章：悬停光晕、成功徽章轻微呼吸
+   -------------------------------------------------------------------------- */
+@media (min-width: 900px) and (hover: hover) {
+  html[data-view="desktop"] .btn-primary:hover {
+    box-shadow: 0 8px 22px color-mix(in srgb, var(--accent) 34%, transparent);
+  }
+  html[data-view="desktop"] .btn:not(.btn-primary):not(.btn-icon):hover {
+    box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 14%, transparent);
+  }
+  html[data-view="desktop"] .badge-ok {
+    animation: cw-fx-breathe 3.6s var(--ease) infinite;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   6. 小标题：左侧一条渐隐的光标线（静态装饰，随悬停加长）
+   -------------------------------------------------------------------------- */
+@media (min-width: 900px) and (hover: hover) {
+  html[data-view="desktop"] .section-head h2 {
+    position: relative;
+    padding-left: 13px;
+  }
+  html[data-view="desktop"] .section-head h2::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: .28em;
+    bottom: .28em;
+    width: 3px;
+    border-radius: 3px;
+    background: linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 25%, transparent));
+    box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 40%, transparent);
+    transition: width var(--t) var(--ease);
+  }
+  html[data-view="desktop"] .section-head:hover h2::before { width: 5px; }
+}
+
+/* --------------------------------------------------------------------------
+   7. 关键帧
+   -------------------------------------------------------------------------- */
+@keyframes cw-fx-sweep {
+  0%   { background-position: -60% 0; }
+  100% { background-position: 160% 0; }
+}
+@keyframes cw-fx-sheen {
+  0%   { background-position: 135% 0; }
+  100% { background-position: -35% 0; }
+}
+@keyframes cw-fx-drift {
+  0%   { transform: translate3d(-1.5%, -1%, 0) scale(1); }
+  50%  { transform: translate3d(1%, 1.2%, 0) scale(1.04); }
+  100% { transform: translate3d(2%, -0.6%, 0) scale(1.02); }
+}
+@keyframes cw-fx-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-1.5px); }
+}
+@keyframes cw-fx-breathe {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 0%, transparent); }
+  50%      { box-shadow: 0 0 0 4px color-mix(in srgb, currentColor 12%, transparent); }
+}
+
+/* --------------------------------------------------------------------------
+   8. 打印：不要任何装饰
+   -------------------------------------------------------------------------- */
+@media print {
+  .nav::before,
+  .dash::before,
+  .link-card::after,
+  .section-head h2::before { display: none !important; }
+}

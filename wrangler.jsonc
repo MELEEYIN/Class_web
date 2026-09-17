@@ -1,7 +1,7 @@
 {
-  // Cloudflare Workers 静态资源配置
-  // 这个文件告诉 Cloudflare：把仓库里的 site/ 目录当作网站内容发布。
-  // 官方文档：https://developers.cloudflare.com/workers/static-assets/binding/
+  // Cloudflare Workers 配置
+  // 这个文件告诉 Cloudflare：把仓库里的 site/ 目录当作网站内容发布，
+  // 同时用 worker/index.js 提供 /api/* 这几个接口（通知栏用）。
   "$schema": "./node_modules/wrangler/config-schema.json",
 
   "name": "class-web",
@@ -9,11 +9,58 @@
   // 兼容性日期：建议设成接近当前的日期，Cloudflare 会据此启用对应的运行时行为
   "compatibility_date": "2026-09-12",
 
+  // 后端入口：只负责 /api/*（通知栏的读写），其它请求照旧走静态资源
+  "main": "worker/index.js",
+
+  // 自定义域名：部署时 Cloudflare 会自动在 leeyin.xyz 上建好解析并指到这个 Worker。
+  // （workers.dev 那个默认域名在国内网络经常连不上，所以线上就用这个域名访问）
+  "routes": [
+    { "pattern": "leeyin.xyz", "custom_domain": true }
+  ],
+
+  // 通知栏的存储：绑定了才能在线发布（不绑定就是只读，读 site/data/hosts.json）
+  "kv_namespaces": [
+    { "binding": "NOTIFY", "id": "ec2d2be261294fd0bb9733bd37a95aae" }
+  ],
+
+  // 自建访问统计的数据库（D1 / SQLite）：每次页面访问写一行，后台里看汇总
+  "d1_databases": [
+    { "binding": "STATS", "database_name": "class-web-stats", "database_id": "f16c4e28-fa37-4553-9444-96ec6d2de63a" }
+  ],
+
   "assets": {
     // 关键：网站内容在 site/ 子目录里
     "directory": "./site",
 
     // 找不到文件时返回默认的 404 页面（而不是把 index.html 当作兜底）
-    "not_found_handling": "404-page"
+    "not_found_handling": "404-page",
+
+    // 只有 /api/* 先交给 Worker；页面、CSS、JS 仍然是纯静态直出，速度不受影响
+    "run_worker_first": ["/api/*"]
   }
+
+  /*
+    通知栏的存储（可选，但强烈建议）：
+    在 Cloudflare 后台或用命令行建一个 KV 命名空间，然后把 id 填到下面：
+
+      npx.cmd wrangler@latest kv namespace create NOTIFY
+      # 输出里会有一行 id = "xxxxxxxxxxxxxxxx"
+
+    然后把下面的注释去掉并填上那个 id：
+
+    "kv_namespaces": [
+      { "binding": "NOTIFY", "id": "把这里换成你的 id" }
+    ]
+
+    · 绑定了 KV：可以在 /admin.html 里随时发布通知，改完立刻对所有访客生效。
+    · 没绑定 KV：通知变成「只读」，内容来自 site/data/hosts.json，
+                 想改就编辑那个文件然后 git push。
+
+    关于管理密码（二选一）：
+    1) 什么都不用做：第一次打开 /admin.html 时输入的密码就会成为管理密码（存在 KV 里）。
+    2) 想更稳一点，用命令行固定住它（别人就无法通过网页改你的密码）：
+         npx.cmd wrangler@latest secret put ADMIN_HASH
+       # 粘贴你自己算出来的 SHA-256 十六进制哈希（小写），例如 4d3f...（64 位）
+       # 先用在线工具或本地命令算：node -e "console.log(require('crypto').createHash('sha256').update('你的密码').digest('hex'))"
+  */
 }

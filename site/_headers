@@ -1,33 +1,101 @@
-/*
-  Cloudflare Workers 静态资源 / Pages 都支持这个文件。
-  这里只放「响应头」，没有任何服务器逻辑。
-*/
+# ==========================================================================
+# Cloudflare 静态资源的响应头配置
+#
+# 格式要求（踩过的坑）：
+#   · 只有三种行是合法的：① 顶格的「路径行」（如 /* 或 /anime.html）
+#     ② 缩进的「Name: value」响应头 ③ 以 # 开头的注释
+#   · 光秃秃的中文说明会被当成响应头来解析，部署会直接报
+#     “Invalid _headers configuration: Expected a colon-separated header pair”
+#   · 路径不加 * 就是精确匹配；加了 * 是通配（/* 匹配所有路径）。
+#
+# 关键坑（实测得出，务必保留这个结构）：
+#   Cloudflare 对「同时命中多条规则」的请求是把响应头**合并**，而不是覆盖 ——
+#   所以只要 /* 里写了 Content-Security-Policy 或 X-Frame-Options，
+#   看番页就会同时收到「全站严格策略」和「自己的宽松策略」两个头，
+#   浏览器按最严的那个执行 → 单文件内联脚本被 script-src 'self' 挡掉，页面白屏，
+#   而且 X-Frame-Options 会变成 DENY，首页也没法用 iframe 嵌它。
+#   因此：/* 里只放「不冲突的通用头」，CSP 和 X-Frame-Options 一律按路径单独写。
+#
+# 另一个坑：默认情况下 /anime.html 会被 307 跳到 /anime（去掉扩展名），
+#   而规则是按请求路径匹配的，所以两个地址都要写一份（下面成对出现，必须保持一致）。
+#
+# /api/* 的响应头由 worker/index.js 自己设置（那里固定 no-store）。
+# ==========================================================================
 
+# ------------------------------ 通用头（不冲突，可被所有路径合并） ------------------------------
 /*
-  X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: geolocation=(), microphone=(), camera=(), interest-cohort=()
 
-  # 内容安全策略：
-  #   script-src 'self'            —— 站点里没有任何内联脚本，全部是外部 .js
-  #   style-src  'self' + inline   —— 需要 inline，因为很多状态是用 style 属性写的
-  #   img-src    'self' data: blob: https:  —— 地图/图标是本站资源，背景图可能是本地 Blob
-  #                                            或用户自己填的 https 图片地址
-  #   connect-src                  —— 只额外允许天气接口 Open-Meteo
-  Content-Security-Policy: default-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'; frame-ancestors 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://api.open-meteo.com; manifest-src 'self'; worker-src 'none'
+# ------------------------------ 首页与 404：全站严格策略 ------------------------------
+#   script-src 'self'            —— 首页没有任何内联脚本，全部是外部 .js
+#   style-src  'self' + inline   —— 需要 inline，因为很多状态是用 style 属性写的
+#   connect-src 'self' + Open-Meteo —— 'self' 是本站 /api/notice（通知栏）
+/
+  X-Frame-Options: DENY
+  Content-Security-Policy: default-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'; frame-ancestors 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://api.open-meteo.com; manifest-src 'self'; worker-src 'self'
 
-  /assets/*
+/index.html
+  X-Frame-Options: DENY
+  Cache-Control: public, max-age=0, must-revalidate
+  Content-Security-Policy: default-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'; frame-ancestors 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://api.open-meteo.com; manifest-src 'self'; worker-src 'self'
+
+/404.html
+  X-Frame-Options: DENY
+  Content-Security-Policy: default-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'; frame-ancestors 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://api.open-meteo.com; manifest-src 'self'; worker-src 'self'
+
+/404
+  X-Frame-Options: DENY
+  Content-Security-Policy: default-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'; frame-ancestors 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://api.open-meteo.com; manifest-src 'self'; worker-src 'self'
+
+# ------------------------------ 通知管理页（/admin） ------------------------------
+# 只有外部脚本，用严格策略；不需要被搜索引擎收录
+/admin.html
+  X-Frame-Options: DENY
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: public, max-age=0, must-revalidate
+  Content-Security-Policy: default-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'; frame-ancestors 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'
+
+/admin
+  X-Frame-Options: DENY
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: public, max-age=0, must-revalidate
+  Content-Security-Policy: default-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'; frame-ancestors 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'
+
+# ------------------------------ 看番记录页（/anime） ------------------------------
+# · 单文件页面：脚本和样式都内联，所以必须放开 inline
+# · 数据来源：优先本站 /api/bangumi（同源，含 v0 搜索），连不上直接连中转站；
+#   搜索备选走 AniList / Jikan，所以这几个域名都要放行
+# · 要被首页的弹窗用 iframe 嵌进来 → X-Frame-Options / frame-ancestors 都是 self
+/anime.html
+  X-Frame-Options: SAMEORIGIN
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: public, max-age=0, must-revalidate
+  Content-Security-Policy: default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://bgmapi.anibt.net https://graphql.anilist.co https://api.jikan.moe https://api.bgm.tv; media-src 'self' data:
+
+/anime
+  X-Frame-Options: SAMEORIGIN
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: public, max-age=0, must-revalidate
+  Content-Security-Policy: default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://bgmapi.anibt.net https://graphql.anilist.co https://api.jikan.moe https://api.bgm.tv; media-src 'self' data:
+
+# ------------------------------ 缓存策略 ------------------------------
+/assets/*
   Cache-Control: public, max-age=31536000, immutable
 
-  /css/*
+/css/*
   Cache-Control: public, max-age=0, must-revalidate
 
-  /js/*
+/js/*
   Cache-Control: public, max-age=0, must-revalidate
 
-  /data/*
+# 通知与公共事务的数据文件：改完要让访客尽快拿到，别被缓存住
+/data/*
   Cache-Control: public, max-age=0, must-revalidate
 
-  /index.html
-  Cache-Control: public, max-age=0, must-revalidate
+# service worker 必须能及时更新（乱缓存会导致用户长期跑旧版本）
+/sw.js
+  Cache-Control: no-cache
+  Content-Type: application/javascript; charset=utf-8
+  Service-Worker-Allowed: /

@@ -14,6 +14,13 @@ site-deploy.zip
 # 本地预览截图
 _preview.png
 
+# 本地预览服务器存的管理密码与通知数据（只在本机测试用，不入库）
+.preview-notify.json
+
+# 本机抓课表工具的输出：抓到课表的 JSON 备份 + 一个带登录会话的浏览器配置目录
+# （里面可能有你的登录 cookie，绝对不能入库）
+.timetable-exports/
+
 # Wrangler 本地缓存与 dry-run 产物（校验用，不需要入库）
 .wrangler/
 .wrangler-dryrun/
@@ -35,3 +42,4 @@ hexo/blog/.deploy_git/
 # 想把原图也备份进仓库：注释掉下面这行，然后 git add -f map/
 /map/
 
+.preview-files/

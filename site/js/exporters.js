@@ -17,6 +17,7 @@
      1. 初始化
      ====================================================================== */
   function init() {
+    initBackups();
     // 数据弹窗
     var exp = U.$('#dataExport');
     if (exp) exp.addEventListener('click', function () { exportBackupFile(); });
@@ -374,4 +375,71 @@
     exportBackupFile: exportBackupFile,
     importBackupFile: importBackupFile
   };
+
+  /* ----------------------------------------------------------------------
+     自动快照列表（本机保留最近 3 版，每次保存前自动生成）
+     ---------------------------------------------------------------------- */
+  function relTime(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    var min = Math.round((Date.now() - d.getTime()) / 60000);
+    if (min < 1) return '刚刚';
+    if (min < 60) return min + ' 分钟前';
+    if (min < 60 * 24) return Math.floor(min / 60) + ' 小时前';
+    return Math.floor(min / 1440) + ' 天前';
+  }
+
+  function renderBackupList() {
+    var box = U.$('#backupList');
+    if (!box) return;
+    var list = CW.store.backups ? CW.store.backups() : [];
+
+    if (!list.length) {
+      U.render(box, U.el('div', { class: 'tiny faint', text: '还没有自动快照。改动课表后，上一版会自动存在本机（最多 3 版，不上传）。' }));
+      return;
+    }
+
+    var rows = list.map(function (item, i) {
+      return U.el('div', { class: 'row-item', style: { marginTop: '8px' } }, [
+        U.el('span', { class: 'ri-bar' }),
+        U.el('div', { class: 'ri-main' }, [
+          U.el('span', { class: 'ri-title', text: (i === 0 ? '上一版' : '更早一版') + ' · ' + relTime(item.at) }),
+          U.el('span', { class: 'ri-meta' }, [
+            U.el('span', { text: (item.courses || 0) + ' 门课' }),
+            U.el('span', { text: (item.events || 0) + ' 条事务' }),
+            U.el('span', { text: (item.notes || 0) + ' 条备注' })
+          ])
+        ]),
+        U.el('div', { class: 'ri-actions' }, [
+          U.el('button', {
+            class: 'btn btn-sm btn-ghost', type: 'button', text: '恢复',
+            onclick: function () {
+              var doIt = function () {
+                var item2 = CW.store.restoreBackup(i);
+                if (!item2) { U.toast('这一版读不出来了。', 'warn'); return; }
+                renderBackupList();
+                U.toast('已恢复到这一版（' + (item2.courses || 0) + ' 门课）', 'ok', { timeout: 3200 });
+              };
+              var msg = '用这一版覆盖当前课表？\n\n' + relTime(item.at) + ' 的版本：' + (item.courses || 0) + ' 门课、' + (item.events || 0) + ' 条事务。\n（当前这版会先被存成新的快照，还能退回）';
+              if (CW.dialog && CW.dialog.confirm) {
+                CW.dialog.confirm(msg, { okText: '恢复' }).then(function (yes) { if (yes) doIt(); });
+              } else if (window.confirm(msg)) doIt();
+            }
+          })
+        ])
+      ]);
+    });
+
+    U.render(box, [
+      U.el('p', { class: 'field-label', style: { marginBottom: '2px' }, text: '自动快照（本机）' }),
+      U.el('p', { class: 'hint', text: '每次保存课表前，上一版会自动存在这台设备上，最多 3 版，不上传。改坏了可以退回。' }),
+      U.el('div', {}, rows)
+    ]);
+  }
+
+  function initBackups() {
+    renderBackupList();
+    if (CW.store && CW.store.on) CW.store.on('schedule', function () { renderBackupList(); });
+  }
+
 })();

@@ -12,6 +12,8 @@
   var KEY_TODO = 'todo';
   var KEY_COUNTDOWN = 'countdown';
   var KEY_UI = 'ui';
+  var KEY_PUBLIC = 'public';        // 公共事务：全班共用的一份清单
+  var KEY_JW = 'jwAccount';         // 教务系统账号（只存在本机浏览器里）
 
   var listeners = {};
 
@@ -41,6 +43,213 @@
     // 如果现在还没到 8 月，说明可能在春季学期，回退到上一年的 9 月
     if (now.getMonth() < 6) sep1 = new Date(y - 1, 8, 1);
     return U.fmtDate(U.mondayOf(sep1));
+  }
+
+  /* ======================================================================
+     公共事务（全班共用的一份清单）
+     来源：站点的 data/public-events.json，页面打开时读进来缓存在 localStorage，
+     并记录「每个条目有没有被我加进自己的日程」。
+     ====================================================================== */
+  function sanitizePublicItem(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+
+    var title = String(raw.title || raw.name || '').trim();
+    if (!title) return null;
+
+    var kind = raw.kind === 'weekly' ? 'weekly' : 'date';
+    var day = Number(raw.day);
+    if (!(day >= 1 && day <= 7)) day = 0;
+
+    var weeks = Array.isArray(raw.weeks)
+      ? raw.weeks.map(Number).filter(function (n) { return n >= 1 && n <= 30; })
+      : [];
+    var weeksText = String(raw.weeksText || '').trim();
+    if (!weeks.length && weeksText && kind === 'weekly') {
+      var spec = CW.parse.parseWeekSpec(weeksText, 30);
+      if (spec.weeks.length) {
+        weeks = spec.weeks;
+        weeksText = spec.text || weeksText;
+      }
+    }
+
+    var date = raw.date ? U.fmtDate(U.parseDate(raw.date)) : '';
+
+    // 至少要知道「哪天」或者「每周几」，否则排不进日程
+    if (kind === 'date' && !date) return null;
+    if (kind === 'weekly' && !day) return null;
+
+    return {
+      id: String(raw.id || U.uid('pub')),
+      title: title,
+      kind: kind,
+      date: date,
+      day: day,
+      codes: Array.isArray(raw.codes)
+        ? uniqNums(raw.codes.map(Number).filter(function (n) { return n >= 1 && n <= 20; }))
+        : [],
+      start: CW.parse.normalizeTime(raw.start) || '',
+      end: CW.parse.normalizeTime(raw.end) || '',
+      weeks: uniqNums(weeks),
+      weeksText: weeksText,
+      repeat: ['none', 'daily', 'weekly', 'monthly'].indexOf(raw.repeat) >= 0 ? raw.repeat : 'none',
+      location: String(raw.location || raw.room || '').trim(),
+      note: String(raw.note || '').trim(),
+      owner: String(raw.owner || raw.by || '').trim(),
+      updatedAt: String(raw.updatedAt || '').trim(),
+      color: typeof raw.color === 'number' ? raw.color % 8 : U.hashIndex(title, 8)
+    };
+  }
+
+  function emptyPublic() {
+    return { version: 1, source: '', updatedAt: '', items: [], added: {} };
+  }
+
+  function sanitizePublic(raw) {
+    var out = emptyPublic();
+    if (!raw || typeof raw !== 'object') return out;
+    out.version = 1;
+    out.source = String(raw.source || '');
+    out.updatedAt = String(raw.updatedAt || '');
+    out.items = (Array.isArray(raw.items) ? raw.items : []).map(sanitizePublicItem).filter(Boolean);
+    if (raw.added && typeof raw.added === 'object') {
+      Object.keys(raw.added).forEach(function (k) {
+        if (raw.added[k]) out.added[k] = String(raw.added[k]);
+      });
+    }
+    return out;
+  }
+
+  function publicItems() { return state.public.items || []; }
+
+  function publicItem(id) {
+    var list = publicItems();
+    for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i];
+    return null;
+  }
+
+  /** 某个公共条目有没有被我加进自己的日程（返回本地事务 id） */
+  function publicAddedId(id) { return (state.public.added || {})[id] || ''; }
+
+  /** 我加过的那些本地事务还在不在 */
+  function publicAddedCount() {
+    return publicItems().filter(function (it) { return publicAddedId(it.id); }).length;
+  }
+
+  /** 用一份新清单替换（页面从 data/public-events.json 读到新内容时调用） */
+  function setPublicList(items, meta) {
+    meta = meta || {};
+    var clean = (Array.isArray(items) ? items : []).map(sanitizePublicItem).filter(Boolean);
+
+    // 清单变了：原来标记为「已添加」但新清单里已经删掉的，标记一并清掉
+    var alive = {};
+    clean.forEach(function (it) { alive[it.id] = 1; });
+    Object.keys(state.public.added || {}).forEach(function (k) {
+      if (!alive[k]) delete state.public.added[k];
+    });
+
+    state.public.items = clean;
+    state.public.source = String(meta.source || '');
+    state.public.updatedAt = String(meta.updatedAt || new Date().toISOString());
+    save('public');
+    emit('public', { reason: 'refresh', count: clean.length });
+    return clean.length;
+  }
+
+  /** 把一条公共事项加进我自己的日程（存成一个普通事务，之后随便改） */
+  function importPublicItem(id) {
+    var it = publicItem(id);
+    if (!it) return null;
+    if (publicAddedId(id)) return getEvent(publicAddedId(id));
+
+    var payload = { id: U.uid('ev') };
+
+    if (it.kind === 'weekly') {
+      // 每周固定的事：铺在第一次发生的那天 + 每周重复，学期结束时自动停
+      var weeks = it.weeks && it.weeks.length ? it.weeks : null;
+      var week = weeks ? weeks[0] : 1;
+      var date = CW.schedule.dateOf(week, it.day);
+      var lastWeek = weeks ? weeks[weeks.length - 1] : (state.schedule.settings.totalWeeks || 18);
+      var isEveryWeek = !weeks || (weeks.length === lastWeek && weeks[0] === 1);
+
+      payload.date = U.fmtDate(date);
+      payload.start = it.start;
+      payload.end = it.end;
+      payload.allDay = !it.start;
+      payload.repeat = isEveryWeek ? 'weekly' : 'none';
+      if (isEveryWeek) payload.repeatUntil = U.fmtDate(CW.schedule.dateOf(lastWeek, it.day));
+    } else {
+      payload.date = it.date;
+      payload.start = it.start;
+      payload.end = it.end;
+      payload.allDay = !it.start;
+      payload.repeat = it.repeat || 'none';
+    }
+
+    payload.title = it.title;
+    payload.location = it.location;
+    payload.note = it.note;
+    payload.color = it.color;
+
+    var e = addEventKeepId(payload, payload.id);
+    if (!e) return null;
+
+    state.public.added[id] = e.id;
+    save('public');
+    emit('public', { reason: 'import', id: id, eventId: e.id });
+    return e;
+  }
+
+  /** addEvent 的保留 id 版本（导入公共事务时要记住对应关系） */
+  function addEventKeepId(data, id) {
+    var e = sanitizeEvent(Object.assign({}, data, { id: id }));
+    if (!e) return null;
+    state.schedule.events.push(e);
+    sortEvents();
+    save('schedule');
+    emit('schedule', { reason: 'event-add', event: e });
+    return e;
+  }
+
+  /** 一次把「还没加过的」全部加进来 */
+  function importPublicNew() {
+    var added = [];
+    publicItems().forEach(function (it) {
+      if (publicAddedId(it.id)) return;
+      var e = importPublicItem(it.id);
+      if (e) added.push(e);
+    });
+    return added;
+  }
+
+  /* ======================================================================
+     教务系统账号（只存在本机，用来让书签自动登录并抓课表）
+     ====================================================================== */
+  function sanitizeAccount(raw) {
+    if (!raw || typeof raw !== 'object') return { user: '', pass: '', savedAt: '' };
+    return {
+      user: String(raw.user || '').trim(),
+      pass: String(raw.pass || ''),
+      savedAt: String(raw.savedAt || '')
+    };
+  }
+
+  function getAccount() { return state.jwAccount; }
+
+  function setAccount(user, pass) {
+    state.jwAccount = {
+      user: String(user || '').trim(),
+      pass: String(pass || ''),
+      savedAt: new Date().toISOString()
+    };
+    U.lsSet(KEY_JW, state.jwAccount);
+    emit('account', { reason: 'save', hasPass: !!state.jwAccount.pass });
+    return state.jwAccount;
+  }
+
+  function clearAccount() {
+    state.jwAccount = { user: '', pass: '', savedAt: '' };
+    U.lsDel(KEY_JW);
+    emit('account', { reason: 'clear' });
   }
 
   function emptyState() {
@@ -108,7 +317,9 @@
       note: String(e.note || '').trim(),
       repeat: ['none', 'daily', 'weekly', 'monthly'].indexOf(e.repeat) >= 0 ? e.repeat : 'none',
       repeatUntil: e.repeatUntil ? U.fmtDate(U.parseDate(e.repeatUntil)) : '',
-      color: typeof e.color === 'number' ? e.color % 8 : U.hashIndex(title, 8)
+      color: typeof e.color === 'number' ? e.color % 8 : U.hashIndex(title, 8),
+      // 已经发布成「公共事务」时记下那条的 id：取消勾选时用它把线上那条撤下来
+      publicId: String(e.publicId || '').trim()
     };
   }
 
@@ -207,6 +418,8 @@
     schedule: emptyState(),
     todo: [],
     countdown: [],
+    public: emptyPublic(),
+    jwAccount: { user: '', pass: '', savedAt: '' },
     ui: {
       theme: 'light',
       calShowCourses: true,
@@ -231,6 +444,8 @@
     state.schedule = sanitizeSchedule(U.lsGet(KEY_SCHEDULE, null));
     state.todo = sanitizeTodo(U.lsGet(KEY_TODO, []));
     state.countdown = sanitizeCountdown(U.lsGet(KEY_COUNTDOWN, []));
+    state.public = sanitizePublic(U.lsGet(KEY_PUBLIC, null));
+    state.jwAccount = sanitizeAccount(U.lsGet(KEY_JW, null));
     state.ui = Object.assign(defaultUI(), U.lsGet(KEY_UI, {}) || {});
     if (typeof state.ui.calShowCourses !== 'boolean') state.ui.calShowCourses = true;
     state.loaded = true;
@@ -240,17 +455,71 @@
   /* ======================================================================
      保存（防抖，避免连续编辑时频繁写盘）
      ====================================================================== */
-  var ALL_KEYS = ['schedule', 'todo', 'countdown', 'ui'];
+  var ALL_KEYS = ['schedule', 'todo', 'countdown', 'public', 'ui'];
   var pending = {};
+
+  /* ======================================================================
+     自动快照：每次写盘前，把「盘上现有的那一版」存进备份环 cw.backup
+       · 只保留最近 3 版，全在本机（不上传、不下发）
+       · 和最近一版相同就不重复存，避免频繁写盘刷爆配额
+       · 太大（>1.5MB）就不存，宁可不备份也不占满 localStorage
+     ====================================================================== */
+  var KEY_BACKUP = 'backup';
+  var BACKUP_SLOTS = 3;
+  var BACKUP_MAX_CHARS = 1500000;
+
+  function backupList() {
+    var list = U.lsGet(KEY_BACKUP, null);
+    return Array.isArray(list) ? list : [];
+  }
+
+  function snapshotSchedule() {
+    try {
+      var prev = U.lsGet(KEY_SCHEDULE, null);      // 盘上现在这份 = 即将被覆盖的版本
+      if (!prev) return;
+      var list = backupList();
+      var body = JSON.stringify(prev);
+      if (list.length && JSON.stringify(list[0].data) === body) return;   // 没变化
+      if (body.length > BACKUP_MAX_CHARS) return;                          // 太大，放弃
+      var sched = sanitizeSchedule(prev);
+      list.unshift({
+        at: new Date().toISOString(),
+        courses: (sched.courses || []).length,
+        events: (sched.events || []).length,
+        notes: (sched.notes || []).length,
+        data: prev
+      });
+      U.lsSet(KEY_BACKUP, list.slice(0, BACKUP_SLOTS));
+    } catch (e) { /* 备份失败不影响正常保存 */ }
+  }
+
+  /** 用第 index 版快照覆盖当前课表（0 = 最近一版） */
+  function restoreBackup(index) {
+    var list = backupList();
+    var item = list[index];
+    if (!item || !item.data) return null;
+    state.schedule = sanitizeSchedule(item.data);
+    U.lsSet(KEY_SCHEDULE, state.schedule);
+    emit('schedule', { reason: 'restore-backup' });   // 订阅方（日历 / 清单 / 卡片）自己重绘
+    return item;
+  }
+
+  function clearBackups() {
+    U.lsDel(KEY_BACKUP);
+  }
 
   /** 把指定（或全部）分区写进 localStorage */
   function flush(keys) {
     if (!keys || !keys.length) keys = ALL_KEYS;
     var ok = true;
     keys.forEach(function (key) {
-      if (key === 'schedule') { if (!U.lsSet(KEY_SCHEDULE, state.schedule)) ok = false; }
+      if (key === 'schedule') {
+      snapshotSchedule();                       // 先存上一版（自动快照）
+      if (!U.lsSet(KEY_SCHEDULE, state.schedule)) ok = false;
+    }
       else if (key === 'todo') { if (!U.lsSet(KEY_TODO, state.todo)) ok = false; }
       else if (key === 'countdown') { if (!U.lsSet(KEY_COUNTDOWN, state.countdown)) ok = false; }
+      else if (key === 'public') { if (!U.lsSet(KEY_PUBLIC, state.public)) ok = false; }
       else if (key === 'ui') { if (!U.lsSet(KEY_UI, state.ui)) ok = false; }
     });
     return ok;
@@ -269,7 +538,7 @@
   };
 
   function save(what) {
-    if (what === undefined) pending = { schedule: 1, todo: 1, countdown: 1, ui: 1 };
+    if (what === undefined) pending = { schedule: 1, todo: 1, countdown: 1, public: 1, ui: 1 };
     else pending[what] = 1;
     saveSoon();
   }
@@ -664,6 +933,8 @@
       schedule: state.schedule,
       todo: state.todo,
       countdown: state.countdown,
+      // 只带「哪些公共事务我已经加过」，不带任何账号密码
+      publicAdded: Object.assign({}, state.public.added || {}),
       ui: { calShowCourses: state.ui.calShowCourses, theme: state.ui.theme },
       bg: U.lsGet('bg', null)
     };
@@ -677,15 +948,22 @@
     if (obj.schedule) state.schedule = sanitizeSchedule(obj.schedule);
     if (Array.isArray(obj.todo)) state.todo = sanitizeTodo(obj.todo);
     if (Array.isArray(obj.countdown)) state.countdown = sanitizeCountdown(obj.countdown);
+    if (obj.publicAdded && typeof obj.publicAdded === 'object') {
+      state.public.added = {};
+      Object.keys(obj.publicAdded).forEach(function (k) {
+        if (obj.publicAdded[k]) state.public.added[k] = String(obj.publicAdded[k]);
+      });
+    }
     if (obj.ui && typeof obj.ui === 'object') {
       if (typeof obj.ui.calShowCourses === 'boolean') state.ui.calShowCourses = obj.ui.calShowCourses;
       if (obj.ui.theme) state.ui.theme = obj.ui.theme;
     }
-    pending = { schedule: 1, todo: 1, countdown: 1, ui: 1 };
+    pending = { schedule: 1, todo: 1, countdown: 1, public: 1, ui: 1 };
     flush();
     emit('schedule', { reason: 'restore' });
     emit('todo', { reason: 'restore' });
     emit('countdown', { reason: 'restore' });
+    emit('public', { reason: 'restore' });
     emit('ui', { reason: 'restore' });
     return {
       courses: state.schedule.courses.length,
@@ -711,11 +989,13 @@
     state.schedule = emptyState();
     state.todo = [];
     state.countdown = [];
+    state.public.added = {};       // 只清「我加过哪些」，公共清单本身下次还会读回来
     state.ui = defaultUI();
     flush();
     emit('schedule', { reason: 'clear-all' });
     emit('todo', { reason: 'clear-all' });
     emit('countdown', { reason: 'clear-all' });
+    emit('public', { reason: 'clear-all' });
     emit('ui', { reason: 'clear-all' });
   }
 
@@ -745,6 +1025,7 @@
   CW.store = {
     state: state,
     load: load, save: save, saveNow: saveNow,
+    backups: backupList, restoreBackup: restoreBackup, clearBackups: clearBackups,
     on: on, emit: emit,
 
     emptyState: emptyState,
@@ -766,6 +1047,12 @@
     removeTodo: removeTodo, clearDoneTodos: clearDoneTodos,
 
     addCountdown: addCountdown, updateCountdown: updateCountdown, removeCountdown: removeCountdown,
+
+    publicItems: publicItems, publicItem: publicItem,
+    publicAddedId: publicAddedId, publicAddedCount: publicAddedCount,
+    setPublicList: setPublicList, importPublicItem: importPublicItem, importPublicNew: importPublicNew,
+
+    getAccount: getAccount, setAccount: setAccount, clearAccount: clearAccount,
 
     setUI: setUI, dismissHint: dismissHint,
 

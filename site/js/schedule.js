@@ -46,7 +46,7 @@
      ====================================================================== */
   function courseInWeek(course, week) {
     var w = course.weeks;
-    // 没有周次信息 = 整学期都上（比如「军事训练 1-18周」这类没写进格子的课）
+    // 没有周次信息 = 整学期都上（课表里没写进格子的那种附注课程）
     if (!w || !w.length) return inTerm(week);
     return w.indexOf(week) >= 0;
   }
@@ -304,6 +304,12 @@
 
     var cursor = U.startOfMonth(U.today());
     var weeks = monthMatrix(cursor);
+    // 左栏这张迷你日历固定按 6 行排：否则 5 行和 6 行的月份会让整个「日程表」卡片
+    // 高度忽高忽低（外框就不稳了）。多出来的那行是该月的下一周，属于「本月之外」，显示为灰。
+    // 注意：月历弹窗（calFull）仍按原规则走，5 行就是 5 行，不浪费空间。
+    while (weeks.length < 6) {
+      weeks.push(weeks[weeks.length - 1].map(function (d) { return U.addDays(d, 7); }));
+    }
     var today = U.today();
 
     var grid = U.el('div', { class: 'cal-grid' });
@@ -905,6 +911,12 @@
     CW.store.setUI({ schedTab: tab });
     if (tab === 'week') renderTimetable();
     if (tab === 'list') renderLists();
+    if (tab === 'public' && CW.publicUI) {
+      // 每次打开这个标签页都跟服务器确认一次（内部有 60 秒节流，清单为空时一定去问），
+      // 否则别的设备刚发布的公共事务在这台设备上要等很久才看得到
+      if (CW.publicUI.refresh) CW.publicUI.refresh();
+      CW.publicUI.render();
+    }
     if (tab === 'month') { renderFullCal(); renderDayDetail(); }
   }
 
@@ -912,6 +924,11 @@
      16. 统一的刷新入口
      ====================================================================== */
   function refresh() {
+    // 有没有任何课表/事务：没有的话让左栏卡片自然短一点（不然会留一大片空白），
+    // 一旦有内容，CSS 里给「下一节课 / 未来几天」留的固定高度就会生效，外框不再跳。
+    var card = U.$('#schedCard');
+    if (card) card.classList.toggle('is-empty', !CW.store.stats().hasData);
+
     renderNow();
     renderMiniCal();
     renderUpcoming();
@@ -922,6 +939,7 @@
     if (modalOpen && modalOpen.classList.contains('open')) {
       if (view.tab === 'week') renderTimetable();
       else if (view.tab === 'list') renderLists();
+      else if (view.tab === 'public') { if (CW.publicUI) CW.publicUI.render(); }
       else { renderFullCal(); renderDayDetail(); }
     }
   }

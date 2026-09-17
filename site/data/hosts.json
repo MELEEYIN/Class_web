@@ -1,0 +1,9 @@
+{
+  "_说明": "这是通知栏的静态兜底文件，也是主机（你）自己保管的一份通知数据。绑定 KV 之后，日常发布在 /admin.html 里做，改完可以用「导出 hosts.json」把内容存回这个文件，作为备份或仓库里的默认值。",
+  "_字段": "title 标题 / body 正文（可换行）/ level 级别（info|ok|warn|danger）/ source 发布者 / pinned 是否置顶（置顶的那条显示在首页通知栏）/ at 时间（ISO 字符串，自动生成即可）",
+  "version": 1,
+  "updatedAt": "",
+  "updatedBy": "主机",
+  "source": "hosts.json",
+  "items": []
+}

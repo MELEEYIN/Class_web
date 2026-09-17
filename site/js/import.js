@@ -36,13 +36,18 @@
       reset: U.$('#importReset'),
       bookmarkletLink: U.$('#bookmarkletLink'),
       bookmarkletCode: U.$('#bookmarkletCode'),
-      bookmarkletHelp: U.$('#bookmarkletHelp')
+      bookmarkletHelp: U.$('#bookmarkletHelp'),
+      jwBookmarklet: U.$('#jwBookmarklet'),
+      jwCode: U.$('#jwCode'),
+      jwHelp: U.$('#jwHelp'),
+      failBox: U.$('#importFail')
     };
 
     bindTabs();
     bindFile();
     bindPaste();
     bindBookmarklet();
+    bindAccount();
     bindIcs();
     bindManual();
     bindActions();
@@ -154,12 +159,31 @@
       var ok = results.filter(function (r) { return r && r.result; });
       var fails = results.filter(function (r) { return r && r.error; });
 
-      fails.forEach(function (f) {
-        U.toast('「' + f.name + '」解析失败：' + f.error, 'error', { timeout: 6000 });
-      });
+      // 失败的要说清楚原因，并且**留在页面上**（toast 会消失，用户回头就看不到）
+      if (fails.length) {
+        var first = fails[0];
+        U.toast('「' + first.name + '」没读成功：' + first.error, 'error', { timeout: 9000 });
+        if (el.failBox) {
+          el.failBox.hidden = false;
+          U.render(el.failBox, U.el('div', { class: 'notice notice-danger' }, [
+            U.icon('i-alert', 'ico'),
+            U.el('div', {}, [
+              U.el('strong', { text: fails.length + ' 个文件没能读出来' }),
+              U.el('ul', {
+                style: { marginTop: '6px', display: 'grid', gap: '4px', listStyle: 'disc', paddingLeft: '17px' }
+              }, fails.map(function (f) {
+                return U.el('li', { class: 'tiny', text: '「' + f.name + '」：' + f.error });
+              }))
+            ])
+          ]));
+        }
+      } else if (el.failBox) {
+        el.failBox.hidden = true;
+        U.render(el.failBox, '');
+      }
 
       if (!ok.length) {
-        if (!fails.length) U.toast('这些文件里没有解析出可用内容。', 'warn');
+        if (!fails.length) U.toast('这些文件里没有解析出可用内容。', 'warn', { timeout: 6000 });
         return;
       }
 
@@ -167,7 +191,7 @@
       setResult(merged, ok.map(function (r) { return r.name; }).join('、'));
     }).catch(function (err) {
       if (t) t.dismiss();
-      U.toast('导入过程出错：' + ((err && err.message) || err), 'error');
+      U.toast('导入过程出错：' + ((err && err.message) || err), 'error', { timeout: 8000 });
     });
   }
 
@@ -178,7 +202,7 @@
     if (ext === 'ics') {
       return U.readFileAsText(file).then(function (text) {
         return { name: name, result: CW.parse.fromIcs(text) };
-      }).catch(function (e) { return { name: name, error: (e && e.message) || '读取失败' }; });
+      }).catch(function (e) { return { name: name, error: failReason(e, name) }; });
     }
 
     if (ext === 'json') {
@@ -186,20 +210,43 @@
         var r = CW.parse.fromJsonText(text);
         if (!r) throw new Error('这个 JSON 不是课表或备份格式');
         return { name: name, result: r };
-      }).catch(function (e) { return { name: name, error: (e && e.message) || '解析失败' }; });
+      }).catch(function (e) { return { name: name, error: failReason(e, name) }; });
+    }
+
+    // 网页另存的 .html（也包括本机抓课表小工具存下来的备份）：里面就是那张课表表格
+    if (ext === 'html' || ext === 'htm') {
+      return U.readFileAsText(file).then(function (text) {
+        return { name: name, result: CW.parse.fromHtml(text) };
+      }).catch(function (e) { return { name: name, error: failReason(e, name) }; });
     }
 
     if (ext === 'csv' || ext === 'tsv' || ext === 'txt') {
       return U.readFileAsText(file).then(function (text) {
+        // 有些「.txt / .csv」其实是网页另存的 HTML 表格
+        if (CW.looksLikeHtmlMarkup && CW.looksLikeHtmlMarkup(new TextEncoder().encode(text.slice(0, 4096)))) {
+          return { name: name, result: CW.parse.fromHtml(text) };
+        }
         return { name: name, result: CW.parse.fromText(text, name) };
-      }).catch(function (e) { return { name: name, error: (e && e.message) || '读取失败' }; });
+      }).catch(function (e) { return { name: name, error: failReason(e, name) }; });
     }
 
-    // 剩下的按二进制表格处理（.xls / .xlsx / 其他）
+    // 剩下的按表格处理（.xls / .xlsx / 其他）
     return U.readFileAsArrayBuffer(file).then(function (buffer) {
       if (!CW.readSheet) throw new Error('表格解析模块没加载成功');
       return CW.readSheet(buffer, name).then(function (book) {
-        if (!book || !book.sheets || !book.sheets.length) throw new Error('文件里没有工作表');
+        // 教务系统常常把 HTML 表格直接存成 .xls：这种文件不是真的 xls，
+        // 内容其实是网页，走 HTML 解析反而最准。
+        if (book && book.kind === 'html' && book.html) {
+          var res0 = CW.parse.fromHtml(book.html);
+          res0.meta = res0.meta || {};
+          if (!res0.meta.sheetName) res0.meta.sheetName = 'HTML 表格';
+          return { name: name, result: res0 };
+        }
+
+        if (!book || !book.sheets || !book.sheets.length) {
+          throw new Error('文件里没有读到工作表');
+        }
+
         // 每个工作表都试一遍，取识别到课程最多的那个
         var best = null;
         book.sheets.forEach(function (sheet) {
@@ -208,11 +255,33 @@
           if (!res.meta.sheetName) res.meta.sheetName = sheet.name;
           if (!best || res.courses.length + res.events.length > best.courses.length + best.events.length) best = res;
         });
+
+        if (!best || (!best.courses.length && !best.events.length)) {
+          throw new Error('表格读出来了，但里面没有能认成课程或事务的行（' +
+            book.sheets.length + ' 个工作表，最多 ' +
+            book.sheets.reduce(function (mx, s) { return Math.max(mx, s.rows.length); }, 0) + ' 行）');
+        }
         return { name: name, result: best };
       });
     }).catch(function (e) {
-      return { name: name, error: (e && e.message) || '解析失败' };
+      return { name: name, error: failReason(e, name) };
     });
+  }
+
+  /** 把各种失败原因翻译成用户能看懂、并且知道下一步怎么办的话 */
+  function failReason(err, name) {
+    var msg = (err && err.message) || '解析失败';
+    if (/OLE2|OLE|复合文档签名/.test(msg)) {
+      return msg + ' 这可能不是教务系统导出的文件，或者文件下载不完整。建议重新导出一次，' +
+        '或者直接把课表页面 Ctrl+A、Ctrl+C 复制后粘贴到「复制粘贴」那一栏。';
+    }
+    if (/截断|损坏|不完整/.test(msg)) {
+      return msg + ' 文件可能没下完，重新导出/下载一次再试。';
+    }
+    if (/DecompressionStream/.test(msg)) {
+      return msg + ' 或者把表格另存为 .xls / .csv 再导入。';
+    }
+    return msg;
   }
 
   function mergeResults(list) {
@@ -249,7 +318,7 @@
     if (btn) {
       btn.addEventListener('click', function () {
         if (!navigator.clipboard || !navigator.clipboard.readText) {
-          U.toast('这个浏览器不允许直接读剪贴板，请在下面的框里按 Ctrl+V 粘贴。', 'warn', { timeout: 5000 });
+          U.toast('这个浏览器不让网页直接读剪贴板。请在下面的框里长按 → 粘贴（手机）或按 Ctrl+V（电脑）。', 'warn', { timeout: 6500 });
           if (el.paste) el.paste.focus();
           return;
         }
@@ -258,7 +327,7 @@
           if (el.paste) el.paste.value = text;
           parsePaste(text);
         }).catch(function () {
-          U.toast('读取剪贴板被拒绝了，请在下面的框里按 Ctrl+V 粘贴。', 'warn', { timeout: 5000 });
+          U.toast('读剪贴板被挡下了（浏览器要授权）。请在下面的框里长按 → 粘贴（手机）或按 Ctrl+V（电脑）。', 'warn', { timeout: 6500 });
           if (el.paste) el.paste.focus();
         });
       });
@@ -278,7 +347,38 @@
 
   function parsePaste(text) {
     var res = CW.parse.fromText(text);
+    // 粘错了东西时，别只说「没认出课表」，直接告诉他问题出在哪
+    if (!res.courses.length && !res.events.length) {
+      res.warnings = (res.warnings || []).concat(pasteHints(text));
+    }
     setResult(res, '粘贴的内容');
+  }
+
+  /** 粘贴内容没解析出东西时的针对性提示 */
+  function pasteHints(text) {
+    var t = String(text || '');
+    var hints = [];
+    if (t.trim().length < 60) {
+      hints.push('粘贴的内容太短了：可能是没选全。请回到课表页，从课表左上方一直选到右下方。');
+    }
+    if (/成绩|学分|绩点|GPA/.test(t) && !/星期|周一|周一至/.test(t)) {
+      hints.push('这看起来是成绩/学分类页面，不是课表。请切到「信息查询 → 学生个人课表」再复制。');
+    }
+    if (!/星期[一二三四五六日天]|周一|周二|周天/.test(t)) {
+      hints.push('没找到「星期一…星期日」这一行表头。课表表格是带星期表头的，只复制课程名称是认不出来的。');
+    } else if (!res0HasCourses(text)) {
+      hints.push('看到了星期表头，但格子里没认出课程：可能只复制了表头那一行，请把整张课表都选上。');
+    }
+    hints.push('也可以换一种：课表页「导出 / 打印」得到 .xls，或用「上传文件」那一栏；手机上长按课表 → 全选 → 拷贝后再点「从剪贴板读取」。');
+    return hints;
+  }
+
+  /** 表头有星期，但格子里有没有东西（用于区分「只复制了表头」） */
+  function res0HasCourses(text) {
+    var t = String(text || '');
+    // 去掉星期那一行，看剩下还有没有像课程名的内容
+    var rest = t.replace(/[^\n]*星期[^\n]*/g, '');
+    return /[\u4e00-\u9fff]{2,}/.test(rest.replace(/第\s*\d+\s*[--]\s*\d+\s*节/g, ''));
   }
 
   /* ======================================================================
@@ -323,56 +423,175 @@
   }
 
   /**
-   * 生成书签小工具。它会在教务系统页面里执行：
-   * 找到最大的课表 <table>，序列化成 JSON，base64 后拼到本站地址的 # 后面跳回来。
-   * 站点地址是运行时取当前页面的，所以本地测试和正式域名都能用。
+   * 书签里那一小段「引导代码」。
+   * 真正的逻辑放在站点的 js/bookmarklet.js 里，每次点书签都重新加载 ——
+   * 这样站点改了逻辑，你手里的旧书签也自动用上新的（以前代码写死在书签里，
+   * 站点升级后旧书签还是老逻辑，会出现「抓回主页却说没认出内容」这种情况）。
+   * 加载不到（比如站点临时打不开）时，退回一小段自带的最小实现。
    */
-  function buildBookmarklet() {
+  function buildLoaderBookmarklet(callExpr) {
     var base = String(location.href).split('#')[0];
 
     var code = [
       '(function(){',
       'var BASE=' + JSON.stringify(base) + ';',
-      'function collect(doc,out){',
+      'function fallback(){',
       ' try{',
-      '  var ts=doc.querySelectorAll("table");',
+      '  var cands=[],ts=document.querySelectorAll("table");',
       '  for(var i=0;i<ts.length;i++){',
-      '   var t=ts[i],txt=t.innerText||t.textContent||"";',
-      '   var m=txt.match(/星期[一二三四五六日天]/g);',
-      '   out.push({el:t,n:m?m.length:0});',
+      '   var t=ts[i],x=t.innerText||t.textContent||"";',
+      '   var m=x.match(/星期[一二三四五六日天]/g);',
+      '   if(m&&m.length>=3) cands.push({el:t,n:m.length});',
       '  }',
-      ' }catch(e){}',
-      ' return out;',
+      '  cands.sort(function(a,b){return b.n-a.n;});',
+      '  if(!cands.length){ alert("这个页面上没找到课表。\\n先登录教务系统，或者手动打开「学期理论课表」那一页，再点一次书签。"); return; }',
+      '  var b=btoa(unescape(encodeURIComponent(JSON.stringify({t:"html",h:cands[0].el.outerHTML})))).replace(/\\+/g,"-").replace(/\\//g,"_").replace(/=+$/,"");',
+      '  var u=BASE+"#data="+b;',
+      '  var w=window.open(u,"_blank"); if(!w) location.href=u;',
+      ' }catch(e){ alert("抓取失败："+((e&&e.message)||e)); }',
       '}',
-      'try{',
-      ' var cands=collect(document,[]);',
-      ' var fr=document.querySelectorAll("iframe");',
-      ' for(var i=0;i<fr.length;i++){ try{ if(fr[i].contentDocument) collect(fr[i].contentDocument,cands); }catch(e){} }',
-      ' cands.sort(function(a,b){return b.n-a.n;});',
-      ' var payload;',
-      ' if(cands.length&&cands[0].n>=3){ payload={t:"html",h:cands[0].el.outerHTML}; }',
-      ' else { payload={t:"text",h:(document.body.innerText||document.body.textContent||"").slice(0,150000)}; }',
-      ' var s=JSON.stringify(payload);',
-      ' var b=btoa(unescape(encodeURIComponent(s)));',
-      ' if(b.length>100000){',
-      '  try{',
-      '   navigator.clipboard.writeText(s);',
-      '   alert("课表内容比较大（"+b.length+" 个字符），已经复制到剪贴板。\\n请回到校园主页，打开「导入 → 复制粘贴」，按 Ctrl+V 即可。");',
-      '   return;',
-      '  }catch(e){}',
-      ' }',
-      ' var url=BASE+"#data="+b;',
-      ' var w=window.open(url,"_blank");',
-      ' if(!w) location.href=url;',
-      '}catch(e){ alert("抓取失败："+((e&&e.message)||e)); }',
+      'var s=document.createElement("script");',
+      's.src=BASE.replace(/\\/$/,"")+"/js/bookmarklet.js?t="+Date.now();',
+      's.onload=function(){ try{ if(window.' + callExpr.fn + '){ ' + callExpr.call + '; } else { fallback(); } }catch(e){ fallback(); } };',
+      's.onerror=function(){ fallback(); };',
+      'document.documentElement.appendChild(s);',
+      'setTimeout(function(){ if(!window.' + callExpr.fn + ' && !window.__cwTried) { window.__cwTried=1; fallback(); } },6000);',
       '})();'
     ].join('\n');
 
     return 'javascript:' + encodeURIComponent(code);
   }
+  function buildBookmarklet() {
+    return buildLoaderBookmarklet({ fn: '__cwGrab', call: 'window.__cwGrab(BASE)' });
+  }
+
 
   /* ======================================================================
-     5. 日历 / 事务
+     5. 教务系统账号：记住密码 → 书签一键登录 + 抓课表
+        密码只写进本机 localStorage，不经过任何服务器。
+     ====================================================================== */
+  function bindAccount() {
+    var userEl = U.$('#jwUser');
+    var passEl = U.$('#jwPass');
+    var acc = CW.store.getAccount();
+
+    if (userEl) userEl.value = acc.user || '';
+    if (passEl) passEl.value = acc.pass || '';
+
+    var saveBtn = U.$('#jwSave');
+    if (saveBtn) {
+      saveBtn.addEventListener('click', function () {
+        var user = userEl ? userEl.value.trim() : '';
+        var pass = passEl ? passEl.value : '';
+        if (!user) { U.toast('至少把学号填上。', 'warn'); if (userEl) userEl.focus(); return; }
+        if (!pass) { U.toast('密码留空 = 不保存密码（书签会在教务系统页面上弹框让你输入）。', 'info', { timeout: 5200 }); }
+        CW.store.setAccount(user, pass);
+        refreshAccountUI(true);
+        U.toast(pass ? '已保存在这台设备的浏览器里。公用电脑请记得「忘掉账号与密码」。' : '已记住学号，密码不保存。',
+          'ok', { timeout: 5200 });
+      });
+    }
+
+    var buildBtn = U.$('#jwBuild');
+    if (buildBtn) buildBtn.addEventListener('click', function () { refreshAccountUI(true); U.toast('书签已按当前账号重新生成。', 'ok'); });
+
+    var forgetBtn = U.$('#jwForget');
+    if (forgetBtn) {
+      forgetBtn.addEventListener('click', function () {
+        CW.app.confirmThen('清掉这台设备上保存的教务系统学号和密码？', function () {
+          CW.store.clearAccount();
+          if (userEl) userEl.value = '';
+          if (passEl) passEl.value = '';
+          refreshAccountUI(true);
+          U.toast('已清除本机保存的账号密码', 'ok');
+        }, '清除', 'btn-danger');
+      });
+    }
+
+    var copyBtn = U.$('#jwCopy');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', function () {
+        var code = el.jwBookmarklet ? el.jwBookmarklet.getAttribute('href') : '';
+        U.copyText(code).then(function (ok) {
+          U.toast(ok ? '书签代码已复制：新建一个书签，把「网址」整段替换掉即可。' : '复制失败，请手动选中下面的代码复制。',
+            ok ? 'ok' : 'warn', { timeout: 6000 });
+        });
+      });
+    }
+
+    var howBtn = U.$('#jwHow');
+    if (howBtn) {
+      howBtn.addEventListener('click', function () {
+        var on = howBtn.getAttribute('aria-expanded') === 'true';
+        howBtn.setAttribute('aria-expanded', on ? 'false' : 'true');
+        if (el.jwHelp) el.jwHelp.hidden = on;
+      });
+    }
+
+    CW.store.on('account', function () { refreshAccountUI(false); });
+    refreshAccountUI(false);
+  }
+
+  function refreshAccountUI(loud) {
+    var acc = CW.store.getAccount();
+    var hasUser = !!acc.user;
+
+    var link = el.jwBookmarklet;
+    var code = buildLoginBookmarklet(acc.user, acc.pass);
+    if (link) link.setAttribute('href', code);
+    if (el.jwCode) el.jwCode.value = code;
+
+    var userEl = U.$('#jwUser');
+    var passEl = U.$('#jwPass');
+    if (userEl && document.activeElement !== userEl) userEl.value = acc.user || '';
+    if (passEl && document.activeElement !== passEl) passEl.value = acc.pass || '';
+
+    var box = U.$('#jwState');
+    if (!box) return;
+
+    if (!hasUser) {
+      U.render(box, U.el('div', { class: 'notice notice-warn' }, [
+        U.icon('i-alert', 'ico'),
+        U.el('div', {}, [
+          U.el('strong', { text: '还没有记住账号' }),
+          U.el('div', { class: 'tiny', style: { marginTop: '4px' },
+            text: '填上学号、点「保存到本机」之后，书签才能自动登录。现在也能用，只是每次要在教务系统页面上手输一次。' })
+        ])
+      ]));
+      return;
+    }
+
+    U.render(box, U.el('div', { class: 'notice' }, [
+      U.icon('i-check-circle', 'ico'),
+      U.el('div', {}, [
+        U.el('strong', { text: '已记住学号 ' + acc.user + (acc.pass ? '（含密码）' : '（不含密码，每次手输）') }),
+        U.el('div', { class: 'tiny', style: { marginTop: '4px' },
+          text: '存在本机浏览器的 cw.jwAccount 里' + (acc.savedAt ? '，保存于 ' + acc.savedAt.slice(0, 16).replace('T', ' ') : '') +
+            '。换了设备或清了站点数据就要重新保存。' })
+      ])
+    ]));
+
+    if (loud) U.toast('书签已更新，请重新拖一次到书签栏（旧的还带着旧账号）。', 'info', { timeout: 5200 });
+  }
+
+  /**
+   * 生成「一键登录 + 抓课表」书签。
+   * 它在教务系统的页面上运行，流程是：
+   *   ① 已经登录（或已经在课表页）→ 直接抓课表
+   *   ② 在登录页 → 自动填账号密码（有验证码就停下来等你补），提交
+   *   ③ 课表还没出来 → 跳「学生个人课表」页，抓走
+   * 抓到的表格 base64 后通过 #data= 传回本页，和普通书签抓取是同一条通路。
+   */
+  function buildLoginBookmarklet(user, pass) {
+    // 同样走「引导代码 + 站点脚本」：账号密码作为参数传给站点脚本里的 __cwLogin
+    return buildLoaderBookmarklet({
+      fn: '__cwLogin',
+      call: 'window.__cwLogin(BASE, ' + JSON.stringify(user || '') + ', ' + JSON.stringify(pass || '') + ')'
+    });
+  }
+
+  /* ======================================================================
+     6. 日历 / 事务
      ====================================================================== */
   function bindIcs() {
     var btn = U.$('#parseIcs');
@@ -660,9 +879,8 @@
     if (res.settings && res.settings.totalWeeks) {
       CW.store.setSettings({ totalWeeks: res.settings.totalWeeks });
     }
-    if (res.meta && res.meta.student && !CW.store.state.schedule.settings.studentName) {
-      CW.store.setSettings({ studentName: res.meta.student });
-    }
+    if (!res.settings || !res.settings.totalWeeks) { /* 没带就沿用现有设置 */ }
+    rememberImportedName(res);
     if (res.meta && res.meta.term && !CW.store.state.schedule.meta.sheetName) {
       CW.store.state.schedule.meta.term = res.meta.term;
     }
@@ -672,14 +890,23 @@
     var msgs = [];
     if (added.addedCourses) msgs.push(added.addedCourses + ' 条排课');
     if (added.addedEvents) msgs.push(added.addedEvents + ' 条事务');
-    if (added.skipped) msgs.push('跳过 ' + added.skipped + ' 条重复或无效');
 
     CW.app.closeModal('import');
     CW.app.closeModal('item');
-    CW.util.toast(msgs.length ? '导入完成：' + msgs.join('，') : '导入完成，没有新增内容。', 'ok', { timeout: 4500 });
 
-    // 导入完顺手看一眼课表
-    setTimeout(function () { CW.schedule.openFull(U.today()); }, 260);
+    if (added.addedCourses || added.addedEvents) {
+      if (added.skipped) msgs.push('跳过 ' + added.skipped + ' 条重复的');
+      CW.util.toast('导入完成：' + msgs.join('，'), 'ok', { timeout: 5000 });
+      // 导入完顺手看一眼课表
+      setTimeout(function () { CW.schedule.openFull(U.today()); }, 260);
+    } else {
+      // 一条都没新增，多半是「这门课之前已经导过了」——直接说清楚，
+      // 否则看起来就像导入失败。
+      var total = CW.store.state.schedule.courses.length;
+      CW.util.toast('这次没有新增内容：文件里的排课和现有课表重复（可能之前已经导入过）。当前共 ' +
+        total + ' 条排课。要看课表就按下面的日程按钮。', 'info', { timeout: 8000 });
+      setTimeout(function () { CW.schedule.openFull(U.today()); }, 600);
+    }
 
     pending = null;
     if (el.preview) el.preview.hidden = true;
@@ -692,14 +919,22 @@
   function handleHashImport() {
     var params = U.hashParams();
     var raw = params.data;
+    var jwDone = params.jwdone === '1';
+
+    // 「一键登录」书签抓不到课表时，会带着 #jwdone=1 回来 —— 顺手把「教务系统账号」那一栏打开
+    if (!raw && jwDone) {
+      clearHash();
+      CW.app.openModal('import');
+      switchTab('account');
+      U.toast('已经用你保存的账号登录过教务系统了，但没抓到课表。请手动点到课表页，再点一次那个书签。',
+        'info', { timeout: 8000 });
+      return true;
+    }
+
     if (!raw) return false;
 
     // 立刻把 hash 清掉，免得刷新时重复导入，也免得长网址留在地址栏
-    try {
-      if (window.history && history.replaceState) {
-        history.replaceState(null, '', String(location.href).split('#')[0]);
-      }
-    } catch (e) { /* file:// 下可能不允许，忽略 */ }
+    clearHash();
 
     var payload;
     try {
@@ -711,15 +946,69 @@
 
     var res;
     if (payload.t === 'html') res = CW.parse.fromHtml(payload.h);
-    else res = CW.parse.fromText(payload.h);
+    else if (payload.t === 'text') res = CW.parse.fromText(payload.h);
+    else if (payload.t === 'xls') {
+      /* 本机工具点了教务系统的「导出」，把拿到的 .xls/.xlsx 原样发回来（base64）。
+         这里不重写解析：直接套「上传文件」那条路（parseFile），
+         它连「正方把 HTML 存成 .xls」这种情况都处理了。 */
+      var bytes;
+      try {
+        var bin = atob(String(payload.d || '').replace(/\s+/g, ''));
+        bytes = new Uint8Array(bin.length);
+        for (var bi = 0; bi < bin.length; bi++) bytes[bi] = bin.charCodeAt(bi);
+      } catch (e) {
+        U.toast('导出的表格数据解不开，可能被截断了。', 'error', { timeout: 6000 });
+        return true;
+      }
+      var fname = payload.n || '课表.xls';
+      var file = new File([bytes], fname, { type: 'application/vnd.ms-excel' });
+      parseFile(file).then(function (r) {
+        CW.app.openModal('import');
+        if (r && r.result) {
+          setResult(r.result, '教务系统导出表格（自动抓取）· ' + fname);
+          if (!r.result.courses.length && !r.result.events.length) {
+            U.toast('导出的表格里没认出课程，可以改用「上传文件」手动选它。', 'warn', { timeout: 6000 });
+          } else {
+            if (typeof applyImportedName === 'function') applyImportedName(r.result);
+          }
+        } else {
+          U.toast('导出的表格解析失败：' + ((r && r.error) || '未知原因'), 'error', { timeout: 6200 });
+        }
+      });
+      return true;
+    } else res = CW.parse.fromText(payload.h);
 
     CW.app.openModal('import');
-    setResult(res, '教务系统页面（书签自动抓取）');
+    setResult(res, jwDone ? '教务系统页面（账号自动登录 + 抓取）' : '教务系统页面（书签自动抓取）');
 
     if (!res.courses.length && !res.events.length) {
-      U.toast('抓到的页面里没认出课表。可以把课表页面的表格直接复制粘贴过来。', 'warn', { timeout: 6000 });
+      U.toast('抓到的页面里没认出课表。可以改用「上传文件」，或让本机工具走「导出 xls」。', 'warn', { timeout: 6000 });
+    } else {
+      if (typeof applyImportedName === 'function') applyImportedName(res);
     }
     return true;
+  }
+
+  /**
+   * 导入结果里一般带着姓名（教务系统课表表头就有）。
+   * 这里**只把它当作建议**记在课表元数据里，绝不动问候语：
+   * 问候语默认永远显示「同学」；想显示自己的名字，去
+   * 「修改 → 学期与节次 → 我的名字」自己填一次。
+   * 这样做一是尊重本人的选择，二是避免别人拿到这份课表时看到你的名字。
+   */
+  function rememberImportedName(res) {
+    var student = res && res.meta && res.meta.student ? String(res.meta.student).trim() : '';
+    if (!student) return;
+    CW.store.state.schedule.meta.student = student;
+    CW.store.save('schedule');
+  }
+
+  function clearHash() {
+    try {
+      if (window.history && history.replaceState) {
+        history.replaceState(null, '', String(location.href).split('#')[0]);
+      }
+    } catch (e) { /* file:// 下可能不允许，忽略 */ }
   }
 
   /* ======================================================================
@@ -731,6 +1020,7 @@
     switchTab: switchTab,
     setResult: setResult,
     buildBookmarklet: buildBookmarklet,
+    buildLoginBookmarklet: buildLoginBookmarklet,
     csvTemplate: csvTemplate,
     hasPending: function () { return !!pending; }
   };

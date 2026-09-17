@@ -40,7 +40,16 @@
 [data-view="mobile"] .brand-mark { width: 32px; height: 32px; }
 [data-view="mobile"] .brand-text strong { font-size: 16px; }
 
-[data-view="mobile"] .drawer { inset: var(--nav-h) 0 auto 0; }
+/* 抽屉：手机上 11 个入口能顶到屏幕底部，跟标签栏连在一起 →
+   整屏没有可点的空白，点「更多」进去就出不来。
+   这里限高 + 内部滚动，配合 layout.css 里的遮罩（点一下关掉）。 */
+[data-view="mobile"] .drawer {
+  inset: var(--nav-h) 0 auto 0;
+  max-height: min(calc(100dvh - var(--nav-h) - 62px), 66dvh);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
 
 /* --- 主体：把 rail / content 拆开，让每张卡片单独排顺序 --- */
 [data-view="mobile"] .board {
@@ -72,18 +81,38 @@
 [data-view="mobile"] .dash { padding: 18px 0 2px; }
 [data-view="mobile"] .dash-inner { grid-template-columns: minmax(0, 1fr); gap: 14px; }
 [data-view="mobile"] .dash h1 { font-size: 25px; margin-bottom: 8px; }
-[data-view="mobile"] .dash-side { flex-direction: column; gap: 10px; }
+
+/* 手机上：时间 + 天气 并排一行，通知栏整行铺在下面（通知内容最重要，别挤在角落） */
+[data-view="mobile"] .dash-side {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+}
+[data-view="mobile"] .mini-notice { grid-column: auto; order: -1; }
+[data-view="mobile"] .mini-clock { min-height: 0; padding: 13px 15px; }
 [data-view="mobile"] .mini,
-[data-view="mobile"] .mini-quick {
+[data-view="mobile"] .mini-clock,
+[data-view="mobile"] .mini-weather,
+[data-view="mobile"] .mini-notice {
   flex: 1 1 auto;
   min-width: 0;
   width: 100%;
-  padding: 15px 16px;
 }
-[data-view="mobile"] .qp-hero b { font-size: 30px; }
-[data-view="mobile"] .qp-act { padding: 11px 4px; font-size: 11.5px; }
-[data-view="mobile"] .qp-act .ico { width: 19px; height: 19px; }
-[data-view="mobile"] .qp-chip { padding: 6px 11px; font-size: 12px; }
+[data-view="mobile"] .ck-time { font-size: 26px; }
+[data-view="mobile"] .wx-temp b { font-size: 27px; }
+[data-view="mobile"] .nt-more { font-size: 12.5px; padding: 4px 0; }
+[data-view="mobile"] .nt-line { padding: 5px 7px; }
+[data-view="mobile"] .nt-line-title { font-size: 13px; }
+
+/* 输入框在手机上保持 16px：iOS 遇到字号 <16px 的输入框，一聚焦就会把整页放大，
+   用户得手动缩回去才能继续用（发布公共事务、改事务都会踩到）。 */
+[data-view="mobile"] .input,
+[data-view="mobile"] .select,
+[data-view="mobile"] .textarea,
+[data-view="mobile"] input[type="text"],
+[data-view="mobile"] input[type="password"],
+[data-view="mobile"] input[type="search"],
+[data-view="mobile"] input[type="number"],
+[data-view="mobile"] textarea { font-size: 16px; }
 
 /* --------------------------------------------------------------------------
    3. 日程卡：手机上给它最高的优先级，头部按钮铺满一行
@@ -176,12 +205,37 @@
   gap: 2px;
   padding: 6px 6px calc(6px + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid var(--line);
+  background: var(--surface);                                   /* 兜底：不支持 color-mix 的浏览器别变透明 */
   background: color-mix(in srgb, var(--surface) 92%, transparent);
   backdrop-filter: saturate(180%) blur(16px);
   -webkit-backdrop-filter: saturate(180%) blur(16px);
   box-shadow: 0 -2px 18px rgba(15, 43, 85, .07);
 }
 [data-theme="dark"] [data-view="mobile"] .mtabs { box-shadow: 0 -2px 18px rgba(0, 0, 0, .45); }
+
+/* --------------------------------------------------------------------------
+   iOS：固定底栏在滚动时会被画错位置（典型表现：滑动时底栏浮到屏幕中间）
+   —— 这是 iOS 对「position:fixed + backdrop-filter 实时模糊」的老毛病。
+   这里在 iOS 上关掉实时模糊、改用接近不透明的底色，并让底栏独占一个合成层，
+   避免滚动时重绘错位。
+   -------------------------------------------------------------------------- */
+@supports (-webkit-touch-callout: none) {
+  [data-view="mobile"] .mtabs {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: color-mix(in srgb, var(--surface) 99%, transparent);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    will-change: transform;
+  }
+  /* 独立窗口（已装到桌面）里同样处理 */
+  @media (display-mode: standalone) {
+    [data-view="mobile"] .mtabs {
+      padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px));
+    }
+  }
+}
+
 
 .mtab {
   position: relative;
@@ -347,6 +401,10 @@
 [data-view="mobile"] .bg-preset { height: 56px; }
 [data-view="mobile"] .modal-body { -webkit-overflow-scrolling: touch; }
 
+/* 手机上弹窗本来就是全屏，看番页要撑满，别留边 */
+[data-view="mobile"] .anime-frame { min-height: 0; }
+[data-view="mobile"] .anime-stage { min-height: 0; }
+
 /* --------------------------------------------------------------------------
    11. 横屏手机：底部标签栏占地方，改成更扁的一条
    -------------------------------------------------------------------------- */
@@ -356,7 +414,9 @@
   [data-view="mobile"] .mtab { min-height: 38px; font-size: 9.5px; }
   [data-view="mobile"] .mtab .ico { width: 17px; height: 17px; }
   [data-view="mobile"] .dash { padding-top: 10px; }
-  [data-view="mobile"] .dash-side { flex-direction: row; }
+  /* 横屏时横向空间够，时间 / 天气 / 通知排成一行更省纵向空间 */
+  [data-view="mobile"] .dash-side { grid-template-columns: auto auto minmax(0, 1fr); }
+  [data-view="mobile"] .mini-notice { grid-column: auto; order: 0; }
 }
 
 /* --------------------------------------------------------------------------

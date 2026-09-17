@@ -1,0 +1,20 @@
+{
+  "_说明": "公共事务清单：全班共用的一份内容。这个文件由主机（你）维护，改完 push 一次，所有打开网站的人都会看到。首页「日程 → 公共事务」标签页里可以一条条或一次性加进自己的日程。",
+  "_字段说明": {
+    "id": "随便取一个不重复的字符串，用来判断你有没有加过这条",
+    "title": "标题（必填）",
+    "kind": "date = 某一天的事；weekly = 每周固定的事（比如每周日晚自习）",
+    "date": "kind=date 时必填，格式 2026-09-01",
+    "day": "kind=weekly 时必填，1=周一 … 7=周日",
+    "start / end": "时间，格式 09:00；留空表示全天",
+    "weeks / weeksText": "kind=weekly 专用：指定哪些周，例如 [1,2,3] 或 weeksText 写 \"1-16周(双)\"；都留空表示整学期",
+    "repeat": "可选择 none / daily / weekly / monthly（只有 kind=date 用得上）",
+    "location": "地点",
+    "note": "备注，可以换行（写在 JSON 里要用 \\n）",
+    "owner": "发布者署名，例如「班长」"
+  },
+  "version": 1,
+  "source": "public-events.json",
+  "updatedAt": "",
+  "items": []
+}

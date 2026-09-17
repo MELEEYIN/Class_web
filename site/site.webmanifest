@@ -10,8 +10,29 @@
   "orientation": "any",
   "background_color": "#f3f8ff",
   "theme_color": "#2563eb",
-  "categories": ["education", "productivity"],
+  "categories": [
+    "education",
+    "productivity"
+  ],
   "icons": [
+    {
+      "src": "./assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
     {
       "src": "./assets/favicon.svg",
       "sizes": "any",
@@ -20,7 +41,20 @@
     }
   ],
   "shortcuts": [
-    { "name": "校园地图", "short_name": "地图", "url": "./#map" },
-    { "name": "导入课表", "short_name": "导入", "url": "./#import" }
+    {
+      "name": "校园地图",
+      "short_name": "地图",
+      "url": "./#map"
+    },
+    {
+      "name": "导入课表",
+      "short_name": "导入",
+      "url": "./#import"
+    }
+  ],
+  "id": "./",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
   ]
 }

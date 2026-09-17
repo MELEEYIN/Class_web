@@ -104,6 +104,27 @@
   .nav-burger { display: inline-flex; }
 }
 
+/* 「看番」比地图 / 日程次要一点：窗口一窄就先收掉它的文字，给别的按钮腾位置 */
+@media (max-width: 1100px) {
+  .nav-actions .nav-early-collapse .label { display: none; }
+  .nav-actions .nav-early-collapse { width: 34px; padding: 0; }
+}
+
+/* 抽屉背后那层遮罩：点一下 = 关抽屉。
+   手机上抽屉本身几乎占满屏幕、底部标签栏又在最下面，没有这层就没有「退出去」的地方。 */
+.drawer-backdrop {
+  position: fixed;
+  inset: var(--nav-h) 0 0 0;
+  z-index: 54;                 /* 抽屉 55 之下、底部标签栏 70 之上 */
+  background: rgba(15, 23, 42, .34);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--t) var(--ease), visibility var(--t);
+}
+.drawer-backdrop.open { opacity: 1; visibility: visible; }
+
 /* 移动端抽屉 */
 .drawer {
   position: fixed;
@@ -135,6 +156,27 @@
 .drawer .ico { width: 17px; height: 17px; color: var(--accent); flex: none; }
 .drawer hr { margin: 4px 0; }
 
+/* 抽屉顶部：标题 + 明确的关闭按钮 */
+.drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 2px 4px;
+  margin-bottom: 2px;
+  border-bottom: 1px solid var(--line);
+}
+.drawer-head > span { font-size: 12px; font-weight: 750; letter-spacing: .06em; color: var(--faint); }
+.drawer .drawer-close {
+  width: 32px; height: 32px; padding: 0;
+  display: grid; place-items: center;
+  border-radius: 9px;
+  color: var(--muted);
+  background: var(--surface-2);
+}
+.drawer .drawer-close:hover { color: var(--ink); background: var(--surface-3); }
+.drawer-close svg { width: 15px; height: 15px; }
+
 /* --------------------------------------------------------------------------
    2. 顶部信息条（问候 / 周次 / 天气 / 下一节课）
    -------------------------------------------------------------------------- */
@@ -158,13 +200,35 @@
   margin-bottom: 10px;
 }
 .dash-chips { display: flex; flex-wrap: wrap; gap: 7px; }
-.dash-side { display: flex; gap: 12px; align-items: stretch; }
+
+/* 右侧三张小卡：时间 / 天气 / 通知栏
+   时间排在最左边（用户要求），天气其次，通知栏最后；通知栏有宽度上限，
+   不然一条通知会把整张卡拉得很长 */
+.dash-side {
+  display: grid;
+  grid-template-columns: auto auto minmax(250px, 420px);
+  align-items: stretch;
+  gap: 12px;
+  min-width: 0;
+}
+@media (max-width: 1180px) {
+  .dash-side { grid-template-columns: auto auto minmax(0, 360px); }
+}
+@media (max-width: 1020px) {
+  /* 一行放不下就把通知栏换到第二行整行铺开 */
+  .dash-side { grid-template-columns: auto minmax(0, 1fr); }
+  .dash-side .mini-notice { grid-column: 1 / -1; }
+}
 @media (max-width: 940px) {
   .dash-inner { grid-template-columns: 1fr; }
   .dash-side { justify-content: flex-start; }
 }
+@media (max-width: 620px) {
+  .dash-side { grid-template-columns: minmax(0, 1fr); }
+  .dash-side .mini-notice { grid-column: auto; min-width: 0; }
+}
 
-/* 信息小卡（天气 / 今日速览） */
+/* 信息小卡（实时时间 / 天气 / 通知栏） */
 .mini {
   min-width: 168px;
   padding: 13px 15px;
@@ -177,22 +241,124 @@
 .mini:hover { transform: translateY(-2px); box-shadow: var(--sh-2); border-color: var(--accent-line); }
 @media (max-width: 480px) { .mini { min-width: 0; flex: 1 1 0; } }
 
-/* 「今日速览」比天气卡宽一些 */
-.mini-quick { min-width: 268px; padding: 13px 15px 11px; }
-@media (max-width: 1080px) { .mini-quick { min-width: 240px; } }
-@media (max-width: 620px) {
-  .dash-side { flex-wrap: wrap; }
-  .mini-quick { flex: 1 1 100%; min-width: 0; }
-}
+/* 三张小卡的宽度分配 */
+.mini-clock { min-width: 156px; display: grid; align-content: center; gap: 3px; }
+.mini-weather { min-width: 196px; }
+.mini-notice { min-width: 250px; display: flex; flex-direction: column; gap: 7px; }
 
-.qp-head {
+/* 通知小卡里的列表：一条一行（标题 + 发布者/时间），不显示正文 */
+.nt-list { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.nt-line {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: 7px;
+  width: 100%;
+  min-width: 0;
+  padding: 3px 7px;
+  border-radius: var(--r-sm);
+  text-align: left;
+  transition: background var(--t) var(--ease);
 }
-.qp-title {
+.nt-line:hover { background: var(--surface-3); }
+.nt-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex: none; }
+.nt-line.is-ok .nt-dot { background: var(--ok); }
+.nt-line.is-warn .nt-dot { background: var(--warn); }
+.nt-line.is-danger .nt-dot { background: var(--danger); }
+.nt-line-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: -.005em;
+  color: var(--ink-2);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.nt-line.is-current .nt-line-title { color: var(--ink); }
+.nt-line-meta .ico { width: 13px; height: 13px; flex: none; color: var(--accent); }
+.nt-line-meta {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  font-weight: 650;
+  color: var(--faint);
+}
+.nt-line-src { max-width: 76px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.nt-line-time { white-space: nowrap; }
+.nt-line-src + .nt-line-time::before { content: '·'; margin-right: 5px; }
+
+/* --------------------------------------------------------------------------
+   实时时间卡
+   -------------------------------------------------------------------------- */
+.ck-row { display: flex; align-items: baseline; gap: 7px; }
+.ck-ico { width: 14px; height: 14px; color: var(--accent); flex: none; align-self: center; }
+.ck-time {
+  font-size: 23px;
+  font-weight: 780;
+  letter-spacing: -.03em;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.ck-sec-label { font-size: 10.5px; color: var(--faint); font-weight: 650; }
+.ck-date { font-size: 11.5px; font-weight: 650; color: var(--muted); }
+.ck-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 3px; }
+.ck-tz { font-size: 10px; color: var(--faint); font-weight: 650; }
+
+/* --------------------------------------------------------------------------
+   天气卡（重排过：上面一行天气概览，下面 2×2 关键数字）
+   -------------------------------------------------------------------------- */
+.wx-head { display: flex; align-items: center; gap: 10px; }
+.wx-ico { font-size: 26px; line-height: 1; flex: none; }
+.wx-main { min-width: 0; flex: 1; }
+.wx-temp { display: flex; align-items: baseline; gap: 7px; min-width: 0; }
+.wx-temp b {
+  font-size: 25px;
+  font-weight: 780;
+  letter-spacing: -.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.wx-cond { font-size: 12.5px; font-weight: 650; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wx-sub { margin-top: 2px; }
+
+.wx-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px 8px;
+  margin-top: 9px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--line);
+}
+.wx-stat {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 3px 7px;
+  border-radius: var(--r-xs);
+  background: var(--surface-3);
+  min-width: 0;
+}
+.wx-k { font-size: 10px; font-weight: 700; color: var(--faint); flex: none; }
+.wx-v { font-size: 11.5px; font-weight: 750; color: var(--ink-2); white-space: nowrap; }
+.wx-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 7px; }
+.wx-stale {
+  padding: 1px 6px;
+  border-radius: var(--r-pill);
+  background: var(--warn-soft);
+  color: var(--warn);
+  font-weight: 700;
+}
+
+/* --------------------------------------------------------------------------
+   通知栏（内容来自服务端，主机发布 → 所有访客同步）
+   -------------------------------------------------------------------------- */
+.nt-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.nt-title {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -201,83 +367,52 @@
   letter-spacing: .01em;
   color: var(--ink-2);
 }
-.qp-title .ico { width: 14px; height: 14px; color: var(--accent); flex: none; }
-
-.qp-hero {
-  display: flex;
-  align-items: baseline;
-  gap: 5px;
-  margin-bottom: 10px;
-}
-.qp-hero b {
-  font-size: 26px;
-  font-weight: 780;
-  letter-spacing: -.03em;
-  line-height: 1;
+.nt-title .ico { width: 14px; height: 14px; color: var(--accent); flex: none; }
+.nt-tag {
+  font-size: 9.5px;
+  font-weight: 750;
+  letter-spacing: .02em;
   color: var(--accent);
-  font-variant-numeric: tabular-nums;
-}
-.qp-hero span { font-size: 12.5px; font-weight: 650; color: var(--ink-2); }
-.qp-hero em {
-  font-style: normal;
-  font-size: 11.5px;
-  color: var(--faint);
-  margin-left: auto;
-}
-.qp-hero.is-empty span { font-size: 13px; font-weight: 650; color: var(--muted); }
-
-.qp-bars { display: grid; gap: 6px; }
-.qp-bar { display: flex; align-items: center; gap: 8px; }
-.qp-bar-label { font-size: 10.5px; font-weight: 700; color: var(--faint); width: 26px; flex: none; }
-.qp-bar .bar { flex: 1; }
-.qp-bar b { font-size: 10px; color: var(--faint); font-weight: 700; width: 30px; text-align: right; flex: none; }
-
-.qp-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  margin-top: 10px;
-}
-.qp-chip {
-  padding: 3px 8px;
+  background: var(--accent-soft);
+  padding: 2px 7px;
   border-radius: var(--r-pill);
+}
+
+.nt-empty { display: grid; gap: 2px; padding: 4px 0 2px; }
+.nt-empty strong { font-size: 13px; color: var(--ink-2); }
+
+.nt-more {
+  align-self: flex-start;
+  margin-top: 1px;
+  font-size: 11.5px;
+  font-weight: 750;
+  color: var(--accent);
+  padding: 2px 0;
+}
+.nt-more:hover { text-decoration: underline; }
+
+/* 通知弹窗里的每一条 */
+.nt-item {
+  padding: 13px 14px;
   border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--r-sm);
   background: var(--surface-2);
-  color: var(--muted);
-  font-size: 10.5px;
-  font-weight: 700;
-  white-space: nowrap;
-  transition: color var(--t) var(--ease), border-color var(--t) var(--ease), background-color var(--t) var(--ease);
-}
-button.qp-chip:hover { color: var(--accent); border-color: var(--accent-line); background: var(--accent-soft); }
-.qp-chip.is-static { cursor: default; }
-
-.qp-actions {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 5px;
-  margin-top: 11px;
-  padding-top: 10px;
-  border-top: 1px solid var(--line);
+  gap: 6px;
 }
-.qp-act {
-  display: grid;
-  justify-items: center;
-  gap: 3px;
-  padding: 7px 3px;
-  border-radius: var(--r-xs);
-  color: var(--muted);
-  font-size: 10px;
-  font-weight: 700;
-  transition: color var(--t) var(--ease), background-color var(--t) var(--ease), transform var(--t) var(--ease);
-}
-.qp-act .ico { width: 15px; height: 15px; }
-.qp-act:hover { color: var(--accent); background: var(--accent-soft); transform: translateY(-1px); }
-.qp-act span { white-space: nowrap; }
-
-@media (max-width: 380px) {
-  .qp-act span { display: none; }
-  .qp-actions { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.nt-item + .nt-item { margin-top: 10px; }
+.nt-item.is-ok { border-left-color: var(--ok); }
+.nt-item.is-warn { border-left-color: var(--warn); }
+.nt-item.is-danger { border-left-color: var(--danger); }
+.nt-item-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.nt-item-head strong { font-size: 14px; font-weight: 720; }
+.nt-item-body {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--ink-2);
+  white-space: pre-wrap;
+  margin: 0;
 }
 
 /* --------------------------------------------------------------------------
@@ -374,3 +509,4 @@ button.qp-chip:hover { color: var(--accent); border-color: var(--accent-line); b
 .footer-links { display: flex; gap: 16px; flex-wrap: wrap; }
 .footer-links a { color: var(--muted); font-weight: 600; }
 .footer-links a:hover { color: var(--accent); }
+

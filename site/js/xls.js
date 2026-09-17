@@ -801,10 +801,22 @@
     return parseBiffStream(wb);
   }
 
+  /**
+   * 统一成 Uint8Array。
+   * 这里的判断故意写得宽松一点：跨窗口 / iframe / Worker 拿到的 ArrayBuffer，
+   * 在某些环境里 `instanceof ArrayBuffer` 会是 false（realm 不同），
+   * 所以再用 Object.prototype.toString 兜一层，免得把好数据判成「无法识别」。
+   */
+  function isArrayBufferLike(v) {
+    if (!v || typeof v !== 'object') return false;
+    if (typeof ArrayBuffer !== 'undefined' && v instanceof ArrayBuffer) return true;
+    return Object.prototype.toString.call(v) === '[object ArrayBuffer]';
+  }
+
   function toUint8(arrayBuffer) {
     if (!arrayBuffer) throw new Error('没有拿到文件内容。');
     if (arrayBuffer instanceof Uint8Array) return arrayBuffer;
-    if (typeof ArrayBuffer !== 'undefined' && arrayBuffer instanceof ArrayBuffer) {
+    if (isArrayBufferLike(arrayBuffer)) {
       return new Uint8Array(arrayBuffer);
     }
     if (arrayBuffer.buffer) return new Uint8Array(arrayBuffer.buffer, arrayBuffer.byteOffset, arrayBuffer.byteLength);
@@ -1297,6 +1309,43 @@
     return u8.length > 4 && u8[0] === 0x50 && u8[1] === 0x4b;
   }
 
+  /**
+   * 有些教务系统的「导出 / 打印」其实是把一个 HTML 表格直接存成 .xls
+   * （Excel 能打开，所以学校就这么用了）。这种文件的头几个字节是 HTML，
+   * 不是 OLE2，按二进制表格解析必然报「不是有效的 .xls 文件」。
+   * 这里认一下，交给 HTML 解析器。
+   */
+  function looksLikeHtmlMarkup(u8) {
+    var n = Math.min(u8.length, 4096);
+    if (n < 8) return false;
+    var s = '';
+    for (var i = 0; i < n; i++) s += String.fromCharCode(u8[i]);
+    s = s.replace(/^\uFEFF/, '').replace(/^[\s\u0000]+/, '').toLowerCase();
+    if (s.charAt(0) !== '<') return false;
+    return s.indexOf('<!doctype html') === 0 ||
+      s.indexOf('<html') === 0 ||
+      s.indexOf('<table') >= 0 ||
+      s.indexOf('<meta') >= 0 ||
+      s.indexOf('<?xml') === 0 && s.indexOf('spreadsheet') >= 0;
+  }
+
+  /** 把 Uint8Array 解成文本（尽量认编码，认不出就按 UTF-8 硬解） */
+  function decodeText(u8) {
+    var head = Math.min(u8.length, 4096);
+    var ascii = '';
+    for (var i = 0; i < head; i++) ascii += String.fromCharCode(u8[i]);
+    var charset = null;
+    var m = /charset\s*=\s*["']?([\w-]+)/i.exec(ascii) ||
+      /encoding\s*=\s*["']([\w-]+)["']/i.exec(ascii);
+    if (m) charset = m[1].toLowerCase();
+    try {
+      if (charset && charset !== 'utf-8' && charset !== 'utf8' && typeof TextDecoder !== 'undefined') {
+        return new TextDecoder(charset).decode(u8);
+      }
+    } catch (e) { /* 浏览器不认这个编码名，退回 UTF-8 */ }
+    return decodeUtf8(u8);
+  }
+
   function readSheet(arrayBuffer, fileName) {
     return new Promise(function (resolve, reject) {
       var u8;
@@ -1307,6 +1356,7 @@
       var kind = ext;
       if (looksLikeOle(u8)) kind = 'xls';
       else if (looksLikeZip(u8)) kind = (ext === 'xlsm' || ext === 'xlsx' || ext === 'zip') ? ext : 'xlsx';
+      else if (looksLikeHtmlMarkup(u8)) kind = 'html';
       else if (ext === 'csv' || ext === 'tsv' || ext === 'txt') kind = ext;
 
       if (kind === 'xls') {
@@ -1315,6 +1365,11 @@
       }
       if (kind === 'xlsx' || kind === 'xlsm') {
         readXlsx(u8).then(resolve, reject);
+        return;
+      }
+      if (kind === 'html') {
+        // HTML 伪装的表格：交给调用方按 HTML 解析（parse.fromHtml）
+        resolve({ sheets: [], html: decodeText(u8), kind: 'html' });
         return;
       }
       if (kind === 'csv' || kind === 'tsv' || kind === 'txt') {
@@ -1327,6 +1382,7 @@
         return;
       }
       if (looksLikeZip(u8)) { readXlsx(u8).then(resolve, reject); return; }
+      if (looksLikeHtmlMarkup(u8)) { resolve({ sheets: [], html: decodeText(u8), kind: 'html' }); return; }
       resolve(readCsv(decodeUtf8(u8)));
     });
   }
@@ -1339,6 +1395,8 @@
   CW.readXlsx = readXlsx;
   CW.readCsv = readCsv;
   CW.readSheet = readSheet;
+  CW.looksLikeHtmlMarkup = looksLikeHtmlMarkup;
+  CW.decodeText = decodeText;
 
   // Internals for self-testing / debugging only.
   CW.__biffDebug = {

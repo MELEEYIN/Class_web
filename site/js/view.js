@@ -62,7 +62,7 @@
       // 布局变了，地图那类按像素计算的东西要重新适应
       if (CW.map && CW.app && CW.app.isOpen('map')) setTimeout(function () { CW.map.fit(true); }, 80);
       if (CW.schedule) CW.schedule.refresh();
-      if (CW.widgets && CW.widgets.renderQuickPanel) CW.widgets.renderQuickPanel();
+      if (CW.widgets && CW.widgets.renderDash) CW.widgets.renderDash();
       document.dispatchEvent(new CustomEvent('cw:viewchange', { detail: { mode: state.mode, pref: state.pref } }));
     }
 
@@ -142,7 +142,8 @@
       }, 400);
     },
     map: function () { CW.app.openModal('map'); },
-    more: function () { CW.app.openDrawer(); }
+    // 「更多」是开关：再点一下要能收回去（以前只开不关，面板又占满屏幕 → 退不出去）
+    more: function () { CW.app.toggleDrawer ? CW.app.toggleDrawer() : CW.app.openDrawer(); }
   };
 
   function syncTabs() {
@@ -168,6 +169,8 @@
         var fn = TAB_TARGETS[key];
         if (!fn) return;
         e.preventDefault();
+        // 点任何标签都先收起抽屉，免得抽屉压在内容上又挡着操作
+        if (key !== 'more' && CW.app && CW.app.closeDrawer) CW.app.closeDrawer();
         // 有点按反馈
         btn.classList.add('is-active');
         fn();

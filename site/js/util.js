@@ -408,15 +408,24 @@
     return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   }
 
-  /** 解析 location.hash 里的 key=value（不依赖 URLSearchParams，兼容 file://） */
+  /**
+   * 解析 location.hash 里的 key=value（不依赖 URLSearchParams，兼容 file://）。
+   *
+   * 为什么不能用 URLSearchParams：它按表单规则解析，会把 base64 里的「+」当成空格。
+   * 书签抓课表回传的就是 base64，一旦含「+」就会被改坏，表现为「数据解不开，可能被截断了」。
+   */
   function hashParams() {
     var h = String(window.location.hash || '').replace(/^#/, '');
     var out = {};
     if (!h) return out;
+    var dec = function (s) {
+      try { return decodeURIComponent(s); } catch (e) { return s; }
+    };
     h.split('&').forEach(function (pair) {
+      if (!pair) return;
       var i = pair.indexOf('=');
-      if (i < 0) { if (pair) out[decodeURIComponent(pair)] = ''; return; }
-      out[decodeURIComponent(pair.slice(0, i))] = decodeURIComponent(pair.slice(i + 1));
+      if (i < 0) { out[dec(pair)] = ''; return; }
+      out[dec(pair.slice(0, i))] = dec(pair.slice(i + 1));
     });
     return out;
   }
@@ -496,7 +505,7 @@
     uid: uid, clamp: clamp, debounce: debounce, throttle: throttle,
     hashIndex: hashIndex, colorFor: colorFor,
     prefersReducedMotion: prefersReducedMotion,
-    hashParams: hashParamsSafe,
+    hashParams: hashParams,
     b64Encode: b64Encode, b64Decode: b64Decode,
     fileExt: fileExt,
     readFileAsArrayBuffer: readFileAsArrayBuffer, readFileAsText: readFileAsText

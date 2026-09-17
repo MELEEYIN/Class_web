@@ -1,0 +1,160 @@
+/* ==========================================================================
+   admin.css — 只给 /admin.html（通知管理页）用
+   首页用不到这个文件，所以它只写管理页需要的那几块：
+   顶部条、登录卡、发布表单、通知行列表。
+   ========================================================================== */
+
+.admin-body {
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100dvh;
+}
+
+.admin-wrap {
+  width: min(100% - 36px, 1080px);
+  margin-inline: auto;
+}
+
+/* --------------------------------------------------------------------------
+   顶部条
+   -------------------------------------------------------------------------- */
+.admin-top {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface) 86%, transparent);
+  backdrop-filter: saturate(180%) blur(14px);
+  -webkit-backdrop-filter: saturate(180%) blur(14px);
+  margin-bottom: 26px;
+}
+.admin-top-in {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-height: 62px;
+  flex-wrap: wrap;
+}
+.admin-brand { display: flex; align-items: center; gap: 11px; }
+.admin-brand strong { display: block; font-size: 15.5px; font-weight: 760; letter-spacing: -.01em; }
+.admin-brand small { display: block; font-size: 11px; color: var(--faint); font-weight: 600; }
+.admin-mark {
+  width: 34px; height: 34px; flex: none;
+  display: grid; place-items: center;
+  border-radius: 10px;
+  color: #fff;
+  background: linear-gradient(140deg, var(--blue-500), var(--blue-700));
+  box-shadow: 0 3px 10px rgba(37, 99, 235, .3);
+}
+.admin-mark svg { width: 19px; height: 19px; }
+.admin-top-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+/* --------------------------------------------------------------------------
+   区块
+   -------------------------------------------------------------------------- */
+#console { display: grid; gap: 22px; padding-bottom: 60px; }
+#loginCard { max-width: 560px; margin: 40px auto 80px; padding: 26px 26px 22px; }
+
+.admin-h1 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 19px;
+  font-weight: 760;
+  letter-spacing: -.02em;
+  margin-bottom: 8px;
+}
+.admin-h1 .ico { width: 19px; height: 19px; color: var(--accent); flex: none; }
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+@media (max-width: 900px) { .admin-grid { grid-template-columns: minmax(0, 1fr); } }
+
+.admin-form { display: grid; gap: 14px; margin-top: 14px; }
+.admin-form-actions { display: flex; gap: 9px; flex-wrap: wrap; align-items: center; }
+.admin-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 560px) { .admin-two { grid-template-columns: minmax(0, 1fr); } }
+
+/* 已发布列表里的正文不要挤成一团 */
+#itemList .ri-main { gap: 2px; }
+#itemList .ri-actions { align-self: flex-start; }
+
+/* 手机上按钮别太挤；顺便治两个手机端老毛病：
+   ① 输入框字号 <16px 时 iOS 一聚焦就自动放大页面（放大后整个后台就「歪」了，
+      要手动缩回去才能用）→ 手机上一律 16px；
+   ② 图标按钮太小点不准 → 保证至少 40x40 的可点区域。 */
+@media (max-width: 620px) {
+  .admin-wrap { width: min(100% - 24px, 1080px); }
+  .admin-top-in { min-height: 56px; padding-block: 8px; }
+  .admin-form-actions .btn { flex: 1 1 auto; }
+  #itemList .row-item { align-items: flex-start; }
+
+  .input, .select, .textarea, input[type="text"], input[type="password"], input[type="search"], textarea {
+    font-size: 16px;
+  }
+  .input, .select { min-height: 44px; }
+  .btn { min-height: 40px; }
+  .btn-sm { min-height: 38px; padding-inline: 12px; }
+  .btn-icon, .row-item .ri-actions .btn { min-width: 40px; min-height: 40px; }
+  #console { gap: 16px; padding-bottom: 40px; }
+  #loginCard { margin: 22px auto 48px; padding: 20px 16px 18px; }
+  .card { padding: 16px 14px; }
+  .stat-table { font-size: 12px; }
+}
+
+/* --------------------------------------------------------------------------
+   访问统计（纯 CSS，无图表库）
+   -------------------------------------------------------------------------- */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+.stat-tile {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: var(--surface-2);
+}
+.stat-value { font-size: 22px; font-weight: 800; line-height: 1.2; letter-spacing: -.02em; }
+.stat-label { font-size: 12px; color: var(--muted); margin-top: 2px; font-weight: 600; }
+
+.stat-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 130px;
+  margin: 16px 0 4px;
+  padding-top: 4px;
+}
+.stat-bar-col {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+}
+.stat-bar {
+  width: 100%;
+  border-radius: 5px 5px 3px 3px;
+  background: linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 42%, transparent));
+  transition: height var(--t, .26s) var(--ease, ease);
+}
+.stat-bar-col:hover .stat-bar { background: linear-gradient(180deg, var(--accent-2, var(--accent)), var(--accent)); }
+.stat-bar-label { font-size: 9.5px; color: var(--faint); margin-top: 3px; white-space: nowrap; }
+
+.stat-block { margin-top: 16px; }
+.stat-block-title { font-size: 13px; margin: 0 0 6px; color: var(--muted); font-weight: 700; }
+.stat-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.stat-table th, .stat-table td { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--line); }
+.stat-table th { color: var(--faint); font-weight: 600; }
+.stat-table td:last-child, .stat-table th:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+

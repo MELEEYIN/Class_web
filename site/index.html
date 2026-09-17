@@ -13,13 +13,18 @@
 <meta property="og:description" content="一站式校园导航：8 个常用入口、课表导入与日程管理、校园地图与 C5 楼层平面图。">
 
 <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="./assets/favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-touch-icon-180.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="校园主页">
+    <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="./site.webmanifest">
 
 <link rel="stylesheet" href="./css/base.css">
 <link rel="stylesheet" href="./css/layout.css">
 <link rel="stylesheet" href="./css/components.css">
 <link rel="stylesheet" href="./css/mobile.css">
+<link rel="stylesheet" href="./css/fx.css">
 
 <!-- 首屏前先套用已保存的主题与背景，避免闪白 -->
 <script src="./js/boot.js"></script>
@@ -86,6 +91,7 @@
   <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8.6a6 6 0 1 0-12 0c0 5.2-2 6.9-2 6.9h16s-2-1.7-2-6.9Z"/><path d="M13.7 19a2 2 0 0 1-3.4 0"/></symbol>
   <symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/></symbol>
   <symbol id="i-warn-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.3M12 16.4h.01"/></symbol>
+  <symbol id="i-tv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="7" width="19" height="13" rx="2.2"/><path d="m8 3.2 4 3.8 4-3.8"/><path d="M7.5 17h3"/></symbol>
   <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.6 12 3.8l8.5 6.8V20a1 1 0 0 1-1 1h-4.2v-6.2H8.7V21H4.5a1 1 0 0 1-1-1z"/></symbol>
   <symbol id="i-more" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 12h.01M12 12h.01M18.5 12h.01"/></symbol>
   <symbol id="i-smartphone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="2.6"/><path d="M10.6 18.6h2.8"/></symbol>
@@ -113,11 +119,17 @@
     </div>
 
     <div class="nav-actions">
+      <button class="btn nav-early-collapse" type="button" data-open="anime" title="看番记录（快捷键 A）">
+        <svg class="ico" aria-hidden="true"><use href="#i-tv"/></svg><span class="label">看番</span>
+      </button>
       <button class="btn" type="button" data-open="map" title="校园地图（快捷键 M）">
         <svg class="ico" aria-hidden="true"><use href="#i-map"/></svg><span class="label">地图</span>
       </button>
       <button class="btn" type="button" data-open="schedule" title="日程表（快捷键 K）">
         <svg class="ico" aria-hidden="true"><use href="#i-calendar"/></svg><span class="label">日程</span>
+      </button>
+      <button class="btn" type="button" data-open="notice" title="班级通知（服务端同步）">
+        <svg class="ico" aria-hidden="true"><use href="#i-bell"/></svg><span class="label">通知</span>
       </button>
       <button class="btn btn-icon" type="button" id="themeBtn" title="切换深色 / 浅色" aria-label="切换深色或浅色主题">
         <svg class="ico" aria-hidden="true" id="themeIco"><use href="#i-moon"/></svg>
@@ -136,25 +148,38 @@
 </header>
 
 <!-- 移动端抽屉 -->
+<!-- 抽屉打开时铺在页面上的一层：点它就能关掉抽屉（否则手机上抽屉+标签栏占满屏幕，退不出去） -->
+<div class="drawer-backdrop" id="drawerBackdrop" hidden></div>
 <div class="drawer" id="drawer" hidden>
+  <div class="drawer-head">
+    <span>菜单</span>
+    <button class="drawer-close" type="button" id="drawerClose" aria-label="关闭菜单" title="关闭">
+      <svg aria-hidden="true"><use href="#i-close"/></svg>
+    </button>
+  </div>
   <a href="#links"><svg class="ico" aria-hidden="true"><use href="#i-grid"/></svg>常用入口</a>
   <a href="#tools"><svg class="ico" aria-hidden="true"><use href="#i-sparkles"/></svg>实用工具</a>
   <button type="button" data-open="map"><svg class="ico" aria-hidden="true"><use href="#i-map"/></svg>校园地图</button>
   <button type="button" data-open="schedule"><svg class="ico" aria-hidden="true"><use href="#i-calendar"/></svg>日程表</button>
+  <button type="button" data-open="notice"><svg class="ico" aria-hidden="true"><use href="#i-bell"/></svg>班级通知</button>
+  <button type="button" data-open="anime"><svg class="ico" aria-hidden="true"><use href="#i-tv"/></svg>看番记录</button>
   <button type="button" data-open="import"><svg class="ico" aria-hidden="true"><use href="#i-upload"/></svg>导入课表</button>
   <button type="button" data-open="bg"><svg class="ico" aria-hidden="true"><use href="#i-image"/></svg>自定义背景</button>
   <button type="button" data-open="help"><svg class="ico" aria-hidden="true"><use href="#i-keyboard"/></svg>快捷键与帮助</button>
   <button type="button" id="viewQuick"><svg class="ico" aria-hidden="true"><use href="#i-smartphone"/></svg><span>切换到手机版</span></button>
   <hr>
-  <a href="https://jwxt.sztu.edu.cn/jsxsd/framework/xsMain.jsp" target="_blank" rel="noopener">
-    <svg class="ico" aria-hidden="true"><use href="#i-external"/></svg>去教务系统查课表
+  <a href="https://jwxt.sztu.edu.cn/" target="_blank" rel="noopener">
+    <svg class="ico" aria-hidden="true"><use href="#i-external"/></svg>登录教务系统（统一身份认证）
+  </a>
+  <a href="./admin.html">
+    <svg class="ico" aria-hidden="true"><use href="#i-lock"/></svg>通知后台
   </a>
 </div>
 
 <main id="main">
 
   <!-- ====================================================================
-       顶部信息条：问候 / 日期 / 周次 / 天气 / 下一节课
+       顶部信息条：问候 / 日期 / 周次 + 实时时间 / 天气 / 通知栏
        ==================================================================== -->
   <section class="dash" id="top">
     <div class="wrap dash-inner">
@@ -168,10 +193,38 @@
         <div class="dash-chips" id="dashChips"></div>
       </div>
       <div class="dash-side" data-reveal>
-        <div class="mini" id="weatherBox" aria-live="polite">
+
+        <!-- 实时时间（跟着系统时间走，每秒刷新） -->
+        <div class="mini mini-clock" id="clockBox" aria-live="off">
+          <div class="ck-row">
+            <svg class="ck-ico" aria-hidden="true"><use href="#i-clock"/></svg>
+            <b class="ck-time" id="clockTime">--:--:--</b>
+            <span class="ck-sec-label">秒</span>
+          </div>
+          <div class="ck-date" id="clockDate">—</div>
+          <div class="ck-meta" id="clockMeta"></div>
+        </div>
+
+        <!-- 天气 -->
+        <!-- 实时投票：显示当前进行中的投票 + 实时票数（没有进行中的投票时自动隐藏） -->
+        <div class="mini mini-poll" id="pollMini" hidden>
+          <div class="mp-head">
+            <svg class="ico" aria-hidden="true"><use href="#i-chart"/></svg>
+            <span class="mp-title" id="pollMiniTitle">投票</span>
+            <span class="mp-count" id="pollMiniCount"></span>
+          </div>
+          <div class="mp-body" id="pollMiniBody"></div>
+        </div>
+
+        <div class="mini mini-weather" id="weatherBox" aria-live="polite">
           <div class="loading-inline"><span class="spinner-sm"></span>正在获取天气…</div>
         </div>
-        <div class="mini mini-quick" id="quickBox"></div>
+
+        <!-- 通知栏：内容由服务端（主机）发布，同步给所有访客 -->
+        <div class="mini mini-notice" id="noticeBox" aria-live="polite">
+          <div class="loading-inline"><span class="spinner-sm"></span>正在读取通知…</div>
+        </div>
+
       </div>
     </div>
   </section>
@@ -206,7 +259,7 @@
         <!-- 查询链接备注（用户指定） -->
         <p class="sched-query">
           <svg class="ico" aria-hidden="true"><use href="#i-info"/></svg>
-          <span class="truncate">课表/成绩查询：<a href="https://jwxt.sztu.edu.cn/jsxsd/framework/xsMain.jsp#" target="_blank" rel="noopener">教务系统 xsMain.jsp</a></span>
+          <span class="truncate">课表/成绩查询：<a href="https://jwxt.sztu.edu.cn/" target="_blank" rel="noopener">教务系统（统一身份认证）</a></span>
         </p>
 
         <!-- 正在上课 / 下一节课 -->
@@ -288,8 +341,8 @@
             </span>
           </a>
 
-          <a class="link-card" data-color="1" data-key="教务系统 成绩 课表 学分 jwxt"
-             href="https://jwxt.sztu.edu.cn/jsxsd/framework/xsMain.jsp"
+          <a class="link-card" data-color="1" data-key="教务系统 成绩 课表 学分 jwxt 统一身份认证"
+             href="https://jwxt.sztu.edu.cn/"
              target="_blank" rel="noopener" data-reveal>
             <span class="lc-top">
               <span class="lc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M7.5 14h3M7.5 17.5h6"/></svg></span>
@@ -298,15 +351,15 @@
                 <span class="lc-host">jwxt.sztu.edu.cn</span>
               </span>
             </span>
-            <span class="lc-desc">查成绩、查课表、看学分与培养方案，学生端主界面。</span>
+            <span class="lc-desc">先走学校统一身份认证登录，再查成绩、课表、学分与培养方案。</span>
             <span class="lc-foot">
               <span>成绩 · 课表</span>
               <span class="lc-go">打开 <svg aria-hidden="true"><use href="#i-arrow-ur"/></svg></span>
             </span>
           </a>
 
-          <a class="link-card" data-color="2" data-key="选课 抢课 补选 退选 xsrxkz"
-             href="https://jwxt.sztu.edu.cn/jsxsd/framework/xsrkxz.htmlx"
+          <a class="link-card" data-color="2" data-key="选课 抢课 补选 退选 xsrxkz 统一身份认证"
+             href="https://jwxt.sztu.edu.cn/"
              target="_blank" rel="noopener" data-reveal>
             <span class="lc-top">
               <span class="lc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 5.5h15v13h-15z"/><path d="M8 9.5h8M8 13h5"/><path d="m15.5 16.5 1.6 1.6 3-3.2"/></svg></span>
@@ -315,7 +368,7 @@
                 <span class="lc-host">jwxt.sztu.edu.cn</span>
               </span>
             </span>
-            <span class="lc-desc">学期选课、补选退选、通识课与体育课志愿填报。</span>
+            <span class="lc-desc">学期选课、补选退选、通识课与体育课志愿填报。先走统一身份认证登录。</span>
             <span class="lc-foot">
               <span>选课 · 退补选</span>
               <span class="lc-go">打开 <svg aria-hidden="true"><use href="#i-arrow-ur"/></svg></span>
@@ -422,6 +475,7 @@
         </div>
 
         <div class="grid grid-4" id="toolGrid">
+
           <button class="link-card" type="button" data-color="0" data-open="map" data-reveal>
             <span class="lc-top">
               <span class="lc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3 3 5.4v15.2L9 18l6 3 6-2.4V3.4L15 6 9 3Z"/><path d="M9 3v15M15 6v15"/></svg></span>
@@ -447,6 +501,33 @@
             </span>
             <span class="lc-desc">各节次对应的起止时间，可修改后应用到课表与提醒。</span>
             <span class="lc-foot"><span>节次表</span><span class="lc-go">查看 <svg aria-hidden="true"><use href="#i-arrow-ur"/></svg></span></span>
+          </button>
+
+          <button class="link-card" type="button" data-color="2" data-open="install" data-reveal id="installCard">
+            <span class="lc-top">
+              <span class="lc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2.5" width="14" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg></span>
+              <span><span class="lc-name">装到桌面</span><span class="lc-host" id="installCardHost">像 App 一样打开 · 可离线</span></span>
+            </span>
+            <span class="lc-desc">把本站添加到手机桌面：独立窗口打开、断网也能看课表（通知和投票仍需联网）。</span>
+            <span class="lc-foot"><span id="installRow">检查中…</span><span class="lc-go">说明 <svg aria-hidden="true"><use href="#i-arrow-ur"/></svg></span></span>
+          </button>
+
+          <button class="link-card" type="button" data-color="5" data-open="feedback" data-reveal>
+            <span class="lc-top">
+              <span class="lc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3v-6.5A8 8 0 0 1 13 4a8 8 0 0 1 8 8Z"/><path d="M9 11h8M9 15h5"/></svg></span>
+              <span><span class="lc-name">问题反馈</span><span class="lc-host">全班公开 · 可回复</span></span>
+            </span>
+            <span class="lc-desc">对班级、课程、网站有什么意见都可以提，其他人能看到也能回复。</span>
+            <span class="lc-foot"><span id="fbCount">—</span><span class="lc-go">打开 <svg aria-hidden="true"><use href="#i-arrow-ur"/></svg></span></span>
+          </button>
+
+          <button class="link-card" type="button" data-color="6" data-open="poll" data-reveal>
+            <span class="lc-top">
+              <span class="lc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16"/><rect x="6" y="11" width="3" height="6" rx="1"/><rect x="11" y="7" width="3" height="10" rx="1"/><rect x="16" y="13" width="3" height="4" rx="1"/></svg></span>
+              <span><span class="lc-name">投票</span><span class="lc-host">单选 / 多选 · 可设截止</span></span>
+            </span>
+            <span class="lc-desc">班级投票：结果实时公开，同一设备只能投一次（换设备可以再投）。</span>
+            <span class="lc-foot"><span id="pollCount">—</span><span class="lc-go">打开 <svg aria-hidden="true"><use href="#i-arrow-ur"/></svg></span></span>
           </button>
 
           <button class="link-card" type="button" data-color="3" data-open="export" data-reveal>
@@ -493,6 +574,26 @@
             <span class="lc-desc">键盘快捷键、数据存放位置、部署与换域名注意事项。</span>
             <span class="lc-foot"><span>帮助</span><span class="lc-go">打开 <svg aria-hidden="true"><use href="#i-arrow-ur"/></svg></span></span>
           </button>
+
+          <a class="link-card" href="./admin.html" data-color="4" data-reveal>
+            <span class="lc-top">
+              <span class="lc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5h16v13H4z"/><path d="M7.5 9.5h9M7.5 13h5.5"/><circle cx="17.2" cy="16.4" r="1.8"/></svg></span>
+              <span><span class="lc-name">通知后台</span><span class="lc-host">自己发布班级通知</span></span>
+            </span>
+            <span class="lc-desc">发布、修改、置顶通知，改完所有访客立刻能看到。需要管理密码。</span>
+            <span class="lc-foot"><span>仅自己用</span><span class="lc-go">打开 <svg aria-hidden="true"><use href="#i-arrow-ur"/></svg></span></span>
+          </a>
+          <!-- 看番记录（内嵌整个看番页，记录只存在各自浏览器里） -->
+          <button class="link-card" type="button" data-color="3" data-open="anime"
+          data-key="看番 追番 番剧 bangumi 动漫 动画 评分 记录 anime" data-reveal>
+          <span class="lc-top">
+          <span class="lc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="7" width="19" height="13" rx="2.2"/><path d="m8 3.2 4 3.8 4-3.8"/><path d="M7.5 17h3"/></svg></span>
+          <span><span class="lc-name">看番记录</span><span class="lc-host">Bangumi 数据源</span></span>
+          </span>
+          <span class="lc-desc">个人追番记录与评测：搜索番剧、记进度、打分排榜，数据取自 Bangumi。</span>
+          <span class="lc-foot"><span>追番 · 评分</span><span class="lc-go">打开 <svg aria-hidden="true"><use href="#i-arrow-ur"/></svg></span></span>
+          </button>
+
         </div>
       </section>
 
@@ -535,6 +636,7 @@
       <a href="#tools">实用工具</a>
       <button type="button" data-open="help" style="color:var(--muted);font-weight:600">帮助</button>
       <button type="button" data-open="data" style="color:var(--muted);font-weight:600">数据</button>
+      <a href="./admin.html">通知后台</a>
       <a href="https://github.com/MELEEYIN/Class_web" target="_blank" rel="noopener">源码</a>
     </nav>
   </div>
@@ -543,6 +645,88 @@
 <!-- ======================================================================
      弹窗 1：校园地图
      ====================================================================== -->
+<!-- 问题反馈（全班公开，可回复；删除要管理密码） -->
+<div class="modal" id="modal-feedback" role="dialog" aria-modal="true" aria-labelledby="fbTitle" hidden>
+  <div class="modal-panel">
+    <div class="modal-head">
+      <h2 id="fbTitle">问题反馈</h2>
+      <button class="modal-close" type="button" data-close aria-label="关闭反馈">
+        <svg class="ico" aria-hidden="true"><use href="#i-close"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p class="hint" style="margin-bottom:10px">全班都能看到，谁都可以回复；删除需要管理密码。</p>
+      <div class="field">
+        <label class="field-label" for="fbText">提一条意见</label>
+        <textarea class="textarea" id="fbText" maxlength="300" placeholder="比如：周五下午的课太晚，能不能改到上午？" style="min-height:86px"></textarea>
+      </div>
+      <div class="grid grid-2" style="align-items:end">
+        <div class="field">
+          <label class="field-label" for="fbBy">署名（可留空）</label>
+          <input class="input" id="fbBy" type="text" maxlength="12" placeholder="匿名">
+        </div>
+        <div class="field">
+          <button class="btn btn-primary" type="button" id="fbSend">
+            <svg class="ico" aria-hidden="true"><use href="#i-upload"/></svg>提交
+          </button>
+        </div>
+      </div>
+      <hr style="margin:16px 0">
+      <div id="fbList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 投票（结果实时公开；建投票需要管理密码） -->
+<div class="modal" id="modal-poll" role="dialog" aria-modal="true" aria-labelledby="pollTitleH" hidden>
+  <div class="modal-panel">
+    <div class="modal-head">
+      <h2 id="pollTitleH">投票</h2>
+      <button class="modal-close" type="button" data-close aria-label="关闭投票">
+        <svg class="ico" aria-hidden="true"><use href="#i-close"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div id="pollList"></div>
+      <hr style="margin:16px 0">
+      <div class="card-head">
+        <h3 class="card-title" style="font-size:14px"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg>建一个投票（需要管理密码）</h3>
+      </div>
+      <div class="field" style="margin-top:8px">
+        <label class="field-label" for="pollNewTitle">标题</label>
+        <input class="input" id="pollNewTitle" type="text" maxlength="60" placeholder="比如：周末班级活动去哪？">
+      </div>
+      <div class="field" style="margin-top:8px">
+        <label class="field-label" for="pollNewDesc">说明（可留空）</label>
+        <input class="input" id="pollNewDesc" type="text" maxlength="200" placeholder="时间、地点、注意事项…">
+      </div>
+      <div class="field" style="margin-top:8px">
+        <label class="field-label" for="pollNewOptions">选项（一行一个，2~10 个）</label>
+        <textarea class="textarea" id="pollNewOptions" style="min-height:88px" placeholder="爬山&#10;看电影&#10;桌游"></textarea>
+      </div>
+      <div class="grid grid-2" style="align-items:end;margin-top:8px">
+        <div class="field">
+          <label class="field-label" for="pollNewUntil">截止时间（可留空）</label>
+          <input class="input" id="pollNewUntil" type="datetime-local">
+        </div>
+        <div class="field">
+          <label class="field-label" for="pollNewMax">最多可选（多选时用）</label>
+          <input class="input" id="pollNewMax" type="number" min="1" max="10" value="1">
+        </div>
+      </div>
+      <div class="card-head" style="margin-top:10px">
+        <label class="check"><input type="checkbox" id="pollNewMulti"><span>多选</span></label>
+        <label class="check"><input type="checkbox" id="pollNewOnce" checked><span>每人只能投一次</span></label>
+      </div>
+      <div class="card-head" style="margin-top:10px">
+        <button class="btn btn-primary" type="button" id="pollCreate">
+          <svg class="ico" aria-hidden="true"><use href="#i-check"/></svg>创建投票
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="modal" id="modal-map" role="dialog" aria-modal="true" aria-labelledby="mapTitle" hidden>
   <div class="modal-backdrop" data-close></div>
   <div class="modal-panel mw-full">
@@ -622,6 +806,7 @@
       <div class="tabs" role="tablist" aria-label="日程视图">
         <button type="button" role="tab" data-tab="month" aria-selected="true">月历</button>
         <button type="button" role="tab" data-tab="week" aria-selected="false">周课表</button>
+        <button type="button" role="tab" data-tab="public" aria-selected="false">公共事务 <span class="badge badge-plain" id="pubTabCount" hidden></span></button>
         <button type="button" role="tab" data-tab="list" aria-selected="false">清单</button>
       </div>
 
@@ -661,6 +846,34 @@
           </div>
         </div>
         <div class="timetable-wrap" id="timetableWrap"></div>
+      </div>
+
+      <!-- 公共事务（全班共用的一份，可以按需导入到自己的日程） -->
+      <div class="tab-panel" data-panel="public" hidden>
+        <div class="card-head" style="margin-bottom:12px">
+          <div>
+            <h3 class="card-title"><svg class="ico" aria-hidden="true"><use href="#i-bell"/></svg>公共事务</h3>
+            <p class="card-sub" id="pubSub" style="margin-top:4px">给全班看的事务清单：班会、考试、报名截止这些。</p>
+          </div>
+          <div class="head-actions">
+            <label class="switch" title="显示已经加进我自己日程的条目">
+              <input type="checkbox" id="pubShowImported"><span class="track"></span><span>显示已添加</span>
+            </label>
+            <button class="btn btn-sm btn-primary" type="button" id="pubImportNew">
+              <svg class="ico" aria-hidden="true"><use href="#i-download"/></svg>全部添加到我的日程
+            </button>
+          </div>
+        </div>
+
+        <div class="notice" style="margin-bottom:14px">
+          <svg class="ico" aria-hidden="true"><use href="#i-info"/></svg>
+          <div>
+            这里的条目是<strong>全班共享</strong>的一份清单，点「添加」只会复制到<strong>你自己的日程</strong>里，
+            不会改动别人，也不会上传你自己的课表。
+          </div>
+        </div>
+
+        <div id="pubList"></div>
       </div>
 
       <!-- 清单 -->
@@ -724,6 +937,7 @@
         <button type="button" role="tab" data-itab="file" aria-selected="true">上传文件</button>
         <button type="button" role="tab" data-itab="paste" aria-selected="false">复制粘贴</button>
         <button type="button" role="tab" data-itab="auto" aria-selected="false">自动抓取（书签）</button>
+        <button type="button" role="tab" data-itab="account" aria-selected="false">教务系统账号</button>
         <button type="button" role="tab" data-itab="ics" aria-selected="false">日历 / 事务</button>
         <button type="button" role="tab" data-itab="manual" aria-selected="false">手动录入 / 模板</button>
       </div>
@@ -739,12 +953,14 @@
             <span class="badge badge-plain">.xlsx</span>
             <span class="badge badge-plain">.csv</span>
             <span class="badge badge-plain">.ics</span>
+            <span class="badge badge-plain">.html</span>
             <span class="badge badge-plain">.json</span>
           </span>
         </div>
-        <input type="file" id="importFile" accept=".xls,.xlsx,.xlsm,.csv,.tsv,.txt,.ics,.json" hidden multiple>
+        <input type="file" id="importFile" accept=".xls,.xlsx,.xlsm,.csv,.tsv,.txt,.ics,.json,.html,.htm" hidden multiple>
         <p class="hint" style="margin-top:10px">
-          在教务系统里：<strong>信息查询 → 学生个人课表</strong> → 右上角「导出」或「打印」，得到 <code>.xls</code> 文件后拖进来即可。
+          在教务系统里：<strong>信息查询 → 学生个人课表</strong> → 右上角「导出」或「打印」，得到 <code>.xls</code> 文件后拖进来即可。<br>
+          手机上没有「导出」按钮的话：用<strong>「复制粘贴」</strong>那一栏，或者把课表页「保存为网页」再导入这个 <code>.html</code>。<br>
           所有解析都在你的浏览器里完成，文件不会被上传。
         </p>
       </div>
@@ -753,7 +969,7 @@
       <div class="tab-panel" data-ipanel="paste" hidden>
         <div class="field">
           <label for="pasteArea" class="field-label">把课表页面复制的内容粘贴到这里</label>
-          <textarea class="textarea" id="pasteArea" style="min-height:190px" placeholder="在教务系统课表页面按 Ctrl+A 全选、Ctrl+C 复制，然后在这里 Ctrl+V 粘贴。&#10;表格、纯文本、JSON 都能识别。"></textarea>
+          <textarea class="textarea" id="pasteArea" style="min-height:190px" placeholder="电脑：在课表页 Ctrl+A 全选、Ctrl+C 复制，在这里 Ctrl+V 粘贴。&#10;手机：长按课表 → 全选 → 拷贝，回来点下面的「从剪贴板读取」。&#10;表格、纯文本、JSON 都能识别。"></textarea>
           <span class="hint">提示：直接粘贴网页表格时，粘贴板里会带上表格结构，识别率比纯文本更高。</span>
         </div>
         <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
@@ -762,6 +978,10 @@
           </button>
           <button class="btn btn-sm btn-ghost" type="button" id="pasteClear">清空</button>
         </div>
+        <p class="hint" style="margin-top:10px">
+          <strong>手机上就是这么用：</strong>在教务系统里长按课表 → 全选 → 拷贝 → 回到这里点「从剪贴板读取」，
+          它会自动解析并弹出预览。读不到剪贴板时（有些浏览器要授权），就长按上面的输入框粘贴。
+        </p>
       </div>
 
       <!-- 自动抓取 -->
@@ -818,6 +1038,122 @@
             如果装不了书签，用「复制粘贴」也一样快。
           </p>
         </div>
+      </div>
+
+      <!-- 教务系统账号：记住密码，让课表可以自动导入 -->
+      <div class="tab-panel" data-ipanel="account" hidden>
+        <div class="notice notice-warn" style="margin-bottom:16px">
+          <svg class="ico" aria-hidden="true"><use href="#i-alert"/></svg>
+          <div>
+            <strong>先说清楚这件事：密码存在哪里</strong>
+            <div class="tiny" style="margin-top:5px;line-height:1.85">
+              密码<strong>只写进你这台设备的浏览器</strong>（<code>localStorage</code> 的 <code>cw.jwAccount</code>），
+              本站没有后端也不会把它上传到任何服务器。<br>
+              但请明白：浏览器里的密码是<strong>明文</strong>的，同一台电脑上能打开这个浏览器的人（或恶意脚本）都可能读到它。
+              <strong>公用电脑、机房的电脑上不要存。</strong>不放心就选「不保存密码」，每次由你亲手输一次。
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-2" style="align-items:start">
+          <div class="field">
+            <label for="jwUser" class="field-label">学号 / 用户名</label>
+            <input class="input" id="jwUser" type="text" autocomplete="off" spellcheck="false" placeholder="例如 202600306XXX">
+            <span class="hint">密码可以留空 —— 留空时，书签会弹出输入框让你当场输入，不会保存任何密码。</span>
+          </div>
+          <div class="field">
+            <label for="jwPass" class="field-label">密码</label>
+            <input class="input" id="jwPass" type="password" autocomplete="off" placeholder="不填就不保存密码">
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+          <button class="btn btn-sm btn-primary" type="button" id="jwSave">
+            <svg class="ico" aria-hidden="true"><use href="#i-check"/></svg>保存到本机
+          </button>
+          <button class="btn btn-sm" type="button" id="jwBuild">
+            <svg class="ico" aria-hidden="true"><use href="#i-refresh"/></svg>用最新账号重新生成书签
+          </button>
+          <button class="btn btn-sm btn-ghost" type="button" id="jwForget">
+            <svg class="ico" aria-hidden="true"><use href="#i-trash"/></svg>忘掉账号与密码
+          </button>
+        </div>
+
+        <div id="jwState" style="margin-top:14px"></div>
+
+        <hr style="margin:18px 0 16px">
+
+        <p class="field-label" style="margin-bottom:8px">① 把下面这个书签拖到浏览器书签栏</p>
+        <a class="bookmarklet" id="jwBookmarklet" href="#" draggable="true" title="拖我到书签栏">
+          <svg class="ico" aria-hidden="true" style="width:16px;height:16px"><use href="#i-sparkles"/></svg>
+          一键登录教务并抓课表
+        </a>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <button class="btn btn-sm" type="button" id="jwCopy">
+            <svg class="ico" aria-hidden="true"><use href="#i-list"/></svg>复制书签代码
+          </button>
+          <button class="btn btn-sm btn-ghost" type="button" id="jwHow" aria-expanded="false">
+            <svg class="ico" aria-hidden="true"><use href="#i-eye"/></svg>怎么用（3 步）
+          </button>
+        </div>
+
+        <div id="jwHelp" hidden class="notice" style="margin-top:12px">
+          <svg class="ico" aria-hidden="true"><use href="#i-info"/></svg>
+          <div>
+            <strong>用法</strong>
+            <ol style="margin:8px 0 0 18px;padding:0;list-style:decimal;line-height:1.95">
+              <li>先在上面填好学号和密码，点「保存到本机」（没存密码也可以，那就每次手输一次）。</li>
+              <li>把「一键登录教务并抓课表」这个按钮拖到书签栏（手机上做不到就点「复制书签代码」，新建一个书签把网址整段替换掉）。</li>
+              <li>随便在哪个页面点一下这个书签：它会打开教务系统、填好账号密码、登录、跳到课表页、把课表带回来并自动填进导入预览。</li>
+            </ol>
+            <div class="tiny" style="margin-top:8px;line-height:1.8">
+              书签脚本只在你自己的浏览器里跑，不联网、不经过任何第三方。<br>
+              如果教务系统有<strong>验证码</strong>，脚本会把密码填好并停下来，你手动补验证码再点登录即可 ——
+              之后的抓取仍然会自动完成。<br>
+              如果登录页要求走<strong>统一身份认证</strong>（账号密码输入框不在教务系统自己的页面上），
+              请先用上面的「登录教务系统」入口登录一次，再在课表页点这个书签，它会直接抓取。
+            </div>
+            <div class="tiny" style="margin-top:10px;line-height:1.85;border-top:1px solid var(--line);padding-top:9px">
+              <strong>手机上怎么用（不用装任何东西）：</strong><br>
+              · <strong>iPhone / iPad（Safari）</strong>：把本页「加入书签」，然后「书签 → 编辑」把这个书签的地址整段替换成下面复制的代码
+              （或者：分享 → 添加书签 → 编辑地址）。<br>
+              · <strong>安卓（Chrome / Edge）</strong>：打开任意一个网页，加一个书签，把它的地址整段替换成下面的代码。<br>
+              · 之后登录教务系统（哪个页面都行），点一下这个书签，课表就会自动抓回来。<br>
+              · 手机上没有「书签栏」也照样能用：Safari 在书签/收藏列表里点，Chrome 在地址栏输入书签名选中即可。<br>
+              · 桌面版 Windows 上还有更省事的 <code>tools\一键自动导入课表.bat</code>（那个只能在电脑上用，手机跑不了）。
+            </div>
+            <div style="margin-top:10px">
+              <textarea class="textarea" id="jwCode" readonly style="min-height:110px"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <p class="hint" style="margin-top:12px">
+          教务系统不允许别的网站跨域读它的页面（浏览器的同源策略），所以「自动导入」只能这样做：
+          脚本在教务系统自己的页面上运行，读完课表再跳回本页。抓到的内容通过网址片段传回，之后会自动从地址栏清掉。
+        </p>
+
+        <!-- ============ Windows 一键导入工具（下载） ============ -->
+        <hr style="margin:18px 0">
+        <div class="card-head">
+          <h3 class="card-title" style="font-size:14px">
+            <svg class="ico" aria-hidden="true"><use href="#i-download"/></svg>Windows 电脑：一键导入工具（下载）
+          </h3>
+        </div>
+        <p class="small muted" style="margin-top:6px;line-height:1.8">
+          不想弄书签的话，Windows 上可以直接下载这个小工具：双击它 → 弹出的浏览器窗口里自己登录一次教务系统 → 它自动把课表抓回本页的导入预览。<br>
+          <strong>需要先装 Node.js</strong>（<a href="https://nodejs.org/" target="_blank" rel="noopener">nodejs.org</a> 的 LTS 版，装完重开窗口即可）。默认<strong>不保存、不填写任何密码</strong>，也不需要管理员权限。
+        </p>
+        <div class="card-head" style="margin-top:10px">
+          <a class="btn btn-sm btn-primary" href="./download/一键导入课表.zip" download>
+            <svg class="ico" aria-hidden="true"><use href="#i-download"/></svg>下载 一键导入课表.zip
+          </a>
+          <span class="tiny faint">约 33 KB · 解压后双击里面的 .bat</span>
+        </div>
+        <p class="hint" style="margin-top:8px">
+          手机 / macOS / Linux 用不了它（.bat 是 Windows 专用的），请用上面的书签方式。<br>
+          提示：这是从网站下载的脚本，Windows 可能提示「未知发布者」—— 它做的事就是驱动一个临时浏览器窗口抓课表，代码都在这份 zip 里，可以自行查看。
+        </p>
       </div>
 
       <!-- 日历 / 事务 -->
@@ -889,6 +1225,9 @@
           </p>
         </div>
       </div>
+
+      <!-- 读取失败的说明（比一闪而过的提示条更有用） -->
+      <div id="importFail" hidden style="margin-top:16px"></div>
 
       <!-- 解析预览 -->
       <div id="importPreview" hidden style="margin-top:20px">
@@ -997,6 +1336,7 @@
           <div class="field">
             <label for="setName" class="field-label">我的名字（用于问候语）</label>
             <input class="input" id="setName" type="text" maxlength="24" placeholder="例如：小明">
+            <span class="hint" id="setNameHint">留空就显示「同学」。名字只存在你自己浏览器里，不会上传。</span>
           </div>
           <div class="field">
             <label for="setTerm" class="field-label">学期名称</label>
@@ -1183,6 +1523,9 @@
       </div>
       <p class="hint" style="margin-top:8px">导出的 JSON 里包含课表、事务、待办、倒数日与全部设置。换电脑、换浏览器时用它恢复。</p>
 
+      <!-- 自动快照：每次保存前把上一版存在本机（不上传），手滑改坏了可以退回去 -->
+      <div id="backupList" style="margin-top:14px"></div>
+
       <hr style="margin:20px 0">
 
       <p class="field-label" style="margin-bottom:9px">提醒</p>
@@ -1295,6 +1638,35 @@
   </div>
 </div>
 
+<div class="modal" id="modal-install" role="dialog" aria-modal="true" aria-labelledby="installTitle" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-panel mw-sm">
+    <div class="modal-head">
+      <div class="mh-text"><h2 id="installTitle">装到桌面</h2><p>像 App 一样独立窗口打开，断网也能看课表</p></div>
+      <button class="modal-close" type="button" data-close aria-label="关闭"><svg aria-hidden="true"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <p class="small" id="installHint">正在检查这个浏览器能不能一键安装…</p>
+      <ul class="small muted" id="installSteps" style="display:grid;gap:9px;list-style:disc;padding-left:18px;margin-top:12px">
+        <li><strong>安卓（Chrome / Edge）</strong>：点右上角 ⋮ →「安装应用」或「添加到主屏幕」。</li>
+        <li><strong>微信 / QQ / 抖音等内置浏览器</strong>：这类浏览器不能安装。点右上角「…」→「在浏览器打开」，再用 Chrome 装。</li>
+        <li><strong>iPhone / iPad</strong>：用 Safari 打开本页，点底部「分享」→「添加到主屏幕」。</li>
+        <li><strong>电脑（Chrome / Edge）</strong>：点地址栏右侧的安装图标（⊞ / ⊕）。</li>
+      </ul>
+      <div class="notice" style="margin-top:16px">
+        <svg class="ico" aria-hidden="true"><use href="#i-info"/></svg>
+        <div>只能装一次：装好之后这个入口会消失（下次直接点桌面图标进）。如果装过又删了，Chrome 可能要过一阵才重新给出安装入口，按上面手动添加也一样。</div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-sm" type="button" data-close>关闭</button>
+      <button class="btn btn-sm btn-primary" type="button" id="installNow" hidden>
+        <svg class="ico" aria-hidden="true"><use href="#i-download"/></svg>立即安装
+      </button>
+    </div>
+  </div>
+</div>
+
 <div class="modal" id="modal-help" role="dialog" aria-modal="true" aria-labelledby="helpTitle" hidden>
   <div class="modal-backdrop" data-close></div>
   <div class="modal-panel mw-md">
@@ -1308,6 +1680,8 @@
         <div class="kr"><span>聚焦搜索框</span><kbd>/</kbd></div>
         <div class="kr"><span>打开日程表</span><kbd>K</kbd></div>
         <div class="kr"><span>打开校园地图</span><kbd>M</kbd></div>
+        <div class="kr"><span>打开班级通知</span><kbd>N</kbd></div>
+        <div class="kr"><span>打开看番记录</span><kbd>A</kbd></div>
         <div class="kr"><span>导入课表</span><kbd>I</kbd></div>
         <div class="kr"><span>切换深色 / 浅色</span><kbd>D</kbd></div>
         <div class="kr"><span>回到今天</span><kbd>T</kbd></div>
@@ -1338,6 +1712,69 @@
     </div>
     <div class="modal-foot">
       <button class="btn btn-sm btn-primary" type="button" data-close>知道了</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modal-notice" role="dialog" aria-modal="true" aria-labelledby="noticeTitle" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-panel mw-md">
+    <div class="modal-head">
+      <span class="lc-icon" style="--cc:var(--accent);--cc-soft:var(--accent-soft);width:34px;height:34px;border-radius:10px;display:grid;place-items:center" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:17px;height:17px"><use href="#i-bell"/></svg>
+      </span>
+      <div class="mh-text">
+        <h2 id="noticeTitle">班级通知</h2>
+        <p id="noticeSub">由主机在后台发布，所有打开本站的人都能看到</p>
+      </div>
+      <div class="mh-actions">
+        <button class="btn btn-sm btn-ghost" type="button" id="noticeRefresh">
+          <svg class="ico" aria-hidden="true"><use href="#i-refresh"/></svg><span class="label">刷新</span>
+        </button>
+        <button class="modal-close" type="button" data-close aria-label="关闭通知">
+          <svg aria-hidden="true"><use href="#i-close"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="modal-body" id="noticeBody"></div>
+    <div class="modal-foot">
+      <span class="small muted" id="noticeFoot"></span>
+      <button class="btn btn-sm btn-primary" type="button" data-close>知道了</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal modal-anime" id="modal-anime" role="dialog" aria-modal="true" aria-labelledby="animeTitle" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-panel mw-xl">
+    <div class="modal-head">
+      <span class="lc-icon" style="--cc:var(--accent);--cc-soft:var(--accent-soft);width:34px;height:34px;border-radius:10px;display:grid;place-items:center" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:17px;height:17px"><use href="#i-tv"/></svg>
+      </span>
+      <div class="mh-text">
+        <h2 id="animeTitle">看番记录</h2>
+        <p>搜索番剧、记录进度、打分排榜 · 数据源 Bangumi（走本站中转）· 记录只存在你的浏览器里</p>
+      </div>
+      <div class="mh-actions">
+        <button class="btn btn-sm btn-ghost" type="button" id="animeReload" title="重新加载看番页">
+          <svg class="ico" aria-hidden="true"><use href="#i-refresh"/></svg><span class="label">重新加载</span>
+        </button>
+        <a class="btn btn-sm btn-ghost" href="./anime.html" target="_blank" rel="noopener" title="在新标签页打开">
+          <svg class="ico" aria-hidden="true"><use href="#i-external"/></svg><span class="label">新标签页</span>
+        </a>
+        <button class="modal-close" type="button" data-close aria-label="关闭看番记录">
+          <svg aria-hidden="true"><use href="#i-close"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="anime-stage" id="animeStage">
+      <iframe id="animeFrame" class="anime-frame" title="看番记录与评测" data-src="./anime.html"
+              referrerpolicy="no-referrer" allow="clipboard-write"></iframe>
+      <div class="anime-loading" id="animeLoading">
+        <span class="spinner"></span>
+        <span>正在加载看番记录…</span>
+      </div>
     </div>
   </div>
 </div>
@@ -1374,11 +1811,22 @@
 <script src="./js/schedule.js"></script>
 <script src="./js/map.js"></script>
 <script src="./js/background.js"></script>
+<!-- 附件（通知 / 公共事务带图片、文档） -->
+<script src="./js/attach.js"></script>
 <script src="./js/widgets.js"></script>
+<!-- 装到桌面 / 离线 / 更新提示 -->
+    <script src="./js/pwa.js"></script>
+    <!-- 问题反馈 + 投票（全班公开） -->
+<script src="./js/board.js"></script>
+<!-- 页面内弹窗（替代 window.confirm/prompt：手机上「添加到主屏」后原生弹窗会被忽略） -->
+<script src="./js/dialog.js"></script>
+<script src="./js/public.js"></script>
 <script src="./js/import.js"></script>
 <script src="./js/edit.js"></script>
 <script src="./js/exporters.js"></script>
 <script src="./js/app.js"></script>
+<!-- 自建访问统计（自己的 Worker + D1，无第三方脚本、不种 cookie） -->
+<script src="./js/stats.js" defer></script>
 
 </body>
 </html>

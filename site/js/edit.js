@@ -240,6 +240,9 @@
       if (el.setTotalWeeks) patch.totalWeeks = U.clamp(Number(el.setTotalWeeks.value) || 18, 1, 30);
       CW.store.setSettings(patch);
 
+      // 名字一旦由本人改过，导入课表时就不再自动用表头里的名字覆盖它
+      if (patch.studentName !== undefined) CW.store.dismissHint('nameTouched');
+
       // 学期名称不是 settings 的字段，单独放进 meta
       if (patch.termLabel !== undefined) {
         CW.store.state.schedule.meta.term = patch.termLabel;
@@ -298,7 +301,40 @@
     if (el.setTotalWeeks) el.setTotalWeeks.value = String(s.totalWeeks);
     if (el.setWeekNow && !el.setWeekNow.value) el.setWeekNow.value = String(Math.max(1, CW.schedule.weekOf(U.today())));
     syncTermHint();
+    renderNameHint();
     renderPeriods();
+  }
+
+  /**
+   * 课表里读到的姓名只当建议显示，不自动填进问候语。
+   * 想用的话点一下那个按钮即可（点了才写进设置）。
+   */
+  function renderNameHint() {
+    var hint = U.$('#setNameHint');
+    if (!hint) return;
+
+    var stored = (CW.store.state.schedule.meta && CW.store.state.schedule.meta.student) || '';
+    var current = CW.store.state.schedule.settings.studentName || '';
+
+    if (!stored || stored === current) {
+      hint.textContent = '留空就显示「同学」。名字只存在你自己浏览器里，不会上传。';
+      return;
+    }
+
+    U.render(hint, [
+      '留空就显示「同学」。你的课表里有姓名「' + U.truncate(stored, 12) + '」，要用的话点这里：'
+    ]);
+    hint.appendChild(U.el('button', {
+      class: 'btn btn-sm btn-ghost', type: 'button',
+      style: { marginTop: '6px' },
+      onclick: function () {
+        CW.store.setSettings({ studentName: stored });
+        if (el.setName) el.setName.value = stored;
+        renderNameHint();
+        U.toast('问候语现在会用「' + stored + '」', 'ok', { timeout: 2600 });
+      }
+    }, [U.icon('i-check', 'ico'), '用这个名字']));
+    hint.appendChild(U.el('span', { text: '（不点就一直显示「同学」）' }));
   }
 
   function renderPeriods() {
@@ -436,6 +472,39 @@
     ]);
     untilWrap.hidden = (e.repeat || 'none') === 'none';
 
+    // 「设为公共事务」：勾上保存后会发布到全班共用的那份清单（存在服务器 KV 里），
+    // 别人在「日程 → 公共事务」里能看到并一键加进自己的日程。
+    var pub = U.el('input', { type: 'checkbox' });
+    pub.checked = !!(e.publicId);
+    // 附件区：勾了「设为公共事务」才有意义（附件跟着公共事务一起发给全班）
+    var attBox = U.el('div', { class: 'att-box' });
+    var att = CW.attach ? CW.attach.mount(attBox, { key: U.lsGet('adminKey', '') }) : null;
+    if (att && e.publicFiles && e.publicFiles.length) {
+      // 编辑已发布过的事务：把线上已有的附件先放回列表里
+      attBox.dataset.existing = JSON.stringify(e.publicFiles);
+    }
+    var attWrap = U.el('div', { class: 'field col-span-2' }, [
+      U.el('span', { class: 'field-label', text: '附件（可选）' }),
+      attBox,
+      U.el('span', { class: 'hint', text: '图片、pdf、Word/Excel/PPT、zip，单个 ≤ 5MB、最多 6 个。只有勾了「设为公共事务」才会发出去。' })
+    ]);
+    var pubWrap = U.el('div', { class: 'field col-span-2' }, [
+      U.el('span', { class: 'field-label', text: '公共事务' }),
+      U.el('label', { class: 'check' }, [
+        pub,
+        U.el('span', { text: '设为公共事务（全班都能在「日程 → 公共事务」里看到）' })
+      ]),
+      U.el('span', {
+        class: 'hint',
+        text: e.publicId
+          ? '这条已经发布过了：保持勾选会更新线上内容，取消勾选并保存会把它撤下。'
+          : '保存时需要管理密码（和通知后台同一个）；没输过会弹一次输入框。'
+      })
+    ]);
+    // 勾选状态变化时，附件区跟着显隐
+    pub.addEventListener('change', function () { attWrap.hidden = !pub.checked; });
+    attWrap.hidden = !pub.checked;
+
     var timeWrap = U.el('div', { class: 'grid grid-2' }, [
       U.el('div', { class: 'field' }, [U.el('label', { class: 'field-label', text: '开始时间' }), start]),
       U.el('div', { class: 'field' }, [U.el('label', { class: 'field-label', text: '结束时间' }), end])
@@ -473,7 +542,9 @@
         untilWrap,
         U.el('div', { class: 'field col-span-2' }, [
           U.el('label', { class: 'field-label', text: '备注' }), note
-        ])
+        ]),
+        pubWrap,
+        attWrap
       ]),
       U.el('div', { class: 'notice', style: { marginTop: '14px' } }, [
         U.icon('i-info', 'ico'),
@@ -481,7 +552,7 @@
       ])
     ]);
 
-    form = { title: title, date: date, allDay: allDay, start: start, end: end, loc: loc, note: note, repeat: repeat, until: until };
+    form = { title: title, date: date, allDay: allDay, start: start, end: end, loc: loc, note: note, repeat: repeat, until: until, pub: pub, att: att, attBox: attBox };
     CW.app.openModal('item');
     setTimeout(function () { title.focus(); }, 120);
   }
@@ -688,6 +759,64 @@
   /* ---- 共享的 form 引用 ---- */
   var form = null;
 
+  /**
+   * 处理「设为公共事务」这个勾选：
+   *   · 勾上 → 发布到服务器（需要管理密码，和通知后台同一个）
+   *   · 取消勾选、但之前发过 → 把线上那条撤下来
+   * 发布成功后在本条事务上记下 publicId，之后编辑就能继续更新它。
+   */
+  function handlePublicFlag(saved, data, wantPublic) {
+    if (!saved || !saved.id) return;
+    if (!CW.publicUI || !CW.publicUI.publishEvent) return;
+
+    // 用本机事务的 id 当公共事务的 id（store 生成的 id 本身是唯一的，形如 ev_xxxx）
+    var pubId = saved.publicId || String(saved.id);
+
+    if (wantPublic) {
+      // 附件：这次选的 + 线上已有的（编辑时保留没被移除的）
+      var existing = [];
+      try { existing = JSON.parse((form && form.attBox && form.attBox.dataset.existing) || '[]') || []; } catch (err) { existing = []; }
+      var picked = (form && form.att && form.att.files) ? form.att.files() : [];
+      var byId = {};
+      existing.concat(picked).forEach(function (f) { if (f && f.id) byId[f.id] = f; });
+
+      var item = {
+        id: pubId,
+        title: data.title,
+        kind: 'date',
+        date: data.date,
+        allDay: data.allDay,
+        start: data.start,
+        end: data.end,
+        repeat: data.repeat,
+        repeatUntil: data.repeatUntil || '',
+        location: data.location,
+        note: data.note,
+        files: Object.keys(byId).map(function (k) { return byId[k]; })
+      };
+      CW.publicUI.publishEvent(item).then(function (res) {
+        if (res && res.ok) {
+          if (saved.publicId !== pubId) CW.store.updateEvent(saved.id, { publicId: pubId });
+          U.toast('已发布为公共事务，全班都能看到', 'ok', { timeout: 2600 });
+        } else {
+          U.toast('发布公共事务失败：' + ((res && res.error) || '未知原因'), 'error', { timeout: 5200 });
+        }
+      });
+      return;
+    }
+
+    if (saved.publicId) {
+      CW.publicUI.deleteEvent(saved.publicId).then(function (res) {
+        if (res && res.ok) {
+          CW.store.updateEvent(saved.id, { publicId: '' });
+          U.toast('已从公共事务里撤下', 'ok', { timeout: 2600 });
+        } else {
+          U.toast('撤下失败：' + ((res && res.error) || '未知原因'), 'warn', { timeout: 4200 });
+        }
+      });
+    }
+  }
+
   function saveItem() {
     if (!current || !form) return;
 
@@ -710,11 +839,14 @@
         repeatUntil: form.repeat.value === 'none' ? '' : (form.until.value || '')
       };
 
-      if (current.id) CW.store.updateEvent(current.id, data);
-      else CW.store.addEvent(data);
+      // 保存后的那条（addEvent / updateEvent 都会把它返回）
+      var saved = current.id ? CW.store.updateEvent(current.id, data) : CW.store.addEvent(data);
 
       CW.app.closeModal('item');
       U.toast(current.id ? '已保存' : '已新增事务', 'ok', { timeout: 1800 });
+
+      // 公共事务：勾了就发布，取消勾选且以前发过就撤下
+      handlePublicFlag(saved, data, form.pub && form.pub.checked);
       return;
     }
 

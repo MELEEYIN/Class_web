@@ -340,6 +340,8 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
 .btn-icon.btn-sm { width: 32px; }
 .btn-block { width: 100%; }
 
+/* 兜底：任何位置用了 .ico 但没写尺寸时，别让 SVG 按默认 300x150 撑开 */
+svg.ico { width: 16px; height: 16px; flex: none; }
 .btn .ico { width: 16px; height: 16px; flex: none; }
 
 /* --------------------------------------------------------------------------
@@ -468,14 +470,21 @@ input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer;
 
 /* --------------------------------------------------------------------------
    8. 通用动效
+
+   注意 data-reveal 必须挂在 html.reveal-ready 下面：
+   这个效果要靠 JS（IntersectionObserver）把 .is-visible 加上去才会显示。
+   后台页 /admin 不加载那个脚本，如果这里直接写 [data-reveal]{opacity:0}，
+   后台就会整页空白（只在「减少动效」打开时才碰巧可见 —— iOS 默认关着，
+   所以出现「iOS 后台只有标题栏、内容全空」）。加上 html.reveal-ready 这个链，
+   没有脚本的页面就自然按正常样式显示。
    -------------------------------------------------------------------------- */
-[data-reveal] {
+html.reveal-ready [data-reveal] {
   opacity: 0;
   transform: translateY(14px);
   transition: opacity .6s var(--ease-out), transform .6s var(--ease-out);
   will-change: opacity, transform;
 }
-[data-reveal].is-visible { opacity: 1; transform: none; }
+html.reveal-ready [data-reveal].is-visible { opacity: 1; transform: none; }
 
 @keyframes cw-fade-in  { from { opacity: 0; } to { opacity: 1; } }
 @keyframes cw-pop-in   { from { opacity: 0; transform: translateY(14px) scale(.975); } to { opacity: 1; transform: none; } }

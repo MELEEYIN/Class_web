@@ -11,6 +11,8 @@
   var lastFocus = null;
   var openDrawer = function () {};
   var closeDrawer = function () {};
+  var toggleDrawer = function () {};
+  var isDrawerOpen = function () { return false; };
 
   /* ======================================================================
      1. 弹窗管理
@@ -54,6 +56,7 @@
     if (id === 'export' && CW.exporters) CW.exporters.renderIcsPreview();
     if (id === 'remind' && CW.widgets) CW.widgets.syncRemindState();
     if (id === 'bg' && CW.bg) CW.bg.syncControls();
+    if (id === 'anime') loadAnimeFrame();
 
     node.hidden = false;
     // 强制重排，保证 transition 生效
@@ -118,6 +121,35 @@
 
   function onOpen(id, fn) { (openHandlers[id] = openHandlers[id] || []).push(fn); }
   function onClose(id, fn) { (closeHandlers[id] = closeHandlers[id] || []).push(fn); }
+
+  /* ======================================================================
+     1.1 看番记录：第一次打开弹窗时才加载那个 iframe
+         页面里内嵌了整个看番页（site/anime.html），它自带一套暗色界面和
+         自己的 localStorage，跟首页互不干扰。这样写还有两个好处：
+         没点开就完全不产生请求；关掉再打开时里面的状态还在。
+     ====================================================================== */
+  function loadAnimeFrame(force) {
+    var frame = document.getElementById('animeFrame');
+    var loading = document.getElementById('animeLoading');
+    if (!frame) return;
+
+    var src = frame.getAttribute('data-src') || './anime.html';
+
+    if (frame.getAttribute('src') && !force) {
+      if (loading) loading.hidden = true;
+      return;
+    }
+
+    if (loading) loading.hidden = false;
+    frame.setAttribute('src', force ? src + '?r=' + Date.now() : src);
+
+    frame.addEventListener('load', function () {
+      if (loading) loading.hidden = true;
+    }, { once: true });
+
+    // 兜底：load 事件万一没来，也别让人一直看着转圈
+    setTimeout(function () { if (loading) loading.hidden = true; }, 12000);
+  }
 
   /* ======================================================================
      2. 确认框（动态创建，不用在 HTML 里再写一个弹窗）
@@ -220,27 +252,39 @@
 
     var burger = U.$('#burger');
     var drawer = U.$('#drawer');
+    var backdrop = U.$('#drawerBackdrop');
     if (!burger || !drawer) return;
 
     function setDrawer(open) {
       if (open) {
         drawer.hidden = false;
+        if (backdrop) { backdrop.hidden = false; void backdrop.offsetWidth; }
         void drawer.offsetWidth;
         drawer.classList.add('open');
+        if (backdrop) backdrop.classList.add('open');
         burger.setAttribute('aria-expanded', 'true');
       } else {
         drawer.classList.remove('open');
+        if (backdrop) backdrop.classList.remove('open');
         burger.setAttribute('aria-expanded', 'false');
-        setTimeout(function () { if (!drawer.classList.contains('open')) drawer.hidden = true; }, 260);
+        setTimeout(function () {
+          if (!drawer.classList.contains('open')) drawer.hidden = true;
+          if (backdrop && !backdrop.classList.contains('open')) backdrop.hidden = true;
+        }, 260);
       }
     }
 
     openDrawer = function () { setDrawer(true); };
     closeDrawer = function () { setDrawer(false); };
+    toggleDrawer = function () { setDrawer(!drawer.classList.contains('open')); };
+    isDrawerOpen = function () { return drawer.classList.contains('open'); };
 
     burger.addEventListener('click', function () {
-      setDrawer(!drawer.classList.contains('open'));
+      toggleDrawer();
     });
+
+    // 点那层半透明背景 = 关抽屉。手机上这是唯一「伸手就能点」的出口
+    if (backdrop) backdrop.addEventListener('click', function () { setDrawer(false); });
 
     drawer.addEventListener('click', function (e) {
       if (e.target.closest('a, button')) setDrawer(false);
@@ -262,10 +306,15 @@
      ====================================================================== */
   function initReveal() {
     var nodes = U.$$('[data-reveal]');
+    if (!nodes.length) return;
     if (U.prefersReducedMotion() || !('IntersectionObserver' in window)) {
       nodes.forEach(function (n) { n.classList.add('is-visible'); });
       return;
     }
+
+    // 先给 html 挂上 reveal-ready：CSS 里 [data-reveal] 的隐藏样式挂在这个类下面，
+    // 这样没跑这段脚本的页面（比如 /admin）就不会整页透明
+    document.documentElement.classList.add('reveal-ready');
 
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry, i) {
@@ -309,6 +358,8 @@
           closeTop();
           return;
         }
+        // 没有弹窗时，Esc 关掉「更多」抽屉
+        if (isDrawerOpen()) { e.preventDefault(); closeDrawer(); return; }
         var q = U.$('#q');
         if (q && document.activeElement === q) { q.value = ''; CW.widgets.runSearch(''); q.blur(); }
         return;
@@ -364,7 +415,13 @@
           break;
         case 'k': case 'K': e.preventDefault(); openModal('schedule'); break;
         case 'm': case 'M': e.preventDefault(); openModal('map'); break;
+        case 'n': case 'N':
+          e.preventDefault();
+          if (CW.widgets && CW.widgets.openNoticeModal) CW.widgets.openNoticeModal();
+          else openModal('notice');
+          break;
         case 'i': case 'I': e.preventDefault(); openModal('import'); break;
+        case 'a': case 'A': e.preventDefault(); openModal('anime'); break;
         case 'd': case 'D': e.preventDefault(); toggleTheme(); break;
         case 't': case 'T':
           e.preventDefault();
@@ -388,7 +445,13 @@
       var opener = e.target.closest ? e.target.closest('[data-open]') : null;
       if (opener) {
         var id = opener.getAttribute('data-open');
-        if (id) { e.preventDefault(); openModal(id); return; }
+        if (id) {
+          e.preventDefault();
+          // 通知弹窗的内容要先画好，否则会先闪一下空列表
+          if (id === 'notice' && CW.widgets && CW.widgets.renderNoticeBody) CW.widgets.renderNoticeBody();
+          openModal(id);
+          return;
+        }
       }
 
       var closer = e.target.closest ? e.target.closest('[data-close]') : null;
@@ -436,6 +499,8 @@
     if (CW.importUI) CW.importUI.init();
     if (CW.editUI) CW.editUI.init();
     if (CW.exporters) CW.exporters.init();
+    if (CW.publicUI) CW.publicUI.init();
+    if (CW.board) CW.board.init();
     if (CW.widgets) CW.widgets.init();
     if (CW.schedule) { CW.schedule.bind(); CW.store.ensureIds(); CW.schedule.refresh(); }
 
@@ -443,6 +508,9 @@
     initNav();
     initReveal();
     initKeys();
+
+    var reloadBtn = U.$('#animeReload');
+    if (reloadBtn) reloadBtn.addEventListener('click', function () { loadAnimeFrame(true); U.toast('正在重新加载看番页…', 'info', { timeout: 1600 }); });
 
     // 主题按钮
     var themeBtn = U.$('#themeBtn');
@@ -469,7 +537,7 @@
 
     // 让键盘用户知道有快捷键
     document.body.classList.add('ready');
-    console.log('%c校园主页已就绪', 'color:#2563eb;font-weight:700', '\n快捷键：/ 搜索 · K 日程 · M 地图 · I 导入 · D 深色 · ? 帮助');
+    console.log('%c校园主页已就绪', 'color:#2563eb;font-weight:700', '\n快捷键：/ 搜索 · K 日程 · M 地图 · N 通知 · A 看番 · I 导入 · D 深色 · ? 帮助');
   }
 
   /* ======================================================================
@@ -487,7 +555,9 @@
     setTheme: setTheme,
     toggleTheme: toggleTheme,
     openDrawer: function () { openDrawer(); },
-    closeDrawer: function () { closeDrawer(); }
+    closeDrawer: function () { closeDrawer(); },
+    toggleDrawer: function () { toggleDrawer(); },
+    isDrawerOpen: function () { return isDrawerOpen(); }
   };
 
   if (document.readyState === 'loading') {

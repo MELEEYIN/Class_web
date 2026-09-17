@@ -1,0 +1,4436 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>📺 个人看番记录与评测系统</title>
+    <style>
+        /* ==================== 全局变量 & 主题 ==================== */
+        :root {
+            --theme-primary: #8b5cf6;
+            --theme-primary-light: #a78bfa;
+            --theme-primary-glow: rgba(139, 92, 246, 0.35);
+            --theme-primary-bg: rgba(139, 92, 246, 0.12);
+            --theme-accent: #c4b5fd;
+            --theme-gradient: linear-gradient(135deg, #1a1025 0%, #0f0a1a 30%, #0d1117 60%, #0a0f14 100%);
+            --card-bg: rgba(25, 20, 40, 0.65);
+            --card-border: rgba(139, 92, 246, 0.3);
+            --card-hover-border: rgba(139, 92, 246, 0.7);
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            --text-primary: #e8e0f0;
+            --text-secondary: #b0a0c8;
+            --text-muted: #7a6a90;
+            --input-bg: rgba(20, 15, 30, 0.7);
+            --input-border: rgba(139, 92, 246, 0.25);
+            --btn-bg: rgba(139, 92, 246, 0.5);
+            --btn-hover-bg: rgba(139, 92, 246, 0.75);
+            --badge-bg: rgba(139, 92, 246, 0.25);
+            --divider: rgba(139, 92, 246, 0.2);
+            --scrollbar-thumb: rgba(139, 92, 246, 0.4);
+            --glass-blur: blur(16px);
+            --transition-speed: 0.25s;
+        }
+
+        [data-theme="purple"] {
+            --theme-primary: #7c3aed;
+            --theme-primary-light: #a78bfa;
+            --theme-primary-glow: rgba(124, 58, 237, 0.45);
+            --theme-primary-bg: rgba(124, 58, 237, 0.15);
+            --theme-accent: #c4b5fd;
+            --card-border: rgba(124, 58, 237, 0.4);
+            --card-hover-border: rgba(124, 58, 237, 0.75);
+            --input-border: rgba(124, 58, 237, 0.3);
+            --btn-bg: rgba(124, 58, 237, 0.55);
+            --btn-hover-bg: rgba(124, 58, 237, 0.8);
+            --badge-bg: rgba(124, 58, 237, 0.3);
+            --divider: rgba(124, 58, 237, 0.25);
+            --scrollbar-thumb: rgba(124, 58, 237, 0.5);
+        }
+
+        [data-theme="blue"] {
+            --theme-primary: #2563eb;
+            --theme-primary-light: #60a5fa;
+            --theme-primary-glow: rgba(37, 99, 235, 0.45);
+            --theme-primary-bg: rgba(37, 99, 235, 0.15);
+            --theme-accent: #93c5fd;
+            --card-border: rgba(37, 99, 235, 0.4);
+            --card-hover-border: rgba(37, 99, 235, 0.75);
+            --input-border: rgba(37, 99, 235, 0.3);
+            --btn-bg: rgba(37, 99, 235, 0.55);
+            --btn-hover-bg: rgba(37, 99, 235, 0.8);
+            --badge-bg: rgba(37, 99, 235, 0.3);
+            --divider: rgba(37, 99, 235, 0.25);
+            --scrollbar-thumb: rgba(37, 99, 235, 0.5);
+        }
+
+        [data-theme="pink"] {
+            --theme-primary: #db2777;
+            --theme-primary-light: #f472b6;
+            --theme-primary-glow: rgba(219, 39, 119, 0.45);
+            --theme-primary-bg: rgba(219, 39, 119, 0.15);
+            --theme-accent: #f9a8d4;
+            --card-border: rgba(219, 39, 119, 0.4);
+            --card-hover-border: rgba(219, 39, 119, 0.75);
+            --input-border: rgba(219, 39, 119, 0.3);
+            --btn-bg: rgba(219, 39, 119, 0.55);
+            --btn-hover-bg: rgba(219, 39, 119, 0.8);
+            --badge-bg: rgba(219, 39, 119, 0.3);
+            --divider: rgba(219, 39, 119, 0.25);
+            --scrollbar-thumb: rgba(219, 39, 119, 0.5);
+        }
+
+        [data-theme="orange"] {
+            --theme-primary: #ea580c;
+            --theme-primary-light: #fb923c;
+            --theme-primary-glow: rgba(234, 88, 12, 0.45);
+            --theme-primary-bg: rgba(234, 88, 12, 0.15);
+            --theme-accent: #fdba74;
+            --card-border: rgba(234, 88, 12, 0.4);
+            --card-hover-border: rgba(234, 88, 12, 0.75);
+            --input-border: rgba(234, 88, 12, 0.3);
+            --btn-bg: rgba(234, 88, 12, 0.55);
+            --btn-hover-bg: rgba(234, 88, 12, 0.8);
+            --badge-bg: rgba(234, 88, 12, 0.3);
+            --divider: rgba(234, 88, 12, 0.25);
+            --scrollbar-thumb: rgba(234, 88, 12, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: var(--theme-gradient);
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: background 0.6s ease, color 0.6s ease;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .bg-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            background: var(--theme-gradient);
+            transition: background 0.6s ease;
+        }
+
+        .bg-image-layer {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.25;
+            transition: opacity 0.8s ease;
+            pointer-events: none;
+        }
+        .bg-image-layer.active {
+            opacity: 0.3;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--scrollbar-thumb);
+            border-radius: 3px;
+        }
+
+        /* ==================== 顶部搜索栏 ==================== */
+        .search-bar-sticky {
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            background: rgba(10, 8, 18, 0.75);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border-bottom: 1px solid var(--divider);
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            flex-wrap: wrap;
+        }
+
+        .search-bar-sticky h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--theme-primary-light), var(--theme-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-right: 8px;
+            flex-shrink: 0;
+            cursor: default;
+        }
+
+        .search-input-wrap {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+
+        .search-input-wrap input {
+            width: 100%;
+            padding: 10px 16px;
+            border-radius: 25px;
+            border: 2px solid var(--input-border);
+            background: var(--input-bg);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            outline: none;
+            backdrop-filter: blur(8px);
+        }
+        .search-input-wrap input:focus {
+            border-color: var(--theme-primary-light);
+            box-shadow: 0 0 20px var(--theme-primary-glow);
+        }
+
+        .search-results-dropdown {
+            position: absolute;
+            top: 110%;
+            left: 0;
+            right: 0;
+            background: rgba(18, 14, 28, 0.95);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            max-height: 500px;
+            overflow-y: auto;
+            z-index: 100;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+            display: none;
+        }
+        .search-results-dropdown.show {
+            display: block;
+        }
+
+        .search-history-section {
+            padding: 8px 14px;
+            border-bottom: 1px solid var(--divider);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px;
+        }
+        .search-history-section .history-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-right: 4px;
+        }
+        .search-history-tag {
+            font-size: 0.7rem;
+            padding: 2px 10px;
+            border-radius: 12px;
+            background: var(--badge-bg);
+            color: var(--text-secondary);
+            cursor: pointer;
+            border: 1px solid var(--card-border);
+            transition: all 0.2s;
+        }
+        .search-history-tag:hover {
+            border-color: var(--theme-primary-light);
+            color: var(--theme-primary-light);
+        }
+        .search-history-clear {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            margin-left: auto;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+        .search-history-clear:hover {
+            opacity: 1;
+        }
+
+        .search-result-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .search-result-item:hover {
+            background: var(--theme-primary-bg);
+        }
+        .search-result-item img {
+            width: 44px;
+            height: 62px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+        .search-result-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .sr-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .sr-title .already-added {
+            font-size: 0.6rem;
+            color: #4ade80;
+            margin-left: 6px;
+        }
+        .sr-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .sr-meta span {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1px 6px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+        }
+
+        .btn-add-sm {
+            flex-shrink: 0;
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: none;
+            background: var(--btn-bg);
+            color: #fff;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all var(--transition-speed) ease;
+        }
+        .btn-add-sm:hover {
+            background: var(--btn-hover-bg);
+            box-shadow: 0 0 16px var(--theme-primary-glow);
+        }
+        .btn-add-sm:disabled {
+            opacity: 0.5;
+            cursor: default;
+        }
+
+        .search-local-match {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--divider);
+            background: var(--theme-primary-bg);
+        }
+        .search-local-match .local-title {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--theme-primary-light);
+        }
+        .search-local-match .local-hint {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        /* ==================== 仪表盘 ==================== */
+        .dashboard {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            padding: 20px 24px;
+            justify-content: center;
+        }
+
+        .dash-card {
+            background: var(--card-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 16px 22px;
+            text-align: center;
+            min-width: 100px;
+            flex: 1;
+            max-width: 160px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+        .dash-card:hover {
+            border-color: var(--theme-primary-light);
+            transform: translateY(-2px);
+        }
+
+        .dash-num {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 10%, var(--theme-primary-light) 80%, var(--theme-accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px var(--theme-primary-glow), 0 0 60px var(--theme-primary-glow);
+            filter: drop-shadow(0 0 12px var(--theme-primary-glow));
+            transition: text-shadow 0.3s ease;
+        }
+
+        [data-theme="purple"] .dash-num {
+            text-shadow: 0 0 40px rgba(124, 58, 237, 0.5), 0 0 80px rgba(124, 58, 237, 0.25);
+        }
+        [data-theme="blue"] .dash-num {
+            text-shadow: 0 0 40px rgba(37, 99, 235, 0.5), 0 0 80px rgba(37, 99, 235, 0.25);
+        }
+        [data-theme="pink"] .dash-num {
+            text-shadow: 0 0 40px rgba(219, 39, 119, 0.5), 0 0 80px rgba(219, 39, 119, 0.25);
+        }
+        [data-theme="orange"] .dash-num {
+            text-shadow: 0 0 40px rgba(234, 88, 12, 0.5), 0 0 80px rgba(234, 88, 12, 0.25);
+        }
+
+        .dash-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* 统计看板扩展 */
+        .stats-grid {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 0 24px 16px;
+            justify-content: center;
+        }
+        .stats-chip {
+            background: var(--card-bg);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+        .stats-chip:hover {
+            border-color: var(--theme-primary-light);
+        }
+        .stats-chip .stat-label {
+            color: var(--text-muted);
+        }
+        .stats-chip .stat-value {
+            font-weight: 700;
+            color: var(--theme-primary-light);
+        }
+        .stats-chip .stat-bar {
+            width: 80px;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.08);
+            overflow: hidden;
+        }
+        .stats-chip .stat-bar .fill {
+            height: 100%;
+            border-radius: 2px;
+            background: var(--theme-primary-light);
+            transition: width 0.6s ease;
+        }
+        .stats-chip .grade-dot {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 2px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .grade-dot.S { background: #FFD700; }
+        .grade-dot.A\+ { background: #00E676; }
+        .grade-dot.A { background: #4CAF50; }
+        .grade-dot.A\- { background: #8BC34A; }
+        .grade-dot.B\+ { background: #FFEB3B; }
+        .grade-dot.B { background: #FF9800; }
+        .grade-dot.B\- { background: #FF6F00; }
+        .grade-dot.C { background: #F44336; }
+        .grade-dot.D { background: #9E9E9E; }
+        .grade-dot.none { background: #555; }
+
+        /* ==================== 工具栏 ==================== */
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 0 24px 16px;
+            align-items: center;
+        }
+
+        .toolbar button,
+        .toolbar .theme-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--card-border);
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all var(--transition-speed) ease;
+            white-space: nowrap;
+        }
+        .toolbar button:hover,
+        .toolbar .theme-btn:hover {
+            border-color: var(--theme-primary-light);
+            box-shadow: 0 0 14px var(--theme-primary-glow);
+        }
+        .theme-btn.active {
+            border-color: var(--theme-primary-light) !important;
+            box-shadow: 0 0 18px var(--theme-primary-glow) !important;
+            background: var(--theme-primary-bg) !important;
+            font-weight: 700;
+        }
+
+        .tag-filter-select {
+            padding: 8px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--card-border);
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            cursor: pointer;
+            outline: none;
+        }
+        .tag-filter-select option {
+            background: #1a1025;
+            color: #e8e0f0;
+        }
+
+        .view-mode-btn {
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--card-border);
+            background: var(--card-bg);
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.2s;
+        }
+        .view-mode-btn.active {
+            border-color: var(--theme-primary-light);
+            color: var(--theme-primary-light);
+            background: var(--theme-primary-bg);
+        }
+        .view-mode-btn:hover {
+            border-color: var(--theme-primary-light);
+        }
+
+        /* 批量操作栏 */
+        .batch-bar {
+            display: none;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            padding: 10px 24px;
+            background: var(--theme-primary-bg);
+            border-bottom: 1px solid var(--divider);
+            border-top: 1px solid var(--divider);
+            margin-bottom: 16px;
+        }
+        .batch-bar.show {
+            display: flex;
+        }
+        .batch-bar .batch-info {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        .batch-bar .batch-btn {
+            padding: 6px 14px;
+            border-radius: 16px;
+            border: 1px solid var(--card-border);
+            background: var(--btn-bg);
+            color: #fff;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.2s;
+        }
+        .batch-bar .batch-btn:hover {
+            background: var(--btn-hover-bg);
+            box-shadow: 0 0 12px var(--theme-primary-glow);
+        }
+        .batch-bar .batch-btn.danger {
+            background: rgba(200, 60, 60, 0.5);
+        }
+        .batch-bar .batch-btn.danger:hover {
+            background: rgba(200, 60, 60, 0.75);
+        }
+        .batch-checkbox {
+            accent-color: var(--theme-primary-light);
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        /* ==================== Tab 切换 ==================== */
+        .tab-bar {
+            display: flex;
+            gap: 4px;
+            padding: 0 24px 12px;
+            border-bottom: 1px solid var(--divider);
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            padding: 10px 24px;
+            border-radius: 12px 12px 0 0;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+        .tab-btn:hover {
+            color: var(--text-secondary);
+            background: var(--theme-primary-bg);
+        }
+        .tab-btn.active {
+            color: var(--theme-primary-light);
+            border-color: var(--card-border);
+            border-bottom-color: transparent;
+            background: var(--card-bg);
+        }
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 20%;
+            right: 20%;
+            height: 2px;
+            background: var(--theme-primary-light);
+            border-radius: 2px;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* ==================== 主内容 ==================== */
+        .main-content {
+            padding: 0 24px 40px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin: 20px 0 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .count-badge {
+            font-size: 0.85rem;
+            background: var(--badge-bg);
+            padding: 4px 12px;
+            border-radius: 14px;
+            font-weight: 500;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+        }
+        .view-compact .card-grid {
+            grid-template-columns: repeat(6, 1fr);
+        }
+        .view-compact .anime-card {
+            padding: 10px;
+            gap: 8px;
+        }
+        .view-compact .card-cover {
+            width: 55px;
+            height: 78px;
+        }
+        .view-compact .card-title {
+            font-size: 0.8rem;
+            -webkit-line-clamp: 1;
+        }
+        .view-compact .card-genres {
+            display: none;
+        }
+        .view-compact .card-progress input {
+            width: 32px;
+            font-size: 0.7rem;
+        }
+        .view-compact .card-score-trigger {
+            font-size: 0.65rem;
+            padding: 2px 6px;
+        }
+        .view-compact .grade-display {
+            font-size: 0.65rem;
+            padding: 1px 6px;
+            min-width: 24px;
+        }
+        .view-compact .card-series-row .series-badge {
+            max-width: 60px;
+            font-size: 0.6rem;
+        }
+        .view-compact .score-badges {
+            display: none;
+        }
+        .view-compact .card-bottom {
+            gap: 4px;
+        }
+
+        @media (max-width: 1400px) {
+            .card-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .view-compact .card-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        @media (max-width: 1000px) {
+            .card-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .view-compact .card-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        @media (max-width: 600px) {
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+            .view-compact .card-grid {
+                grid-template-columns: 1fr;
+            }
+            .view-compact .card-cover {
+                width: 60px;
+                height: 85px;
+            }
+            .search-bar-sticky {
+                padding: 10px 12px;
+                gap: 6px;
+            }
+            .search-bar-sticky h1 {
+                font-size: 1.1rem;
+            }
+            .dashboard {
+                gap: 8px;
+                padding: 12px 8px;
+            }
+            .dash-card {
+                padding: 10px 12px;
+                min-width: 60px;
+                flex: 1;
+                max-width: none;
+            }
+            .dash-num {
+                font-size: 1.4rem;
+            }
+            .toolbar {
+                padding: 0 8px 10px;
+                gap: 6px;
+            }
+            .main-content {
+                padding: 0 8px 30px;
+            }
+            .tab-bar {
+                padding: 0 8px 12px;
+                gap: 2px;
+            }
+            .tab-btn {
+                padding: 8px 14px;
+                font-size: 0.8rem;
+            }
+            .stats-grid {
+                padding: 0 8px 12px;
+                gap: 6px;
+            }
+            .stats-chip {
+                padding: 4px 10px;
+                font-size: 0.7rem;
+            }
+            .stats-chip .stat-bar {
+                width: 40px;
+            }
+            .batch-bar {
+                padding: 8px 12px;
+            }
+        }
+
+        /* ==================== 系列分组 ==================== */
+        .series-group-container {
+            border: 2px dashed var(--card-border);
+            border-radius: 18px;
+            padding: 14px;
+            margin-bottom: 16px;
+            background: rgba(20, 15, 35, 0.3);
+            backdrop-filter: blur(6px);
+            position: relative;
+        }
+        .series-group-label {
+            position: absolute;
+            top: -13px;
+            left: 20px;
+            background: var(--theme-primary-bg);
+            border: 1px solid var(--card-border);
+            padding: 4px 14px;
+            border-radius: 14px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--theme-primary-light);
+            backdrop-filter: blur(10px);
+            z-index: 2;
+        }
+        .series-group-container .card-grid {
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+        }
+        .view-compact .series-group-container .card-grid {
+            grid-template-columns: repeat(6, 1fr);
+        }
+        @media (max-width: 1400px) {
+            .series-group-container .card-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .view-compact .series-group-container .card-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        @media (max-width: 1000px) {
+            .series-group-container .card-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .view-compact .series-group-container .card-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        @media (max-width: 600px) {
+            .series-group-container .card-grid {
+                grid-template-columns: 1fr;
+            }
+            .view-compact .series-group-container .card-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ==================== 番剧卡片 ==================== */
+        .anime-card {
+            background: var(--card-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 2px solid var(--card-border);
+            border-radius: 18px;
+            padding: 14px;
+            display: flex;
+            gap: 12px;
+            box-shadow: var(--card-shadow);
+            transition: all var(--transition-speed) ease;
+            position: relative;
+            cursor: default;
+            animation: cardFadeIn 0.5s ease forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        .anime-card:hover {
+            border-color: var(--card-hover-border);
+            box-shadow: 0 12px 36px var(--theme-primary-glow), 0 0 0 4px var(--theme-primary-glow);
+            transform: translateY(-3px);
+        }
+        .anime-card.batch-selected {
+            border-color: var(--theme-primary-light);
+            box-shadow: 0 0 0 2px var(--theme-primary-light), 0 8px 24px var(--theme-primary-glow);
+        }
+        @keyframes cardFadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-cover {
+            width: 75px;
+            height: 108px;
+            flex-shrink: 0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+        .card-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 0;
+        }
+        .card-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            color: var(--text-primary);
+        }
+        .card-genres {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            max-height: 48px;
+            overflow-y: auto;
+        }
+        .card-genres span {
+            background: var(--badge-bg);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.68rem;
+            white-space: nowrap;
+        }
+
+        .card-bottom {
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .card-progress {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        .card-progress input {
+            width: 42px;
+            padding: 4px 6px;
+            border-radius: 8px;
+            border: 1px solid var(--input-border);
+            background: var(--input-bg);
+            color: var(--text-primary);
+            text-align: center;
+            font-size: 0.78rem;
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+        .card-progress input::-webkit-inner-spin-button,
+        .card-progress input::-webkit-outer-spin-button {
+            -webkit-appearance: none !important;
+            margin: 0;
+            display: none;
+        }
+
+        .btn-step {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 1px solid var(--input-border);
+            background: var(--input-bg);
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            transition: all 0.2s;
+        }
+        .btn-step:hover {
+            background: var(--btn-bg);
+            border-color: var(--theme-primary-light);
+        }
+
+        .card-score-trigger {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--theme-primary-light);
+            cursor: pointer;
+            padding: 4px 10px;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            background: var(--theme-primary-bg);
+            transition: all 0.2s;
+        }
+        .card-score-trigger:hover {
+            border-color: var(--theme-primary-light);
+            box-shadow: 0 0 12px var(--theme-primary-glow);
+        }
+
+        .note-toggle {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 2px 8px;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            background: transparent;
+        }
+        .note-toggle:hover {
+            border-color: var(--card-border);
+            color: var(--text-secondary);
+        }
+        .note-toggle.has-note {
+            color: var(--theme-primary-light);
+            border-color: var(--theme-primary-light44);
+        }
+
+        .card-note {
+            display: none;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            padding: 6px 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            margin-top: 4px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 80px;
+            overflow-y: auto;
+            cursor: pointer;
+        }
+        .card-note.show {
+            display: block;
+        }
+        .card-note:hover {
+            background: rgba(0,0,0,0.5);
+        }
+
+        /* ==================== 等级显示（增强颜色） ==================== */
+        .grade-display {
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 2px 10px;
+            border-radius: 12px;
+            border: 2px solid var(--card-border);
+            background: var(--card-bg);
+            transition: all 0.2s;
+            user-select: none;
+            min-width: 32px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+        .grade-display:hover {
+            border-color: var(--theme-primary-light);
+            box-shadow: 0 0 12px var(--theme-primary-glow);
+            transform: scale(1.05);
+        }
+
+        /* 各等级颜色（更鲜艳，带发光） */
+        .grade-display.has-grade.grade-S {
+            color: #FFD700;
+            border-color: #FFD700;
+            background: rgba(255, 215, 0, 0.2);
+            text-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
+            box-shadow: 0 0 16px rgba(255, 215, 0, 0.15);
+        }
+        .grade-display.has-grade.grade-A\+ {
+            color: #00E676;
+            border-color: #00E676;
+            background: rgba(0, 230, 118, 0.2);
+            text-shadow: 0 0 12px rgba(0, 230, 118, 0.6);
+            box-shadow: 0 0 16px rgba(0, 230, 118, 0.15);
+        }
+        .grade-display.has-grade.grade-A {
+            color: #4CAF50;
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.2);
+            text-shadow: 0 0 12px rgba(76, 175, 80, 0.5);
+            box-shadow: 0 0 16px rgba(76, 175, 80, 0.12);
+        }
+        .grade-display.has-grade.grade-A\- {
+            color: #8BC34A;
+            border-color: #8BC34A;
+            background: rgba(139, 195, 74, 0.2);
+            text-shadow: 0 0 12px rgba(139, 195, 74, 0.5);
+            box-shadow: 0 0 16px rgba(139, 195, 74, 0.12);
+        }
+        .grade-display.has-grade.grade-B\+ {
+            color: #FFEB3B;
+            border-color: #FFEB3B;
+            background: rgba(255, 235, 59, 0.2);
+            text-shadow: 0 0 12px rgba(255, 235, 59, 0.6);
+            box-shadow: 0 0 16px rgba(255, 235, 59, 0.15);
+        }
+        .grade-display.has-grade.grade-B {
+            color: #FF9800;
+            border-color: #FF9800;
+            background: rgba(255, 152, 0, 0.2);
+            text-shadow: 0 0 12px rgba(255, 152, 0, 0.6);
+            box-shadow: 0 0 16px rgba(255, 152, 0, 0.15);
+        }
+        .grade-display.has-grade.grade-B\- {
+            color: #FF6F00;
+            border-color: #FF6F00;
+            background: rgba(255, 111, 0, 0.2);
+            text-shadow: 0 0 12px rgba(255, 111, 0, 0.5);
+            box-shadow: 0 0 16px rgba(255, 111, 0, 0.12);
+        }
+        .grade-display.has-grade.grade-C {
+            color: #F44336;
+            border-color: #F44336;
+            background: rgba(244, 67, 54, 0.2);
+            text-shadow: 0 0 12px rgba(244, 67, 54, 0.5);
+            box-shadow: 0 0 16px rgba(244, 67, 54, 0.12);
+        }
+        .grade-display.has-grade.grade-D {
+            color: #9E9E9E;
+            border-color: #9E9E9E;
+            background: rgba(158, 158, 158, 0.2);
+            text-shadow: 0 0 12px rgba(158, 158, 158, 0.3);
+            box-shadow: 0 0 16px rgba(158, 158, 158, 0.08);
+        }
+
+        /* ==================== 等级选择面板 ==================== */
+        .grade-panel {
+            position: absolute;
+            z-index: 10001;
+            background: rgba(16, 10, 26, 0.96);
+            backdrop-filter: var(--glass-blur);
+            border: 2px solid var(--card-border);
+            border-radius: 16px;
+            padding: 12px 16px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8);
+            display: none;
+            flex-wrap: wrap;
+            gap: 6px;
+            min-width: 200px;
+            justify-content: center;
+        }
+        .grade-panel.show {
+            display: flex;
+        }
+        .grade-option {
+            padding: 4px 12px;
+            border-radius: 10px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.8rem;
+            transition: all 0.15s;
+            background: rgba(255,255,255,0.05);
+            color: var(--text-secondary);
+        }
+        .grade-option:hover {
+            transform: scale(1.1);
+            background: rgba(255,255,255,0.12);
+        }
+        .grade-option.selected {
+            border-color: var(--theme-primary-light);
+            background: var(--theme-primary-bg);
+        }
+        .grade-option.grade-S { color: #FFD700; }
+        .grade-option.grade-A\+ { color: #00E676; }
+        .grade-option.grade-A { color: #4CAF50; }
+        .grade-option.grade-A\- { color: #8BC34A; }
+        .grade-option.grade-B\+ { color: #FFEB3B; }
+        .grade-option.grade-B { color: #FF9800; }
+        .grade-option.grade-B\- { color: #FF6F00; }
+        .grade-option.grade-C { color: #F44336; }
+        .grade-option.grade-D { color: #9E9E9E; }
+        .grade-option.grade-none { color: var(--text-muted); }
+
+        /* ==================== 排行榜等级颜色 ==================== */
+        .ranking-table .has-grade.grade-S { color: #FFD700; }
+        .ranking-table .has-grade.grade-A\+ { color: #00E676; }
+        .ranking-table .has-grade.grade-A { color: #4CAF50; }
+        .ranking-table .has-grade.grade-A\- { color: #8BC34A; }
+        .ranking-table .has-grade.grade-B\+ { color: #FFEB3B; }
+        .ranking-table .has-grade.grade-B { color: #FF9800; }
+        .ranking-table .has-grade.grade-B\- { color: #FF6F00; }
+        .ranking-table .has-grade.grade-C { color: #F44336; }
+        .ranking-table .has-grade.grade-D { color: #9E9E9E; }
+
+        .card-series-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 4px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            flex-wrap: wrap;
+        }
+        .card-series-row:hover {
+            color: var(--theme-primary-light);
+        }
+        .series-badge {
+            background: var(--badge-bg);
+            padding: 2px 10px;
+            border-radius: 10px;
+            border: 1px dashed var(--card-border);
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 0.7rem;
+        }
+        /* Bangumi 评分靠右显示；没取到时保留占位，别整块消失 */
+        .score-badges {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-shrink: 0;
+        }
+        .score-badges .score-empty {
+            opacity: 0.4;
+        }
+        .bangumi-score-badge {
+            font-size: 0.7rem;
+            background: rgba(100, 180, 255, 0.15);
+            border: 1px solid rgba(100, 180, 255, 0.3);
+            padding: 2px 8px;
+            border-radius: 10px;
+            color: #64b5f6;
+        }
+
+        .batch-checkbox-on-card {
+            position: absolute;
+            top: 8px;
+            left: 10px;
+            accent-color: var(--theme-primary-light);
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            z-index: 6;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .anime-card:hover .batch-checkbox-on-card,
+        .batch-bar.show .batch-checkbox-on-card {
+            opacity: 1;
+        }
+        .batch-bar.show .batch-checkbox-on-card {
+            opacity: 0.7;
+        }
+        .batch-bar.show .batch-checkbox-on-card:hover {
+            opacity: 1;
+        }
+
+        /* ==================== 评分面板 ==================== */
+        .score-panel {
+            position: absolute;
+            z-index: 10000;
+            background: rgba(16, 10, 26, 0.96);
+            backdrop-filter: var(--glass-blur);
+            border: 2px solid var(--card-border);
+            border-radius: 16px;
+            padding: 16px;
+            width: 240px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8);
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .score-panel.show {
+            display: flex;
+        }
+        .score-panel label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+        .score-panel label span.val {
+            font-weight: 700;
+            color: var(--theme-primary-light);
+            min-width: 28px;
+            text-align: right;
+        }
+        .score-panel input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.15);
+            outline: none;
+            cursor: pointer;
+        }
+        .score-panel input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--theme-primary-light);
+            border: 2px solid #fff;
+            box-shadow: 0 0 10px var(--theme-primary-glow);
+        }
+
+        /* ==================== 删除按钮 ==================== */
+        .btn-delete {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            background: rgba(200, 50, 50, 0.5);
+            border: none;
+            color: #fff;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: 0.3s;
+            z-index: 5;
+        }
+        .anime-card:hover .btn-delete {
+            opacity: 1;
+        }
+        .btn-delete:hover {
+            background: rgba(220, 40, 40, 0.85);
+        }
+
+        /* ==================== 排行榜 ==================== */
+        .ranking-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 6px;
+        }
+        .ranking-table th {
+            text-align: left;
+            padding: 10px 12px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            border-bottom: 1px solid var(--divider);
+        }
+        .ranking-table td {
+            padding: 10px 12px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+        }
+        .ranking-table tr td:first-child {
+            border-radius: 12px 0 0 12px;
+        }
+        .ranking-table tr td:last-child {
+            border-radius: 0 12px 12px 0;
+        }
+        .rank-num {
+            font-weight: 800;
+            font-size: 1.2rem;
+            text-align: center;
+            color: var(--theme-primary-light);
+        }
+        .ranking-table .rank-cover {
+            transition: all 0.3s ease;
+        }
+        .ranking-table.size-small .rank-cover {
+            width: 36px;
+            height: 50px;
+        }
+        .ranking-table.size-medium .rank-cover {
+            width: 56px;
+            height: 78px;
+        }
+        .ranking-table.size-large .rank-cover {
+            width: 76px;
+            height: 106px;
+        }
+        .rank-title {
+            font-weight: 600;
+            font-size: 0.85rem;
+            max-width: 500px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: block;
+        }
+        .ranking-table.size-large td {
+            padding: 12px 12px;
+        }
+        .rank-pagination {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            padding: 16px 0;
+            flex-wrap: wrap;
+        }
+        .rank-pagination button {
+            padding: 4px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            background: var(--card-bg);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+        .rank-pagination button:hover {
+            border-color: var(--theme-primary-light);
+            color: var(--theme-primary-light);
+        }
+        .rank-pagination button.active {
+            border-color: var(--theme-primary-light);
+            background: var(--theme-primary-bg);
+            color: var(--theme-primary-light);
+        }
+
+        /* ==================== 模态框 ==================== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .modal-box {
+            background: rgba(20, 14, 36, 0.95);
+            backdrop-filter: var(--glass-blur);
+            border: 2px solid var(--card-border);
+            border-radius: 20px;
+            padding: 24px;
+            max-width: 520px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+        }
+        .modal-box h3 {
+            margin-bottom: 12px;
+            color: var(--theme-primary-light);
+        }
+        .modal-box input,
+        .modal-box select,
+        .modal-box textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--input-border);
+            background: var(--input-bg);
+            color: var(--text-primary);
+            margin: 6px 0;
+            font-size: 0.9rem;
+            outline: none;
+            font-family: inherit;
+        }
+        .modal-box textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+        .modal-box input:focus,
+        .modal-box select:focus,
+        .modal-box textarea:focus {
+            border-color: var(--theme-primary-light);
+            box-shadow: 0 0 12px var(--theme-primary-glow);
+        }
+        .modal-box button {
+            margin: 6px 4px;
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 1px solid var(--card-border);
+            background: var(--btn-bg);
+            color: #fff;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .modal-box button:hover {
+            background: var(--btn-hover-bg);
+            box-shadow: 0 0 16px var(--theme-primary-glow);
+        }
+        .modal-box .btn-secondary {
+            background: rgba(100, 100, 100, 0.4);
+        }
+        .modal-box .btn-secondary:hover {
+            background: rgba(100, 100, 100, 0.6);
+        }
+        .modal-box .btn-danger {
+            background: rgba(200, 60, 60, 0.5);
+        }
+        .modal-box .btn-danger:hover {
+            background: rgba(200, 60, 60, 0.75);
+        }
+        .modal-box .btn-success {
+            background: rgba(60, 200, 100, 0.4);
+        }
+        .modal-box .btn-success:hover {
+            background: rgba(60, 200, 100, 0.6);
+        }
+
+        .setting-group {
+            margin: 16px 0;
+            padding: 14px 0;
+            border-top: 1px solid var(--divider);
+        }
+        .setting-group:first-of-type {
+            border-top: none;
+        }
+        .setting-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        .setting-group .hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        .setting-group .row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .setting-group .row input[type="number"] {
+            width: 80px;
+            flex-shrink: 0;
+        }
+        .setting-group .row .status-badge {
+            font-size: 0.75rem;
+            padding: 2px 10px;
+            border-radius: 10px;
+            background: var(--badge-bg);
+        }
+        .setting-group .row .status-badge.on {
+            color: #4ade80;
+            border: 1px solid #4ade8044;
+        }
+        .setting-group .row .status-badge.off {
+            color: var(--text-muted);
+        }
+
+        /* ==================== Toast ==================== */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(20, 14, 36, 0.9);
+            border: 1px solid var(--card-border);
+            padding: 10px 24px;
+            border-radius: 20px;
+            z-index: 3000;
+            font-size: 0.85rem;
+            backdrop-filter: blur(12px);
+            animation: toastIn 0.4s ease, toastOut 0.4s ease 2.2s forwards;
+            pointer-events: none;
+        }
+        @keyframes toastIn {
+            from { opacity:0; transform: translateX(-50%) translateY(20px); }
+            to { opacity:1; transform: translateX(-50%) translateY(0); }
+        }
+        @keyframes toastOut {
+            from { opacity:1; }
+            to { opacity:0; transform: translateX(-50%) translateY(-10px); }
+        }
+
+        /* ==================== 自动保存提醒 ==================== */
+        .save-reminder-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 4000;
+            background: rgba(0, 0, 0, 0.65);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(6px);
+        }
+        .save-reminder-box {
+            background: rgba(20, 14, 36, 0.96);
+            backdrop-filter: var(--glass-blur);
+            border: 2px solid var(--theme-primary);
+            border-radius: 20px;
+            padding: 28px 32px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 0 60px var(--theme-primary-glow);
+        }
+        .save-reminder-box h3 {
+            color: var(--theme-primary-light);
+            margin-bottom: 8px;
+            font-size: 1.2rem;
+        }
+        .save-reminder-box p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+        }
+        .save-reminder-box .btn-group {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .save-reminder-box .btn-group button {
+            padding: 10px 24px;
+            border-radius: 20px;
+            border: 1px solid var(--card-border);
+            background: var(--btn-bg);
+            color: #fff;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .save-reminder-box .btn-group button:hover {
+            background: var(--btn-hover-bg);
+            box-shadow: 0 0 16px var(--theme-primary-glow);
+        }
+        .save-reminder-box .btn-group button.primary {
+            background: var(--theme-primary);
+            border-color: var(--theme-primary-light);
+        }
+        .save-reminder-box .btn-group button.primary:hover {
+            background: var(--theme-primary-light);
+        }
+        .save-reminder-box .btn-group button.secondary {
+            background: rgba(100, 100, 100, 0.3);
+        }
+        .save-reminder-box .btn-group button.secondary:hover {
+            background: rgba(100, 100, 100, 0.5);
+        }
+
+        .hidden-file-input {
+            display: none;
+        }
+
+        @media (max-width: 480px) {
+            .modal-box {
+                padding: 16px;
+            }
+            .save-reminder-box {
+                padding: 20px;
+            }
+        }
+
+        .tag-multi-select {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            padding: 6px 0;
+        }
+        .tag-multi-select .tag-item {
+            padding: 2px 10px;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            background: var(--card-bg);
+            color: var(--text-secondary);
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tag-multi-select .tag-item:hover {
+            border-color: var(--theme-primary-light);
+        }
+        .tag-multi-select .tag-item.selected {
+            border-color: var(--theme-primary-light);
+            background: var(--theme-primary-bg);
+            color: var(--theme-primary-light);
+        }
+    </style>
+</head>
+<body data-theme="purple">
+
+    <!-- ====== 背景层 ====== -->
+    <div class="bg-overlay"></div>
+    <div class="bg-image-layer" id="bgImageLayer"></div>
+
+    <!-- ====== 顶部搜索栏 ====== -->
+    <div class="search-bar-sticky" id="searchBar">
+        <h1>📺 追番记录</h1>
+        <div class="search-input-wrap">
+            <input type="text" id="searchInput" placeholder="🔍 搜索番剧（支持中文关键词）..." autocomplete="off" />
+            <div class="search-results-dropdown" id="searchDropdown"></div>
+        </div>
+    </div>
+
+    <!-- ====== 仪表盘 ====== -->
+    <div class="dashboard" id="dashboard">
+        <div class="dash-card">
+            <div class="dash-num" id="statTotal">0</div>
+            <div class="dash-label">总作品数</div>
+        </div>
+        <div class="dash-card">
+            <div class="dash-num" id="statWatching">0</div>
+            <div class="dash-label">追番中</div>
+        </div>
+        <div class="dash-card">
+            <div class="dash-num" id="statCompleted">0</div>
+            <div class="dash-label">已完成</div>
+        </div>
+        <div class="dash-card">
+            <div class="dash-num" id="statCompletion">0%</div>
+            <div class="dash-label">总完成度</div>
+        </div>
+    </div>
+
+    <!-- ====== 统计看板 ====== -->
+    <div class="stats-grid" id="statsGrid"></div>
+
+    <!-- ====== 工具栏 ====== -->
+    <div class="toolbar" id="toolbar">
+        <span style="font-size:0.8rem;color:var(--text-muted);">主题：</span>
+        <button class="theme-btn active" data-theme="purple">💜 紫</button>
+        <button class="theme-btn" data-theme="blue">💙 蓝</button>
+        <button class="theme-btn" data-theme="pink">💗 粉</button>
+        <button class="theme-btn" data-theme="orange">🧡 橙</button>
+
+        <span style="margin-left:8px;font-size:0.8rem;color:var(--text-muted);">标签筛选：</span>
+        <select class="tag-filter-select" id="tagFilter">
+            <option value="">全部标签</option>
+        </select>
+
+        <span style="margin-left:4px;font-size:0.8rem;color:var(--text-muted);">视图：</span>
+        <button class="view-mode-btn active" data-mode="detailed">详细</button>
+        <button class="view-mode-btn" data-mode="compact">紧凑</button>
+
+        <button id="btnBatchMode" style="font-size:0.75rem;">☑️ 批量操作</button>
+        <button id="btnUpdateScores" style="font-size:0.75rem;">🔄 更新BG评分</button>
+        <button id="btnChangeBg">🖼️ 背景</button>
+        <button id="btnClearBg" style="font-size:0.75rem;">清除背景</button>
+        <button id="btnOpenSettings">⚙️ 设置</button>
+    </div>
+
+    <!-- ====== 批量操作栏 ====== -->
+    <div class="batch-bar" id="batchBar">
+        <input type="checkbox" class="batch-checkbox" id="batchSelectAll" />
+        <label for="batchSelectAll" style="font-size:0.8rem;color:var(--text-secondary);cursor:pointer;">全选</label>
+        <span class="batch-info" id="batchInfo">已选 0 项</span>
+        <button class="batch-btn" id="batchComplete">✅ 标记已完成</button>
+        <button class="batch-btn" id="batchGrade">🏷️ 设置等级</button>
+        <button class="batch-btn danger" id="batchDelete">🗑️ 删除</button>
+        <button class="batch-btn" style="background:rgba(100,100,100,0.3);" id="batchCancel">取消</button>
+    </div>
+
+    <!-- ====== Tab 切换栏 ====== -->
+    <div class="tab-bar" id="tabBar">
+        <button class="tab-btn active" data-tab="watching">📖 追番中</button>
+        <button class="tab-btn" data-tab="completed">✅ 已完成</button>
+        <button class="tab-btn" data-tab="ranking">🏆 排行榜</button>
+    </div>
+
+    <!-- ====== 主内容 ====== -->
+    <div class="main-content" id="mainContent">
+
+        <!-- ====== Tab: 追番中 ====== -->
+        <div class="tab-content active" id="tab-watching">
+            <div class="section-title">📖 追番中 <span class="count-badge" id="countWatching">0</span></div>
+            <div id="sectionWatching"></div>
+        </div>
+
+        <!-- ====== Tab: 已完成 ====== -->
+        <div class="tab-content" id="tab-completed">
+            <div class="section-title">✅ 已完成 <span class="count-badge" id="countCompleted">0</span></div>
+            <div id="sectionCompleted"></div>
+        </div>
+
+        <!-- ====== Tab: 排行榜 ====== -->
+        <div class="tab-content" id="tab-ranking">
+            <div class="section-title">🏆 排行榜</div>
+            <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px; flex-wrap:wrap;">
+                <select class="tag-filter-select" id="rankFilter">
+                    <option value="all">全部</option>
+                    <option value="completed">仅已完成</option>
+                </select>
+                <select class="tag-filter-select" id="rankSortField">
+                    <option value="overall">总评</option>
+                    <option value="visual">画面</option>
+                    <option value="story">剧情</option>
+                    <option value="character">人物</option>
+                    <option value="bangumi_score">Bangumi评分</option>
+                    <option value="grade">等级</option>
+                </select>
+                <button id="btnSortOrder" class="sort-btn" style="font-size:0.8rem;">⬇️ 降序</button>
+
+                <span style="font-size:0.8rem;color:var(--text-muted);margin-left:8px;">封面尺寸：</span>
+                <button class="rank-size-btn" data-size="small" style="font-size:0.75rem;padding:4px 10px;">小</button>
+                <button class="rank-size-btn active" data-size="medium" style="font-size:0.75rem;padding:4px 10px;">中</button>
+                <button class="rank-size-btn" data-size="large" style="font-size:0.75rem;padding:4px 10px;">大</button>
+
+                <span style="font-size:0.8rem;color:var(--text-muted);margin-left:8px;">每页：</span>
+                <select id="rankPageSize" style="padding:4px 8px;border-radius:10px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text-primary);font-size:0.75rem;">
+                    <option value="10">10</option>
+                    <option value="20" selected>20</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+            </div>
+            <div id="sectionRanking" style="overflow-x:auto;"></div>
+            <div class="rank-pagination" id="rankPagination"></div>
+        </div>
+    </div>
+
+    <!-- ====== 背景设置模态框 ====== -->
+    <div class="modal-overlay" id="bgModal" style="display:none;">
+        <div class="modal-box">
+            <h3>🖼️ 更换背景</h3>
+            <input type="text" id="bgUrlInput" placeholder="输入图片URL..." />
+            <p style="font-size:0.75rem;color:var(--text-muted);margin:4px 0;">或上传本地图片：</p>
+            <input type="file" id="bgFileInput" accept="image/*" style="font-size:0.8rem;" />
+            <br />
+            <button id="btnApplyBgUrl">应用URL</button>
+            <button id="btnApplyBgFile">应用本地图片</button>
+            <button id="btnCloseBgModal" class="btn-secondary">取消</button>
+        </div>
+    </div>
+
+    <!-- ====== 系列名设置模态框 ====== -->
+    <div class="modal-overlay" id="seriesModal" style="display:none;">
+        <div class="modal-box">
+            <h3>📁 设置系列名</h3>
+            <p style="font-size:0.8rem;color:var(--text-muted);">相同系列名的番剧会被分组显示</p>
+            <input type="text" id="seriesNameInput" placeholder="例如：Fate系列、物语系列..." />
+            <br />
+            <button id="btnSaveSeries">保存</button>
+            <button id="btnCloseSeriesModal" class="btn-secondary">取消</button>
+            <button id="btnClearSeries" class="btn-danger" style="font-size:0.75rem;">清除系列名</button>
+        </div>
+    </div>
+
+    <!-- ====== 笔记编辑模态框 ====== -->
+    <div class="modal-overlay" id="noteModal" style="display:none;">
+        <div class="modal-box">
+            <h3>📝 编辑笔记</h3>
+            <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:8px;" id="noteModalTitle">番剧名</p>
+            <textarea id="noteTextarea" placeholder="写下你的感想、评价或备忘..." rows="6"></textarea>
+            <br />
+            <button id="btnSaveNote" class="btn-success">💾 保存笔记</button>
+            <button id="btnCloseNoteModal" class="btn-secondary">取消</button>
+            <button id="btnClearNote" class="btn-danger" style="font-size:0.75rem;">清除笔记</button>
+        </div>
+    </div>
+
+    <!-- ====== 批量设置等级模态框 ====== -->
+    <div class="modal-overlay" id="batchGradeModal" style="display:none;">
+        <div class="modal-box">
+            <h3>🏷️ 批量设置等级</h3>
+            <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:8px;">为选中的 <span id="batchGradeCount">0</span> 部番剧设置等级</p>
+            <select id="batchGradeSelect">
+                <option value="">− 无等级</option>
+                <option value="S">S</option>
+                <option value="A+">A+</option>
+                <option value="A">A</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B">B</option>
+                <option value="B-">B-</option>
+                <option value="C">C</option>
+                <option value="D">D</option>
+            </select>
+            <br />
+            <button id="btnBatchGradeApply" class="btn-success">✅ 应用</button>
+            <button id="btnCloseBatchGradeModal" class="btn-secondary">取消</button>
+        </div>
+    </div>
+
+    <!-- ====== 设置模态框 ====== -->
+    <div class="modal-overlay" id="settingsModal" style="display:none;">
+        <div class="modal-box">
+            <h3>⚙️ 设置</h3>
+
+            <div class="setting-group">
+                <label>📦 数据管理</label>
+                <div class="row" style="gap:8px; flex-wrap:wrap;">
+                    <button id="btnExportData">📤 导出数据</button>
+                    <button id="btnImportData">📥 导入数据</button>
+                    <input type="file" id="importFileInput" class="hidden-file-input" accept=".json" />
+                </div>
+                <div class="row" style="margin-top:6px;">
+                    <span style="font-size:0.8rem;color:var(--text-muted);">导入模式：</span>
+                    <select id="importModeSelect" style="width:auto;padding:4px 12px;border-radius:10px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text-primary);">
+                        <option value="merge">合并</option>
+                        <option value="overwrite">覆盖</option>
+                    </select>
+                </div>
+                <div class="hint">导出为 JSON 文件，导入时可选择「合并」或「覆盖」当前数据。</div>
+            </div>
+
+            <div class="setting-group">
+                <label>⏰ 自动保存提醒</label>
+                <div class="row">
+                    <span style="font-size:0.8rem;color:var(--text-muted);">间隔（分钟）：</span>
+                    <input type="number" id="autoSaveIntervalInput" min="0" max="1440" value="0" style="width:70px;" />
+                    <span style="font-size:0.8rem;color:var(--text-muted);">（0 表示关闭）</span>
+                    <span class="status-badge off" id="autoSaveStatus">已关闭</span>
+                </div>
+                <button id="btnTestReminder" style="font-size:0.75rem;padding:4px 14px;">🔔 测试提醒</button>
+                <div class="hint">到达设定间隔时，弹出提醒引导您手动导出数据，避免丢失。</div>
+            </div>
+
+            <div class="setting-group">
+                <label>📊 数据上限（条）</label>
+                <div class="row">
+                    <input type="number" id="dataLimitInput" min="0" max="9999" value="0" style="width:80px;" />
+                    <span style="font-size:0.8rem;color:var(--text-muted);">（0 表示无限制）</span>
+                    <span style="font-size:0.8rem;color:var(--text-muted);">当前：<span id="currentDataCount">0</span> 条</span>
+                </div>
+                <div class="hint">超出上限时，自动删除添加时间最早的记录。</div>
+            </div>
+
+            <div class="setting-group">
+                <label>🔍 搜索历史</label>
+                <div class="row">
+                    <button id="btnClearSearchHistory" style="font-size:0.75rem;padding:4px 14px;">🗑️ 清空搜索历史</button>
+                    <span style="font-size:0.8rem;color:var(--text-muted);">当前 <span id="searchHistoryCount">0</span> 条</span>
+                </div>
+                <div class="hint">搜索历史保存在本地，帮助快速重复搜索。</div>
+            </div>
+
+            <div style="margin-top:16px;text-align:right;">
+                <button id="btnCloseSettings" class="btn-secondary">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== 自动保存提醒弹窗 ====== -->
+    <div class="save-reminder-overlay" id="saveReminderOverlay" style="display:none;">
+        <div class="save-reminder-box">
+            <h3>💾 数据保存提醒</h3>
+            <p>您已经 <span id="reminderIntervalDisplay">0</span> 分钟没有导出数据了。<br />建议立即导出备份，防止数据丢失。</p>
+            <div class="btn-group">
+                <button class="primary" id="reminderExportBtn">📤 立即导出</button>
+                <button class="secondary" id="reminderLaterBtn">⏰ 稍后提醒</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- ===================== JavaScript ============================== -->
+    <!-- ============================================================ -->
+    <script>
+        (function() {
+            'use strict';
+
+            /* ==============================================================
+               1. 存储常量 & 默认设置
+            ============================================================== */
+            const STORAGE_KEY_ANIME = 'anime_tracker_v9';
+            const STORAGE_KEY_SETTINGS = 'anime_tracker_settings';
+            const STORAGE_KEY_SEARCH_HISTORY = 'anime_search_history';
+
+            const GRADES = ['S', 'A+', 'A', 'A-', 'B+', 'B', 'B-', 'C', 'D'];
+            const DEFAULT_GRADE = '';
+
+            const defaultSettings = {
+                theme: 'purple',
+                backgroundUrl: '',
+                backgroundDataUrl: '',
+                autoSaveInterval: 0,
+                dataLimit: 0,
+                viewMode: 'detailed',
+            };
+
+            /* ==============================================================
+               2. 数据读写
+            ============================================================== */
+
+            /* 补齐字段，并记住 Bangumi 条目 id：
+               mal_id 只是本地的唯一键（历史上可能是 Bangumi / AniList 的 id），
+               bgm_id 才是 Bangumi 的 id。老存档按来源回填一次。 */
+            function normalizeAnimeRecord(item) {
+                if (item.grade === undefined) item.grade = '';
+                if (item.note === undefined) item.note = '';
+                if (item.custom_tags === undefined) item.custom_tags = [];
+                if (item.bangumi_score === undefined) item.bangumi_score = null;
+                if (item.bgm_id === undefined) {
+                    item.bgm_id = item._source === 'bangumi' ? item.mal_id : null;
+                }
+                if (item.bgm_last_updated === undefined) item.bgm_last_updated = 0;
+                if (!item.scores_migrated_v2) {
+                    // 首次迁移：标成待更新，好让「更新评分」把 Bangumi 分补齐
+                    item.bgm_last_updated = 0;
+                    item.scores_migrated_v2 = true;
+                }
+                return item;
+            }
+
+            function loadAnimeList() {
+                try {
+                    const data = JSON.parse(localStorage.getItem(STORAGE_KEY_ANIME)) || [];
+                    return data.map(normalizeAnimeRecord);
+                } catch (_) { return []; }
+            }
+
+            function saveAnimeList(list) {
+                localStorage.setItem(STORAGE_KEY_ANIME, JSON.stringify(list));
+            }
+
+            function loadSettings() {
+                try {
+                    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY_SETTINGS));
+                    return { ...defaultSettings, ...saved };
+                } catch (_) { return { ...defaultSettings }; }
+            }
+
+            function saveSettings(s) {
+                localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(s));
+            }
+
+            function loadSearchHistory() {
+                try { return JSON.parse(localStorage.getItem(STORAGE_KEY_SEARCH_HISTORY)) || []; } catch (_) { return []; }
+            }
+
+            function saveSearchHistory(arr) {
+                localStorage.setItem(STORAGE_KEY_SEARCH_HISTORY, JSON.stringify(arr));
+            }
+
+            function addSearchHistory(query) {
+                if (!query || query.length < 1) return;
+                let history = loadSearchHistory();
+                history = history.filter(h => h !== query);
+                history.unshift(query);
+                if (history.length > 20) history = history.slice(0, 20);
+                saveSearchHistory(history);
+            }
+
+            /* ==============================================================
+               3. 全局状态
+            ============================================================== */
+            let animeList = loadAnimeList();
+            let settings = loadSettings();
+            let currentEditingSeriesFor = null;
+            let activeScorePanelId = null;
+            let activeGradePanelId = null;
+            let sortOrder = 'desc';
+            let rankRenderTimer = null;
+            let autoSaveTimerId = null;
+            let lastReminderTime = Date.now();
+            let batchMode = false;
+            let selectedBatch = new Set();
+            let currentPage = 1;
+            let pageSize = 20;
+            let totalRankItems = 0;
+            let editingNoteFor = null;
+
+            /* ==============================================================
+               4. 工具函数
+            ============================================================== */
+            function showToast(msg) {
+                const existing = document.querySelector('.toast');
+                if (existing) existing.remove();
+                const t = document.createElement('div');
+                t.className = 'toast';
+                t.textContent = msg;
+                document.body.appendChild(t);
+                setTimeout(() => t.remove(), 2700);
+            }
+
+            function escapeHTML(str) {
+                if (!str) return '';
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+            function hasChinese(str) {
+                return /[\u4e00-\u9fff]/.test(str);
+            }
+
+            function getDisplayTitle(anime) {
+                if (anime.title && hasChinese(anime.title)) return anime.title;
+                if (anime.title_japanese) return anime.title_japanese;
+                if (anime.title_english) return anime.title_english;
+                return anime.title || '未命名';
+            }
+
+            function getGradeClass(grade) {
+                if (!grade) return '';
+                return 'grade-' + grade.replace(/\+/g, '\\+').replace(/\-/g, '\\-');
+            }
+
+            const GENRE_MAP = {
+                'Action': '动作', 'Adventure': '冒险', 'Comedy': '喜剧', 'Drama': '剧情',
+                'Fantasy': '奇幻', 'Romance': '恋爱', 'Sci-Fi': '科幻', 'Slice of Life': '日常',
+                'Sports': '运动', 'Mystery': '悬疑', 'Horror': '恐怖', 'Thriller': '惊悚',
+                'Ecchi': '色气', 'Harem': '后宫', 'Mecha': '机甲', 'Music': '音乐',
+                'Psychological': '心理', 'Supernatural': '超自然', 'Historical': '历史',
+                'School': '校园', 'Shounen': '少年', 'Shoujo': '少女', 'Seinen': '青年',
+                'Josei': '女性', 'Gore': '血腥', 'Vampire': '吸血鬼', 'Demons': '恶魔',
+                'Magic': '魔法', 'Martial Arts': '武术', 'Samurai': '武士', 'Space': '太空',
+                'Military': '军事', 'Police': '警察', 'Parody': '恶搞', 'Game': '游戏',
+                'Cars': '赛车', 'Kids': '儿童', 'Dementia': '狂想', 'Shounen Ai': '少年爱',
+                'Shoujo Ai': '少女爱', 'Yaoi': 'BL', 'Yuri': 'GL',
+            };
+
+            function translateGenres(genres) {
+                if (!genres || !genres.length) return [];
+                return genres.map(g => {
+                    const name = typeof g === 'string' ? g : (g.name || g);
+                    if (!name) return null;
+                    if (hasChinese(name)) return { name };
+                    const translated = GENRE_MAP[name] || name;
+                    return { name: translated };
+                }).filter(Boolean);
+            }
+
+            function inferSeriesName(title) {
+                const patterns = [
+                    /^(.+?)(?:第[一二三四五六七八九十\d]+季)$/,
+                    /^(.+?)(?:Season\s*\d+)$/i,
+                    /^(.+?)(?:\s*[ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩ])$/,
+                    /^(.+?)(?:\s*Part\s*\d+)$/i,
+                    /^(.+?)(?:\s*[2-9]nd\s*Season)$/i,
+                    /^(.+?)(?:\s*II+)$/,
+                    /^(.+?)(?:\s*：.+)$/,
+                    /^(.+?)(?:\s*~.+~)$/,
+                ];
+                for (const p of patterns) {
+                    const m = title.match(p);
+                    if (m && m[1] && m[1].length >= 2) return m[1].trim();
+                }
+                return null;
+            }
+
+            function findMatchingSeries(newTitle) {
+                const inferred = inferSeriesName(newTitle);
+                if (!inferred) return null;
+
+                // ===== 1. 精确匹配（原逻辑） =====
+                for (const a of animeList) {
+                    if (a.series_group === inferred) return inferred;
+                    if (inferSeriesName(a.title) === inferred) return inferred;
+                }
+
+                // ===== 2. 模糊匹配：忽略特殊符号和大小写，比较包含关系 =====
+                const norm = (s) => s.replace(/[^\w\u4e00-\u9fff]/g, '').toLowerCase();
+                const normInferred = norm(inferred);
+                if (normInferred.length < 2) return null;
+
+                for (const a of animeList) {
+                    if (a.series_group) {
+                        const normGroup = norm(a.series_group);
+                        if (normGroup.includes(normInferred) || normInferred.includes(normGroup)) {
+                            return a.series_group;
+                        }
+                    }
+                    const inferredFromTitle = inferSeriesName(a.title);
+                    if (inferredFromTitle) {
+                        const normTitle = norm(inferredFromTitle);
+                        if (normTitle.includes(normInferred) || normInferred.includes(normTitle)) {
+                            return inferredFromTitle;
+                        }
+                    }
+                }
+
+                // ===== 3. 回退：前缀匹配 =====
+                const prefix3 = newTitle.substring(0, 3);
+                if (prefix3.length >= 3) {
+                    for (const a of animeList) {
+                        if (a.title.substring(0, 3) === prefix3 && (a.series_group || inferSeriesName(a.title))) {
+                            return a.series_group || inferSeriesName(a.title) || prefix3;
+                        }
+                    }
+                }
+
+                return null;
+            }
+
+            function enforceDataLimit() {
+                const limit = settings.dataLimit || 0;
+                if (limit <= 0) return;
+                const sorted = [...animeList].sort((a, b) => {
+                    const da = a.added_date || '1970-01-01';
+                    const db = b.added_date || '1970-01-01';
+                    return da.localeCompare(db);
+                });
+                while (sorted.length > limit) {
+                    const oldest = sorted.shift();
+                    const idx = animeList.findIndex(a => a.mal_id === oldest.mal_id);
+                    if (idx !== -1) {
+                        const removed = animeList.splice(idx, 1)[0];
+                        console.log(`[数据上限] 删除最早记录: ${removed.title}`);
+                    }
+                }
+                saveAnimeList(animeList);
+            }
+
+            function findAnimeIndex(malId) {
+                return animeList.findIndex(a => a.mal_id === malId);
+            }
+
+            function getFilteredList() {
+                const tag = document.getElementById('tagFilter')?.value || '';
+                if (!tag) return [...animeList];
+                return animeList.filter(a => a.genres?.some(g => g.name === tag));
+            }
+
+            function categorizeList(list) {
+                const w = [],
+                    c = [];
+                for (const a of list) {
+                    if (a.total_episodes && a.current_episode >= a.total_episodes) c.push(a);
+                    else w.push(a);
+                }
+                return { watching: w, completed: c };
+            }
+
+            function groupBySeries(arr) {
+                const groups = {},
+                    ungrouped = [];
+                for (const a of arr) {
+                    const sg = a.series_group?.trim();
+                    if (sg) {
+                        if (!groups[sg]) groups[sg] = [];
+                        groups[sg].push(a);
+                    } else ungrouped.push(a);
+                }
+                return { groups, ungrouped };
+            }
+
+            /* ==============================================================
+               5. 搜索数据源
+            ============================================================== */
+
+            /* --------------------------------------------------------------
+               Bangumi 数据源说明（重要）
+               · 官方 api.bgm.tv 现在有两个坑：
+                   1) 老的 /search/subject/ 接口已经废弃，经常直接不响应；
+                   2) 它不返回 CORS 头，浏览器里 fetch 会被拦下来，
+                      而且国内网络普遍连不上 api.bgm.tv。
+               · 所以这里按顺序试「几个都能返回同一套数据结构」的地址：
+                   ① 本站 Worker 中转 /api/bangumi/...（顺带能缓存，最稳）
+                   ② bgmapi.anibt.net（可直连、带 CORS 的中转站）
+               · 封面图统一改写成 https，否则 https 页面里会被当成混合内容拦掉。
+            -------------------------------------------------------------- */
+
+            const BGM_UPSTREAM = 'https://bgmapi.anibt.net';
+            const BGM_IMG_UPSTREAM = 'https://bgmimg.anibt.net';
+
+            /* 超时用的 signal。
+               AbortSignal.timeout() 在 Safari 16 / Firefox 100 以下没有，
+               这里用 AbortController + setTimeout 自己拼一个，老浏览器也能跑。 */
+            function bgmTimeout(ms) {
+                const ctrl = new AbortController();
+                setTimeout(() => { try { ctrl.abort(); } catch (_) {} }, ms);
+                return ctrl.signal;
+            }
+
+            async function bangumiFetch(pathAndQuery, timeoutMs) {
+                const targets = [
+                    `/api/bangumi${pathAndQuery}`,          // 本站 Worker 中转（相对地址）
+                    BGM_UPSTREAM + pathAndQuery,            // 公共中转站，直接可用
+                ];
+                const errors = [];
+                for (const base of targets) {
+                    try {
+                        const resp = await fetch(base, {
+                            headers: { 'accept': 'application/json' },
+                            signal: bgmTimeout(timeoutMs || 8000),
+                        });
+                        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                        const data = await resp.json();
+                        // 搜索无结果时只返回 {"results":0}，没有 list 字段 —— 那也算正常返回，
+                        // 否则「确实搜不到」会被误判成网络故障，从而一直重试
+                        if (data && (data.list || data.id || data.name || typeof data.results === 'number')) return data;
+                        throw new Error('返回内容不是 Bangumi 数据');
+                    } catch (e) {
+                        errors.push((base.indexOf('/api/') === 0 ? '本站中转' : '中转站') + '：' + ((e && e.message) || e));
+                    }
+                }
+                throw new Error(errors.join('；'));
+            }
+
+            /* 封面地址：http 一律升级成 https（https 页面里 http 图会被浏览器拦掉），
+               顺便把 bangumi 的图片域名换到带 https 的中转域名上 */
+            function bgmImage(url) {
+                let u = String(url || '').trim();
+                if (!u) return '';
+                u = u.replace(/^http:\/\/bgmimg\.anibt\.net\//i, BGM_IMG_UPSTREAM + '/');
+                u = u.replace(/^http:\/\/lain\.bgm\.tv\//i, BGM_IMG_UPSTREAM + '/');
+                u = u.replace(/^https?:\/\/lain\.bgm\.tv\//i, BGM_IMG_UPSTREAM + '/');
+                if (u.startsWith('http://')) u = 'https://' + u.slice(7);
+                return u;
+            }
+
+            /* ---------- 标签（Bangumi / Jikan） ----------
+               为什么以前 Bangumi 源的番剧卡片全是「暂无标签」：
+               旧接口 /search/subject 返回的字段里根本没有 genres（只有标题、封面、评分、
+               collection 那几项），代码里读 item.genres 拿到的永远是 undefined。
+               带标签的是 v0 接口：
+                 · meta_tags  官方分类，最干净（科幻 / 日常 / 漫画改 …）
+                 · tags       用户标签，按票数排，混着公司、导演、年份、声优，得洗一遍
+               洗过还是没有，就退回 Jikan（MAL）的 genres/themes/demographics；
+               Jikan 也连不上时再用 AniList 的 genres 兜一次。 */
+            const BGM_TAG_NOISE = new Set([
+                'TV', 'WEB', 'OVA', 'OAD', 'ONA', '剧场版', '劇場版', '电影', '动画', '番剧',
+                '日本', '中国', '国产', '欧美', '韩国', '美国', '全年龄', 'R18', '里番',
+                '泡面番', '短片', 'PV', 'CM', '真人', '电视剧', '综艺', '动态漫画',
+            ]);
+            const BGM_TAG_SYNONYM = { '漫改': '漫画改', '轻改': '轻小说改', '小说改': '轻小说改' };
+
+            function bangumiTagsOf(item) {
+                const out = [];
+                const seen = new Set();
+                const push = (raw) => {
+                    let n = String(raw || '').trim();
+                    if (!n) return;
+                    n = BGM_TAG_SYNONYM[n] || n;
+                    if (BGM_TAG_NOISE.has(n) || seen.has(n)) return;
+                    // 年份/月份（2022年10月、2024、7月）不是标签
+                    if (/^\d{4}(年(\d{1,2}月)?)?$/.test(n) || /^\d{1,2}月$/.test(n)) return;
+                    seen.add(n);
+                    out.push(n);
+                };
+                (item && item.meta_tags || []).forEach(push);
+                // 没有官方分类的小众条目：拿票数最高的几个用户标签顶上
+                if (!out.length) {
+                    (item && item.tags || []).slice(0, 4).forEach(t => push(t && t.name));
+                }
+                return out.slice(0, 6);
+            }
+
+            async function searchBangumi(query) {
+                const toRecord = (item) => {
+                    const title = item.name_cn || item.name || '';
+                    const score = item.rating?.score ?? null;
+                    return {
+                        mal_id: item.id,             // 本地主键：Bangumi 条目 id
+                        bgm_id: item.id,             // 真实 Bangumi id
+                        title: title,
+                        title_japanese: item.name || '',
+                        title_english: item.name || '',
+                        image_url: bgmImage(item.images?.large || item.images?.common || ''),
+                        total_episodes: item.eps || item.total_episodes || item.eps_count || null,
+                        genres: translateGenres(bangumiTagsOf(item).map(n => ({ name: n }))),
+                        score: score,
+                        bangumi_score: score,
+                        type: item.platform || item.type || '',
+                        _source: 'bangumi',
+                    };
+                };
+
+                // ① v0 搜索：唯一会带 tags / meta_tags 的接口，标签就靠它
+                try {
+                    const list = await bangumiSearchV0(query, 20);
+                    if (list.length) return list.map(toRecord);
+                } catch (e) {
+                    console.warn('[搜索] Bangumi v0 失败，退回旧接口:', e.message);
+                }
+
+                // ② 旧 search/subject 兜底：只有标题/封面/评分，没有标签
+                const j = await bangumiFetch(
+                    `/search/subject/${encodeURIComponent(query)}?type=2&responseGroup=large`, 8000);
+                const list = (j && j.list) || [];
+                return list.map(toRecord);
+            }
+
+            async function searchAniList(query) {
+                const queryStr = `
+                query ($search: String) {
+                  Page(page: 1, perPage: 30) {
+                    media(search: $search, type: ANIME) {
+                      id
+                      title { userPreferred romaji english native }
+                      coverImage { large }
+                      episodes
+                      genres
+                      averageScore
+                      type
+                    }
+                  }
+                }
+              `;
+                const resp = await fetch('https://graphql.anilist.co', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: queryStr, variables: { search: query } }),
+                    signal: bgmTimeout(6000),
+                });
+                if (!resp.ok) throw new Error(`AniList 请求失败 (${resp.status})`);
+                const data = await resp.json();
+                const media = data?.data?.Page?.media || [];
+                if (!media.length) return [];
+
+                return media.map(item => {
+                    let title = item.title.userPreferred || '';
+                    if (!title || !hasChinese(title)) {
+                        title = item.title.native || item.title.romaji || item.title.english || '';
+                    }
+                    const imageUrl = bgmImage(item.coverImage?.large || '');
+                    const totalEp = item.episodes || null;
+                    const rawGenres = (item.genres || []).map(g => ({ name: g }));
+                    const translated = translateGenres(rawGenres);
+                    const score = item.averageScore ? item.averageScore / 10 : null;
+                    return {
+                        mal_id: item.id,             // 本地主键：AniList id
+                        anilist_id: item.id,
+                        bgm_id: null,
+                        title: title,
+                        title_japanese: item.title.native || '',
+                        title_english: item.title.english || '',
+                        image_url: imageUrl,
+                        total_episodes: totalEp,
+                        genres: translated,
+                        score: score,
+                        bangumi_score: null,
+                        type: item.type || '',
+                        _source: 'anilist',
+                    };
+                });
+            }
+
+            async function searchJikan(query) {
+                const url = `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(query)}&limit=30`;
+                const resp = await fetch(url, { signal: bgmTimeout(6000) });
+                if (!resp.ok) throw new Error('Jikan 请求失败');
+                const data = await resp.json();
+                const results = (data.data || []).map(item => ({
+                    mal_id: item.mal_id,
+                    bgm_id: null,
+                    title: item.title || '',
+                    title_japanese: item.title_japanese || '',
+                    title_english: item.title_english || '',
+                    image_url: bgmImage(item.images?.jpg?.image_url || ''),
+                    total_episodes: item.episodes || null,
+                    genres: (item.genres || []).map(g => ({ name: g.name })),
+                    score: item.score || null,
+                    bangumi_score: null,
+                    type: item.type || '',
+                    _source: 'jikan',
+                }));
+
+                const chunkSize = 3;
+                const chunks = [];
+                for (let i = 0; i < results.length; i += chunkSize) {
+                    chunks.push(results.slice(i, i + chunkSize));
+                }
+                const enriched = [];
+                for (const chunk of chunks) {
+                    // 并发 3 条去查中文名；单条失败就保留它自己，不要拿别的条目顶上
+                    const batch = await Promise.all(chunk.map(async item => {
+                        try {
+                            const cn = await fetchChineseName(item.title_japanese, item.title_english);
+                            item.title = (cn && hasChinese(cn))
+                                ? cn
+                                : (item.title_japanese || item.title_english || item.title);
+                        } catch (_) {
+                            item.title = item.title_japanese || item.title_english || item.title;
+                        }
+                        item.genres = translateGenres(item.genres);
+                        return item;
+                    }));
+                    enriched.push(...batch);
+                }
+                return enriched;
+            }
+
+            async function fetchChineseName(jpTitle, enTitle) {
+                const queries = [];
+                if (jpTitle?.trim()) queries.push(jpTitle.trim());
+                if (enTitle?.trim()) queries.push(enTitle.trim());
+                // 借 Bangumi 的中文名（走上面那两个连得通的地址；anitabi 那个接口已经 403 了）
+                for (const q of queries) {
+                    try {
+                        const d = await bangumiFetch(
+                            `/search/subject/${encodeURIComponent(q)}?type=2&responseGroup=small`, 5000);
+                        const list = (d && d.list) || [];
+                        for (const it of list) {
+                            const cn = it.name_cn || it.name || '';
+                            if (cn && hasChinese(cn)) return cn;
+                        }
+                    } catch (_) { /* 换下一个关键词再试 */ }
+                }
+                return null;
+            }
+
+            async function searchAnime(query) {
+                const failures = [];
+
+                try {
+                    const bgResults = await searchBangumi(query);
+                    if (bgResults && bgResults.length) {
+                        console.log(`[搜索] Bangumi 返回 ${bgResults.length} 条`);
+                        return bgResults;
+                    }
+                    failures.push('Bangumi 没搜到结果');
+                } catch (e) { failures.push('Bangumi：' + e.message); console.warn('[搜索] Bangumi 失败:', e.message); }
+
+                try {
+                    const alResults = await searchAniList(query);
+                    if (alResults && alResults.length) {
+                        console.log(`[搜索] AniList 返回 ${alResults.length} 条`);
+                        return alResults;
+                    }
+                    failures.push('AniList 没搜到结果');
+                } catch (e) { failures.push('AniList：' + e.message); console.warn('[搜索] AniList 失败:', e.message); }
+
+                try {
+                    const jkResults = await searchJikan(query);
+                    if (jkResults && jkResults.length) {
+                        console.log(`[搜索] Jikan 返回 ${jkResults.length} 条`);
+                        return jkResults;
+                    }
+                    failures.push('Jikan 没搜到结果');
+                } catch (e) { failures.push('Jikan：' + e.message); console.warn('[搜索] Jikan 失败:', e.message); }
+
+                // 三个源都空/都失败时，把原因带出去，别让人以为是「没这部番」
+                const err = new Error(failures.join('；'));
+                err.noResult = true;
+                throw err;
+            }
+
+            /* ==============================================================
+               6. 渲染函数
+            ============================================================== */
+
+            function buildCardHTML(anime, index, showBatch = false) {
+                const epTotal = anime.total_episodes || '?';
+                const epCurrent = anime.current_episode || 0;
+                const scores = anime.scores || { story: 0, visual: 0, character: 0, overall: 0 };
+                const overallScore = (scores.overall || 0).toFixed(1);
+                const allGenres = (anime.genres || []).map(g => g.name);
+                const seriesTag = anime.series_group || '';
+                const cover = bgmImage(anime.image_url) ||
+                    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="75" height="108" fill="%23333"><rect width="75" height="108"/></svg>';
+                const bangumiScore = anime.bangumi_score != null ? anime.bangumi_score.toFixed(1) : null;
+                const displayTitle = getDisplayTitle(anime);
+                const grade = anime.grade || '';
+                const gradeClass = grade ? 'has-grade ' + getGradeClass(grade) : '';
+                const displayGrade = grade || '−';
+                const animDelay = (index % 4) * 0.08;
+                const hasNote = anime.note && anime.note.trim().length > 0;
+                const isSelected = selectedBatch.has(anime.mal_id);
+
+                return `
+                <div class="anime-card${isSelected ? ' batch-selected' : ''}" id="anime-card-${anime.mal_id}" style="animation-delay:${animDelay}s;">
+                    ${showBatch ? `<input type="checkbox" class="batch-checkbox-on-card" data-mal="${anime.mal_id}" ${isSelected ? 'checked' : ''} />` : ''}
+                    <button class="btn-delete" onclick="window._deleteAnime(${anime.mal_id})">✕</button>
+                    <div class="card-cover"><img src="${cover}" alt="封面" loading="lazy" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2275%22 height=%22108%22 fill=%22%23333%22><rect width=%2275%22 height=%22108%22/></svg>'"></div>
+                    <div class="card-info">
+                        <div class="card-title" title="${escapeHTML(displayTitle)}">${escapeHTML(displayTitle)}</div>
+                        <div class="card-genres">${allGenres.length ? allGenres.map(g => `<span>${escapeHTML(g)}</span>`).join('') : '<span>暂无标签</span>'}</div>
+                        <div class="card-bottom">
+                            <div class="card-progress">
+                                <button class="btn-step" onclick="window._stepEpisode(${anime.mal_id}, -1)">−</button>
+                                <input type="number" class="ep-input" value="${epCurrent}" min="0" max="${anime.total_episodes || 9999}" onchange="window._setEpisode(${anime.mal_id}, this.value)" onclick="event.stopPropagation()">
+                                <button class="btn-step" onclick="window._stepEpisode(${anime.mal_id}, 1)">+</button>
+                                <span class="ep-total-text">/ ${epTotal} 集</span>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <span class="grade-display ${gradeClass}" onclick="window._toggleGradePanel(${anime.mal_id}, event)">${displayGrade}</span>
+                                <div class="card-score-trigger" onclick="window._toggleScorePanel(${anime.mal_id}, event)">⭐ <span class="score-val">${overallScore}</span></div>
+                                <span class="note-toggle${hasNote ? ' has-note' : ''}" onclick="window._openNoteEdit(${anime.mal_id}, event)" title="${hasNote ? '点击编辑笔记' : '添加笔记'}">📝</span>
+                            </div>
+                        </div>
+                        <div class="card-note${hasNote ? ' show' : ''}" onclick="window._openNoteEdit(${anime.mal_id}, event)">${hasNote ? escapeHTML(anime.note) : ''}</div>
+                        <div class="card-series-row" onclick="window._openSeriesEdit(${anime.mal_id}, event)">
+                            ${seriesTag ? `<span class="series-badge">📁 ${escapeHTML(seriesTag)}</span>` : '<span style="opacity:0.5;">+ 添加系列</span>'}
+                            <div class="score-badges" onclick="window._refreshScores(${anime.mal_id}, event)" title="点击刷新 Bangumi 评分">
+                                <span class="bangumi-score-badge${bangumiScore === null ? ' score-empty' : ''}">BG: ${bangumiScore ?? '–'}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            }
+
+            function renderList(containerId, list, countId, showBatch = false) {
+                const container = document.getElementById(containerId);
+                if (!list.length) {
+                    container.innerHTML = '<p style="color:var(--text-muted);padding:20px;">暂无记录</p>';
+                    if (countId) document.getElementById(countId).textContent = '0';
+                    return;
+                }
+                const groups = groupBySeries(list);
+                let html = '';
+                for (const [name, arr] of Object.entries(groups.groups)) {
+                    html +=
+                        `<div class="series-group-container"><span class="series-group-label">📁 ${escapeHTML(name)}</span><div class="card-grid">${arr.map((a,i) => buildCardHTML(a,i,showBatch)).join('')}</div></div>`;
+                }
+                if (groups.ungrouped.length) {
+                    html += `<div class="card-grid">${groups.ungrouped.map((a,i) => buildCardHTML(a,i,showBatch)).join('')}</div>`;
+                }
+                container.innerHTML = html;
+                if (countId) document.getElementById(countId).textContent = list.length;
+                if (showBatch) {
+                    container.querySelectorAll('.batch-checkbox-on-card').forEach(cb => {
+                        cb.addEventListener('change', function() {
+                            const malId = parseInt(this.dataset.mal);
+                            if (this.checked) selectedBatch.add(malId);
+                            else selectedBatch.delete(malId);
+                            updateBatchUI();
+                            const card = document.getElementById('anime-card-' + malId);
+                            if (card) card.classList.toggle('batch-selected', this.checked);
+                        });
+                    });
+                }
+            }
+
+            function fullRenderAll() {
+                const filtered = getFilteredList();
+                const { watching, completed } = categorizeList(filtered);
+                const showBatch = batchMode;
+
+                renderList('sectionWatching', watching, 'countWatching', showBatch);
+                renderList('sectionCompleted', completed, 'countCompleted', showBatch);
+
+                updateDashboard();
+                updateStats();
+                scheduleRankRender();
+                updateTagFilterOptions();
+                updateSettingsUI();
+                updateBatchUI();
+                rebindGlobals();
+            }
+
+            function updateDashboard() {
+                const total = animeList.length;
+                const comp = animeList.filter(a => a.total_episodes && a.current_episode >= a.total_episodes).length;
+                document.getElementById('statTotal').textContent = total;
+                document.getElementById('statWatching').textContent = total - comp;
+                document.getElementById('statCompleted').textContent = comp;
+                document.getElementById('statCompletion').textContent = total ? Math.round((comp / total) * 100) + '%' : '0%';
+                const countEl = document.getElementById('currentDataCount');
+                if (countEl) countEl.textContent = total;
+            }
+
+            function updateStats() {
+                const grid = document.getElementById('statsGrid');
+                const total = animeList.length;
+                if (total === 0) {
+                    grid.innerHTML = '<span style="color:var(--text-muted);font-size:0.8rem;">暂无数据，添加番剧后统计将自动更新</span>';
+                    return;
+                }
+
+                const gradeCount = {};
+                let graded = 0;
+                animeList.forEach(a => {
+                    const g = a.grade || 'none';
+                    gradeCount[g] = (gradeCount[g] || 0) + 1;
+                    if (g !== 'none') graded++;
+                });
+
+                const genreCount = {};
+                animeList.forEach(a => {
+                    (a.genres || []).forEach(g => {
+                        genreCount[g.name] = (genreCount[g.name] || 0) + 1;
+                    });
+                });
+                const sortedGenres = Object.entries(genreCount).sort((a, b) => b[1] - a[1]).slice(0, 5);
+
+                let totalScore = 0,
+                    scored = 0;
+                animeList.forEach(a => {
+                    if (a.scores?.overall) {
+                        totalScore += a.scores.overall;
+                        scored++;
+                    }
+                });
+                const avgScore = scored > 0 ? (totalScore / scored).toFixed(1) : 'N/A';
+
+                let html = '';
+                const gradeOrder = ['S', 'A+', 'A', 'A-', 'B+', 'B', 'B-', 'C', 'D', 'none'];
+                const gradeLabels = { 'S': 'S', 'A+': 'A+', 'A': 'A', 'A-': 'A-', 'B+': 'B+', 'B': 'B', 'B-': 'B-', 'C': 'C', 'D': 'D',
+                    'none': '未评级' };
+                const gradeColors = { 'S': 'S', 'A+': 'A\\+', 'A': 'A', 'A-': 'A\\-', 'B+': 'B\\+', 'B': 'B', 'B-': 'B\\-',
+                    'C': 'C', 'D': 'D', 'none': 'none' };
+                html += `<div class="stats-chip"><span class="stat-label">📊 等级分布</span>`;
+                for (const g of gradeOrder) {
+                    if (gradeCount[g]) {
+                        const pct = Math.round((gradeCount[g] / total) * 100);
+                        const cls = g === 'none' ? 'none' : gradeColors[g];
+                        html +=
+                            `<span class="grade-dot ${cls}" title="${gradeLabels[g]}: ${gradeCount[g]} (${pct}%)"></span>`;
+                    }
+                }
+                html += `<span class="stat-value">${graded}/${total}</span></div>`;
+
+                if (sortedGenres.length) {
+                    html += `<div class="stats-chip"><span class="stat-label">🏷️ 热门类型</span>`;
+                    sortedGenres.forEach(([name, count]) => {
+                        html += `<span style="font-size:0.7rem;background:var(--badge-bg);padding:1px 8px;border-radius:8px;">${escapeHTML(name)} ${count}</span>`;
+                    });
+                    html += `</div>`;
+                }
+
+                html +=
+                    `<div class="stats-chip"><span class="stat-label">⭐ 平均评分</span><span class="stat-value">${avgScore}</span></div>`;
+
+                const ratedPct = total ? Math.round((graded / total) * 100) : 0;
+                html +=
+                    `<div class="stats-chip"><span class="stat-label">📈 评级覆盖率</span><span class="stat-value">${ratedPct}%</span><div class="stat-bar"><div class="fill" style="width:${ratedPct}%;"></div></div></div>`;
+
+                grid.innerHTML = html;
+            }
+
+            function updateTagFilterOptions() {
+                const sel = document.getElementById('tagFilter');
+                if (!sel) return;
+                const cur = sel.value;
+                const tags = new Set();
+                animeList.forEach(a => (a.genres || []).forEach(g => tags.add(g.name)));
+                sel.innerHTML = '<option value="">全部标签</option>' + [...tags].sort().map(t =>
+                    `<option value="${escapeHTML(t)}">${escapeHTML(t)}</option>`).join('');
+                if ([...tags].includes(cur) || cur === '') sel.value = cur;
+            }
+
+            function updateSettingsUI() {
+                const intervalInput = document.getElementById('autoSaveIntervalInput');
+                if (intervalInput) intervalInput.value = settings.autoSaveInterval || 0;
+                const limitInput = document.getElementById('dataLimitInput');
+                if (limitInput) limitInput.value = settings.dataLimit || 0;
+                const statusEl = document.getElementById('autoSaveStatus');
+                if (statusEl) {
+                    const isOn = (settings.autoSaveInterval || 0) > 0;
+                    statusEl.textContent = isOn ? `✅ 已开启 (每 ${settings.autoSaveInterval} 分钟)` : '⏸️ 已关闭';
+                    statusEl.className = 'status-badge ' + (isOn ? 'on' : 'off');
+                }
+                const countEl = document.getElementById('currentDataCount');
+                if (countEl) countEl.textContent = animeList.length;
+                const hist = loadSearchHistory();
+                const histCountEl = document.getElementById('searchHistoryCount');
+                if (histCountEl) histCountEl.textContent = hist.length;
+            }
+
+            function updateBatchUI() {
+                const bar = document.getElementById('batchBar');
+                if (!batchMode) {
+                    bar.classList.remove('show');
+                    return;
+                }
+                bar.classList.add('show');
+                document.getElementById('batchInfo').textContent = `已选 ${selectedBatch.size} 项`;
+                document.getElementById('batchSelectAll').checked = selectedBatch.size > 0 && selectedBatch.size === animeList
+                    .length;
+                document.querySelectorAll('.batch-checkbox-on-card').forEach(cb => {
+                    const malId = parseInt(cb.dataset.mal);
+                    cb.checked = selectedBatch.has(malId);
+                    const card = document.getElementById('anime-card-' + malId);
+                    if (card) card.classList.toggle('batch-selected', cb.checked);
+                });
+            }
+
+            function updateCardProgressLocally(malId) {
+                const anime = animeList.find(a => a.mal_id === malId);
+                if (!anime) return;
+                const card = document.getElementById('anime-card-' + malId);
+                if (!card) return;
+                const input = card.querySelector('.ep-input');
+                if (input) input.value = anime.current_episode || 0;
+                const totalSpan = card.querySelector('.ep-total-text');
+                if (totalSpan) totalSpan.textContent = `/ ${anime.total_episodes || '?'} 集`;
+                updateDashboard();
+            }
+
+            /* ==============================================================
+               排行榜渲染（带分页）
+            ============================================================== */
+            function renderRanking() {
+                const filter = document.getElementById('rankFilter')?.value || 'all';
+                const field = document.getElementById('rankSortField')?.value || 'overall';
+                const pageSizeEl = document.getElementById('rankPageSize');
+                pageSize = parseInt(pageSizeEl?.value) || 20;
+
+                let list = [...animeList];
+                if (filter === 'completed') {
+                    list = list.filter(a => a.total_episodes && a.current_episode >= a.total_episodes);
+                }
+
+                const gradeOrder = { 'S': 9, 'A+': 8, 'A': 7, 'A-': 6, 'B+': 5, 'B': 4, 'B-': 3, 'C': 2, 'D': 1, '': 0 };
+
+                list.sort((a, b) => {
+                    let va, vb;
+                    if (field === 'grade') {
+                        va = gradeOrder[a.grade || ''] || 0;
+                        vb = gradeOrder[b.grade || ''] || 0;
+                    } else if (field === 'bangumi_score') {
+                        va = a.bangumi_score ?? 0;
+                        vb = b.bangumi_score ?? 0;
+                    } else {
+                        va = a.scores?.[field] ?? 0;
+                        vb = b.scores?.[field] ?? 0;
+                    }
+                    const diff = sortOrder === 'desc' ? vb - va : va - vb;
+                    if (diff !== 0) return diff;
+                    const va2 = a.scores?.overall ?? 0;
+                    const vb2 = b.scores?.overall ?? 0;
+                    return vb2 - va2;
+                });
+
+                totalRankItems = list.length;
+                const totalPages = Math.ceil(totalRankItems / pageSize) || 1;
+                if (currentPage > totalPages) currentPage = totalPages;
+                const start = (currentPage - 1) * pageSize;
+                const end = Math.min(start + pageSize, totalRankItems);
+                const pageList = list.slice(start, end);
+
+                const container = document.getElementById('sectionRanking');
+                if (!list.length) {
+                    container.innerHTML = '<p style="color:var(--text-muted);padding:20px;">暂无排行数据</p>';
+                    document.getElementById('rankPagination').innerHTML = '';
+                    return;
+                }
+
+                const labels = {
+                    overall: '总评',
+                    visual: '画面',
+                    story: '剧情',
+                    character: '人物',
+                    bangumi_score: 'Bangumi评分',
+                    grade: '等级'
+                };
+
+                let html =
+                    `<table class="ranking-table"><thead><tr><th>#</th><th>封面</th><th>标题</th><th>${labels[field]||'得分'}</th></tr></thead><tbody>`;
+                pageList.forEach((a, i) => {
+                    const idx = start + i + 1;
+                    let val;
+                    if (field === 'grade') {
+                        val = a.grade || '−';
+                    } else if (field === 'bangumi_score') {
+                        val = (a.bangumi_score ?? 0).toFixed(1);
+                    } else {
+                        val = (a.scores?.[field] ?? 0).toFixed(1);
+                    }
+                    const cover = bgmImage(a.image_url) ||
+                        'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="36" height="50" fill="%23333"><rect width="36" height="50"/></svg>';
+                    const displayTitle = getDisplayTitle(a);
+                    const gradeClass = a.grade ? 'has-grade ' + getGradeClass(a.grade) : '';
+                    const isGrade = field === 'grade';
+                    const isBangumi = field === 'bangumi_score';
+                    html += `<tr><td class="rank-num">${idx}</td><td><img src="${cover}" class="rank-cover" onerror="this.style.background='%23333';"></td><td><span class="rank-title" title="${escapeHTML(displayTitle)}">${escapeHTML(displayTitle)}</span></td><td style="font-weight:700;${isGrade ? ` font-size:1.1rem;` : ''}${isBangumi ? ` color:#64b5f6;` : ''}">${isGrade ? `<span class="${gradeClass}">${val}</span>` : val}</td></tr>`;
+                });
+                html += '</tbody></table>';
+                container.innerHTML = html;
+
+                const pagination = document.getElementById('rankPagination');
+                let phtml = '';
+                if (totalPages > 1) {
+                    phtml += `<button ${currentPage <= 1 ? 'disabled style="opacity:0.3;"' : ''} onclick="window._rankGoTo(${currentPage - 1})">‹</button>`;
+                    const startPage = Math.max(1, currentPage - 3);
+                    const endPage = Math.min(totalPages, currentPage + 3);
+                    for (let p = startPage; p <= endPage; p++) {
+                        phtml +=
+                            `<button class="${p === currentPage ? 'active' : ''}" onclick="window._rankGoTo(${p})">${p}</button>`;
+                    }
+                    phtml +=
+                        `<button ${currentPage >= totalPages ? 'disabled style="opacity:0.3;"' : ''} onclick="window._rankGoTo(${currentPage + 1})">›</button>`;
+                    phtml += `<span style="font-size:0.8rem;color:var(--text-muted);margin-left:8px;">共 ${totalRankItems} 项</span>`;
+                }
+                pagination.innerHTML = phtml;
+            }
+
+            function rankGoTo(page) {
+                const totalPages = Math.ceil(totalRankItems / pageSize) || 1;
+                if (page < 1 || page > totalPages) return;
+                currentPage = page;
+                renderRanking();
+            }
+
+            window._rankGoTo = rankGoTo;
+
+            function scheduleRankRender() {
+                clearTimeout(rankRenderTimer);
+                rankRenderTimer = setTimeout(() => { renderRanking();
+                    rankRenderTimer = null; }, 80);
+            }
+
+            /* ==============================================================
+               7. 交互操作
+            ============================================================== */
+
+            function stepEpisode(malId, delta) {
+                const idx = findAnimeIndex(malId);
+                if (idx === -1) return;
+                const anime = animeList[idx];
+                const prevStatus = anime.total_episodes && anime.current_episode >= anime.total_episodes ? 'comp' : 'watch';
+                anime.current_episode = Math.max(0, (anime.current_episode || 0) + delta);
+                if (anime.total_episodes && anime.current_episode > anime.total_episodes) anime.current_episode = anime
+                .total_episodes;
+                const newStatus = anime.total_episodes && anime.current_episode >= anime.total_episodes ? 'comp' : 'watch';
+                saveAnimeList(animeList);
+                if (prevStatus !== newStatus) fullRenderAll();
+                else { updateCardProgressLocally(malId);
+                    updateDashboard(); }
+            }
+
+            function setEpisode(malId, value) {
+                const idx = findAnimeIndex(malId);
+                if (idx === -1) return;
+                const anime = animeList[idx];
+                const prevStatus = anime.total_episodes && anime.current_episode >= anime.total_episodes ? 'comp' : 'watch';
+                anime.current_episode = Math.max(0, parseInt(value) || 0);
+                if (anime.total_episodes && anime.current_episode > anime.total_episodes) anime.current_episode = anime
+                .total_episodes;
+                const newStatus = anime.total_episodes && anime.current_episode >= anime.total_episodes ? 'comp' : 'watch';
+                saveAnimeList(animeList);
+                if (prevStatus !== newStatus) fullRenderAll();
+                else { updateCardProgressLocally(malId);
+                    updateDashboard(); }
+            }
+
+            /* ==============================================================
+               笔记功能
+            ============================================================== */
+            function openNoteEdit(malId, event) {
+                if (event) event.stopPropagation();
+                const anime = animeList.find(a => a.mal_id === malId);
+                if (!anime) return;
+                editingNoteFor = malId;
+                document.getElementById('noteModalTitle').textContent = getDisplayTitle(anime);
+                document.getElementById('noteTextarea').value = anime.note || '';
+                document.getElementById('noteModal').style.display = 'flex';
+                document.getElementById('noteTextarea').focus();
+            }
+
+            function saveNote() {
+                if (editingNoteFor === null) return;
+                const anime = animeList.find(a => a.mal_id === editingNoteFor);
+                if (!anime) return;
+                const note = document.getElementById('noteTextarea').value.trim();
+                anime.note = note;
+                saveAnimeList(animeList);
+                document.getElementById('noteModal').style.display = 'none';
+                fullRenderAll();
+                showToast(note ? '✅ 笔记已保存' : '📝 笔记已清除');
+                editingNoteFor = null;
+            }
+
+            function clearNote() {
+                if (editingNoteFor === null) return;
+                const anime = animeList.find(a => a.mal_id === editingNoteFor);
+                if (!anime) return;
+                anime.note = '';
+                saveAnimeList(animeList);
+                document.getElementById('noteTextarea').value = '';
+                document.getElementById('noteModal').style.display = 'none';
+                fullRenderAll();
+                showToast('📝 笔记已清除');
+                editingNoteFor = null;
+            }
+
+            window._openNoteEdit = openNoteEdit;
+
+            /* ==============================================================
+               等级面板
+            ============================================================== */
+            function ensureGradePanel(malId) {
+                let panel = document.getElementById('gradePanel-' + malId);
+                if (panel) return panel;
+                const anime = animeList.find(a => a.mal_id === malId);
+                if (!anime) return null;
+                const currentGrade = anime.grade || '';
+                panel = document.createElement('div');
+                panel.className = 'grade-panel';
+                panel.id = 'gradePanel-' + malId;
+                let html = '';
+                const noneSelected = currentGrade === '' ? 'selected' : '';
+                html += `<span class="grade-option grade-none ${noneSelected}" data-grade="" onclick="window._selectGrade(${malId}, '', event)">−</span>`;
+                GRADES.forEach(g => {
+                    const cls = getGradeClass(g);
+                    const selected = g === currentGrade ? 'selected' : '';
+                    html +=
+                        `<span class="grade-option ${cls} ${selected}" data-grade="${g}" onclick="window._selectGrade(${malId}, '${g}', event)">${g}</span>`;
+                });
+                panel.innerHTML = html;
+                panel.addEventListener('click', e => e.stopPropagation());
+                return panel;
+            }
+
+            function positionGradePanel(panel, trigger) {
+                const rect = trigger.getBoundingClientRect();
+                panel.style.top = (rect.bottom + window.scrollY + 4) + 'px';
+                let left = rect.left + window.scrollX + trigger.offsetWidth / 2 - panel.offsetWidth / 2;
+                if (left < 10) left = 10;
+                const maxLeft = window.innerWidth + window.scrollX - panel.offsetWidth - 10;
+                if (left > maxLeft) left = maxLeft;
+                panel.style.left = left + 'px';
+            }
+
+            function toggleGradePanel(malId, event) {
+                event.stopPropagation();
+                const trigger = event.currentTarget;
+                let panel = ensureGradePanel(malId);
+                if (!panel) return;
+
+                const isShowing = panel.classList.contains('show');
+                if (isShowing) {
+                    panel.classList.remove('show');
+                    if (panel.parentElement) panel.parentElement.removeChild(panel);
+                    activeGradePanelId = null;
+                } else {
+                    if (activeGradePanelId && activeGradePanelId !== malId) {
+                        const oldPanel = document.getElementById('gradePanel-' + activeGradePanelId);
+                        if (oldPanel) {
+                            oldPanel.classList.remove('show');
+                            if (oldPanel.parentElement) oldPanel.parentElement.removeChild(oldPanel);
+                        }
+                    }
+                    document.body.appendChild(panel);
+                    positionGradePanel(panel, trigger);
+                    panel.classList.add('show');
+                    activeGradePanelId = malId;
+                    window._gradeTrigger = trigger;
+                }
+            }
+
+            function selectGrade(malId, grade, event) {
+                event.stopPropagation();
+                const anime = animeList.find(a => a.mal_id === malId);
+                if (!anime) return;
+                anime.grade = grade;
+                saveAnimeList(animeList);
+                const panel = document.getElementById('gradePanel-' + malId);
+                if (panel) {
+                    panel.classList.remove('show');
+                    if (panel.parentElement) panel.parentElement.removeChild(panel);
+                }
+                activeGradePanelId = null;
+                const card = document.getElementById('anime-card-' + malId);
+                if (card) {
+                    const gradeDisplay = card.querySelector('.grade-display');
+                    if (gradeDisplay) {
+                        gradeDisplay.textContent = grade || '−';
+                        gradeDisplay.className = 'grade-display' + (grade ? ' has-grade ' + getGradeClass(grade) : '');
+                    }
+                }
+                scheduleRankRender();
+                updateStats();
+                showToast(grade ? `等级已设为: ${grade}` : '等级已清除');
+            }
+
+            window._toggleGradePanel = toggleGradePanel;
+            window._selectGrade = selectGrade;
+
+            document.addEventListener('click', function(e) {
+                if (activeGradePanelId) {
+                    const panel = document.getElementById('gradePanel-' + activeGradePanelId);
+                    if (panel && !panel.contains(e.target) && !e.target.closest('.grade-display')) {
+                        panel.classList.remove('show');
+                        if (panel.parentElement) panel.parentElement.removeChild(panel);
+                        activeGradePanelId = null;
+                    }
+                }
+            });
+
+            /* ==============================================================
+               评分面板
+            ============================================================== */
+            function ensureScorePanel(malId) {
+                let panel = document.getElementById('scorePanel-' + malId);
+                if (panel) return panel;
+                const anime = animeList.find(a => a.mal_id === malId);
+                if (!anime) return null;
+                const scores = anime.scores || { story: 0, visual: 0, character: 0, overall: 0 };
+                panel = document.createElement('div');
+                panel.className = 'score-panel';
+                panel.id = 'scorePanel-' + malId;
+                panel.innerHTML = `
+                    <label>📝 剧情 <span class="val" id="val-story-${malId}">${(scores.story||0).toFixed(1)}</span>
+                        <input type="range" min="0" max="10" step="0.1" value="${scores.story||0}"
+                        oninput="window._updateScoreSlider(${malId},'story',this.value)"
+                        onchange="window._saveScore(${malId})"></label>
+                    <label>🎨 画面 <span class="val" id="val-visual-${malId}">${(scores.visual||0).toFixed(1)}</span>
+                        <input type="range" min="0" max="10" step="0.1" value="${scores.visual||0}"
+                        oninput="window._updateScoreSlider(${malId},'visual',this.value)"
+                        onchange="window._saveScore(${malId})"></label>
+                    <label>👤 人物 <span class="val" id="val-character-${malId}">${(scores.character||0).toFixed(1)}</span>
+                        <input type="range" min="0" max="10" step="0.1" value="${scores.character||0}"
+                        oninput="window._updateScoreSlider(${malId},'character',this.value)"
+                        onchange="window._saveScore(${malId})"></label>
+                    <label style="font-weight:700;color:var(--theme-primary-light);">⭐ 总评 <span class="val" id="val-overall-${malId}">${(scores.overall||0).toFixed(1)}</span>
+                        <input type="range" min="0" max="10" step="0.1" value="${scores.overall||0}"
+                        oninput="window._updateScoreSlider(${malId},'overall',this.value)"
+                        onchange="window._saveScore(${malId})"></label>
+                `;
+                panel.addEventListener('click', e => e.stopPropagation());
+                return panel;
+            }
+
+            function positionScorePanel(panel, trigger) {
+                const rect = trigger.getBoundingClientRect();
+                panel.style.top = (rect.bottom + window.scrollY + 4) + 'px';
+                let left = rect.left + window.scrollX + trigger.offsetWidth - panel.offsetWidth;
+                if (left < 10) left = 10;
+                const maxLeft = window.innerWidth + window.scrollX - panel.offsetWidth - 10;
+                if (left > maxLeft) left = maxLeft;
+                panel.style.left = left + 'px';
+            }
+
+            function toggleScorePanel(malId, event) {
+                event.stopPropagation();
+                const trigger = event.currentTarget;
+                let panel = ensureScorePanel(malId);
+                if (!panel) return;
+
+                const isShowing = panel.classList.contains('show');
+                if (isShowing) {
+                    panel.classList.remove('show');
+                    const card = document.getElementById('anime-card-' + malId);
+                    if (card && panel.parentElement !== card) card.appendChild(panel);
+                    activeScorePanelId = null;
+                    window.removeEventListener('scroll', updateActivePanelPosition);
+                    window.removeEventListener('resize', updateActivePanelPosition);
+                } else {
+                    if (activeScorePanelId && activeScorePanelId !== malId) {
+                        const oldPanel = document.getElementById('scorePanel-' + activeScorePanelId);
+                        if (oldPanel) {
+                            oldPanel.classList.remove('show');
+                            const oldCard = document.getElementById('anime-card-' + activeScorePanelId);
+                            if (oldCard && oldPanel.parentElement !== oldCard) oldCard.appendChild(oldPanel);
+                        }
+                    }
+                    document.body.appendChild(panel);
+                    positionScorePanel(panel, trigger);
+                    panel.classList.add('show');
+                    activeScorePanelId = malId;
+                    window._activeTrigger = trigger;
+                    window.addEventListener('scroll', updateActivePanelPosition, { passive: true });
+                    window.addEventListener('resize', updateActivePanelPosition);
+                }
+            }
+
+            function updateActivePanelPosition() {
+                if (!activeScorePanelId || !window._activeTrigger) return;
+                const panel = document.getElementById('scorePanel-' + activeScorePanelId);
+                if (panel && panel.classList.contains('show')) {
+                    positionScorePanel(panel, window._activeTrigger);
+                }
+            }
+
+            function updateScoreSlider(malId, field, value) {
+                const num = parseFloat(value) || 0;
+                const valEl = document.getElementById(`val-${field}-${malId}`);
+                if (valEl) valEl.textContent = num.toFixed(1);
+                const anime = animeList.find(a => a.mal_id === malId);
+                if (anime) {
+                    if (!anime.scores) anime.scores = { story: 0, visual: 0, character: 0, overall: 0 };
+                    anime.scores[field] = num;
+                }
+            }
+
+            function saveScore(malId) {
+                saveAnimeList(animeList);
+                const anime = animeList.find(a => a.mal_id === malId);
+                if (anime) {
+                    const card = document.getElementById('anime-card-' + malId);
+                    const trigger = card?.querySelector('.score-val');
+                    if (trigger) trigger.textContent = (anime.scores?.overall || 0).toFixed(1);
+                }
+                scheduleRankRender();
+                updateStats();
+            }
+
+            window._toggleScorePanel = toggleScorePanel;
+            window._updateScoreSlider = updateScoreSlider;
+            window._saveScore = saveScore;
+
+            document.addEventListener('click', function(e) {
+                if (activeScorePanelId) {
+                    const panel = document.getElementById('scorePanel-' + activeScorePanelId);
+                    if (panel && !panel.contains(e.target) && !e.target.closest('.card-score-trigger')) {
+                        panel.classList.remove('show');
+                        const card = document.getElementById('anime-card-' + activeScorePanelId);
+                        if (card && panel.parentElement !== card) card.appendChild(panel);
+                        activeScorePanelId = null;
+                        window.removeEventListener('scroll', updateActivePanelPosition);
+                        window.removeEventListener('resize', updateActivePanelPosition);
+                        saveAnimeList(animeList);
+                        scheduleRankRender();
+                    }
+                }
+            });
+
+            function openSeriesEdit(malId, event) {
+                event.stopPropagation();
+                currentEditingSeriesFor = malId;
+                const anime = animeList.find(a => a.mal_id === malId);
+                document.getElementById('seriesNameInput').value = anime?.series_group || '';
+                document.getElementById('seriesModal').style.display = 'flex';
+                document.getElementById('seriesNameInput').focus();
+            }
+
+            window._openSeriesEdit = openSeriesEdit;
+
+            function deleteAnime(malId) {
+                if (!confirm('确定要删除这部番剧吗？此操作不可恢复。')) return;
+                animeList = animeList.filter(a => a.mal_id !== malId);
+                saveAnimeList(animeList);
+                if (activeScorePanelId === malId) {
+                    const panel = document.getElementById('scorePanel-' + malId);
+                    if (panel) { panel.classList.remove('show'); if (panel.parentElement) panel.parentElement.removeChild(
+                            panel); }
+                    activeScorePanelId = null;
+                    window.removeEventListener('scroll', updateActivePanelPosition);
+                    window.removeEventListener('resize', updateActivePanelPosition);
+                }
+                if (activeGradePanelId === malId) {
+                    const panel = document.getElementById('gradePanel-' + malId);
+                    if (panel) { panel.classList.remove('show'); if (panel.parentElement) panel.parentElement.removeChild(
+                            panel); }
+                    activeGradePanelId = null;
+                }
+                selectedBatch.delete(malId);
+                fullRenderAll();
+                showToast('已删除番剧');
+            }
+
+            window._deleteAnime = deleteAnime;
+            window._stepEpisode = stepEpisode;
+            window._setEpisode = setEpisode;
+
+            /** 点卡片上的评分徽章：把这一条的 Bangumi 评分立刻刷一遍 */
+            async function refreshScoresForCard(malId, event) {
+                if (event) event.stopPropagation();
+                const anime = animeList.find(a => a.mal_id === malId);
+                if (!anime) return;
+                showToast(`⏳ 正在刷新《${getDisplayTitle(anime)}》的 Bangumi 评分…`);
+                try {
+                    await refreshBangumiScore(anime);
+                    saveAnimeList(animeList);
+                    fullRenderAll();
+                    const bg = anime.bangumi_score != null ? anime.bangumi_score.toFixed(1) : '没取到';
+                    showToast(`✅ 《${getDisplayTitle(anime)}》 Bangumi 评分：${bg}`);
+                } catch (e) {
+                    showToast('❌ 评分刷新失败: ' + e.message);
+                }
+            }
+
+            window._refreshScores = refreshScoresForCard;
+
+            /* ==============================================================
+               8. 搜索交互（含历史记录 + 本地匹配）
+            ============================================================== */
+            let searchTimeout = null;
+            const searchInput = document.getElementById('searchInput');
+            const searchDropdown = document.getElementById('searchDropdown');
+            let searchCache = [];
+
+            function searchLocal(query) {
+                if (!query || query.length < 1) return [];
+                const q = query.toLowerCase();
+                return animeList.filter(a => {
+                    const title = (a.title || '').toLowerCase();
+                    const jp = (a.title_japanese || '').toLowerCase();
+                    const en = (a.title_english || '').toLowerCase();
+                    return title.includes(q) || jp.includes(q) || en.includes(q);
+                });
+            }
+
+            function renderSearchDropdown(results, query, localMatches) {
+                const history = loadSearchHistory();
+                let html = '';
+
+                if (localMatches && localMatches.length > 0) {
+                    html += `<div class="search-local-match">`;
+                    html +=
+                        `<div class="local-title">📂 已添加 (${localMatches.length} 部)</div>`;
+                    localMatches.slice(0, 5).forEach(a => {
+                        const displayTitle = getDisplayTitle(a);
+                        html +=
+                            `<div class="search-result-item" style="border-bottom:1px solid rgba(255,255,255,0.05);" onclick="document.getElementById('searchInput').value='${escapeHTML(displayTitle)}'; searchDropdown.classList.remove('show');">
+                                <div class="search-result-info"><div class="sr-title">${escapeHTML(displayTitle)} <span style="font-size:0.6rem;color:#4ade80;">✓ 已添加</span></div></div>
+                            </div>`;
+                    });
+                    if (localMatches.length > 5) {
+                        html +=
+                            `<div style="padding:4px 14px;font-size:0.7rem;color:var(--text-muted);">还有 ${localMatches.length - 5} 部匹配...</div>`;
+                    }
+                    html += `</div>`;
+                }
+
+                if (history.length > 0 && query.length < 3) {
+                    html += `<div class="search-history-section">`;
+                    html += `<span class="history-label">🕐 最近搜索：</span>`;
+                    history.slice(0, 8).forEach(h => {
+                        html += `<span class="search-history-tag" onclick="document.getElementById('searchInput').value='${escapeHTML(h)}'; document.getElementById('searchInput').dispatchEvent(new Event('input'));">${escapeHTML(h)}</span>`;
+                    });
+                    html +=
+                        `<span class="search-history-clear" onclick="localStorage.removeItem('${STORAGE_KEY_SEARCH_HISTORY}'); showToast('搜索历史已清空'); document.getElementById('searchInput').value=''; searchDropdown.classList.remove('show');">清空</span>`;
+                    html += `</div>`;
+                }
+
+                if (results && results.length > 0) {
+                    results.forEach(item => {
+                        const cover = bgmImage(item.image_url) ||
+                            'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="44" height="62" fill="%23333"><rect width="44" height="62"/></svg>';
+                        const genres = (item.genres || []).map(g =>
+                            `<span>${escapeHTML(g.name)}</span>`).join('');
+                        const sourceLabel = item._source === 'bangumi' ? 'Bangumi' :
+                            item._source === 'anilist' ? 'AniList' : 'Jikan';
+                        const displayTitle = item.title || item.title_japanese || item.title_english ||
+                        '未命名';
+                        const bgScore = item.bangumi_score != null ? `BG ${item.bangumi_score.toFixed(1)}` : null;
+                        const scoreText = bgScore || '';
+                        const isAdded = animeList.some(a => a.mal_id === item.mal_id);
+                        html += `<div class="search-result-item">
+                                <img src="${cover}" onerror="this.style.background='%23333';">
+                                <div class="search-result-info">
+                                    <div class="sr-title">${escapeHTML(displayTitle)} <span style="font-size:0.6rem;color:var(--text-muted);">[${sourceLabel}]</span>${isAdded ? '<span class="already-added">✓ 已添加</span>' : ''}</div>
+                                    <div class="sr-meta">${item.total_episodes||'?'}集 · ${genres||'暂无标签'} ${scoreText ? '· ⭐ ' + scoreText : ''}</div>
+                                </div>
+                                <button class="btn-add-sm" onclick="window._addAnimeFromSearch(${item.mal_id}, this)" ${isAdded ? 'disabled' : ''}>${isAdded ? '✓ 已添加' : '+ 添加'}</button>
+                            </div>`;
+                    });
+                }
+
+                if (!html) {
+                    html = '<div style="padding:16px;color:var(--text-muted);">输入关键词搜索番剧</div>';
+                }
+
+                searchDropdown.innerHTML = html;
+                searchDropdown.classList.add('show');
+            }
+
+            searchInput.addEventListener('input', () => {
+                clearTimeout(searchTimeout);
+                const query = searchInput.value.trim();
+
+                if (query.length === 0) {
+                    const history = loadSearchHistory();
+                    if (history.length > 0) {
+                        let hhtml = `<div class="search-history-section">`;
+                        hhtml += `<span class="history-label">🕐 最近搜索：</span>`;
+                        history.slice(0, 10).forEach(h => {
+                            hhtml +=
+                                `<span class="search-history-tag" onclick="document.getElementById('searchInput').value='${escapeHTML(h)}'; document.getElementById('searchInput').dispatchEvent(new Event('input'));">${escapeHTML(h)}</span>`;
+                        });
+                        hhtml +=
+                            `<span class="search-history-clear" onclick="localStorage.removeItem('${STORAGE_KEY_SEARCH_HISTORY}'); showToast('搜索历史已清空'); document.getElementById('searchInput').value=''; searchDropdown.classList.remove('show');">清空</span>`;
+                        hhtml += `</div>`;
+                        searchDropdown.innerHTML = hhtml;
+                        searchDropdown.classList.add('show');
+                    } else {
+                        searchDropdown.classList.remove('show');
+                    }
+                    return;
+                }
+
+                const localMatches = searchLocal(query);
+
+                if (query.length < 2) {
+                    renderSearchDropdown([], query, localMatches);
+                    return;
+                }
+
+                let loadingHtml = '';
+                if (localMatches.length > 0) {
+                    loadingHtml += `<div class="search-local-match">`;
+                    loadingHtml +=
+                        `<div class="local-title">📂 已添加 (${localMatches.length} 部)</div>`;
+                    localMatches.slice(0, 5).forEach(a => {
+                        const displayTitle = getDisplayTitle(a);
+                        loadingHtml +=
+                            `<div class="search-result-item" style="border-bottom:1px solid rgba(255,255,255,0.05);" onclick="document.getElementById('searchInput').value='${escapeHTML(displayTitle)}'; searchDropdown.classList.remove('show');">
+                                <div class="search-result-info"><div class="sr-title">${escapeHTML(displayTitle)} <span style="font-size:0.6rem;color:#4ade80;">✓ 已添加</span></div></div>
+                            </div>`;
+                    });
+                    if (localMatches.length > 5) {
+                        loadingHtml +=
+                            `<div style="padding:4px 14px;font-size:0.7rem;color:var(--text-muted);">还有 ${localMatches.length - 5} 部匹配...</div>`;
+                    }
+                    loadingHtml += `</div>`;
+                }
+                loadingHtml += '<div style="padding:16px;color:var(--text-muted);">🔍 搜索外部数据中...</div>';
+                searchDropdown.innerHTML = loadingHtml;
+                searchDropdown.classList.add('show');
+
+                searchTimeout = setTimeout(async () => {
+                    try {
+                        const results = await searchAnime(query);
+                        addSearchHistory(query);
+                        searchCache = results;
+                        renderSearchDropdown(results, query, localMatches);
+                    } catch (err) {
+                        // 把每个数据源失败的原因写出来，方便判断是「没这部番」还是「网络连不上」
+                        const why = escapeHTML((err && err.message) || String(err));
+                        searchDropdown.innerHTML =
+                            '<div style="padding:16px;color:#e88;">搜索失败：三个数据源都没返回结果' +
+                            '<div style="margin-top:6px;font-size:0.7rem;color:var(--text-muted);line-height:1.6;">' +
+                            why + '</div>' +
+                            '<div style="margin-top:8px;font-size:0.7rem;color:var(--text-muted);">' +
+                            '如果提示连不上，多半是网络到不了 Bangumi / AniList；换个网络或稍后再试。</div></div>';
+                    }
+                }, 400);
+            });
+
+            document.addEventListener('click', e => {
+                if (!searchDropdown.contains(e.target) && e.target !== searchInput) {
+                    searchDropdown.classList.remove('show');
+                }
+            });
+            searchInput.addEventListener('focus', () => {
+                const query = searchInput.value.trim();
+                if (query.length === 0) {
+                    const history = loadSearchHistory();
+                    if (history.length > 0) {
+                        let hhtml = `<div class="search-history-section">`;
+                        hhtml += `<span class="history-label">🕐 最近搜索：</span>`;
+                        history.slice(0, 10).forEach(h => {
+                            hhtml +=
+                                `<span class="search-history-tag" onclick="document.getElementById('searchInput').value='${escapeHTML(h)}'; document.getElementById('searchInput').dispatchEvent(new Event('input'));">${escapeHTML(h)}</span>`;
+                        });
+                        hhtml +=
+                            `<span class="search-history-clear" onclick="localStorage.removeItem('${STORAGE_KEY_SEARCH_HISTORY}'); showToast('搜索历史已清空'); document.getElementById('searchInput').value=''; searchDropdown.classList.remove('show');">清空</span>`;
+                        hhtml += `</div>`;
+                        searchDropdown.innerHTML = hhtml;
+                        searchDropdown.classList.add('show');
+                    }
+                } else if (searchDropdown.innerHTML.trim()) {
+                    searchDropdown.classList.add('show');
+                }
+            });
+
+            window._addAnimeFromSearch = function(malId, btn) {
+                const item = searchCache.find(r => r.mal_id === malId);
+                if (!item) {
+                    showToast('数据异常，请重新搜索');
+                    return;
+                }
+                if (animeList.find(a => a.mal_id === malId)) {
+                    showToast('已在列表中');
+                    return;
+                }
+
+                const limit = settings.dataLimit || 0;
+                if (limit > 0 && animeList.length >= limit) {
+                    const sorted = [...animeList].sort((a, b) => {
+                        const da = a.added_date || '1970-01-01';
+                        const db = b.added_date || '1970-01-01';
+                        return da.localeCompare(db);
+                    });
+                    const oldest = sorted[0];
+                    if (oldest) {
+                        const idx = animeList.findIndex(a => a.mal_id === oldest.mal_id);
+                        if (idx !== -1) {
+                            const removed = animeList.splice(idx, 1)[0];
+                            showToast(`已自动删除最早记录: ${removed.title}`);
+                        }
+                    }
+                }
+
+                let autoSeries = findMatchingSeries(item.title) || '';
+                if (!autoSeries && item.title_japanese) {
+                    autoSeries = inferSeriesName(item.title_japanese) || '';
+                }
+                if (!autoSeries && item.title_english) {
+                    autoSeries = inferSeriesName(item.title_english) || '';
+                }
+                const newAnime = {
+                    mal_id: item.mal_id,
+                    bgm_id: item.bgm_id || null,
+                    anilist_id: item.anilist_id || null,
+                    title: item.title || item.title_japanese || item.title_english || '未命名',
+                    title_japanese: item.title_japanese || '',
+                    title_english: item.title_english || '',
+                    image_url: bgmImage(item.image_url) || '',
+                    total_episodes: item.total_episodes || null,
+                    genres: item.genres || [],
+                    current_episode: 0,
+                    scores: { story: 0, visual: 0, character: 0, overall: 0 },
+                    series_group: autoSeries,
+                    bangumi_score: item.bangumi_score ?? null,
+                    grade: '',
+                    note: '',
+                    custom_tags: [],
+                    // Bangumi 分已在搜索里拿到就算已更新，没拿到留 0 → 添加后后台补
+                    bgm_last_updated: item.bangumi_score != null ? Date.now() : 0,
+                    scores_migrated_v2: true,
+                    added_date: new Date().toISOString(),
+                    _source: item._source || 'unknown',
+                };
+                animeList.push(newAnime);
+                saveAnimeList(animeList);
+                if (btn) { btn.textContent = '✓ 已添加';
+                    btn.disabled = true;
+                    btn.style.opacity = '0.6'; }
+                fullRenderAll();
+                showToast(`已添加：${getDisplayTitle(newAnime)}`);
+                // Bangumi 评分或标签没拿到的，在后台补上（不挡界面）
+                if (newAnime.bangumi_score == null || !(newAnime.genres && newAnime.genres.length)) {
+                    fillMissingScores(newAnime);
+                }
+                setTimeout(() => {
+                    if (btn) { btn.textContent = '+ 添加';
+                        btn.disabled = false;
+                        btn.style.opacity = '1'; }
+                }, 3000);
+            };
+
+            /* ==============================================================
+               9. 批量操作
+            ============================================================== */
+
+            function toggleBatchMode() {
+                batchMode = !batchMode;
+                if (!batchMode) {
+                    selectedBatch.clear();
+                }
+                document.getElementById('btnBatchMode').textContent = batchMode ? '☑️ 退出批量' : '☑️ 批量操作';
+                fullRenderAll();
+                updateBatchUI();
+            }
+
+            function batchSelectAll() {
+                const checked = document.getElementById('batchSelectAll').checked;
+                if (checked) {
+                    animeList.forEach(a => selectedBatch.add(a.mal_id));
+                } else {
+                    selectedBatch.clear();
+                }
+                updateBatchUI();
+                fullRenderAll();
+            }
+
+            function batchComplete() {
+                if (selectedBatch.size === 0) {
+                    showToast('请先选择番剧');
+                    return;
+                }
+                if (!confirm(`确定要将 ${selectedBatch.size} 部番剧标记为「已完成」吗？`)) return;
+                let count = 0;
+                for (const malId of selectedBatch) {
+                    const anime = animeList.find(a => a.mal_id === malId);
+                    if (anime && anime.total_episodes) {
+                        anime.current_episode = anime.total_episodes;
+                        count++;
+                    }
+                }
+                saveAnimeList(animeList);
+                selectedBatch.clear();
+                fullRenderAll();
+                showToast(`✅ 已标记 ${count} 部番剧为已完成`);
+            }
+
+            function batchGrade() {
+                if (selectedBatch.size === 0) {
+                    showToast('请先选择番剧');
+                    return;
+                }
+                document.getElementById('batchGradeCount').textContent = selectedBatch.size;
+                document.getElementById('batchGradeModal').style.display = 'flex';
+            }
+
+            function batchApplyGrade() {
+                const grade = document.getElementById('batchGradeSelect').value;
+                let count = 0;
+                for (const malId of selectedBatch) {
+                    const anime = animeList.find(a => a.mal_id === malId);
+                    if (anime) {
+                        anime.grade = grade;
+                        count++;
+                    }
+                }
+                saveAnimeList(animeList);
+                selectedBatch.clear();
+                document.getElementById('batchGradeModal').style.display = 'none';
+                fullRenderAll();
+                showToast(`🏷️ 已为 ${count} 部番剧设置等级${grade ? ': ' + grade : '（已清除）'}`);
+            }
+
+            function batchDelete() {
+                if (selectedBatch.size === 0) {
+                    showToast('请先选择番剧');
+                    return;
+                }
+                if (!confirm(`确定要删除选中的 ${selectedBatch.size} 部番剧吗？此操作不可恢复！`)) return;
+                const ids = new Set(selectedBatch);
+                animeList = animeList.filter(a => !ids.has(a.mal_id));
+                saveAnimeList(animeList);
+                selectedBatch.clear();
+                fullRenderAll();
+                showToast(`🗑️ 已删除 ${ids.size} 部番剧`);
+            }
+
+            /* ==============================================================
+               10. 数据导出 / 导入
+            ============================================================== */
+
+            function exportData() {
+                if (!animeList.length) {
+                    showToast('当前没有数据可导出');
+                    return;
+                }
+                const dataStr = JSON.stringify(animeList, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                const dateStr = new Date().toISOString().slice(0, 10);
+                a.download = `anime_export_${dateStr}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast('✅ 数据已导出');
+            }
+
+            function importData(file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const imported = JSON.parse(e.target.result);
+                        if (!Array.isArray(imported)) {
+                            showToast('❌ 无效的数据文件');
+                            return;
+                        }
+                        const processed = imported.map(normalizeAnimeRecord);
+                        const mode = document.getElementById('importModeSelect')?.value || 'merge';
+                        if (mode === 'overwrite') {
+                            animeList = processed;
+                            saveAnimeList(animeList);
+                            fullRenderAll();
+                            showToast(`✅ 已覆盖导入 ${processed.length} 条数据`);
+                        } else {
+                            const existingIds = new Set(animeList.map(a => a.mal_id));
+                            let addedCount = 0;
+                            const existingTitles = new Set(animeList.map(a => a.title.toLowerCase()));
+                            let dupCount = 0;
+                            for (const item of processed) {
+                                if (!existingIds.has(item.mal_id)) {
+                                    if (existingTitles.has(item.title.toLowerCase())) {
+                                        dupCount++;
+                                        continue;
+                                    }
+                                    animeList.push(item);
+                                    existingIds.add(item.mal_id);
+                                    existingTitles.add(item.title.toLowerCase());
+                                    addedCount++;
+                                }
+                            }
+                            saveAnimeList(animeList);
+                            enforceDataLimit();
+                            fullRenderAll();
+                            const msg = `✅ 合并完成，新增 ${addedCount} 条`;
+                            showToast(dupCount > 0 ? `${msg}（跳过 ${dupCount} 条重复标题）` : msg);
+                        }
+                    } catch (_) {
+                        showToast('❌ 解析文件失败，请确认是有效的 JSON');
+                    }
+                };
+                reader.readAsText(file);
+            }
+
+            /* ==============================================================
+               11. 平台评分：只保留 Bangumi
+
+               说明：mal_id 只是本地主键（历史上可能是 Bangumi / AniList 的 id），
+               bgm_id 才是 Bangumi 的条目 id。MAL 评分已整体移除（不显示、不更新）。
+               拿不到分的情况要分清楚：
+                 · 标题对不上 / 条目没有评分 → 算「有结论」，写时间戳，一周内不再试
+                 · 网络超时 / 限流 → 不写时间戳，下次点更新还会重试
+
+               标签（卡片上那排小字）走同一套流程：
+                 · 首选 Bangumi v0 的 meta_tags（官方分类），v0 拿不到才用 tags 里的热门标签
+                 · Bangumi 没有 → Jikan（MAL）的 genres/themes/demographics
+                 · Jikan 也连不上 → AniList 的 genres
+               只有本来就没标签的条目才会补，已有标签（比如导入时带的 AniList 标签）不动。
+            ============================================================== */
+
+            /* ---------- 标题匹配 ---------- */
+
+            /** 标题候选：日文原名最准，其次英文；中文名基本匹配不到，放最后 */
+            function scoreTitleCandidates(item) {
+                return [item.title_japanese, item.title_english, item.title]
+                    .map(t => (t || '').trim())
+                    .filter(Boolean);
+            }
+
+            /** 归一化标题：全角转半角、去掉标点/空格/季数后缀，只留主干做比较 */
+            function normalizeTitleForMatch(s) {
+                return (s || '')
+                    .normalize('NFKC')
+                    .toLowerCase()
+                    .replace(/(第[一二三四五六七八九十\d]+季|第[一二三四五六七八九十\d]+期|season\s*\d+|part\s*\d+|the\s*final\s*season|\d+(st|nd|rd|th)\s*season)/g, '')
+                    .replace(/[\s\u3000]+/g, '')
+                    .replace(/[!-/:-@\[-`{-~、。，．・：；！？「」『』（）()【】\[\]《》〈〉·—－_~〜]/g, '');
+            }
+
+            /** 季度/形态标记：第2期 / Season 2 / OVA / 剧场版… 用来区分同系列的不同季 */
+            function seasonSignature(s) {
+                const t = (s || '').normalize('NFKC').toLowerCase();
+                if (/剧场版|劇場版|the\s*movie|\bmovie\b/.test(t)) return 'movie';
+                if (/\bova\b|\boav\b|\boad\b|特别篇|特別篇|番外/.test(t)) return 'ova';
+                if (/final\s*season|最终季|最終季|完結編|完结篇/.test(t)) return 'final';
+                const cn = t.match(/第([一二三四五六七八九十\d]+)[期季部]/);
+                const en = t.match(/\b(?:season|part|cour)\s*(\d+)\b/) || t.match(/\b(\d+)(?:st|nd|rd|th)\s*season\b/);
+                const raw = cn ? cn[1] : (en ? en[1] : '');
+                if (!raw) return '';
+                const cnNum = { '一': '1', '二': '2', '三': '3', '四': '4', '五': '5', '六': '6', '七': '7', '八': '8', '九': '9', '十': '10' };
+                return cnNum[raw] || raw;
+            }
+
+            /**
+             * 从候选里挑标题最像的一条；要求主干相同，或互相包含且足够长。
+             * titleOf 可以返回字符串，也可以返回多个标题（Bangumi 的中文名和原名都要比，
+             * 否则用日文原名去搜、结果里只有中文名时就会全部对不上）。
+             */
+            function pickBestTitleMatch(list, candidates, titleOf) {
+                const targets = candidates.map(normalizeTitleForMatch).filter(Boolean);
+                if (!targets.length) return null;
+                const targetSigs = candidates.map(seasonSignature);
+                let best = null;
+                let bestRank = -1;
+                for (const item of list) {
+                    const rawTitles = titleOf(item);
+                    const titles = Array.isArray(rawTitles) ? rawTitles : [rawTitles];
+                    for (const raw of titles) {
+                        const cand = normalizeTitleForMatch(raw);
+                        if (!cand) continue;
+                        const itemSig = seasonSignature(raw);
+                        for (let i = 0; i < targets.length; i++) {
+                            const target = targets[i];
+                            const exact = cand === target;
+                            // 互相包含才算「近似」，而且长度要相当：否则
+                            // 「Summer Pockets」会把「Summer Pockets 空門蒼編」这种角色篇章
+                            // 认成本篇，拿到不相干的分数
+                            const shorter = Math.min(cand.length, target.length);
+                            const longer = Math.max(cand.length, target.length);
+                            const near = !exact
+                                && (cand.includes(target) || target.includes(cand))
+                                && shorter >= 4
+                                && longer <= shorter * 1.35 + 2;
+                            if (!exact && !near) continue;
+                            // 候选越靠前越可信；同等条件下取更长的匹配
+                            let rank = (exact ? 100 : 0) + (targets.length - i) * 10 + Math.min(cand.length, 20);
+                            // 同为第 2 季才加分；拿第一季顶第二季要扣分
+                            rank += itemSig === targetSigs[i] ? 15 : -15;
+                            if (rank > bestRank) { bestRank = rank; best = item; }
+                        }
+                    }
+                }
+                return best;
+            }
+
+            /* ---------- Bangumi ---------- */
+
+            /**
+             * Bangumi v0 搜索（官方新接口）。命中率和准确性都远高于旧的 search/subject：
+             * 旧接口遇到「けいおん!」这种带符号的标题会直接返回空，甚至返回不相干的条目。
+             * 官方 api.bgm.tv 在国内连不上，所以走能直连且允许跨域（CORS *）的中转站；
+             * 本地预览时优先用本站 /api/bangumi 中转。
+             */
+            async function bangumiSearchV0(keyword, limit = 10) {
+                const targets = [
+                    `/api/bangumi/v0/search/subjects?limit=${limit}`,
+                    `https://bgmapi.anibt.net/v0/search/subjects?limit=${limit}`,
+                ];
+                const body = JSON.stringify({ keyword, filter: { type: [2] } });
+                const errors = [];
+                for (const base of targets) {
+                    try {
+                        const resp = await fetch(base, {
+                            method: 'POST',
+                            headers: { 'content-type': 'application/json', accept: 'application/json' },
+                            body,
+                            signal: bgmTimeout(8000),
+                        });
+                        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                        const data = await resp.json();
+                        if (Array.isArray(data && data.data)) return data.data;
+                        throw new Error('返回内容不是 Bangumi 数据');
+                    } catch (e) {
+                        errors.push((e && e.message) || String(e));
+                    }
+                }
+                throw new Error(errors.join('；'));
+            }
+
+            /**
+             * 用标题在 Bangumi 找条目：先试 v0，再退回旧 search/subject。
+             * 返回 { id, score, name_cn, tags }，找不到返回 null。
+             */
+            async function resolveBgmByTitle(candidates) {
+                let errored = false;
+                for (const cand of candidates) {
+                    // ① v0 搜索（首选，顺带带标签）
+                    try {
+                        const list = await bangumiSearchV0(cand);
+                        if (list.length) {
+                            // 中文名和原名都要比：用日文原名搜出来的结果常常只带中文名
+                            const hit = pickBestTitleMatch(list, candidates, it => [it.name_cn, it.name]);
+                            if (hit) {
+                                return {
+                                    id: hit.id,
+                                    score: hit.rating?.score ?? null,
+                                    name_cn: hit.name_cn || '',
+                                    tags: bangumiTagsOf(hit),
+                                };
+                            }
+                        }
+                    } catch (e) {
+                        errored = true;
+                        console.warn(`[评分] Bangumi v0 搜索失败（${cand}）:`, e.message);
+                    }
+                    // ② 旧搜索兜底
+                    try {
+                        const j = await bangumiFetch(
+                            `/search/subject/${encodeURIComponent(cand)}?type=2&responseGroup=large`, 8000);
+                        const list = (j && j.list) || [];
+                        if (!list.length) continue;
+                        const hit = pickBestTitleMatch(list, candidates, it => [it.name_cn, it.name]);
+                        if (hit) {
+                            // 旧接口没有标签，后面还可以按 id 走 v0 补
+                            return { id: hit.id, score: hit.rating?.score ?? null, name_cn: hit.name_cn || '', tags: [] };
+                        }
+                    } catch (e) {
+                        errored = true;
+                        console.warn(`[评分] Bangumi 搜索失败（${cand}）:`, e.message);
+                    }
+                }
+                if (errored) throw new Error('Bangumi 搜索请求失败');
+                return null;
+            }
+
+            /**
+             * 按 Bangumi id 取「评分 + 中文名 + 标签」。
+             * v0 的 /v0/subjects/{id} 三个字段都有（旧 /subject/{id} 没有 tags），
+             * 所以优先 v0，失败再退回旧接口（那条就没有标签了）。
+             */
+            async function fetchBgmSubjectById(bgmId) {
+                try {
+                    const j = await bangumiFetch(`/v0/subjects/${bgmId}`, 8000);
+                    if (j && (j.name || j.name_cn)) {
+                        return {
+                            score: j.rating?.score ?? null,
+                            name_cn: j.name_cn || '',
+                            tags: bangumiTagsOf(j),
+                        };
+                    }
+                } catch (e) {
+                    console.warn(`[标签] Bangumi v0 条目 ${bgmId} 失败，退回旧接口:`, e.message);
+                }
+                const j = await bangumiFetch(`/subject/${bgmId}`, 8000);
+                return { score: j?.rating?.score ?? null, name_cn: j?.name_cn || '', tags: [] };
+            }
+
+            /**
+             * 标签兜底①：Jikan（MAL 的非官方 API）的 genres + themes + demographics。
+             * 中文名走 GENRE_MAP 翻译，和 AniList 那套保持一致。
+             */
+            let jikanDownUntil = 0;   // Jikan 忙的时候先别硬打，免得整批更新被它拖住
+            async function jikanTagsFor(anime) {
+                if (Date.now() < jikanDownUntil) return [];
+                const candidates = scoreTitleCandidates(anime);
+                for (const q of candidates.slice(0, 3)) {
+                    try {
+                        const resp = await fetch(
+                            `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(q)}&limit=6&sfw`,
+                            { signal: bgmTimeout(8000) });
+                        if (resp.status === 429 || resp.status >= 500) {
+                            jikanDownUntil = Date.now() + 60000;
+                            console.warn(`[标签] Jikan 暂时不可用（HTTP ${resp.status}），1 分钟内不再试`);
+                            return [];
+                        }
+                        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                        const data = await resp.json();
+                        const list = data?.data || [];
+                        if (!list.length) continue;
+                        const hit = pickBestTitleMatch(list, candidates,
+                            it => [it.title, it.title_english, it.title_japanese]);
+                        if (!hit) continue;
+                        const names = [...(hit.genres || []), ...(hit.themes || []), ...(hit.demographics || [])]
+                            .map(g => g && g.name).filter(Boolean);
+                        const tags = translateGenres(names.map(n => ({ name: n })))
+                            .map(g => g.name).slice(0, 6);
+                        if (tags.length) return tags;
+                    } catch (e) {
+                        console.warn(`[标签] Jikan 取标签失败（${q}）:`, e.message);
+                    }
+                }
+                return [];
+            }
+
+            /** 标签兜底②：Jikan 也连不上时，用 AniList 的 genres 顶上 */
+            async function anilistTagsFor(anime) {
+                const candidates = scoreTitleCandidates(anime);
+                for (const q of candidates.slice(0, 2)) {
+                    try {
+                        const list = await searchAniList(q);
+                        if (!list || !list.length) continue;
+                        const hit = pickBestTitleMatch(list, candidates,
+                            it => [it.title, it.title_japanese, it.title_english]);
+                        if (hit && hit.genres && hit.genres.length) {
+                            return hit.genres.map(g => g.name).slice(0, 6);
+                        }
+                    } catch (e) {
+                        console.warn(`[标签] AniList 取标签失败（${q}）:`, e.message);
+                    }
+                }
+                return [];
+            }
+
+            /**
+             * 刷新一条番剧：Bangumi 评分 + 中文名 + 标签。
+             * 返回 { ok, definitive, tags }：definitive 表示「已经问明白了，只是没分」，
+             * 用于决定要不要写时间戳（写了就一周内不再重试）；tags 是这次补了几条标签。
+             */
+            async function refreshBangumiScore(anime) {
+                const out = { ok: false, definitive: false, tags: 0 };
+                let bgmId = anime.bgm_id;
+                let score = null;
+                let nameCn = '';
+                let tags = [];
+                let bangumiFailed = false;
+
+                // ① 先问 Bangumi。注意：这里失败不能把后面的标签兜底一起带走
+                //    （国内直连 bgmapi 偶尔会抽，评分拿不到时标签还得靠 Jikan / AniList）
+                try {
+                    if (bgmId) {
+                        const subject = await fetchBgmSubjectById(bgmId);
+                        score = subject.score;
+                        nameCn = subject.name_cn;
+                        tags = subject.tags || [];
+                    } else {
+                        const candidates = scoreTitleCandidates(anime);
+                        const hit = candidates.length ? await resolveBgmByTitle(candidates) : null;
+                        if (hit) {
+                            bgmId = hit.id;
+                            anime.bgm_id = hit.id;
+                            nameCn = hit.name_cn || '';
+                            tags = hit.tags || [];
+                            // 搜索没带评分时，按 id 再取一次（/subject/{id} 一定有 rating）
+                            score = hit.score != null ? hit.score : (await fetchBgmSubjectById(hit.id)).score;
+                        }
+                    }
+                } catch (e) {
+                    bangumiFailed = true;
+                    console.warn(`[评分] ${getDisplayTitle(anime)} 的 Bangumi 查询失败:`, e.message);
+                }
+
+                // ② 中文名：只在标题还不是中文时替换，原名留在 title_japanese 里继续用于匹配
+                if (nameCn && !hasChinese(anime.title || '')) {
+                    if (!anime.title_japanese) anime.title_japanese = anime.title || '';
+                    anime.title = nameCn;
+                }
+
+                // ③ 标签：只在还没有标签时补，不覆盖已有的（导入时带的 AniList 标签更好看）
+                //    Bangumi meta_tags → Jikan genres/themes → AniList genres
+                if (!(anime.genres && anime.genres.length)) {
+                    let source = 'bangumi';
+                    try {
+                        if (!tags.length) {
+                            tags = await jikanTagsFor(anime);
+                            if (tags.length) source = 'jikan';
+                        }
+                        if (!tags.length) {
+                            tags = await anilistTagsFor(anime);
+                            if (tags.length) source = 'anilist';
+                        }
+                    } catch (e) {
+                        console.warn(`[标签] ${getDisplayTitle(anime)} 的标签兜底失败:`, e.message);
+                    }
+                    if (tags.length) {
+                        anime.genres = tags.map(n => ({ name: n }));
+                        anime.tag_source = source;
+                        out.tags = tags.length;
+                    }
+                }
+
+                // ④ 评分时间戳：网络类失败不写，下次点更新还会重试
+                if (score != null) {
+                    anime.bangumi_score = score;
+                    anime.bgm_last_updated = Date.now();
+                    out.ok = true;
+                } else if (!bangumiFailed) {
+                    if (bgmId) anime.bgm_last_updated = Date.now();  // 条目在，但确实没有评分
+                    out.definitive = true;                           // 搜过了，确实没这个条目
+                }
+                return out;
+            }
+
+            /** 新增条目后，后台把缺的评分/标签补上（不挡界面） */
+            async function fillMissingScores(anime) {
+                try {
+                    const r = await refreshBangumiScore(anime);
+                    if (r.ok || r.tags) {
+                        saveAnimeList(animeList);
+                        fullRenderAll();
+                    }
+                } catch (_) { /* 后台补分失败不影响添加流程 */ }
+            }
+
+            /** 批量更新 Bangumi 评分（网络类失败不写时间戳，下次还会重试） */
+            async function batchUpdateScores(items, onProgress) {
+                const delay = (ms) => new Promise(r => setTimeout(r, ms));
+                const results = [];
+
+                for (let i = 0; i < items.length; i++) {
+                    const anime = items[i];
+                    let outcome;
+                    try {
+                        outcome = await refreshBangumiScore(anime);
+                    } catch (e) {
+                        outcome = { ok: false, definitive: false };
+                        console.warn(`[评分] ${getDisplayTitle(anime)} 更新异常:`, e.message);
+                    }
+
+                    if (!outcome.ok && outcome.definitive) anime.bgm_last_updated = Date.now();
+
+                    results.push({
+                        mal_id: anime.mal_id,
+                        title: getDisplayTitle(anime),
+                        bgm: outcome.ok,
+                        success: outcome.ok,
+                        tags: outcome.tags || 0,
+                    });
+
+                    if (onProgress) onProgress(i + 1, items.length);
+                    await delay(700);   // 对 Bangumi 客气点，别触发限流
+                }
+
+                const retryable = results.filter(r => !r.success);
+                if (retryable.length > 0) {
+                    console.warn(`[评分] 本次没更新成功的条目（下次会重试）：${retryable.map(r => r.title).join('、')}`);
+                }
+                return results;
+            }
+
+            /**
+             * 需要更新的条目：
+             *   · 还没有标签的 —— 顺便补标签（Bangumi → Jikan → AniList）
+             *   · 还没有评分的 —— 每次都算待更新（否则一旦被记上时间戳，就再也刷不出来了）
+             *   · 已有评分但超过 7 天没更新的
+             */
+            function getStaleAnimeList() {
+                const sevenDays = 7 * 24 * 60 * 60 * 1000;
+                const now = Date.now();
+                return animeList.filter(a =>
+                    !(a.genres && a.genres.length)
+                    || a.bangumi_score == null
+                    || !a.bgm_last_updated
+                    || (now - a.bgm_last_updated) > sevenDays);
+            }
+
+            /* ==============================================================
+               12. 自动保存、数据上限、主题背景、Tab切换、初始化
+            ============================================================== */
+
+            function startAutoSaveTimer() {
+                stopAutoSaveTimer();
+                const interval = settings.autoSaveInterval || 0;
+                if (interval <= 0) return;
+                autoSaveTimerId = setInterval(() => {
+                    const elapsed = (Date.now() - lastReminderTime) / (1000 * 60);
+                    if (elapsed >= interval) {
+                        showSaveReminder(interval);
+                        lastReminderTime = Date.now();
+                    }
+                }, 60000);
+                lastReminderTime = Date.now();
+                console.log(`[自动保存] 已启动，间隔 ${interval} 分钟`);
+            }
+
+            function stopAutoSaveTimer() {
+                if (autoSaveTimerId) {
+                    clearInterval(autoSaveTimerId);
+                    autoSaveTimerId = null;
+                }
+            }
+
+            function showSaveReminder(interval) {
+                const overlay = document.getElementById('saveReminderOverlay');
+                const displayEl = document.getElementById('reminderIntervalDisplay');
+                if (displayEl) displayEl.textContent = interval;
+                overlay.style.display = 'flex';
+            }
+
+            function closeSaveReminder() {
+                document.getElementById('saveReminderOverlay').style.display = 'none';
+            }
+
+            function updateAutoSaveSetting() {
+                const input = document.getElementById('autoSaveIntervalInput');
+                const val = parseInt(input.value) || 0;
+                settings.autoSaveInterval = Math.max(0, val);
+                saveSettings(settings);
+                if (val > 0) startAutoSaveTimer();
+                else stopAutoSaveTimer();
+                updateSettingsUI();
+                showToast(val > 0 ? `自动保存已开启，间隔 ${val} 分钟` : '自动保存已关闭');
+            }
+
+            function updateDataLimitSetting() {
+                const input = document.getElementById('dataLimitInput');
+                const val = parseInt(input.value) || 0;
+                settings.dataLimit = Math.max(0, val);
+                saveSettings(settings);
+                enforceDataLimit();
+                fullRenderAll();
+                updateSettingsUI();
+                showToast(val > 0 ? `数据上限已设为 ${val} 条` : '数据上限已取消');
+            }
+
+            function applyTheme(themeName) {
+                if (!themeName) return;
+                document.body.setAttribute('data-theme', themeName);
+                settings.theme = themeName;
+                saveSettings(settings);
+                document.querySelectorAll('.theme-btn[data-theme]').forEach(b => {
+                    b.classList.toggle('active', b.getAttribute('data-theme') === themeName);
+                });
+            }
+
+            function applyBackground() {
+                const layer = document.getElementById('bgImageLayer');
+                const url = settings.backgroundUrl || settings.backgroundDataUrl || '';
+                if (url) {
+                    layer.style.backgroundImage = `url(${url})`;
+                    layer.classList.add('active');
+                } else {
+                    layer.style.backgroundImage = '';
+                    layer.classList.remove('active');
+                }
+            }
+
+            function switchTab(tabName) {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tabName));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === 'tab-' + tabName));
+                if (tabName === 'ranking') {
+                    currentPage = 1;
+                    renderRanking();
+                }
+            }
+
+            function rebindGlobals() {
+                window._deleteAnime = deleteAnime;
+                window._stepEpisode = stepEpisode;
+                window._setEpisode = setEpisode;
+                window._toggleScorePanel = toggleScorePanel;
+                window._updateScoreSlider = updateScoreSlider;
+                window._saveScore = saveScore;
+                window._openSeriesEdit = openSeriesEdit;
+                window._addAnimeFromSearch = window._addAnimeFromSearch;
+                window._toggleGradePanel = toggleGradePanel;
+                window._selectGrade = selectGrade;
+                window._openNoteEdit = openNoteEdit;
+                window._rankGoTo = rankGoTo;
+                window._refreshScores = refreshScoresForCard;
+            }
+
+            function init() {
+                animeList = loadAnimeList();
+                settings = loadSettings();
+
+                const validThemes = ['purple', 'blue', 'pink', 'orange'];
+                if (!validThemes.includes(settings.theme)) settings.theme = 'purple';
+                applyTheme(settings.theme);
+                applyBackground();
+
+                if (settings.viewMode === 'compact') {
+                    document.body.classList.add('view-compact');
+                    document.querySelector('.view-mode-btn[data-mode="compact"]')?.classList.add('active');
+                    document.querySelector('.view-mode-btn[data-mode="detailed"]')?.classList.remove('active');
+                }
+
+                fullRenderAll();
+
+                if ((settings.autoSaveInterval || 0) > 0) {
+                    startAutoSaveTimer();
+                }
+
+                // Tab 切换
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        switchTab(this.dataset.tab);
+                    });
+                });
+
+                // 视图模式切换
+                document.querySelectorAll('.view-mode-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const mode = this.dataset.mode;
+                        document.querySelectorAll('.view-mode-btn').forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+                        if (mode === 'compact') {
+                            document.body.classList.add('view-compact');
+                            settings.viewMode = 'compact';
+                        } else {
+                            document.body.classList.remove('view-compact');
+                            settings.viewMode = 'detailed';
+                        }
+                        saveSettings(settings);
+                        fullRenderAll();
+                    });
+                });
+
+                // 批量操作
+                document.getElementById('btnBatchMode').addEventListener('click', toggleBatchMode);
+                document.getElementById('batchSelectAll').addEventListener('change', batchSelectAll);
+                document.getElementById('batchComplete').addEventListener('click', batchComplete);
+                document.getElementById('batchGrade').addEventListener('click', batchGrade);
+                document.getElementById('batchDelete').addEventListener('click', batchDelete);
+                document.getElementById('batchCancel').addEventListener('click', () => {
+                    if (batchMode) toggleBatchMode();
+                });
+
+                // 批量等级模态框
+                document.getElementById('btnBatchGradeApply').addEventListener('click', batchApplyGrade);
+                document.getElementById('btnCloseBatchGradeModal').addEventListener('click', () => {
+                    document.getElementById('batchGradeModal').style.display = 'none';
+                });
+                document.getElementById('batchGradeModal').addEventListener('click', e => {
+                    if (e.target === e.currentTarget) e.currentTarget.style.display = 'none';
+                });
+
+                // 笔记模态框
+                document.getElementById('btnSaveNote').addEventListener('click', saveNote);
+                document.getElementById('btnCloseNoteModal').addEventListener('click', () => {
+                    document.getElementById('noteModal').style.display = 'none';
+                    editingNoteFor = null;
+                });
+                document.getElementById('btnClearNote').addEventListener('click', clearNote);
+                document.getElementById('noteModal').addEventListener('click', e => {
+                    if (e.target === e.currentTarget) {
+                        document.getElementById('noteModal').style.display = 'none';
+                        editingNoteFor = null;
+                    }
+                });
+
+                // 设置面板
+                document.getElementById('btnOpenSettings').addEventListener('click', () => {
+                    updateSettingsUI();
+                    document.getElementById('settingsModal').style.display = 'flex';
+                });
+                document.getElementById('btnCloseSettings').addEventListener('click', () => {
+                    document.getElementById('settingsModal').style.display = 'none';
+                });
+                document.getElementById('settingsModal').addEventListener('click', e => {
+                    if (e.target === e.currentTarget) e.currentTarget.style.display = 'none';
+                });
+
+                document.getElementById('btnExportData').addEventListener('click', exportData);
+
+                document.getElementById('btnImportData').addEventListener('click', () => {
+                    document.getElementById('importFileInput').click();
+                });
+                document.getElementById('importFileInput').addEventListener('change', function(e) {
+                    if (this.files && this.files[0]) {
+                        importData(this.files[0]);
+                        this.value = '';
+                    }
+                });
+
+                document.getElementById('btnClearSearchHistory').addEventListener('click', () => {
+                    localStorage.removeItem(STORAGE_KEY_SEARCH_HISTORY);
+                    updateSettingsUI();
+                    showToast('搜索历史已清空');
+                });
+
+                document.getElementById('autoSaveIntervalInput').addEventListener('change', updateAutoSaveSetting);
+                document.getElementById('autoSaveIntervalInput').addEventListener('blur', updateAutoSaveSetting);
+                document.getElementById('btnTestReminder').addEventListener('click', () => {
+                    const interval = settings.autoSaveInterval || 5;
+                    showSaveReminder(interval);
+                });
+
+                document.getElementById('reminderExportBtn').addEventListener('click', () => {
+                    closeSaveReminder();
+                    exportData();
+                });
+                document.getElementById('reminderLaterBtn').addEventListener('click', () => {
+                    closeSaveReminder();
+                    lastReminderTime = Date.now();
+                    showToast('⏰ 已推迟，下次提醒时间重置');
+                });
+
+                document.getElementById('dataLimitInput').addEventListener('change', updateDataLimitSetting);
+                document.getElementById('dataLimitInput').addEventListener('blur', updateDataLimitSetting);
+
+                document.querySelectorAll('.theme-btn[data-theme]').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        applyTheme(this.getAttribute('data-theme'));
+                    });
+                });
+
+                document.getElementById('btnChangeBg').addEventListener('click', () => {
+                    document.getElementById('bgModal').style.display = 'flex';
+                    document.getElementById('bgUrlInput').value = settings.backgroundUrl || '';
+                });
+                document.getElementById('btnCloseBgModal').addEventListener('click', () => {
+                    document.getElementById('bgModal').style.display = 'none';
+                });
+                document.getElementById('btnApplyBgUrl').addEventListener('click', () => {
+                    const url = document.getElementById('bgUrlInput').value.trim();
+                    if (url) {
+                        settings.backgroundUrl = url;
+                        settings.backgroundDataUrl = '';
+                        saveSettings(settings);
+                        applyBackground();
+                        showToast('背景已更新（URL）');
+                    }
+                    document.getElementById('bgModal').style.display = 'none';
+                });
+                document.getElementById('btnApplyBgFile').addEventListener('click', () => {
+                    const fileInput = document.getElementById('bgFileInput');
+                    const file = fileInput.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const dataUrl = e.target.result;
+                        if (dataUrl.length > 4 * 1024 * 1024) {
+                            showToast('图片过大（超过4MB），请使用URL方式');
+                            return;
+                        }
+                        settings.backgroundDataUrl = dataUrl;
+                        settings.backgroundUrl = '';
+                        saveSettings(settings);
+                        applyBackground();
+                        showToast('本地背景已应用');
+                    };
+                    reader.readAsDataURL(file);
+                    document.getElementById('bgModal').style.display = 'none';
+                });
+                document.getElementById('btnClearBg').addEventListener('click', () => {
+                    settings.backgroundUrl = '';
+                    settings.backgroundDataUrl = '';
+                    saveSettings(settings);
+                    applyBackground();
+                    showToast('背景已清除');
+                });
+                document.getElementById('bgModal').addEventListener('click', e => {
+                    if (e.target === e.currentTarget) e.currentTarget.style.display = 'none';
+                });
+
+                document.getElementById('tagFilter').addEventListener('change', fullRenderAll);
+
+                document.getElementById('rankFilter').addEventListener('change', () => { currentPage = 1;
+                    renderRanking(); });
+                document.getElementById('rankSortField').addEventListener('change', () => { currentPage = 1;
+                    renderRanking(); });
+                document.getElementById('rankPageSize').addEventListener('change', () => { currentPage = 1;
+                    renderRanking(); });
+                document.getElementById('btnSortOrder').addEventListener('click', function() {
+                    sortOrder = sortOrder === 'desc' ? 'asc' : 'desc';
+                    this.textContent = sortOrder === 'desc' ? '⬇️ 降序' : '⬆️ 升序';
+                    currentPage = 1;
+                    renderRanking();
+                });
+
+                document.querySelectorAll('.rank-size-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const size = this.dataset.size;
+                        const table = document.querySelector('#sectionRanking .ranking-table');
+                        if (!table) return;
+                        table.classList.remove('size-small', 'size-medium', 'size-large');
+                        table.classList.add('size-' + size);
+                        document.querySelectorAll('.rank-size-btn').forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+                    });
+                });
+
+                document.getElementById('btnSaveSeries').addEventListener('click', () => {
+                    if (currentEditingSeriesFor === null) return;
+                    const anime = animeList.find(a => a.mal_id === currentEditingSeriesFor);
+                    if (anime) {
+                        anime.series_group = document.getElementById('seriesNameInput').value.trim();
+                        saveAnimeList(animeList);
+                        fullRenderAll();
+                        showToast(anime.series_group ? `系列设为：${anime.series_group}` : '系列已清除');
+                    }
+                    document.getElementById('seriesModal').style.display = 'none';
+                    currentEditingSeriesFor = null;
+                });
+                document.getElementById('btnCloseSeriesModal').addEventListener('click', () => {
+                    document.getElementById('seriesModal').style.display = 'none';
+                    currentEditingSeriesFor = null;
+                });
+                document.getElementById('btnClearSeries').addEventListener('click', () => {
+                    if (currentEditingSeriesFor !== null) {
+                        const anime = animeList.find(a => a.mal_id === currentEditingSeriesFor);
+                        if (anime) { anime.series_group = '';
+                            saveAnimeList(animeList);
+                            fullRenderAll();
+                            showToast('系列已清除'); }
+                    }
+                    document.getElementById('seriesModal').style.display = 'none';
+                    currentEditingSeriesFor = null;
+                });
+                document.getElementById('seriesModal').addEventListener('click', e => {
+                    if (e.target === e.currentTarget) {
+                        e.currentTarget.style.display = 'none';
+                        currentEditingSeriesFor = null;
+                    }
+                });
+
+                // ==============================================================
+                // 评分更新按钮事件：只更新 Bangumi 评分
+                // ==============================================================
+                document.getElementById('btnUpdateScores').addEventListener('click', async function(event) {
+                    // 按住 Shift 点击：无视 7 天缓存，全部重刷一遍
+                    const force = event.shiftKey;
+                    const stale = force ? [...animeList] : getStaleAnimeList();
+                    if (stale.length === 0) {
+                        showToast('✅ 所有番剧的 Bangumi 评分和标签都是最新的');
+                        return;
+                    }
+                    if (!confirm(`${force ? '【强制重刷】' : ''}将更新 ${stale.length} 部番剧的 Bangumi 评分，缺标签的会顺手补齐（Bangumi → Jikan）。\n没有评分的条目每条要搜一次 Bangumi，${stale.length} 条预计需要 ${Math.ceil(stale.length * 1.5)} 秒。是否继续？`)) return;
+
+                    this.disabled = true;
+                    this.textContent = '⏳ 更新中...';
+
+                    const progressToast = document.createElement('div');
+                    progressToast.className = 'toast';
+                    progressToast.style.pointerEvents = 'none';
+                    progressToast.textContent = `⏳ 更新 Bangumi 评分: 0/${stale.length}`;
+                    document.body.appendChild(progressToast);
+
+                    const updateProgress = (current, total) => {
+                        progressToast.textContent = `⏳ 更新 Bangumi 评分: ${current}/${total}`;
+                    };
+
+                    try {
+                        const results = await batchUpdateScores(stale, updateProgress);
+                        saveAnimeList(animeList);
+                        fullRenderAll();
+                        const successCount = results.filter(r => r.success).length;
+                        const tagCount = results.reduce((n, r) => n + (r.tags || 0), 0);
+                        const tagItems = results.filter(r => r.tags).length;
+                        showToast(`✅ Bangumi 更新完成！评分成功 ${successCount} 项` +
+                            (tagItems ? `，补上标签 ${tagItems} 项（共 ${tagCount} 个标签）` : '') +
+                            (results.length - successCount > 0 ? `，${results.length - successCount} 项评分没取到（下次会重试）` : ''));
+                    } catch (e) {
+                        showToast('❌ 更新过程出错: ' + e.message);
+                    } finally {
+                        this.disabled = false;
+                        this.textContent = '🔄 更新BG评分';
+                        if (progressToast.parentElement) progressToast.remove();
+                    }
+                });
+
+                rebindGlobals();
+
+                // 初始化排行榜分页
+                currentPage = 1;
+                renderRanking();
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+
+        })();
+    </script>
+    <!-- 自建访问统计（自己的 Worker + D1，无第三方脚本、不种 cookie） -->
+    <script src="./js/stats.js" defer></script>
+</body>
+</html>

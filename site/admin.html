@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>通知管理 · 校园主页</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#2563eb">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="./css/base.css">
+<link rel="stylesheet" href="./css/layout.css">
+<link rel="stylesheet" href="./css/components.css">
+<link rel="stylesheet" href="./css/admin.css">
+</head>
+<body class="admin-body">
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;overflow:hidden">
+  <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8.6a6 6 0 1 0-12 0c0 5.2-2 6.9-2 6.9h16s-2-1.7-2-6.9Z"/><path d="M13.7 19a2 2 0 0 1-3.4 0"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="m4.5 12.5 5 5 10-11"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="M6.2 7l.9 13a2 2 0 0 0 2 1.9h5.8a2 2 0 0 0 2-1.9l.9-13"/><path d="M10 11v6M14 11v6"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10" width="15" height="10.5" rx="2.4"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10"/><path d="M12 14v2.6"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.7 7-11a7 7 0 1 0-14 0c0 5.3 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 12a8.5 8.5 0 1 1-2.6-6.1"/><path d="M21 3.5v5h-5"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12.5"/><path d="m7.5 12 4.5 4.5 4.5-4.5"/><path d="M4 15v3.5A2.5 2.5 0 0 0 6.5 21h11a2.5 2.5 0 0 0 2.5-2.5V15"/></symbol>
+  <symbol id="i-external" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M20 4 11 13"/><path d="M18 14v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 2.5 20h19L12 3.5Z"/><path d="M12 9.5v4.6M12 17.2h.01"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.8h.01"/></symbol>
+  <symbol id="i-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12.2 2.8 2.8L16 9.4"/></symbol>
+  <symbol id="i-warn-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.3M12 16.4h.01"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.6 12 3.8l8.5 6.8V20a1 1 0 0 1-1 1h-4.2v-6.2H8.7V21H4.5a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16"/><path d="M7 20v-6M12 20V6M17 20v-9"/></symbol>
+</svg>
+
+<header class="admin-top">
+  <div class="admin-wrap admin-top-in">
+    <div class="admin-brand">
+      <span class="admin-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8.6a6 6 0 1 0-12 0c0 5.2-2 6.9-2 6.9h16s-2-1.7-2-6.9Z"/><path d="M13.7 19a2 2 0 0 1-3.4 0"/></svg></span>
+      <span>
+        <strong>通知管理</strong>
+        <small>主机发布 · 全站同步</small>
+      </span>
+    </div>
+    <div class="admin-top-actions">
+      <span class="badge badge-plain" id="storeBadge">—</span>
+      <a class="btn btn-sm" href="./index.html">
+        <svg class="ico" aria-hidden="true"><use href="#i-home"/></svg>回到首页
+      </a>
+      <button class="btn btn-sm btn-ghost" type="button" id="lockBtn" hidden>
+        <svg class="ico" aria-hidden="true"><use href="#i-lock"/></svg>退出
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="admin-wrap">
+
+  <!-- ============ 登录 / 首次初始化 ============ -->
+  <section class="card admin-login" id="loginCard" data-reveal>
+    <h1 class="admin-h1">
+      <svg class="ico" aria-hidden="true"><use href="#i-lock"/></svg>
+      <span id="loginTitle">进入通知管理</span>
+    </h1>
+    <p class="small muted" id="loginHint">输入管理密码。密码只在你和服务器之间校验，网页里不会保存明文。</p>
+
+    <form class="admin-form" id="loginForm">
+      <div class="field">
+        <label class="field-label" for="pw">管理密码</label>
+        <input class="input" id="pw" type="password" autocomplete="current-password" placeholder="至少 5 位">
+      </div>
+      <div class="field">
+        <label class="field-label" for="pw2" id="pw2Label" hidden>再输一次</label>
+        <input class="input" id="pw2" type="password" autocomplete="new-password" placeholder="确认密码" hidden>
+      </div>
+      <label class="check" id="rememberWrap">
+        <input type="checkbox" id="remember" checked>
+        <span>在这台设备上记住密码（写在本机 localStorage，仅本机可见）</span>
+      </label>
+      <div class="admin-form-actions">
+        <button class="btn btn-primary" type="submit" id="loginBtn">
+          <svg class="ico" aria-hidden="true"><use href="#i-check"/></svg>进入
+        </button>
+      </div>
+    </form>
+
+    <div class="notice notice-warn" style="margin-top:16px" id="kvWarn" hidden>
+      <svg class="ico" aria-hidden="true"><use href="#i-alert"/></svg>
+      <div>
+        <strong>还没有绑定 KV 存储</strong>
+        <div class="tiny" style="margin-top:4px">
+          现在通知是只读的，内容来自 <code>site/data/hosts.json</code>。
+          想在这里随时发布通知，请先建一个 KV 命名空间并按 README 绑定到 <code>NOTIFY</code>。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 发布区 ============ -->
+  <section id="console" hidden>
+    <div class="admin-grid">
+
+      <div class="card" data-reveal>
+        <div class="card-head">
+          <h2 class="card-title"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg><span id="composeTitle">发一条通知</span></h2>
+          <button class="btn btn-sm btn-ghost" type="button" id="newBtn">
+            <svg class="ico" aria-hidden="true"><use href="#i-refresh"/></svg>清空重写
+          </button>
+        </div>
+
+        <form class="admin-form" id="composeForm">
+          <div class="field">
+            <label class="field-label" for="fTitle">标题</label>
+            <input class="input" id="fTitle" type="text" maxlength="60" placeholder="例如：明天第一节课调至 C-5-201">
+          </div>
+          <div class="field">
+            <label class="field-label" for="fBody">正文</label>
+            <textarea class="textarea" id="fBody" maxlength="500" style="min-height:120px" placeholder="要通知全班的内容，可以换行。"></textarea>
+            <span class="hint"><span id="bodyCount">0</span> / 500 字</span>
+          </div>
+          <div class="admin-two">
+            <div class="field">
+              <label class="field-label" for="fLevel">重要程度</label>
+              <select class="select" id="fLevel">
+                <option value="info">普通通知</option>
+                <option value="ok">好消息 / 确认</option>
+                <option value="warn">要注意（黄）</option>
+                <option value="danger">很紧急（红）</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="field-label" for="fSource">发布者署名</label>
+              <input class="input" id="fSource" type="text" maxlength="24" placeholder="例如：班长 / 学委 / 主机">
+            </div>
+          </div>
+          <label class="check">
+            <input type="checkbox" id="fPin" checked>
+            <span>置顶显示在首页通知栏（同一时间只有一条置顶）</span>
+          </label>
+
+          <!-- 附件：图片 / pdf / 文档，跟着这条通知一起发布 -->
+          <div class="field">
+            <span class="field-label">附件（可选）</span>
+            <div id="fFiles"></div>
+            <span class="hint">图片、pdf、Word/Excel/PPT、zip，单个 ≤ 5MB、最多 6 个。全班在首页通知里能直接看图或下载。</span>
+          </div>
+
+          <div class="admin-form-actions">
+            <button class="btn btn-primary" type="submit" id="publishBtn">
+              <svg class="ico" aria-hidden="true"><use href="#i-bell"/></svg>发布到全站
+            </button>
+            <button class="btn btn-ghost" type="button" id="cancelEdit" hidden>取消编辑</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card" data-reveal>
+        <div class="card-head">
+          <h2 class="card-title"><svg class="ico" aria-hidden="true"><use href="#i-bell"/></svg>已发布 <span class="badge badge-plain" id="itemCount">0</span></h2>
+          <div class="head-actions">
+            <button class="btn btn-sm btn-ghost" type="button" id="exportBtn">
+              <svg class="ico" aria-hidden="true"><use href="#i-download"/></svg>导出 hosts.json
+            </button>
+            <button class="btn btn-sm" type="button" id="reloadBtn">
+              <svg class="ico" aria-hidden="true"><use href="#i-refresh"/></svg>刷新
+            </button>
+          </div>
+        </div>
+
+        <p class="hint" id="updatedAt"></p>
+        <div class="row-list" id="itemList" style="margin-top:10px"></div>
+
+        <hr style="margin:18px 0">
+        <div class="card-head">
+          <h3 class="card-title" style="font-size:14px"><svg class="ico" aria-hidden="true"><use href="#i-alert"/></svg>危险操作</h3>
+        </div>
+        <button class="btn btn-sm btn-danger" type="button" id="clearAll">
+          <svg class="ico" aria-hidden="true"><use href="#i-trash"/></svg>清空全部通知
+        </button>
+        <p class="hint" style="margin-top:8px">
+          清空后首页通知栏会变成「暂无通知」。导出过 hosts.json 的话，随时可以用它恢复。
+        </p>
+      </div>
+
+      <!-- ============ 公共事务（全班共用的一份清单，存在 KV 里） ============ -->
+      <div class="card" data-reveal id="pubCard">
+        <div class="card-head">
+          <h2 class="card-title"><svg class="ico" aria-hidden="true"><use href="#i-calendar-plus"/></svg>公共事务
+            <span class="badge badge-plain" id="pubCount">—</span></h2>
+          <div class="head-actions">
+            <button class="btn btn-sm" type="button" id="pubRefresh">
+              <svg class="ico" aria-hidden="true"><use href="#i-refresh"/></svg>刷新
+            </button>
+          </div>
+        </div>
+        <div class="row-list" id="pubListAdmin" style="margin-top:10px"></div>
+        <p class="hint" id="pubHint" style="margin-top:10px">
+          这里是全班在「日程 → 公共事务」里看到的那份清单。在首页「新增事务」里勾上
+          「设为公共事务」就会出现在这里；删掉某条后，所有设备重新打开就会看不到它。
+        </p>
+
+        <hr style="margin:18px 0">
+        <button class="btn btn-sm btn-danger" type="button" id="pubClearAll">
+          <svg class="ico" aria-hidden="true"><use href="#i-trash"/></svg>清空全部公共事务
+        </button>
+        <p class="hint" style="margin-top:8px">
+          清掉服务器上的整份清单（不影响别人已经加进自己日程里的那几条）。
+        </p>
+      </div>
+
+      <!-- ============ 投票管理（建 / 暂停 / 结束 / 删除） ============ -->
+      <div class="card" data-reveal id="pollAdminCard">
+        <div class="card-head">
+          <h2 class="card-title"><svg class="ico" aria-hidden="true"><use href="#i-chart"/></svg>投票管理
+            <span class="badge badge-plain" id="pollAdminCount">—</span></h2>
+          <div class="head-actions">
+            <button class="btn btn-sm" type="button" id="pollAdminRefresh">
+              <svg class="ico" aria-hidden="true"><use href="#i-refresh"/></svg>刷新
+            </button>
+          </div>
+        </div>
+        <div id="pollAdminList" style="margin-top:10px"></div>
+        <p class="hint" style="margin-top:10px">
+          「暂停」= 停止收票但保留结果（点「恢复」可继续）；「结束」= 到点后的正常状态；「删除」= 连票数一起清掉。
+          投票内容仍然在首页工具区「投票」里给全班看；同学们只能投，不能改。
+        </p>
+
+        <!-- 建投票 -->
+        <hr style="margin:18px 0">
+        <h3 class="card-title" style="font-size:14px"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg>新建投票</h3>
+        <div class="field" style="margin-top:10px">
+          <label class="field-label" for="paTitle">标题</label>
+          <input class="input" id="paTitle" type="text" maxlength="60" placeholder="例如：周末班级活动去哪？">
+        </div>
+        <div class="field" style="margin-top:10px">
+          <label class="field-label" for="paDesc">说明（可留空）</label>
+          <input class="input" id="paDesc" type="text" maxlength="200" placeholder="时间、地点、注意事项…">
+        </div>
+        <div class="field" style="margin-top:10px">
+          <label class="field-label" for="paOptions">选项（一行一个，2~10 个）</label>
+          <textarea class="textarea" id="paOptions" style="min-height:88px" placeholder="爬山&#10;看电影&#10;桌游"></textarea>
+        </div>
+        <div class="admin-two" style="margin-top:10px">
+          <div class="field">
+            <label class="field-label" for="paUntil">截止时间（可留空）</label>
+            <input class="input" id="paUntil" type="datetime-local">
+          </div>
+          <div class="field">
+            <label class="field-label" for="paMax">最多可选（多选时用）</label>
+            <input class="input" id="paMax" type="number" min="1" max="10" value="1">
+          </div>
+        </div>
+        <div class="card-head" style="margin-top:10px">
+          <label class="check"><input type="checkbox" id="paMulti"><span>多选</span></label>
+          <label class="check"><input type="checkbox" id="paOnce" checked><span>每人只能投一次</span></label>
+        </div>
+        <div class="card-head" style="margin-top:10px">
+          <button class="btn btn-sm btn-primary" type="button" id="paCreate">
+            <svg class="ico" aria-hidden="true"><use href="#i-check"/></svg>创建投票
+          </button>
+        </div>
+      </div>
+
+      <!-- ============ 访问统计（自建：Worker + D1，无第三方脚本） ============ -->
+      <div class="card" data-reveal id="statsCard">
+        <div class="card-head">
+          <h2 class="card-title"><svg class="ico" aria-hidden="true"><use href="#i-chart"/></svg>访问统计</h2>
+          <div class="head-actions">
+            <select class="select" id="statsRange" style="width:auto">
+              <option value="7">最近 7 天</option>
+              <option value="14" selected>最近 14 天</option>
+              <option value="30">最近 30 天</option>
+            </select>
+            <button class="btn btn-sm" type="button" id="statsRefresh">
+              <svg class="ico" aria-hidden="true"><use href="#i-refresh"/></svg>刷新
+            </button>
+          </div>
+        </div>
+        <div id="statsBody">
+          <p class="hint">正在读取…</p>
+        </div>
+        <p class="hint" style="margin-top:10px">
+          统计的是「页面被打开的次数」。访客身份用「IP + 浏览器标识 + 当天随机盐」的散列计算，
+          每天换盐、不种 cookie，所以只能看出<b>今天有几个不同的人</b>，无法跨天追踪同一个人。
+          后台页面本身不计入。
+        </p>
+      </div>
+    </div>
+
+    <div class="notice" style="margin-top:22px" data-reveal>
+      <svg class="ico" aria-hidden="true"><use href="#i-info"/></svg>
+      <div>
+        <strong>怎么让全班看到</strong>
+        <div class="tiny" style="margin-top:5px;line-height:1.9">
+          绑定了 KV：点「发布到全站」即可，访客页面最迟 1 分钟内自动更新，不用刷新。<br>
+          没绑 KV：把「导出 hosts.json」得到的文件覆盖到 <code>site/data/hosts.json</code>，再 <code>git push</code>，部署完成后全站生效。<br>
+          管理文件位置：<code>site/js/admin.js</code> · 接口位置：<code>worker/index.js</code>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div class="toast-wrap" id="toastWrap" aria-live="polite" aria-atomic="false"></div>
+
+<script src="./js/dialog.js"></script>
+<script src="./js/attach.js"></script>
+<script src="./js/admin.js"></script>
+</body>
+</html>

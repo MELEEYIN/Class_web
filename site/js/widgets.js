@@ -13,7 +13,330 @@
   var U = CW.util;
 
   /* ======================================================================
-     1. 天气
+     0. 实时时间（全部跟着系统时间走，每秒刷新）
+        页面上所有时间都来自同一个 tick，所以日期一旦跨天也会同步更新，
+        不会出现「时钟已经 00:00，问候语还写着昨天」的情况。
+     ====================================================================== */
+  var clockTimer = null;
+  var lastTickMinute = -1;
+
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+
+  /** 当前时间（本地时区，就是系统时间） */
+  function nowTime() { return new Date(); }
+
+  function tickClock() {
+    var now = nowTime();
+
+    var timeEl = U.$('#clockTime');
+    if (timeEl) {
+      timeEl.textContent = pad2(now.getHours()) + ':' + pad2(now.getMinutes()) + ':' + pad2(now.getSeconds());
+    }
+
+    var dateEl = U.$('#clockDate');
+    if (dateEl) {
+      dateEl.textContent = (now.getMonth() + 1) + ' 月 ' + now.getDate() + ' 日 · ' + U.weekdayFull(now);
+    }
+
+    // 每秒只动秒数；分钟一变，才刷新问候语、日期行这些文字
+    var m = now.getHours() * 60 + now.getMinutes();
+    if (m === lastTickMinute) return;
+    lastTickMinute = m;
+
+    paintDateLabels(now);
+    renderClockMeta(now);
+  }
+
+  /** 问候语 + 日期行 + 教学周（跟着系统时间） */
+  function paintDateLabels(now) {
+    now = now || nowTime();
+    var h = now.getHours();
+
+    var greet = h < 5 ? '凌晨好' : h < 11 ? '早上好' : h < 13 ? '中午好'
+      : h < 18 ? '下午好' : h < 23 ? '晚上好' : '夜深了';
+
+    var greetEl = U.$('#dashGreet');
+    if (greetEl) greetEl.textContent = greet;
+
+    var nameEl = U.$('#dashName');
+    if (nameEl) nameEl.textContent = displayName();
+
+    var dateEl = U.$('#dashDate');
+    if (dateEl) {
+      dateEl.textContent = now.getFullYear() + ' 年 ' + (now.getMonth() + 1) + ' 月 ' +
+        now.getDate() + ' 日 · ' + U.weekdayFull(now) + ' · ' +
+        pad2(now.getHours()) + ':' + pad2(now.getMinutes());
+    }
+
+    var lunar = U.$('#dashLunar');
+    if (lunar) {
+      var sch = CW.store.state.schedule;
+      var week = CW.schedule.weekOf(U.today());
+      lunar.textContent = CW.schedule.inTerm(week)
+        ? '第 ' + week + ' / ' + sch.settings.totalWeeks + ' 教学周'
+        : '假期中（学期共 ' + sch.settings.totalWeeks + ' 周）';
+    }
+  }
+
+  /**
+   * 显示用的名字。
+   * 只认使用者自己在「修改 → 学期与节次」里填的名字；没填就是「同学」。
+   *
+   * 这里刻意**不**去读课表元数据里那个姓名（meta.student）：
+   * 那是从教务系统课表表头读出来的，很可能不是当前这台设备的主人
+   * （比如你拿了同学的课表文件来导入）。默认显示「同学」最稳妥，
+   * 想用自己的名字手动填一次即可，也可以在「修改 → 学期与节次」里
+   * 点那个「用这个名字」按钮。
+   */
+  function displayName() {
+    var name = String(CW.store.state.schedule.settings.studentName || '').trim();
+    return name || '同学';
+  }
+
+  function renderClockMeta(now) {
+    var box = U.$('#clockMeta');
+    if (!box) return;
+    now = now || nowTime();
+
+    var week = CW.schedule.weekOf(U.today());
+    var nodes = [];
+
+    if (CW.schedule.inTerm(week)) {
+      nodes.push(U.el('span', { class: 'badge badge-plain', text: '第 ' + week + ' 教学周' }));
+    } else {
+      nodes.push(U.el('span', { class: 'badge badge-plain', text: '假期' }));
+    }
+    nodes.push(U.el('span', { class: 'ck-tz', text: '本机时间' }));
+
+    var box2 = U.$('#clockBox');
+    if (box2) box2.title = '跟随这台设备（系统）的时间与时区：' + timezoneLabel();
+
+    U.render(box, nodes);
+  }
+
+  function timezoneLabel() {
+    try {
+      var tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (tz) return tz;
+    } catch (e) { /* 老浏览器忽略 */ }
+    var off = -new Date().getTimezoneOffset();
+    var sign = off >= 0 ? 'UTC+' : 'UTC-';
+    off = Math.abs(off);
+    return sign + Math.floor(off / 60) + (off % 60 ? ':' + pad2(off % 60) : '');
+  }
+
+  function initClock() {
+    tickClock();
+    clockTimer = setInterval(tickClock, 1000);
+  }
+
+  /* ======================================================================
+     0.1 通知栏 —— 由服务端（主机）发布，所有访客自动同步
+          没绑定 KV 时，内容来自站点里的 /data/hosts.json
+     ====================================================================== */
+  var NOTICE_API = '/api/notice';
+  var NOTICE_POLL_MS = 60 * 1000;
+
+  var notice = {
+    ok: false,
+    failed: false,
+    storage: '',
+    updatedAt: '',
+    current: null,
+    recent: []
+  };
+
+  var noticeTimer = null;
+
+  function initNotice() {
+    fetchNotice(false);
+    noticeTimer = setInterval(function () { fetchNotice(true); }, NOTICE_POLL_MS);
+
+    // 从后台切回来时立刻对一次，别让通知停在旧内容上
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible') fetchNotice(true);
+    });
+
+    var refresh = U.$('#noticeRefresh');
+    if (refresh) {
+      refresh.addEventListener('click', function () {
+        U.toast('正在读取最新通知…', 'info', { timeout: 1500 });
+        fetchNotice(false, true);
+      });
+    }
+  }
+
+  function fetchNotice(silent, loud) {
+    return fetch(NOTICE_API, { cache: 'no-store', headers: { 'accept': 'application/json' } })
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function (data) {
+        var before = notice.current ? notice.current.id + '@' + notice.current.at : '';
+        notice.ok = !!data.ok;
+        notice.failed = false;
+        notice.storage = data.storage || '';
+        notice.updatedAt = data.updatedAt || '';
+        notice.current = data.current || null;
+        notice.recent = data.recent || [];
+        renderNoticeBox();
+
+        var after = notice.current ? notice.current.id + '@' + notice.current.at : '';
+        // 主机发了新通知：提醒一下，并把已经开着的通知弹窗刷新掉
+        if (after && after !== before) {
+          if (before || loud) U.toast('通知栏有新内容：' + U.truncate(notice.current.title || notice.current.body, 24), 'info', { timeout: 6000 });
+          if (CW.app.isOpen('notice')) renderNoticeBody();
+        }
+      })
+      .catch(function (err) {
+        notice.failed = true;
+        renderNoticeBox();
+        if (!silent) console.warn('[CW] notice fetch failed:', err);
+      });
+  }
+
+  function levelClass(level) {
+    return level === 'ok' ? 'is-ok' : level === 'warn' ? 'is-warn' : level === 'danger' ? 'is-danger' : '';
+  }
+
+  function levelBadge(level) {
+    if (level === 'danger') return { cls: 'badge-danger', text: '紧急' };
+    if (level === 'warn') return { cls: 'badge-warn', text: '注意' };
+    if (level === 'ok') return { cls: 'badge-ok', text: '通知' };
+    return { cls: 'badge-plain', text: '通知' };
+  }
+
+  function noticeTime(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    var diff = Math.round((Date.now() - d.getTime()) / 60000);
+    var abs = (d.getMonth() + 1) + '/' + d.getDate() + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+    if (diff < 1) return '刚刚';
+    if (diff < 60) return diff + ' 分钟前';
+    if (diff < 60 * 24) return Math.floor(diff / 60) + ' 小时前';
+    return abs;
+  }
+
+  /** 小卡里最多列几条（其余点「查看全部」看） */
+  var NOTICE_ROWS = 5;
+
+  /**
+   * 首页那张通知卡：每条只占一行（标题 + 发布者 + 时间），
+   * 不显示正文，点任意一行打开弹窗看全文。
+   */
+  function renderNoticeBox() {
+    var box = U.$('#noticeBox');
+    if (!box) return;
+
+    var head = U.el('div', { class: 'nt-head' }, [
+      U.el('span', { class: 'nt-title' }, [U.icon('i-bell', 'ico'), '通知栏']),
+      U.el('span', { class: 'nt-tag', text: notice.storage === 'kv' ? '服务端同步' : '本地' })
+    ]);
+
+    // 读不到接口（例如本地 file:// 打开，或还没部署 Worker）
+    if (!notice.ok) {
+      U.render(box, [
+        head,
+        U.el('div', { class: 'nt-empty' }, [
+          U.el('strong', { text: '通知暂时读不到' }),
+          U.el('span', { class: 'tiny', text: notice.failed ? '服务器没有响应，稍后会自动重试。' : '正在读取…' })
+        ])
+      ]);
+      return;
+    }
+
+    if (!notice.recent.length) {
+      U.render(box, [
+        head,
+        U.el('div', { class: 'nt-empty' }, [
+          U.el('strong', { text: '暂无通知' }),
+          U.el('span', { class: 'tiny', text: '主机发布通知后，所有打开本站的人都会看到。' })
+        ])
+      ]);
+      return;
+    }
+
+    var cur = notice.current || notice.recent[0];
+    var total = notice.recent.length;
+
+    var nodes = [
+      head,
+      U.el('div', { class: 'nt-list' }, notice.recent.slice(0, NOTICE_ROWS).map(function (it) {
+        var badge = levelBadge(it.level);
+        return U.el('button', {
+          type: 'button',
+          class: 'nt-line ' + levelClass(it.level) + (cur && it.id === cur.id ? ' is-current' : ''),
+          'data-qp': 'notice',
+          title: (it.title || '（无标题）') + (it.body ? '\n\n' + it.body : '')
+        }, [
+          U.el('span', { class: 'nt-dot', title: badge.text }),
+          U.el('b', { class: 'nt-line-title', text: it.title || '（无标题）' }),
+          U.el('span', { class: 'nt-line-meta' }, [
+            (it.files && it.files.length) ? U.icon('i-note', 'ico') : null,   // 附件标记（用文档图标，别用图片图标）
+            it.source ? U.el('span', { class: 'nt-line-src', text: U.truncate(it.source, 8) }) : null,
+            U.el('span', { class: 'nt-line-time', text: noticeTime(it.at) })
+          ])
+        ]);
+      }))
+    ];
+
+    // 还有更多 → 看全部；都列出来了但有正文 → 看全文
+    var more = '';
+    if (total > NOTICE_ROWS) more = '查看全部 ' + total + ' 条通知';
+    else if (notice.recent.some(function (x) { return x.body; })) more = '查看完整通知';
+    if (more) {
+      nodes.push(U.el('button', { type: 'button', class: 'nt-more', 'data-qp': 'notice', text: more }));
+    }
+
+    U.render(box, nodes);
+  }
+
+  /** 通知弹窗里的内容 */
+  function renderNoticeBody() {
+    var body = U.$('#noticeBody');
+    var sub = U.$('#noticeSub');
+    var foot = U.$('#noticeFoot');
+    if (!body) return;
+
+    if (sub) {
+      sub.textContent = notice.storage === 'kv'
+        ? '由主机在后台发布，所有打开本站的人都能看到'
+        : '读取自站点的 data/hosts.json';
+    }
+    if (foot) {
+      foot.textContent = notice.updatedAt
+        ? '最后更新：' + noticeTime(notice.updatedAt)
+        : (notice.failed ? '读取失败，稍后自动重试' : '');
+    }
+
+    if (!notice.recent.length) {
+      U.render(body, U.el('div', { class: 'empty' }, [
+        U.icon('i-bell', 'ico'),
+        U.el('strong', { text: '还没有通知' }),
+        U.el('span', { text: '主机在 /admin.html 里发布后，这里就会出现内容。' })
+      ]));
+      return;
+    }
+
+    U.render(body, notice.recent.map(function (it) {
+      var badge = levelBadge(it.level);
+      return U.el('article', { class: 'nt-item ' + levelClass(it.level) }, [
+        U.el('div', { class: 'nt-item-head' }, [
+          U.el('span', { class: 'badge ' + badge.cls, text: badge.text }),
+          it.title ? U.el('strong', { text: it.title }) : null,
+          U.el('span', { class: 'tiny faint', style: { marginLeft: 'auto' }, text: noticeTime(it.at) })
+        ]),
+        it.body ? U.el('p', { class: 'nt-item-body', text: it.body }) : null,
+        // 首页通知区只列附件名，不放图片缩略图（用户要求）
+        (it.files && it.files.length && CW.attach) ? CW.attach.render(it.files, { links: true }) : null,
+        it.source ? U.el('div', { class: 'tiny faint', text: '发布：' + it.source }) : null
+      ]);
+    }));
+  }
+
+  /* ======================================================================
+     0.2 天气
      ====================================================================== */
   // 深圳技术大学（坪山区）大致坐标
   var LAT = 22.6885;
@@ -110,25 +433,41 @@
 
     var temp = Math.round(cur.temperature_2m);
     var feels = Math.round(cur.apparent_temperature);
+    var humidity = Math.round(cur.relative_humidity_2m);
+    var wind = cur.wind_speed_10m === null || cur.wind_speed_10m === undefined
+      ? null : Math.round(cur.wind_speed_10m);
 
-    U.render(box, U.el('div', {}, [
-      U.el('div', { style: { display: 'flex', alignItems: 'center', gap: '9px' } }, [
-        U.el('span', { style: { fontSize: '27px', lineHeight: '1' }, text: info[0], 'aria-hidden': 'true' }),
-        U.el('div', { style: { minWidth: '0' } }, [
-          U.el('div', { style: { fontSize: '20px', fontWeight: '760', letterSpacing: '-.02em', lineHeight: '1.1' }, text: temp + '°' }),
-          U.el('div', { class: 'tiny muted truncate', text: info[1] + ' · ' + (cur.is_day ? '白天' : '夜间') })
+    function stat(label, value) {
+      return U.el('div', { class: 'wx-stat' }, [
+        U.el('span', { class: 'wx-k', text: label }),
+        U.el('b', { class: 'wx-v mono', text: value })
+      ]);
+    }
+
+    U.render(box, [
+      U.el('div', { class: 'wx-head' }, [
+        U.el('span', { class: 'wx-ico', 'aria-hidden': 'true', text: info[0] }),
+        U.el('div', { class: 'wx-main' }, [
+          U.el('div', { class: 'wx-temp' }, [
+            U.el('b', { text: temp + '°' }),
+            U.el('span', { class: 'wx-cond', text: info[1] })
+          ]),
+          U.el('div', { class: 'wx-sub tiny muted truncate', text: (cur.is_day ? '白天' : '夜间') + ' · ' + (stale ? '缓存数据' : '实时') })
         ])
       ]),
-      U.el('div', { class: 'tiny faint', style: { marginTop: '8px', display: 'flex', gap: '9px', flexWrap: 'wrap' } }, [
-        U.el('span', { text: '体感 ' + feels + '°' }),
-        U.el('span', { text: '湿度 ' + Math.round(cur.relative_humidity_2m) + '%' }),
-        today ? U.el('span', { text: today.min + '~' + today.max + '°' }) : null,
-        today && today.rain !== null && today.rain > 0 ? U.el('span', { text: '降水 ' + today.rain + '%' }) : null
+      U.el('div', { class: 'wx-grid' }, [
+        stat('体感', feels + '°'),
+        stat('湿度', humidity + '%'),
+        today ? stat('今日', today.min + '~' + today.max + '°') : null,
+        today && today.rain !== null && today.rain !== undefined
+          ? stat('降水', today.rain + '%')
+          : (wind !== null ? stat('风速', wind + 'km/h') : null)
       ]),
-      U.el('div', { class: 'tiny faint', style: { marginTop: '5px' } }, [
-        U.el('span', { text: '深圳 · 坪山' + (stale ? ' · 缓存' : '') })
+      U.el('div', { class: 'wx-foot tiny faint' }, [
+        U.el('span', { text: '深圳 · 坪山' }),
+        stale ? U.el('span', { class: 'wx-stale', text: '缓存' }) : null
       ])
-    ]));
+    ]);
   }
 
   /* ======================================================================
@@ -616,44 +955,15 @@
 
   /* ======================================================================
      6. 顶部问候条
+        问候语、日期、姓名、教学周都交给 paintDateLabels（由每秒的时钟驱动），
+        这里只负责跟着数据变化重画标签、时钟下方的周次与通知栏。
      ====================================================================== */
   function renderDash() {
-    var now = new Date();
-    var h = now.getHours();
-
-    var greet = h < 5 ? '凌晨好' : h < 11 ? '早上好' : h < 13 ? '中午好'
-      : h < 18 ? '下午好' : h < 23 ? '晚上好' : '夜深了';
-
-    var greetEl = U.$('#dashGreet');
-    if (greetEl) greetEl.textContent = greet;
-
-    var nameEl = U.$('#dashName');
-    var sch = CW.store.state.schedule;
-    if (nameEl) {
-      var name = sch.settings.studentName || (sch.meta && sch.meta.student) || '';
-      nameEl.textContent = name || '同学';
-    }
-
-    var dateEl = U.$('#dashDate');
-    if (dateEl) {
-      dateEl.textContent = now.getFullYear() + ' 年 ' + (now.getMonth() + 1) + ' 月 ' +
-        now.getDate() + ' 日 · ' + U.weekdayFull(now) + ' · ' +
-        pad2(now.getHours()) + ':' + pad2(now.getMinutes());
-    }
-
-    var lunar = U.$('#dashLunar');
-    if (lunar) {
-      var week = CW.schedule.weekOf(U.today());
-      if (CW.schedule.inTerm(week)) {
-        var total = sch.settings.totalWeeks;
-        lunar.textContent = '第 ' + week + ' / ' + total + ' 教学周';
-      } else {
-        lunar.textContent = '假期中（学期共 ' + sch.settings.totalWeeks + ' 周）';
-      }
-    }
-
+    var now = nowTime();
+    paintDateLabels(now);
+    renderClockMeta(now);
     renderChips();
-    renderQuickPanel();
+    renderNoticeBox();
   }
 
   function renderChips() {
@@ -686,153 +996,20 @@
       chips.push(U.el('span', { class: 'badge badge-plain', text: sch.meta.term + ' 学期' }));
     }
 
-    // 最近一条备注（军事训练之类）
-    if (sch.notes && sch.notes.length) {
-      chips.push(U.el('span', {
-        class: 'badge badge-warn', title: sch.notes.join('；'),
-        text: '★ ' + U.truncate(sch.notes[0], 18)
-      }));
-    }
+    // 说明：以前这里会把课表里的附注（sch.notes）显示成「备注 …」徽章，
+    // 但这些文字（例如「军事训练 1-18周」）对看课表没有帮助，反而占位置，所以不再展示。
+    // 附注仍然照常解析并保存在 sch.notes 里，需要的时候还能取用。
 
     U.render(box, chips);
   }
 
-  function pad2(n) { return (n < 10 ? '0' : '') + n; }
 
   /* ======================================================================
-     右上角第二张小卡片：今日速览 + 快捷操作
+     顶部小卡里的按钮走事件委托（卡片内容会整体重绘，不能逐个绑监听）
+     目前只有通知栏上有按钮：查看全部通知。
      ====================================================================== */
-  function renderQuickPanel() {
-    var box = U.$('#quickBox');
-    if (!box) return;
-
-    var sch = CW.store.state.schedule;
-    var today = U.today();
-    var week = CW.schedule.weekOf(today);
-    var inTermNow = CW.schedule.inTerm(week);
-    var total = sch.settings.totalWeeks || 18;
-
-    var todays = CW.schedule.coursesOn(today);
-    var now = new Date();
-    var nowMin = now.getHours() * 60 + now.getMinutes();
-
-    var remaining = todays.filter(function (c) {
-      var e = U.timeToMin(c.end);
-      return e < 0 || nowMin <= e;
-    });
-
-    // 今日进度：第一节课开始 → 最后一节课结束
-    var first = -1, last = -1;
-    todays.forEach(function (c) {
-      var s = U.timeToMin(c.start), e = U.timeToMin(c.end);
-      if (s >= 0 && (first < 0 || s < first)) first = s;
-      if (e >= 0 && e > last) last = e;
-    });
-    var dayPct = (first >= 0 && last > first)
-      ? U.clamp((nowMin - first) / (last - first), 0, 1)
-      : (todays.length ? 0 : 1);
-
-    var termPct = U.clamp(week / total, 0, 1);
-
-    /* --- 头部 --- */
-    var head = U.el('div', { class: 'qp-head' }, [
-      U.el('span', { class: 'qp-title' }, [U.icon('i-sparkles', 'ico'), '今日速览']),
-      inTermNow
-        ? U.el('span', { class: 'badge badge-plain', text: '第 ' + week + ' 周' })
-        : U.el('span', { class: 'badge badge-plain', text: '假期' })
-    ]);
-
-    /* --- 主数字 --- */
-    var hero;
-    if (!sch.courses.length) {
-      hero = U.el('div', { class: 'qp-hero is-empty' }, [U.el('span', { text: '还没有课表' })]);
-    } else if (!todays.length) {
-      hero = U.el('div', { class: 'qp-hero is-empty' }, [U.el('span', { text: '今天没课，休息一下' })]);
-    } else {
-      hero = U.el('div', { class: 'qp-hero' }, [
-        U.el('b', { text: String(todays.length) }),
-        U.el('span', { text: '节课' }),
-        U.el('em', { text: remaining.length ? '还剩 ' + remaining.length + ' 节' : '都上完了' })
-      ]);
-    }
-
-    /* --- 两个进度条 --- */
-    function barRow(label, pct, tip) {
-      return U.el('div', { class: 'qp-bar', title: tip }, [
-        U.el('span', { class: 'qp-bar-label', text: label }),
-        U.el('div', { class: 'bar' }, [U.el('span', { style: { width: Math.round(pct * 100) + '%' } })]),
-        U.el('b', { class: 'mono', text: Math.round(pct * 100) + '%' })
-      ]);
-    }
-
-    var bars = U.el('div', { class: 'qp-bars' }, [
-      barRow('今日', dayPct, '今天的课程进度'),
-      barRow('学期', termPct, '第 ' + week + ' / ' + total + ' 教学周')
-    ]);
-
-    /* --- 关键数字小条 --- */
-    var st = CW.store.stats();
-    var todayEvents = CW.schedule.eventsOn(today).length;
-    var nextCd = nearestCountdownItem();
-    var chips = [];
-
-    if (st.todo - st.todoDone > 0) {
-      chips.push(U.el('button', {
-        type: 'button', class: 'qp-chip', 'data-qp': 'todo',
-        title: '跳到待办清单',
-        text: '待办 ' + (st.todo - st.todoDone)
-      }));
-    }
-    if (todayEvents) {
-      chips.push(U.el('button', {
-        type: 'button', class: 'qp-chip', 'data-qp': 'today',
-        title: '查看今天的安排',
-        text: '今日事务 ' + todayEvents
-      }));
-    }
-    if (nextCd) {
-      chips.push(U.el('button', {
-        type: 'button', class: 'qp-chip', 'data-qp': 'countdown',
-        title: nextCd.c.title + '（' + nextCd.c.date + '）',
-        text: '距 ' + U.truncate(nextCd.c.title, 6) + ' ' + nextCd.days + ' 天'
-      }));
-    }
-
-    /* --- 快捷操作 --- */
-    function actionBtn(label, iconId, key) {
-      return U.el('button', {
-        type: 'button', class: 'qp-act', 'data-qp': key, title: label, 'aria-label': label
-      }, [U.icon(iconId, 'ico'), U.el('span', { text: label })]);
-    }
-
-    U.render(box, [
-      head,
-      hero,
-      bars,
-      chips.length ? U.el('div', { class: 'qp-chips' }, chips) : null,
-      U.el('div', { class: 'qp-actions' }, [
-        actionBtn('导入课表', 'i-upload', 'import'),
-        actionBtn('新建事务', 'i-calendar-plus', 'event'),
-        actionBtn('校园地图', 'i-map', 'map'),
-        actionBtn('完整日程', 'i-calendar', 'schedule')
-      ])
-    ]);
-  }
-
-  /** 最近一个还没到的倒数日 */
-  function nearestCountdownItem() {
-    var today = U.today();
-    var best = null, bestDays = Infinity;
-    CW.store.state.countdown.forEach(function (c) {
-      var d = U.diffDays(today, U.parseDate(c.date));
-      if (d >= 0 && d < bestDays) { bestDays = d; best = c; }
-    });
-    return best ? { c: best, days: bestDays } : null;
-  }
-
-  /** 卡片里的按钮走事件委托（卡片内容会整体重绘） */
-  function bindQuickActions() {
-    var box = U.$('#quickBox');
+  function bindSideActions() {
+    var box = U.$('#noticeBox');
     if (!box) return;
 
     box.addEventListener('click', function (e) {
@@ -843,6 +1020,7 @@
 
       if (key === 'import') { CW.app.openModal('import'); return; }
       if (key === 'map') { CW.app.openModal('map'); return; }
+      if (key === 'notice') { openNoticeModal(); return; }
       if (key === 'event') { CW.editUI.openEventForm(null, U.today()); return; }
       if (key === 'schedule' || key === 'today') { CW.schedule.openFull(U.today()); return; }
       if (key === 'countdown') {
@@ -864,13 +1042,20 @@
   /* ======================================================================
      初始化
      ====================================================================== */
+  function openNoticeModal() {
+    renderNoticeBody();
+    CW.app.openModal('notice');
+  }
+
   function init() {
+    initClock();
+    initNotice();
     initWeather();
     initTodo();
     initCountdown();
     initSearch();
     initReminder();
-    bindQuickActions();
+    bindSideActions();
     renderDash();
 
     CW.store.on('schedule', function () { renderDash(); });
@@ -878,18 +1063,22 @@
       if (evt === 'schedule' || evt === 'todo' || evt === 'countdown') renderDash();
     }, 200));
 
-    // 每 30 秒刷新（时间和进度在走）
-    setInterval(function () { renderDash(); }, 30000);
+    // 每 20 秒对一次数据（时钟自己每秒走，不依赖这里）
+    setInterval(function () { renderDash(); }, 20000);
   }
 
   CW.widgets = {
     init: init,
     renderDash: renderDash,
-    renderQuickPanel: renderQuickPanel,
     renderTodo: renderTodo,
     renderCountdown: renderCountdown,
     runSearch: runSearch,
     syncRemindState: syncRemindState,
-    fetchWeather: fetchWeather
+    fetchWeather: fetchWeather,
+    fetchNotice: fetchNotice,
+    renderNoticeBox: renderNoticeBox,
+    renderNoticeBody: renderNoticeBody,
+    openNoticeModal: openNoticeModal,
+    now: nowTime
   };
 })();
