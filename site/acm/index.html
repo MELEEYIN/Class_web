@@ -326,7 +326,7 @@ h2.clk:hover,h3.clk:hover{color:var(--accent)}
 <p class="lead">这 10 项的共性：它们不是「知识点」，而是<b>思维动作</b>。后面所有算法的代码都建立在它们的组合之上，务必练到不用想就能写。</p>
 
 <article class="algo" data-cat="入门" data-kind="entry" data-name="枚举">
-<div class="ah"><h4>1. 枚举</h4><span class="lv lv-e">入门</span><span class="st">★</span><span class="tag">暴力</span><a class="prac" href="practice.html#P1217" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<div class="ah"><h4>1. 枚举</h4><span class="lv lv-e">入门</span><span class="st">★</span><span class="tag">暴力</span><a class="prac" href="practice.html#P1036" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
 <p class="idea"><b>本质</b>：把所有可能的答案候选一个个试过去。难点从来不是「枚举」，而是<b>枚举什么</b>与<b>如何压缩枚举量</b>。</p>
 <p class="meta"><b>复杂度</b>：O(状态数 × 单次验证代价)。优化方向：换一个维度枚举（枚举答案而非枚举方案）、子集枚举、配合前缀和/哈希把验证降到 O(1)。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 子集枚举：n<=20 时遍历 2^n 个集合
