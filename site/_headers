@@ -83,6 +83,7 @@
 # ------------------------------ ACM 算法子站（/acm/） ------------------------------
 # · 学习手册与题练场都是单文件页面：样式和脚本内联，所以要放开 inline
 # · 题库（122 题的三语言题解）内嵌在 practice.html 里，不需要任何外部请求
+# · 学习计划 plan.html 同样单文件内联，只额外引一份 ./acm.css
 /acm/*
   X-Robots-Tag: noindex, follow
   Cache-Control: public, max-age=0, must-revalidate
