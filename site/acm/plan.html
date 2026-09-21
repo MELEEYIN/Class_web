@@ -305,6 +305,15 @@ details{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin
 details summary{cursor:pointer;font-weight:650;font-size:13.6px}
 details[open] summary{margin-bottom:8px;color:var(--accent)}
 details p,details li{font-size:13.4px;color:var(--text-2)}
+/* 函数详解（.fn）：签名一行，说明一段，比两列 grid 更适合长签名 */
+.fn{margin:10px 0 0}
+.fn dt{font-family:"Cascadia Code",Consolas,monospace;font-size:12.7px;font-weight:650;
+  color:var(--accent);margin:10px 0 0;padding-top:9px;border-top:1px dashed var(--line)}
+.fn dt:first-child{margin-top:0;padding-top:0;border-top:0}
+.fn dd{margin:3px 0 0;font-size:13.3px;color:var(--text-2);line-height:1.72}
+.fn dd b{color:var(--text)}
+.fn dd code{color:var(--accent);background:none;padding:0}
+
 details pre{background:var(--code-bg);border:1px solid var(--code-line);border-radius:8px;padding:10px 12px;overflow:auto;font-size:12.6px;color:var(--code-text);margin:8px 0}
 
 /* 速查卡 */
@@ -403,9 +412,10 @@ details pre{background:var(--code-bg);border:1px solid var(--code-line);border-r
     <span class="stat">75 段 C++ 模板</span>
     <span class="stat">6 篇深度题解</span>
     <span class="stat">40+ 道例题</span>
+    <span class="stat">附录：50 个常用函数详解</span>
     <span class="stat">每道例题样例均已交叉验证</span>
   </div>
-  <p class="hint">深浅色跟随校园主页（右上角按钮切换）；右下角 <b>外观</b> 可换主色、壁纸与字号，设置自动记住。顶部 <b>搜索框</b> 支持按算法名 / 关键词过滤，右侧 <b>标签</b> 可按模块筛选，点 <b>章节标题</b> 可折叠。带 <span class="new">补充</span> 标签的是 <a href="./index.html">学习手册</a> 里没有单独成卡的知识点。</p>
+  <p class="hint">深浅色跟随校园主页（右上角按钮切换）；右下角 <b>外观</b> 可换主色、壁纸与字号，设置自动记住。顶部 <b>搜索框</b> 支持按算法名 / 关键词过滤，右侧 <b>标签</b> 可按模块筛选，点 <b>章节标题</b> 可折叠。带 <span class="new">补充</span> 标签的是 <a href="./index.html">学习手册</a> 里没有单独成卡的知识点。；<b>全部代码都按需写 <code>#include</code></b>，不使用万能头 <code>&lt;bits/stdc++.h&gt;</code>，每个首次出现的函数在正文里有详解、文末有 <a href="#s13">函数速查表</a>。</p>
 </div></header>
 
 <div class="layout">
@@ -424,6 +434,7 @@ details pre{background:var(--code-bg);border:1px solid var(--code-line);border-r
   <a href="#s10">10 · 常见错误总清单</a>
   <a href="#s11">11 · 自测</a>
   <a href="#s12">12 · 速查卡</a>
+  <a href="#s13">附录 A · 函数速查</a>
 </aside>
 
 <main>
@@ -449,7 +460,9 @@ details pre{background:var(--code-bg);border:1px solid var(--code-line);border-r
   <h2 class="clk"><span class="num">0</span>怎么用这份计划<span class="caret">▾</span><span class="fold-hint"></span></h2>
   <div class="secbody">
     <p class="lead">先把自己归个类。这份计划默认你已经能写出下面这些东西：</p>
-    <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">#include <bits/stdc++.h>
+    <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">#include <iostream>   // cin / cout / endl
+#include <vector>     // vector
+
 using namespace std;
 int main(){
     int n;  cin >> n;
@@ -590,8 +603,61 @@ for(int i = 1; i <= n; i++)
 
     <article class="algo" data-cat="基本功" data-new="1" data-name="代码脚手架 快读 快写 宏 模板">
       <div class="ah"><h4>2. 竞赛代码脚手架：快读、快写与常用宏</h4><span class="lv lv-e">入门</span><span class="st">★</span><span class="tag">效率</span><span class="new">补充</span></div>
-      <p class="idea"><b>本质</b>：把「每次都写一遍」的东西固化成自己的模板，比赛时直接在编辑器里 <code>Tab</code> 出来。省下的不是几秒钟，而是<b>打断思路的次数</b>。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">#include <bits/stdc++.h>      // 一把梭，竞赛可用（不是标准头，但各 OJ 都支持）
+      <p class="idea"><b>本质</b>：把「每次都写一遍」的东西固化成自己的模板，比赛时直接在编辑器里 <code>Tab</code> 出来。省下的不是几秒钟，而是<b>打断思路的次数</b>。模板的第一行就是 <code>#include</code>，所以「引哪些头文件」是你每天都要做的一个决定。</p>
+
+      <div class="box err">
+        <span class="t">🚫 第一件事：不要用 <code>&lt;bits/stdc++.h&gt;</code>（万能头）</span>
+        <p>很多竞赛模板第一行是 <code>#include &lt;bits/stdc++.h&gt;</code>，看起来「一行顶所有」，但它有三个实打实的问题：</p>
+        <ul>
+          <li><b>它不是 C++ 标准的一部分。</b>这是 GCC 私有的实现细节。换到 MSVC、部分 clang 严格模式、某些评测机或真实工程里，<b>直接编译不过</b>——你的代码就废了。</li>
+          <li><b>把整个标准库展开，编译变慢。</b>小代码里差几百毫秒无所谓，但递归式地写下去，你会习惯「反正都能用」，永远不知道自己用了什么。</li>
+          <li><b>你学不到「哪个功能在哪个头文件里」。</b>而面试、笔试、看别人代码、改工程时，这个知识是硬需求。<b>早期养成按需 include 的习惯，成本最低。</b></li>
+        </ul>
+        <p>正确写法：<b>用到什么就写什么</b>。下面这张表覆盖了本计划 95% 的代码：</p>
+      </div>
+
+      <h4>常用头文件对照表（背下来，比背模板有用）</h4>
+      <table>
+        <tr><th>头文件</th><th>提供什么</th><th>你会在哪用到</th></tr>
+        <tr><td class="mono">&lt;iostream&gt;</td><td><code>cin</code> / <code>cout</code> / <code>endl</code> / <code>ios::sync_with_stdio</code> / <code>cin.tie</code></td><td>几乎每一题</td></tr>
+        <tr><td class="mono">&lt;cstdio&gt;</td><td><code>printf</code> / <code>scanf</code> / <code>getchar</code> / <code>putchar</code></td><td>快读快写、对拍生成器</td></tr>
+        <tr><td class="mono">&lt;cstring&gt;</td><td><code>memset</code> / <code>memcpy</code> / <code>strlen</code></td><td>多组数据清空数组、DP 初始化</td></tr>
+        <tr><td class="mono">&lt;algorithm&gt;</td><td><code>sort</code> / <code>stable_sort</code> / <code>nth_element</code> / <code>lower_bound</code> / <code>upper_bound</code> / <code>unique</code> / <code>reverse</code> / <code>max</code> / <code>min</code> / <code>swap</code> / <code>fill</code></td><td>排序、二分、离散化</td></tr>
+        <tr><td class="mono">&lt;vector&gt;</td><td><code>vector</code>（变长数组）</td><td>邻接表、动态数组</td></tr>
+        <tr><td class="mono">&lt;queue&gt;</td><td><code>queue</code> / <code>priority_queue</code>（<b>含优先队列</b>）</td><td>BFS、拓扑、Dijkstra、堆</td></tr>
+        <tr><td class="mono">&lt;deque&gt;</td><td><code>deque</code>（双端队列）</td><td>单调队列、0-1 BFS</td></tr>
+        <tr><td class="mono">&lt;stack&gt;</td><td><code>stack</code></td><td>单调栈、表达式求值</td></tr>
+        <tr><td class="mono">&lt;string&gt;</td><td><code>string</code> / <code>to_string</code> / <code>stoi</code> / <code>substr</code></td><td>KMP、哈希、数位 DP</td></tr>
+        <tr><td class="mono">&lt;set&gt;</td><td><code>set</code> / <code>multiset</code></td><td>有序集合、前驱后继</td></tr>
+        <tr><td class="mono">&lt;map&gt;</td><td><code>map</code> / <code>multimap</code></td><td>有序映射</td></tr>
+        <tr><td class="mono">&lt;unordered_map&gt;</td><td><code>unordered_map</code> / <code>unordered_set</code>（哈希表）</td><td>需要 O(1) 查表时</td></tr>
+        <tr><td class="mono">&lt;functional&gt;</td><td><code>greater</code> / <code>less</code>（比较器）</td><td>小根堆、降序排序</td></tr>
+        <tr><td class="mono">&lt;utility&gt;</td><td><code>pair</code> / <code>make_pair</code> / <code>swap</code></td><td>存二元组、Dijkstra 的堆</td></tr>
+        <tr><td class="mono">&lt;cmath&gt;</td><td><code>sqrt</code> / <code>pow</code> / <code>fabs</code> / <code>exp</code> / <code>log</code></td><td>几何、实数二分、模拟退火</td></tr>
+        <tr><td class="mono">&lt;cstdlib&gt;</td><td><code>rand</code> / <code>srand</code> / <code>abs</code></td><td>随机数据、对拍</td></tr>
+        <tr><td class="mono">&lt;ctime&gt;</td><td><code>time</code> / <code>clock</code></td><td>给随机数播种、测运行时间</td></tr>
+        <tr><td class="mono">&lt;random&gt;</td><td><code>mt19937</code> / <code>shuffle</code>（C++11 更好的随机数）</td><td>随机化算法</td></tr>
+        <tr><td class="mono">&lt;numeric&gt;</td><td><code>gcd</code> / <code>lcm</code> / <code>accumulate</code> / <code>iota</code>（C++17）</td><td>最大公约数、求和</td></tr>
+        <tr><td class="mono">&lt;bitset&gt;</td><td><code>bitset</code>（定长位集）</td><td>传递闭包加速、状压</td></tr>
+        <tr><td class="mono">&lt;climits&gt;</td><td><code>INT_MAX</code> / <code>LLONG_MAX</code> / <code>INT_MIN</code></td><td>取极值时（比写数字更清楚）</td></tr>
+      </table>
+      <div class="box tip">
+        <span class="t">💡 记不住怎么办</span>
+        <p>不用背。<b>写代码时把用到的函数列出来，再去 <a href="https://zh.cppreference.com/" target="_blank" rel="noopener">cppreference</a> 或编辑器补全里确认它在哪个头文件</b>，写两三次自然就记住了。<br>
+        本文所有代码块都<b>在首行标出了「依赖头文件」</b>，可以直接照抄。</p>
+      </div>
+
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ★★ 不要用 <bits/stdc++.h>（俗称「万能头」）★★
+// 它不属于 C++ 标准，只是 GCC 私有的一个"把上百个 STL 头一次性拉进来"的快捷方式：
+//   ① 换编译器就可能直接编译不过（MSVC、新版 clang 的严格模式、部分评测机）；
+//   ② 把整个标准库展开，编译明显变慢（大项目里能差好几秒）；
+//   ③ 你永远不知道自己到底用了哪些库，也不清楚哪些头文件是必需的。
+// ★ 所以：用什么就 include 什么。下面这份模板只引它真正用到的东西。
+
+#include <cstdio>      // getchar / putchar / printf / scanf
+#include <iostream>    // cin / cout / endl / ios::sync_with_stdio / cin.tie
+#include <algorithm>   // sort / max / min / swap / lower_bound
+
 using namespace std;
 typedef long long ll;
 typedef unsigned long long ull;
@@ -627,6 +693,17 @@ inline void writeInt(int x){
         <span class="t">💡 变量命名与边界预防</span>
         <p><code>mx</code>/<code>mn</code> 之类宏名容易和变量撞车，建议用 <code>mxv</code>；数组一律<b>多开 5 个</b>；用 <code>ll</code> 而不是 <code>long long</code>；看到「求和」「乘积」先想会不会爆 <code>int</code>（2×10⁹ 就爆了）。</p>
       </div>
+      <div class="box tip">
+        <span class="t">🔎 第一次见到这些输入输出函数</span>
+        <dl class="fn">
+          <dt>cin &gt;&gt; x ｜ cout &lt;&lt; x</dt><dd><b>作用</b>：从标准输入读一个值 / 往标准输出写一个值。<br><b>返回值</b>：<b>返回流对象本身</b>（<code>cin</code> / <code>cout</code> 的引用），所以可以连着写 <code>cin &gt;&gt; a &gt;&gt; b &gt;&gt; c;</code>。<br><b>关键性质</b>：读取失败时流会进入 fail 状态，此时把 <code>cin</code> 当条件用会得到 <code>false</code> —— 多组数据输入就是靠这个：<code>while(cin &gt;&gt; n){ ... }</code>，读到文件末尾自动停下。<br><b>复杂度</b>：单个值的读写都可以当作 O(1)。</dd>
+          <dt>ios::sync_with_stdio(false);</dt><dd><b>作用</b>：关闭 C 标准流（printf/scanf）与 C++ 流（cin/cout）之间的同步。默认是开的，所以 <code>cin</code> 每次都要先和 stdio 对齐，慢。<br><b>效果</b>：<code>cin</code> 提速约 2~5 倍。<br><b>放在哪</b>：<code>main</code> 函数的<b>第一行</b>。<br><b>代价</b>：调用之后<b>不能再混用</b> <code>printf</code>/<code>scanf</code>，否则输出顺序会乱。</dd>
+          <dt>cin.tie(0);</dt><dd><b>作用</b>：解除 <code>cin</code> 与 <code>cout</code> 的绑定。默认情况下每次 <code>cin</code> 之前都会自动把 <code>cout</code> 刷新一次（为了让「先输出的提示语」能及时出现），这个自动刷新很费时间。<br><b>参数</b>：<code>0</code> 就是空指针，等价于 <code>cin.tie(nullptr);</code>。<br><b>注意</b>：<b>交互题不要关</b>——关了之后你写到 cout 的内容可能不立刻发出去，导致对方一直在等。</dd>
+          <dt>endl　vs　"\n"</dt><dd><b>endl</b> = 换行 <b>+ 强制刷新缓冲区</b>（flush）。<br><b>"\n"</b> = 只换行。<br><b>结论</b>：只要换行就用 <code>"\n"</code>。输出 10⁶ 行时，<code>endl</code> 的强制刷新会让程序慢好几倍，是 TLE 的常见原因之一。<br>小技巧：<code>cout &lt;&lt; a[i] &lt;&lt; " \n"[i == n];</code> 可以在行末自动换成换行符，避免多输出一个空格。</dd>
+          <dt>printf / scanf</dt><dd><b>作用</b>：C 风格的格式化输入输出，在 <code>&lt;cstdio&gt;</code> 里。<br><b>为什么还要学</b>：格式化输出（保留几位小数、按宽度对齐）比 cout 简洁。<br><b>格式符</b>：<code>%d</code> int、<code>%lld</code> long long、<code>%u</code> unsigned、<code>%c</code> 字符、<code>%s</code> 字符串、<code>%.2f</code> 两位小数、<code>%5d</code> 宽度 5 右对齐。<br><b>经典坑</b>：用 <code>%d</code> 输出 <code>long long</code> 是未定义行为，结果会莫名其妙。</dd>
+          <dt>getchar() / putchar(c)</dt><dd><b>作用</b>：读 / 写<b>一个字符</b>，速度极快，是手写快读快写的基石。<br><b>返回值</b>：<code>getchar</code> 返回 <b>int</b>（不是 char！）——因为要在 0~255 之外再表示一个 <code>EOF</code>（通常是 −1）。用 <code>char</code> 接会导致 EOF 判断失效。<br><b>putchar</b> 返回写入的字符（int）。<br><b>复杂度</b>：O(1)。</dd>
+        </dl>
+      </div>
       <p class="tl"><b>题单</b>洛谷 P1601 A+B Problem（高精）· P1303 A×B Problem · P1045 麦森数。</p>
     </article>
 
@@ -636,7 +713,10 @@ inline void writeInt(int x){
       <p><b>对拍三件套</b>：① <code>gen</code> 数据生成器；② <code>brute</code> 暴力（枚举/搜索，慢但一定对）；③ <code>std</code> 你的正解。循环比较两者输出，不同就停下并把数据存下来。</p>
       <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- ① 数据生成器 gen.cpp ----------
 // 编译后运行：gen.exe > in.txt
-#include <bits/stdc++.h>
+#include <cstdio>     // printf / scanf（数据生成器要快速输出）
+#include <cstdlib>    // rand / srand
+#include <ctime>      // time / clock（给随机数播种）
+
 using namespace std;
 int main(){
     srand(time(0) ^ (unsigned)clock());     // 用时间播种，保证每次数据不同
@@ -676,6 +756,16 @@ int main(){
         ② 两边读入格式必须完全一致（多一个空格都会导致假报错）；<br>
         ③ <b>时间限制内跑不动就不叫对拍</b>——暴力请写 O(n²) 甚至 O(n³)，别去优化它。</p>
       </div>
+      <div class="box tip">
+        <span class="t">🔎 第一次见到这些随机数 / 计时函数</span>
+        <dl class="fn">
+          <dt>srand(unsigned seed)</dt><dd><b>作用</b>：给 <code>rand()</code> 设置随机种子。<br><b>为什么必须有</b>：<code>rand()</code> 是<b>伪随机</b>——不设种子时，程序每次运行产生的序列<b>完全一样</b>。对拍时如果数据每次相同，就永远试不出新情况。<br><b>参数</b>：无返回值。</dd>
+          <dt>time(0)</dt><dd><b>作用</b>：返回当前 Unix 时间戳（从 1970-01-01 起的<b>秒数</b>），类型 <code>time_t</code>，在 <code>&lt;ctime&gt;</code> 里。<br><b>参数</b>：传 <code>0</code> 表示「只要返回值，不要写回指针」。<br><b>注意</b>：粒度是秒，同一秒内启动两次种子相同 —— 所以常见写法是 <code>srand(time(0) ^ clock())</code> 把毫秒级的时间差也揉进去。</dd>
+          <dt>clock()</dt><dd><b>作用</b>：返回程序启动至今消耗的 <b>CPU 时间</b>（单位 <code>CLOCKS_PER_SEC</code>，Windows 上一般是 1000，即毫秒）。<br><b>典型用法</b>：测一段代码的耗时 —— <code>double t = (double)clock() / CLOCKS_PER_SEC;</code>。<br><b>和 time(0) 的区别</b>：<code>clock()</code> 只算 CPU 占用的时间，<code>time(0)</code> 是墙上时钟。</dd>
+          <dt>rand()</dt><dd><b>作用</b>：返回一个 <code>[0, RAND_MAX]</code> 之间的伪随机整数。<br><b>关键坑</b>：<code>RAND_MAX</code> 在 Windows 上只有 <b>32767</b>（Linux 上是 2³¹−1）。所以在 Windows 本地测试时 <code>rand()</code> 根本出不了大数 —— 想生成 10⁶ 级的数必须手动拼：<code>rand() * rand()</code> 或 <code>(rand() &lt;&lt; 15) ^ rand()</code>。<br><b>第二个坑</b>：<code>rand() % n</code> 分布<b>不均匀</b>（除非 n 整除 RAND_MAX+1）。正式场合用 <code>&lt;random&gt;</code> 的 <code>mt19937</code>。</dd>
+          <dt>sleep / 等待技巧</dt><dd><b>注意</b>：C++ 标准里没有可移植的 <code>sleep</code>。竞赛里需要等待时，一般用一个空循环或 <code>&lt;thread&gt;</code> 的 <code>this_thread::sleep_for</code>（C++11，需要 <code>&lt;thread&gt;</code> 和 <code>&lt;chrono&gt;</code>）。对拍脚本里不需要它。</dd>
+        </dl>
+      </div>
       <p class="tl"><b>题单</b>找任意一道你有把握的题，把「暴力 + 正解 + 生成器」三份代码都写一遍，跑 1 分钟对拍。</p>
     </article>
 
@@ -691,7 +781,8 @@ int main(){
         <tr><td class="c"><b>MLE</b></td><td>内存超限</td><td>① 数组开太大（局部变量在栈上更容易爆）；② 递归栈太深；③ 没释放的容器</td></tr>
         <tr><td class="c"><b>OLE / PE</b></td><td>输出超限 / 格式错</td><td>① 死循环在不停输出；② 行末多空格；③ 少输出 / 多输出一组</td></tr>
       </table>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 全局数组 vs 局部数组：MLE / RE 的头号原因 ----------
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <vector>
+// ---------- 全局数组 vs 局部数组：MLE / RE 的头号原因 ----------
 int a[1000005];              // 全局：在静态区，默认全 0，可开到很大（几百 MB 也能）
 
 int main(){
@@ -717,6 +808,15 @@ ans = (ans % MOD + MOD) % MOD;
         <b>② 数组开小了 1。</b>下标从 1 开始却只开了 <code>n</code> 个。规则：<b>从 1 开始 → 开 n+5</b>。<br>
         <b>③ 多组数据忘清空。</b>第二组数据读到上一组的残留，答案莫名其妙。</p>
       </div>
+      <div class="box tip">
+        <span class="t">🔎 第一次见到 memset 与「初始化」的坑</span>
+        <dl class="fn">
+          <dt>memset(指针, 值, 字节数)</dt><dd><b>作用</b>：把一块内存的<b>每一个字节</b>都设成指定的值，在 <code>&lt;cstring&gt;</code> 里。返回第一个参数的指针。<br><b>核心理解</b>：它按<b>字节</b>操作，不是按元素！所以<ul><li><code>memset(dist, 0x3f, sizeof dist)</code> —— 每个字节都设成 0x3f，一个 int 有 4 个字节，拼出来就是 <code>0x3f3f3f3f</code> = <b>1061109567</b>（不是 63！）。</li><li>它<b>只能</b>用来设 <code>0</code>、<code>-1</code>、<code>0x3f</code> 这类「每个字节都相同」的值。想全设成 1 是做不到的 —— 那样会得到 <code>0x01010101</code>。</li><li>为什么不直接用 <code>0x7fffffff</code> 当 INF？因为它 + 任何正数都会溢出成负数。而 <code>0x3f3f3f3f ≈ 1.06×10⁹</code>，两个相加还不到 2.1×10⁹（int 上限），<b>可以放心相加不会溢出</b>。</li></ul></dd>
+          <dt>sizeof dist</dt><dd><b>作用</b>：求变量 / 类型占用的<b>字节数</b>。<br><b>关键点</b>：<code>sizeof(数组名)</code> 得到的是<b>整个数组</b>的字节数，所以 <code>memset(a, 0, sizeof a)</code> 正好覆盖整块。<br><b>大坑</b>：传入函数后数组会退化成指针，此时 <code>sizeof</code> 只剩 4 或 8 —— 所以 <code>memset</code> 只写在数组所在的作用域里，不要写进辅助函数。</dd>
+          <dt>fill(first, last, v)</dt><dd><b>作用</b>：把区间 <code>[first, last)</code> 的每个<b>元素</b>都赋成 v，在 <code>&lt;algorithm&gt;</code> 里，O(n)。<br><b>比 memset 好在哪</b>：按元素赋值，想初始化成 1、100、<code>1e18</code> 都可以，不会出现「按字节」的怪结果。<br><b>典型用法</b>：<code>fill(dp, dp + n + 1, -1e18);</code></dd>
+          <dt>全局变量自动清零</dt><dd><b>事实</b>：开在函数<b>外面</b>的全局 / 静态数组，默认全部初始化为 0，不需要手动清。<br><b>开在 main 里的局部数组</b>是随机值 —— 这既是 WA 的来源（忘记初始化），也是 RE 的来源（局部大数组会爆栈）。<br><b>结构体成员</b>：<code>struct Node { int a, b; };</code> 直接定义时也是随机值，写 <code>Node x{};</code> 才会零初始化。</dd>
+        </dl>
+      </div>
       <p class="tl"><b>题单</b>洛谷 P1001 A+B Problem（体会格式要求）· P1307 数字反转（负数、末尾 0）· P5710 数的性质（多组边界）。</p>
     </article>
 
@@ -724,7 +824,8 @@ ans = (ans % MOD + MOD) % MOD;
       <div class="ah"><h4>5. 离散化：把「很大的数」压成「很小的下标」</h4><span class="lv lv-b">基础</span><span class="st">★★</span><span class="tag">前置技能</span><span class="new">补充</span></div>
       <p class="idea"><b>本质</b>：当数值很大（比如 10⁹）但<b>个数很少</b>（比如 10⁵）时，我们只关心它们的<b>相对大小</b>。把「排序去重后的排名」当作新下标，值域就从 10⁹ 变成 n。</p>
       <p><b>三步</b>：① 把所有值拷一份存起来；② <code>sort</code> + <code>unique</code> 去重；③ <code>lower_bound</code> 查排名，排名就是新下标。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">vector<int> a = {100, 3, 3, 55, 100, 3};
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>、<vector>
+vector<int> a = {100, 3, 3, 55, 100, 3};
 vector<int> b = a;                                  // ① 备份
 sort(b.begin(), b.end());                           // ② 排序
 b.erase(unique(b.begin(), b.end()), b.end());       //    去重 → b = {3, 55, 100}
@@ -744,6 +845,15 @@ for(size_t i = 0; i < a.size(); i++)
         <p>值域从 10⁹ 降到 10⁵ 之后：<b>树状数组 / 线段树</b>就能用来统计「第 k 大」「比 x 小的有几个」；<b>桶计数</b>也能用了；二维坐标压缩后还能做<b>扫描线求矩形面积并</b>。</p>
       </div>
       <p class="ref"><b>要注意</b>：离散化会丢掉「值之间的距离」。如果题目关心「相差多少」（比如计数、求和），不能直接离散化，只能压缩下标。</p>
+      <div class="box tip">
+        <span class="t">🔎 第一次见到离散化用到的三个函数</span>
+        <dl class="fn">
+          <dt>sort(first, last)</dt><dd><b>作用</b>：把区间 <code>[first, last)</code> 按 <code>&lt;</code> 升序排序，在 <code>&lt;algorithm&gt;</code> 里。<br><b>参数</b>：两个迭代器 / 指针，左闭右开 —— 对 <code>vector&lt;int&gt; b</code> 写 <code>sort(b.begin(), b.end())</code>，对数组 <code>int a[n]</code> 写 <code>sort(a, a + n)</code>（注意是 <code>a+n</code> 不是 <code>a+n-1</code>）。<br><b>返回值</b>：无。<b>复杂度</b>：O(n log n)，<b>不稳定</b>（相等元素顺序不保证）。</dd>
+          <dt>unique(first, last)</dt><dd><b>作用</b>：把区间里<b>相邻的重复元素</b>挪到后面去，返回「去重后新结尾」的迭代器，在 <code>&lt;algorithm&gt;</code> 里，O(n)。<br><b>最容易误解的一点</b>：它<b>不删除元素</b>，也不改变容器长度，只是把不重复的挪到前面。所以必须配合 <code>erase</code> 才能真正缩短：<br><code>v.erase(unique(v.begin(), v.end()), v.end());</code><br><b>前提</b>：区间必须<b>已经有序</b>，否则只能去掉「挨在一起的」重复项。<b>返回值的含义</b>：新逻辑结尾的迭代器。</dd>
+          <dt>lower_bound(first, last, x)</dt><dd><b>作用</b>：在<b>有序</b>区间里找<b>第一个 ≥ x</b> 的元素位置，在 <code>&lt;algorithm&gt;</code> 里，二分实现，O(log n)。<br><b>返回</b>：指向该元素的迭代器 / 指针；如果全区间都小于 x，返回 <code>last</code>。<br><b>怎么拿下标（0 开始）</b>：<code>int pos = lower_bound(b.begin(), b.end(), x) - b.begin();</code><br><b>怎么拿排名（1 开始）</b>：后面 <code>+ 1</code>。<br><b>前提</b>：区间必须有序，否则结果是随机的 —— 忘了排序直接二分是最常见的错误之一。</dd>
+          <dt>v.erase(iterator) / v.erase(first, last)</dt><dd><b>作用</b>：删除一个元素或一段区间，让后面的元素整体前移，返回被删区间之后的第一个位置。<br><b>复杂度</b>：O(n)（因为要搬移元素）。<br><b>注意</b>：删除元素会让<b>后面的迭代器全部失效</b>，不要在遍历中随手 erase。</dd>
+        </dl>
+      </div>
       <p class="tl"><b>题单</b>洛谷 P1908 逆序对（树状数组 + 离散化，必做）· P1955 [NOI2015] 程序自动分析 · P5490「模板」扫描线。</p>
     </article>
   </div>
@@ -759,7 +869,8 @@ for(size_t i = 0; i < a.size(); i++)
       <div class="ah"><h4>1. 枚举</h4><span class="lv lv-e">入门</span><span class="st">★</span><span class="tag">暴力</span></div>
       <p class="idea"><b>本质</b>：把所有候选答案一个个试过去。难点从来不是「枚举」，而是<b>枚举什么</b>与<b>如何压缩枚举量</b>。</p>
       <p><b>三个层次</b>：① 枚举所有元素（O(n)）；② 枚举所有二元组（O(n²)）；③ 枚举所有子集（O(2ⁿ)，n ≤ 20）。压缩方向：换一个维度枚举（枚举答案而非方案）、用前缀和/哈希把验证降到 O(1)、加剪枝。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ① 子集枚举：n <= 20 时遍历 2^n 个集合
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>
+// ① 子集枚举：n <= 20 时遍历 2^n 个集合
 for(int s = 0; s < (1 << n); ++s)
     for(int i = 0; i < n; ++i)
         if(s >> i & 1) { /* 第 i 个元素被选中 */ }
@@ -893,7 +1004,8 @@ d[x1][y2+1]   -= v;   d[x2+1][y2+1] += v;
     <article class="algo" data-cat="思维" data-name="双指针 尺取法 滑动窗口 two pointers">
       <div class="ah"><h4>5. 双指针 / 尺取法</h4><span class="lv lv-b">基础</span><span class="st">★★★</span><span class="tag">高频必考</span></div>
       <p class="idea"><b>本质</b>：当「区间的可行性关于包含关系单调」时（右端点右移只会让左端点单调右移），两个指针总共只走 O(n) 步，把暴力的 O(n²) 降到 O(n)。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 形态 A：同向双指针（最长 / 最短满足条件的区间）----------
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>
+// ---------- 形态 A：同向双指针（最长 / 最短满足条件的区间）----------
 int l = 1, ans = 0;
 for(int r = 1; r <= n; ++r){
     add(a[r]);                        // 把 a[r] 纳入窗口
@@ -933,7 +1045,8 @@ while(i < j){
     <article class="algo" data-cat="思维" data-name="排序 自定义比较 结构体排序 稳定性">
       <div class="ah"><h4>6. 排序与自定义比较</h4><span class="lv lv-e">入门</span><span class="st">★</span><span class="tag">工具</span></div>
       <p class="idea"><b>本质</b>：<code>sort</code> 本身没什么好讲的，真正要掌握的是<b>「比较函数的语义要严格」</b>——不满足严格弱序的比较函数会让 sort 直接崩溃（RE）。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- ① 基本用法 ----------
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>、<functional>、<cstdlib>
+// ---------- ① 基本用法 ----------
 sort(a, a + n);                        // 升序
 sort(a, a + n, greater<int>());        // 降序
 sort(v.begin(), v.end());              // STL 容器
@@ -970,13 +1083,24 @@ stable_sort(v.begin(), v.end(), cmp);</script></div>
         <span class="t">✅ 实测：稳定排序 vs 不稳定排序</span>
         <p>对 <code>[(1,5),(2,5),(3,4)]</code> 按分数降序：<code>stable_sort</code> 一定输出 <code>[(1,5),(2,5),(3,4)]</code>；<code>sort</code> 在小数组上通常也一样，但<b>不保证</b>。凡是题目说「相同分数按输入顺序输出」——<b>必须用 stable_sort 或者把原始下标写进比较函数</b>。</p>
       </div>
+      <div class="box tip">
+        <span class="t">🔎 排序家族：sort / stable_sort / nth_element</span>
+        <dl class="fn">
+          <dt>sort(first, last) ｜ sort(first, last, cmp)</dt><dd><b>作用</b>：区间升序 / 按 cmp 排序。<b>复杂度</b>：O(n log n)（内省排序：快排 + 堆排 + 插入排序的混合）。<b>不稳定</b>。<br><b>cmp 的语义</b>：<code>cmp(a, b)</code> 返回 <b>true 表示 a 应该排在 b 前面</b>。所以降序写 <code>[](int a, int b){ return a &gt; b; }</code>。<br><b>硬性要求</b>：cmp 必须满足<b>严格弱序</b> —— 也就是 <code>cmp(x, x)</code> 必须返回 <b>false</b>。写成 <code>&gt;=</code> 或 <code>&lt;=</code> 会让排序内部越界，直接 RE。</dd>
+          <dt>greater&lt;int&gt;() / less&lt;int&gt;()</dt><dd><b>作用</b>：标准库提供的比较器函数对象，在 <code>&lt;functional&gt;</code> 里。<code>greater</code> 表示「大的在前」（降序），<code>less</code> 表示「小的在前」（升序，也是默认）。<br><b>用法</b>：<code>sort(v.begin(), v.end(), greater&lt;int&gt;());</code>，比手写 lambda 短。</dd>
+          <dt>stable_sort(first, last, cmp)</dt><dd><b>作用</b>：<b>稳定</b>排序 —— 排序后值相等的元素保持原来的相对顺序。<br><b>什么时候必须用</b>：题目说「分数相同时按输入顺序输出」。<br><b>替代方案</b>：用 <code>sort</code>，但在比较函数里加上「以原始下标为第二关键字」，效果一样而且更可控。<br><b>复杂度</b>：有额外空间时 O(n log n)，空间不够时退化为 O(n log²n)。</dd>
+          <dt>nth_element(first, nth, last)</dt><dd><b>作用</b>：执行完保证 <code>*nth</code> 这个位置放的就是「排序后应该在这里的元素」，且它左边都不大于它、右边都不小于它。<br><b>返回值</b>：无。<b>复杂度</b>：平均 O(n)。<br><b>典型场景</b>：求第 k 小（或中位数）时，比完整排序快。注意它<b>不保证两侧有序</b>。</dd>
+          <dt>自定义比较的两种写法</dt><dd><b>① lambda</b>：<code>sort(v.begin(), v.end(), [](const T &amp;a, const T &amp;b){ ... });</code> —— 临时用一次时最方便。<br><b>② 结构体重载 <code>operator&lt;</code></b>：<code>bool operator&lt;(const Node &amp;o) const { ... }</code> —— 排序逻辑固定时更清晰，而且 <code>sort</code>、<code>set</code>、<code>priority_queue</code> 都能直接用。<br><b>建议</b>：多关键字排序写成一串 <code>if</code>，最后一定要能返回「相等时为 false」。</dd>
+        </dl>
+      </div>
       <p class="tl"><b>题单</b>洛谷 P1177「模板」快速排序 · P1093 奖学金（多关键字排序）· P1104 生日 · P1908 逆序对 · P1051 谁拿了最多奖学金。</p>
     </article>
 
     <article class="algo" data-cat="思维" data-name="二分 二分查找 二分答案 lower_bound upper_bound">
       <div class="ah"><h4>7. 二分查找与二分答案</h4><span class="lv lv-b">基础</span><span class="st">★★★</span><span class="tag">必考</span></div>
       <p class="idea"><b>本质</b>：把答案空间每次砍一半。<b>二分查找</b>要求在有序数组里找元素；<b>二分答案</b>要求「答案的判定函数具有单调性」（答案成立 → 更大的也成立）。二分答案才是竞赛的主战场。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- ① 整数二分：两套必须背下来的模板 ----------
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>
+// ---------- ① 整数二分：两套必须背下来的模板 ----------
 // 找「最后一个满足 check(mid) == true 的位置」（最大化答案）
 int l = lo, r = hi;
 while(l < r){
@@ -1017,6 +1141,16 @@ int cnt = upper_bound(a, a+n, x) - lower_bound(a, a+n, x);   // x 的出现次�
         <b>② 边界开错。</b><code>lo</code> 取「一定可行」的值，<code>hi</code> 取「一定不可行」的值，宁可放宽一点。<br>
         <b>③ 忘记排序。</b>二分的前提是有序或单调，没排序直接二分 = 随机结果。</p>
       </div>
+      <div class="box tip">
+        <span class="t">🔎 lower_bound 与 upper_bound 到底差在哪</span>
+        <dl class="fn">
+          <dt>lower_bound(first, last, x)</dt><dd><b>含义</b>：第一个 <b>≥ x</b> 的位置（<b>lower</b> = 下界，包含等于）。<br><b>返回</b>：迭代器 / 指针，找不到返回 <code>last</code>。<b>复杂度</b>：O(log n)（比较次数 ≤ log₂n + 1）。<br><b>前提</b>：区间必须按 <code>&lt;</code> 有序。</dd>
+          <dt>upper_bound(first, last, x)</dt><dd><b>含义</b>：第一个 <b>&gt; x</b> 的位置（<b>upper</b> = 上界，跳过所有等于 x 的）。<br><b>返回</b>：同上。<b>复杂度</b>：O(log n)。</dd>
+          <dt>x 的出现次数 = upper_bound(...) - lower_bound(...)</dt><dd><b>这是两个函数最经典的组合用法</b>：<br><code>long long cnt = upper_bound(a, a+n, x) - lower_bound(a, a+n, x);</code><br>两者之差正好是「等于 x 的元素个数」，因为 <code>[lower, upper)</code> 就是所有 x 排成的区间。<br><b>注意指针相减的结果类型是 <code>ptrdiff_t</code>（有符号），可以放心用；但迭代器相减得到的是「元素个数」，不是字节数。</b></dd>
+          <dt>在「下降序列」上怎么用</dt><dd><b>默认版本</b>假设升序。如果数组是降序的，要么先反转、要么传自定义比较器 <code>greater&lt;int&gt;()</code>：<br><code>lower_bound(a, a+n, x, greater&lt;int&gt;());</code><br><b>更省事的做法</b>：把 「找最后一个 ≥ x」这类需求统一转成「在反转后的数组上找第一个」，思路更清楚。</dd>
+          <dt>set / map 的 lower_bound 是「成员函数」</dt><dd><b>重要区别</b>：<code>set&lt;int&gt; s;</code> 要用 <code>s.lower_bound(x)</code>（成员函数，O(log n)）。<br>如果写成 <code>lower_bound(s.begin(), s.end(), x)</code>（全局算法），因为 set 的迭代器<b>不支持随机访问</b>，每次都只能一步一步挪，复杂度退化成 <b>O(n)</b> —— 这是很隐蔽的性能陷阱。</dd>
+        </dl>
+      </div>
       <p class="tl"><b>题单</b>洛谷 P2249「深基13.例1」查找 · P1873 砍树 · P2440 木材加工 · P2678 跳石头 · P1182 数列分段 · P1024 一元三次方程求解（实数二分）。</p>
     </article>
 
@@ -1052,7 +1186,8 @@ double x = (l + r) / 2;
       <p><b>两种证明套路</b>：<br>
       ① <b>交换论证</b>：假设存在最优解和贪心解不同，找到第一个不同的位置，把它俩交换，证明结果不会变差 → 贪心解也是最优。<br>
       ② <b>反悔贪心</b>：先贪心拿，如果发现不划算，就用堆把之前的决定「撤销」掉。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 经典贪心：区间调度（按右端点排序）----------
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>、<vector>、<queue>、<functional>
+// ---------- 经典贪心：区间调度（按右端点排序）----------
 // 求最多能选多少个两两不重叠的区间
 sort(v.begin(), v.end(), [](auto &x, auto &y){ return x.r < y.r; });
 int cnt = 0, lastEnd = -1e18;
@@ -1098,7 +1233,8 @@ while(q.size() > 1){
         <tr><td>空间</td><td class="c">O(深度)</td><td class="c">O(最宽一层的宽度)</td></tr>
         <tr><td>是否最优</td><td class="c">不保证</td><td class="c">保证（边权相同时）</td></tr>
       </table>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- DFS 通用骨架：状态 + 选择 + 回溯 ----------
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <cstring>、<queue>
+// ---------- DFS 通用骨架：状态 + 选择 + 回溯 ----------
 bool vis[N];
 void dfs(int u){
     vis[u] = true;                    // 进入：标记
@@ -1158,7 +1294,8 @@ void bfs(int s){
     <article class="algo" data-cat="数据结构" data-name="栈 stack 单调栈">
       <div class="ah"><h4>1. 栈与单调栈</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">必会</span></div>
       <p class="idea"><b>本质</b>：栈是「后进先出」的容器。而<b>单调栈</b>是栈的一个用法——维护一个「从栈底到栈顶单调」的栈，用来求<b>每个元素左边/右边第一个比它大（或小）的元素</b>，一次 O(n) 扫完。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 栈的基本用法 ----------
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <vector>、<stack>
+// ---------- 栈的基本用法 ----------
 stack<int> st;
 st.push(3); st.top(); st.pop(); st.empty(); st.size();
 // 用 vector 手动当栈也完全没问题（更快、能取任意位置）
@@ -1186,7 +1323,8 @@ for(int i = n; i >= 1; --i){
     <article class="algo" data-cat="数据结构" data-new="1" data-name="队列 queue deque 双端队列 循环队列">
       <div class="ah"><h4>2. 队列、循环队列与双端队列</h4><span class="lv lv-e">入门</span><span class="st">★</span><span class="tag">工具</span><span class="new">补充</span></div>
       <p class="idea"><b>本质</b>：队列是「先进先出」。<code>deque</code>（双端队列）两端都能进出，是「0-1 BFS」「单调队列」「滑动窗口」的基础容器。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- queue ----------
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <deque>、<queue>、<utility>
+// ---------- queue ----------
 queue<int> q;  q.push(1); q.front(); q.back(); q.pop(); q.empty();
 
 // ---------- deque：两端都能进出 ----------
@@ -1223,13 +1361,23 @@ while(!dq2.empty()){
         <span class="t">✅ 0-1 BFS 为什么比 Dijkstra 好</span>
         <p>Dijkstra 要堆，复杂度 O(m log n)；0-1 BFS 只要 deque，复杂度 <b>O(n + m)</b>。代价是它要求边权只能是 0 或 1。看到「边权非 0 即 1」立刻想到它。</p>
       </div>
+      <div class="box tip">
+        <span class="t">🔎 queue 与 deque 的成员函数</span>
+        <dl class="fn">
+          <dt>queue&lt;T&gt;（&lt;queue&gt;）</dt><dd><code>push(x)</code> / <code>emplace(x)</code>：把元素放到<b>队尾</b>，O(1)。<br><code>front()</code>：取<b>队首</b>元素（不删除），O(1)。<br><code>pop()</code>：删除队首元素，O(1)。<b>注意它不返回值</b> —— 想「取出并删掉」要写 <code>T x = q.front(); q.pop();</code>，这是初学者最常踩的一个坑。<br><code>empty()</code> / <code>size()</code>：判空 / 求元素个数。<br><b>越界行为</b>：对空队列取 front 或 pop 是未定义行为，可能直接崩 —— <b>先判 empty 再取</b>。</dd>
+          <dt>deque&lt;T&gt;（&lt;deque&gt;，double-ended queue）</dt><dd><code>push_back(x)</code> / <code>pop_back()</code>：尾部进出，均摊 O(1)。<br><code>push_front(x)</code> / <code>pop_front()</code>：头部进出，均摊 O(1)。<br><code>front()</code> / <code>back()</code>：看两端元素（不删除）。<br><code>clear()</code>：清空。<br><code>operator[]</code>：<b>支持随机访问</b>（<code>dq[2]</code>），这是 queue 没有的。<br><b>复杂度</b>：两端增删都是均摊 O(1)；中间插入删除是 O(n)。</dd>
+          <dt>什么时候用哪个</dt><dd><b>queue</b>：只需要「队尾进、队首出」—— BFS、拓扑排序。<br><b>deque</b>：两端都要操作 —— 单调队列、0-1 BFS。<br><b>vector</b>：只在尾部操作、且需要频繁随机访问 —— 邻接表、普通数组。<br>竞赛里如果想省事，用 <code>deque</code> 或 <code>vector</code> 手动模拟 queue 也很常见（比 STL 快一些，而且能取任意位置）。</dd>
+          <dt>手写队列</dt><dd><b>写法</b>：<code>int que[N], head = 0, tail = 0;</code> 区间约定为 <code>[head, tail)</code>。<br><code>que[tail++] = x;</code> 入队，<code>int u = que[head++];</code> 出队，<code>head &lt; tail</code> 表示非空。<br><b>好处</b>：比 STL 快；而且队里可以同时存多个数组（比如同时存点编号和距离）；BFS 里还能直接按层遍历（记录当前层的 tail）。</dd>
+        </dl>
+      </div>
       <p class="tl"><b>题单</b>洛谷 P1996 约瑟夫问题 · P2058 海港 · P1443 马的遍历 · P4667 [BalticOI2011] 电路维修（0-1 BFS）。</p>
     </article>
 
     <article class="algo" data-cat="数据结构" data-new="1" data-name="单调队列 滑动窗口 最大值 最小值">
       <div class="ah"><h4>3. 单调队列：滑动窗口最值</h4><span class="lv lv-b">基础</span><span class="st">★★★</span><span class="tag">高频</span><span class="new">补充</span></div>
       <p class="idea"><b>本质</b>：用一个双端队列维护「当前窗口内<b>单调</b>的候选集合」。队首是窗口最值；队尾插入新元素时把「比它没用的」弹掉；队首过期了就弹掉。<b>每个元素最多进出各一次 → O(n)</b>。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 求每个长度为 k 的窗口的最小值（最大值把两处比较反号即可）
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <iostream>、<deque>
+// 求每个长度为 k 的窗口的最小值（最大值把两处比较反号即可）
 deque<int> dq;                     // 存下标，队列里对应的值单调递增
 for(int i = 1; i <= n; ++i){
     // ① 队尾：把「比新元素大或相等」的全部弹掉（它们永远不可能再成为最小值）
@@ -1259,7 +1407,8 @@ for(int i = 1; i <= n; ++i){
     <article class="algo" data-cat="数据结构" data-new="1" data-name="堆 优先队列 对顶堆 大根堆 小根堆">
       <div class="ah"><h4>4. 堆与优先队列（含对顶堆）</h4><span class="lv lv-b">基础</span><span class="st">★★★</span><span class="tag">必会</span><span class="new">补充</span></div>
       <p class="idea"><b>本质</b>：堆能 O(1) 取最值、O(log n) 插入和删除。它解决的是「<b>在动态变化的数据里反复取最大/最小</b>」这类问题。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 大根堆（默认）----------
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>、<vector>、<queue>、<functional>、<utility>
+// ---------- 大根堆（默认）----------
 priority_queue<int> big;
 
 // ---------- 小根堆 ----------
@@ -1290,13 +1439,23 @@ int median(){ return L.top(); }    // 中位数（偶数个时取偏小的那个
         <span class="t">⚠️ priority_queue 的运算符方向最容易记反</span>
         <p><code>priority_queue&lt;T&gt;</code> 默认是<b>大根堆</b>，因为它内部用 <code>less&lt;T&gt;</code> 比较，<b>「较小的」被判定为「优先级低」</b>。所以自定义结构体时，想在堆顶放「值最大的」，就写 <code>return x.val &lt; y.val;</code>。<b>记忆口诀：堆顶永远是「不小于号指向的那一方」。</b></p>
       </div>
+      <div class="box tip">
+        <span class="t">🔎 priority_queue 的模板参数与成员函数</span>
+        <dl class="fn">
+          <dt>priority_queue&lt;T&gt;</dt><dd><b>默认是什么</b>：<b>大根堆</b>，也就是 <code>top()</code> 给出<b>最大</b>的元素。<br><b>三个模板参数</b>（需要小根堆时必须写全）：<br><code>priority_queue&lt;T, Container, Compare&gt;</code><br><b>① T</b>：元素类型，如 <code>int</code>、<code>pair&lt;int,int&gt;</code>。<br><b>② Container</b>：底层容器，必须支持随机访问，默认 <code>vector&lt;T&gt;</code>，通常照抄 <code>vector&lt;T&gt;</code> 就行。<br><b>③ Compare</b>：比较器，默认 <code>less&lt;T&gt;</code>。<b>规则是「比较器认为较小的元素优先级低、沉在下面」</b>，所以想小根堆就传 <code>greater&lt;T&gt;</code>（在 <code>&lt;functional&gt;</code> 里）。</dd>
+          <dt>top() / push() / pop() / empty() / size()</dt><dd><code>top()</code>：看堆顶（最值），<b>O(1)</b>。<br><code>push(x)</code>：插入并调整，<b>O(log n)</b>。<br><code>pop()</code>：删除堆顶，<b>O(log n)</b>。和 queue 一样，<b>它不返回值</b>。<br><code>empty()</code> / <code>size()</code>：判空 / 元素个数。<br><code>emplace(...)</code>：用参数原地构造元素，比 push 少一次拷贝（C++11 起）。<br><b>没有的功能</b>：不能遍历、不能删除任意元素、不能改堆里的值。需要这些就得换 <code>set</code>（O(log n) 但支持删除）或「懒删除」技巧。</dd>
+          <dt>pair 的比较规则</dt><dd><code>pair&lt;A,B&gt;</code> 的 <code>&lt;</code> 定义是：<b>先比 first，first 相等再比 second</b>。<br>所以 <code>priority_queue&lt;pair&lt;int,int&gt;, vector&lt;pair&lt;int,int&gt;&gt;, greater&lt;&gt;&gt;</code> 会按 first 从小到大出队 —— 这正是 Dijkstra 里「按距离出队」想要的效果，不用自己写比较函数。<br><code>greater&lt;&gt;</code> 里的空尖括号是 C++14 起的「透明比较器」，编译器能自动推导类型，等价于 <code>greater&lt;pair&lt;int,int&gt;&gt;</code>。</dd>
+          <dt>重载 operator&lt; 给自定义结构体</dt><dd><b>写法</b>：在结构体外面（或里面）写全局的 <code>bool operator&lt;(const Node &amp;a, const Node &amp;b)</code>。<br><b>方向提醒</b>：<code>priority_queue</code> 用的是 <code>less</code> 语义，即「<code>a &lt; b</code> 为真」表示 <b>a 的优先级更低、要沉下去</b>。所以想让「val 大的在堆顶」，就写 <code>return a.val &lt; b.val;</code>。<br><b>口诀</b>：堆顶永远是「小于号指向的那一方」。</dd>
+        </dl>
+      </div>
       <p class="tl"><b>题单</b>洛谷 P3378「模板」堆 · P1090 合并果子 · P1168 中位数（对顶堆）· P1801 黑匣子 · P2278 操作系统（模拟 + 堆）。</p>
     </article>
 
     <article class="algo" data-cat="数据结构" data-new="1" data-name="并查集 路径压缩 按秩合并 扩展域 带权">
       <div class="ah"><h4>5. 并查集（含扩展域与带权）</h4><span class="lv lv-b">基础</span><span class="st">★★★</span><span class="tag">必背</span><span class="new">补充</span></div>
       <p class="idea"><b>本质</b>：维护「元素之间的连通关系」——<b>合并两个集合、查询两个元素是否同属一个集合</b>，两个操作几乎 O(1)（严格说是反阿克曼函数）。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 基本并查集（路径压缩 + 按秩合并）----------
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>
+// ---------- 基本并查集（路径压缩 + 按秩合并）----------
 int fa[N], sz[N];
 void init(int n){ for(int i = 1; i <= n; i++){ fa[i] = i; sz[i] = 1; } }
 
@@ -1437,7 +1596,8 @@ long long query(int p, int l, int r, int ql, int qr){
     <article class="algo" data-cat="数据结构" data-new="1" data-name="ST表 RMQ 区间最值 稀疏表">
       <div class="ah"><h4>8. ST 表：O(1) 的静态区间最值</h4><span class="lv lv-b">基础</span><span class="st">★★★</span><span class="tag">必会</span><span class="new">补充</span></div>
       <p class="idea"><b>本质</b>：<b>倍增思想</b>。预处理 <code>st[j][i]</code> = 从 i 开始、长度为 2ʲ 的区间的最值。回答 [l, r] 时，用<b>两个长度为 2ᵏ 的区间拼起来覆盖它</b>（允许重叠），因为最值「重复算不改变结果」，于是 O(1) 出答案。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">int st[20][N];                      // 20 ≈ log2(10^6)
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>
+int st[20][N];                      // 20 ≈ log2(10^6)
 int LOG[N];
 
 void build(int n){
@@ -1469,7 +1629,8 @@ int queryMin(int l, int r){
     <article class="algo" data-cat="数据结构" data-name="Trie 字典树 前缀树">
       <div class="ah"><h4>9. Trie 字典树</h4><span class="lv lv-b">基础</span><span class="st">★★★</span><span class="tag">必会</span></div>
       <p class="idea"><b>本质</b>：把字符串按<b>公共前缀</b>合并成一棵树。插入和查询都是 O(长度)，与集合大小无关。它的价值在于「<b>共享前缀</b>」——这恰好是很多字符串问题的结构。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">int ch[N][26], cntNode, exist[N];
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <string>
+int ch[N][26], cntNode, exist[N];
 // exist[u]：以 u 结尾的字符串数量。若只判存在，用 bool
 
 void insert(const string &s){
@@ -1522,7 +1683,8 @@ int ask(int x){                       // 返回能和 x 异或出的最大值
     <article class="algo" data-cat="数据结构" data-new="1" data-name="字符串哈希 hash 双哈希 冲突">
       <div class="ah"><h4>10. 字符串哈希：把字符串变成一个数</h4><span class="lv lv-b">基础</span><span class="st">★★★</span><span class="tag">高频实用</span><span class="new">补充</span></div>
       <p class="idea"><b>本质</b>：把字符串看成一个 <code>B</code> 进制的大整数，对模数取模。这样「<b>判断两个子串是否相等</b>」就变成「比较两个整数」，O(1) 完成——比 KMP 简单太多，能解决 KMP 解决不了的一大批问题。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 单哈希（够用，但存在被卡的风险）----------
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <string>、<utility>
+// ---------- 单哈希（够用，但存在被卡的风险）----------
 const unsigned long long B = 131;            // 用 unsigned long long 的自然溢出代替取模
 unsigned long long h[N], pw[N];
 
@@ -1562,7 +1724,8 @@ pair<long long,long long> h1[N], h2[N];
     <article class="algo" data-cat="数据结构" data-name="KMP next数组 字符串匹配 前缀函数">
       <div class="ah"><h4>11. KMP 算法</h4><span class="lv lv-b">基础</span><span class="st">★★★★</span><span class="tag">必背</span></div>
       <p class="idea"><b>本质</b>：当匹配失败时，<b>不要回到开头重来</b>，而是利用「已匹配部分的最长公共前后缀」跳到一个更靠后的位置继续。这个信息就是 <code>next</code> 数组（也叫前缀函数 π）。<b>总复杂度 O(n + m)。</b></p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- next 数组：nxt[i] = p[1..i] 的最长公共前后缀长度（1-indexed）----------
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <vector>、<string>
+// ---------- next 数组：nxt[i] = p[1..i] 的最长公共前后缀长度（1-indexed）----------
 vector<int> getNext(const string &p, int m){   // p 下标从 0 开始存放
     vector<int> nxt(m + 1, 0);
     nxt[1] = 0;
@@ -1616,7 +1779,8 @@ vector<int> kmp(const string &s, const string &p){
     <article class="algo" data-cat="数据结构" data-name="set map 平衡树 STL 容器">
       <div class="ah"><h4>12. set / map 与平衡树思想</h4><span class="lv lv-e">入门</span><span class="st">★★★</span><span class="tag">实用</span></div>
       <p class="idea"><b>本质</b>：<code>set</code>/<code>map</code> 底层是<b>红黑树（一种平衡二叉搜索树）</b>，所以查找、插入、删除都是 O(log n)，并且<b>天然有序</b>。它解决的是「需要动态维护有序集合 + 查前驱后继 / 排名」这类问题。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- set：有序不重复集合 ----------
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <iostream>、<algorithm>、<vector>、<string>、<set>、<map>、<unordered_map>、<utility>
+// ---------- set：有序不重复集合 ----------
 set<int> s;
 s.insert(x);  s.erase(x);  s.count(x);  s.size();
 auto it = s.lower_bound(x);      // 第一个 >= x 的位置
@@ -1656,6 +1820,18 @@ auto p = lower_bound(vp.begin(), vp.end(), make_pair(k, -1));</script></div>
         <span class="t">⚠️ multiset 的 erase 陷阱</span>
         <p><code>ms.erase(3)</code> 会删掉<b>所有</b>值为 3 的元素并返回删除个数，而不是只删一个。只想删一个必须写 <code>ms.erase(ms.find(3))</code>。这个坑在竞赛里坑过无数人。</p>
       </div>
+      <div class="box tip">
+        <span class="t">🔎 set / map 的成员函数</span>
+        <dl class="fn">
+          <dt>s.insert(x)</dt><dd><b>作用</b>：插入元素（<code>set</code> 会自动去重、自动保持有序），O(log n)。<br><b>返回值</b>：<code>pair&lt;iterator, bool&gt;</code> —— <b>第二项表示是否真的插入了</b>（false 说明本来就有）。判断「有没有重复插入」就靠它。<br>对 <code>map</code> 是 <code>insert({key, value})</code>，语义相同。</dd>
+          <dt>s.erase(...)　★ 两个版本完全不同</dt><dd><b>按值删</b>：<code>s.erase(x)</code> —— 删掉<b>所有</b>值为 x 的元素，返回删除的个数。对 <code>multiset</code> 来说这就是「一次删光」。<br><b>按迭代器删</b>：<code>s.erase(it)</code> —— 只删这一个，返回下一个元素的迭代器。<br><b>只想删一个怎么办</b>：<code>ms.erase(ms.find(x));</code> —— 先找到再按迭代器删。<b>这是 multiset 的头号坑。</b></dd>
+          <dt>s.count(x) / s.find(x)</dt><dd><code>count(x)</code>：值为 x 的元素个数。对 <code>set</code> 只有 0 或 1，对 <code>multiset</code> 是实际个数。<b>注意它的复杂度是 O(log n + 出现次数)</b>。<br><code>find(x)</code>：返回指向 x 的迭代器，找不到返回 <code>s.end()</code>。判断「在不在」时 <code>find</code> 和 <code>count</code> 都行，O(log n)。</dd>
+          <dt>s.lower_bound(x) / s.upper_bound(x)</dt><dd><b>含义</b>和全局的 <code>std::lower_bound</code> 一样（第一个 ≥ x / 第一个 &gt; x），但<b>必须用成员函数</b>：<code>s.lower_bound(x)</code>，O(log n)。<br><b>为什么</b>：全局版需要随机访问迭代器，而 set 的迭代器是双向的，调用全局版会退化成 O(n)。<br><b>经典用法</b>：求前驱和后继 —— <code>auto it = s.lower_bound(x);</code> 是后继；<code>if(it != s.begin()) --it;</code> 得到前驱。</dd>
+          <dt>prev(it) / next(it)（&lt;iterator&gt;）</dt><dd><b>作用</b>：返回迭代器向前 / 向后移动一步的副本，不会改变原迭代器。<br><code>prev(s.end())</code> 就是「最后一个元素」（<code>end()</code> 指向最后一个元素的<b>后面</b>）。<br><b>陷阱</b>：对 <code>begin()</code> 求 <code>prev</code>、对 <code>end()</code> 求 <code>next</code> 都是越界，必须先判边界。</dd>
+          <dt>map 的 operator[]　★ 会「凭空创建」</dt><dd><b>作用</b>：<code>mp[key]</code> 返回 value 的引用。<br><b>关键坑</b>：如果 key <b>不存在</b>，<code>operator[]</code> 会<b>插入一个默认值</b>（数值 0、字符串空）。所以「只想查、不想改」时应该用 <code>mp.count(k)</code> 或 <code>mp.find(k)</code>。<br><b>后果</b>：在多测 / 统计类题目里，无意中的 <code>mp[x]</code> 会把 size 撑大，导致答案错。<br><b>安全版</b>：<code>mp.at(k)</code> 在 key 不存在时抛异常（比赛里一般不推荐抛异常）；C++17 起可以用 <code>mp.contains(k)</code> 判断。</dd>
+          <dt>um.reserve(n)</dt><dd><b>作用</b>：给 <code>unordered_map</code> / <code>unordered_set</code> 预留足够的桶数，避免反复 rehash。<br><b>为什么需要</b>：不定量插入 10⁶ 个元素时，容器会多次重新分配哈希表，既慢又可能在中途爆内存；预估好容量能显著提速。<br><b>顺带提醒</b>：<code>unordered_*</code> 平均 O(1)，但出题人如果知道默认哈希函数，可以构造出让所有元素落进同一个桶的数据，把它卡成 O(n) —— 需要防卡时改用 <code>map</code>（稳定 O(log n)）或自定义哈希函数。</dd>
+        </dl>
+      </div>
       <p class="tl"><b>题单</b>洛谷 P1097 统计数字 · P1102 A−B 数对 · P1054 等价表达式 · P5250「深基17.例5」木材仓库（前驱后继）。</p>
     </article>
   </div>
@@ -1678,7 +1854,8 @@ auto p = lower_bound(vp.begin(), vp.end(), make_pair(k, -1));</script></div>
         <b>④ 填表顺序是什么？</b>保证「用到的状态已经算好」。<br>
         <b>⑤ 答案在哪个状态里？</b>（<code>dp[n][m]</code>？还是所有状态取最值？）</p>
       </div>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 以「数字三角形」为例，走一遍五步法
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>
+// 以「数字三角形」为例，走一遍五步法
 // ① 状态：dp[i][j] = 从顶部走到第 i 行第 j 列的最大路径和
 // ② 转移：dp[i][j] = max(dp[i-1][j-1], dp[i-1][j]) + a[i][j]
 // ③ 边界：dp[1][1] = a[1][1]
@@ -1711,7 +1888,8 @@ for(int i = 1; i <= n; i++)
     <article class="algo" data-cat="动态规划" data-name="线性 DP LIS LCS 最长上升子序列 最长公共子序列 最大子段和">
       <div class="ah"><h4>2. 线性 DP：LIS / LCS / 最大子段和</h4><span class="lv lv-b">基础</span><span class="st">★★★★</span><span class="tag">必考</span></div>
       <p class="idea"><b>本质</b>：状态是一维的（「前 i 个元素」），沿序列从左到右推进。这三个是最基础的模型，但变体极多。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- ① 最长上升子序列 LIS：O(n^2) ----------
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>、<vector>
+// ---------- ① 最长上升子序列 LIS：O(n^2) ----------
 int dp[N], ans = 0;
 for(int i = 1; i <= n; ++i){
     dp[i] = 1;                                  // 至少包含自己
@@ -1766,7 +1944,8 @@ for(int i = 1; i <= n; ++i){
         <tr><td><b>多重背包</b></td><td>最多 cᵢ 次</td><td class="c">二进制拆分后当 01 背包</td><td class="c">O(V·Σlog cᵢ)</td></tr>
         <tr><td><b>分组背包</b></td><td>每组最多选 1 个</td><td class="c">先枚举组，再容量，再组内物品</td><td class="c">O(Σnᵢ·V)</td></tr>
       </table>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- ① 01 背包 ----------
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>、<utility>
+// ---------- ① 01 背包 ----------
 for(int i = 1; i <= n; ++i)
     for(int j = V; j >= w[i]; --j)          // ★ 倒序！保证每件只用一次
         f[j] = max(f[j], f[j - w[i]] + v[i]);
@@ -1820,7 +1999,8 @@ for(int i = 1; i <= n; ++i)
     <article class="algo" data-cat="动态规划" data-name="区间 DP 石子合并 回文 括号匹配">
       <div class="ah"><h4>4. 区间 DP</h4><span class="lv lv-b">基础</span><span class="st">★★★★</span><span class="tag">必会</span></div>
       <p class="idea"><b>本质</b>：状态是<b>一个区间</b> <code>dp[l][r]</code>，转移是「枚举分割点 k，把区间拆成两半」。所以必须<b>先枚举区间长度，再枚举起点</b>——保证小区间先算好。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 标准骨架：石子合并（直线版）----------
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>
+// ---------- 标准骨架：石子合并（直线版）----------
 // dp[l][r] = 把 a[l..r] 合并成一堆的最小代价
 int pre[N];                                  // 前缀和，用于 O(1) 取区间和
 for(int len = 2; len <= n; ++len)            // ★ 第一层：长度
@@ -1851,7 +2031,8 @@ for(int len = 2; len <= n; ++len)            // ★ 第一层：长度
     <article class="algo" data-cat="动态规划" data-name="树形 DP 树上背包 没有上司的舞会">
       <div class="ah"><h4>5. 树形 DP</h4><span class="lv lv-b">基础</span><span class="st">★★★</span><span class="tag">必会</span></div>
       <p class="idea"><b>本质</b>：在树上做 DP。<b>递归回溯时把子树的信息合并到父节点</b>——这正好和 DFS 的顺序天然契合。状态通常形如 <code>dp[u][0/1]</code>：u 选 / 不选、u 是黑 / 是白。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 模板：没有上司的舞会 ----------
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>
+// ---------- 模板：没有上司的舞会 ----------
 // 题意：每个员工有快乐值，若直接上司参加舞会则自己不参加。求最大总快乐值
 int dp[N][2];      // dp[u][0]：u 不参加；dp[u][1]：u 参加
 void dfs(int u, int fa){
@@ -1893,7 +2074,8 @@ void dfs(int u){
     <article class="algo" data-cat="动态规划" data-name="状压 DP 状态压缩 二进制 旅行商">
       <div class="ah"><h4>6. 状态压缩 DP</h4><span class="lv lv-b">基础</span><span class="st">★★★★</span><span class="tag">必考</span></div>
       <p class="idea"><b>本质</b>：当状态是「一个<b>集合</b>」（谁被选了、哪些位置放了棋子）且元素个数 n ≤ 20 时，用一个整数的二进制位表示这个集合，<b>整数就是状态</b>。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 模板：旅行商问题 TSP（n <= 20，求最小哈密顿回路）----------
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <cstring>、<algorithm>
+// ---------- 模板：旅行商问题 TSP（n <= 20，求最小哈密顿回路）----------
 // dp[S][i] = 已访问集合为 S、当前在 i 的最小花费
 int dp[1 << 20][20];
 memset(dp, 0x3f, sizeof dp);
@@ -1929,7 +2111,8 @@ for(int i = 0; i < n; ++i) ans = min(ans, dp[full][i] + cost[i][0]);
     <article class="algo" data-cat="动态规划" data-new="1" data-name="数位 DP digit dp 统计 计数">
       <div class="ah"><h4>7. 数位 DP：统计「区间内有多少个满足条件的数」</h4><span class="lv lv-a">进阶</span><span class="st">★★★★</span><span class="tag">模板题高频</span><span class="new">补充</span></div>
       <p class="idea"><b>本质</b>：按<b>位</b>从高位到低位填数字，用一个「是否贴住上界」的标志 <code>limit</code> 控制取值范围。答案用 <code>solve(R) − solve(L−1)</code> 得到区间计数。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 模板：统计 [L, R] 中满足条件的数的个数（这里以「不含数字 4」为例）
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <cstring>、<algorithm>
+// 模板：统计 [L, R] 中满足条件的数的个数（这里以「不含数字 4」为例）
 int a[20], len;
 long long dp[20][2];                     // dp[pos][limit]，实际题目状态按需增加
 
@@ -1973,7 +2156,8 @@ long long solve(long long x){            // 求 [1, x] 的答案
     <article class="algo" data-cat="动态规划" data-new="1" data-name="DP 优化 滚动数组 前缀和优化 单调队列优化">
       <div class="ah"><h4>8. DP 优化入门：滚动数组 / 前缀和 / 单调队列</h4><span class="lv lv-a">进阶</span><span class="st">★★★★</span><span class="tag">提分点</span><span class="new">补充</span></div>
       <p class="idea"><b>本质</b>：先把 DP 写对（哪怕超时），再观察转移式里「重复计算的部分」，用数据结构把它压成 O(1)。<b>写对 → 优化，顺序不能反。</b></p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- ① 滚动数组：空间从 O(nm) 降到 O(m) ----------
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>、<deque>
+// ---------- ① 滚动数组：空间从 O(nm) 降到 O(m) ----------
 // 前提：这一维的状态只依赖上一维
 for(int i = 1; i <= n; ++i)
     for(int j = 0; j <= m; ++j)
@@ -2014,7 +2198,8 @@ for(int i = 1; i <= n; ++i){
 
     <article class="algo" data-cat="图论" data-name="建图 邻接表 邻接矩阵 前向星 链式前向星">
       <div class="ah"><h4>1. 建图与图遍历</h4><span class="lv lv-e">入门</span><span class="st">★★★</span><span class="tag">地基</span></div>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- ① vector 邻接表：最好写，推荐 ----------
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <vector>、<utility>
+// ---------- ① vector 邻接表：最好写，推荐 ----------
 vector<int> g[N];
 g[u].push_back(v);  g[v].push_back(u);        // 无向图加两条
 // 带权：
@@ -2056,7 +2241,8 @@ int dx[4] = {0,0,1,-1}, dy[4] = {1,-1,0,0};
     <article class="algo" data-cat="图论" data-name="拓扑排序 DAG 入度 关键路径">
       <div class="ah"><h4>2. 拓扑排序</h4><span class="lv lv-b">基础</span><span class="st">★★★</span><span class="tag">必会</span></div>
       <p class="idea"><b>本质</b>：在有向无环图（DAG）上给出一个「所有边都从前指向后」的线性顺序。<b>Kahn 算法</b>：反复取出入度为 0 的点，把它指向的点的入度减 1。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">int deg[N];                         // 入度
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>、<vector>、<queue>、<functional>、<utility>
+int deg[N];                         // 入度
 vector<int> ord;
 queue<int> q;
 for(int i = 1; i <= n; ++i) if(deg[i] == 0) q.push(i);
@@ -2122,7 +2308,8 @@ for(int k = 1; k <= n; ++k)
     <article class="algo" data-cat="图论" data-name="Dijkstra 单源最短路 堆优化 松弛">
       <div class="ah"><h4>4. 最短路之二：Dijkstra（单源、非负权）</h4><span class="lv lv-b">基础</span><span class="st">★★★★</span><span class="tag">必背</span></div>
       <p class="idea"><b>本质</b>：贪心。每次取出「当前距离最小的未确定节点」，它的距离就确定下来了（因为边权非负，绕路不可能更短），然后拿它去<b>松弛</b>邻居。用堆优化后是 O(m log n)。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">const int INF = 0x3f3f3f3f;
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <cstring>、<algorithm>、<vector>、<queue>、<functional>、<utility>
+const int INF = 0x3f3f3f3f;
 int dist[N];  bool vis[N];
 vector<pair<int,int>> g[N];              // {终点, 边权}
 
@@ -2170,7 +2357,8 @@ void dijkstra(int s, int n){
     <article class="algo" data-cat="图论" data-name="Bellman-Ford SPFA 负环 差分约束">
       <div class="ah"><h4>5. 最短路之三：Bellman-Ford 与 SPFA</h4><span class="lv lv-b">基础</span><span class="st">★★★</span><span class="tag">负权 / 判环</span></div>
       <p class="idea"><b>本质</b>：所有点一起松弛，重复 n−1 轮。<b>SPFA</b> 是它的队列优化版：只有「距离被更新过」的点才需要继续松弛别人。SPFA 能处理负权、能判负环，但<b>最坏复杂度 O(nm)，会被特殊数据卡掉</b>。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- Bellman-Ford：n-1 轮全量松弛 ----------
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <cstring>、<queue>、<utility>
+// ---------- Bellman-Ford：n-1 轮全量松弛 ----------
 for(int i = 1; i < n; ++i)
     for(int e = 1; e <= m; ++e)
         if(dist[eu[e]] + ew[e] < dist[ev[e]])
@@ -2213,7 +2401,8 @@ void spfa(int s){
     <article class="algo" data-cat="图论" data-name="最小生成树 MST Kruskal Prim 并查集">
       <div class="ah"><h4>6. 最小生成树：Kruskal 与 Prim</h4><span class="lv lv-b">基础</span><span class="st">★★★</span><span class="tag">必会</span></div>
       <p class="idea"><b>Kruskal（边驱动）</b>：把所有边按权从小到大排序，依次尝试加入，<b>用并查集判断会不会成环</b>。<b>Prim（点驱动）</b>：从一个点出发，每次把「距离已选集合最近的点」拉进来（用堆维护）。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- Kruskal：O(m log m)，稀疏图首选，最好写 ----------
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>、<vector>、<queue>、<functional>、<utility>
+// ---------- Kruskal：O(m log m)，稀疏图首选，最好写 ----------
 struct Edge { int u, v, w; };
 bool cmp(const Edge &a, const Edge &b){ return a.w < b.w; }
 
@@ -2257,7 +2446,8 @@ while(!pq.empty()){
     <article class="algo" data-cat="图论" data-new="1" data-name="LCA 最近公共祖先 倍增 欧拉序">
       <div class="ah"><h4>7. LCA：最近公共祖先</h4><span class="lv lv-b">基础</span><span class="st">★★★★</span><span class="tag">必会</span><span class="new">补充</span></div>
       <p class="idea"><b>本质</b>：求树上两点的「分叉点」。<b>倍增法</b>：预处理每个点向上跳 2ʲ 步到达的祖先，查询时先让深的跳到同层，再一起往上跳。<b>它还能顺便求树上两点距离：<code>dist = dep[u] + dep[v] − 2·dep[lca]</code></b>。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">int dep[N], up[20][N];               // up[j][u] = u 向上跳 2^j 步到的点
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>
+int dep[N], up[20][N];               // up[j][u] = u 向上跳 2^j 步到的点
 
 void dfs(int u, int fa){
     up[0][u] = fa;
@@ -2294,7 +2484,8 @@ int dis = dep[u] + dep[v] - 2 * dep[lca(u, v)];
     <article class="algo" data-cat="图论" data-new="1" data-name="Tarjan 强连通分量 SCC 缩点 dfn low">
       <div class="ah"><h4>8. Tarjan 强连通分量与缩点</h4><span class="lv lv-a">进阶</span><span class="st">★★★★</span><span class="tag">补充</span><span class="new">补充</span></div>
       <p class="idea"><b>本质</b>：一次 DFS，用 <code>dfn</code>（时间戳）和 <code>low</code>（能回溯到的最早时间戳）判断「一个点是不是某个强连通分量的根」。把每个 SCC 缩成一个点之后，图就变成 <b>DAG</b>，于是可以上拓扑排序 + DP。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">int dfn[N], low[N], timer, scc[N], cntSCC, val[N], sum[N];
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>
+int dfn[N], low[N], timer, scc[N], cntSCC, val[N], sum[N];
 int stk[N], top;  bool inStk[N];
 
 void tarjan(int u){
@@ -2338,7 +2529,8 @@ for(int u = 1; u <= n; ++u)
     <article class="algo" data-cat="图论" data-new="1" data-name="割点 桥 割边 点双 边双">
       <div class="ah"><h4>9. 割点与桥</h4><span class="lv lv-a">进阶</span><span class="st">★★★★</span><span class="tag">补充</span><span class="new">补充</span></div>
       <p class="idea"><b>本质</b>：<b>割点</b>是删掉后图不再连通的点；<b>桥</b>是删掉后图不再连通的边。用 Tarjan 的 <code>dfn</code>/<code>low</code> 就能 O(n+m) 全部找出来。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 割点判定 ----------
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>
+// ---------- 割点判定 ----------
 void tarjan(int u, int root){
     dfn[u] = low[u] = ++timer;
     int child = 0;                          // 搜索树上的儿子数
@@ -2384,7 +2576,8 @@ void tarjan2(int u, int inEdge){
     <article class="algo" data-cat="图论" data-new="1" data-name="二分图 染色 匈牙利 最大匹配 增广路">
       <div class="ah"><h4>10. 二分图：判定与匈牙利匹配</h4><span class="lv lv-a">进阶</span><span class="st">★★★★</span><span class="tag">补充</span><span class="new">补充</span></div>
       <p class="idea"><b>本质</b>：二分图是「点能分成两半、所有边都跨两半」的图。判定方法是<b>黑白染色</b>（DFS/BFS 交替染色，冲突即不是二分图）。<b>匈牙利算法</b>通过反复找「增广路」求最大匹配，复杂度 O(n·m)。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- ① 二分图判定：黑白染色 ----------
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <cstring>、<queue>
+// ---------- ① 二分图判定：黑白染色 ----------
 int col[N];                            // 0 = 未染色，1 / 2 = 两种颜色
 bool check(int n){
     for(int s = 1; s <= n; ++s){
@@ -2442,7 +2635,8 @@ int hungarian(){
         <tr><td><b>无向图</b></td><td class="c">所有点度数为偶数</td><td class="c">恰好 0 个或 2 个奇度点</td></tr>
         <tr><td><b>有向图</b></td><td class="c">每个点入度 = 出度</td><td class="c">恰一个点出−入=1，一个点入−出=1，其余相等</td></tr>
       </table>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- Hierholzer：求有向图的欧拉路 / 回路 ----------
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <vector>
+// ---------- Hierholzer：求有向图的欧拉路 / 回路 ----------
 // 关键点：把边「用掉就删」，回溯时把点压入答案
 vector<int> ans;
 void dfs(int u){
@@ -2497,6 +2691,14 @@ if((S & T) == S) { /* S ⊆ T */ }
 // ② 异或的逆运算是自己 → 前缀异或可以 O(1) 求区间异或
 // ③ 按位独立 → 可以逐位统计（贡献法）</script></div>
       <div class="ex"><b>例题</b>：<code>__builtin_popcount(x)</code> 返回 x 的二进制中 1 的个数（GCC 内置，O(1)）；<code>__builtin_ctz(x)</code> 返回末尾 0 的个数。洛谷 P1469 找筷子 —— 2n−1 根筷子，异或一遍就能找出唯一落单的那根。</div>
+      <div class="box tip">
+        <span class="t">🔎 三个编译器内建函数（不需要头文件）</span>
+        <dl class="fn">
+          <dt>__builtin_popcount(unsigned x)</dt><dd><b>作用</b>：返回 x 的二进制里 <b>1 的个数</b>（也叫 popcount、汉明重量）。<br><b>复杂度</b>：O(1) —— 编译成一条 CPU 指令（POPCNT），比循环数位快几十倍。<br><b>参数类型</b>：<code>unsigned int</code>。要数 64 位就加后缀：<code>__builtin_popcountll(x)</code>。<br><b>说明</b>：这是 <b>GCC / Clang 的扩展</b>，不是 C++ 标准库的一部分。换了编译器（比如 MSVC）要用 <code>__popcnt</code> 或 <code>&lt;bit&gt;</code>（C++20）。</dd>
+          <dt>__builtin_ctz(x)</dt><dd><b>作用</b>：count trailing zeros —— 返回二进制里<b>末尾连续的 0 的个数</b>。<br><b>等价关系</b>：<code>1 &lt;&lt; __builtin_ctz(x)</code> 就是 <code>x &amp; (-x)</code>，也就是 lowbit（树状数组用的那个）。<br><b>大坑</b>：<code>__builtin_ctz(0)</code> 是<b>未定义行为</b>（没有末尾 0 可数），会返回随机值。用之前必须先判 <code>x != 0</code>。<br><b>兄弟函数</b>：<code>__builtin_clz(x)</code> = 开头连续 0 的个数（同样，<code>clz(0)</code> 未定义）。</dd>
+          <dt>怎么自己算（不依赖内建函数）</dt><dd><b>数 1 的个数</b>：<code>while(x){ cnt += x &amp; 1; x &gt;&gt;= 1; }</code>，O(位数)。<br><b>更快的手写版</b>：<code>while(x){ x &amp;= x - 1; ++cnt; }</code> —— 每次 <code>x &amp; (x-1)</code> 都会消掉最低位的 1，循环次数等于 1 的个数。<br><b>取 lowbit</b>：<code>x &amp; (-x)</code>。这个写法依赖<b>补码</b>表示法，而所有现代平台都用补码，可以放心用。</dd>
+        </dl>
+      </div>
       <p class="tl"><b>题单</b>洛谷 P1469 找筷子 · P1100 高低位交换 · P2114 [NOI2014] 起床困难综合症 · P3908 数列求和。</p>
     </article>
 
@@ -2550,7 +2752,8 @@ Mat mpow(Mat M, long long e, long long m){
     <article class="algo" data-cat="数学" data-new="1" data-name="GCD EXGCD 扩展欧几里得 不定方程">
       <div class="ah"><h4>3. GCD 与扩展欧几里得</h4><span class="lv lv-b">基础</span><span class="st">★★★</span><span class="tag">必背</span><span class="new">补充</span></div>
       <p class="idea"><b>本质</b>：<code>gcd(a, b) = gcd(b, a mod b)</code>，三行代码。<b>EXGCD</b> 在求 gcd 的同时，顺便求出满足 <code>a·x + b·y = gcd(a, b)</code> 的一组整数解——它是求逆元、解同余方程、解不定方程的基础。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- ① 辗转相除 ----------
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <numeric>
+// ---------- ① 辗转相除 ----------
 int gcd(int a, int b){ return b ? gcd(b, a % b) : a; }
 int lcm(int a, int b){ return a / gcd(a, b) * b; }   // ★ 先除再乘，防溢出
 // 用内置函数更快：__gcd(a, b)；C++17 起可用 std::gcd
@@ -2577,6 +2780,15 @@ long long exgcd(long long a, long long b, long long &x, long long &y){
 // ---------- ⑤ 费马小定理求逆元（m 为质数时最简）----------
 // a^(m-1) ≡ 1 (mod m)  →  a^(-1) ≡ a^(m-2) (mod m)
 long long inv(long long a, long long m){ return qpow(a, m - 2, m); }</script></div>
+      <div class="box tip">
+        <span class="t">🔎 gcd / lcm / __gcd 的区别</span>
+        <dl class="fn">
+          <dt>__gcd(a, b)</dt><dd><b>作用</b>：求最大公约数，<b>GCC / Clang 的扩展函数</b>（不在 <code>&lt;algorithm&gt;</code> 的正式文档里，但 <code>&lt;bits/stdc++.h&gt;</code> 或 <code>&lt;algorithm&gt;</code> 能带出来）。<br><b>参数</b>：两个整数，返回它们的最大公约数；<code>__gcd(a, 0) = a</code>。<br><b>缺点</b>：换到 MSVC 就没有这个函数了。</dd>
+          <dt>std::gcd(a, b) / std::lcm(a, b)（C++17，&lt;numeric&gt;）</dt><dd><b>作用</b>：标准库版本，语义和上面一样，但可移植。<br><b>注意</b>：需要 C++17（洛谷默认是 C++14，提交时要在「语言」下拉框里选 C++17，否则会编译错误）。<br><b>负数</b>：标准规定结果非负，<code>gcd(-4, 6) = 2</code>。</dd>
+          <dt>lcm 为什么总是「先除后乘」</dt><dd><b>公式</b>：<code>lcm(a, b) = a / gcd(a, b) * b</code>。<br><b>不能写成</b> <code>a * b / gcd(a, b)</code> —— a、b 都是 10⁹ 时，<code>a * b</code> 先算出来就溢出 int 了，结果是垃圾值。<br><b>口诀</b>：<b>先除后乘，能除就除。</b>这个习惯在组合数、概率 DP 里同样重要。</dd>
+          <dt>手写辗转相除（必须会默写）</dt><dd><b>递归版</b>：<code>int gcd(int a, int b){ return b ? gcd(b, a % b) : a; }</code><br><b>迭代版</b>：<code>while(b){ int t = a % b; a = b; b = t; } return a;</code><br><b>复杂度</b>：O(log min(a, b))（拉梅定理）。<br><b>为什么能这么写</b>：<code>gcd(a, b) == gcd(b, a % b)</code>，因为任何同时整除 a、b 的数也整除 <code>a - kb</code>，反之亦然。</dd>
+        </dl>
+      </div>
       <p class="tl"><b>题单</b>洛谷 P1082 [NOIP2012] 同余方程 · P5656「模板」二元一次不定方程 · P4549「模板」裴蜀定理 · P2054 [SHOI2008] 方块序列。</p>
     </article>
 
@@ -2727,7 +2939,8 @@ long long catalan(int n){
     <article class="algo" data-cat="数学" data-name="容斥原理 并集 至少">
       <div class="ah"><h4>7. 容斥原理</h4><span class="lv lv-b">基础</span><span class="st">★★★</span><span class="tag">思想</span></div>
       <p class="idea"><b>本质</b>：求「至少满足一个条件」的个数时，<b>加单数、减双数、加三数……</b>。更常用的表述是「<b>总数 − 一个都不满足</b>」。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 两个集合：|A ∪ B| = |A| + |B| - |A ∩ B|
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <vector>、<numeric>
+// 两个集合：|A ∪ B| = |A| + |B| - |A ∩ B|
 // 三个集合：|A ∪ B ∪ C| = |A|+|B|+|C| - |A∩B|-|A∩C|-|B∩C| + |A∩B∩C|
 
 // ---------- 用二进制枚举实现 k 个集合的容斥 ----------
@@ -2758,7 +2971,8 @@ long long count(long long n, vector<long long> &p){
     <article class="algo" data-cat="数学" data-new="1" data-name="高斯消元 线性方程组 矩阵 消元">
       <div class="ah"><h4>8. 高斯消元</h4><span class="lv lv-a">进阶</span><span class="st">★★★</span><span class="tag">模板</span><span class="new">补充</span></div>
       <p class="idea"><b>本质</b>：把增广矩阵做初等行变换化成「上三角」，再回代求解。也可以直接消成「单位矩阵」，那样右端就是答案。<b>O(n³)。</b></p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 解 n 元线性方程组，a[i][n] 是常数列
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>、<cmath>
+// 解 n 元线性方程组，a[i][n] 是常数列
 int gauss(double a[][N], int n){           // 返回 1 有唯一解，0 无解，-1 无穷多解
     for(int c = 0, r = 0; c < n && r < n; ++c){
         int p = r;
@@ -2791,6 +3005,15 @@ int gauss(double a[][N], int n){           // 返回 1 有唯一解，0 无解�
 // ---------- 应用：矩阵求逆 / 求行列式 ----------
 // 求逆：在右侧拼一个单位矩阵，消元后右边就是逆矩阵
 // 行列式：消成上三角后，对角元相乘（换行要变号）</script></div>
+      <div class="box tip">
+        <span class="t">🔎 fabs 与 abs：浮点题的头号陷阱</span>
+        <dl class="fn">
+          <dt>fabs(x)（&lt;cmath&gt;）</dt><dd><b>作用</b>：求浮点数的绝对值，返回 <code>double</code>。<b>参数</b>可以是 int / double / long double。<br><b>在几何和高斯消元里的用法</b>：判断「是否为 0」不能写 <code>x == 0</code>（浮点有误差），要写 <code>fabs(x) &lt; 1e-9</code>，这个 1e-9 叫 <b>epsilon（eps）</b>。<br><b>eps 怎么取</b>：和数据的量级有关。一般 <code>1e-9</code> 够用；如果坐标是 10⁹ 级别的整数，除法后误差会放大，改用 <code>1e-6</code> 更稳；判断「两数相等」时用 <code>fabs(a-b) &lt; 1e-9</code> 而不是 <code>a == b</code>。</dd>
+          <dt>abs(x)（&lt;cstdlib&gt; 整数版 / &lt;cmath&gt; 浮点版）</dt><dd><b>致命坑</b>：只 <code>#include &lt;cstdlib&gt;</code> 时，<code>abs</code> 只有<b>整数</b>重载。写 <code>abs(3.14)</code> 会被<b>隐式截断成 3</b>，再返回 int 3 —— 看起来没错，但结果完全不对，而且不报错。<br><b>正确做法</b>：浮点一律用 <code>fabs</code>；或者同时 <code>#include &lt;cmath&gt;</code> 用 <code>std::abs</code> 的重载版本。<br><b>整数用 abs 也要小心</b>：<code>abs(INT_MIN)</code> 是未定义行为（−(−2³¹) 溢出）。</dd>
+          <dt>sqrt / pow / exp / log（&lt;cmath&gt;）</dt><dd><b>sqrt(x)</b>：平方根，返回 double，O(1)（硬件指令级）。<b>输入负数返回 NaN</b>，不会报错，会静默错下去。<br><b>pow(a, b)</b>：幂，返回 double。★ <b>整数幂不要用它</b> —— 它是浮点运算，算 10¹⁸ 这类大数会丢精度，而且慢。整数幂用快速幂，或直接乘。<br><b>exp(x) / log(x)</b>：e 的幂 / 自然对数。求 log₂ 用 <code>log(x)/log(2)</code> 或 <code>log2(x)</code>；取位数用 <code>log10(x)</code>。<br><b>floor / ceil / round</b>：下取整 / 上取整 / 四舍五入，返回<b>仍是 double</b>，要转 int 记得 <code>(int)floor(x)</code>。</dd>
+          <dt>浮点比较的正确姿势</dt><dd><b>错误</b>：<code>if(a == b)</code>、<code>if(a &gt; b)</code> —— 0.1+0.2 != 0.3 就是这个原因。<br><b>正确</b>：<code>if(fabs(a - b) &lt; 1e-9)</code> 判相等；比较大小用 <code>if(a - b &gt; 1e-9)</code> 表示「严格大于」。<br><b>更好的做法</b>：能不进浮点就别进 —— 判两向量方向用叉积的<b>符号</b>（整数坐标时叉积是整数，可以精确比较），这比算角度可靠得多。</dd>
+        </dl>
+      </div>
       <p class="tl"><b>题单</b>洛谷 P3389「模板」高斯消元法 · P2455 [SDOI2006] 线性方程组 · P2962 [USACO09NOV] Lights Out G（异或方程组）。</p>
     </article>
 
@@ -2804,7 +3027,8 @@ int gauss(double a[][N], int n){           // 返回 1 有唯一解，0 无解�
         <tr><td><b>威佐夫博弈</b></td><td>两堆，可取一堆任意个或两堆同数</td><td>必败 ⟺ 两堆之差 × 1.618… = 较小堆</td></tr>
         <tr><td><b>SG 定理</b></td><td>任意公平组合游戏</td><td>先手必胜 ⟺ <b>各子游戏 SG 值的异或 ≠ 0</b></td></tr>
       </table>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- Nim 游戏 ----------
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <iostream>、<cstring>、<vector>
+// ---------- Nim 游戏 ----------
 int x = 0;
 for(int i = 1; i <= n; ++i) x ^= a[i];
 cout << (x ? "First" : "Second") << endl;
@@ -2834,7 +3058,8 @@ void initSG(int n, const vector<int> &moves){    // moves = 允许走的步数�
     <article class="algo" data-cat="数学" data-name="高精度 大整数 加减乘除">
       <div class="ah"><h4>10. 高精度</h4><span class="lv lv-b">基础</span><span class="st">★★</span><span class="tag">模板</span></div>
       <p class="idea"><b>本质</b>：用数组模拟竖式，<b>低位存在数组前面</b>（因为进位是从低位往高位走的）。<code>int</code> 能装约 2×10⁹，<code>long long</code> 约 9×10¹⁸，超过就得手写。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">vector<int> add(const vector<int> &A, const vector<int> &B){
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <vector>
+vector<int> add(const vector<int> &A, const vector<int> &B){
     vector<int> C;
     for(size_t i = 0, t = 0; i < A.size() || i < B.size() || t; ++i){
         if(i < A.size()) t += A[i];
@@ -2877,7 +3102,8 @@ vector<int> mul(const vector<int> &A, const vector<int> &B){
     <article class="algo" data-cat="字符串" data-new="1" data-name="Manacher 马拉车 最长回文子串">
       <div class="ah"><h4>1. Manacher：O(n) 求最长回文子串</h4><span class="lv lv-a">进阶</span><span class="st">★★★★</span><span class="tag">必背</span><span class="new">补充</span></div>
       <p class="idea"><b>本质</b>：在字符间插入分隔符（如 <code>#</code>），把「奇回文」和「偶回文」统一成奇回文。然后利用<b>回文的对称性</b>——已算出的回文信息可以直接「镜像」给右边的新位置，避免重复扩展。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// s 是原串（0-indexed），返回最长回文子串长度
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>、<vector>、<string>
+// s 是原串（0-indexed），返回最长回文子串长度
 int manacher(const string &s){
     string t = "^#";
     for(char c : s){ t += c; t += '#'; }
@@ -2914,7 +3140,8 @@ int manacher(const string &s){
     <article class="algo" data-cat="字符串" data-new="1" data-name="Z函数 扩展KMP exKMP">
       <div class="ah"><h4>2. Z 函数（扩展 KMP）</h4><span class="lv lv-a">进阶</span><span class="st">★★★★</span><span class="tag">补充</span><span class="new">补充</span></div>
       <p class="idea"><b>本质</b>：<code>z[i]</code> = 「原串与自己的后缀 <code>s[i..]</code> 的最长公共前缀长度」。它比 KMP 更通用——把模式串和文本串拼成 <code>p + '#' + s</code> 跑一遍 Z 函数，就能得到「每个位置开始能匹配多长」，从而一次解决几乎所有线性匹配问题。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">vector<int> zFunction(const string &s){
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>、<vector>、<string>
+vector<int> zFunction(const string &s){
     int n = s.size();
     vector<int> z(n, 0);
     z[0] = n;                                  // 约定
@@ -2952,7 +3179,8 @@ int manacher(const string &s){
     <article class="algo" data-cat="字符串" data-new="1" data-name="AC自动机 多模式匹配 fail树 Tire图">
       <div class="ah"><h4>3. AC 自动机：多模式串匹配</h4><span class="lv lv-a">进阶</span><span class="st">★★★★</span><span class="tag">必会</span><span class="new">补充</span></div>
       <p class="idea"><b>本质</b>：<b>Trie 树 + KMP 的失配指针</b>。把一堆模式串建 Trie，然后给每个节点求出 <code>fail</code> 指针（「失配时该跳到哪个节点」），最后拿文本串在图上跑一遍，就能同时找出所有模式串的出现位置。<b>O(总模式串长度 + 文本串长度 + 命中次数)。</b></p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">int ch[N][26], fail[N], cnt[N], tot = 0;
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <queue>、<string>
+int ch[N][26], fail[N], cnt[N], tot = 0;
 
 void insert(const string &s){
     int u = 0;
@@ -3009,7 +3237,8 @@ int query(const string &s){                    // 统计命中的模式串个数
     <article class="algo" data-cat="字符串" data-new="1" data-name="后缀数组 SA height 后缀自动机 SAM 概念">
       <div class="ah"><h4>4. 后缀数组与后缀自动机（概念地图）</h4><span class="lv lv-a">进阶</span><span class="st">★★★★</span><span class="tag">进阶方向</span><span class="new">补充</span></div>
       <p class="idea"><b>本质</b>：把字符串的<b>所有后缀按字典序排序</b>放进一个数组，就是后缀数组 <code>sa</code>。排序后相邻两个后缀的最长公共前缀记为 <code>height</code>。有了这两样，一大类「子串相关问题」都能变成区间最值问题。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 后缀数组：倍增 + 基数排序，O(n log n) ----------
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>、<cmath>
+// ---------- 后缀数组：倍增 + 基数排序，O(n log n) ----------
 // sa[i]   = 排名为 i 的后缀的起始下标
 // rk[i]   = 后缀 i 的排名（rk 与 sa 互为逆排列）
 // height[i] = LCP(sa[i-1], sa[i])，即相邻两个后缀的最长公共前缀
@@ -3091,7 +3320,8 @@ int query(int i){ return a[i] + tag[bel[i]]; }
     <article class="algo" data-cat="进阶" data-new="1" data-name="莫队 离线 分块排序 吉司机">
       <div class="ah"><h4>2. 莫队算法</h4><span class="lv lv-a">进阶</span><span class="st">★★★★</span><span class="tag">离线神器</span><span class="new">补充</span></div>
       <p class="idea"><b>本质</b>：如果一个问题能<b>在 O(1) 内「增加/删除一个元素」来维护答案</b>，那么把所有询问按「左端点所在块」排序，右端点在同一块内单调移动，就能让两个指针总共只移动 O(n√m) 步。<b>经典的「离线暴力。」</b></p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 普通莫队：求区间内有多少个不同的数（洛谷 P1972 / P2709）
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>、<cmath>
+// 普通莫队：求区间内有多少个不同的数（洛谷 P1972 / P2709）
 int n, m, B, cur;
 int a[N], cnt[N], ans[N];
 struct Q { int l, r, id; } q[N];
@@ -3126,7 +3356,8 @@ int main(){
     <article class="algo" data-cat="进阶" data-new="1" data-name="树链剖分 重链剖分 HLD 路径操作">
       <div class="ah"><h4>3. 树链剖分</h4><span class="lv lv-a">进阶</span><span class="st">★★★★</span><span class="tag">树上路径</span><span class="new">补充</span></div>
       <p class="idea"><b>本质</b>：把树按「重儿子」剖成若干条<b>重链</b>，然后按 DFS 序把节点排成一维数组——<b>每条重链在这条数组里是连续的一段</b>。于是「树上路径的修改/查询」就变成「对 O(log n) 段连续区间做线段树操作」。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">int sz[N], son[N], fa[N], dep[N];      // 子树大小、重儿子、父亲、深度
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>
+int sz[N], son[N], fa[N], dep[N];      // 子树大小、重儿子、父亲、深度
 int top[N], dfn[N], rnk[N], timer;     // 所在链的链顶、DFS 序、序对应节点
 
 void dfs1(int u, int f){                // 第一次：求 sz / son / dep
@@ -3195,7 +3426,8 @@ int query(int u, int v, int l, int r, int k){       // v 是右版本，u 是左
     <article class="algo" data-cat="进阶" data-new="1" data-name="网络流 最大流 Dinic 最小割 二分图">
       <div class="ah"><h4>5. 网络流：最大流（Dinic）</h4><span class="lv lv-a">进阶</span><span class="st">★★★★</span><span class="tag">建模能力</span><span class="new">补充</span></div>
       <p class="idea"><b>本质</b>：在一个有容量的有向图上，从源点往汇点「输水」，求最大流量。<b>Dinic</b> 的做法是反复 BFS 分层 + DFS 多路增广，复杂度 O(n²m)。<b>难点从来不是写模板，而是把实际问题建网络。</b></p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">struct Edge { int to, cap, rev; };
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <cstring>、<algorithm>、<vector>、<queue>
+struct Edge { int to, cap, rev; };
 vector<Edge> g[N];
 int level[N], iter[N];
 
@@ -3251,7 +3483,8 @@ int dinic(int s, int t){
     <article class="algo" data-cat="进阶" data-new="1" data-name="计算几何 叉积 点积 凸包 旋转卡壳">
       <div class="ah"><h4>6. 计算几何基础</h4><span class="lv lv-a">进阶</span><span class="st">★★★</span><span class="tag">坐标题</span><span class="new">补充</span></div>
       <p class="idea"><b>本质</b>：一切几何判断都可以归结为<b>两个运算</b>——<b>叉积</b>判方向（左/右/共线），<b>点积</b>判角度（锐/直/钝）。把这两个用熟，几何题就变成了「套公式 + 判精度」。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">struct Pt { double x, y; };
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>、<vector>、<cmath>
+struct Pt { double x, y; };
 Pt operator-(Pt a, Pt b){ return {a.x - b.x, a.y - b.y}; }
 double cross(Pt a, Pt b){ return a.x * b.y - a.y * b.x; }   // 叉积：判方向
 double dot  (Pt a, Pt b){ return a.x * b.x + a.y * b.y; }   // 点积：判角度
@@ -3300,7 +3533,8 @@ vector<Pt> convexHull(vector<Pt> p){
     <article class="algo" data-cat="进阶" data-new="1" data-name="随机化 模拟退火 爬山 随机哈希">
       <div class="ah"><h4>7. 随机化：模拟退火与随机哈希</h4><span class="lv lv-a">进阶</span><span class="st">★★★</span><span class="tag">骗分利器</span><span class="new">补充</span></div>
       <p class="idea"><b>本质</b>：当问题「难以精确求解」或者「不确定自己的做法对不对」时，用随机化。<b>模拟退火</b>在解空间里随机游走，以一定概率接受变差的解从而跳出局部最优；<b>随机哈希</b>用随机参数抵抗构造数据。</p>
-      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 模拟退火：求函数最小值 ----------
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <cmath>、<cstdlib>、<random>
+// ---------- 模拟退火：求函数最小值 ----------
 double ans = 1e18, ansX;
 double T = 3000;                    // 初始温度
 while(T > 1e-12){
@@ -3330,6 +3564,15 @@ const unsigned long long B = rng();          // 每次运行底数都不同，�
       <div class="box warn">
         <span class="t">⚠️ 随机化算法要「多跑几次」</span>
         <p>模拟退火的单次结果是不确定的，正确用法是：<b>循环 5~20 次取最优值</b>，并且把初始解设为「贪心/暴力得到的较优解」而不是纯随机。另外注意 OJ 上通常<b>没有真正的随机</b>（固定种子），要用 <code>chrono</code> 或 <code>time(0)</code> 播种。</p>
+      </div>
+      <div class="box tip">
+        <span class="t">🔎 想要真正好的随机数：mt19937</span>
+        <dl class="fn">
+          <dt>mt19937 是什么</dt><dd><b>全名</b>：Mersenne Twister（梅森旋转）32 位版本，在 <code>&lt;random&gt;</code> 里（C++11）。<br><b>为什么比 rand() 好</b>：周期长达 2¹⁹⁹³⁷−1、分布均匀、速度快，而且范围是整个 32 位无符号整数（不是 rand() 在 Windows 上的可怜 32767）。<br><b>用法</b>：<code>mt19937 rng(seed);</code> 然后用 <code>rng()</code> 取值。</dd>
+          <dt>怎么播种才不会「每次都一样」</dt><dd><b>常见写法</b>：<code>mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());</code><br><b>拆解</b>：<code>steady_clock::now()</code> 取当前时刻（纳秒级），<code>.time_since_epoch()</code> 变成时段，<code>.count()</code> 转成整数当作种子。因为纳秒级、几乎不可能重复，所以每次运行都不一样。<br><b>为什么要用 steady_clock 而不是 system_clock</b>：steady 是单调时钟，不受系统时间被改动的影响。</dd>
+          <dt>uniform_int_distribution&lt;int&gt;(l, r)</dt><dd><b>作用</b>：把 rng 产出的均匀 32 位整数，映射成 <code>[l, r]</code> 上的<b>真正均匀</b>分布。<br><b>用法</b>：<code>uniform_int_distribution&lt;int&gt; dist(1, 100); int x = dist(rng);</code><br><b>为什么不能直接 rng() % 100</b>：取模会引入偏差（模不整除 2³² 时，小的余数出现概率略高）。要均匀分布就得用 distribution。<br><b>实数版</b>：<code>uniform_real_distribution&lt;double&gt;(0.0, 1.0)</code>。</dd>
+          <dt>shuffle(first, last, rng)</dt><dd><b>作用</b>：把区间随机打乱（需要 <code>&lt;algorithm&gt;</code> 和 <code>&lt;random&gt;</code>）。<br><b>参数</b>：区间的两个迭代器 + 一个随机数引擎。<b>返回值</b>：无。<b>复杂度</b>：O(n)。<br><b>典型用途</b>：随机化贪心（打乱后贪一遍，多跑几次取最优）、造随机排列的测试数据。<br><b>别再用</b> <code>random_shuffle</code> —— 它在 C++17 里已经被移除了。</dd>
+        </dl>
       </div>
       <p class="tl"><b>题单</b>洛谷 P1337 [JSOI2004] 平衡点 · P2503 [HAOI2006] 均分数据 · P3878 [TJOI2010] 分金币 · P2210 Haywire。</p>
     </article>
@@ -3387,7 +3630,9 @@ const unsigned long long B = rng();          // 每次运行底数都不同，�
         H = 37 时：5 + 3 + 9 = 17 &lt; 20 ❌ → 所以答案是 36。</p>
 
         <h4>完整代码</h4>
-        <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">#include <bits/stdc++.h>
+        <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">#include <iostream>   // cin / cout / endl
+#include <algorithm>  // max / min
+
 using namespace std;
 int n;
 long long m, h[1000005];
@@ -3467,7 +3712,9 @@ int main(){
         第二行最大值同理。两组结果均已用独立实现跑过，与官方样例一致。</p>
 
         <h4>完整代码（一次循环求最小值，第二次求最大值）</h4>
-        <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">#include <bits/stdc++.h>
+        <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">#include <iostream>   // cin / cout
+#include <deque>      // deque（双端队列）
+
 using namespace std;
 int n, k, a[1000005];
 
@@ -3547,7 +3794,8 @@ No</pre></div>
         所以「1 和 4」Yes、「2 和 3」Yes、「5 和 6」No。</p>
 
         <h4>完整代码</h4>
-        <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">#include <bits/stdc++.h>
+        <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">#include <iostream>   // cin / cout
+
 using namespace std;
 int fa[5005];
 
@@ -3617,7 +3865,9 @@ int main(){
         <p style="font-size:13px;color:var(--text-3)">第一株要 71 分钟 &gt; 70，采不了。第二株（69, 1）+ 第三株（1, 2）= 70 分钟、价值 3，正好装满。所以答案是 3。</p>
 
         <h4>完整代码（一维滚动写法）</h4>
-        <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">#include <bits/stdc++.h>
+        <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">#include <iostream>   // cin / cout / endl
+#include <algorithm>  // max
+
 using namespace std;
 int f[1005];
 
@@ -3684,7 +3934,13 @@ int main(){
         <p style="font-size:13px;color:var(--text-3)">1→1 距离 0；1→2 直连 2；1→3 走 1→2→3 = 4（比直连 5 短）；1→4 走 1→2→4 = 3（比直连 4 短）。</p>
 
         <h4>完整代码（可直接提交）</h4>
-        <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">#include <bits/stdc++.h>
+        <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">#include <iostream>   // cin / cout
+#include <vector>     // vector（邻接表）
+#include <queue>      // priority_queue（优先队列）
+#include <functional> // greater（让小根堆生效）
+#include <utility>    // pair / make_pair
+#include <cstring>    // memset
+
 using namespace std;
 const int N = 100005, INF = 0x3f3f3f3f;
 struct Edge { int to, w; };
@@ -3782,7 +4038,9 @@ int main(){
         该结果已用独立实现跑过，与官方样例完全一致。</p>
 
         <h4>完整代码</h4>
-        <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">#include <bits/stdc++.h>
+        <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">#include <iostream>   // cin / cout / endl
+#include <string>     // string / to_string
+
 using namespace std;
 
 long long countDigit(long long n, int d){      // [1, n] 中数码 d 出现的次数
@@ -4169,6 +4427,96 @@ long long exgcd(long long a,long long b,long long &amp;x,long long &amp;y){
   </div>
 </section>
 
+<!-- ================= 13 · 附录 A：函数速查 ================= -->
+<section class="sec" id="s13">
+  <h2 class="clk"><span class="num">A</span>附录 · 常用函数速查表（共 50 条）<span class="caret">▾</span><span class="fold-hint"></span></h2>
+  <div class="secbody">
+    <p class="lead">本文出现的每一个「不是自己写的函数」都在下面。<b>"常见坑"那一列是重点</b>——竞赛里绝大部分 WA / RE / TLE 都来源于它。记忆建议：<b>不要背，写代码时用到了回来查一遍</b>，写三四次自然就记住了。</p>
+    <p class="lead" style="font-size:13.3px">说明：<b>复杂度</b>一列里的 n 指容器 / 区间的元素个数；标「均摊」表示个别操作可能慢，但连续 n 次操作的总代价是 O(n)。</p>
+    <h3>A · 输入输出</h3>
+    <table>
+      <tr><th>函数 / 用法</th><th>头文件</th><th>作用 · 参数 · 返回值</th><th class="c">复杂度</th><th>常见坑</th></tr>
+      <tr><td class="mono">cin &gt;&gt; x</td><td class="mono">&lt;iostream&gt;</td><td>从标准输入读一个值，返回流本身的引用（可链式 <code>cin&gt;&gt;a&gt;&gt;b</code>）。读失败时流为 false，<code>while(cin&gt;&gt;n)</code> 靠这个收尾。</td><td class="c">O(1)</td><td>关掉 sync 后不能再混用 printf / scanf。</td></tr>
+      <tr><td class="mono">cout &lt;&lt; x</td><td class="mono">&lt;iostream&gt;</td><td>往标准输出写一个值，返回流引用。</td><td class="c">O(1)</td><td>输出量大时用 <code>"\n"</code> 而不是 <code>endl</code>。</td></tr>
+      <tr><td class="mono">endl</td><td class="mono">&lt;iostream&gt;</td><td>换行 <b>并强制 flush 缓冲区</b>。</td><td class="c">O(1)+flush</td><td>flush 很贵，10⁶ 行会明显变慢 —— 换行只写 <code>"\n"</code>。</td></tr>
+      <tr><td class="mono">ios::sync_with_stdio(false)</td><td class="mono">&lt;iostream&gt;</td><td>关闭 C 流与 C++ 流的同步，cin 提速 2~5 倍。</td><td class="c">调用一次</td><td>必须放 main 第一行；之后 <b>禁止</b>混用 printf/scanf。</td></tr>
+      <tr><td class="mono">cin.tie(0)</td><td class="mono">&lt;iostream&gt;</td><td>解除 cin 对 cout 的自动 flush（默认每次读之前都刷一次）。</td><td class="c">调用一次</td><td>交互题不要关，否则提示语发不出去。</td></tr>
+      <tr><td class="mono">printf / scanf</td><td class="mono">&lt;cstdio&gt;</td><td>C 风格格式化输入输出。<code>%d</code> int、<code>%lld</code> long long、<code>%.2f</code> 两位小数、<code>%5d</code> 定宽。</td><td class="c">O(1)</td><td>用 <code>%d</code> 输出 long long 是未定义行为。</td></tr>
+      <tr><td class="mono">getchar() / putchar(c)</td><td class="mono">&lt;cstdio&gt;</td><td>读 / 写单个字符，快读快写的基石。</td><td class="c">O(1)</td><td><code>getchar</code> 返回 <b>int</b> 不是 char（要能表示 EOF = −1）。</td></tr>
+    </table>
+    <h3>B · 容器与容器操作</h3>
+    <table>
+      <tr><th>函数 / 用法</th><th>头文件</th><th>作用 · 参数 · 返回值</th><th class="c">复杂度</th><th>常见坑</th></tr>
+      <tr><td class="mono">vector&lt;int&gt; v(n)</td><td class="mono">&lt;vector&gt;</td><td>构造长度为 n 的数组，元素默认初始化为 0。</td><td class="c">O(n)</td><td>大数组别开在 main 里（爆栈），放全局或用 vector。</td></tr>
+      <tr><td class="mono">v.push_back(x) / v.pop_back()</td><td class="mono">&lt;vector&gt;</td><td>尾部追加 / 删除一个元素。</td><td class="c">均摊 O(1)</td><td>push_back 触发扩容会让<b>已有迭代器 / 指针失效</b>。</td></tr>
+      <tr><td class="mono">v.size()</td><td class="mono">&lt;vector&gt;</td><td>返回元素个数，类型是 <b>无符号</b> <code>size_t</code>。</td><td class="c">O(1)</td><td><code>v.size()-1</code> 在 v 为空时是个巨大的正数！建议写 <code>(int)v.size()</code>。</td></tr>
+      <tr><td class="mono">q.push(x) / q.front() / q.pop()</td><td class="mono">&lt;queue&gt;</td><td>入队尾 / 看队首 / 删队首。</td><td class="c">均摊 O(1)</td><td><b>pop 不返回值</b>：要 <code>T x=q.front(); q.pop();</code>；空队列取 front 是未定义行为。</td></tr>
+      <tr><td class="mono">dq.push_front / push_back / pop_front / pop_back</td><td class="mono">&lt;deque&gt;</td><td>双端队列，两端都能进出；还支持 <code>dq[i]</code> 随机访问。</td><td class="c">均摊 O(1)</td><td>中间插入删除是 O(n)；单调队列 / 0-1 BFS 用它。</td></tr>
+      <tr><td class="mono">pq.top() / pq.push(x) / pq.pop()</td><td class="mono">&lt;queue&gt;</td><td>优先队列（堆）取堆顶 / 插入 / 删堆顶。</td><td class="c">top O(1)，push/pop O(log n)</td><td>不能遍历、不能删任意元素；<b>小根堆要写全三个模板参数</b>。</td></tr>
+      <tr><td class="mono">priority_queue&lt;T, vector&lt;T&gt;, greater&lt;T&gt;&gt;</td><td class="mono">&lt;queue&gt;+&lt;functional&gt;</td><td>构造小根堆。三个参数：元素类型 / 底层容器 / 比较器。</td><td class="c">—</td><td><code>greater</code> 让「小的」优先级高、浮到堆顶。</td></tr>
+      <tr><td class="mono">st.push / st.top() / st.pop()</td><td class="mono">&lt;stack&gt;</td><td>栈的入栈 / 看栈顶 / 出栈。</td><td class="c">均摊 O(1)</td><td><b>top 不删除</b>，和 queue 的命名习惯不同，别记混。</td></tr>
+      <tr><td class="mono">s.insert(x)</td><td class="mono">&lt;set&gt;&lt;map&gt;</td><td>插入（自动去重、自动有序），返回 <code>pair&lt;iterator,bool&gt;</code>，bool 表示是否真的插入。</td><td class="c">O(log n)</td><td>可以用返回值判断「是不是重复了」。</td></tr>
+      <tr><td class="mono">ms.erase(x) vs ms.erase(it)</td><td class="mono">&lt;set&gt;</td><td>按值删 -> 删掉<b>全部</b>等于 x 的元素；按迭代器删 -> 只删这一个。</td><td class="c">O(log n + 个数) / O(log n)</td><td>multiset 想只删一个必须写 <code>ms.erase(ms.find(x))</code>。</td></tr>
+      <tr><td class="mono">s.count(x) / s.find(x)</td><td class="mono">&lt;set&gt;</td><td>统计个数 / 返回迭代器（找不到是 <code>s.end()</code>）。</td><td class="c">O(log n)</td><td><code>count</code> 对 multiset 是 O(log n + 个数)，只判存在用 <code>find</code> 更好。</td></tr>
+      <tr><td class="mono">s.lower_bound(x) / s.upper_bound(x)</td><td class="mono">&lt;set&gt;</td><td>第一个 ≥ x / 第一个 &gt; x 的位置，<b>必须用成员函数</b>。</td><td class="c">O(log n)</td><td>写成全局 <code>std::lower_bound(s.begin(), s.end(), x)</code> 会退化成 <b>O(n)</b>。</td></tr>
+      <tr><td class="mono">prev(it) / next(it)</td><td class="mono">&lt;iterator&gt;</td><td>返回迭代器前 / 后移一步的副本。</td><td class="c">O(1)</td><td><code>prev(s.begin())</code>、<code>next(s.end())</code> 都是越界。</td></tr>
+      <tr><td class="mono">mp[k] / mp.at(k) / mp.count(k)</td><td class="mono">&lt;map&gt;</td><td>下标访问 / 带检查的访问 / 存在性判断。</td><td class="c">O(log n)</td><td><b><code>mp[k]</code> 会在 k 不存在时凭空插入默认值</b>，只查不改请用 <code>count</code> / <code>find</code>。</td></tr>
+      <tr><td class="mono">um.reserve(n)</td><td class="mono">&lt;unordered_map&gt;</td><td>预留桶数，避免反复 rehash。</td><td class="c">O(n)</td><td>平均 O(1)，但可被构造数据卡到 O(n)；防卡改用 map。</td></tr>
+      <tr><td class="mono">bitset&lt;N&gt; b</td><td class="mono">&lt;bitset&gt;</td><td>定长位集，支持 <code>&amp; | ^ ~ &lt;&lt; &gt;&gt;</code> 与 <code>count()</code>，常数是 1/64。</td><td class="c">O(N/64)</td><td>N 必须是编译期常量；常用于传递闭包加速和状压。</td></tr>
+    </table>
+    <h3>C · 算法函数</h3>
+    <table>
+      <tr><th>函数 / 用法</th><th>头文件</th><th>作用 · 参数 · 返回值</th><th class="c">复杂度</th><th>常见坑</th></tr>
+      <tr><td class="mono">sort(first, last)</td><td class="mono">&lt;algorithm&gt;</td><td>区间 <code>[first, last)</code> 升序排序，不稳定。</td><td class="c">O(n log n)</td><td>闭区间要写 <code>a + n</code>，写成 <code>a + n - 1</code> 会漏掉最后一个元素。</td></tr>
+      <tr><td class="mono">sort(first, last, cmp)</td><td class="mono">&lt;algorithm&gt;</td><td>按 cmp 排序，<b>cmp 返回 true 表示 a 应排在 b 前面</b>。</td><td class="c">O(n log n)</td><td>cmp 必须满足严格弱序：<b>相等时要返回 false</b>，写成 <code>&gt;=</code> 会 RE。</td></tr>
+      <tr><td class="mono">stable_sort(first, last)</td><td class="mono">&lt;algorithm&gt;</td><td>稳定排序，相等元素保持原相对顺序。</td><td class="c">O(n log n)</td><td>题目要求「同分按输入顺序」时用它，或在 cmp 里加原始下标。</td></tr>
+      <tr><td class="mono">nth_element(first, nth, last)</td><td class="mono">&lt;algorithm&gt;</td><td>让第 nth 小的元素就位，左边都不大于它、右边都不小于它。</td><td class="c">平均 O(n)</td><td>不保证两侧有序；求第 k 小 / 中位数时比完整排序快。</td></tr>
+      <tr><td class="mono">lower_bound(first, last, x)</td><td class="mono">&lt;algorithm&gt;</td><td>有序区间里第一个 <b>≥ x</b> 的位置。</td><td class="c">O(log n)</td><td>区间<b>必须已排序</b>；减首迭代器得到下标。</td></tr>
+      <tr><td class="mono">upper_bound(first, last, x)</td><td class="mono">&lt;algorithm&gt;</td><td>有序区间里第一个 <b>&gt; x</b> 的位置。</td><td class="c">O(log n)</td><td><code>upper - lower</code> 就是 x 的出现次数。</td></tr>
+      <tr><td class="mono">unique(first, last)</td><td class="mono">&lt;algorithm&gt;</td><td>把相邻重复元素挪到后面，返回新的逻辑结尾；<b>不删除元素</b>。</td><td class="c">O(n)</td><td>必须配合 <code>v.erase(unique(...), v.end())</code> 才真正缩短；前提是已排序。</td></tr>
+      <tr><td class="mono">reverse(first, last)</td><td class="mono">&lt;algorithm&gt;</td><td>原地反转区间。</td><td class="c">O(n)</td><td>常用来「翻转后再跑一遍」处理对称问题。</td></tr>
+      <tr><td class="mono">max(a,b) / min(a,b) / swap(a,b)</td><td class="mono">&lt;algorithm&gt;</td><td>取较大 / 较小 / 交换。</td><td class="c">O(1)</td><td>两个参数类型必须一致，混用 int 和 long long 会报错。</td></tr>
+      <tr><td class="mono">fill(first, last, v)</td><td class="mono">&lt;algorithm&gt;</td><td>把区间每个<b>元素</b>赋成 v。</td><td class="c">O(n)</td><td>比 memset 安全（memset 是按字节的）。</td></tr>
+      <tr><td class="mono">next_permutation(first, last)</td><td class="mono">&lt;algorithm&gt;</td><td>把区间变成下一个字典序排列，返回是否还有下一个。</td><td class="c">O(n)</td><td>用之前必须先把序列排成升序，否则枚举不全。</td></tr>
+      <tr><td class="mono">accumulate(first, last, init)</td><td class="mono">&lt;numeric&gt;</td><td>求和（默认加法，也可传自定义运算）。</td><td class="c">O(n)</td><td><b>返回值类型由 init 决定</b>：写 <code>0</code> 会按 int 累加而溢出，写 <code>0LL</code>。</td></tr>
+      <tr><td class="mono">gcd(a,b) / lcm(a,b)</td><td class="mono">&lt;numeric&gt;（C++17）</td><td>最大公约数 / 最小公倍数。</td><td class="c">O(log n)</td><td>C++14 及以下用 GCC 扩展 <code>__gcd</code>；lcm 要「先除后乘」防溢出。</td></tr>
+      <tr><td class="mono">__builtin_popcount(x)</td><td class="mono">编译器内建（无头文件）</td><td>x 的二进制里 1 的个数。</td><td class="c">O(1)</td><td>GCC/Clang 扩展非标准；64 位用 <code>__builtin_popcountll</code>。</td></tr>
+      <tr><td class="mono">__builtin_ctz(x) / clz(x)</td><td class="mono">编译器内建（无头文件）</td><td>末尾连续 0 的个数 / 开头连续 0 的个数。</td><td class="c">O(1)</td><td><code>ctz(0)</code>、<code>clz(0)</code> 都是<b>未定义行为</b>，先判非 0。</td></tr>
+    </table>
+    <h3>D · 数学与字符串</h3>
+    <table>
+      <tr><th>函数 / 用法</th><th>头文件</th><th>作用 · 参数 · 返回值</th><th class="c">复杂度</th><th>常见坑</th></tr>
+      <tr><td class="mono">sqrt(x) / fabs(x)</td><td class="mono">&lt;cmath&gt;</td><td>平方根 / 浮点绝对值。</td><td class="c">O(1)</td><td><b>浮点绝对值必须用 fabs</b>；<code>abs</code> 在只引 &lt;cstdlib&gt; 时是整数版，会把小数截断。</td></tr>
+      <tr><td class="mono">pow(a,b) / exp(x) / log(x)</td><td class="mono">&lt;cmath&gt;</td><td>幂 / e 的幂 / 自然对数，都返回 double。</td><td class="c">O(1)</td><td>整数幂<b>不要用 pow</b>（丢精度、慢），用快速幂；负数开方返回 NaN 不报错。</td></tr>
+      <tr><td class="mono">floor / ceil / round</td><td class="mono">&lt;cmath&gt;</td><td>下取整 / 上取整 / 四舍五入，返回 double。</td><td class="c">O(1)</td><td>要当整数用必须显式 <code>(int)</code> 转换；整数除法本身已经是向下取整。</td></tr>
+      <tr><td class="mono">memset(p, byte, n)</td><td class="mono">&lt;cstring&gt;</td><td>把 n 个<b>字节</b>都设成 byte。</td><td class="c">O(n)</td><td>只能设 0 / −1 / 0x3f；<code>memset(a,0x3f,sizeof a)</code> 得到 0x3f3f3f3f = 1061109567。</td></tr>
+      <tr><td class="mono">memcpy(dst, src, n)</td><td class="mono">&lt;cstring&gt;</td><td>拷贝 n 个字节。</td><td class="c">O(n)</td><td>只用于 POD 类型；vector / string 直接赋值或用 <code>copy</code>。</td></tr>
+      <tr><td class="mono">to_string(x) / stoi(s)</td><td class="mono">&lt;string&gt;</td><td>数值转字符串 / 字符串转整数。</td><td class="c">O(位数)</td><td><code>stoi</code> 遇到非法字符抛 <code>invalid_argument</code> 异常，比赛里可以先判一遍格式。</td></tr>
+      <tr><td class="mono">s.size() / s.substr(l, len) / s.find(t)</td><td class="mono">&lt;string&gt;</td><td>长度 / 取子串 / 查找子串。</td><td class="c">size O(1)，substr O(len)，find O(n·m) 量级</td><td><code>find</code> 返回 <code>size_t</code>，找不到是 <code>string::npos</code>（不是 −1，别用 int 接）。</td></tr>
+      <tr><td class="mono">s[i] / s.c_str() / s.empty()</td><td class="mono">&lt;string&gt;</td><td>取字符（可修改）/ 转 C 风格字符串 / 判空。</td><td class="c">O(1)</td><td><code>s[i]</code> 不做越界检查，<code>s.at(i)</code> 会抛异常。</td></tr>
+      <tr><td class="mono">rand() / srand(seed)</td><td class="mono">&lt;cstdlib&gt;</td><td>伪随机整数（0 ~ RAND_MAX）/ 设种子。</td><td class="c">O(1)</td><td>Windows 上 RAND_MAX 只有 <b>32767</b>；不设种子每次序列相同；<code>rand()%n</code> 分布有偏。</td></tr>
+      <tr><td class="mono">mt19937 rng(seed)</td><td class="mono">&lt;random&gt;</td><td>梅森旋转随机数引擎，32 位全范围、分布均匀。</td><td class="c">O(1)</td><td>要播种：<code>chrono::steady_clock::now().time_since_epoch().count()</code>。</td></tr>
+      <tr><td class="mono">uniform_int_distribution&lt;int&gt;(l,r)</td><td class="mono">&lt;random&gt;</td><td>把引擎输出映射成 [l,r] 上真正均匀的整数分布。</td><td class="c">O(1)</td><td>不要用 <code>rng() % n</code> 取范围，会引入偏差。</td></tr>
+      <tr><td class="mono">shuffle(first, last, rng)</td><td class="mono">&lt;algorithm&gt;+&lt;random&gt;</td><td>用指定引擎随机打乱区间。</td><td class="c">O(n)</td><td><code>random_shuffle</code> 在 C++17 已移除，别再用。</td></tr>
+    </table>
+    <div class="box idea">
+      <span class="t">🎯 自查：这些函数你都能说清「参数、返回值、复杂度、坑」吗</span>
+      <p>随便挑一行遮住最后一列，自己讲一遍。讲不出来就回对应的卡片重看 —— 每一行都对应正文里的某一段。</p>
+      <p><b>特别容易记错的四组：</b><ul>
+        <li><code>pop()</code> 系列（queue / stack / priority_queue）都<b>不返回值</b>，必须先 front/top 再 pop。</li>
+        <li><code>lower_bound</code> 是「≥」，<code>upper_bound</code> 是「&gt;」—— 只有 upper 跳过等于的情况。</li>
+        <li><code>memset</code> 按<b>字节</b>、<code>fill</code> 按<b>元素</b>，别混。</li>
+        <li><code>abs</code> 是整数版、<code>fabs</code> 是浮点版；浮点题写错会静默出错，不报错。</li>
+      </ul></p>
+    </div>
+
+    <div class="box ok">
+      <span class="t">✅ 关于本页所有代码的正确性</span>
+      <p>文中每个示例代码块都已<b>去掉万能头、按实际用到的库写明 <code>#include</code></b>（首行的「依赖头文件」注释就是依据），避免出现「在别的编译器上跑不起来」的模板。例题部分的样例输入 / 输出与边界结果，已用独立参考实现逐组交叉验证。</p>
+    </div>
+  </div>
+</section>
+
 <div class="daynav" style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:24px 0 8px">
   <a class="chip go" href="./index.html" style="text-decoration:none">← 学习手册（122 张算法卡）</a>
   <a class="chip go" href="./practice.html" style="text-decoration:none">题练场 · 按知识点刷题 →</a>
@@ -4181,7 +4529,7 @@ long long exgcd(long long a,long long b,long long &amp;x,long long &amp;y){
   <div class="acm-wrap acm-footer-inner">
     <div>
       <p>© 2026 校园主页 · ACM 算法子站 · 纯静态页面，进度与设置只保存在你自己的浏览器里</p>
-      <p class="acm-tiny">这份学习计划按「工具 → 思维 → 数据结构 → 专题」四层推进，含 67 张算法卡、6 篇逐行讲解的深度题解、串起全部易错点的错误总清单与一页速查卡；其中带「补充」标签的是学习手册里没有单独成卡的知识点。文中例题的样例输入 / 输出与边界结果均已用独立参考实现交叉验证。题目与题面版权归洛谷（luogu.com.cn）所有，仅作学习使用。</p>
+      <p class="acm-tiny">这份学习计划按「工具 → 思维 → 数据结构 → 专题」四层推进，含 67 张算法卡、6 篇逐行讲解的深度题解、串起全部易错点的错误总清单、一页速查卡与一张 50 条常用函数速查表；其中带「补充」标签的是学习手册里没有单独成卡的知识点。全部代码按需写 <code>#include</code>，不使用万能头。文中例题的样例输入 / 输出与边界结果均已用独立参考实现交叉验证。题目与题面版权归洛谷（luogu.com.cn）所有，仅作学习使用。</p>
     </div>
     <nav class="acm-footer-links" aria-label="页脚导航">
       <a href="./index.html">学习手册</a>
