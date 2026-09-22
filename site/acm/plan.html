@@ -364,6 +364,14 @@ details pre{background:var(--code-bg);border:1px solid var(--code-line);border-r
 .wb[data-w="star"]{background-image:var(--w-star);background-size:70px 70px}
 .wb[data-w="wave"]{background-image:var(--w-wave);background-size:cover}
 .wb[data-w="none"]{background-image:linear-gradient(135deg, rgb(148 163 184 / .18), transparent)}
+.wb[data-w="custom"]{background-size:cover;background-repeat:no-repeat;background-position:center}
+.mini{display:flex;gap:8px;margin-top:8px}
+.mini button,.mini label{flex:1;text-align:center;padding:6px 0;font-size:12px;border-radius:8px;cursor:pointer;
+  border:1px solid var(--line-2);background:rgb(var(--panel-rgb) / .5);color:var(--text-2);font-family:inherit}
+.mini button:hover,.mini label:hover{border-color:var(--accent);color:var(--text)}
+.mini input[type=file]{display:none}
+/* 自定义图片时把压暗层收薄，照片才看得清；浅色下也不额外打折 */
+html[data-wall="custom"] .bgtint{opacity:.3}
 .srow input[type=range]{width:100%;accent-color:var(--accent);margin:2px 0 0}
 .tip-line{font-size:11px;color:var(--text-3);margin-top:7px;line-height:1.5}
 @media(max-width:640px){.sheet{right:12px;left:12px;width:auto}.fab{right:12px;bottom:12px}}
@@ -4564,7 +4572,18 @@ long long exgcd(long long a,long long b,long long &amp;x,long long &amp;y){
       <div class="wb" data-w="dots"><span>圆点</span></div>
       <div class="wb" data-w="star"><span>星点</span></div>
       <div class="wb" data-w="wave"><span>斜纹</span></div>
+      <div class="wb" data-w="custom"><span>自定义</span></div>
     </div>
+    <div class="mini">
+      <label for="fileWall">上传图片</label>
+      <button id="btnClearImg" type="button">清除</button>
+    </div>
+    <input type="file" id="fileWall" accept="image/*">
+    <div class="tip-line">图片会自动压缩（长边 ≤1920px）后存在本浏览器里，不上传服务器。</div>
+  </div>
+  <div class="srow">
+    <div class="lab">壁纸可见度 <span id="valFx">55%</span></div>
+    <input type="range" id="rngFx" min="15" max="100" step="1" value="55">
   </div>
   <div class="srow">
     <div class="lab">正文字号</div>
@@ -4763,11 +4782,75 @@ long long exgcd(long long a,long long b,long long &amp;x,long long &amp;y){
     });
     LS.set('accent', hex || '');
   }
-  function setWall(w){ root.setAttribute('data-wall', w); LS.set('wall', w);
+  /* ---------- 自定义背景图 ---------- */
+  var bgfx = document.querySelector('.bgfx');
+  var IMG = LS.get('img', '');
+  var FX  = parseFloat(LS.get('fx', '55')) / 100;
+
+  function urlOf(u){ return 'url("' + u.replace(/"/g, '%22') + '")'; }
+
+  /* 把当前壁纸状态刷到 DOM：图标高亮、.bgfx 的图片、缩略图预览 */
+  function applyWall(){
+    var w = root.getAttribute('data-wall');
+    var custom = (w === 'custom' && IMG);
+    if(custom){
+      bgfx.style.backgroundImage = urlOf(IMG);
+      bgfx.style.backgroundSize = 'cover';
+      bgfx.style.backgroundRepeat = 'no-repeat';
+    } else {
+      bgfx.style.backgroundImage = '';
+      bgfx.style.backgroundSize = '';
+      bgfx.style.backgroundRepeat = '';
+    }
     Array.prototype.forEach.call(document.querySelectorAll('.wb'), function(b){
-      b.classList.toggle('on', b.getAttribute('data-w') === w);
+      var k = b.getAttribute('data-w');
+      b.classList.toggle('on', k === w);
+      if(k === 'custom') b.style.backgroundImage = IMG ? urlOf(IMG) : '';
     });
   }
+
+  function setWall(w){
+    if(w === 'custom' && !IMG){ document.getElementById('fileWall').click(); return; }   // 还没图 → 直接开文件选择
+    root.setAttribute('data-wall', w); LS.set('wall', w);
+    applyWall();
+  }
+
+  /* 大图先压到长边 1920、JPEG q=0.82 再存 —— localStorage 只有约 2.5M 字符 */
+  function shrinkImage(dataUrl, done){
+    var im = new Image();
+    im.onload = function(){
+      try {
+        var r = Math.min(1, 1920 / Math.max(im.width, im.height));
+        var c = document.createElement('canvas');
+        c.width  = Math.max(1, Math.round(im.width  * r));
+        c.height = Math.max(1, Math.round(im.height * r));
+        c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+        var out = c.toDataURL('image/jpeg', 0.82);
+        done(out.length < dataUrl.length ? out : dataUrl);
+      } catch(e){ done(dataUrl); }
+    };
+    im.onerror = function(){ done(dataUrl); };
+    im.src = dataUrl;
+  }
+
+  function useImage(dataUrl){
+    var first = (root.getAttribute('data-wall') !== 'custom');
+    shrinkImage(dataUrl, function(u){
+      IMG = u; LS.set('img', u);
+      root.setAttribute('data-wall', 'custom'); LS.set('wall', 'custom');
+      if(first && FX < 0.9) setFx(100);      /* 第一次选图，自动把可见度拉满 */
+      applyWall();
+    });
+  }
+
+  function setFx(v){
+    FX = v / 100;
+    root.style.setProperty('--fx-a', FX);
+    LS.set('fx', v);
+    var r = document.getElementById('rngFx'); if(r) r.value = v;
+    var t = document.getElementById('valFx'); if(t) t.textContent = Math.round(v) + '%';
+  }
+
   function setFs(v){ root.style.setProperty('--fs', v + 'px'); LS.set('fs', v); }
 
   // 初始化控件
@@ -4792,6 +4875,21 @@ long long exgcd(long long a,long long b,long long &amp;x,long long &amp;y){
   Array.prototype.forEach.call(document.querySelectorAll('.wb'), function(b){
     b.addEventListener('click', function(){ setWall(b.getAttribute('data-w')); });
   });
+  var fileWall = document.getElementById('fileWall');
+  fileWall.addEventListener('change', function(){
+    var f = fileWall.files && fileWall.files[0];
+    if(!f) return;
+    var rd = new FileReader();
+    rd.onload = function(){ useImage(rd.result); fileWall.value = ''; };
+    rd.readAsDataURL(f);
+  });
+  document.getElementById('btnClearImg').addEventListener('click', function(){
+    IMG = ''; LS.set('img', '');
+    root.setAttribute('data-wall', 'none'); LS.set('wall', 'none');
+    applyWall();
+  });
+  var rngFx = document.getElementById('rngFx');
+  rngFx.addEventListener('input', function(){ setFx(parseFloat(rngFx.value)); });
   var fsRange = document.getElementById('fsRange');
   fsRange.addEventListener('input', function(){ setFs(fsRange.value); });
 
@@ -4807,8 +4905,12 @@ long long exgcd(long long a,long long b,long long &amp;x,long long &amp;y){
 
   // 应用已保存的设置（首次访问时沿用文档自己声明的主题）
   setTheme(getSiteTheme(root.getAttribute('data-theme') || 'dark'));
-  setWall(LS.get('wall', root.getAttribute('data-wall') || 'none'));
   setAccent(LS.get('accent', ''));
+  var savedWall = LS.get('wall', root.getAttribute('data-wall') || 'none');
+  if(savedWall === 'custom' && !IMG) savedWall = 'none';      /* 图片被清掉时不要留下空的 custom */
+  root.setAttribute('data-wall', savedWall);
+  applyWall();
+  setFx(LS.get('fx', '55'));
   var savedFs = LS.get('fs', '14');
   fsRange.value = savedFs;
   setFs(savedFs);

@@ -118,7 +118,11 @@ body::before {
 /* 两个页面原有的壁纸层（.bgfx / .bgtint）默认透明度降低，
    免得盖过主页渐变；用户仍可在「外观」里调回。 */
 .bgtint { opacity: .55; }
-html[data-theme="light"] .bgfx { opacity: calc(var(--fx-a, 1) * .6); }
+/* 浅色下把「预设壁纸」再压淡一点（它们本来是装饰性的）。
+   注意要排除自定义图片 —— 用户自己传的照片不该再打折，否则看上去等于没生效。 */
+html[data-theme="light"]:not([data-wall="custom"]) .bgfx { opacity: calc(var(--fx-a, 1) * .6); }
+/* 自定义图片时把压暗层收薄，保证照片本身还看得清 */
+html[data-wall="custom"] .bgtint { opacity: .3; }
 
 /* 导航与页脚要压在壁纸层之上 */
 .acm-nav, .acm-footer { position: relative; z-index: 40; }

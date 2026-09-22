@@ -260,7 +260,6 @@ h2.clk:hover,h3.clk:hover{color:var(--accent)}
       <a href="./index.html" class="on" aria-current="page">学习手册</a>
       <a href="./practice.html">题练场</a>
       <a href="./plan.html">学习计划</a>
-      <a href="./plan.html">学习计划</a>
     </nav>
     <div class="acm-nav-actions">
       <button class="acm-btn acm-btn-icon" type="button" id="themeBtn" title="切换深色 / 浅色（全站共用）" aria-label="切换深色或浅色主题">
@@ -6549,7 +6548,7 @@ int getSG(int x){
       <button id="btnClear">清除</button>
     </div>
     <input type="file" id="fileWall" accept="image/*">
-    <div class="tip">壁纸会随主色一起变化；本地图片保存在浏览器中，超过 2&nbsp;MB 时只在本次会话生效。</div>
+    <div class="tip">壁纸会随主色一起变化。上传的图片会<b>自动压缩</b>（长边不超过 1920px）后存在本浏览器里，不上传服务器；选自定义图片时会自动把「壁纸可见度」拉满。</div>
   </div>
 
   <div class="srow hidden" id="urlRow">
@@ -6884,17 +6883,43 @@ int getSG(int x){
     root.style.setProperty('--panel-a', S.panelA); save();
   });
 
+  /* 大图先压到「长边 ≤ 1920、JPEG q=0.82」再存。
+     localStorage 只有约 2.5M 字符的配额，手机照片原图基本装不下 —— 压缩后一般几百 KB。 */
+  function shrinkImage(dataUrl, done){
+    var im = new Image();
+    im.onload = function(){
+      try {
+        var r = Math.min(1, 1920 / Math.max(im.width, im.height));
+        var c = document.createElement('canvas');
+        c.width  = Math.max(1, Math.round(im.width  * r));
+        c.height = Math.max(1, Math.round(im.height * r));
+        c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+        var out = c.toDataURL('image/jpeg', 0.82);
+        done(out.length < dataUrl.length ? out : dataUrl);
+      } catch (e) { done(dataUrl); }
+    };
+    im.onerror = function(){ done(dataUrl); };
+    im.src = dataUrl;
+  }
+
+  /* 统一入口：设图片 → 压缩 → 第一次选图时把可见度拉满 → 保存 */
+  function useImage(dataUrl){
+    var first = (S.wall !== 'custom');
+    shrinkImage(dataUrl, function(u){
+      S.img = u; S.wall = 'custom';
+      if(first && S.fx < 0.9) S.fx = 1;
+      S.session = (u.length > 2500000);
+      if(S.session) alert('这张图压缩后仍然偏大，本次会话内生效，但不会保存到浏览器。建议换一张小图，或改用「图片链接」。');
+      apply(); save();
+    });
+  }
+
   var fileWall = document.getElementById('fileWall');
   fileWall.addEventListener('change', function(){
     var f = fileWall.files && fileWall.files[0];
     if(!f) return;
     var rd = new FileReader();
-    rd.onload = function(){
-      S.img = rd.result; S.wall = 'custom';
-      S.session = (rd.result.length > 2500000);
-      if(S.session) alert('图片较大（>2MB），本次会话内生效，但不会保存到浏览器。');
-      apply(); save();
-    };
+    rd.onload = function(){ useImage(rd.result); fileWall.value = ''; };
     rd.readAsDataURL(f);
   });
 
@@ -6903,7 +6928,9 @@ int getSG(int x){
   document.getElementById('btnApplyUrl').addEventListener('click', function(){
     var v = document.getElementById('txtUrl').value.trim();
     if(!v) return;
+    var first = (S.wall !== 'custom');
     S.img = v; S.wall = 'custom'; S.session = false;
+    if(first && S.fx < 0.9) S.fx = 1;      /* 外链图片直接用原图，同样把可见度拉满 */
     apply(); save();
   });
   document.getElementById('btnClear').addEventListener('click', function(){
@@ -6965,6 +6992,7 @@ int getSG(int x){
     <nav class="acm-footer-links" aria-label="页脚导航">
       <a href="./index.html">学习手册</a>
       <a href="./practice.html">题练场</a>
+      <a href="./plan.html">学习计划</a>
       <a href="../index.html">校园主页</a>
       <a href="https://www.luogu.com.cn/" target="_blank" rel="noopener">洛谷</a>
     </nav>
