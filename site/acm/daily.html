@@ -200,9 +200,19 @@ details.fold>summary:hover::before{color:var(--accent)}
 .ah-ok{fill:rgb(var(--ok-rgb))}
 .ah-warn{fill:rgb(var(--warn-rgb))}
 .box-ok{fill:rgb(var(--panel-rgb) / var(--panel-a));stroke:rgb(var(--ok-rgb));stroke-width:.5}
+.box-acc{fill:rgb(var(--panel-rgb) / var(--panel-a));stroke:var(--accent);stroke-width:.5}
 .box-warn{fill:rgb(var(--panel-rgb) / var(--panel-a));stroke:rgb(var(--warn-rgb));stroke-width:.5}
 .box-vio{fill:rgb(var(--panel-rgb) / var(--panel-a));stroke:rgb(var(--vio-rgb));stroke-width:.5}
 .band-dan{fill:rgb(var(--danger-rgb) / .1);stroke:rgb(var(--danger-rgb));stroke-width:.5}
+.band-ok{fill:rgb(var(--ok-rgb) / .1);stroke:rgb(var(--ok-rgb));stroke-width:.5}
+.band-warn{fill:rgb(var(--warn-rgb) / .1);stroke:rgb(var(--warn-rgb));stroke-width:.5}
+.band-acc{fill:rgb(var(--accent-rgb) / .1);stroke:var(--accent);stroke-width:.5}
+.band-vio{fill:rgb(var(--vio-rgb) / .1);stroke:rgb(var(--vio-rgb));stroke-width:.5}
+.bar-track{fill:none;stroke:var(--line-2);stroke-width:.5}
+.bd-dash{fill:none;stroke:rgb(var(--danger-rgb) / .55);stroke-width:.5;stroke-dasharray:4 3}
+.ah-acc{fill:var(--accent)}
+.ah-vio{fill:rgb(var(--vio-rgb))}
+.ah-dan{fill:rgb(var(--danger-rgb))}
 /* ---------- 本章路线图：5 件事，点一下跳过去 ---------- */
 .roadmap{margin:0 0 18px}
 .rm-ttl{font-size:12px;color:var(--text-3);letter-spacing:.5px;margin-bottom:8px}
@@ -272,15 +282,15 @@ footer{max-width:1200px;margin:40px auto 0;padding:20px 24px 60px;color:var(--te
 
 <header class="top"><div class="wrap">
 <h1>日常开发 · 做算法题的肌肉记忆</h1>
-<p class="sub">这一章不教算法，教的是<b>上手前三秒钟的判断</b>。很多人卡在入门，不是因为算法难，而是因为：不会估复杂度、不会调试、不知道自己在写什么。<b>先把这五件事做完</b> —— 下面两件已经写完了。</p>
+<p class="sub">这一章不教算法，教的是<b>上手前三秒钟的判断</b>。很多人卡在入门，不是因为算法难，而是因为：不会估复杂度、不会调试、不知道自己在写什么。<b>先把这五件事做完</b> —— 下面五件都写完了。</p>
 <div class="stats">
   <span class="stat">本章共 5 件事</span>
-  <span class="stat">已上线 2 / 5</span>
-  <span class="stat">18 张可折叠卡片</span>
-  <span class="stat">9 张手绘图表（零外部依赖）</span>
+  <span class="stat">全部上线 5 / 5</span>
+  <span class="stat">41 张可折叠卡片</span>
+  <span class="stat">18 张手绘图表（零外部依赖）</span>
   <span class="stat">代码可直接复制编译</span>
 </div>
-<p class="hint">页面较长，<b>每个主题都做成了可折叠的卡片</b>，点标题展开，或用右上角的 <b>全部展开 / 全部折叠</b> 一次性控制。所有图表都是内联 SVG，<b>不加载任何外部脚本或 CDN</b>；深浅色跟随校园主页。</p>
+<p class="hint">页面较长，<b>每个主题都做成了可折叠的卡片</b>，点标题展开，或用顶部的 <b>全部展开 / 全部折叠</b> 一次性控制。所有图表都是内联 SVG，<b>不加载任何外部脚本或 CDN</b>；深浅色跟随校园主页。</p>
 </div></header>
 
 <div class="layout">
@@ -306,7 +316,33 @@ footer{max-width:1200px;margin:40px auto 0;padding:20px 24px 60px;color:var(--te
   <a href="#g7" class="sub2">2.7 完整脚手架模板</a>
   <a href="#g8" class="sub2">2.8 九条常见错误</a>
   <a href="#g9" class="sub2">2.9 题单</a>
-  <a href="#next">3 · 后续三件事</a>
+  <a href="#c3">3 · 对拍</a>
+  <a href="#h1" class="sub2">3.1 为什么对拍可靠</a>
+  <a href="#h2" class="sub2">3.2 三件套与工作流</a>
+  <a href="#h3" class="sub2">3.3 数据生成器</a>
+  <a href="#h4" class="sub2">3.4 rand() 的四个坑</a>
+  <a href="#h5" class="sub2">3.5 对拍脚本</a>
+  <a href="#h6" class="sub2">3.6 什么时候对拍不上</a>
+  <a href="#h7" class="sub2">3.7 七条常见错误</a>
+  <a href="#h8" class="sub2">3.8 题单</a>
+  <a href="#c4">4 · 常见错误字典</a>
+  <a href="#i1" class="sub2">4.1 把玄学变成查表</a>
+  <a href="#i2" class="sub2">4.2 六种结果对照</a>
+  <a href="#i3" class="sub2">4.3 WA 的五个原因</a>
+  <a href="#i4" class="sub2">4.4 RE 与 MLE</a>
+  <a href="#i5" class="sub2">4.5 TLE 排查顺序</a>
+  <a href="#i6" class="sub2">4.6 五个调试手法</a>
+  <a href="#i7" class="sub2">4.7 三个最贵的坑</a>
+  <a href="#i8" class="sub2">4.8 题单</a>
+  <a href="#c5">5 · 离散化</a>
+  <a href="#j1" class="sub2">5.1 本质与三步</a>
+  <a href="#j2" class="sub2">5.2 模板与 unique 机制</a>
+  <a href="#j3" class="sub2">5.3 四个函数详解</a>
+  <a href="#j4" class="sub2">5.4 会丢掉什么</a>
+  <a href="#j5" class="sub2">5.5 能干什么</a>
+  <a href="#j6" class="sub2">5.6 六条常见错误</a>
+  <a href="#j7" class="sub2">5.7 题单</a>
+  <a href="#next">6 · 五件事怎么配合</a>
 </aside>
 
 <main>
@@ -317,13 +353,13 @@ footer{max-width:1200px;margin:40px auto 0;padding:20px 24px 60px;color:var(--te
 </div>
 
 <div class="roadmap">
-  <div class="rm-ttl">本章共 5 件事 —— 点一下直接跳过去</div>
+  <div class="rm-ttl">本章 5 件事 —— 全部上线，点一下直接跳过去</div>
   <div class="rm-list">
-    <a class="rm done" href="#c1"><b>1</b><span>复杂度分析</span><em>已上线 · 9 张卡片</em></a>
-    <a class="rm done" href="#c2"><b>2</b><span>竞赛代码脚手架</span><em>已上线 · 9 张卡片</em></a>
-    <a class="rm" href="./plan.html#s1-3" target="_blank" rel="noopener"><b>3</b><span>对拍</span><em>计划里已有简版 →</em></a>
-    <a class="rm" href="./plan.html#s1-4" target="_blank" rel="noopener"><b>4</b><span>常见错误字典</span><em>计划里已有简版 →</em></a>
-    <a class="rm" href="./plan.html#s1-5" target="_blank" rel="noopener"><b>5</b><span>离散化</span><em>计划里已有简版 →</em></a>
+    <a class="rm done" href="#c1"><b>1</b><span>复杂度分析</span><em>9 张卡片</em></a>
+    <a class="rm done" href="#c2"><b>2</b><span>竞赛代码脚手架</span><em>9 张卡片</em></a>
+    <a class="rm done" href="#c3"><b>3</b><span>对拍</span><em>8 张卡片</em></a>
+    <a class="rm done" href="#c4"><b>4</b><span>常见错误字典</span><em>8 张卡片</em></a>
+    <a class="rm done" href="#c5"><b>5</b><span>离散化</span><em>7 张卡片</em></a>
   </div>
 </div>
 
@@ -1352,17 +1388,970 @@ int main() {
 </div>
 </details>
 
-<h2 id="next">3 · 后续三件事</h2>
-<div class="callout">
-<p>本章共 <b>5 件事</b>，已经上线 <b>2 件</b>：<b>复杂度分析</b>（值不值得写）和 <b>竞赛代码脚手架</b>（写得快不快）。</p>
-<p>剩下三件都在解决"<b>写不写得对</b>"。它们在学习计划里已有简版，点上面的路线图可以直接跳过去：</p>
-<ul class="tight">
-<li><b>对拍</b> —— 写一个「肯定对但很慢」的暴力程序 + 随机数据生成器，让两者互相对答案。<b>这是竞赛里唯一可靠的调试手段</b>，光看代码找错是靠不住的。</li>
-<li><b>常见错误字典</b> —— 把 CE / RE / WA / TLE / MLE 每一种结果对应到固定的几个原因上，把「玄学错误」变成查表。</li>
-<li><b>离散化</b> —— 把「很大的数」压成「很小的下标」，是前缀和、树状数组、线段树共同的前置技能。</li>
-</ul>
-<p>这三件展开写完之后会继续放在这一页，一样用可折叠卡片承载。</p>
+<h2 id="c3">3 · 对拍：用随机数据证明自己是对的</h2>
+<p class="lead">前面两件解决「值不值得写」和「写得快不快」，这一件解决最难的那个问题：<b>你怎么知道自己是对的？</b>只看代码是看不出来的 —— 你需要一台能自动挑错的机器。</p>
+
+<details class="fold" id="h1" open>
+<summary>3.1　为什么对拍是唯一可靠的调试手段<span class="sum-note">「我觉得没错」不是证据</span></summary>
+<div class="fold-body">
+<p class="idea"><b>本质</b>：写一个<b>「肯定对但很慢」</b>的暴力程序，再写一个随机数据生成器，让两者在同一份数据上跑 —— <b>输出不一致，就说明正解错了</b>，而且数据自动给你留下来了。</p>
+<p class="idea">为什么它比「盯着代码看」强这么多？因为三件事：</p>
+<table>
+<thead><tr><th>盯着代码看</th><th>对拍</th></tr></thead>
+<tbody>
+<tr><td>靠你对代码的理解 —— 而<b>错误恰恰来自你理解错的地方</b>，所以你看多少遍都看不出来</td><td>靠两份<b>独立实现</b>的对比 —— 它们同时错在同一个地方的概率极低</td></tr>
+<tr><td>只能覆盖你<b>想到</b>的情况。你没想到的边界，你也不会去测</td><td>随机数据会跑出你<b>没想到</b>的组合，这才是它真正的价值</td></tr>
+<tr><td>发现错了之后，还得自己造一组能复现的数据，可能花掉半小时</td><td>停下时数据已经存在 <span class="mono">in.txt</span> 里了 —— <b>直接拿它去调</b></td></tr>
+</tbody>
+</table>
+<div class="callout ok">
+<p><b>一句话把它的定位说清楚：</b>对拍不能帮你<b>想出</b>解法，但能在你自以为想出来之后，<b>用机器证明你错了</b>。竞赛里「我觉得这题对了」和「这题确实对了」之间的距离，就是对拍填上的。</p>
 </div>
+</div>
+</details>
+
+<details class="fold" id="h2" open>
+<summary>3.2　对拍三件套与工作流<span class="sum-note">gen / brute / std</span></summary>
+<div class="fold-body">
+<table>
+<thead><tr><th class="num">角色</th><th>写什么</th><th>要求</th></tr></thead>
+<tbody>
+<tr><td class="num mono">gen</td><td>数据生成器</td><td>输出到 stdout，够快就行</td></tr>
+<tr><td class="num mono">brute</td><td>暴力程序</td><td><b>慢可以，但必须一定对</b>。枚举 / 搜索 / 直接把题目翻译成代码</td></tr>
+<tr><td class="num mono">std</td><td>你的正解</td><td>就是你要交的那一份</td></tr>
+</tbody>
+</table>
+<p class="idea">三份代码都编译成可执行文件，然后让脚本反复跑「生成 → 两边各跑一次 → 比输出」这个循环：</p>
+<svg class="fig" viewBox="0 0 0 0 680 320" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>对拍的工作流</title>
+<desc>生成器把随机数据写进文件，暴力程序和正解读同一份数据，比较两者输出：一致就换下一组，不一致就停下并保存这份数据作为反例。</desc>
+<rect class="fg-card" x="250" y="40" width="180" height="44" rx="10"/>
+<text class="fg-t" x="340" y="62" font-size="13" text-anchor="middle" dominant-baseline="central">gen　生成随机数据</text>
+<line class="st-ok" x1="300" y1="84" x2="210.5" y2="114.7"/>
+<path class="ah-ok" d="M200 118 L208.9 109.9 L212 119.4 Z"/>
+<line class="st-acc" x1="380" y1="84" x2="469.5" y2="114.7"/>
+<path class="ah-acc" d="M480 118 L468 119.4 L471.1 109.9 Z"/>
+<rect class="box-ok" x="80" y="120" width="200" height="44" rx="10"/>
+<text class="fg-t" x="180" y="142" font-size="12.5" text-anchor="middle" dominant-baseline="central">brute　暴力（慢，但一定对）</text>
+<rect class="box-acc" x="400" y="120" width="200" height="44" rx="10"/>
+<text class="fg-t" x="500" y="142" font-size="12.5" text-anchor="middle" dominant-baseline="central">std　你要交的那份正解</text>
+<line class="st-acc" x1="180" y1="164" x2="289.3" y2="191.3"/>
+<path class="ah-acc" d="M300 194 L288.1 196.2 L290.6 186.5 Z"/>
+<line class="st-acc" x1="500" y1="164" x2="390.7" y2="191.3"/>
+<path class="ah-acc" d="M380 194 L389.5 186.5 L391.9 196.2 Z"/>
+<rect class="fg-card" x="250" y="196" width="180" height="44" rx="10"/>
+<text class="fg-t" x="340" y="218" font-size="13" text-anchor="middle" dominant-baseline="central">diff　比较两份输出</text>
+<path class="st-acc" d="M430 218 H618 V62 H447" fill="none" stroke-dasharray="5 4"/>
+<path class="ah-acc" d="M432 62 L445 56.5 L445 67.5 Z"/>
+<text class="fg-s" x="612" y="140" font-size="11" text-anchor="end" dominant-baseline="central">一致 → 继续跑下一组</text>
+<rect class="band-ok" x="40" y="254" width="560" height="46" rx="8"/>
+<text class="fg-t" x="52" y="272" font-size="12.5">输出一致 → 换一组数据继续跑（这就是那个循环）</text>
+<text class="fg-t" x="52" y="290" font-size="12.5">输出不一致 → 停下，把这份数据存下来 —— 它是一个能让正解出错的最小反例</text>
+</svg>
+<p class="figcap">循环的每一轮都是一次独立的随机试验。不一致的那一刻，<span class="mono">in.txt</span> 就是一份能让正解出错的最小反例。</p>
+<div class="callout">
+<p><b>为什么不把生成器写进 brute 或 std 里面？</b>因为两个程序必须读<b>完全相同的输入</b>。如果在各自的程序里生成，就要保证两边随机序列一模一样 —— 一旦有半点差别，你比的就是两份不同的数据，对拍立刻失去意义。<b>生成器必须是独立进程，输出写进文件，两边从同一个文件读。</b></p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="h3">
+<summary>3.3　数据生成器：三个关键技巧<span class="sum-note">决定对拍有没有用</span></summary>
+<div class="fold-body">
+<p class="idea">对拍能不能抓到错，<b>九成取决于生成器写得好不好</b>。随机数乱撒只能撞到「普通的错」，而真正难查的是边界。</p>
+<ol class="tight">
+<li><b>先小后大。</b>从 <span class="mono">n ≤ 8</span> 开始。空数据、n=1、全负数、全部相等、严格递增这些边界错误，<b>几乎一定在小数据里就暴露</b>。而且小数据你还能手动推演，知道到底哪一步错了。</li>
+<li><b>构造特殊数据，不要纯随机。</b>纯随机的数据「太普通」了。要专门生成：全部相同、严格递增、严格递减、只有 0、只有负数、最大和最小紧挨着。<b>把这些形状混进随机流里</b>（例如 30% 概率走特殊分支）。</li>
+<li><b>卡住数据范围的边界。</b>题目说 <span class="mono">a ≤ 10⁹</span>，那随机数就<b>必须覆盖到 10⁹ 和 −10⁹</b>。只在 <span class="mono">[0, 1000]</span> 里取数，永远试不出溢出和精度问题。</li>
+</ol>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <cstdio>、<cstdlib>、<ctime>、<algorithm>
+using namespace std;
+
+// 生成 [lo, hi] 的随机整数（能覆盖到大数，绕开 RAND_MAX 的限制）
+long long rnd(long long lo, long long hi) {
+    long long r = (1LL * rand() << 15) ^ rand();   // 拼出 30 位随机数
+    return lo + r % (hi - lo + 1);
+}
+
+int main() {
+    srand(time(0) ^ (unsigned)clock());   // 种子带上时钟，避免同一秒内重复
+    int mode = rand() % 4;                // 30% 左右走特殊形状
+
+    if (mode == 0) {                      // ① 极小规模：专打边界
+        int n = rand() % 8 + 1;
+        printf("%d\n", n);
+        for (int i = 1; i <= n; ++i) printf("%lld ", rnd(-10, 10));
+    } else if (mode == 1) {               // ② 全部相同
+        int n = rand() % 100 + 1;
+        long long v = rnd(-1000000000LL, 1000000000LL);
+        printf("%d\n", n);
+        for (int i = 1; i <= n; ++i) printf("%lld ", v);
+    } else if (mode == 2) {               // ③ 严格递增（很多算法只在这上面才露馅）
+        int n = rand() % 200 + 1;
+        printf("%d\n", n);
+        long long cur = -1000000000LL;    // ★ 从数据范围下界起步
+        for (int i = 1; i <= n; ++i) { cur += rand() % 10 + 1; printf("%lld ", cur); }
+    } else {                              // ④ 贴着范围上限
+        int n = 100000;                   // 大数组，试复杂度和溢出
+        printf("%d\n", n);
+        for (int i = 1; i <= n; ++i) printf("%lld ", rnd(-1000000000LL, 1000000000LL));
+    }
+    putchar('\n');
+    return 0;
+}</script></div>
+<div class="callout warn">
+<p><b>注意 ③ 那种「只在小数据里才出现的错误」和 ④ 那种「只在最大数据里才出现的错误」是两类，都要覆盖。</b>前者靠 mode 0～2，后者靠 mode 3。<b>只有大数据的对拍会漏掉边界，只有小数据的对拍会漏掉溢出。</b></p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="h4">
+<summary>3.4　随机数：<span class="mono">rand()</span> 的四个坑<span class="sum-note">本地能跑、评测机不对，多半是这里</span></summary>
+<div class="fold-body">
+<svg class="fig" viewBox="0 0 0 0 680 238" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>rand() 能生成的数值范围</title>
+<desc>Linux 上 RAND_MAX 是 21 亿多，Windows 上只有 32767，相差五个数量级，导致本地生成不出大数据。</desc>
+<text class="fg-s" x="40" y="26" font-size="12.5">rand() 能生成的数值范围（RAND_MAX）</text>
+<text class="fg-s" x="40" y="50" font-size="12">Linux / macOS / 评测机：RAND_MAX = 2147483647（2³¹−1）</text>
+<rect class="bd bd-ok" x="40" y="58" width="480" height="20" rx="4"/>
+<text class="fg-s" x="40" y="96" font-size="12">Windows（本地调试 / MinGW / VS）：RAND_MAX = 32767</text>
+<rect class="bd bd-dan" x="40" y="104" width="6" height="20" rx="2"/>
+<text class="tx-dan" x="56" y="114" font-size="11.5" dominant-baseline="central">只占上面那一条的万分之一</text>
+<rect class="band-warn" x="40" y="142" width="600" height="76" rx="8"/>
+<text class="fg-t" x="52" y="164" font-size="12">后果：在 Windows 本地测 10⁵～10⁶ 级数据时，rand() 根本生成不出大数，</text>
+<text class="fg-t" x="52" y="182" font-size="12">对拍数据全挤在 0～32767 里 —— 只有大数据才暴露的错误，永远试不出来。</text>
+<text class="tx-warn" x="52" y="204" font-size="12">解法：(rand() &lt;&lt; 15) ^ rand() 手动拼大数，或者直接换 &lt;random&gt; 里的 mt19937。</text>
+</svg>
+<p class="figcap">同一个 <span class="mono">rand()</span>，在 Windows 和 Linux 上能生成的数值范围差了五个数量级。</p>
+<table>
+<thead><tr><th>坑</th><th>后果</th><th>怎么绕开</th></tr></thead>
+<tbody>
+<tr><td><b>1. <span class="mono">RAND_MAX</span> 在 Windows 上只有 32767</b></td><td>本地生成 <span class="mono">n = 10⁵</span> 的数据时，所有值都挤在 0～32767 里，<b>大数据才暴露的错误永远试不出来</b></td><td><span class="mono">(rand() &lt;&lt; 15) ^ rand()</span> 手动拼；或直接换 <span class="mono">&lt;random&gt;</span> 的 <span class="mono">mt19937</span></td></tr>
+<tr><td><b>2. 不播种时序列完全一样</b></td><td>每次跑都是同一组数据，对拍等于只测了一次</td><td><span class="mono">srand(time(0) ^ (unsigned)clock())</span>。<b>注意要 XOR 上 <span class="mono">clock()</span></b>：<span class="mono">time(0)</span> 的粒度是秒，同一秒内启动两次种子相同</td></tr>
+<tr><td><b>3. <span class="mono">rand() % n</span> 分布不均匀</b></td><td>较小的数被生成得更多（除非 n 整除 <span class="mono">RAND_MAX + 1</span>）。数据「不够随机」，某些组合永远随机不到</td><td>正式场合用 <span class="mono">mt19937</span> + <span class="mono">uniform_int_distribution</span></td></tr>
+<tr><td><b>4. <span class="mono">rand() * rand()</span> 会溢出</b></td><td><span class="mono">int</span> 相乘直接爆掉，结果是负的或者很小</td><td>先转 64 位：<span class="mono">1LL * rand() * rand()</span>，或者用上面的 <span class="mono">&lt;&lt; 15 ^</span> 写法</td></tr>
+</tbody>
+</table>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <random>、<algorithm>、<vector>
+// 正经的随机数：不依赖 RAND_MAX，分布均匀
+std::mt19937 rng(std::random_device{}());          // 用真随机源播种，不需要 srand
+std::uniform_int_distribution<long long> dist(-1000000000LL, 1000000000LL);
+
+long long v = dist(rng);                           // 均匀落在 [lo, hi]
+
+// 打乱一个序列（比手写随机交换更均匀）
+std::vector<int> a = {1, 2, 3, 4, 5};
+std::shuffle(a.begin(), a.end(), rng);</script></div>
+<div class="callout">
+<p><b>但也要说句公道话：</b>在 OJ 上做题，<span class="mono">rand()</span> 加个 <span class="mono">srand(time(0))</span> 通常就够了 —— 你是拿它造对拍数据，不是做密码学。<b>换 <span class="mono">mt19937</span> 的理由只有一个：你写的生成器在 Windows 本地跑，数据规模上到 10⁵ 以上。</b></p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="h5">
+<summary>3.5　对拍脚本：三个平台各一份<span class="sum-note">能跑起来，比对拍本身更重要</span></summary>
+<div class="fold-body">
+<p class="idea"><b>Windows 批处理</b>（双击就能跑，最省事）：</p>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">:: 存成 loop.bat，和 gen.exe / brute.exe / std.exe 放一起
+:: 编译：g++ gen.cpp -o gen.exe -O2   （brute 不要开 -O2，让它慢慢跑）
+@echo off
+setlocal enabledelayedexpansion
+set /a cnt=0
+:loop
+gen.exe > in.txt
+brute.exe < in.txt > out1.txt
+std.exe   < in.txt > out2.txt
+fc out1.txt out2.txt > nul
+if not errorlevel 1 (
+    set /a cnt+=1
+    echo [!cnt!] OK
+    goto loop
+)
+echo.
+echo ====== WRONG！正解和数据已保存 ======
+echo 出错的输入在 in.txt
+echo 正解输出 out1.txt，你的输出 out2.txt
+type in.txt
+pause</script></div>
+<p class="idea"><b>Linux / macOS shell</b>（一行命令起手）：</p>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">#!/bin/bash
+# 存成 loop.sh，chmod +x loop.sh
+i=0
+while true; do
+    ./gen > in.txt
+    ./brute < in.txt > out1.txt
+    ./std   < in.txt > out2.txt
+    if ! diff -q out1.txt out2.txt > /dev/null; then
+        echo "WRONG at test #$i"
+        cat in.txt          # 把出错数据打出来，省得再去看文件
+        break
+    fi
+    i=$((i + 1))
+    echo "[$i] OK"
+    # 想限制跑多久就加：【 if [ $i -ge 2000 ]; then break; fi 】
+done</script></div>
+<div class="callout warn">
+<p><b>一个平台差异坑：</b>Windows 的批处理 <b>不会自动换行到 <span class="mono">LF</span></b>，而 <span class="mono">printf("\n")</span> 输出的是 <span class="mono">CRLF</span>；Linux 上是 <span class="mono">LF</span>。如果生成器用 <span class="mono">printf</span>、而比较用的是 <span class="mono">diff</span>，或者你在 Windows 上写数据、拿到 Linux 上比，<b>行尾差异会导致假的「不一致」</b>。稳妥做法：比较前统一行尾，或者两边都用同一套命令。</p>
+</div>
+<p class="idea"><b>Python 版</b>（跨平台、最好改，推荐）：</p>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-python">#!/usr/bin/env python3
+# 依赖：只需标准库。存成 loop.py，和三个可执行文件放一起
+import subprocess, sys
+
+MAX_TESTS = 2000      # 最多跑多少轮，防止忘了关
+
+for i in range(1, MAX_TESTS + 1):
+    data = subprocess.run(['./gen'], capture_output=True).stdout
+    r1 = subprocess.run(['./brute'], input=data, capture_output=True).stdout
+    r2 = subprocess.run(['./std'], input=data, capture_output=True).stdout
+    if r1.split() != r2.split():        # 按 token 比，忽略行尾与多余空格
+        print(f'WRONG at test #{i}')
+        print('--- 输入 ---')
+        print(data.decode())
+        print('--- 暴力 ---')
+        print(r1.decode())
+        print('--- 正解 ---')
+        print(r2.decode())
+        open('in.txt', 'wb').write(data)   # 存下来，方便单独复现
+        sys.exit(1)
+    if i % 100 == 0:
+        print(f'[{i}] OK')
+
+print('全部通过')</script></div>
+<div class="callout ok">
+<p><b>Python 版多做了两件值得抄的事：</b>① <b>用 <span class="mono">split()</span> 按 token 比较</b>，忽略行尾和多余空格造成的假报警；② <b>设了 <span class="mono">MAX_TESTS</span> 上限</b> —— 忘了关的对拍脚本会在你写下一个程序时偷偷占着 CPU。</p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="h6">
+<summary>3.6　什么时候对拍不上<span class="sum-note">不是所有题都能这么办</span></summary>
+<div class="fold-body">
+<svg class="fig" viewBox="0 0 0 0 680 250" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>对拍能成立的两个支柱，和它撑不住的地方</title>
+<desc>左边是对拍必须满足的三个前提，右边是三种没法用对拍的情况。</desc>
+<text class="fg-s" x="40" y="26" font-size="12.5">对拍能成立的两个支柱，和它撑不住的地方</text>
+<rect class="fg-card" x="40" y="40" width="290" height="190" rx="10"/>
+<rect class="bd bd-ok" x="52" y="52" width="266" height="28" rx="6"/>
+<text class="tx-ok" x="185" y="66" font-size="12.5" text-anchor="middle" dominant-baseline="central">三个前提：缺一个就无效</text>
+<text class="fg-t" x="56" y="98" font-size="11.5">暴力必须真的对</text>
+<text class="fg-s" x="56" y="113" font-size="10.5">先用题目样例验证暴力</text>
+<text class="fg-t" x="56" y="140" font-size="11.5">两边读入格式完全一致</text>
+<text class="fg-s" x="56" y="155" font-size="10.5">多一个空格就假报错</text>
+<text class="fg-t" x="56" y="182" font-size="11.5">两个程序都得跑得动</text>
+<text class="fg-s" x="56" y="197" font-size="10.5">跑不动就不叫对拍</text>
+<rect class="fg-card" x="350" y="40" width="290" height="190" rx="10"/>
+<rect class="bd bd-dan" x="362" y="52" width="266" height="28" rx="6"/>
+<text class="tx-dan" x="495" y="66" font-size="12.5" text-anchor="middle" dominant-baseline="central">什么时候对拍不上</text>
+<text class="fg-t" x="366" y="98" font-size="11.5">写不出暴力</text>
+<text class="fg-s" x="366" y="113" font-size="10.5">搜索空间太大 / 答案不可枚举</text>
+<text class="fg-t" x="366" y="140" font-size="11.5">答案不唯一</text>
+<text class="fg-s" x="366" y="155" font-size="10.5">多解题要另写 special judge</text>
+<text class="fg-t" x="366" y="182" font-size="11.5">交互题</text>
+<text class="fg-s" x="366" y="197" font-size="10.5">输入输出交错，没法离线跑</text>
+</svg>
+<p class="figcap">对拍能成立，靠的是「有暴力可写 + 答案可比较」这两根支柱。任意一根断了，就得换别的办法。</p>
+<div class="callout warn">
+<p><b>对拍失败时最危险的心态</b>，是「对拍脚本报错了，说明是我脚本写错了」—— 然后去改脚本。<b>先怀疑正解，再怀疑脚本。</b>验证脚本本身对不对的办法：故意把正解改错一行（比如把 <span class="mono">&lt;</span> 改成 <span class="mono">&lt;=</span>），看对拍能不能抓出来。<b>抓不出来，说明你的对拍是无效的。</b></p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="h7">
+<summary>3.7　对拍部分的七条常见错误<span class="sum-note">每一条都会让你白跑一晚</span></summary>
+<div class="fold-body">
+<h3>1. 暴力程序本身就是错的</h3>
+<p class="idea">最致命的一条 —— <b>暴力和正解一起错，对拍永远显示「通过」</b>，给你虚假的安全感。所以：<b>先用题目给的样例验证暴力</b>，或者用另一道更简单的同类题验证。暴力要写「笨到不用动脑」的版本，别在这里秀技巧。</p>
+
+<h3>2. 两边读入格式不一致</h3>
+<p class="idea">暴力读 <span class="mono">n</span> 之后读到行尾，正解读到行尾<b>加一个空格</b> —— 这种差别会让两边吃到不同的数据，然后报一堆假错。<b>暴力请直接复制正解的读入部分。</b></p>
+
+<h3>3. 生成器只生成小数据</h3>
+<p class="idea">小数据能抓边界，抓不到溢出和复杂度问题。<b>让 <span class="mono">n</span> 在 1 到上限之间都取到</b>，而且要有几档接近上限的。</p>
+
+<h3>4. 生成器只生成大数据</h3>
+<p class="idea">反过来同理。<span class="mono">n = 10⁵</span> 的随机数据里出现「n = 1」或「全部相同」的概率是零，而这类边界恰恰是最容易写错的。</p>
+
+<h3>5. 用 <span class="mono">rand()</span> 生成 10⁵ 级的数据</h3>
+<p class="idea">Windows 上 <span class="mono">RAND_MAX = 32767</span>，生成不出真的大数 —— 而你在 Windows 上写、在 Linux 上测，就会看到「本地对拍通过、交上去 WA」。见 3.4。</p>
+
+<h3>6. 让暴力也开 O2、也做优化</h3>
+<p class="idea">暴力的价值就在于「简单到不可能错」。给它加优化、加剪枝，你就等于又写了一个可能错的正解。<b>暴力就让它慢。</b></p>
+
+<h3>7. 对拍脚本没有退出条件</h3>
+<p class="idea">一直 <span class="mono">while true</span> 跑下去，忘了关就占着 CPU。<b>设一个轮数上限或时间上限</b>，跑够就自动停。</p>
+<div class="callout">
+<p><b>一个很实用的自检：</b>把正解故意改错一个地方，跑对拍，看它<b>几轮之内</b>能不能抓到。如果跑了几千轮都没抓到，说明你的生成器覆盖得太差 —— <b>这比对拍本身更值得修</b>。</p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="h8">
+<summary>3.8　题单：对拍怎么练<span class="sum-note">找一道你有把握的题</span></summary>
+<div class="fold-body">
+<table>
+<thead><tr><th class="num">练什么</th><th>怎么做</th></tr></thead>
+<tbody>
+<tr><td class="num"><b>第一次对拍</b></td><td>找任意一道你<b>已经 AC 过</b>的题，把「暴力 + 正解 + 生成器」三份代码都写出来，跑 1 分钟。目的不是找错，是<b>把流程跑顺</b>。</td></tr>
+<tr><td class="num"><b>验证对拍有效</b></td><td>然后把正解<b>故意改错一行</b>，看对拍几轮内抓到它。抓不到就改生成器 —— 这一步能让你真正理解「生成器决定对拍上限」。</td></tr>
+<tr><td class="num"><b>真刀真枪</b></td><td>以后任何一道题只要 WA 了、又看不出问题，就写对拍。<b>养成这个反射，比多刷十道题有用。</b></td></tr>
+</tbody>
+</table>
+<p class="ref">搭配题单（原文给的）：先做 <a href="./index.html">学习手册</a> 里你已经有把握的入门题；想要有难度的可以直接上 <b>洛谷 P1908 逆序对</b> —— 它的暴力（双重循环 O(n²)）和正解（归并 / 树状数组）差得很远，是练对拍的好材料。</p>
+<div class="callout ok">
+<p><b>对拍是可以积累的：</b>把 gen / brute / loop 三个文件做成模板放进一个 <span class="mono">stress/</span> 目录，以后每道题只改 <span class="mono">gen</span> 和 <span class="mono">brute</span>。<b>越麻烦的东西越要变成模板，这是第 2 章那句话的延续。</b></p>
+</div>
+</div>
+</details>
+
+<h2 id="c4">4 · 常见错误字典：看到结果就知道错在哪</h2>
+<p class="lead">评测机给你的反馈只有那么几种。把它们和「固定的几个原因」对应起来，<b>玄学错误就变成了查表</b>。这一章的目标是：看到 RE 就知道先去看数组，看到 WA 就知道先去看边界。</p>
+
+<details class="fold" id="i1" open>
+<summary>4.1　本质：把玄学变成查表<span class="sum-note">反馈少，但原因很固定</span></summary>
+<div class="fold-body">
+<p class="idea">很多人卡住的原因是：评测机只告诉你一个词（<span class="mono">WA</span>），然后你就开始到处瞎改 —— 改一行、交一次、再改一行。<b>这是在用提交次数代替思考。</b></p>
+<p class="idea">正确的做法是把它当成<b>有损的反馈信号</b>：信号很粗，但每种信号背后可能的病因是<b>有限且高度集中</b>的。所以：</p>
+<ol class="tight">
+<li><b>先分类</b>：是哪一种错？（CE / RE / WA / TLE / MLE）—— 这一步就能砍掉 90% 的可能性。</li>
+<li><b>再定位</b>：每种错都有一个「最先查的清单」，按清单顺序查，别乱翻。</li>
+<li><b>最后缩小</b>：能自己复现的错才是好错。<b>对拍就是用来把「WA」变成「一份具体的输入」的。</b></li>
+</ol>
+<div class="callout">
+<p><b>一个心态上的提醒：</b>看到 <span class="mono">WA</span> 时不要问「我哪里写错了」—— 范围太大。<b>要问「哪一个具体的输入会让它错」</b>。前者是无解的开放问题，后者可以被对拍和边界分析一步步逼近。</p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="i2">
+<summary>4.2　六种结果 → 首要嫌疑<span class="sum-note">按这张表顺序查</span></summary>
+<div class="fold-body">
+<svg class="fig" viewBox="0 0 0 0 680 328" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>六种评测结果与最先要检查的原因</title>
+<desc>编译错误查头文件与括号，运行时错误先查数组越界，答案错误先查边界与溢出，超时先查死循环与输入输出，内存超限先查数组大小。</desc>
+<text class="fg-s" x="40" y="26" font-size="12.5">六种评测结果 → 最先查什么</text>
+<rect class="fg-card" x="40" y="40" width="600" height="28" rx="6"/>
+<text class="fg-s" x="52" y="54" font-size="11.5" dominant-baseline="central">结果</text>
+<text class="fg-s" x="130" y="54" font-size="11.5" dominant-baseline="central">含义</text>
+<text class="fg-s" x="250" y="54" font-size="11.5" dominant-baseline="central">最先检查这几件事</text>
+<rect class="fig-band" x="40" y="68" width="600" height="40" rx="6"/>
+<rect class="bd bd-dan" x="52" y="77" width="64" height="22" rx="6"/>
+<text class="tx-dan" x="84" y="88" font-size="11.5" text-anchor="middle" dominant-baseline="central">CE</text>
+<text class="fg-t" x="130" y="88" font-size="12" dominant-baseline="central">编译错误</text>
+<text class="fg-s" x="250" y="88" font-size="11.5" dominant-baseline="central">头文件漏了 · 括号分号不配对 · 用了评测机不支持的东西</text>
+<rect class="bd bd-dan" x="52" y="117" width="64" height="22" rx="6"/>
+<text class="tx-dan" x="84" y="128" font-size="11.5" text-anchor="middle" dominant-baseline="central">RE</text>
+<text class="fg-t" x="130" y="128" font-size="12" dominant-baseline="central">运行时错误</text>
+<text class="fg-s" x="250" y="128" font-size="11.5" dominant-baseline="central">数组越界（最常见）· 除零 · 爆栈 · 空容器取下标</text>
+<rect class="fig-band" x="40" y="148" width="600" height="40" rx="6"/>
+<rect class="bd bd-warn" x="52" y="157" width="64" height="22" rx="6"/>
+<text class="tx-warn" x="84" y="168" font-size="11.5" text-anchor="middle" dominant-baseline="central">WA</text>
+<text class="fg-t" x="130" y="168" font-size="12" dominant-baseline="central">答案错误</text>
+<text class="fg-s" x="250" y="168" font-size="11.5" dominant-baseline="central">边界没特判 · 爆 int · 多组数据没清空 · 输出格式</text>
+<rect class="bd bd-warn" x="52" y="197" width="64" height="22" rx="6"/>
+<text class="tx-warn" x="84" y="208" font-size="11.5" text-anchor="middle" dominant-baseline="central">TLE</text>
+<text class="fg-t" x="130" y="208" font-size="12" dominant-baseline="central">超时</text>
+<text class="fg-s" x="250" y="208" font-size="11.5" dominant-baseline="central">复杂度算错 · 死循环 · cin 太慢 · 用了 endl</text>
+<rect class="fig-band" x="40" y="228" width="600" height="40" rx="6"/>
+<rect class="bd bd-vio" x="52" y="237" width="64" height="22" rx="6"/>
+<text class="tx-vio" x="84" y="248" font-size="11.5" text-anchor="middle" dominant-baseline="central">MLE</text>
+<text class="fg-t" x="130" y="248" font-size="12" dominant-baseline="central">内存超限</text>
+<text class="fg-s" x="250" y="248" font-size="11.5" dominant-baseline="central">数组开太大 · 局部大数组爆栈 · 容器没释放</text>
+<rect class="bd bd-acc" x="52" y="277" width="64" height="22" rx="6"/>
+<text class="tx-acc" x="84" y="288" font-size="11.5" text-anchor="middle" dominant-baseline="central">OLE / PE</text>
+<text class="fg-t" x="130" y="288" font-size="12" dominant-baseline="central">输出超限 / 格式错</text>
+<text class="fg-s" x="250" y="288" font-size="11.5" dominant-baseline="central">死循环在输出 · 行末多空格 · 多输出一组</text>
+</svg>
+<p class="figcap">这张表建议打印出来。它不解决问题，但能让你<b>不浪费时间在错误的方向上</b>。</p>
+<div class="callout warn">
+<p><b>三种容易误判的情况：</b></p>
+<ul class="tight">
+<li><b>RE 不一定是越界。</b>在 Windows 上本地跑得好好的、交上去 RE，很可能是<b>栈溢出</b>（Linux 默认栈通常比 Windows 小）或者<b>数组大小写死</b>了。</li>
+<li><b>WA 不一定是算法错。</b>「输出格式」和「多组数据没清空」造成的 WA 比算法错更常见，而且更冤。</li>
+<li><b>TLE 不一定是复杂度错。</b>同一份代码、同一个 O(n log n)，有人 300ms 有人 2000ms —— <b>卡常</b>是真实存在的（见第 2 章 2.4 / 2.5）。</li>
+</ul>
+</div>
+</div>
+</details>
+
+<details class="fold" id="i3">
+<summary>4.3　WA 的五个最常见原因<span class="sum-note">按出现频率排序</span></summary>
+<div class="fold-body">
+<ol class="tight">
+<li><b>边界没特判。</b><span class="mono">n = 1</span> 时循环一次都不执行、<span class="mono">n = 0</span> 时数组长度为 0、序列全相等时某些假设不成立。<b>写完代码先问一句「n 取最小是多少，这时会发生什么」。</b></li>
+<li><b>爆 int。</b>见下面 4.7 第一条。</li>
+<li><b>多组数据没清空。</b>上一组的残留跑到这一组里。写法：<span class="mono">while (scanf("%d", &amp;n) != EOF) { ...; memset(head, 0, sizeof head); }</span>。<b>注意全局数组才需要清，局部的一开始就是随机值更需要清。</b></li>
+<li><b>输出格式。</b>行末多了空格、少了换行、大小写不对、多输出/少输出一组、<span class="mono">%.2f</span> 的精度要求。<b>这类错误"看起来完全对"，但对逐个字符比较的评测机就是错。</b></li>
+<li><b>题意理解错。</b>最常见也最贵：把「至少」看成「恰好」、漏掉一个约束、把 1-based 当成 0-based、忘了取模。<b>做法：把题面的每一句话都翻译成一个具体条件，逐条对照代码。</b></li>
+</ol>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <cstdio>
+// ---------- 边界自检的四个问题 ----------
+// ① n 取最小值（1 或 0）时，循环还成立吗？
+// ② 答案会不会爆 int？（求和、乘积、计数）
+// ③ 多组数据之间，全局数组清了吗？
+// ④ 输出格式和样例逐字符一样吗？（含行末空格）
+
+// ---------- 递推取模：防止负数取模变负数 ----------
+ans = (ans % MOD + MOD) % MOD;          // C++ 里 -1 % 7 == -1，不是 6
+
+// ---------- 防溢出：乘法前先转 64 位 ----------
+long long s = 1LL * a * b % MOD;        // 写成 a * b % MOD 就是先爆 int 再取模
+long long t = (a + b) % MOD;</script></div>
+</div>
+</details>
+
+<details class="fold" id="i4">
+<summary>4.4　RE 与 MLE：内存和越界<span class="sum-note">大数组放哪儿，是这一节的全部重点</span></summary>
+<div class="fold-body">
+<svg class="fig" viewBox="0 0 0 0 680 258" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>同一个大数组写在 main 里和写在 main 外面的区别</title>
+<desc>写在 main 里的数组放在栈上，默认只有一到八兆，一个 int 一百万元素就占四兆；写在 main 外面的数组放在静态区，同样的四兆只占一个零头。</desc>
+<text class="fg-s" x="40" y="26" font-size="12.5">同一个 int[1000005]，写在 main 里和写在 main 外面，命运完全不同</text>
+<rect class="fg-card" x="40" y="42" width="280" height="142" rx="10"/>
+<text class="fg-t" x="56" y="64" font-size="12.5">① 写在 main 里 → 栈</text>
+<rect class="bar-track" x="56" y="76" width="248" height="20" rx="4"/>
+<rect class="bd bd-dan" x="56" y="76" width="124" height="20" rx="4"/>
+<text class="fg-s" x="56" y="116" font-size="11">一个 int[1000005] = 4 MB</text>
+<text class="fg-s" x="56" y="132" font-size="11">≈ 默认栈（1~8 MB）的一半</text>
+<text class="tx-dan" x="56" y="152" font-size="11">再来一两个 → 爆栈 → RE</text>
+<text class="fg-h" x="56" y="168" font-size="10.5">而且不给友好的报错</text>
+<rect class="fg-card" x="360" y="42" width="280" height="142" rx="10"/>
+<text class="fg-t" x="376" y="64" font-size="12.5">② 写在 main 外面 → 静态区</text>
+<rect class="bar-track" x="376" y="76" width="248" height="20" rx="4"/>
+<rect class="bd bd-ok" x="376" y="76" width="8" height="20" rx="3"/>
+<text class="fg-s" x="376" y="116" font-size="11">同样的 4 MB</text>
+<text class="fg-s" x="376" y="132" font-size="11">只占一个零头（几百 MB 可用）</text>
+<text class="tx-ok" x="376" y="152" font-size="11">额外好处：默认全 0</text>
+<text class="fg-h" x="376" y="168" font-size="10.5">不用手动 memset</text>
+<rect class="bd bd-vio" x="40" y="198" width="600" height="40" rx="8"/>
+<text class="fg-t" x="52" y="218" font-size="12.5" dominant-baseline="central">结论：大数组一律写成全局变量，或者用 vector（它分配在堆上）</text>
+</svg>
+<p class="figcap">同一个 <span class="mono">int[1000005]</span>，写在 <span class="mono">main</span> 里是 4 MB 的「栈炸弹」，写在 <span class="mono">main</span> 外面却毫无压力。</p>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <vector>、<cstring>
+// ========== 大数组的三种正确放法 ==========
+int a[1000005];                    // ① 全局：静态区，默认全 0，能开几百 MB
+
+int main() {
+    static int b[1000005];         // ② 函数内 static：也在静态区，同一份空间
+    std::vector<int> c(1000000);   // ③ vector：在堆上，动态大小
+
+    // ✗ int d[1000005];  局部非 static —— 在栈上，4 MB，很容易爆
+}
+
+// ========== 越界的两种典型形态 ==========
+int e[100005];
+for (int i = 1; i <= n; ++i) e[i] = 1;    // ✗ n 可以到 100000，但下标最大只能 100004
+                                          // ✓ 规则：下标从 1 开始 → 开 n + 5
+
+std::vector<int> v;
+if (!v.empty()) int x = v[0];             // ✗ 空容器取下标 → RE（用 v.at(0) 会抛异常，更早暴露）
+
+// ========== 递归太深 → 提高栈（仅本地调试用）==========
+// Linux / macOS 编译时：  g++ -Wl,--stack=268435456        // 256 MB
+// 正式提交不要依赖这个：评测机的栈大小你控制不了</script></div>
+<div class="callout warn">
+<p><b>为什么栈溢出特别难查？</b>因为它<b>不给你有用的信息</b>：程序直接挂掉，没有「数组越界」的提示，甚至可能诡异地「跑完了但答案不对」。而且它在 Windows 本地可能完全正常（Windows 默认栈比 Linux 大）。<b>所以不要靠试 —— 直接从写法上杜绝：大数组一律全局。</b></p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="i5">
+<summary>4.5　TLE 的排查顺序<span class="sum-note">别一上来就怀疑算法</span></summary>
+<div class="fold-body">
+<p class="idea">TLE 不是只有「复杂度算错了」一种原因。按这个顺序查，从最便宜的开始：</p>
+<table>
+<thead><tr><th class="num">顺序</th><th>查什么</th><th>典型症状 / 修法</th></tr></thead>
+<tbody>
+<tr><td class="num">1</td><td><b>死循环</b></td><td>循环变量根本没变、<span class="mono">while</span> 条件永远成立、<span class="mono">getchar</span> 读到 EOF 后不退出（第 2 章 2.8 第 1 条）。<b>先在本地跑小数据，看它是不是卡住了</b></td></tr>
+<tr><td class="num">2</td><td><b>输入输出太慢</b></td><td><span class="mono">cin</span> 没关同步、满屏 <span class="mono">endl</span>、<span class="mono">cout</span> 逐个字符输出。<b>修起来只有几行，收益最大</b></td></tr>
+<tr><td class="num">3</td><td><b>没必要的重复计算</b></td><td>循环里反复调 <span class="mono">strlen</span> / <span class="mono">size()</span>、反复 <span class="mono">sort</span>、把 O(1) 的东西算成 O(n)</td></tr>
+<tr><td class="num">4</td><td><b>容器用法不对</b></td><td><span class="mono">vector</span> 忘了 <span class="mono">reserve</span> 导致反复扩容、<span class="mono">map</span> 该换 <span class="mono">unordered_map</span>、<span class="mono">list</span> 该换 <span class="mono">vector</span></td></tr>
+<tr><td class="num">5</td><td><b>递归太深 / 常数太大</b></td><td>递归改迭代、把取模换成条件减法（第 1 章 P1045 那个优化）</td></tr>
+<tr><td class="num">6</td><td><b>真的是复杂度不够</b></td><td>到最后才怀疑这一步。这时候要重新做第 1 章那件事：<b>估一遍复杂度，看和 n 的范围对不对得上</b></td></tr>
+</tbody>
+</table>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <ctime>、<cstdio>
+// 本地量耗时：正常时用 clock()，不需要改代码
+int main() {
+    clock_t t0 = clock();
+    /* ... 你的算法 ... */
+    fprintf(stderr, "耗时 %.3f s\n", double(clock() - t0) / CLOCKS_PER_SEC);
+    return 0;
+}
+// 注意：stderr 不会被当作答案输出，可以放心打印
+
+// 找「哪一段慢」：手动二分
+// 把中间结果先算出来打印在 stderr 上看看到哪一步停了 —— 这叫「输出大法」，
+// 丑但极其有效。竞赛里最常用的调试手段之一。</script></div>
+</div>
+</details>
+
+<details class="fold" id="i6">
+<summary>4.6　五个真正管用的调试手法<span class="sum-note">按性价比排序</span></summary>
+<div class="fold-body">
+<svg class="fig" viewBox="0 0 0 0 680 196" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>发现错误之后的排查升级顺序</title>
+<desc>从最便宜的小数据手推开始，依次是打印中间量、二分定位、加断言，最后才动用对拍。</desc>
+<text class="fg-s" x="40" y="28" font-size="12.5">发现错了之后，按这个顺序试 —— 从最便宜的开始</text>
+<rect class="fg-card" x="40" y="48" width="104" height="72" rx="8"/>
+<text class="fg-h" x="50" y="64" font-size="11">1</text>
+<text class="fg-t" x="50" y="84" font-size="12">小数据手推</text>
+<text class="fg-s" x="50" y="102" font-size="10">成本最低</text>
+<rect class="fg-card" x="162" y="48" width="104" height="72" rx="8"/>
+<text class="fg-h" x="172" y="64" font-size="11">2</text>
+<text class="fg-t" x="172" y="84" font-size="12">打印中间量</text>
+<text class="fg-s" x="172" y="102" font-size="10">看哪步偏了</text>
+<rect class="fg-card" x="284" y="48" width="104" height="72" rx="8"/>
+<text class="fg-h" x="294" y="64" font-size="11">3</text>
+<text class="fg-t" x="294" y="84" font-size="12">二分定位</text>
+<text class="fg-s" x="294" y="102" font-size="10">砍掉一半</text>
+<rect class="fg-card" x="406" y="48" width="104" height="72" rx="8"/>
+<text class="fg-h" x="416" y="64" font-size="11">4</text>
+<text class="fg-t" x="416" y="84" font-size="12">assert</text>
+<text class="fg-s" x="416" y="102" font-size="10">让假设自报</text>
+<rect class="fg-card" x="528" y="48" width="104" height="72" rx="8"/>
+<text class="fg-h" x="538" y="64" font-size="11">5</text>
+<text class="fg-t" x="538" y="84" font-size="12">对拍</text>
+<text class="fg-s" x="538" y="102" font-size="10">直接给数据</text>
+<path class="st-acc" d="M148 76 L156 84 L148 92" fill="none"/>
+<path class="st-acc" d="M270 76 L278 84 L270 92" fill="none"/>
+<path class="st-acc" d="M392 76 L400 84 L392 92" fill="none"/>
+<path class="st-acc" d="M514 76 L522 84 L514 92" fill="none"/>
+<rect class="band-acc" x="40" y="140" width="592" height="36" rx="8"/>
+<text class="fg-t" x="52" y="158" font-size="12" dominant-baseline="central">前四招都用完还是找不到 → 上第 3 章那套对拍：它不猜，直接给你一份能让正解出错的数据</text>
+</svg>
+<ol class="tight">
+<li><b>小数据手推。</b>先自己造一组 <span class="mono">n = 3</span> 的数据，用笔算一遍正确答案，再让程序跑一遍。<b>这一步能定位一半的问题，而且不需要写任何工具。</b></li>
+<li><b>打印中间量。</b>把关键变量在关键位置打到 <span class="mono">stderr</span>，看它在哪一步开始偏离预期。<b>不要用小黄鸭，用 fprintf。</b></li>
+<li><b>二分定位。</b>把程序从中间截断，看前半段的结果对不对 —— 一次砍掉一半的代码嫌疑。</li>
+<li><b><span class="mono">assert</span>。</b>把「我认为一定成立的事」写成断言，让它自己报出来。<b>提交前记得关掉</b>（或开 O2，一般会自动关）。</li>
+<li><b>对拍。</b>前三招都用完了还是找不到，就上第 3 章那套。<b>它不猜，它直接给你一份出错的数据。</b></li>
+</ol>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <cassert>、<cstdio>
+int main() {
+    int n = readInt();
+    assert(1 <= n && n <= 100000);        // 本地自检：万一输入不满足约束，立刻停下
+    int a[100005];
+    for (int i = 1; i <= n; ++i) {
+        a[i] = readInt();
+        assert(i <= 100000);              // 越界之前先报出来
+    }
+    /* ... */
+    // 正式提交前：在文件最上面加一行 #define NDEBUG 关掉 assert，
+    // 或者直接交开 O2 的版本（一般会自动关）。
+    return 0;
+}</script></div>
+<div class="callout">
+<p><b>为什么建议打到 <span class="mono">stderr</span> 而不是 <span class="mono">stdout</span>？</b>因为调试输出混进 <span class="mono">stdout</span> 会让你自己都分不清哪一行是答案、哪一行是调试信息，<b>严重时还会直接把正确的答案挤成 WA</b>。<span class="mono">stderr</span> 不参与答案比较，安全得多。</p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="i7">
+<summary>4.7　三个最贵的坑 + <span class="mono">memset</span> 的真面目<span class="sum-note">原文里的「最贵三坑」，展开讲</span></summary>
+<div class="fold-body">
+<h3>坑一：爆 int</h3>
+<p class="idea">两个 <span class="mono">10⁹</span> 相乘 = <span class="mono">10¹⁸</span>，早就超过 <span class="mono">int</span> 的上限（约 <span class="mono">2.1×10⁹</span>）了。<b>关键是 <span class="mono">int × int</span> 不会自动变成 <span class="mono">long long</span></b> —— 它是先按 <span class="mono">int</span> 算完（已经溢出、结果未定义），再赋值给 <span class="mono">long long</span>。</p>
+<div class="form">✗  long long s = a * b;          // a、b 是 int → 先在 int 里爆掉
+✓  long long s = 1LL * a * b;      // 先转 64 位，运算全程在 long long 里</div>
+<p class="idea"><b>看到乘法、求和、阶乘、组合数，先把默认类型设成 <span class="mono">long long</span>。</b>别等到 WA 了再回来查。</p>
+
+<h3>坑二：数组开小了 1</h3>
+<p class="idea">下标从 1 开始，却只开了 <span class="mono">n</span> 个 —— <span class="mono">a[n]</span> 就是越界。<b>规则：从 1 开始 → 开 <span class="mono">n + 5</span>。</b>多开 5 个不占多少内存，但能省你一次 RE。</p>
+
+<h3>坑三：多组数据忘清空</h3>
+<p class="idea">第二组数据读到上一组的残留，答案莫名其妙。<b>养成习惯：每个「多组数据」的题，读完第一行就先写清空。</b>另外注意：全局数组<b>只在程序启动时</b>清零一次，不是每组数据都清。</p>
+
+<h3><span class="mono">memset</span> 的真面目：它按字节，不按元素</h3>
+<div class="form">memset(ptr, 值, 字节数)   →   把每个【字节】都设成这个值</div>
+<p class="idea">这是理解 <span class="mono">0x3f3f3f3f</span> 的唯一钥匙（第 2 章 2.3 讲过）：</p>
+<ul class="tight">
+<li><span class="mono">memset(dist, 0x3f, sizeof dist)</span> → 每个字节 = <span class="mono">0x3f</span>，一个 <span class="mono">int</span> 有 4 个字节，拼起来是 <span class="mono">0x3f3f3f3f</span> = <b>1061109567</b>（<b>不是 63</b>）</li>
+<li>它<b>只能</b>用来设 <span class="mono">0</span>、<span class="mono">-1</span>、<span class="mono">0x3f</span> 这类「每个字节都相同」的值。想全设成 1 是做不到的 —— 那样得到 <span class="mono">0x01010101</span> = 16843009</li>
+<li>要按元素赋值就用 <span class="mono">fill</span>：<span class="mono">fill(dp, dp + n + 1, -1e18)</span>，想设什么设什么</li>
+</ul>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <cstring>、<algorithm>
+int dist[1005][1005];
+
+memset(dist, 0x3f, sizeof dist);            // ✓ 全部 = 0x3f3f3f3f（无穷大）
+memset(dist, 0,    sizeof dist);            // ✓ 全部 = 0
+memset(dist, -1,   sizeof dist);            // ✓ 全部 = -1
+// memset(dist, 1, sizeof dist);            // ✗ 想全设 1？得到的是 16843009
+
+fill(dist[0], dist[0] + 1005 * 1005, 1000000);   // ✓ 想设什么设什么
+
+// ★ 大坑：sizeof 数组名 = 整个数组的字节数，但【传进函数后退化成指针】
+void reset(int a[1005][1005]) {
+    memset(a, 0, sizeof a);    // ✗ sizeof a 只有 4 或 8（指针大小）！
+    memset(a, 0, sizeof(int) * 1005 * 1005);   // ✓ 只能显式写大小
+}
+
+// ★ 全局变量自动零初始化；struct 成员不会
+struct Node { int a, b; };
+Node x;            // ✗ a、b 是随机值
+Node y{};          // ✓ 零初始化
+int    g[100005];  // ✓ 全局数组默认全 0，不用手动清
+int main() {
+    int loc[100005];   // ✗ 局部数组是随机值，必须自己初始化
+    return 0;
+}</script></div>
+</div>
+</details>
+
+<details class="fold" id="i8">
+<summary>4.8　题单：专门打边界的题<span class="sum-note">原文给的三道，说明各自打什么</span></summary>
+<div class="fold-body">
+<table>
+<thead><tr><th class="num">题目</th><th>专治哪种错</th></tr></thead>
+<tbody>
+<tr><td class="num"><b>P1001</b><br>A+B Problem</td><td><b>输出格式</b>。最简的题，专门用来确认「你的输出和样例逐字符一致吗」—— 包括行末有没有多余空格、有没有多余的换行</td></tr>
+<tr><td class="num"><b>P1307</b><br>数字反转</td><td><b>负数与末尾 0</b>。输入 <span class="mono">-380</span> 要输出 <span class="mono">-83</span>；输入 <span class="mono">1000</span> 要输出 <span class="mono">1</span>。这是「边界没特判」的经典教材</td></tr>
+<tr><td class="num"><b>P5710</b><br>数的性质</td><td><b>多组边界</b>。条件互相交叉，很容易在某一个组合上漏判断。<b>建议写完后自己造一组「每个条件都恰好取到边界」的数据</b></td></tr>
+</tbody>
+</table>
+<div class="callout ok">
+<p><b>一个能立刻用上的习惯：</b>每道题 AC 之后，<b>回头补一组「最小、最大、全相同、含负数」的测试</b>自己跑一遍。<br>这道题已经过了，但这四组数据会变成你<b>下次</b>写同类题时的边界清单 —— 这就是「错误字典」真正积累起来的方式。</p>
+</div>
+<p class="ref">做完这三道之后，可以去 <a href="practice.html" target="_blank">题练场</a> 按算法分组再刷一轮，每道题都刻意检查一遍 4.3 里那五个 WA 原因。</p>
+</div>
+</details>
+
+<h2 id="c5">5 · 离散化：把「很大的数」压成「很小的下标」</h2>
+<p class="lead">前四件是「做事的习惯」，这第五件是<b>一件具体的前置技能</b>。它本身只有十几行代码，但没有它，树状数组、线段树、扫描线这些结构有一大半题目都用不了。</p>
+
+<details class="fold" id="j1" open>
+<summary>5.1　本质与三步<span class="sum-note">值域 10⁹ → 下标 n</span></summary>
+<div class="fold-body">
+<p class="idea"><b>本质</b>：当数值很大（比如到 <span class="mono">10⁹</span>）但<b>个数很少</b>（比如 <span class="mono">10⁵</span>）时，我们往往只关心它们的<b>相对大小</b>，而不关心具体是多少。把「排序去重后的排名」当作新下标，值域就从 <span class="mono">10⁹</span> 缩到 <span class="mono">n</span>。</p>
+<div class="form">三步：① 拷一份存起来   ② sort + unique 去重   ③ lower_bound 查排名（排名就是新下标）</div>
+<svg class="fig" viewBox="0 0 0 0 680 264" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>离散化前后的对照</title>
+<desc>原始值一百、三、三、五十五、一百、三变成排名三、一、一、二、三、一，映射关系是三到一、五十五到二、一百到三，值域从十亿降到三。</desc>
+<text class="fg-s" x="40" y="26" font-size="12.5">值域 10⁹ → 下标 1..n：只保留「相对大小」</text>
+<text class="fg-s" x="40" y="57" font-size="12" dominant-baseline="central">原始值</text>
+<text class="fg-mono fg-t" x="164" y="57" font-size="13" text-anchor="middle" dominant-baseline="central">100</text>
+<text class="fg-mono fg-t" x="246" y="57" font-size="13" text-anchor="middle" dominant-baseline="central">3</text>
+<text class="fg-mono fg-t" x="328" y="57" font-size="13" text-anchor="middle" dominant-baseline="central">3</text>
+<text class="fg-mono fg-t" x="410" y="57" font-size="13" text-anchor="middle" dominant-baseline="central">55</text>
+<text class="fg-mono fg-t" x="492" y="57" font-size="13" text-anchor="middle" dominant-baseline="central">100</text>
+<text class="fg-mono fg-t" x="574" y="57" font-size="13" text-anchor="middle" dominant-baseline="central">3</text>
+<rect class="fg-card" x="128" y="42" width="72" height="30" rx="6"/>
+<rect class="fg-card" x="210" y="42" width="72" height="30" rx="6"/>
+<rect class="fg-card" x="292" y="42" width="72" height="30" rx="6"/>
+<rect class="fg-card" x="374" y="42" width="72" height="30" rx="6"/>
+<rect class="fg-card" x="456" y="42" width="72" height="30" rx="6"/>
+<rect class="fg-card" x="538" y="42" width="72" height="30" rx="6"/>
+<path class="st-dan" d="M120 74 V88" fill="none" stroke-dasharray="3 3"/>
+<path class="ah-dan" d="M120 92 L116 85 L124 85 Z"/>
+<text class="fg-s" x="40" y="107" font-size="12" dominant-baseline="central">排名</text>
+<text class="fg-mono tx-acc" x="164" y="107" font-size="13" text-anchor="middle" dominant-baseline="central">3</text>
+<text class="fg-mono tx-acc" x="246" y="107" font-size="13" text-anchor="middle" dominant-baseline="central">1</text>
+<text class="fg-mono tx-acc" x="328" y="107" font-size="13" text-anchor="middle" dominant-baseline="central">1</text>
+<text class="fg-mono tx-acc" x="410" y="107" font-size="13" text-anchor="middle" dominant-baseline="central">2</text>
+<text class="fg-mono tx-acc" x="492" y="107" font-size="13" text-anchor="middle" dominant-baseline="central">3</text>
+<text class="fg-mono tx-acc" x="574" y="107" font-size="13" text-anchor="middle" dominant-baseline="central">1</text>
+<rect class="bd bd-acc" x="128" y="92" width="72" height="30" rx="6"/>
+<rect class="bd bd-acc" x="210" y="92" width="72" height="30" rx="6"/>
+<rect class="bd bd-acc" x="292" y="92" width="72" height="30" rx="6"/>
+<rect class="bd bd-acc" x="374" y="92" width="72" height="30" rx="6"/>
+<rect class="bd bd-acc" x="456" y="92" width="72" height="30" rx="6"/>
+<rect class="bd bd-acc" x="538" y="92" width="72" height="30" rx="6"/>
+<text class="fg-s" x="40" y="155" font-size="12" dominant-baseline="central">值域</text>
+<rect class="bd bd-dan" x="110" y="143" width="490" height="18" rx="4"/>
+<text class="fg-t" x="120" y="152" font-size="11" dominant-baseline="central">原始 0 ~ 10⁹：桶和树状数组都开不出来</text>
+<rect class="bd bd-ok" x="110" y="171" width="8" height="18" rx="3"/>
+<text class="tx-ok" x="126" y="180" font-size="11" dominant-baseline="central">离散化后 1 ~ n（n 是不同值的个数，这个例子里是 3）</text>
+<rect class="band-ok" x="40" y="200" width="600" height="44" rx="8"/>
+<text class="fg-t" x="52" y="220" font-size="12">排名完整保留了「谁大谁小」的全部信息，所以第 k 小、比 x 小的有几个、逆序对这些都能做。</text>
+<text class="fg-t" x="52" y="238" font-size="12">但它丢掉了「相差多少」—— 求和、算距离的题不能直接对排名下手（见 5.4）。</text>
+</svg>
+<p class="figcap">原始值 <span class="mono">[100, 3, 3, 55, 100, 3]</span> → 排名 <span class="mono">[3, 1, 1, 2, 3, 1]</span>，映射表 <span class="mono">{3→1, 55→2, 100→3}</span>。<b>值之间的「大小关系」被完整保留</b>，这就是它能用的原因。</p>
+<div class="callout">
+<p><b>为什么需要它？</b>因为「桶」和「树」这两种结构都要求<b>下标是紧凑的整数</b>。<span class="mono">10⁹</span> 个桶开不出来（4 GB）；但 <span class="mono">10⁵</span> 个桶、<span class="mono">10⁵</span> 个节点的树状数组毫无压力。<b>离散化做的事，就是把「值」翻译成「位置」。</b></p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="j2">
+<summary>5.2　完整模板（含 <span class="mono">unique</span> 的机制）<span class="sum-note">最容易误解的一步</span></summary>
+<div class="fold-body">
+<svg class="fig" viewBox="0 0 0 0 680 254" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>unique 的机制</title>
+<desc>排序后的六个元素，unique 只把不重复的三个挪到前面并返回新结尾位置，容器长度不变，剩下的三个格子内容未定义。</desc>
+<text class="fg-s" x="40" y="26" font-size="12.5">unique 不删除元素，只把不重复的挪到前面 —— 必须配 erase 才真正变短</text>
+<text class="fg-s" x="40" y="57" font-size="12" dominant-baseline="central">sort 之后</text>
+<text class="fg-mono fg-t" x="164" y="57" font-size="13" text-anchor="middle" dominant-baseline="central">3</text>
+<text class="fg-mono fg-t" x="246" y="57" font-size="13" text-anchor="middle" dominant-baseline="central">3</text>
+<text class="fg-mono fg-t" x="328" y="57" font-size="13" text-anchor="middle" dominant-baseline="central">3</text>
+<text class="fg-mono fg-t" x="410" y="57" font-size="13" text-anchor="middle" dominant-baseline="central">55</text>
+<text class="fg-mono fg-t" x="492" y="57" font-size="13" text-anchor="middle" dominant-baseline="central">100</text>
+<text class="fg-mono fg-t" x="574" y="57" font-size="13" text-anchor="middle" dominant-baseline="central">100</text>
+<rect class="bd bd-ok" x="128" y="42" width="72" height="30" rx="6"/>
+<rect class="bd bd-ok" x="210" y="42" width="72" height="30" rx="6"/>
+<rect class="bd bd-ok" x="292" y="42" width="72" height="30" rx="6"/>
+<rect class="bd bd-ok" x="374" y="42" width="72" height="30" rx="6"/>
+<rect class="bd bd-ok" x="456" y="42" width="72" height="30" rx="6"/>
+<rect class="bd bd-ok" x="538" y="42" width="72" height="30" rx="6"/>
+<text class="fg-s" x="40" y="107" font-size="12" dominant-baseline="central">unique 之后</text>
+<text class="fg-mono tx-ok" x="164" y="107" font-size="13" text-anchor="middle" dominant-baseline="central">3</text>
+<text class="fg-mono tx-ok" x="246" y="107" font-size="13" text-anchor="middle" dominant-baseline="central">55</text>
+<text class="fg-mono tx-ok" x="328" y="107" font-size="13" text-anchor="middle" dominant-baseline="central">100</text>
+<text class="fg-mono tx-dan" x="410" y="107" font-size="13" text-anchor="middle" dominant-baseline="central">?</text>
+<text class="fg-mono tx-dan" x="492" y="107" font-size="13" text-anchor="middle" dominant-baseline="central">?</text>
+<text class="fg-mono tx-dan" x="574" y="107" font-size="13" text-anchor="middle" dominant-baseline="central">?</text>
+<rect class="bd bd-ok" x="128" y="92" width="72" height="30" rx="6"/>
+<rect class="bd bd-ok" x="210" y="92" width="72" height="30" rx="6"/>
+<rect class="bd bd-ok" x="292" y="92" width="72" height="30" rx="6"/>
+<rect class="bd-dash" x="374" y="92" width="72" height="30" rx="6"/>
+<rect class="bd-dash" x="456" y="92" width="72" height="30" rx="6"/>
+<rect class="bd-dash" x="538" y="92" width="72" height="30" rx="6"/>
+<line class="st-dan" x1="374" y1="88" x2="374" y2="126" stroke-dasharray="3 3"/>
+<text class="tx-dan" x="378" y="84" font-size="10.5">返回值指向这里</text>
+<text class="fg-s" x="40" y="157" font-size="12" dominant-baseline="central">erase 之后</text>
+<text class="fg-mono tx-ok" x="164" y="157" font-size="13" text-anchor="middle" dominant-baseline="central">3</text>
+<text class="fg-mono tx-ok" x="246" y="157" font-size="13" text-anchor="middle" dominant-baseline="central">55</text>
+<text class="fg-mono tx-ok" x="328" y="157" font-size="13" text-anchor="middle" dominant-baseline="central">100</text>
+<rect class="bd bd-ok" x="128" y="142" width="72" height="30" rx="6"/>
+<rect class="bd bd-ok" x="210" y="142" width="72" height="30" rx="6"/>
+<rect class="bd bd-ok" x="292" y="142" width="72" height="30" rx="6"/>
+<text class="fg-s" x="378" y="157" font-size="11" dominant-baseline="central">长度这才真的变成 3</text>
+<rect class="band-warn" x="40" y="180" width="600" height="54" rx="8"/>
+<text class="fg-t" x="52" y="200" font-size="12">后面那 3 个格子的内容是「未定义」的 —— 它们还在容器里，还会被 lower_bound 搜到。</text>
+<text class="fg-t" x="52" y="220" font-size="12">所以只调 unique 不调 erase，排名一定错位，而且不会报任何错。</text>
+</svg>
+<p class="figcap"><span class="mono">unique</span> <b>不删除元素、也不改变容器长度</b>，只是把不重复的挪到前面，然后返回「新逻辑结尾」的位置。</p>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>、<vector>
+using namespace std;
+
+// ========== 标准三步模板 ==========
+vector<int> a = {100, 3, 3, 55, 100, 3};
+
+vector<int> b = a;                                    // ① 备份（排序会破坏原顺序）
+sort(b.begin(), b.end());                             // ② 排序
+b.erase(unique(b.begin(), b.end()), b.end());         //    去重 —— 注意必须配 erase
+
+// ③ 查排名：lower_bound 返回迭代器，减去 begin() 得到下标
+vector<int> rk(a.size());
+for (size_t i = 0; i < a.size(); ++i)
+    rk[i] = int(lower_bound(b.begin(), b.end(), a[i]) - b.begin()) + 1;   // 1 开始
+
+// a  =  100   3   3   55  100   3
+// rk =    3   1   1    2    3   1
+// 映射表：3 → 1，55 → 2，100 → 3
+
+// ========== 如果原值是 long long ==========
+// 模板完全一样，把 vector<int> 换成 vector<long long> 即可，
+// lower_bound 会自动按 long long 比较，不需要额外处理。</script></div>
+<h3>为什么 <span class="mono">unique</span> 必须配 <span class="mono">erase</span></h3>
+<p class="idea"><span class="mono">unique</span> 的返回值是「新逻辑结尾」的迭代器，<b>容器本身的 <span class="mono">size()</span> 一点没变</b>。只调 <span class="mono">unique</span> 不 <span class="mono">erase</span>，后面那几个「已失效但还占着位置」的元素还会被 <span class="mono">lower_bound</span> 搜到 —— 排名就全错了。</p>
+<div class="form">b.erase(unique(b.begin(), b.end()), b.end());
+          └─ 返回新结尾 ─┘                └─ 从新结尾删到真正的末尾 ─┘</div>
+<div class="callout warn">
+<p><b>还要记住 <span class="mono">unique</span> 的前提：区间必须已经有序。</b>它只去掉<b>相邻的</b>重复项。<span class="mono">[3, 55, 3]</span> 不排序直接 <span class="mono">unique</span>，结果还是 <span class="mono">[3, 55, 3]</span> —— 一个都没去掉。<b>顺序永远是：先 sort，再 unique。</b></p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="j3">
+<summary>5.3　用到的四个函数：参数、返回值、复杂度<span class="sum-note">一次讲清，不用再查</span></summary>
+<div class="fold-body">
+<table>
+<thead><tr><th class="num">函数</th><th>作用</th><th>返回 / 复杂度</th><th>最容易错的地方</th></tr></thead>
+<tbody>
+<tr>
+<td class="num mono">sort(f, l)</td>
+<td>把 <span class="mono">[f, l)</span> 升序排序，在 <span class="mono">&lt;algorithm&gt;</span></td>
+<td>无返回值 · <b>O(n log n)</b>，<b>不稳定</b></td>
+<td><b>左闭右开</b>：对数组要写 <span class="mono">sort(a, a + n)</span>，<b>不是 <span class="mono">a + n − 1</span></b></td>
+</tr>
+<tr>
+<td class="num mono">unique(f, l)</td>
+<td>把<b>相邻</b>的重复元素挪到后面，在 <span class="mono">&lt;algorithm&gt;</span></td>
+<td>返回<b>新逻辑结尾</b>的迭代器 · O(n)</td>
+<td><b>不删除元素、不改长度</b>；<b>要求区间已有序</b>；必须配 <span class="mono">erase</span></td>
+</tr>
+<tr>
+<td class="num mono">lower_bound(f, l, x)</td>
+<td>在<b>有序</b>区间里找第一个 <b>≥ x</b> 的位置，二分实现</td>
+<td>返回迭代器（全都 &lt; x 时返回 <span class="mono">l</span>）· <b>O(log n)</b></td>
+<td>区间<b>必须有序</b>，否则结果随机；改成下发问 <span class="mono">- begin()</span> 拿 0-based 下标</td>
+</tr>
+<tr>
+<td class="num mono">v.erase(f, l)</td>
+<td>删除一段区间，后面的元素整体前移</td>
+<td>返回被删区间之后的第一个位置 · <b>O(n)</b></td>
+<td>删除会让<b>后面的迭代器全部失效</b>，别在遍历里随手 erase</td>
+</tr>
+</tbody>
+</table>
+<div class="callout">
+<p><b>顺带把 <span class="mono">upper_bound</span> 一起记了：</b>它返回第一个 <b>&gt; x</b> 的位置。<br>
+<span class="mono">lower_bound(b, x) - begin() + 1</span> = <b>x 的排名</b>（从 1 开始，也是「比 x 小的个数 + 1」）<br>
+<span class="mono">upper_bound(b, x) - lower_bound(b, x)</span> = <b>x 重复出现的次数</b><br>
+<span class="mono">lower_bound(b, x) - begin()</span> = <b>比 x 小的元素个数</b></p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="j4">
+<summary>5.4　离散化会丢掉什么<span class="sum-note">什么时候不能这么干</span></summary>
+<div class="fold-body">
+<p class="idea">这是原文里那句「要注意」的完整版 —— <b>也是唯一一个会让你用错离散化的地方。</b></p>
+<svg class="fig" viewBox="0 0 0 0 680 288" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>离散化能做什么和不能做什么</title>
+<desc>只需要顺序的问题可以离散化，需要距离或求和的问题不能直接离散化，因为排名之间的差会从五十二变成一。</desc>
+<text class="fg-s" x="40" y="26" font-size="12.5">判断标准只有一句话：你要的是「顺序」还是「距离」？</text>
+<rect class="fg-card" x="40" y="42" width="290" height="170" rx="10"/>
+<rect class="bd bd-ok" x="52" y="54" width="266" height="28" rx="6"/>
+<text class="tx-ok" x="185" y="68" font-size="12.5" text-anchor="middle" dominant-baseline="central">只需要顺序 → 可以离散化</text>
+<text class="fg-t" x="56" y="100" font-size="11.5">第 k 小 / 排名</text>
+<text class="fg-t" x="56" y="120" font-size="11.5">比 x 小的有几个</text>
+<text class="fg-t" x="56" y="140" font-size="11.5">逆序对（只比大小）</text>
+<text class="fg-t" x="56" y="160" font-size="11.5">去重后的种类数</text>
+<text class="tx-ok" x="56" y="186" font-size="11">排名保留了全部的顺序关系</text>
+<rect class="fg-card" x="350" y="42" width="290" height="170" rx="10"/>
+<rect class="bd bd-dan" x="362" y="54" width="266" height="28" rx="6"/>
+<text class="tx-dan" x="495" y="68" font-size="12.5" text-anchor="middle" dominant-baseline="central">需要距离 → 不能直接用</text>
+<text class="fg-t" x="366" y="100" font-size="11.5">区间和 / 加权和</text>
+<text class="fg-t" x="366" y="120" font-size="11.5">两点距离 / 面积</text>
+<text class="fg-t" x="366" y="140" font-size="11.5">计数（个数也要小心）</text>
+<text class="fg-t" x="366" y="160" font-size="11.5">3, 55, 100 → 1, 2, 3</text>
+<text class="tx-dan" x="366" y="186" font-size="11">差 52 变成差 1，求和全错</text>
+<rect class="band-ok" x="40" y="224" width="600" height="44" rx="8"/>
+<text class="fg-t" x="52" y="244" font-size="12">补救：离散化时同时保留原值 —— 位置用排名（紧凑），数值用原值（不丢距离），两者配对使用。</text>
+<text class="fg-t" x="52" y="262" font-size="12">另一条路：只压缩坐标轴、不压权值 —— 扫描线就是这么干的，区间长度靠相邻坐标差算回来。</text>
+</svg>
+<p class="figcap">判断标准就一句话：<b>你要的是「顺序」还是「距离」？</b></p>
+<table>
+<thead><tr><th>问题在问什么</th><th>能离散化吗</th><th>例子</th></tr></thead>
+<tbody>
+<tr><td><b>谁大谁小 / 排第几</b></td><td class="ok"><b>能</b></td><td>第 k 小、比 x 小的有几个、排名、逆序对（只要比出大小）、去重后的种类数</td></tr>
+<tr><td><b>相差多少 / 加起来是多少</b></td><td class="dan"><b>不能直接用</b></td><td>区间和、加权和、两点距离、面积、计数（个数也要小心）</td></tr>
+</tbody>
+</table>
+<div class="callout ok">
+<p><b>补救办法（很常用）：</b>离散化时<b>同时保留原值</b>，用原值参与数值计算，用排名参与下标寻址，两者配对使用。</p>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>、<vector>
+// 树的节点：位置用排名（紧凑），数值用原值（不丢距离）
+struct Node { int pos; long long val; };
+
+// 例：求「区间和」时，树状数组存的是 val，索引用的是 pos
+//     离散化只压缩了【坐标轴】，没有压缩【权值】
+add(rank(x), value);        // 排名当索引，原值当权
+long long s = query(rank(r)) - query(rank(l) - 1);</script></div>
+<p><b>另一条路：不压缩坐标轴，改成只保留「关键点」。</b>比如扫描线求矩形面积并，只用到矩形的 <span class="mono">2n</span> 条竖直边，把它们的 x 坐标离散化，这样<b>区间长度</b>可以靠相邻两个坐标的差算回来，距离信息并没有丢。</p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="j5">
+<summary>5.5　离散化之后能干什么<span class="sum-note">它为什么是「前置技能」</span></summary>
+<div class="fold-body">
+<p class="idea">值域从 <span class="mono">10⁹</span> 降到 <span class="mono">10⁵</span> 之后，一大批「下标必须紧凑」的结构才能用上：</p>
+<table>
+<thead><tr><th class="num">解锁的东西</th><th>离散化在这里做什么</th></tr></thead>
+<tbody>
+<tr><td class="num"><b>树状数组求逆序对</b></td><td>把数值当索引。原值 <span class="mono">10⁹</span> 开不了那么大的数组，离散化后 <span class="mono">n</span> 个格子正好</td></tr>
+<tr><td class="num"><b>线段树 / 主席树</b></td><td>「第 k 小」「区间内第 k 大」—— 树的下标就是离散化排名</td></tr>
+<tr><td class="num"><b>权值线段树</b></td><td>同上，用排名当权值下标，才能统计「某个区间的数有几个」</td></tr>
+<tr><td class="num"><b>扫描线求矩形面积并</b></td><td>把 <span class="mono">2n</span> 条竖边的 x 坐标离散化，区间长度用相邻坐标差算</td></tr>
+<tr><td class="num"><b>桶计数</b></td><td>本来开 <span class="mono">10⁹</span> 个桶是 4 GB；离散化后 <span class="mono">n</span> 个桶就能数了</td></tr>
+</tbody>
+</table>
+<div class="callout">
+<p><b>一道题里它往往只是一行工具。</b>所以真正要记住的不是「离散化怎么写」（第 5.2 节那 5 行已经够了），而是<b>「什么时候该想到它」</b> —— 当你发现「值域很大、但个数不多」，而且想用「按下标寻址」的结构时，就该想起它。</p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="j6">
+<summary>5.6　离散化部分的六条常见错误<span class="sum-note">第一条最常见</span></summary>
+<div class="fold-body">
+<h3>1. 用了 <span class="mono">unique</span> 却没有 <span class="mono">erase</span></h3>
+<p class="idea">最常见的一条。容器长度没变，后面那些失效元素还会被搜到，排名整体错位。<b>写成一行 <span class="mono">b.erase(unique(b.begin(), b.end()), b.end());</span> 就不会忘。</b></p>
+
+<h3>2. 先 <span class="mono">unique</span> 才 <span class="mono">sort</span></h3>
+<p class="idea"><span class="mono">unique</span> 只处理相邻重复。<b>顺序必须是 sort → unique。</b>写反了一个都去不掉，而且不报错。</p>
+
+<h3>3. <span class="mono">lower_bound</span> 之前忘了保证有序</h3>
+<p class="idea"><span class="mono">lower_bound</span> 是二分，区间无序时结果是<b>随机的</b>（不是报错，是安静地给你错答案）。所有 <span class="mono">lower_bound</span> / <span class="mono">upper_bound</span> / 二分查找都要求有序。</p>
+
+<h3>4. 忘记 <span class="mono">+1</span> 或 <span class="mono">-1</span>，1-based 与 0-based 混用</h3>
+<p class="idea"><span class="mono">- b.begin()</span> 得到 0-based；<span class="mono">+1</span> 变成 1-based。<b>选一种用到底。</b>混用的典型症状是「答案差 1」或者「最后一个元素丢失」—— 树状数组通常要 1-based（因为 <span class="mono">lowbit(0) = 0</span> 会死循环）。</p>
+
+<h3>5. 覆盖了原数组</h3>
+<p class="idea">直接 <span class="mono">sort(a)</span> 再离散化，原顺序就没了 —— 而很多题需要「原来的第 i 个数」。</p>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>、<vector>
+// ✗ 直接排序原数组，原顺序丢了
+sort(a.begin(), a.end());
+// 后面想找「原来第 3 个数是多少」已经找不到了
+
+// ✓ 拷一份出来排序，原数组不动
+vector<int> b = a;
+sort(b.begin(), b.end());
+b.erase(unique(b.begin(), b.end()), b.end());</script></div>
+
+<h3>6. 把「距离信息」也一起离散掉了</h3>
+<p class="idea">见 5.4。需要求和、算距离、算面积的题，离散化只能压缩坐标轴，不能压缩权值。<b>离散化之后直接对排名求和，答案一定是错的。</b></p>
+<div class="callout warn">
+<p><b>自检清单（写完离散化立刻核对）：</b><br>
+① sort 和 unique 的顺序对吗？ ② 有 <span class="mono">erase</span> 吗？<br>
+③ 排名是 0 还是 1 开始，全文一致吗？ ④ 原数组有没有被破坏？<br>
+⑤ 这道题要的是「顺序」还是「距离」？</p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="j7">
+<summary>5.7　题单：离散化的三道必做<span class="sum-note">原文给的三道，说明各自练什么</span></summary>
+<div class="fold-body">
+<table>
+<thead><tr><th class="num">题目</th><th>练什么</th><th>做完应该记住</th></tr></thead>
+<tbody>
+<tr>
+<td class="num"><b>P1908</b><br>逆序对</td>
+<td><b>必做。</b>树状数组 + 离散化的标准组合：值当索引，从右往左扫，统计「比当前数小的有几个」</td>
+<td><span class="mono">ans += query(rank) - query(rank - 1)</span> 里的下标为什么必须是 1-based</td>
+</tr>
+<tr>
+<td class="num"><b>P1955</b><br>[NOI2015] 程序自动分析</td>
+<td>并查集 + 离散化。<b>变量名是 10⁹ 量级的编号，但个数只有 10⁵</b> —— 典型的「值域大、个数少」</td>
+<td>离散化不只是为了数组下标，<b>任何「把大编号当集合元素」的场景都要它</b></td>
+</tr>
+<tr>
+<td class="num"><b>P5490</b><br>「模板」扫描线</td>
+<td>线段树 + 离散化 + <b>「只压缩坐标轴、不压权值」</b> 的经典场面：区间长度靠相邻坐标差算回来</td>
+<td>这就是 5.4 那个「补救办法」的真实用法</td>
+</tr>
+</tbody>
+</table>
+<div class="callout ok">
+<p><b>建议的顺序：</b>先做 P1908（最纯粹的离散化 + 树状数组，一遍就能把模板记住），
+再做 P1955（感受「离散化不止用于数组下标」），最后做 P5490（理解「坐标轴可以压、权值不能压」）。</p>
+</div>
+<p class="ref">这些题在 <a href="practice.html" target="_blank">题练场</a> 的「基础数据结构」与「进阶」分组里都能找到；对应的算法卡片在 <a href="./index.html">学习手册</a> 的「树状数组」「线段树」「并查集」三张卡上。</p>
+</div>
+</details>
+
+<h2 id="next">6 · 五件事怎么配合</h2>
+<div class="callout">
+<p>这五件不是并列的清单，它们出现在<b>做一道题的不同阶段</b>：</p>
+<table>
+<thead><tr><th class="num">阶段</th><th>哪一件</th><th>它回答的问题</th></tr></thead>
+<tbody>
+<tr><td class="num">动手之前</td><td><b>1 复杂度分析</b></td><td>这个思路值不值得写？n 这么大，它能过吗？</td></tr>
+<tr><td class="num">动手之中</td><td><b>2 竞赛代码脚手架</b></td><td>怎么少打断思路，把注意力留给算法本身？</td></tr>
+<tr><td class="num">交出结果之后</td><td><b>4 常见错误字典</b></td><td>评测机说了个词，我该往哪个方向查？</td></tr>
+<tr><td class="num">还是过不了</td><td><b>3 对拍</b></td><td>怎么用机器证明我错了，并且直接给我一份出错的数据？</td></tr>
+<tr><td class="num">贯穿始终</td><td><b>5 离散化</b></td><td>值域太大开不下数组时，怎么把「值」翻译成「位置」？</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout ok">
+<p><b>如果五件里只能记住一条：</b>把「我觉得对了」和「它确实对了」分开对待。前者什么都不是，后者需要证据 —— 而对拍就是最便宜的那份证据。</p>
+<p>这五件练成条件反射之后，「卡在入门」基本就不会再发生了：<b>不会因为估错复杂度而选错思路，不会因为环境问题浪费半小时，也不会在 WA 面前瞎改代码。</b></p>
+</div>
+<p class="ref">下一步：<a href="./index.html">学习手册</a>（122 张算法卡片，按入门 / 基础 / 进阶三层）· <a href="./practice.html">题练场</a>（洛谷真题 + 浏览器内判定）· <a href="./plan.html">学习计划</a>（8 周训练表）。</p>
 
 <p class="ref">相关页面：<a href="./index.html">学习手册</a>（122 张算法卡片）· <a href="./practice.html">题练场</a>（洛谷真题 + 多语言题解）· <a href="./plan.html">学习计划</a>（12 周训练表）</p>
 </main>

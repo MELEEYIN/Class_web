@@ -583,7 +583,7 @@ int main(){
   <h2 class="clk"><span class="num">1</span>基本功：先把「工具」磨利<span class="caret">▾</span><span class="fold-hint"></span></h2>
   <div class="secbody">
     <p class="lead">这一章不教算法，教的是<b>做算法题的肌肉记忆</b>。很多人卡在入门，不是因为算法难，而是因为：不会估复杂度、不会调试、不知道自己在写什么。先把这五件事做完。</p>
-    <p class="hint" style="margin-bottom:14px">第 <b>1、2</b> 件已经在 <a href="./daily.html">日常开发</a> 页展开成完整的可折叠讲解（含 9 张手绘图表），点卡片右上角的 <b>深入展开 →</b> 过去看。第 3～5 件目前只有下面这份简版。</p>
+    <p class="hint" style="margin-bottom:14px">这 <b>5 件</b>都已经在 <a href="./daily.html">日常开发</a> 页展开成完整的可折叠讲解 —— 一共 41 张可折叠卡片、18 张手绘图表。点卡片右上角的 <b>深入展开 →</b> 过去看。</p>
 
     <article class="algo" id="s1-1" data-cat="基本功" data-new="1" data-name="复杂度分析 时间 空间 估算">
       <div class="ah"><h4>1. 复杂度分析：一分钟算出「能不能过」</h4><span class="lv lv-e">入门</span><span class="st">★</span><span class="tag">必会</span><span class="new">补充</span><a class="more" href="./daily.html#c1" title="在「日常开发」页展开成完整的可折叠讲解">深入展开 →</a></div>
@@ -723,7 +723,7 @@ inline void writeInt(int x){
     </article>
 
     <article class="algo" id="s1-3" data-cat="基本功" data-new="1" data-name="对拍 随机数据 暴力 调试 stress test">
-      <div class="ah"><h4>3. 对拍：用随机数据证明自己是对的</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">调试神器</span><span class="new">补充</span></div>
+      <div class="ah"><h4>3. 对拍：用随机数据证明自己是对的</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">调试神器</span><span class="new">补充</span><a class="more" href="./daily.html#c3" title="在「日常开发」页展开成完整的可折叠讲解">深入展开 →</a></div>
       <p class="idea"><b>本质</b>：写一个「肯定对但很慢」的暴力程序，再写一个随机数据生成器，让两者在同一份数据上跑，<b>输出不一致就说明正解错了</b>。这是竞赛里唯一可靠的调试手段。</p>
       <p><b>对拍三件套</b>：① <code>gen</code> 数据生成器；② <code>brute</code> 暴力（枚举/搜索，慢但一定对）；③ <code>std</code> 你的正解。循环比较两者输出，不同就停下并把数据存下来。</p>
       <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- ① 数据生成器 gen.cpp ----------
@@ -785,7 +785,7 @@ int main(){
     </article>
 
     <article class="algo" id="s1-4" data-cat="基本功" data-new="1" data-name="RE WA TLE MLE 错误 排查 常见错误">
-      <div class="ah"><h4>4. 常见错误字典：看到结果就知道错在哪</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">排查</span><span class="new">补充</span></div>
+      <div class="ah"><h4>4. 常见错误字典：看到结果就知道错在哪</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">排查</span><span class="new">补充</span><a class="more" href="./daily.html#c4" title="在「日常开发」页展开成完整的可折叠讲解">深入展开 →</a></div>
       <p class="idea"><b>本质</b>：把「玄学错误」变成「查表」。评测机给的结果只有几种，每一种背后的原因都非常固定。</p>
       <table>
         <tr><th class="c">结果</th><th>含义</th><th>最先检查这四件事</th></tr>
@@ -836,7 +836,7 @@ ans = (ans % MOD + MOD) % MOD;
     </article>
 
     <article class="algo" id="s1-5" data-cat="基本功" data-new="1" data-name="离散化 坐标压缩 值域映射">
-      <div class="ah"><h4>5. 离散化：把「很大的数」压成「很小的下标」</h4><span class="lv lv-b">基础</span><span class="st">★★</span><span class="tag">前置技能</span><span class="new">补充</span></div>
+      <div class="ah"><h4>5. 离散化：把「很大的数」压成「很小的下标」</h4><span class="lv lv-b">基础</span><span class="st">★★</span><span class="tag">前置技能</span><span class="new">补充</span><a class="more" href="./daily.html#c5" title="在「日常开发」页展开成完整的可折叠讲解">深入展开 →</a></div>
       <p class="idea"><b>本质</b>：当数值很大（比如 10⁹）但<b>个数很少</b>（比如 10⁵）时，我们只关心它们的<b>相对大小</b>。把「排序去重后的排名」当作新下标，值域就从 10⁹ 变成 n。</p>
       <p><b>三步</b>：① 把所有值拷一份存起来；② <code>sort</code> + <code>unique</code> 去重；③ <code>lower_bound</code> 查排名，排名就是新下标。</p>
       <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>、<vector>
