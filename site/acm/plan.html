@@ -209,6 +209,11 @@ ol.tight li{margin:4px 0}
 .st{background:rgb(var(--warn-rgb) / .14);color:rgb(var(--warn-rgb));border-color:rgb(var(--warn-rgb) / .28);letter-spacing:1px}
 .tag{background:rgb(148 163 184 / .14);color:var(--text-2);border-color:var(--line)}
 .new{background:rgb(var(--ok-rgb) / .14);color:rgb(var(--ok-rgb));border-color:rgb(var(--ok-rgb) / .32);letter-spacing:.5px}
+/* 卡片右上角的「深入展开 →」：跳到「日常开发」页对应的章节 */
+.ah a.more{margin-left:auto;font-size:11.5px;font-weight:650;white-space:nowrap;text-decoration:none;
+  border:1px solid rgb(var(--accent-rgb) / .45);background:rgb(var(--accent-rgb) / .12);
+  color:var(--accent);border-radius:20px;padding:2px 10px}
+.ah a.more:hover{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);text-decoration:none}
 .algo p{margin:5px 0;font-size:13.6px;color:var(--text-2)}
 .algo p b,.algo li b{color:var(--text)}
 .idea b{color:var(--text)}
@@ -578,9 +583,10 @@ int main(){
   <h2 class="clk"><span class="num">1</span>基本功：先把「工具」磨利<span class="caret">▾</span><span class="fold-hint"></span></h2>
   <div class="secbody">
     <p class="lead">这一章不教算法，教的是<b>做算法题的肌肉记忆</b>。很多人卡在入门，不是因为算法难，而是因为：不会估复杂度、不会调试、不知道自己在写什么。先把这五件事做完。</p>
+    <p class="hint" style="margin-bottom:14px">第 <b>1、2</b> 件已经在 <a href="./daily.html">日常开发</a> 页展开成完整的可折叠讲解（含 9 张手绘图表），点卡片右上角的 <b>深入展开 →</b> 过去看。第 3～5 件目前只有下面这份简版。</p>
 
-    <article class="algo" data-cat="基本功" data-new="1" data-name="复杂度分析 时间 空间 估算">
-      <div class="ah"><h4>1. 复杂度分析：一分钟算出「能不能过」</h4><span class="lv lv-e">入门</span><span class="st">★</span><span class="tag">必会</span><span class="new">补充</span></div>
+    <article class="algo" id="s1-1" data-cat="基本功" data-new="1" data-name="复杂度分析 时间 空间 估算">
+      <div class="ah"><h4>1. 复杂度分析：一分钟算出「能不能过」</h4><span class="lv lv-e">入门</span><span class="st">★</span><span class="tag">必会</span><span class="new">补充</span><a class="more" href="./daily.html#c1" title="在「日常开发」页展开成完整的可折叠讲解">深入展开 →</a></div>
       <p class="idea"><b>本质</b>：不数具体指令，只数<b>「循环嵌套了几层、每层跟谁有关」</b>。外层和与 n 有关的量相乘，就是把复杂度写在纸上。</p>
       <p><b>计数规则</b>：循环 <code>for(i=0;i&lt;n;i++)</code> 是 O(n)；两重独立循环相加仍是 O(n)，两重嵌套相乘变 O(n²)；循环每轮把区间减半就是 O(log n)；外层 n 层、内层 log n 就是 O(n log n)。常量全部丢掉，只留最高阶。</p>
       <table>
@@ -610,8 +616,8 @@ for(int i = 1; i <= n; i++)
       <p class="tl"><b>题单</b>洛谷 P1045 麦森数 · P3383「模板」线性筛素数（体会 O(√n) 与 O(n) 的差别）· P1226「模板」快速幂。</p>
     </article>
 
-    <article class="algo" data-cat="基本功" data-new="1" data-name="代码脚手架 快读 快写 宏 模板">
-      <div class="ah"><h4>2. 竞赛代码脚手架：快读、快写与常用宏</h4><span class="lv lv-e">入门</span><span class="st">★</span><span class="tag">效率</span><span class="new">补充</span></div>
+    <article class="algo" id="s1-2" data-cat="基本功" data-new="1" data-name="代码脚手架 快读 快写 宏 模板">
+      <div class="ah"><h4>2. 竞赛代码脚手架：快读、快写与常用宏</h4><span class="lv lv-e">入门</span><span class="st">★</span><span class="tag">效率</span><span class="new">补充</span><a class="more" href="./daily.html#c2" title="在「日常开发」页展开成完整的可折叠讲解">深入展开 →</a></div>
       <p class="idea"><b>本质</b>：把「每次都写一遍」的东西固化成自己的模板，比赛时直接在编辑器里 <code>Tab</code> 出来。省下的不是几秒钟，而是<b>打断思路的次数</b>。模板的第一行就是 <code>#include</code>，所以「引哪些头文件」是你每天都要做的一个决定。</p>
 
       <div class="box err">
@@ -716,7 +722,7 @@ inline void writeInt(int x){
       <p class="tl"><b>题单</b>洛谷 P1601 A+B Problem（高精）· P1303 A×B Problem · P1045 麦森数。</p>
     </article>
 
-    <article class="algo" data-cat="基本功" data-new="1" data-name="对拍 随机数据 暴力 调试 stress test">
+    <article class="algo" id="s1-3" data-cat="基本功" data-new="1" data-name="对拍 随机数据 暴力 调试 stress test">
       <div class="ah"><h4>3. 对拍：用随机数据证明自己是对的</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">调试神器</span><span class="new">补充</span></div>
       <p class="idea"><b>本质</b>：写一个「肯定对但很慢」的暴力程序，再写一个随机数据生成器，让两者在同一份数据上跑，<b>输出不一致就说明正解错了</b>。这是竞赛里唯一可靠的调试手段。</p>
       <p><b>对拍三件套</b>：① <code>gen</code> 数据生成器；② <code>brute</code> 暴力（枚举/搜索，慢但一定对）；③ <code>std</code> 你的正解。循环比较两者输出，不同就停下并把数据存下来。</p>
@@ -778,7 +784,7 @@ int main(){
       <p class="tl"><b>题单</b>找任意一道你有把握的题，把「暴力 + 正解 + 生成器」三份代码都写一遍，跑 1 分钟对拍。</p>
     </article>
 
-    <article class="algo" data-cat="基本功" data-new="1" data-name="RE WA TLE MLE 错误 排查 常见错误">
+    <article class="algo" id="s1-4" data-cat="基本功" data-new="1" data-name="RE WA TLE MLE 错误 排查 常见错误">
       <div class="ah"><h4>4. 常见错误字典：看到结果就知道错在哪</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">排查</span><span class="new">补充</span></div>
       <p class="idea"><b>本质</b>：把「玄学错误」变成「查表」。评测机给的结果只有几种，每一种背后的原因都非常固定。</p>
       <table>
@@ -829,7 +835,7 @@ ans = (ans % MOD + MOD) % MOD;
       <p class="tl"><b>题单</b>洛谷 P1001 A+B Problem（体会格式要求）· P1307 数字反转（负数、末尾 0）· P5710 数的性质（多组边界）。</p>
     </article>
 
-    <article class="algo" data-cat="基本功" data-new="1" data-name="离散化 坐标压缩 值域映射">
+    <article class="algo" id="s1-5" data-cat="基本功" data-new="1" data-name="离散化 坐标压缩 值域映射">
       <div class="ah"><h4>5. 离散化：把「很大的数」压成「很小的下标」</h4><span class="lv lv-b">基础</span><span class="st">★★</span><span class="tag">前置技能</span><span class="new">补充</span></div>
       <p class="idea"><b>本质</b>：当数值很大（比如 10⁹）但<b>个数很少</b>（比如 10⁵）时，我们只关心它们的<b>相对大小</b>。把「排序去重后的排名」当作新下标，值域就从 10⁹ 变成 n。</p>
       <p><b>三步</b>：① 把所有值拷一份存起来；② <code>sort</code> + <code>unique</code> 去重；③ <code>lower_bound</code> 查排名，排名就是新下标。</p>
@@ -4921,6 +4927,29 @@ long long exgcd(long long a,long long b,long long &amp;x,long long &amp;y){
   function onScroll(){ nav.classList.toggle('stuck', window.scrollY > 6); }
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
+})();
+</script>
+<script>
+/* 从别的页面深链进来时（例如 daily.html 的路线图指向 ./plan.html#s1-3），
+   先把目标所在的章节展开 —— 否则锚点会落在一个折叠起来的区域里，
+   看上去像"根本没跳过去"。这一段的顺序很重要：本页主脚本在上面已经跑完。 */
+(function () {
+  'use strict';
+  function reveal(hash) {
+    if (!hash || hash.charAt(0) !== '#') return;
+    var el = document.getElementById(hash.slice(1));
+    if (!el) return;
+    var sec = el.closest ? el.closest('.sec') : null;
+    if (sec && sec.classList.contains('fold')) {
+      sec.classList.remove('fold');
+      var hint = sec.querySelector('h2.clk .fold-hint');
+      if (hint) hint.textContent = '';
+    }
+    /* 展开之后再对齐一次位置，不然停在折叠时算出来的老位置上 */
+    if (el.scrollIntoView) el.scrollIntoView({ block: 'start' });
+  }
+  reveal(location.hash);
+  window.addEventListener('hashchange', function () { reveal(location.hash); }, { passive: true });
 })();
 </script>
 </body>

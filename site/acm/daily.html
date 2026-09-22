@@ -203,6 +203,20 @@ details.fold>summary:hover::before{color:var(--accent)}
 .box-warn{fill:rgb(var(--panel-rgb) / var(--panel-a));stroke:rgb(var(--warn-rgb));stroke-width:.5}
 .box-vio{fill:rgb(var(--panel-rgb) / var(--panel-a));stroke:rgb(var(--vio-rgb));stroke-width:.5}
 .band-dan{fill:rgb(var(--danger-rgb) / .1);stroke:rgb(var(--danger-rgb));stroke-width:.5}
+/* ---------- 本章路线图：5 件事，点一下跳过去 ---------- */
+.roadmap{margin:0 0 18px}
+.rm-ttl{font-size:12px;color:var(--text-3);letter-spacing:.5px;margin-bottom:8px}
+.rm-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(146px,1fr));gap:10px}
+.rm{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border:1px solid var(--line);
+  border-radius:10px;background:rgb(var(--panel-rgb) / var(--panel-a));text-decoration:none;
+  transition:border-color .15s var(--acm-ease, ease), transform .15s}
+.rm:hover{border-color:var(--accent);text-decoration:none;transform:translateY(-1px)}
+.rm b{font-size:15px;color:var(--text-3);font-weight:600;line-height:1}
+.rm span{font-size:13.5px;color:var(--text);font-weight:600}
+.rm em{font-size:11px;color:var(--text-3);font-style:normal}
+.rm.done{border-color:rgb(var(--accent-rgb) / .42)}
+.rm.done b{color:var(--accent)}
+.rm.done em{color:rgb(var(--ok-rgb))}
 .figcap{font-size:12.5px;color:var(--text-3);margin:2px 0 14px}
 .legend{display:flex;flex-wrap:wrap;gap:14px;margin:8px 0 2px;font-size:12px;color:var(--text-2)}
 .legend span{display:flex;align-items:center;gap:5px}
@@ -258,12 +272,12 @@ footer{max-width:1200px;margin:40px auto 0;padding:20px 24px 60px;color:var(--te
 
 <header class="top"><div class="wrap">
 <h1>日常开发 · 做算法题的肌肉记忆</h1>
-<p class="sub">这一章不教算法，教的是<b>上手前三秒钟的判断</b>。很多人卡在入门，不是因为算法难，而是因为：不会估复杂度、不会调试、不知道自己在写什么。<b>先把这五件事做完</b> —— 下面是第一件。</p>
+<p class="sub">这一章不教算法，教的是<b>上手前三秒钟的判断</b>。很多人卡在入门，不是因为算法难，而是因为：不会估复杂度、不会调试、不知道自己在写什么。<b>先把这五件事做完</b> —— 下面两件已经写完了。</p>
 <div class="stats">
   <span class="stat">本章共 5 件事</span>
-  <span class="stat">已上线 1 / 5</span>
-  <span class="stat">9 张可折叠卡片</span>
-  <span class="stat">5 张手绘图表（零外部依赖）</span>
+  <span class="stat">已上线 2 / 5</span>
+  <span class="stat">18 张可折叠卡片</span>
+  <span class="stat">9 张手绘图表（零外部依赖）</span>
   <span class="stat">代码可直接复制编译</span>
 </div>
 <p class="hint">页面较长，<b>每个主题都做成了可折叠的卡片</b>，点标题展开，或用右上角的 <b>全部展开 / 全部折叠</b> 一次性控制。所有图表都是内联 SVG，<b>不加载任何外部脚本或 CDN</b>；深浅色跟随校园主页。</p>
@@ -282,7 +296,17 @@ footer{max-width:1200px;margin:40px auto 0;padding:20px 24px 60px;color:var(--te
   <a href="#f7" class="sub2">1.7 例题：麦森数</a>
   <a href="#f8" class="sub2">1.8 七条常见错误</a>
   <a href="#f9" class="sub2">1.9 题单怎么刷</a>
-  <a href="#next">2 · 后续四件事</a>
+  <a href="#c2">2 · 竞赛代码脚手架</a>
+  <a href="#g1" class="sub2">2.1 脚手架的四层</a>
+  <a href="#g2" class="sub2">2.2 头文件与万能头</a>
+  <a href="#g3" class="sub2">2.3 INF 为什么是 0x3f3f3f3f</a>
+  <a href="#g4" class="sub2">2.4 快读：何时需要</a>
+  <a href="#g5" class="sub2">2.5 快写与 endl</a>
+  <a href="#g6" class="sub2">2.6 常用宏的三档</a>
+  <a href="#g7" class="sub2">2.7 完整脚手架模板</a>
+  <a href="#g8" class="sub2">2.8 九条常见错误</a>
+  <a href="#g9" class="sub2">2.9 题单</a>
+  <a href="#next">3 · 后续三件事</a>
 </aside>
 
 <main>
@@ -290,6 +314,17 @@ footer{max-width:1200px;margin:40px auto 0;padding:20px 24px 60px;color:var(--te
   <button class="chip act" type="button" data-act="expand">全部展开</button>
   <button class="chip act" type="button" data-act="collapse">全部折叠</button>
   <a class="chip go" href="practice.html" target="_blank" title="打开例题练习场">题练场 →</a>
+</div>
+
+<div class="roadmap">
+  <div class="rm-ttl">本章共 5 件事 —— 点一下直接跳过去</div>
+  <div class="rm-list">
+    <a class="rm done" href="#c1"><b>1</b><span>复杂度分析</span><em>已上线 · 9 张卡片</em></a>
+    <a class="rm done" href="#c2"><b>2</b><span>竞赛代码脚手架</span><em>已上线 · 9 张卡片</em></a>
+    <a class="rm" href="./plan.html#s1-3" target="_blank" rel="noopener"><b>3</b><span>对拍</span><em>计划里已有简版 →</em></a>
+    <a class="rm" href="./plan.html#s1-4" target="_blank" rel="noopener"><b>4</b><span>常见错误字典</span><em>计划里已有简版 →</em></a>
+    <a class="rm" href="./plan.html#s1-5" target="_blank" rel="noopener"><b>5</b><span>离散化</span><em>计划里已有简版 →</em></a>
+  </div>
 </div>
 
 <h2 id="c1">1 · 复杂度分析：一分钟算出「能不能过」</h2>
@@ -783,10 +818,550 @@ while (b) { /* ... */ b >>= 1; }          // b 每次折半        ->  O(log b)<
 </div>
 </details>
 
-<h2 id="next">2 · 后续四件事</h2>
+<h2 id="c2">2 · 竞赛代码脚手架：快读、快写与常用宏</h2>
+<p class="lead">把「每次都写一遍」的东西固化成模板，比赛时在编辑器里 <b>Tab</b> 一下出来。省下的不是几秒钟，而是<b>打断思路的次数</b>。但脚手架也是最容易埋坑的地方 —— 一层一层看，每层都要知道自己在拿什么换什么。</p>
+
+<details class="fold" id="g1" open>
+<summary>2.1　脚手架的四个层次<span class="sum-note">每层的取舍不一样</span></summary>
+<div class="fold-body">
+<p class="idea">脚手架不是「一堆宏」，而是四层职责完全不同的东西。分清楚层次，才知道哪些能省、哪些不能省。</p>
+<svg class="fig" viewBox="0 0 680 320" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>竞赛代码脚手架的四个层次</title>
+<desc>自下而上四层：头文件层决定能不能编译，别名与常量层决定会不会溢出，输入输出层决定会不会超时，常用宏层只影响代码长短但最容易埋坑。</desc>
+<rect class="fg-card" x="40" y="40" width="600" height="56" rx="10"/>
+<circle class="bd bd-acc" cx="74" cy="68" r="14"/>
+<text class="tx-acc fg-mono" x="74" y="68" font-size="13" text-anchor="middle" dominant-baseline="central">1</text>
+<text class="fg-t" x="100" y="61" font-size="13.5" font-weight="600" dominant-baseline="central">头文件层</text>
+<text class="fg-s" x="100" y="79" font-size="11.5" dominant-baseline="central">用到什么就 include 什么，别用 bits/stdc++.h</text>
+<text class="tx-acc" x="628" y="68" font-size="12" text-anchor="end" dominant-baseline="central">决定「能不能编译」</text>
+<rect class="fg-card" x="40" y="108" width="600" height="56" rx="10"/>
+<circle class="bd bd-ok" cx="74" cy="136" r="14"/>
+<text class="tx-ok fg-mono" x="74" y="136" font-size="13" text-anchor="middle" dominant-baseline="central">2</text>
+<text class="fg-t" x="100" y="129" font-size="13.5" font-weight="600" dominant-baseline="central">别名与常量层</text>
+<text class="fg-s" x="100" y="147" font-size="11.5" dominant-baseline="central">typedef long long ll / const int INF = 0x3f3f3f3f / MOD</text>
+<text class="tx-ok" x="628" y="136" font-size="12" text-anchor="end" dominant-baseline="central">决定「会不会爆 int」</text>
+<rect class="fg-card" x="40" y="176" width="600" height="56" rx="10"/>
+<circle class="bd bd-warn" cx="74" cy="204" r="14"/>
+<text class="tx-warn fg-mono" x="74" y="204" font-size="13" text-anchor="middle" dominant-baseline="central">3</text>
+<text class="fg-t" x="100" y="197" font-size="13.5" font-weight="600" dominant-baseline="central">输入输出层</text>
+<text class="fg-s" x="100" y="215" font-size="11.5" dominant-baseline="central">sync_with_stdio(false) / 快读 / 快写 / 用 "\n" 不用 endl</text>
+<text class="tx-warn" x="628" y="204" font-size="12" text-anchor="end" dominant-baseline="central">决定「会不会 TLE」</text>
+<rect class="fg-card" x="40" y="244" width="600" height="56" rx="10"/>
+<circle class="bd bd-vio" cx="74" cy="272" r="14"/>
+<text class="tx-vio fg-mono" x="74" y="272" font-size="13" text-anchor="middle" dominant-baseline="central">4</text>
+<text class="fg-t" x="100" y="265" font-size="13.5" font-weight="600" dominant-baseline="central">常用宏层</text>
+<text class="fg-s" x="100" y="283" font-size="11.5" dominant-baseline="central">rep / per / all / pb（别写 #define int long long）</text>
+<text class="tx-vio" x="628" y="272" font-size="12" text-anchor="end" dominant-baseline="central">代码最短，也最容易埋坑</text>
+</svg>
+<p class="figcap">越靠上的层，影响面越大：头文件决定「能不能编译」，宏只决定「代码短不短」。</p>
 <div class="callout">
-<p>本章共 <b>5 件事</b>，这里完成的是第 <b>1 件</b>：<b>复杂度分析</b>。它解决的问题是"<b>值不值得写</b>"。</p>
-<p>后面几件解决的是"<b>写不写得对、写得快不快</b>"—— 调试、测试、把题目建模成状态、把常用模板练成条件反射。内容补上来之后会继续放在这一页里，一样用可折叠卡片承载。</p>
+<p><b>一个反直觉的结论：</b>四层里<b>最不值得省的是第一层</b>（头文件）。多写几个 <span class="mono">#include</span> 只花你两秒钟，写错一个头文件或者用了非标准的万能头，代价是换环境就编译不过。而<b>最值得花时间打磨的是第三层</b>（输入输出）—— 它直接决定会不会 TLE，而且改起来只有几行。</p>
+<p>第四层（宏）要<b>刻意克制</b>：宏没有类型检查、没有作用域、报错信息指向宏定义而不是你的调用点。它能把代码写短，也能让你花半小时找一个本来 30 秒就能看出来的错误。</p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="g2">
+<summary>2.2　第一层：头文件 —— 为什么不该用万能头<span class="sum-note">含 23 行对照表 + 一个中肯的例外</span></summary>
+<div class="fold-body">
+<p class="idea">很多模板第一行是 <span class="mono">#include &lt;bits/stdc++.h&gt;</span>，看起来「一行顶所有」。它确实能在 GCC 上跑通 —— 问题在于代价。</p>
+<table>
+<thead><tr><th>问题</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td><b>不是 C++ 标准的一部分</b></td><td>它是 GCC 私有的实现细节（依赖 libstdc++）。换到 MSVC、部分 clang 的严格模式、某些评测机或真实工程里，<b class="dan">直接编译不过</b>。</td></tr>
+<tr><td><b>编译明显变慢</b></td><td>它把上百个标准头一次性展开。编译一个<b>空程序</b>：用万能头要 1 秒以上，只引 <span class="mono">&lt;cstdio&gt;</span> 不到 0.1 秒。小型 OI 题你感觉不到，但它会纵容你永远不看自己用了什么。</td></tr>
+<tr><td><b>学不到「谁在哪个头文件里」</b></td><td>面试、笔试、看别人代码、改真实工程时，这个知识是硬需求。<b>早期养成按需 include 的习惯，成本最低。</b></td></tr>
+</tbody>
+</table>
+<div class="callout">
+<p><b>一个中肯的例外（原文没说，但你应该知道）：</b>在洛谷、Codeforces 这类 GCC 评测机上，万能头<b>确实能用</b>，而且省下的两秒钟在 3 小时比赛里也不是完全无所谓。所以这不是「道德问题」，而是一个成本判断：</p>
+<ul class="tight">
+<li><b>长期收益明确</b>：按需 include 让你知道自己用了什么，这个能力会一直复利。</li>
+<li><b>短期代价极低</b>：多写 3 行 <span class="mono">#include</span>。</li>
+<li><b>所以结论是「当习惯用按需」，而不是「用了万能头就是错的」。</b>赶时间的正式比赛里用了也不必自责 —— 只要你知道代价是什么。</li>
+<li><b>但有两种场合绝对不要用</b>：投简历的代码、任何给别人看/交付的工程代码。</li>
+</ul>
+</div>
+
+<h3>常用头文件对照表（比背模板有用）</h3>
+<p class="idea">不用背。<b>写代码时把用到的函数列出来，再去 <span class="mono">cppreference</span> 或编辑器补全里确认它在哪个头文件</b>，写两三次自然就记住了。下面这张表覆盖了绝大多数日常。</p>
+<table>
+<thead><tr><th class="num">头文件</th><th>提供什么</th><th>你会在哪用到</th></tr></thead>
+<tbody>
+<tr><td class="num mono">&lt;iostream&gt;</td><td><span class="mono">cin / cout / endl / ios::sync_with_stdio / cin.tie</span></td><td>几乎所有题</td></tr>
+<tr><td class="num mono">&lt;cstdio&gt;</td><td><span class="mono">printf / scanf / getchar / putchar / fread / fwrite</span></td><td>快读快写、对拍生成器</td></tr>
+<tr><td class="num mono">&lt;cstring&gt;</td><td><span class="mono">memset / memcpy / strlen</span></td><td>多组数据清空数组、DP 初始化</td></tr>
+<tr><td class="num mono">&lt;algorithm&gt;</td><td><span class="mono">sort / stable_sort / nth_element / lower_bound / upper_bound / unique / reverse / max / min / swap / fill</span></td><td>排序、二分、离散化</td></tr>
+<tr><td class="num mono">&lt;vector&gt;</td><td><span class="mono">vector</span>（变长数组）</td><td>邻接表、动态数组</td></tr>
+<tr><td class="num mono">&lt;queue&gt;</td><td><span class="mono">queue / priority_queue</span>（<b>优先队列也在这里</b>）</td><td>BFS、拓扑、Dijkstra、堆</td></tr>
+<tr><td class="num mono">&lt;deque&gt;</td><td><span class="mono">deque</span>（双端队列）</td><td>单调队列、0-1 BFS</td></tr>
+<tr><td class="num mono">&lt;stack&gt;</td><td><span class="mono">stack</span></td><td>单调栈、表达式求值</td></tr>
+<tr><td class="num mono">&lt;string&gt;</td><td><span class="mono">string / to_string / stoi / substr</span></td><td>KMP、哈希、数位 DP</td></tr>
+<tr><td class="num mono">&lt;set&gt;</td><td><span class="mono">set / multiset</span></td><td>有序集合、前驱后继</td></tr>
+<tr><td class="num mono">&lt;map&gt;</td><td><span class="mono">map / multimap</span></td><td>有序映射</td></tr>
+<tr><td class="num mono">&lt;unordered_map&gt;</td><td><span class="mono">unordered_map / unordered_set</span></td><td>需要 O(1) 查表时（注意会被卡）</td></tr>
+<tr><td class="num mono">&lt;functional&gt;</td><td><span class="mono">greater / less</span></td><td>小根堆、降序排序</td></tr>
+<tr><td class="num mono">&lt;utility&gt;</td><td><span class="mono">pair / make_pair / swap</span></td><td>二元组、Dijkstra 的堆</td></tr>
+<tr><td class="num mono">&lt;cmath&gt;</td><td><span class="mono">sqrt / pow / fabs / exp / log / log10</span></td><td>几何、实数二分</td></tr>
+<tr><td class="num mono">&lt;cstdlib&gt;</td><td><span class="mono">rand / srand / abs</span></td><td>随机数据、对拍</td></tr>
+<tr><td class="num mono">&lt;ctime&gt;</td><td><span class="mono">time / clock</span></td><td>随机数播种、测运行时间</td></tr>
+<tr><td class="num mono">&lt;random&gt;</td><td><span class="mono">mt19937 / shuffle</span></td><td>正经的随机数（<span class="mono">rand()</span> 质量差）</td></tr>
+<tr><td class="num mono">&lt;numeric&gt;</td><td><span class="mono">gcd / lcm / accumulate / iota</span></td><td>最大公约数、求和</td></tr>
+<tr><td class="num mono">&lt;bitset&gt;</td><td><span class="mono">bitset</span>（定长位集）</td><td>传递闭包加速、状压</td></tr>
+<tr><td class="num mono">&lt;climits&gt;</td><td><span class="mono">INT_MAX / INT_MIN / LLONG_MAX</span></td><td>取极值时（比写数字清楚）</td></tr>
+<tr><td class="num mono">&lt;cassert&gt;</td><td><span class="mono">assert</span></td><td>本地自检（<b>提交前记得关</b>，见 2.8）</td></tr>
+<tr><td class="num mono">&lt;cstdint&gt;</td><td><span class="mono">int32_t / int64_t / uint64_t</span></td><td>需要确定位宽时</td></tr>
+</tbody>
+</table>
+<div class="callout warn">
+<p><b>隐藏得很深的一个坑：</b><span class="mono">priority_queue</span>（优先队列）在 <span class="mono">&lt;queue&gt;</span> 里，<b>不在</b> <span class="mono">&lt;algorithm&gt;</span> 也不在 <span class="mono">&lt;vector&gt;</span>。还有 <span class="mono">pair</span> 在 <span class="mono">&lt;utility&gt;</span>（虽然 <span class="mono">&lt;map&gt;</span> 通常会顺手带上它）。这两个是「CE 找不到类型」的高频原因。</p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="g3">
+<summary>2.3　第二层：别名与常量 —— INF 为什么偏偏是 0x3f3f3f3f<span class="sum-note">原文提到但没解释，这里补上</span></summary>
+<div class="fold-body">
+<div class="form">INT_MAX     = 2147483647 = 0x7FFFFFFF
+0x3f3f3f3f  = 1061109567          （≈ 1.06 × 10⁹）</div>
+<p class="idea">两个都是「很大的数」，为什么求最短路、做 DP 时几乎所有人用后者？三个原因，每一个都实在：</p>
+<svg class="fig" viewBox="0 0 680 266" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>INT_MAX 与 0x3f3f3f3f 作为无穷大的三项对比</title>
+<desc>INT_MAX 加自己会溢出且无法用 memset 初始化；0x3f3f3f3f 加自己仍然安全，四个字节都是 0x3f 可以用 memset 填充，因此是求最短路的常规选择。</desc>
+<text class="fg-s" x="40" y="26" font-size="12.5">同样是「无穷大」，为什么几乎所有人都用右边这个</text>
+<rect class="fg-card" x="40" y="40" width="600" height="30" rx="8"/>
+<text class="fg-s" x="52" y="55" font-size="12" dominant-baseline="central">对比项</text>
+<text class="fg-mono tx-dan" x="272" y="55" font-size="12" dominant-baseline="central">INT_MAX　0x7FFFFFFF</text>
+<text class="fg-mono tx-ok" x="462" y="55" font-size="12" dominant-baseline="central">0x3f3f3f3f　≈1.06×10⁹</text>
+
+<rect class="fig-band" x="40" y="70" width="600" height="40" rx="6"/>
+<text class="fg-t" x="52" y="90" font-size="12.5" dominant-baseline="central">值 + 自己</text>
+<text class="tx-dan" x="272" y="90" font-size="11.5" dominant-baseline="central">溢出（4.29×10⁹ &gt; int 上限）</text>
+<text class="tx-ok" x="462" y="90" font-size="11.5" dominant-baseline="central">安全（2.12×10⁹ &lt; 2³¹−1）</text>
+
+<text class="fg-t" x="52" y="130" font-size="12.5" dominant-baseline="central">能否 memset 一键初始化</text>
+<text class="tx-dan" x="272" y="130" font-size="11.5" dominant-baseline="central">做不到（四个字节不同）</text>
+<text class="tx-ok" x="462" y="130" font-size="11.5" dominant-baseline="central">可以，memset(a, 0x3f, …)</text>
+
+<rect class="fig-band" x="40" y="150" width="600" height="40" rx="6"/>
+<text class="fg-t" x="52" y="170" font-size="12.5" dominant-baseline="central">用作最短路初值</text>
+<text class="tx-dan" x="272" y="170" font-size="11.5" dominant-baseline="central">松弛时容易溢出，答案全错</text>
+<text class="tx-ok" x="462" y="170" font-size="11.5" dominant-baseline="central">余量充足，最常见的选择</text>
+<line class="fg-gl" x1="262" y1="40" x2="262" y2="190"/>
+<line class="fg-gl" x1="452" y1="40" x2="452" y2="190"/>
+<line class="fg-gl" x1="40" y1="190" x2="640" y2="190"/>
+<rect class="bd bd-vio" x="40" y="206" width="600" height="40" rx="8"/>
+<text class="fg-t" x="52" y="226" font-size="12.5" dominant-baseline="central">一句话记住</text>
+<text class="fg-mono tx-vio" x="462" y="226" font-size="12.5" dominant-baseline="central">两倍不溢出 + 字节全同 → 能 memset</text>
+</svg>
+<div>
+<h3>① 加自己不会溢出</h3>
+<p class="idea">松弛操作里最常见的一句是 <span class="mono">dist[v] = min(dist[v], dist[u] + w)</span>。如果 <span class="mono">dist</span> 的初值是 <span class="mono">INT_MAX</span>，那么当 <span class="mono">dist[u]</span> 还是无穷大时，<span class="mono">dist[u] + w</span> 就<b>溢出</b>了 —— 有符号整数溢出是未定义行为，结果是负数，于是「无穷大 + 边权」变成了一个很小的数，被当成更优解取走，答案彻底错掉。</p>
+<div class="form">INT_MAX + INT_MAX = 4294967294  &gt;  2147483647   ✗ 溢出
+0x3f3f3f3f × 2    = 2122219134  &lt;  2147483647   ✓ 安全</div>
+<p class="idea">用 <span class="mono">0x3f3f3f3f</span> 时，两个「无穷大」相加仍然小于 <span class="mono">INT_MAX</span>，所以松弛时不会翻车。</p>
+
+<h3>② 可以用 <span class="mono">memset</span> 一键初始化</h3>
+<p class="idea"><span class="mono">memset</span> 是<b>按字节</b>填充的，只能填「四个字节都相同」的值。</p>
+<div class="form">memset(a, 0x3f, sizeof a)   →  每个字节 0x3f  →  int = 0x3f3f3f3f  ✓
+memset(a, 0x7f, sizeof a)   →  得到 0x7f7f7f7f，并不是 INT_MAX        ✗</div>
+<p class="idea">所以 <span class="mono">INT_MAX</span> <b>根本没法用 memset 批量赋值</b>，只能老老实实写 <span class="mono">for</span> 循环 —— 在 <span class="mono">n = 10⁶</span> 的图上这就是一次白送的常数开销。</p>
+
+<h3>③ 余量刚好够用，不多不少</h3>
+<p class="idea"><span class="mono">0x3f3f3f3f ≈ 1.06×10⁹</span> 比大多数题目的最短路上界（<span class="mono">10⁹</span> 量级）大一点点，又比 <span class="mono">INT_MAX</span> 小一半，给「累加两三次」留出了空间。<span class="mono">long long</span> 版本对应的是 <span class="mono">0x3f3f3f3f3f3f3f3fLL</span>。</p>
+</div>
+<div class="callout warn">
+<p><b>顺手一个同类坑：</b>取模常量写成 <span class="mono">const int MOD = 1e9 + 7;</span> 是错的说法 —— <span class="mono">1e9</span> 是 <b>double 字面量</b>，赋给 <span class="mono">int</span> 会发生隐式转换。<b>直接写 <span class="mono">1000000007</span></b>，或者写成 <span class="mono">const ll MOD = 1e9 + 7;</span>。需要整型常量的场合（<span class="mono">constexpr</span>、模板参数、位运算）会因此出意外。</p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="g4">
+<summary>2.4　第三层：快读 —— 什么时候才真的需要<span class="sum-note">10⁵ 以下不用写，纯属自我感动</span></summary>
+<div class="fold-body">
+<p class="idea">先看结论再决定要不要写：<b>只有在输入量 ≥ 10⁶ 时，手写快读才有实际收益。</b>读 10⁵ 个数，所有方式的差距都在 0.1 秒以内，而你手写快读多花的调试时间远不止这些。</p>
+<h3>五种输入方式的量级对比</h3>
+<svg class="fig" viewBox="0 0 680 284" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>五种输入方式读入十万个整数所需时间的量级对比</title>
+<desc>读入 10 的 6 次方个 int：默认 cin 约 800 毫秒最慢，scanf 约 180 毫秒，cin 关同步后约 150 毫秒，手写 getchar 快读约 50 毫秒，fread 缓冲读取约 15 毫秒。</desc>
+<text class="fg-s" x="40" y="26" font-size="12.5">读入 10⁶ 个 int 的耗时量级（不同机器差异很大，看相对关系）</text>
+<text class="fg-s" x="40" y="46" font-size="12.5" dominant-baseline="central">cin（默认，与 stdio 同步）</text>
+<rect class="bd bd-dan" x="40" y="54" width="480.0" height="18" rx="4"/>
+<text class="fg-mono tx-dan" x="530.0" y="63" font-size="12" dominant-baseline="central">800 ms</text>
+<text class="fg-s" x="40" y="94" font-size="12.5" dominant-baseline="central">scanf</text>
+<rect class="bd bd-warn" x="40" y="102" width="108.0" height="18" rx="4"/>
+<text class="fg-mono tx-warn" x="158.0" y="111" font-size="12" dominant-baseline="central">180 ms</text>
+<text class="fg-s" x="40" y="142" font-size="12.5" dominant-baseline="central">cin + sync_with_stdio(false) + cin.tie(0)</text>
+<rect class="bd bd-warn" x="40" y="150" width="90.0" height="18" rx="4"/>
+<text class="fg-mono tx-warn" x="140.0" y="159" font-size="12" dominant-baseline="central">150 ms</text>
+<text class="fg-s" x="40" y="190" font-size="12.5" dominant-baseline="central">手写 getchar 快读</text>
+<rect class="bd bd-acc" x="40" y="198" width="30.0" height="18" rx="4"/>
+<text class="fg-mono tx-acc" x="80.0" y="207" font-size="12" dominant-baseline="central">50 ms</text>
+<text class="fg-s" x="40" y="238" font-size="12.5" dominant-baseline="central">fread 整块缓冲读取</text>
+<rect class="bd bd-ok" x="40" y="246" width="9.0" height="18" rx="4"/>
+<text class="fg-mono tx-ok" x="59.0" y="255" font-size="12" dominant-baseline="central">15 ms</text>
+</svg>
+<p class="figcap">读入 10⁶ 个 int 的耗时量级参考。机器和编译器差异很大，<b>看相对关系就好</b>。</p>
+<p class="idea">如果不想手写快读，<b>只加一行就够了</b>：</p>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <iostream>
+int main() {
+    std::ios::sync_with_stdio(false);   // 关掉与 C stdio 的同步：cin 提速约 2~5 倍
+    std::cin.tie(nullptr);              // 解除 cin/cout 绑定，省掉自动 flush
+
+    int n;
+    std::cin >> n;
+    // ...
+}</script></div>
+<div class="callout warn">
+<p><b>两条硬性约束（踩了就是玄学 WA / 顺序错乱）：</b></p>
+<ul class="tight">
+<li><b>必须在任何 IO 之前调用</b>，习惯上就写在 <span class="mono">main</span> 第一行。写在中途等于没写。</li>
+<li><b>调用之后不能再混用 <span class="mono">printf</span> / <span class="mono">scanf</span></b>：两者各用各的缓冲区，输出顺序会乱套。</li>
+<li><b>交互题不要写 <span class="mono">cin.tie(nullptr)</span></b>：关掉绑定后你的输出可能不立刻发出去，对方一直在等，直接 TLE。</li>
+</ul>
+</div>
+
+<h3>手写快读：getchar 版（通用）</h3>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <cstdio>
+inline int readInt() {
+    int x = 0, f = 1;
+    int c = getchar();                      // ★ 必须用 int 接，不能用 char（见 2.8）
+    while (c < '0' || c > '9') {            // 跳过所有非数字字符
+        if (c == EOF) return 0;             // ★ 原文没写这一行，没有它读到文件末尾会死循环
+        if (c == '-') f = -1;               // 处理负号
+        c = getchar();
+    }
+    while (c >= '0' && c <= '9') {          // 逐位累加
+        x = x * 10 + (c - '0');
+        c = getchar();
+    }
+    return x * f;
+}</script></div>
+<div class="callout">
+<p><b>为什么 <span class="mono">if (c == EOF) return 0;</span> 是必须的？</b>因为 <span class="mono">EOF</span> 的值是 <span class="mono">−1</span>，而 <span class="mono">−1 &lt; '0'</span> 恒成立 —— 读到文件末尾后 <span class="mono">getchar()</span> 会<b>一直返回 EOF</b>，第一个 <span class="mono">while</span> 的判断条件永远为真，程序就卡在那里了。这是手写快读最经典的死循环。</p>
+</div>
+
+<h3>手写快读：fread 版（更快，输入量到 10⁷ 再考虑）</h3>
+<p class="idea">思路是「一次读一大块进内存，之后从内存里取字符」，把上千次系统调用压缩成几十次。</p>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <cstdio>
+static char buf[1 << 20];          // 1 MB 缓冲区
+static int  bl = 0, br = 0;        // bl = 读指针，br = 本次填充到的位置
+
+inline int gc() {
+    if (bl == br) {                // 缓冲读空了，整块补一次
+        br = (int)fread(buf, 1, sizeof(buf), stdin);
+        bl = 0;
+        if (br <= 0) return EOF;
+    }
+    return buf[bl++];
+}
+
+inline int readInt() {
+    int x = 0, f = 1, c = gc();
+    while (c < '0' || c > '9') {
+        if (c == EOF) return 0;
+        if (c == '-') f = -1;
+        c = gc();
+    }
+    while (c >= '0' && c <= '9') { x = x * 10 + (c - '0'); c = gc(); }
+    return x * f;
+}</script></div>
+<div class="callout ok">
+<p><b>什么时候不必手写快读：</b>输入量在 10⁶ 以下、或者你正在第一遍写思路。<b>先把 <span class="mono">cin</span> 优化那两行加上，跑 TLE 了再换快读</b> —— 这是性价比最高的顺序，因为快读本身也是容易写错的代码。</p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="g5">
+<summary>2.5　第三层：快写 —— 以及 <span class="mono">endl</span> 这个 TLE 元凶<span class="sum-note">换行符的代价比你想象的大</span></summary>
+<div class="fold-body">
+<div class="form">endl = 换行 "\n"  +  强制刷新缓冲区 flush()</div>
+<p class="idea">很多人把 <span class="mono">endl</span> 当换行用。它每次都会 flush —— 输出 10⁶ 行时就是 <b>10⁶ 次系统调用</b>，慢好几倍，是 TLE 的常见原因之一。<b>只要换行就写 <span class="mono">"\n"</span>。</b></p>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <iostream>
+// ✗ 输出 10^6 行时非常慢
+for (int i = 1; i <= n; ++i) std::cout << a[i] << std::endl;
+
+// ✓ 只换行，不刷新
+for (int i = 1; i <= n; ++i) std::cout << a[i] << "\n";
+
+// ✓ 行末不要多输出一个空格的小技巧：
+//   " \n"[i == n] —— i 到 n 时取 '\n'，否则取 ' '
+for (int i = 1; i <= n; ++i) std::cout << a[i] << " \n"[i == n];</script></div>
+
+<h3>递归版快写（简洁，但每个数字一次函数调用）</h3>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <cstdio>
+inline void writeInt(int x) {
+    if (x < 0) { putchar('-'); x = -x; }
+    if (x > 9) writeInt(x / 10);      // 先递归写高位
+    putchar(x % 10 + '0');
+}</script></div>
+
+<h3>缓冲版快写（输出量 ≥ 10⁶ 时用这个）</h3>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <cstdio>
+static char wbuf[1 << 20];
+static int  wl = 0;
+
+inline void wc(char c) {
+    if (wl == (int)sizeof(wbuf)) { fwrite(wbuf, 1, wl, stdout); wl = 0; }
+    wbuf[wl++] = c;
+}
+inline void writeInt(long long x) {
+    if (x < 0) { wc('-'); x = -x; }
+    if (x > 9) writeInt(x / 10);
+    wc(char('0' + x % 10));
+}
+// ★ 程序结束前一定要把残留的缓冲写出去，否则最后一段输出会丢：
+//   fwrite(wbuf, 1, wl, stdout);  wl = 0;</script></div>
+<div class="callout warn">
+<p><b>最容易忘、也最难查的一步：</b>缓冲版快写如果不手动 <span class="mono">fwrite</span> 收尾，<b>最后不到 1 MB 的输出会全部丢掉</b>。表现是「本地对、交上去 WA，而且只错最后几行」—— 因为本地调试时数据小，缓冲没满过，反而不触发。养成习惯：在 <span class="mono">return 0;</span> 前固定加一行 flush。</p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="g6">
+<summary>2.6　第四层：常用宏 —— 该用的、要小心的、不要用的<span class="sum-note">这一节最能拉开差距</span></summary>
+<div class="fold-body">
+<p class="idea">宏在 C++ 里是「文本替换」，它<b>没有类型检查、没有作用域、报错时指向宏定义而不是你的调用点</b>。所以判断标准很简单：<b>这个宏会不会在你没防备的时候悄悄改变语义？</b></p>
+<svg class="fig" viewBox="0 0 680 282" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>常用宏的三档风险评估</title>
+<desc>可以放心用的是 typedef、const 常量和纯循环简写宏；要小心的是 all、pb 这类可能与语义冲突的宏；不要用的是 define int long long 和用宏写求值函数。</desc>
+<rect class="fg-card" x="40" y="40" width="186" height="222" rx="10"/>
+<rect class="bd bd-ok" x="52" y="54" width="162" height="26" rx="6"/>
+<text class="tx-ok" x="133" y="67" font-size="12.5" font-weight="600" text-anchor="middle" dominant-baseline="central">可以放心用</text>
+<text class="fg-mono tx-ok" x="52" y="92" font-size="11" dominant-baseline="central">typedef long long ll;</text>
+<text class="fg-s" x="52" y="107" font-size="10.5" dominant-baseline="central">不改语义，只是少打字</text>
+<text class="fg-mono tx-ok" x="52" y="134" font-size="11" dominant-baseline="central">const int INF = 0x3f3f3f3f;</text>
+<text class="fg-s" x="52" y="149" font-size="10.5" dominant-baseline="central">两倍不溢出，可 memset</text>
+<text class="fg-mono tx-ok" x="52" y="176" font-size="11" dominant-baseline="central">#define rep(i, a, b)</text>
+<text class="fg-s" x="52" y="191" font-size="10.5" dominant-baseline="central">纯循环简写，无副作用</text>
+<text class="fg-mono tx-ok" x="52" y="218" font-size="11" dominant-baseline="central">using pii = pair&lt;int,int&gt;;</text>
+<text class="fg-s" x="52" y="233" font-size="10.5" dominant-baseline="central">比 typedef 更直观</text>
+<rect class="fg-card" x="247" y="40" width="186" height="222" rx="10"/>
+<rect class="bd bd-warn" x="259" y="54" width="162" height="26" rx="6"/>
+<text class="tx-warn" x="340" y="67" font-size="12.5" font-weight="600" text-anchor="middle" dominant-baseline="central">要小心</text>
+<text class="fg-mono tx-warn" x="259" y="92" font-size="11" dominant-baseline="central">#define all(x) (x).begin(), …</text>
+<text class="fg-s" x="259" y="107" font-size="10.5" dominant-baseline="central">作用在临时对象上会悬垂</text>
+<text class="fg-mono tx-warn" x="259" y="134" font-size="11" dominant-baseline="central">#define pb push_back</text>
+<text class="fg-s" x="259" y="149" font-size="10.5" dominant-baseline="central">撞上同名成员时很难查</text>
+<text class="fg-mono tx-warn" x="259" y="176" font-size="11" dominant-baseline="central">ios::sync_with_stdio(false)</text>
+<text class="fg-s" x="259" y="191" font-size="10.5" dominant-baseline="central">之后禁止混用 printf</text>
+<text class="fg-mono tx-warn" x="259" y="218" font-size="11" dominant-baseline="central">#define mx / mn / l / r</text>
+<text class="fg-s" x="259" y="233" font-size="10.5" dominant-baseline="central">极易和变量名撞车</text>
+<rect class="fg-card" x="454" y="40" width="186" height="222" rx="10"/>
+<rect class="bd bd-dan" x="466" y="54" width="162" height="26" rx="6"/>
+<text class="tx-dan" x="547" y="67" font-size="12.5" font-weight="600" text-anchor="middle" dominant-baseline="central">不要用</text>
+<text class="fg-mono tx-dan" x="466" y="92" font-size="11" dominant-baseline="central">#define int long long</text>
+<text class="fg-s" x="466" y="107" font-size="10.5" dominant-baseline="central">内存翻倍，%d 输出错乱，还要写</text>
+<text class="fg-mono tx-dan" x="466" y="134" font-size="11" dominant-baseline="central">#define max(a,b) ((a)&gt;(b)?…)</text>
+<text class="fg-s" x="466" y="149" font-size="10.5" dominant-baseline="central">参数被求值两次，副作用出错</text>
+<text class="fg-mono tx-dan" x="466" y="176" font-size="11" dominant-baseline="central">#define sqr(x) ((x)*(x))</text>
+<text class="fg-s" x="466" y="191" font-size="10.5" dominant-baseline="central">同样问题，改用 inline 函数</text>
+<text class="fg-mono tx-dan" x="466" y="218" font-size="11" dominant-baseline="central">用宏写「函数」</text>
+<text class="fg-s" x="466" y="233" font-size="10.5" dominant-baseline="central">无类型检查，报错定位不到调用点</text>
+</svg>
+<p class="figcap">分档依据只有一条：调用点有没有可能出现「你没想到的展开结果」。</p>
+
+<h3>为什么 <span class="mono">#define int long long</span> 是毒宏</h3>
+<p class="idea">它看起来能「一键防溢出」，一次解决所有爆 int 的烦恼。代价是三个：</p>
+<ol class="tight">
+<li><b>所有 <span class="mono">int</span> 型数组内存直接翻倍。</b><span class="mono">int a[10⁷]</span> 从 40 MB 变成 80 MB，原本能过的题变成 MLE。</li>
+<li><b><span class="mono">printf("%d", x)</span> 输出错乱。</b><span class="mono">x</span> 实际是 64 位，而 <span class="mono">%d</span> 按 32 位解释 —— 这是未定义行为，结果莫名其妙（要改成 <span class="mono">%lld</span>，可你满屏都是 <span class="mono">%d</span>）。</li>
+<li><b><span class="mono">int main()</span> 会变成 <span class="mono">long long main()</span>，编译不过。</b>于是你被迫写 <span class="mono">signed main()</span> —— 用另一个非标准的写法去补前一个的洞。<b>一个坑引出两个坑，这就是它最坏的地方。</b></li>
+</ol>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// ✗ 毒宏示范：它把「类型」这个词从你的代码里抹掉了
+#define int long long
+signed main() {              // 被迫写 signed main —— 因为这行也被替换成 long long main
+    int x;                   // 现在是 long long，但你读代码时看到的是 int
+    // ...
+}
+
+// ✓ 正确做法：在真正需要 64 位的地方显式用 ll
+// 依赖头文件：#include <cstdio>
+typedef long long ll;
+int main() {
+    ll sum = 0;                              // 求和、乘积、计数一律用 ll
+    int  a[100005];                          // 下标、小范围值继续用 int
+    sum += 1LL * a[1] * a[2];                // 乘法前先转 ll，这是防溢出的正手
+    return 0;
+}</script></div>
+
+<h3>同样危险的「函数式宏」</h3>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// ✗ 参数被展开两次 —— max(i++, j++) 会让 i 或 j 被自增两遍
+#define max(a, b) ((a) > (b) ? (a) : (b))
+// ✗ 同理，而且不加括号就是灾难
+#define sqr(x) ((x) * (x))
+
+// ✓ 用 inline 函数 / 模板代替：有类型检查、参数只求值一次
+template <class T> inline T sqr(T x) { return x * x; }
+// std::max / std::min 本来就在 <algorithm> 里，直接用它
+
+// ✗ all() 用在临时对象上会悬垂
+#define all(x) (x).begin(), (x).end()
+// sort(all(makeVec()), ...)  —— 临时 vector 在语句结束就析构，迭代器悬垂
+
+// ✓ 老式 typedef 在现代 C++ 里可以换成 using，可读性更好
+typedef pair<int, int> pii;
+using pii2 = pair<int, int>;        // 等价，但别名在右边，长类型时更清楚</script></div>
+<div class="callout ok">
+<p><b>三条能省下大量调试时间的规则：</b></p>
+<ol class="tight">
+<li><b>宏只用来写「控制流简写」</b>（<span class="mono">rep / per / all</span>），不用来写「求值」。凡是参数会被计算的东西，一律用 <span class="mono">inline</span> 函数或模板。</li>
+<li><b>所有宏名加长度</b>：<span class="mono">mx → mxv</span>、<span class="mono">mn → mnv</span>、<span class="mono">l → lft</span>、<span class="mono">r → rgt</span>。宏是全局文本替换，撞车时报错信息完全指不到问题所在。</li>
+<li><b>宏体里每个参数都加括号、整体再加一层括号</b>，否则 <span class="mono">sqr(a + b)</span> 会变成 <span class="mono">a + b * a + b</span>。</li>
+</ol>
+</div>
+</div>
+</details>
+
+<details class="fold" id="g7">
+<summary>2.7　一份可以直接用的完整脚手架<span class="sum-note">每一行都标了「为什么」</span></summary>
+<div class="fold-body">
+<p class="idea">把前面四层拼起来，存成编辑器的代码片段（VS Code 的 <span class="mono">File → Preferences → Configure User Snippets</span>），输入前缀按 Tab 展开。</p>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// ============================================================
+//  日常开发 · 竞赛代码脚手架
+//  原则：只引真正用到的头文件；每一行都写清楚「为什么」
+// ============================================================
+#include <cstdio>       // getchar / putchar / fread / fwrite
+#include <cstring>      // memset（多组数据清空、DP 初始化）
+#include <algorithm>    // sort / lower_bound / max / min / swap / fill
+#include <vector>       // vector：邻接表、动态数组
+#include <queue>        // queue / priority_queue（优先队列在这里！）
+#include <utility>      // pair / make_pair
+
+using namespace std;
+
+typedef long long          ll;
+typedef unsigned long long ull;
+typedef pair<int, int>     pii;
+typedef vector<int>        vi;
+
+const int  INF  = 0x3f3f3f3f;                      // 1.06e9，两倍不溢出 int
+const ll   LINF = 0x3f3f3f3f3f3f3f3fLL;
+const int  MOD  = 1000000007;                      // 写成 10 位数字：1e9+7 是 double
+const int  MAXN = 100005;                          // 数组在这个基础上多开 5 个
+
+#define rep(i, a, b) for (int i = (a); i <= (b); ++i)
+#define per(i, a, b) for (int i = (a); i >= (b); --i)
+#define all(x)       (x).begin(), (x).end()
+#define pb           push_back
+
+/* ---------- 大数组一律放全局：栈上放不下会 RE ---------- */
+int a[MAXN];
+
+/* ---------- 需要快读快写时再取消这一段 ----------
+static char rbuf[1 << 20];
+static int  rl = 0, rr = 0;
+inline int gc() {
+    if (rl == rr) { rr = (int)fread(rbuf, 1, sizeof(rbuf), stdin); rl = 0; if (rr <= 0) return EOF; }
+    return rbuf[rl++];
+}
+inline int readInt() {
+    int x = 0, f = 1, c = gc();
+    while (c < '0' || c > '9') { if (c == EOF) return 0; if (c == '-') f = -1; c = gc(); }
+    while (c >= '0' && c <= '9') { x = x * 10 + (c - '0'); c = gc(); }
+    return x * f;
+}
+// ------------------------------------------------- */
+
+int main() {
+    /* 只有在用 cin / cout 时才加这两行；用了快读就绝对不要混用 printf */
+    // ios::sync_with_stdio(false);
+    // cin.tie(nullptr);
+
+    int n = readInt();
+    rep(i, 1, n) a[i] = readInt();
+
+    ll sum = 0;
+    rep(i, 1, n) sum += a[i];              // sum 是 ll，不会爆
+
+    printf("%lld\n", sum);                 // ★ 是 %lld 不是 %d
+    return 0;
+}</script></div>
+<div class="callout">
+<p><b>这份模板刻意没写的东西，也是它的一部分：</b></p>
+<ul class="tight">
+<li>没有 <span class="mono">#define int long long</span>（理由见 2.6）</li>
+<li>没有 <span class="mono">bits/stdc++.h</span>（理由见 2.2）</li>
+<li>快读被注释掉了 —— <b>没到 10⁶ 的输入量就别打开它</b></li>
+<li>没有 <span class="mono">#define max/min</span>，直接用 <span class="mono">std::max</span> / <span class="mono">std::min</span></li>
+</ul>
+</div>
+</div>
+</details>
+
+<details class="fold" id="g8">
+<summary>2.8　脚手架部分的九条常见错误<span class="sum-note">每一条都真的会让人卡住</span></summary>
+<div class="fold-body">
+<h3>1. 快读里没判 EOF → 死循环</h3>
+<p class="idea"><span class="mono">EOF = −1</span>，而 <span class="mono">−1 &lt; '0'</span> 恒真，所以跳过非数字的第一个 <span class="mono">while</span> 永远成立。必须在里面加 <span class="mono">if (c == EOF) return 0;</span>。</p>
+
+<h3>2. 用 <span class="mono">char</span> 接 <span class="mono">getchar()</span> 的返回值</h3>
+<p class="idea"><span class="mono">getchar()</span> 返回 <b><span class="mono">int</span></b>，因为要在 0~255 之外再表示一个 <span class="mono">EOF</span>。用 <span class="mono">char</span> 接的话，<span class="mono">EOF</span> 和字符 <span class="mono">0xFF</span> 混在一起，<b>EOF 判断直接失效</b>，接着就是死循环或乱码。</p>
+
+<h3>3. 混用 <span class="mono">printf</span> 和 <span class="mono">cin</span></h3>
+<p class="idea">写了 <span class="mono">sync_with_stdio(false)</span> 之后两者各用各的缓冲，输出顺序会乱。选一套用到底。</p>
+
+<h3>4. <span class="mono">sync_with_stdio(false)</span> 写在读入之后</h3>
+<p class="idea">它必须在<b>任何 IO 发生之前</b>调用。写在 <span class="mono">main</span> 中间或某个函数里等于没写。</p>
+
+<h3>5. 用 <span class="mono">endl</span> 当换行</h3>
+<p class="idea">每次强制 flush。输出 10⁶ 行能慢好几倍，是 TLE 高频原因。</p>
+
+<h3>6. 缓冲快写忘了收尾 flush</h3>
+<p class="idea">最后不到 1 MB 的输出全部丢失，表现是「本地对、交上去只错最后几行」。</p>
+
+<h3>7. <span class="mono">const int MOD = 1e9 + 7;</span></h3>
+<p class="idea"><span class="mono">1e9</span> 是 double 字面量。写 <span class="mono">1000000007</span>。</p>
+
+<h3>8. 大数组开在 <span class="mono">main</span> 里（局部变量）</h3>
+<p class="idea">局部变量在<b>栈</b>上，Windows 默认栈只有 1~8 MB。<span class="mono">int a[1000005]</span> 是 4 MB，看起来没事，但多开几个就 <b class="dan">RE</b>（而且是「莫名奇妙的 RE」，因为栈溢出不会给你友好的提示）。<b>一律写成全局变量</b>，或加 <span class="mono">static</span>。</p>
+
+<h3>9. 忘记 <span class="mono">assert</span> 要关掉</h3>
+<p class="idea"><span class="mono">assert</span> 在本地帮你自检很爽，但正式提交时如果没定义 <span class="mono">NDEBUG</span>，它会被执行 —— 大循环里的 <span class="mono">assert</span> 可能直接把程序拖成 TLE。开 O2 通常会自动关掉，但别赌。</p>
+<div class="callout warn">
+<p><b>还有一个跨平台的坑（对拍时最常撞）：</b><span class="mono">RAND_MAX</span> 在 <b>Windows 上只有 32767</b>，Linux 上是 <span class="mono">2³¹−1</span>。所以 <span class="mono">rand()</span> 在 Windows 本地<b>根本出不了大数</b> —— 想生成 10⁶ 级的随机数得手动拼：<span class="mono">rand() * rand()</span> 或 <span class="mono">(rand() &lt;&lt; 15) ^ rand()</span>，或者直接用 <span class="mono">&lt;random&gt;</span> 的 <span class="mono">mt19937</span>。</p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="g9">
+<summary>2.9　题单：三道验证脚手架收益的题<span class="sum-note">跑完你会对「快读到底有没有用」有实感</span></summary>
+<div class="fold-body">
+<table>
+<thead><tr><th class="num">题目</th><th>为什么拿它练脚手架</th><th>观察什么</th></tr></thead>
+<tbody>
+<tr>
+<td class="num"><b>P3383</b><br>「模板」线性筛素数</td>
+<td>n 到 10⁸ 量级、多次询问，<b>输入输出量都大</b>，是快读快写最典型的收益场景</td>
+<td>把 <span class="mono">bitset</span> 换回 <span class="mono">int</span> 数组看 MLE；把快读换成 <span class="mono">cin</span> 看 TLE</td>
+</tr>
+<tr>
+<td class="num"><b>P4779</b><br>单源最短路径（标准版）</td>
+<td>边数到 2×10⁵，Dijkstra + 优先队列，<b>IO 密集且卡常</b></td>
+<td><span class="mono">0x3f3f3f3f</span> 当 <span class="mono">dist</span> 初值、<span class="mono">priority_queue</span> 的头文件、<span class="mono">pair</span> 的堆比较</td>
+</tr>
+<tr>
+<td class="num"><b>P3372</b><br>线段树 1</td>
+<td>m 次操作、每次一行，<b>读入极其密集</b></td>
+<td>把 <span class="mono">endl</span> 换成 <span class="mono">"\n"</span> 前后的耗时差</td>
+</tr>
+</tbody>
+</table>
+<p class="idea"><b>建议的练法：</b>同一道题交三遍 —— ① 用 <span class="mono">bits/stdc++.h</span> + <span class="mono">cin</span>；② 按需 include + <span class="mono">cin</span> 优化两行；③ 按需 include + 手写快读快写。看三次的时间和内存，你对「脚手架值多少」就有体感了。</p>
+<p class="ref">原文给的题单也一并做掉：洛谷 <b>P1601</b> A+B Problem（高精）· <b>P1303</b> A×B Problem · <b>P1045</b> 麦森数 —— 这三道的输出量都很大，是练快写的。打开 <a href="practice.html" target="_blank">题练场</a> 可以找到它们。</p>
+</div>
+</details>
+
+<h2 id="next">3 · 后续三件事</h2>
+<div class="callout">
+<p>本章共 <b>5 件事</b>，已经上线 <b>2 件</b>：<b>复杂度分析</b>（值不值得写）和 <b>竞赛代码脚手架</b>（写得快不快）。</p>
+<p>剩下三件都在解决"<b>写不写得对</b>"。它们在学习计划里已有简版，点上面的路线图可以直接跳过去：</p>
+<ul class="tight">
+<li><b>对拍</b> —— 写一个「肯定对但很慢」的暴力程序 + 随机数据生成器，让两者互相对答案。<b>这是竞赛里唯一可靠的调试手段</b>，光看代码找错是靠不住的。</li>
+<li><b>常见错误字典</b> —— 把 CE / RE / WA / TLE / MLE 每一种结果对应到固定的几个原因上，把「玄学错误」变成查表。</li>
+<li><b>离散化</b> —— 把「很大的数」压成「很小的下标」，是前缀和、树状数组、线段树共同的前置技能。</li>
+</ul>
+<p>这三件展开写完之后会继续放在这一页，一样用可折叠卡片承载。</p>
 </div>
 
 <p class="ref">相关页面：<a href="./index.html">学习手册</a>（122 张算法卡片）· <a href="./practice.html">题练场</a>（洛谷真题 + 多语言题解）· <a href="./plan.html">学习计划</a>（12 周训练表）</p>
