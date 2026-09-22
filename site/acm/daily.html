@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light" data-mode="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="日常开发 · 做算法题的基本功：复杂度分析。一分钟判断解法能不能过、六种循环形状速查、调和级数、麦森数例题与七条常见错误，全部配可复制的 C++ 代码。">
+<meta name="theme-color" content="#2563eb">
+<meta name="color-scheme" content="light dark">
+<title>日常开发 · 做题的基本功 · ACM 算法子站</title>
+<script src="../js/boot.js"></script>
+<script>try{var _t=document.documentElement.getAttribute('data-theme')||'light';document.documentElement.setAttribute('data-mode',_t);}catch(e){}</script>
+<style>
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;color-scheme:dark}
+:root{
+  --bg-rgb:8 13 24;
+  --panel-rgb:19 28 46;
+  --panel-a:.76;
+  --text:#e4ebf6;
+  --text-2:#a2b2c9;
+  --text-3:#75879f;
+  --line:rgb(148 163 184 / .16);
+  --line-2:rgb(148 163 184 / .32);
+  --accent:#5b9dff;
+  --accent-rgb:91 157 255;
+  --accent-ink:#05101f;
+  --code-bg:rgb(4 8 18 / .72);
+  --code-line:rgb(148 163 184 / .18);
+  --code-text:#d6e2f4;
+  --ok-rgb:74 222 128;
+  --warn-rgb:251 191 36;
+  --danger-rgb:248 113 113;
+  --vio-rgb:167 139 250;
+  --fx-a:1;
+  --wall:none;
+  --wall-size:cover;
+  --radius:14px;
+}
+html[data-mode="light"]{
+  color-scheme:light;
+  --bg-rgb:243 245 250;
+  --panel-rgb:255 255 255;
+  --panel-a:.9;
+  --text:#1c2432;
+  --text-2:#4c5a70;
+  --text-3:#7c8ba3;
+  --line:rgb(15 23 42 / .12);
+  --line-2:rgb(15 23 42 / .24);
+  --accent-ink:#ffffff;
+  --code-bg:rgb(246 248 250 / .96);
+  --code-line:rgb(15 23 42 / .13);
+  --code-text:#1f2328;
+  --ok-rgb:15 122 61;
+  --warn-rgb:154 91 0;
+  --danger-rgb:190 55 55;
+  --vio-rgb:109 40 217;
+}
+body{margin:0;background:rgb(var(--bg-rgb));color:var(--text);
+  font:14px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",system-ui,sans-serif}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+code,kbd,pre{font-family:"Cascadia Code",Consolas,"SF Mono",Menlo,monospace}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgb(var(--accent-rgb) / .34);border-radius:8px;border:3px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background:rgb(var(--accent-rgb) / .6);background-clip:content-box}
+::selection{background:rgb(var(--accent-rgb) / .35)}
+.bgfx{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:var(--wall);background-size:var(--wall-size);background-position:center;background-repeat:repeat;opacity:var(--fx-a)}
+.bgtint{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:linear-gradient(180deg, rgb(var(--bg-rgb) / .34), rgb(var(--bg-rgb) / .70) 48%, rgb(var(--bg-rgb) / .88))}
+header.top,.layout,footer{position:relative;z-index:1}
+
+header.top{background:rgb(var(--panel-rgb) / .58);backdrop-filter:blur(16px) saturate(1.2);
+  -webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--line);padding:30px 24px 24px}
+.wrap{max-width:1200px;margin:0 auto}
+h1{margin:0 0 10px;font-size:26px;font-weight:600;letter-spacing:.5px}
+.sub{color:var(--text-2);font-size:14px;max-width:840px;margin:0 0 16px}
+.stats{display:flex;flex-wrap:wrap;gap:8px}
+.stat{background:rgb(var(--accent-rgb) / .10);border:1px solid var(--line);border-radius:20px;
+  padding:3px 12px;font-size:12.5px;color:var(--text-2)}
+.hint{font-size:12.5px;color:var(--text-3);margin-top:10px}
+.hint b{color:var(--accent)}
+.layout{max-width:1200px;margin:0 auto;padding:24px;display:flex;gap:24px;align-items:flex-start}
+aside{flex:0 0 216px;position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto;
+  background:rgb(var(--panel-rgb) / .72);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid var(--line);border-radius:var(--radius);padding:14px 12px;font-size:13px}
+aside .ttl{font-size:12px;color:var(--text-3);letter-spacing:1px;margin:2px 0 8px;padding-left:6px}
+aside a{display:block;padding:4px 8px;border-radius:6px;color:var(--text-2)}
+aside a:hover{background:rgb(var(--accent-rgb) / .12);color:var(--text);text-decoration:none}
+aside a.sub2{padding-left:20px;color:var(--text-3);font-size:12.5px}
+main{flex:1 1 auto;min-width:0}
+.bar{position:sticky;top:0;z-index:20;background:rgb(var(--bg-rgb) / .72);backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);padding:10px 0 12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+  border-bottom:1px solid var(--line);margin-bottom:18px}
+.chip{border:1px solid var(--line-2);background:rgb(var(--panel-rgb) / .5);border-radius:20px;padding:5px 12px;
+  font-size:12.5px;color:var(--text-2);cursor:pointer;transition:.15s}
+.chip:hover{border-color:var(--accent);color:var(--text)}
+.chip.act{border-style:dashed;color:var(--text-3)}
+.chip.act:hover{color:var(--accent)}
+.chip.go{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600;text-decoration:none}
+.chip.go:hover{filter:brightness(1.08);color:var(--accent-ink)}
+h2{font-size:21px;margin:36px 0 6px;padding-left:12px;border-left:4px solid var(--accent);line-height:1.3}
+h3{font-size:16.5px;margin:26px 0 10px;color:var(--text)}
+p.lead{color:var(--text-2);margin:8px 0 16px}
+.idea{margin:4px 0}
+.idea b,.meta b,.ref b{color:var(--text)}
+.meta{margin:4px 0;color:var(--text-2);font-size:13px}
+.ref{margin:4px 0;font-size:13px;color:var(--text-2)}
+.form{margin:12px 0;padding:10px 14px;border-left:3px solid rgb(var(--accent-rgb) / .5);
+  background:rgb(var(--accent-rgb) / .08);border-radius:0 8px 8px 0;overflow-x:auto;white-space:pre;
+  font-family:"Cascadia Code",Consolas,Menlo,monospace;font-size:13.5px;line-height:1.9;color:var(--text)}
+.codebox{position:relative;margin:10px 0 6px}
+.codebox pre{margin:0;background:var(--code-bg);border:1px solid var(--code-line);border-radius:10px;
+  padding:12px 14px;overflow:auto;font-size:12.6px;line-height:1.65;color:var(--code-text)}
+.codebox .cp{position:absolute;top:8px;right:8px;font-size:11.5px;padding:3px 9px;border-radius:6px;
+  border:1px solid var(--line-2);background:rgb(var(--panel-rgb) / .9);color:var(--text-2);cursor:pointer;opacity:0;transition:.15s}
+.codebox:hover .cp{opacity:1}
+.codebox .cp:hover{border-color:var(--accent);color:var(--accent)}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13.2px;
+  background:rgb(var(--panel-rgb) / var(--panel-a));border-radius:10px;overflow:hidden}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:rgb(var(--accent-rgb) / .12);font-weight:600;color:var(--text);white-space:nowrap}
+tbody tr:hover td,tr:hover td{background:rgb(var(--accent-rgb) / .05)}
+td.num,th.num{white-space:nowrap}
+.callout{background:rgb(var(--warn-rgb) / .09);border:1px solid rgb(var(--warn-rgb) / .3);
+  border-radius:10px;padding:12px 16px;margin:14px 0}
+.callout.warn{background:rgb(var(--danger-rgb) / .1);border-color:rgb(var(--danger-rgb) / .32)}
+.callout.ok{background:rgb(var(--ok-rgb) / .1);border-color:rgb(var(--ok-rgb) / .3)}
+.callout p{margin:5px 0}
+.callout h5{margin:2px 0 6px;font-size:14px}
+ul.tight{margin:6px 0 6px 20px;padding:0}
+ul.tight li{margin:4px 0}
+ol.tight{margin:6px 0 6px 22px;padding:0}
+ol.tight li{margin:5px 0}
+.mark{background:linear-gradient(transparent 62%, rgb(var(--accent-rgb) / .34) 62%)}
+.mono{font-family:"Cascadia Code",Consolas,Menlo,monospace}
+.ok{color:rgb(var(--ok-rgb))}
+.warn{color:rgb(var(--warn-rgb))}
+.dan{color:rgb(var(--danger-rgb))}
+.vio{color:rgb(var(--vio-rgb))}
+.acc{color:var(--accent)}
+
+/* ---------- 可折叠卡片（页面较长，默认收起，按需展开） ---------- */
+details.fold{border:1px solid var(--line);border-radius:var(--radius);
+  background:rgb(var(--panel-rgb) / var(--panel-a));margin:12px 0;transition:border-color .15s}
+details.fold[open]{border-color:rgb(var(--accent-rgb) / .38)}
+details.fold>summary{cursor:pointer;list-style:none;padding:13px 18px;display:flex;align-items:baseline;
+  gap:10px;flex-wrap:wrap;font-size:15.5px;font-weight:600;color:var(--text);user-select:none;-webkit-user-select:none}
+details.fold>summary::-webkit-details-marker{display:none}
+details.fold>summary::before{content:"\25BE";font-size:11px;color:var(--text-3);flex:none;
+  transform:rotate(-90deg);transition:transform .16s;display:inline-block}
+details.fold[open]>summary::before{transform:rotate(0)}
+details.fold>summary:hover{color:var(--accent)}
+details.fold>summary:hover::before{color:var(--accent)}
+.sum-note{font-size:12px;font-weight:400;color:var(--text-3);letter-spacing:0}
+.fold-body{padding:0 18px 16px;border-top:1px solid var(--line);margin-top:2px;padding-top:12px}
+.fold-body>p:first-child{margin-top:0}
+
+/* ---------- 内联 SVG 图表：颜色全部走 CSS 令牌，自动跟随深浅色 ---------- */
+.fig{display:block;margin:8px 0 4px;max-width:100%}
+.fig-line{fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.fig-frame{fill:none;stroke:var(--line-2);stroke-width:1}
+.fig-band{fill:rgb(var(--accent-rgb) / .055)}
+.fg-gl{stroke:var(--line);stroke-width:.5}
+.fg-ax{stroke:var(--line-2);stroke-width:1}
+.fg-card{fill:rgb(var(--panel-rgb) / var(--panel-a));stroke:var(--line-2);stroke-width:.5}
+.fg-t{fill:var(--text)}
+.fg-s{fill:var(--text-2)}
+.fg-h{fill:var(--text-3)}
+.fg-small{font-size:11.5px}
+.fg-tick{fill:var(--text-3);font-size:11.5px;font-family:"Cascadia Code",Consolas,Menlo,monospace}
+.fg-mono{font-family:"Cascadia Code",Consolas,Menlo,monospace}
+.fg-code{font-family:"Cascadia Code",Consolas,Menlo,monospace;font-size:12.5px;fill:var(--text)}
+.k-limit{stroke:var(--text-3);stroke-width:1.5;stroke-dasharray:6 4}
+.k-log{stroke:rgb(var(--ok-rgb))}.k-log-tx{fill:rgb(var(--ok-rgb))}
+.k-n{stroke:var(--accent)}.k-n-tx{fill:var(--accent)}
+.k-nlogn{stroke:rgb(var(--vio-rgb))}.k-nlogn-tx{fill:rgb(var(--vio-rgb))}
+.k-n2{stroke:rgb(var(--warn-rgb))}.k-n2-tx{fill:rgb(var(--warn-rgb))}
+.k-n3{stroke:rgb(var(--danger-rgb))}.k-n3-tx{fill:rgb(var(--danger-rgb))}
+.bar-hi{fill:rgb(var(--ok-rgb))}
+.bar-lo{fill:rgb(var(--ok-rgb) / .45)}
+.curve{fill:none;stroke:rgb(var(--ok-rgb) / .75);stroke-width:1.5}
+.bd{stroke-width:.5}
+.bd-acc{fill:rgb(var(--accent-rgb) / .16);stroke:rgb(var(--accent-rgb) / .4)}
+.tx-acc{fill:var(--accent)}
+.bd-ok{fill:rgb(var(--ok-rgb) / .16);stroke:rgb(var(--ok-rgb) / .4)}
+.tx-ok{fill:rgb(var(--ok-rgb))}
+.bd-warn{fill:rgb(var(--warn-rgb) / .16);stroke:rgb(var(--warn-rgb) / .4)}
+.tx-warn{fill:rgb(var(--warn-rgb))}
+.bd-dan{fill:rgb(var(--danger-rgb) / .16);stroke:rgb(var(--danger-rgb) / .4)}
+.tx-dan{fill:rgb(var(--danger-rgb))}
+.bd-vio{fill:rgb(var(--vio-rgb) / .16);stroke:rgb(var(--vio-rgb) / .4)}
+.tx-vio{fill:rgb(var(--vio-rgb))}
+.st-acc{stroke:var(--accent);stroke-width:1.5}
+.st-ok{stroke:rgb(var(--ok-rgb));stroke-width:1.5}
+.st-warn{stroke:rgb(var(--warn-rgb));stroke-width:1.5}
+.st-vio{stroke:rgb(var(--vio-rgb));stroke-width:1.5}
+.st-dan{stroke:rgb(var(--danger-rgb));stroke-width:1.5}
+.ah-ok{fill:rgb(var(--ok-rgb))}
+.ah-warn{fill:rgb(var(--warn-rgb))}
+.box-ok{fill:rgb(var(--panel-rgb) / var(--panel-a));stroke:rgb(var(--ok-rgb));stroke-width:.5}
+.box-warn{fill:rgb(var(--panel-rgb) / var(--panel-a));stroke:rgb(var(--warn-rgb));stroke-width:.5}
+.box-vio{fill:rgb(var(--panel-rgb) / var(--panel-a));stroke:rgb(var(--vio-rgb));stroke-width:.5}
+.band-dan{fill:rgb(var(--danger-rgb) / .1);stroke:rgb(var(--danger-rgb));stroke-width:.5}
+.figcap{font-size:12.5px;color:var(--text-3);margin:2px 0 14px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin:8px 0 2px;font-size:12px;color:var(--text-2)}
+.legend span{display:flex;align-items:center;gap:5px}
+.legend i{width:14px;height:3px;display:inline-block;border-radius:2px}
+.legend i.dash{background:none;border-top:1.5px dashed var(--text-3);height:0}
+
+footer{max-width:1200px;margin:40px auto 0;padding:20px 24px 60px;color:var(--text-3);font-size:12.5px;
+  border-top:1px solid var(--line)}
+.hidden{display:none !important}
+@media(max-width:640px){
+  .layout{padding:14px;gap:14px}
+  aside{display:none}
+  .fold-body{padding:0 14px 14px}
+  details.fold>summary{padding:12px 14px;font-size:15px}
+}
+</style>
+<link rel="stylesheet" href="./acm.css">
+</head>
+<body>
+<div class="bgfx" aria-hidden="true"></div>
+<div class="bgtint" aria-hidden="true"></div>
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;overflow:hidden">
+  <symbol id="i-graduation" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8.6 12 4.2l9.5 4.4L12 13 2.5 8.6Z"/><path d="M6.2 10.9V16c0 1.4 2.6 2.6 5.8 2.6s5.8-1.2 5.8-2.6v-5.1"/><path d="M21.5 9.4v5.2"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.6 12 3.8l8.5 6.8V20a1 1 0 0 1-1 1h-4.2v-6.2H8.7V21H4.5a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-arrow-ur" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8.5 7H17v8.5"/></symbol>
+</svg>
+
+<header class="acm-nav" id="acmNav">
+  <div class="acm-wrap acm-nav-inner">
+    <a class="acm-brand" href="../index.html" title="回到校园主页">
+      <span class="acm-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-graduation"/></svg></span>
+      <span class="acm-brand-text"><strong>ACM 算法</strong><small>校园主页 · 子站</small></span>
+    </a>
+    <nav class="acm-tabs" aria-label="子站页面">
+      <a href="./index.html">学习手册</a>
+      <a href="./practice.html">题练场</a>
+      <a href="./plan.html">学习计划</a>
+      <a href="./daily.html" class="on" aria-current="page">日常开发</a>
+    </nav>
+    <div class="acm-nav-actions">
+      <button class="acm-btn acm-btn-icon" type="button" id="themeBtn" title="切换深色 / 浅色（全站共用）" aria-label="切换深色或浅色主题">
+        <svg class="ico" aria-hidden="true" id="themeIco"><use href="#i-moon"/></svg>
+      </button>
+      <a class="acm-btn" href="../index.html" title="返回校园主页">
+        <svg class="ico" aria-hidden="true"><use href="#i-home"/></svg><span class="label">回主页</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<header class="top"><div class="wrap">
+<h1>日常开发 · 做算法题的肌肉记忆</h1>
+<p class="sub">这一章不教算法，教的是<b>上手前三秒钟的判断</b>。很多人卡在入门，不是因为算法难，而是因为：不会估复杂度、不会调试、不知道自己在写什么。<b>先把这五件事做完</b> —— 下面是第一件。</p>
+<div class="stats">
+  <span class="stat">本章共 5 件事</span>
+  <span class="stat">已上线 1 / 5</span>
+  <span class="stat">9 张可折叠卡片</span>
+  <span class="stat">5 张手绘图表（零外部依赖）</span>
+  <span class="stat">代码可直接复制编译</span>
+</div>
+<p class="hint">页面较长，<b>每个主题都做成了可折叠的卡片</b>，点标题展开，或用右上角的 <b>全部展开 / 全部折叠</b> 一次性控制。所有图表都是内联 SVG，<b>不加载任何外部脚本或 CDN</b>；深浅色跟随校园主页。</p>
+</div></header>
+
+<div class="layout">
+<aside>
+  <div class="ttl">目录</div>
+  <a href="#c1">1 · 复杂度分析</a>
+  <a href="#f1" class="sub2">1.1 计数的本质</a>
+  <a href="#f2" class="sub2">1.2 能不能过</a>
+  <a href="#f3" class="sub2">1.3 数据规模对照表</a>
+  <a href="#f4" class="sub2">1.4 六种循环形状</a>
+  <a href="#f5" class="sub2">1.5 调和级数</a>
+  <a href="#f6" class="sub2">1.6 三层循环</a>
+  <a href="#f7" class="sub2">1.7 例题：麦森数</a>
+  <a href="#f8" class="sub2">1.8 七条常见错误</a>
+  <a href="#f9" class="sub2">1.9 题单怎么刷</a>
+  <a href="#next">2 · 后续四件事</a>
+</aside>
+
+<main>
+<div class="bar">
+  <button class="chip act" type="button" data-act="expand">全部展开</button>
+  <button class="chip act" type="button" data-act="collapse">全部折叠</button>
+  <a class="chip go" href="practice.html" target="_blank" title="打开例题练习场">题练场 →</a>
+</div>
+
+<h2 id="c1">1 · 复杂度分析：一分钟算出「能不能过」</h2>
+<p class="lead">复杂度分析不是数学，是一种<b>手感</b>。它要解决的唯一问题是：给我 n 的范围，我能不能在 1 秒内跑完？这个反应要快过想解法本身。</p>
+
+<details class="fold" id="f1" open>
+<summary>1.1　计数的本质：只数「层」和「每层跟谁有关」<span class="sum-note">三条铁律，其余全由它推出来</span></summary>
+<div class="fold-body">
+<table>
+<thead><tr><th>代码结构</th><th>规则</th></tr></thead>
+<tbody>
+<tr><td class="num">顺序执行 <span class="mono">A(); B();</span></td><td><b>取最大</b>：<span class="mono">O(A) + O(B) = max(O(A), O(B))</span></td></tr>
+<tr><td class="num">分支 <span class="mono">if / else</span></td><td><b>取最大</b>：只算贵的那一支</td></tr>
+<tr><td class="num">循环 <span class="mono">for(...) { body }</span></td><td><b>次数 × 循环体</b></td></tr>
+<tr><td class="num">嵌套</td><td><b>相乘</b></td></tr>
+</tbody>
+</table>
+<p class="idea"><b>关键在最后一句：</b>"次数"<b>不等于</b>"变量本身"。看这两个循环 ——</p>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">for (int i = 0; i < n; ++i) ...   // i 是计数器      -> n 次，O(n)
+while (n > 1) n /= 2;             // n 是被减半的对象 -> log n 次，O(log n)</script></div>
+<p class="idea">同样出现 <span class="mono">n</span>，一个是<b>步数</b>，一个是<b>被减半的规模</b>。判断依据永远是问自己一句：<span class="mark">循环体每执行一次，那个决定循环次数的量发生了什么变化？</span></p>
+<ul class="tight">
+<li>每次 <b class="mono">+1</b>（或 <span class="mono">+= 常数</span>）→ 线性，<b>O(n)</b> 次</li>
+<li>每次 <b class="mono">×2 / ÷2</b>（<span class="mono">n /= 2</span>、<span class="mono">b >>= 1</span>）→ 对数，<b>O(log n)</b> 次</li>
+<li>每次 <b class="mono">+= i</b>（步长本身就是变化的量）→ 调和级数，<b>O(n log n)</b> 次 ← <span class="dan">最容易翻车的一类</span></li>
+</ul>
+</div>
+</details>
+
+<details class="fold" id="f2" open>
+<summary>1.2　先判断「能不能过」<span class="sum-note">增长曲线与 1 秒运算上限</span></summary>
+<div class="fold-body">
+<div class="legend">
+  <span><i style="background:rgb(var(--ok-rgb))"></i>O(log n)</span>
+  <span><i style="background:var(--accent)"></i>O(n)</span>
+  <span><i style="background:rgb(var(--vio-rgb))"></i>O(n log n)</span>
+  <span><i style="background:rgb(var(--warn-rgb))"></i>O(n²)</span>
+  <span><i style="background:rgb(var(--danger-rgb))"></i>O(n³)</span>
+  <span><i class="dash"></i>1 秒上限</span>
+</div>
+<svg class="fig" viewBox="0 0 680 330" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>复杂度增长曲线与一秒运算上限的交点</title>
+<desc>对数坐标下，log n、n、n log n、n 平方、n 立方五条曲线与每秒约一亿次运算上限的虚线相交：n 平方约在 n 等于一万处触线，n 立方约在 n 等于四百六十处触线。</desc>
+<g>
+  <line class="fg-gl" x1="66" y1="276.0" x2="636" y2="276.0"/>
+  <line class="fg-gl" x1="66" y1="218.5" x2="636" y2="218.5"/>
+  <line class="fg-gl" x1="66" y1="161.0" x2="636" y2="161.0"/>
+  <line class="fg-gl" x1="66" y1="103.5" x2="636" y2="103.5"/>
+  <line class="fg-gl" x1="66" y1="46.0" x2="636" y2="46.0"/>
+  <line class="fg-gl" x1="66.0" y1="46" x2="66.0" y2="276"/>
+  <line class="fg-gl" x1="161.0" y1="46" x2="161.0" y2="276"/>
+  <line class="fg-gl" x1="256.0" y1="46" x2="256.0" y2="276"/>
+  <line class="fg-gl" x1="351.0" y1="46" x2="351.0" y2="276"/>
+  <line class="fg-gl" x1="446.0" y1="46" x2="446.0" y2="276"/>
+  <line class="fg-gl" x1="541.0" y1="46" x2="541.0" y2="276"/>
+  <line class="fg-gl" x1="636.0" y1="46" x2="636.0" y2="276"/>
+</g>
+<line class="k-limit" x1="66" y1="122.7" x2="636" y2="122.7"/>
+<text class="fg-t fg-mono fg-small" x="72" y="115.7">1 秒 ≈ 10⁸ 次运算</text>
+<line class="fg-ax" x1="66" y1="46" x2="66" y2="276"/>
+<line class="fg-ax" x1="66" y1="276" x2="636" y2="276"/>
+<g class="fg-tick">
+  <text x="58" y="276.0" text-anchor="end" dominant-baseline="central">1</text>
+  <text x="58" y="218.5" text-anchor="end" dominant-baseline="central">10³</text>
+  <text x="58" y="161.0" text-anchor="end" dominant-baseline="central">10⁶</text>
+  <text x="58" y="103.5" text-anchor="end" dominant-baseline="central">10⁹</text>
+  <text x="58" y="46.0" text-anchor="end" dominant-baseline="central">10¹²</text>
+  <text x="66.0" y="292" text-anchor="middle">1</text>
+  <text x="161.0" y="292" text-anchor="middle">10</text>
+  <text x="256.0" y="292" text-anchor="middle">100</text>
+  <text x="351.0" y="292" text-anchor="middle">10³</text>
+  <text x="446.0" y="292" text-anchor="middle">10⁴</text>
+  <text x="541.0" y="292" text-anchor="middle">10⁵</text>
+  <text x="636.0" y="292" text-anchor="middle">10⁶</text>
+</g>
+<text class="fg-tick" x="351" y="312" text-anchor="middle">数据规模 n</text>
+<text class="fg-tick" x="64" y="32" text-anchor="middle">运算次数</text>
+<polyline class="fig-line k-log" points="95,276 97,275 100,275 103,274 105,273 108,273 111,272 114,272 116,271 119,271 122,270 124,270 127,270 130,269 132,269 135,269 138,268 141,268 143,268 146,267 149,267 151,267 154,267 157,266 160,266 162,266 165,266 168,265 170,265 173,265 176,265 179,265 181,264 184,264 187,264 189,264 192,264 195,263 197,263 200,263 203,263 206,263 208,263 211,262 214,262 216,262 219,262 222,262 225,262 227,262 230,261 233,261 235,261 238,261 241,261 243,261 246,261 249,261 252,260 254,260 257,260 260,260 262,260 265,260 268,260 271,260 273,260 276,259 279,259 281,259 284,259 287,259 290,259 292,259 295,259 298,259 300,258 303,258 306,258 308,258 311,258 314,258 317,258 319,258 322,258 325,258 327,258 330,257 333,257 336,257 338,257 341,257 344,257 346,257 349,257 352,257 354,257 357,257 360,257 363,257 365,256 368,256 371,256 373,256 376,256 379,256 382,256 384,256 387,256 390,256 392,256 395,256 398,256 400,256 403,255 406,255 409,255 411,255 414,255 417,255 419,255 422,255 425,255 428,255 430,255 433,255 436,255 438,255 441,255 444,255 447,254 449,254 452,254 455,254 457,254 460,254 463,254 465,254 468,254 471,254 474,254 476,254 479,254 482,254 484,254 487,254 490,254 493,254 495,253 498,253 501,253 503,253 506,253 509,253 511,253 514,253 517,253 520,253 522,253 525,253 528,253 530,253 533,253 536,253 539,253 541,253 544,253 547,253 549,252 552,252 555,252 557,252 560,252 563,252 566,252 568,252 571,252 574,252 576,252 579,252 582,252 585,252 587,252 590,252 593,252 595,252 598,252 601,252 604,252 606,252 609,251 612,251 614,251 617,251 620,251 622,251 625,251 628,251 631,251 633,251 636,251"/>
+<polyline class="fig-line k-n" points="66,276 69,275 72,275 75,274 77,274 80,273 83,273 86,272 89,271 92,271 95,270 97,270 100,269 103,269 106,268 109,267 112,267 114,266 117,266 120,265 123,265 126,264 129,263 132,263 134,262 137,262 140,261 143,260 146,260 149,259 152,259 154,258 157,258 160,257 163,256 166,256 169,255 171,255 174,254 177,254 180,253 183,252 186,252 189,251 191,251 194,250 197,250 200,249 203,248 206,248 209,247 211,247 214,246 217,246 220,245 223,244 226,244 228,243 231,243 234,242 237,242 240,241 243,240 246,240 248,239 251,239 254,238 257,237 260,237 263,236 265,236 268,235 271,235 274,234 277,233 280,233 283,232 285,232 288,231 291,231 294,230 297,229 300,229 303,228 305,228 308,227 311,227 314,226 317,225 320,225 323,224 325,224 328,223 331,223 334,222 337,221 340,221 342,220 345,220 348,219 351,219 354,218 357,217 360,217 362,216 365,216 368,215 371,214 374,214 377,213 380,213 382,212 385,212 388,211 391,210 394,210 397,209 399,209 402,208 405,208 408,207 411,206 414,206 417,205 419,205 422,204 425,204 428,203 431,202 434,202 437,201 439,201 442,200 445,200 448,199 451,198 454,198 456,197 459,197 462,196 465,196 468,195 471,194 474,194 476,193 479,193 482,192 485,191 488,191 491,190 494,190 496,189 499,189 502,188 505,187 508,187 511,186 513,186 516,185 519,185 522,184 525,183 528,183 531,182 533,182 536,181 539,181 542,180 545,179 548,179 551,178 553,178 556,177 559,177 562,176 565,175 568,175 570,174 573,174 576,173 579,173 582,172 585,171 588,171 590,170 593,170 596,169 599,168 602,168 605,167 607,167 610,166 613,166 616,165 619,164 622,164 625,163 627,163 630,162 633,162 636,161"/>
+<polyline class="fig-line k-nlogn" points="95,270 97,269 100,268 103,267 105,265 108,264 111,263 114,262 116,261 119,260 122,259 124,258 127,257 130,256 132,256 135,255 138,254 141,253 143,252 146,251 149,250 151,250 154,249 157,248 160,247 162,246 165,246 168,245 170,244 173,243 176,243 179,242 181,241 184,240 187,240 189,239 192,238 195,237 197,237 200,236 203,235 206,235 208,234 211,233 214,233 216,232 219,231 222,230 225,230 227,229 230,228 233,228 235,227 238,226 241,226 243,225 246,224 249,224 252,223 254,222 257,222 260,221 262,220 265,220 268,219 271,218 273,218 276,217 279,216 281,216 284,215 287,214 290,214 292,213 295,213 298,212 300,211 303,211 306,210 308,209 311,209 314,208 317,207 319,207 322,206 325,205 327,205 330,204 333,204 336,203 338,202 341,202 344,201 346,200 349,200 352,199 354,199 357,198 360,197 363,197 365,196 368,195 371,195 373,194 376,194 379,193 382,192 384,192 387,191 390,191 392,190 395,189 398,189 400,188 403,187 406,187 409,186 411,186 414,185 417,184 419,184 422,183 425,183 428,182 430,181 433,181 436,180 438,180 441,179 444,178 447,178 449,177 452,176 455,176 457,175 460,175 463,174 465,173 468,173 471,172 474,172 476,171 479,170 482,170 484,169 487,169 490,168 493,167 495,167 498,166 501,166 503,165 506,164 509,164 511,163 514,163 517,162 520,161 522,161 525,160 528,160 530,159 533,159 536,158 539,157 541,157 544,156 547,156 549,155 552,154 555,154 557,153 560,153 563,152 566,151 568,151 571,150 574,150 576,149 579,148 582,148 585,147 587,147 590,146 593,145 595,145 598,144 601,144 604,143 606,143 609,142 612,141 614,141 617,140 620,140 622,139 625,138 628,138 631,137 633,137 636,136"/>
+<polyline class="fig-line k-n2" points="66,276 69,275 72,274 75,273 77,271 80,270 83,269 86,268 89,267 92,266 95,265 97,263 100,262 103,261 106,260 109,259 112,258 114,256 117,255 120,254 123,253 126,252 129,251 132,250 134,248 137,247 140,246 143,245 146,244 149,243 152,242 154,240 157,239 160,238 163,237 166,236 169,235 171,233 174,232 177,231 180,230 183,229 186,228 189,227 191,225 194,224 197,223 200,222 203,221 206,220 209,219 211,217 214,216 217,215 220,214 223,213 226,212 228,210 231,209 234,208 237,207 240,206 243,205 246,204 248,202 251,201 254,200 257,199 260,198 263,197 265,196 268,194 271,193 274,192 277,191 280,190 283,189 285,187 288,186 291,185 294,184 297,183 300,182 303,181 305,179 308,178 311,177 314,176 317,175 320,174 323,173 325,171 328,170 331,169 334,168 337,167 340,166 342,164 345,163 348,162 351,161 354,160 357,159 360,158 362,156 365,155 368,154 371,153 374,152 377,151 380,150 382,148 385,147 388,146 391,145 394,144 397,143 399,141 402,140 405,139 408,138 411,137 414,136 417,135 419,133 422,132 425,131 428,130 431,129 434,128 437,127 439,125 442,124 445,123 448,122 451,121 454,120 456,118 459,117 462,116 465,115 468,114 471,113 474,112 476,110 479,109 482,108 485,107 488,106 491,105 494,104 496,102 499,101 502,100 505,99 508,98 511,97 513,95 516,94 519,93 522,92 525,91 528,90 531,89 533,87 536,86 539,85 542,84 545,83 548,82 551,81 553,79 556,78 559,77 562,76 565,75 568,74 570,72 573,71 576,70 579,69 582,68 585,67 588,66 590,64 593,63 596,62 599,61 602,60 605,59 607,58 610,56 613,55 616,54 619,53 622,52 625,51 627,49 630,48 633,47 636,46"/>
+<polyline class="fig-line k-n3" points="66,276 69,274 72,273 75,271 77,269 80,267 83,266 86,264 89,262 92,260 95,259 97,257 100,255 103,254 106,252 109,250 112,248 114,247 117,245 120,243 123,242 126,240 129,238 132,236 134,235 137,233 140,231 143,229 146,228 149,226 152,224 154,223 157,221 160,219 163,217 166,216 169,214 171,212 174,210 177,209 180,207 183,205 186,204 189,202 191,200 194,198 197,197 200,195 203,193 206,191 209,190 211,188 214,186 217,185 220,183 223,181 226,179 228,178 231,176 234,174 237,173 240,171 243,169 246,167 248,166 251,164 254,162 257,160 260,159 263,157 265,155 268,154 271,152 274,150 277,148 280,147 283,145 285,143 288,141 291,140 294,138 297,136 300,135 303,133 305,131 308,129 311,128 314,126 317,124 320,122 323,121 325,119 328,117 331,116 334,114 337,112 340,110 342,109 345,107 348,105 351,104 354,102 357,100 360,98 362,97 365,95 368,93 371,91 374,90 377,88 380,86 382,85 385,83 388,81 391,79 394,78 397,76 399,74 402,72 405,71 408,69 411,67 414,66 417,64 419,62 422,60 425,59 428,57 431,55 434,53 437,52 439,50 442,48 445,47 446,46"/>
+<text class="fg-t fg-mono fg-small k-n2-tx" x="632.0" y="46.0" text-anchor="end" dominant-baseline="central">O(n²)</text>
+<text class="fg-t fg-mono fg-small k-n3-tx" x="452.0" y="61.0" text-anchor="start" dominant-baseline="central">O(n³)</text>
+<text class="fg-t fg-mono fg-small k-nlogn-tx" x="632.0" y="136.1" text-anchor="end" dominant-baseline="central">O(n log n)</text>
+<text class="fg-t fg-mono fg-small k-n-tx" x="632.0" y="161.0" text-anchor="end" dominant-baseline="central">O(n)</text>
+<text class="fg-t fg-mono fg-small k-log-tx" x="632.0" y="251.1" text-anchor="end" dominant-baseline="central">O(log n)</text>
+</svg>
+<p class="figcap">纵轴与横轴都是对数轴（分别为 10⁰–10¹² 次运算、10⁰–10⁶ 的 n）。曲线穿出顶边表示运算次数已超过 10¹²，不再有意义。</p>
+<p class="idea">看这张图有两个要点：</p>
+<ol class="tight">
+<li><b>纵轴是对数轴，视觉上的"陡"被压扁了。</b>真实情况比图上可怕得多：n 从 10³ 涨到 10⁶（才 1000 倍），O(n²) 的运算量涨了 <b class="dan">10⁶ 倍</b>。</li>
+<li><b>交点才是重点。</b>O(n²) 大约在 n ≈ 10⁴ 处触线，O(n³) 在 n ≈ 460 处就爆了。这两个数要背下来 —— 拿到题先看 n 的范围，立刻能反推"这题允许我用什么复杂度的算法"。</li>
+</ol>
+<div class="callout">
+<p><b>工程上够用的换算：</b>C++ 一秒大约 <b class="mono">10⁸</b> 次简单运算（加减、比较、移位）。<b>取模与除法慢 10～20 倍</b>；递归调用和 STL 容器再打个折。所以实做时一般在 <b class="mono">10⁷ ~ 10⁸</b> 这个区间卡安全线。</p>
+<p>注意：复杂度是<b>渐进行为</b>，不是性能承诺。同一个 O(n log n)，手写归并和 <span class="mono">std::sort</span> 的常数差好几倍；同一个 O(n)，用 <span class="mono">cin</span> 读入和使用 <span class="mono">scanf</span> 也可能差一倍。</p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="f3">
+<summary>1.3　数据规模 → 可承受复杂度<span class="sum-note">这张表建议直接背下来</span></summary>
+<div class="fold-body">
+<svg class="fig" viewBox="0 0 680 332" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>数据规模 n 与一秒内可承受复杂度对照表</title>
+<desc>按每秒约一亿次运算估算：n 不超过 30 可用指数级搜索，不超过 100 可用四次方算法，不超过 500 可用三次方算法，不超过五千可用平方算法，不超过百万可用 n log n，不超过千万可用线性，十亿以上只能根号或对数复杂度。</desc>
+<text class="fg-s" x="40" y="26" font-size="12.5">n 的量级</text>
+<text class="fg-s" x="228" y="26" font-size="12.5">一秒内能过的复杂度（按 10⁸ 次/秒估）</text>
+<line class="fg-gl" x1="40" y1="36" x2="640" y2="36"/>
+
+<rect class="fig-band" x="40" y="40" width="600" height="34" rx="6"/>
+<text class="fg-mono fg-t" x="52" y="57" font-size="13" dominant-baseline="central">n ≤ 30</text>
+<text class="fg-mono tx-dan" x="228" y="57" font-size="13" dominant-baseline="central">O(2ⁿ)、O(n!) — 爆搜 / 全排列</text>
+
+<text class="fg-mono fg-t" x="52" y="91" font-size="13" dominant-baseline="central">n ≤ 100</text>
+<text class="fg-mono tx-dan" x="228" y="91" font-size="13" dominant-baseline="central">O(n⁴) — 高维 DP / 多重暴力枚举</text>
+
+<rect class="fig-band" x="40" y="108" width="600" height="34" rx="6"/>
+<text class="fg-mono fg-t" x="52" y="125" font-size="13" dominant-baseline="central">n ≤ 500</text>
+<text class="fg-mono tx-warn" x="228" y="125" font-size="13" dominant-baseline="central">O(n³) — 区间 DP / Floyd / 矩阵乘法</text>
+
+<text class="fg-mono fg-t" x="52" y="159" font-size="13" dominant-baseline="central">n ≤ 5×10³</text>
+<text class="fg-mono tx-warn" x="228" y="159" font-size="13" dominant-baseline="central">O(n²) — 朴素 DP / 完全背包</text>
+
+<rect class="fig-band" x="40" y="176" width="600" height="34" rx="6"/>
+<text class="fg-mono fg-t" x="52" y="193" font-size="13" dominant-baseline="central">n ≤ 10⁶</text>
+<text class="fg-mono tx-acc" x="228" y="193" font-size="13" dominant-baseline="central">O(n log n) — 排序 / 线段树 / Dijkstra</text>
+
+<text class="fg-mono fg-t" x="52" y="227" font-size="13" dominant-baseline="central">n ≤ 10⁷</text>
+<text class="fg-mono tx-acc" x="228" y="227" font-size="13" dominant-baseline="central">O(n) — 线性筛 / 单调栈 / 前缀和</text>
+
+<rect class="fig-band" x="40" y="244" width="600" height="34" rx="6"/>
+<text class="fg-mono fg-t" x="52" y="261" font-size="13" dominant-baseline="central">n ≤ 10⁹</text>
+<text class="fg-mono tx-ok" x="228" y="261" font-size="13" dominant-baseline="central">O(√n) — 试除法 / 单个数质因数分解</text>
+
+<text class="fg-mono fg-t" x="52" y="295" font-size="13" dominant-baseline="central">n ≤ 10¹⁸</text>
+<text class="fg-mono tx-ok" x="228" y="295" font-size="13" dominant-baseline="central">O(log n) — 快速幂 / 二分 / 矩阵快速幂</text>
+<line class="fg-gl" x1="216" y1="36" x2="216" y2="312"/>
+<line class="fg-gl" x1="40" y1="312" x2="640" y2="312"/>
+</svg>
+<p class="figcap">按每秒约 10⁸ 次运算估算。颜色只表示"这一档算法的余量"，越靠上越贵。</p>
+<p class="idea">做题时它是<b>反向使用</b>的：题目给出 <span class="mono">n ≤ 5000</span>，你就知道<b>必须往 O(n²) 以内想</b>，任何 O(n³) 的朴素思路都得当场毙掉 —— 不需要写出来再跑一次。</p>
+<div class="callout warn">
+<p><b>空间也要算。</b><span class="mono">int a[100000000]</span> 是 <b>400 MB</b>，直接 MLE。换成 <span class="mono">bool</span> 或 <span class="mono">bitset</span> 只有 <b>12.5 MB</b>。<span class="mono">bitset&lt;10⁸&gt;</span> 是 10⁸ <b>位</b>而不是字节 —— 这个换算要能一眼看出来。</p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="f4">
+<summary>1.4　六种循环形状速查<span class="sum-note">扫一眼形状就出结论</span></summary>
+<div class="fold-body">
+<p class="idea">复杂度分析在实战里不是逐行推的，是<b>扫一眼循环的"形"就出结论</b>。这六种覆盖了 90% 的场景。</p>
+<svg class="fig" viewBox="0 0 680 338" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>六种常见循环形状对应的复杂度速查卡</title>
+<desc>单层循环为 n，双重嵌套为 n 平方，每次折半为对数，排序为 n log n，外层线性内层折半为 n log n，三层嵌套为 n 立方。</desc>
+<rect class="fg-card" x="40" y="40" width="280" height="82" rx="10"/>
+<text class="fg-code" x="56" y="68">for (i = 0; i &lt; n; i++)</text>
+<rect class="bd bd-acc" x="56" y="84" width="60" height="22" rx="6"/>
+<text class="fg-mono tx-acc" x="86" y="95" font-size="12" text-anchor="middle" dominant-baseline="central">O(n)</text>
+<text class="fg-s" x="126" y="95" font-size="12" dominant-baseline="central">前缀和 · 双指针</text>
+<rect class="fg-card" x="360" y="40" width="280" height="82" rx="10"/>
+<text class="fg-code" x="376" y="68">for (...) for (...)</text>
+<rect class="bd bd-warn" x="376" y="84" width="60" height="22" rx="6"/>
+<text class="fg-mono tx-warn" x="406" y="95" font-size="12" text-anchor="middle" dominant-baseline="central">O(n²)</text>
+<text class="fg-s" x="446" y="95" font-size="12" dominant-baseline="central">朴素 DP · 冒泡排序</text>
+<rect class="fg-card" x="40" y="138" width="280" height="82" rx="10"/>
+<text class="fg-code" x="56" y="166">while (n &gt; 1) n /= 2;</text>
+<rect class="bd bd-ok" x="56" y="182" width="76" height="22" rx="6"/>
+<text class="fg-mono tx-ok" x="94" y="193" font-size="12" text-anchor="middle" dominant-baseline="central">O(log n)</text>
+<text class="fg-s" x="142" y="193" font-size="12" dominant-baseline="central">二分 · 快速幂</text>
+<rect class="fg-card" x="360" y="138" width="280" height="82" rx="10"/>
+<text class="fg-code" x="376" y="166">sort(a, a + n);</text>
+<rect class="bd bd-vio" x="376" y="182" width="88" height="22" rx="6"/>
+<text class="fg-mono tx-vio" x="420" y="193" font-size="12" text-anchor="middle" dominant-baseline="central">O(n log n)</text>
+<text class="fg-s" x="474" y="193" font-size="12" dominant-baseline="central">排序 · 线段树</text>
+<rect class="fg-card" x="40" y="236" width="280" height="82" rx="10"/>
+<text class="fg-code" x="56" y="264">for (...) while (p /= 2)</text>
+<rect class="bd bd-vio" x="56" y="280" width="88" height="22" rx="6"/>
+<text class="fg-mono tx-vio" x="100" y="291" font-size="12" text-anchor="middle" dominant-baseline="central">O(n log n)</text>
+<text class="fg-s" x="154" y="291" font-size="12" dominant-baseline="central">KMP · 树状数组</text>
+<rect class="fg-card" x="360" y="236" width="280" height="82" rx="10"/>
+<text class="fg-code" x="376" y="264">for (...) for (...) for (...)</text>
+<rect class="bd bd-dan" x="376" y="280" width="60" height="22" rx="6"/>
+<text class="fg-mono tx-dan" x="406" y="291" font-size="12" text-anchor="middle" dominant-baseline="central">O(n³)</text>
+<text class="fg-s" x="446" y="291" font-size="12" dominant-baseline="central">区间 DP · 矩阵乘法</text>
+</svg>
+<ul class="tight">
+<li><b class="acc">O(n)</b>：<span class="mono">i</span> 每次 +1 走到 n，就是 n 次。前缀和、双指针都是这个形状。</li>
+<li><b class="warn">O(n²)</b>：两个独立变量各走 n 次，乘起来。Floyd 的三重循环里 <span class="mono">k</span> 在外层，本质还是 n×n 的两维状态表；冒泡排序比较次数是 <span class="mono">n(n−1)/2</span> → 去掉系数还是 n²。</li>
+<li><b class="ok">O(log n)</b>：<span class="mono">n</span> 每次折半，问"能折多少次"。2^k ≤ n ⟹ k ≤ log₂n。<b>它不跟 n 成正比，而跟 n 的位长成正比</b> —— n = 10⁶ 时 log₂n 只有 20。</li>
+<li><b class="vio">O(n log n)，排序型</b>：<span class="mono">std::sort</span> 是 O(n log n)，<b>不是 O(n)</b>。这是最常被白送的一条。</li>
+<li><b class="vio">O(n log n)，嵌套型</b>：外层线性、内层折半，两者相乘。KMP 里那个 <span class="mono">while</span> 的跳转是<b>均摊</b> O(1) 的；树状数组每个操作 O(log n)。</li>
+<li><b class="dan">O(n³)</b>：三层嵌套。区间 DP、矩阵乘法、高斯消元。n = 500 就是它的天花板。</li>
+</ul>
+<div class="callout warn">
+<p><b>最容易吃亏的是第 4 种。</b>有人在一个 O(n²) 的循环里顺手 <span class="mono">sort</span> 一遍，复杂度没变但常数翻了好几倍；更糟的是在 O(n log n) 的外层循环里 <span class="mono">sort</span>，直接退化成 <b>O(n² log n)</b>。</p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="f5">
+<summary>1.5　调和级数：最容易数错的形状<span class="sum-note">步长是 i 而不是 1</span></summary>
+<div class="fold-body">
+<p class="idea">这是这一节真正的技术核心。原文那个例子，放大来看：</p>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">for (int i = 1; i <= n; ++i)          // 外层：跑 n 次，O(n)
+    for (int j = i; j <= n; j += i)   // 内层：起点是 i，步长也是 i
+        work(i, j);</script></div>
+<p class="idea"><b>看第二层，不要看 <span class="mono">n</span>，要看 <span class="mono">j</span> 怎么变。</b><span class="mono">j</span> 取的值是 <span class="mono">i, 2i, 3i, …</span> 直到超过 n，所以它的执行次数是 <b class="mono">⌊n / i⌋</b>。于是总次数是各层相加：</p>
+<div class="form">总次数 = Σ(i=1..n) ⌊n / i⌋ = n · (1 + 1/2 + 1/3 + … + 1/n) = n · H(n)</div>
+<p class="idea"><b>H(n)</b> 是调和数，<span class="mono">H(n) = ln n + γ + O(1/n)</span>，其中 <span class="mono">γ ≈ 0.5772</span> 是欧拉常数。所以：</p>
+<div class="form">n · H(n) ≈ n · ln n ≈ 0.693 · n · log₂ n   ⟹   <b>O(n log n)</b></div>
+<svg class="fig" viewBox="0 0 680 316" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>调和级数 n 除以 i 的柱状图，以 n 等于 16 为例</title>
+<desc>十六根柱子的高度依次为 n 除以 i，柱顶落在双曲线上，全部相加约为 54.1，即 n 倍调和数，量级是 n log n，而不是两重循环的 n 平方。</desc>
+<text class="fg-s" x="40" y="28" font-size="12.5">每根柱子的高度 = 内层循环的执行次数 n / i　（这里取 n = 16）</text>
+<line class="fg-ax" x1="44" y1="48" x2="44" y2="232"/>
+<line class="fg-ax" x1="44" y1="232" x2="640" y2="232"/>
+<rect class="bar-hi" x="44" y="92.0" width="30" height="140.0" rx="2"/>
+<rect class="bar-hi" x="81" y="162.0" width="30" height="70.0" rx="2"/>
+<rect class="bar-hi" x="118" y="185.3" width="30" height="46.7" rx="2"/>
+<rect class="bar-hi" x="155" y="197.0" width="30" height="35.0" rx="2"/>
+<rect class="bar-lo" x="192" y="204.0" width="30" height="28.0" rx="2"/>
+<rect class="bar-lo" x="229" y="208.7" width="30" height="23.3" rx="2"/>
+<rect class="bar-lo" x="266" y="212.0" width="30" height="20.0" rx="2"/>
+<rect class="bar-lo" x="303" y="214.5" width="30" height="17.5" rx="2"/>
+<rect class="bar-lo" x="340" y="216.4" width="30" height="15.6" rx="2"/>
+<rect class="bar-lo" x="377" y="218.0" width="30" height="14.0" rx="2"/>
+<rect class="bar-lo" x="414" y="219.3" width="30" height="12.7" rx="2"/>
+<rect class="bar-lo" x="451" y="220.3" width="30" height="11.7" rx="2"/>
+<rect class="bar-lo" x="488" y="221.2" width="30" height="10.8" rx="2"/>
+<rect class="bar-lo" x="525" y="222.0" width="30" height="10.0" rx="2"/>
+<rect class="bar-lo" x="562" y="222.7" width="30" height="9.3" rx="2"/>
+<rect class="bar-lo" x="599" y="223.3" width="30" height="8.8" rx="2"/>
+<polyline class="curve" points="59,92.0 96,162.0 133,185.3 170,197.0 207,204.0 244,208.7 281,212.0 318,214.5 355,216.4 392,218.0 429,219.3 466,220.3 503,221.2 540,222.0 577,222.7 614,223.3"/>
+<text class="fg-h" x="40" y="254" font-size="12">横轴 i 从 1 到 16，柱顶正好落在双曲线 n / i 上</text>
+<text class="fg-t" x="40" y="276" font-size="12">全部相加 ≈ 54.1 = n · H(n)，其中 n · ln n ≈ 44 —— 面积按 log 增长</text>
+<text class="tx-warn" x="40" y="296" font-size="12">若第二层写成 j++，就是 16 × 16 = 256 —— 量级差了 n / log n 倍</text>
+</svg>
+<p class="figcap">以 n = 16 为例：每根柱子的高度就是内层的执行次数 n/i，柱顶落在双曲线 n/i 上。左边第一根一根就抵得上右边一堆 —— 面积按 n·ln n 增长，不是 n²。</p>
+<p class="idea"><b>为什么换底不影响复杂度：</b><span class="mono">log_a n = log_b n / log_b a</span>，只差一个常数因子，而 O() 里所有常数都丢掉。所以写复杂度时不必纠结 log 的底。</p>
+
+<h3>同一个思想，两种复杂度</h3>
+<p class="idea">这个形状在实战里到处都是，最典型的是筛法。原文说"埃氏筛、倍数枚举都属于它"—— 其实<b>两者属于同一个思想，但复杂度不一样</b>：</p>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// ① 倍数枚举：对「每个 i」都枚举它的倍数   -> Σ n/i = n·H(n) = O(n log n)
+for (int i = 1; i <= n; ++i)
+    for (int j = i; j <= n; j += i) work();
+
+// ② 埃氏筛：只对「质数 i」枚举倍数       -> Σ(p 为质数) n/p ≈ n·ln ln n
+for (int i = 2; (long long)i * i <= n; ++i)
+    if (!comp[i])
+        for (long long j = (long long)i * i; j <= n; j += i)
+            comp[j] = true;   // j 从 i*i 起：更小的倍数已被更小的质数筛过</script></div>
+<p class="idea">求和范围从"所有 i"缩到"质数 p"，结果从 <span class="mono">ln n</span> 变成 <span class="mono">ln ln n</span> —— 而 ln ln n 增长极慢（<span class="mono">n = 10⁷</span> 时只有 <b>2.78</b>）。这就是为什么埃氏筛在实际速度上和严格 O(n) 的线性筛差不了多少。</p>
+<table>
+<thead><tr><th>写法</th><th class="num">复杂度</th><th class="num">n = 10⁸ 时的量级</th></tr></thead>
+<tbody>
+<tr><td>每个数试除（判定单个数）</td><td class="num dan">O(n√n)</td><td class="num">≈ 10¹² —— 完全无望</td></tr>
+<tr><td>埃氏筛</td><td class="num warn">O(n log log n)</td><td class="num">≈ 10⁸ × 2.78 —— 勉强能过</td></tr>
+<tr><td>线性筛（欧拉筛）</td><td class="num ok">O(n)</td><td class="num">每个合数只标一次 —— 稳过</td></tr>
+</tbody>
+</table>
+<p class="idea">线性筛之所以能做到<b>严格 O(n)</b>，靠的是那一行 <span class="mono">if (i % p == 0) break;</span> —— 它保证<b>每个合数只被自己的最小质因子标记一次</b>：</p>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">#include <vector>
+#include <bitset>
+
+const int MAXN = 100000005;              // 1e8 + 5
+std::vector<int> primes;
+std::bitset<MAXN> comp;                  // 用 bitset：1e8 位 ≈ 12.5 MB，而不是 400 MB
+
+void linearSieve(int n) {
+    for (int i = 2; i <= n; ++i) {
+        if (!comp[i]) primes.push_back(i);
+        for (int p : primes) {
+            long long v = 1LL * i * p;
+            if (v > n) break;
+            comp[v] = true;              // 标记合数，且只标记一次
+            if (i % p == 0) break;       // 关键：p 已整除 i，再往后 p 就不是最小质因子了
+        }
+    }
+}</script></div>
+</div>
+</details>
+
+<details class="fold" id="f6">
+<summary>1.6　三层循环：系数丢掉，量级不变<span class="sum-note">内层平均只走一半，仍然是 O(n³)</span></summary>
+<div class="fold-body">
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">for (int i = 1; i <= n; ++i)
+    for (int j = 1; j <= n; ++j)
+        for (int k = j; k <= n; ++k)   // 起点是 j，不是 1
+            work();</script></div>
+<p class="idea">一层层数。内层 <span class="mono">k</span> 从 <span class="mono">j</span> 走到 <span class="mono">n</span>，次数是 <span class="mono">n − j + 1</span>。对 <span class="mono">j</span> 求和：</p>
+<div class="form">Σ(j=1..n) (n − j + 1) = n + (n−1) + … + 1 = n(n+1)/2</div>
+<p class="idea">再乘上外层 <span class="mono">i</span> 的 n 次：</p>
+<div class="form">n · n(n+1)/2 = n²(n+1)/2   ⟹   <b>O(n³)</b></div>
+<div class="callout">
+<p><b>系数是 1/2，但复杂度不写系数。</b>这是这里唯一的考点：<span class="mono">1/2·n³</span>、<span class="mono">100n³</span>、<span class="mono">n³ + 5n²</span> 全都写成 <b>O(n³)</b> —— 因为大 O 只关心<b>增长的量级</b>，不关心常数。</p>
+<p><b>由此得一条省事的判断法则：</b>三层 <span class="mono">for</span>、每层变量都是 ±1 变化、边界都跟 n 同阶 → 答案基本就是 <b>O(n³)</b>。只有当某个循环变量的<b>变化方式不是 ±1</b>（<span class="mono">j += i</span>、<span class="mono">k /= 2</span>，或起点依赖外层且步长随外层变），量级才可能变成 n³ 以外的东西。</p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="f7">
+<summary>1.7　例题：洛谷 P1045 麦森数<span class="sum-note">同一道题，两个子问题差 10⁶ 倍</span></summary>
+<div class="fold-body">
+<p class="idea">这题的价值不在算法，在于它把"<b>同一道题里，两个子问题的复杂度可以差好几个数量级</b>"演示得极清楚。</p>
+<svg class="fig" viewBox="0 0 680 348" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>洛谷 P1045 麦森数两个子问题的复杂度拆解</title>
+<desc>求 2 的 p 次方减一的位数是常数复杂度，一行公式即可；求末五百位需要高精度乘法，约两亿次基本运算。两者相差约一百万倍。</desc>
+<rect class="box-vio" x="140" y="40" width="400" height="56" rx="10"/>
+<text class="fg-t" x="340" y="58" font-size="13" text-anchor="middle" dominant-baseline="central">洛谷 P1045　求 2ᵖ − 1 的位数与末 500 位</text>
+<text class="fg-mono fg-s" x="340" y="80" font-size="12" text-anchor="middle" dominant-baseline="central">p ≤ 3.1 × 10⁶</text>
+<line class="st-ok" x1="270" y1="98" x2="205.8" y2="131"/>
+<path class="ah-ok" d="M196 136 L203.5 126.5 L208.1 135.4 Z"/>
+<line class="st-warn" x1="410" y1="98" x2="474.2" y2="131"/>
+<path class="ah-warn" d="M484 136 L471.9 135.4 L476.5 126.6 Z"/>
+<rect class="box-ok" x="40" y="140" width="280" height="110" rx="10"/>
+<text class="fg-t" x="180" y="164" font-size="13" text-anchor="middle" dominant-baseline="central">问 1：它有多少位？</text>
+<text class="fg-mono tx-ok" x="180" y="190" font-size="13" text-anchor="middle" dominant-baseline="central">⌊ p · log₁₀ 2 ⌋ + 1</text>
+<text class="fg-s" x="180" y="214" font-size="12" text-anchor="middle" dominant-baseline="central">O(1)：一次浮点乘法就出答案</text>
+<text class="fg-s" x="180" y="234" font-size="12" text-anchor="middle" dominant-baseline="central">p = 3.1×10⁶ → 约 93.3 万位</text>
+<rect class="box-warn" x="360" y="140" width="280" height="110" rx="10"/>
+<text class="fg-t" x="500" y="164" font-size="13" text-anchor="middle" dominant-baseline="central">问 2：它的末 500 位？</text>
+<text class="fg-mono tx-warn" x="500" y="190" font-size="13" text-anchor="middle" dominant-baseline="central">高精度 × 2，循环 p 次</text>
+<text class="fg-s" x="500" y="214" font-size="12" text-anchor="middle" dominant-baseline="central">O(500 · p) ≈ 2 × 10⁸ 次运算</text>
+<text class="fg-s" x="500" y="234" font-size="12" text-anchor="middle" dominant-baseline="central">每行 50 位，共输出 10 行</text>
+<rect class="band-dan" x="40" y="276" width="600" height="52" rx="10"/>
+<text class="fg-t" x="340" y="296" font-size="13" text-anchor="middle" dominant-baseline="central">同一道题，两个子问题的复杂度差约 10⁶ 倍</text>
+<text class="fg-s" x="340" y="316" font-size="12" text-anchor="middle" dominant-baseline="central">先分别估算，再决定哪个需要优化 —— 这才是复杂度分析的用处</text>
+</svg>
+<p class="ref"><b>题目</b>：求 2ᵖ − 1 的<b>位数</b>与<b>最后 500 位</b>，<span class="mono">p ≤ 3.1 × 10⁶</span>（输出末 500 位，每行 50 位，共 10 行）。</p>
+
+<h3>第一问：位数 —— O(1)，一行公式</h3>
+<p class="idea">记 <span class="mono">d(x)</span> 为 x 的十进制位数，则 <span class="mono">d(x) = ⌊log₁₀ x⌋ + 1</span>。代入 <span class="mono">x = 2ᵖ</span>：</p>
+<div class="form">d(2ᵖ) = ⌊log₁₀ 2ᵖ⌋ + 1 = ⌊p · log₁₀ 2⌋ + 1</div>
+<p class="idea"><b>为什么 2ᵖ − 1 的位数和 2ᵖ 一样？</b>因为 2 的幂的末位只可能是 2、4、8、6，<b>永远不是 0</b>，所以 2ᵖ 不是 10 的倍数，减一绝不会跨越 10ᵏ 这条边界。</p>
+<p class="idea">p = 3.1×10⁶ 时：<span class="mono">3.1×10⁶ × 0.3010299957 ≈ 933192.99</span> → <b>933193 位</b>。</p>
+<div class="callout ok">
+<p><b>浮点精度够不够？</b>够。<span class="mono">double</span> 有约 15.95 位十进制有效数字，而这里 <span class="mono">p·log₁₀2</span> 只有 6 位整数部分，绝对误差在 10⁻¹⁰ 量级，远小于 1，判定 <span class="mono">⌊·⌋</span> 绝对可靠。<b>这题不需要高精度求位数</b> —— 很多人上来就写高精度，属于没估复杂度。</p>
+</div>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">#include <cmath>
+int digits = (int)(p * std::log10(2.0)) + 1;   // O(1)，一行完事</script></div>
+
+<h3>第二问：末 500 位 —— 必须高精度</h3>
+<p class="idea">思路是把"两位十进制"折成"八位十进制"来压块，同时利用"只乘 2"这个特殊结构把除法全部消掉 —— <b>因为底数固定是 2，进位只可能是 0 或 1</b>，所以可以把最慢的 <span class="mono">%</span> 和 <span class="mono">/</span> 换成一次比较和一次减法。</p>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">#include <cstdio>
+#include <cmath>
+#include <cstring>
+
+const int M    = 500;                 // 只需要保留末尾 500 位
+const int BASE = 100000000;           // 每块压 8 位十进制（10^8）
+const int LEN  = (M + 7) / 8 + 2;     // 65 块，足够容纳 500 位
+
+int a[LEN];
+
+int main() {
+    int p;
+    if (std::scanf("%d", &p) != 1) return 0;
+
+    // ========== 第一问：位数，O(1) ==========
+    std::printf("%d\n", (int)(p * std::log10(2.0)) + 1);
+
+    // ========== 第二问：末 500 位，O(p × LEN) ==========
+    std::memset(a, 0, sizeof(a));
+    a[0] = 1;
+
+    for (int t = 0; t < p; ++t) {         // 乘 p 次 2
+        int carry = 0;
+        for (int i = 0; i < LEN; ++i) {
+            a[i] = a[i] * 2 + carry;      // 只乘 2，所以进位至多为 1
+            if (a[i] >= BASE) { a[i] -= BASE; carry = 1; }
+            else                carry = 0; // 用比较代替取模和除法，快得多
+        }
+    }
+
+    // 减 1：从低位开始借位
+    for (int i = 0; i < LEN; ++i) {
+        if (a[i] > 0) { --a[i]; break; }
+        a[i] = BASE - 1;
+    }
+
+    // ========== 输出：每行 50 位，共 10 行 ==========
+    char out[M];
+    std::memset(out, '0', M);
+    int pos = M;                          // 从最右端往左填
+    for (int i = 0; i < LEN && pos > 0; ++i) {
+        int v = a[i];
+        for (int d = 0; d < 8 && pos > 0; ++d) {
+            out[--pos] = char('0' + v % 10);
+            v /= 10;
+        }
+    }
+    for (int i = 0; i < M; ++i) {
+        std::putchar(out[i]);
+        if (i % 50 == 49) std::putchar('\n');
+    }
+    return 0;
+}</script></div>
+<p class="idea"><b>复杂度</b>：内层迭代 <span class="mono">p × LEN ≈ 3.1×10⁶ × 65 ≈ 2×10⁸</span> 次。乘法和比较都很便宜，落在 1 秒的安全线内。</p>
+<div class="callout">
+<p><b>进阶写法：用快速幂把指数压到 log p。</b>关键在于一个洞察 —— <b>"只保留低 500 位"在乘法下是封闭的</b>：进位只向高位走，高位不会反过来影响低位，所以每次乘完直接截断是合法的。这样只需要约 <span class="mono">2·log₂p ≈ 44</span> 次 500 位 × 500 位的乘法，每次约 <span class="mono">65² = 4225</span> 次块乘，总量约 <span class="mono">2×10⁵</span> —— 比上面快三个数量级。</p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="f8">
+<summary>1.8　七条常见错误<span class="sum-note">比上面所有内容都值钱</span></summary>
+<div class="fold-body">
+<h3>1. 把 O(log n) 写成 O(√n)</h3>
+<p class="idea">判别标准只有一个：<b>看变量的变化方式</b>。</p>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">for (long long d = 2; d * d <= x; ++d)   // d 每次 +1，上界是 √x  ->  O(√x)
+    if (x % d == 0) return false;
+
+while (b) { /* ... */ b >>= 1; }          // b 每次折半        ->  O(log b)</script></div>
+<p class="idea">试除法求<b>单个</b>数的质因数分解是 <b class="dan">O(√x)</b>，不是 log。记忆口诀：<b>折半才是 log，逐个试永远是线性 —— 哪怕上界只有 √n。</b></p>
+
+<h3>2. 忘记 <span class="mono">sort</span> 也占时间</h3>
+<p class="idea">一次 <span class="mono">sort</span> 是 O(n log n)。最危险的写法是在循环里 sort：</p>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">for (int i = 0; i < n; ++i) {
+    std::sort(a, a + n);   // 本以为是 O(n)，实际是 O(n² log n)
+    /* ... */
+}</script></div>
+
+<h3>3. 忘记 STL 的隐性代价</h3>
+<ul class="tight">
+<li><span class="mono">map</span> / <span class="mono">set</span>：每次操作 <b>O(log n)</b></li>
+<li><span class="mono">unordered_map</span>：平均 O(1)，但<b>最坏 O(n)</b> —— 会被出题人专门构造数据卡掉</li>
+<li><span class="mono">string</span> 用 <span class="mono">+</span> 反复拼接是 O(长度)，在循环里拼就是 <b>O(n²)</b></li>
+<li><span class="mono">vector::push_back</span>：均摊 O(1)（容量翻倍）</li>
+</ul>
+
+<h3>4. 输入输出本身也是复杂度</h3>
+<p class="idea"><span class="mono">cin &gt;&gt; x</span> 默认与 C 的 stdio 同步，慢 3～5 倍。10⁶ 级别读入时这是生死线：</p>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">int main() {
+    std::ios::sync_with_stdio(false);   // 关掉与 stdio 的同步
+    std::cin.tie(nullptr);              // 解除 cin 与 cout 的绑定
+    /* ... */
+}</script></div>
+
+<h3>5. 递归要看递归树，不是看代码行数</h3>
+<p class="idea">朴素斐波那契 <span class="mono">f(n) = f(n−1) + f(n−2)</span> 是 <b class="dan">O(2ⁿ)</b>；加一个记忆化数组后是 <b class="ok">O(n)</b>。<b>同一个式子，两种复杂度，差别就是"有没有把重复子问题存下来"。</b></p>
+
+<h3>6. 只算时间不算空间</h3>
+<p class="idea">见 <a href="#f3">1.3 数据规模对照表</a> 里的提醒：<span class="mono">int[10⁸]</span> 是 400 MB，<span class="mono">bitset&lt;10⁸&gt;</span> 只要 12.5 MB。</p>
+
+<h3>7. n 很小时，常数因子会反过来咬你</h3>
+<p class="idea">n = 100 时，一个循环体极简的 O(n²) 可能跑得比常数很大的 O(n log n) 快。<b>复杂度是渐进行为，不是性能承诺</b> —— 这也是为什么"能不能过"要按实际 10⁸ 的基准去算，而不是只看阶。</p>
+</div>
+</details>
+
+<details class="fold" id="f9">
+<summary>1.9　题单：三道路谷模板题，每道练什么<span class="sum-note">建议每道都写两遍</span></summary>
+<div class="fold-body">
+<table>
+<thead><tr><th class="num">题目</th><th>练的是什么</th><th>做完应该记住</th></tr></thead>
+<tbody>
+<tr>
+<td class="num"><b>P1045</b><br>麦森数</td>
+<td>分层估算 —— 同一道题里问位数是 O(1)，问末 500 位是 O(500·p)，相差 10⁶ 倍</td>
+<td>位数公式 <span class="mono">⌊p·log₁₀2⌋+1</span>；看到大数先想"能不能只算末几位"</td>
+</tr>
+<tr>
+<td class="num"><b>P3383</b><br>「模板」线性筛素数</td>
+<td>量级的体感 —— 把三种写法都实现一遍，而不是只交最优解</td>
+<td><span class="mono">bitset</span> 省内存；<span class="mono">i % p == 0</span> 那一行 break 为什么能保证 O(n)</td>
+</tr>
+<tr>
+<td class="num"><b>P1226</b><br>「模板」快速幂</td>
+<td>log 的威力 —— 从 2×10⁹ 次乘法缩到 31 次</td>
+<td><span class="mono">b &gt;&gt;= 1</span> 就是那个 log；<span class="mono">a * a</span> 必须用 <span class="mono">long long</span> 中转</td>
+</tr>
+</tbody>
+</table>
+
+<p class="idea"><b>P3383 建议这样做：</b>亲手把前两种写法也交一次，看着它们 TLE，比读十遍复杂度表管用。</p>
+<p class="idea"><b>P1226 的两个肌肉记忆点：</b>① 快速幂的循环次数恰好等于 b 的二进制位数；② 看到乘法先问"会不会溢出"，和看到循环先问"几层"，是同一种习惯。</p>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">long long qpow(long long a, long long b, long long p) {
+    long long r = 1 % p;          // 注意 p == 1 时答案应为 0
+    a %= p;
+    while (b) {
+        if (b & 1) r = r * a % p; // b 的最低位是 1，就把当前幂乘进去
+        a = a * a % p;            // 底数平方
+        b >>= 1;                  // 指数折半 —— 这一行就是那个 log
+    }
+    return r;
+}</script></div>
+<div class="callout warn">
+<p><b>P3383 的 n 达到 10⁸ 量级</b>，用 <span class="mono">int</span> 数组存筛表会 MLE，必须用 <span class="mono">bitset</span>，或者用 <span class="mono">vector&lt;char&gt;</span> 并把判定的循环体压到最紧。</p>
+</div>
+<p class="ref">打开 <a href="practice.html" target="_blank">题练场</a> 可以找到这三道题的模板与多组自测数据 —— 每题都配了 C++ / C / Python 三份参考题解。</p>
+</div>
+</details>
+
+<h2 id="next">2 · 后续四件事</h2>
+<div class="callout">
+<p>本章共 <b>5 件事</b>，这里完成的是第 <b>1 件</b>：<b>复杂度分析</b>。它解决的问题是"<b>值不值得写</b>"。</p>
+<p>后面几件解决的是"<b>写不写得对、写得快不快</b>"—— 调试、测试、把题目建模成状态、把常用模板练成条件反射。内容补上来之后会继续放在这一页里，一样用可折叠卡片承载。</p>
+</div>
+
+<p class="ref">相关页面：<a href="./index.html">学习手册</a>（122 张算法卡片）· <a href="./practice.html">题练场</a>（洛谷真题 + 多语言题解）· <a href="./plan.html">学习计划</a>（12 周训练表）</p>
+</main>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>ACM 算法子站 · 日常开发 —— 做算法题的肌肉记忆。本页所有图表均为内联 SVG，不加载任何外部脚本或字体。</p>
+    <p>配色与深浅色跟随<a href="../index.html">校园主页</a>；顶部右侧按钮可切换。</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ================= 1. 折叠卡片：全部展开 / 全部折叠 ================= */
+  var folds = [].slice.call(document.querySelectorAll('details.fold'));
+  document.querySelectorAll('[data-act]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var open = btn.getAttribute('data-act') === 'expand';
+      folds.forEach(function (d) { d.open = open; });
+      if (open) { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    });
+  });
+
+  /* 点目录里的锚点时，如果目标是收起的卡片，先把它展开 */
+  function openTarget(hash) {
+    if (!hash || hash.charAt(0) !== '#') return;
+    var el = document.querySelector(hash);
+    if (!el) return;
+    var d = el.closest ? el.closest('details.fold') : null;
+    if (d) d.open = true;
+  }
+  document.querySelectorAll('aside a[href^="#"]').forEach(function (a) {
+    a.addEventListener('click', function () { setTimeout(function () { openTarget(a.getAttribute('href')); }, 0); });
+  });
+  openTarget(location.hash);
+  window.addEventListener('hashchange', function () { openTarget(location.hash); }, { passive: true });
+
+  /* ================= 2. 代码块注入与复制 ================= */
+  document.querySelectorAll('.codebox').forEach(function (box) {
+    var src = box.querySelector('script'), code = box.querySelector('code');
+    if (src && code) code.textContent = src.textContent.replace(/^\s*\n/, '').replace(/\s+$/, '');
+  });
+  function fallback(text, done) {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) { alert('请手动选中复制'); }
+    document.body.removeChild(ta);
+  }
+  document.querySelectorAll('.codebox .cp').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var text = btn.parentElement.querySelector('code').textContent;
+      var done = function () { btn.textContent = '已复制'; setTimeout(function () { btn.textContent = '复制'; }, 1200); };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(done, function () { fallback(text, done); });
+      } else { fallback(text, done); }
+    });
+  });
+
+  /* ================= 3. 顶部导航滚动态 + 主题切换 ================= */
+  var root = document.documentElement, nav = document.getElementById('acmNav');
+  if (nav) {
+    var onScroll = function () { nav.classList.toggle('stuck', (window.scrollY || 0) > 8); };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+  var ico = document.querySelector('#themeIco use');
+  function paint() {
+    if (ico) ico.setAttribute('href', root.getAttribute('data-theme') === 'dark' ? '#i-sun' : '#i-moon');
+  }
+  paint();
+  var btn = document.getElementById('themeBtn');
+  if (btn) btn.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    root.setAttribute('data-mode', next);
+    try { localStorage.setItem('cw.theme', JSON.stringify(next)); } catch (e) { }
+    paint();
+  });
+})();
+</script>
+</body>
+</html>

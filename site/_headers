@@ -81,9 +81,13 @@
   Content-Security-Policy: default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://bgmapi.anibt.net https://graphql.anilist.co https://api.jikan.moe https://api.bgm.tv; media-src 'self' data:
 
 # ------------------------------ ACM 算法子站（/acm/） ------------------------------
-# · 学习手册与题练场都是单文件页面：样式和脚本内联，所以要放开 inline
+# · 四个页面（学习手册 / 题练场 / 学习计划 / 日常开发）都是单文件，样式和脚本内联，
+#   所以必须放开 inline
 # · 题库（122 题的三语言题解）内嵌在 practice.html 里，不需要任何外部请求
-# · 学习计划 plan.html 同样单文件内联，只额外引一份 ./acm.css
+# · 学习计划 plan.html、日常开发 daily.html 同样单文件内联，只额外引一份 ./acm.css
+# · ⚠️ 这里的 script-src 不含任何 CDN，connect-src 也只有 'self' ——
+#   子站里的图表因此全部是手绘内联 SVG，不要改成引 Chart.js / ECharts，
+#   外链脚本会被这条策略直接拦掉，页面上的图会整块消失。
 /acm/*
   X-Robots-Tag: noindex, follow
   Cache-Control: public, max-age=0, must-revalidate

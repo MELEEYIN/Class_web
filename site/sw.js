@@ -11,7 +11,7 @@
    更新流程：新 SW install 后**不自动接管**，由页面提示「有新版本，点一下更新」，
    用户点了才 skipWaiting + reload（避免像以前那样用户长期跑在旧代码上）。
    ========================================================================== */
-var VERSION = 'v4';   // 改样式/脚本时记得 +1（v4：更多抽屉可退出 + 图片就地看大图 + Toast 不挡弹窗按钮）
+var VERSION = 'v5';   // 改样式/脚本时记得 +1（v5：ACM 子站新增「日常开发」页，首页入口说明同步更新）
 var SHELL_CACHE = 'cw-shell-' + VERSION;
 var RUNTIME_CACHE = 'cw-runtime-' + VERSION;
 
