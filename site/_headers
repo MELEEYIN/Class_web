@@ -97,6 +97,20 @@
   X-Robots-Tag: noindex, follow
   Content-Security-Policy: default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:
 
+# ------------------------------ 大学英语子站（/en/） ------------------------------
+# · 五个页面（四册总览 index.html + b1~b4.html）都是单文件，样式和脚本内联，
+#   只额外引一份 ./en.css（= acm.css 原文 + 本子站的组件规则），所以同样必须放开 inline
+# · ⚠️ 与 /acm/* 一样：script-src 不含任何 CDN，connect-src 只有 'self'。
+#   子站里不要引外部字体或图表库，会被这条策略直接拦掉。
+/en/*
+  X-Robots-Tag: noindex, follow
+  Cache-Control: public, max-age=0, must-revalidate
+  Content-Security-Policy: default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:
+
+/en
+  X-Robots-Tag: noindex, follow
+  Content-Security-Policy: default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:
+
 # ------------------------------ 缓存策略 ------------------------------
 /assets/*
   Cache-Control: public, max-age=31536000, immutable

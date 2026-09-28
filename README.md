@@ -51,6 +51,10 @@ Class_web/
 │     ├─ plan.html               ← 学习计划：12 周训练表
 │     ├─ daily.html              ← 日常开发：做算法题的基本功（复杂度分析…）
 │     └─ acm.css                 ← 子站样式层（把主页配色令牌映射到子站自己的变量）
+│  └─ en/                        ← 📘 大学英语子站（五个页面，共用 en.css）
+│     ├─ index.html              ← 四册总览：三步学习法 + 六个模块说明 + 24 个单元矩阵 + 数据来源
+│     ├─ b1.html ~ b4.html       ← 每册一页，6 个单元 × 6 个学习模块（单元折叠卡）
+│     └─ en.css                  ← = acm.css 原文 + 本子站的组件规则（单元卡 / 词表 / 对话 / 口径标记）
 ├─ worker/
 │  └─ index.js                   ← 唯一的后端：/api/notice 通知 + /api/bangumi 看番数据中转
 ├─ preview-server.py             ← 本地预览用的服务器（顺带提供假的通知接口和 Bangumi 中转）
@@ -839,4 +843,63 @@ curl.exe "https://leeyin.xyz/api/notice"
    肉眼很难发现。把页面上所有 `href="#xxx"` 抓出来，跟所有 `id="xxx"` 求差集，空的才算过
    （连同「图表用到的 CSS 类是否都有定义」一起查，这两项都能一次性抓出上面第 4 条那类错误）。
 6. 改完记得把 `site/sw.js` 的 `VERSION` 加一。
+
+---
+
+## 十六、大学英语子站（`/en/`）
+
+| 页面 | 路径 | 内容 |
+|---|---|---|
+| 四册总览 | `/en/` | 三步学习法、六个模块的说明、四册 24 个单元的导航矩阵、**数据来源与可信度说明** |
+| 第 1 册 | `/en/b1.html` | College Life / People and Relationships / Holidays and Traditions / Leisure / Language Learning / Food and Culture |
+| 第 2 册 | `/en/b2.html` | Health and Lifestyles / Romance / Education / Sports and Community / Traveling / Media and Communication |
+| 第 3 册 | `/en/b3.html` | Nature and Us / Psychology and Life / Advertising and Publicity / Social Networking / Mindset and Behavior / Job and Career |
+| 第 4 册 | `/en/b4.html` | China and the World / Trade and E-Commerce / Social Problems / Science and Ethics / Literature / Cultural Diversity |
+
+### 两层导航：单元 → 模块
+
+按教材原书的顺序编排，**单元是导航的第一层**（每册页里是一张 `<details class="unit">` 折叠卡，
+标题上标着它含哪六个模块），**模块是第二层**（单元内部固定的 `M1`–`M6`，位置与编号在任何单元里都一样）：
+
+| 编号 | 模块 | 对应教材的哪些板块 |
+|---|---|---|
+| M1 | 单元导入 | PART I Starter + Learning Objectives |
+| M2 | 词汇与语言点 | PART II/III Section A 的 Text 与 Use of Language |
+| M3 | 课文精读 | Text A / Text B + Reading Comprehension + 阅读技巧 |
+| M4 | 听力口语 | PART II/III Section B 的 Listening / Watching / Speaking |
+| M5 | 翻译写作 | Translation + Writing |
+| M6 | 练习与自测 | PART IV Project + Further Study + Self-Assessment |
+
+M1 里有一张**教材板块骨架表**，逐行标出教材的每个板块对应本子站的哪个模块 —— 这样对着课本上课时，
+能立刻知道该翻到本站的哪一模块。
+
+### 数据来源与可信度（重要，别当成官方词表）
+
+每个单元的标题上有一枚口径标记：
+
+- **官方口径**（9 个单元：第 1 册 U1/U2/U5/U6，第 2 册 U1–U5）—— 单元学习目标（Learning Objectives）、
+  两个主题名、Text A / Text B 的标题、六条技能线（阅读 / 听力 / 翻译 / 写作 / 口语 / Project）
+  来自**公开的高校课程教学大纲**（广东技术师范大学《大学英语》2023 版，PDF 公开可下载），逐条对得上。
+- **部分官方**（3 个单元：第 3 册 U1/U3、第 4 册 U1）—— 只确认到两个主题名与 Project。
+- **话题补全**（12 个单元）—— 没检索到公开大纲，目标与技能线按单元话题整理。
+
+**始终查不到的**：官方词表（New words and Expressions of Text A/B）、语言点逐句讲解、课后练习答案。
+这三样只存在于纸质教材、教师用书与 WE Learn 数字课程里；网上流传的版本多为第三方扫描或 OCR 转贴，
+错误率不低，不适合当依据。所以本站的词表是**话题高频词**，练习是**自编**的 —— 首页有专门一节说明这件事。
+
+**补官方数据的做法**：拿到教材后拍下每单元 Text A / Text B 的 New words and Expressions，
+替换对应单元 M2 里的 `words` / `phrases` 即可，模块结构不用动。
+生成脚本 `build.py` + `data_b1~b4.py` + `meta.py` 是实现细节，**不入库**（在会话工作区里）。
+
+### 改动这一页时别踩的四个坑
+
+1. **`en.css` 是「`acm.css` 原文 + 本子站的组件规则」拼出来的。** 改配色令牌时两边要同步 ——
+   两个子站故意各抄一份，是为了让它们能独立换风格，别改成 `@import` 或直接引 `../acm/acm.css`。
+2. **CSP 与 `/acm/*` 完全一致**：`script-src` 不含任何 CDN，`connect-src` 只有 `'self'`。
+   子站里没有图表库、没有外部字体，全部是内联样式与内联脚本。加新页面时别引外链。
+3. **单元锚点是两层结构**：单元卡是 `id="uN"`，模块是 `id="uN-m1"`…`id="uN-m6"`。
+   侧栏目录两种都链；页面脚本里的 `reveal()` 会把锚点的所有祖先 `<details>` 摊开再对齐 ——
+   少了这一步，点目录跳进收起的卡片里看起来像「没跳过去」（同 `/acm/` 的坑）。
+4. **词表里不要出现半角引号之外的裸 `<` `>` `&`。** 生成脚本对所有插入数据做了 HTML 转义，
+   但如果你手改 `b*.html`，记住这里的 `<p>` 正文要用实体（代码块那套 raw text 规则在英语页里用不上）。
 
