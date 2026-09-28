@@ -125,9 +125,7 @@ footer{margin-top:44px;padding:22px 0 56px;border-top:1px solid var(--line);
     </a>
     <nav class="acm-tabs" aria-label="子站页面">
       <a href="./index.html" class="on" aria-current="page">首页</a>
-      <a href="./handbook.html">学习手册</a>
-      <a href="./plan.html">学习计划</a>
-      <a href="./daily.html">日常开发</a>
+      <a href="./study.html">学习资料</a>
       <a href="./practice.html">题练场</a>
     </nav>
     <div class="acm-nav-actions">
@@ -144,13 +142,11 @@ footer{margin-top:44px;padding:22px 0 56px;border-top:1px solid var(--line);
 <div class="wrap">
 <header class="top">
   <h1>ACM 算法</h1>
-  <p class="sub">三块内容，各管一种读法：<b>学习手册</b>按算法查、<b>学习计划</b>按时间学、<b>日常开发</b>按问题查。全部内容在一个搜索框里，点卡片在当前页<b>弹出全文</b>，不用来回跳。</p>
+  <p class="sub">两页就够：<b>学习资料</b>（学习手册 + 学习计划 + 日常开发，已合成同一页）与 <b>题练场</b>。全部内容在一个搜索框里，点卡片在当前页<b>弹出全文</b>。</p>
   <div class="stats">
-    <span class="stat">学习手册 122 张卡片</span>
-    <span class="stat">学习计划 67 张</span>
-    <span class="stat">日常开发 41 张</span>
+    <span class="stat">学习资料 230 张卡片</span>
     <span class="stat">题练场 123 道真题</span>
-    <span class="stat">合计 230 条可搜索</span>
+    <span class="stat">跨块搜索 259 条</span>
   </div>
 </header>
 
@@ -162,24 +158,10 @@ footer{margin-top:44px;padding:22px 0 56px;border-top:1px solid var(--line);
 <div id="pres" data-cw-searchout></div>
 
 <div class="cards">
-  <a class="pcard" href="./handbook.html" data-page="./handbook.html" data-title="学习手册">
-    <span class="pc-top"><span class="pc-tag t-hb">参考书 · 按算法查</span><span class="pc-n">122 张</span></span>
-    <b>学习手册</b>
-    <span class="pc-desc">按难度分三层：入门 10 / 基础 36 / 进阶 78。每张卡片给「一句话本质 + 可默写的代码模板 + 分级题单」，另附勘误、遗漏算法、资料汇总与 12 周训练表。</span>
-    <span class="pc-foot">点开弹出全文 <em>→</em></span>
-  </a>
-
-  <a class="pcard" href="./plan.html" data-page="./plan.html" data-title="学习计划">
-    <span class="pc-top"><span class="pc-tag t-pl">课程表 · 按时间学</span><span class="pc-n">67 张</span></span>
-    <b>学习计划</b>
-    <span class="pc-desc">从 C++ 语法到竞赛入门的 8 周逐周安排，14 节：基本功 → 思维动作 → 数据结构 → 动态规划 → 图论 → 数学 → 字符串 → 进阶选学，另有六篇深度题解、错误总清单与函数速查表。</span>
-    <span class="pc-foot">点开弹出全文 <em>→</em></span>
-  </a>
-
-  <a class="pcard" href="./daily.html" data-page="./daily.html" data-title="日常开发">
-    <span class="pc-top"><span class="pc-tag t-dl">专题详解 · 按问题查</span><span class="pc-n">41 张</span></span>
-    <b>日常开发</b>
-    <span class="pc-desc">做算法题的肌肉记忆，共 5 件事：复杂度分析 · 竞赛代码脚手架 · 对拍 · 常见错误字典 · 离散化。41 张折叠卡片 + 18 张手绘图表，末尾还有 87 条术语词典。</span>
+  <a class="pcard" href="./study.html" data-page="./study.html" data-title="学习资料">
+    <span class="pc-top"><span class="pc-tag t-hb">全部内容 · 合成一页</span><span class="pc-n">230 张卡片</span></span>
+    <b>学习资料</b>
+    <span class="pc-desc">学习手册（122 张，按算法查）+ 学习计划（67 张，按时间学）+ 日常开发（41 张，按问题查）已经合并成同一页：左侧目录分三组，每块有自己的搜索与筛选，<b>不再需要来回切页</b>。</span>
     <span class="pc-foot">点开弹出全文 <em>→</em></span>
   </a>
 
@@ -192,17 +174,18 @@ footer{margin-top:44px;padding:22px 0 56px;border-top:1px solid var(--line);
 </div>
 
 <div class="quick">
-  <a href="./daily.html#start" data-page="./daily.html" data-hash="start" data-title="新人通道">刚学的话，先看这个：第一遍只读 6 张</a>
-  <a href="./daily.html#glossary" data-page="./daily.html" data-hash="glossary" data-title="术语词典">遇到不认识的词：87 条术语，大白话解释</a>
+  <a href="./study.html#start" data-page="./study.html" data-hash="start" data-title="新人通道">刚学的话，先看这个：第一遍只读 6 张</a>
+  <a href="./study.html#glossary" data-page="./study.html" data-hash="glossary" data-title="术语词典">遇到不认识的词：87 条术语，大白话解释</a>
 </div>
 
-<h2>三块怎么分工</h2>
+<h2>「学习资料」一页里的三块怎么分工</h2>
+<p class="sub">三块已经合并在同一页（<span class="mono">/acm/study.html</span>），左侧目录分组、各块保留自己的搜索。读法不同，随时来回切：</p>
 <table>
-<thead><tr><th>板块</th><th>什么时候用它</th><th>它回答的问题</th></tr></thead>
+<thead><tr><th>块</th><th>什么时候看它</th><th>它回答的问题</th></tr></thead>
 <tbody>
-<tr><td><b>学习手册</b></td><td>已经知道要写什么，来找模板和例题</td><td>「这个算法怎么写？模板是什么？」</td></tr>
-<tr><td><b>学习计划</b></td><td>不知道下一步该学什么</td><td>「我现在应该学什么？为什么是它？」</td></tr>
-<tr><td><b>日常开发</b></td><td>写得出来但过不了、或者不确定对不对</td><td>「为什么超时 / 报错 / 我到底对不对？」</td></tr>
+<tr><td><b>① 学习手册</b></td><td>已经知道要写什么，来找模板和例题</td><td>「这个算法怎么写？模板是什么？」</td></tr>
+<tr><td><b>② 学习计划</b></td><td>不知道下一步该学什么</td><td>「我现在应该学什么？为什么是它？」</td></tr>
+<tr><td><b>③ 日常开发</b></td><td>写得出来但过不了、或者不确定对不对</td><td>「为什么超时 / 报错 / 我到底对不对？」</td></tr>
 </tbody>
 </table>
 <div class="callout">

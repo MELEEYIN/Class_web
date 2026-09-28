@@ -175,9 +175,7 @@
   }
 
   var PAGES = [
-    { n: '学习手册', u: './handbook.html' },
-    { n: '学习计划', u: './plan.html' },
-    { n: '日常开发', u: './daily.html' },
+    { n: '学习资料', u: './study.html' },
     { n: '题练场', u: './practice.html' }
   ];
 
@@ -196,6 +194,14 @@
 
     // 归一化：搜索结果是 "handbook.html#x"，导航按钮是 "./handbook.html"，要去掉 "./" 才能比
     var base = url.replace(/^\.\//, '').split('#')[0];
+    // 目标就在当前这一页（例如在 study.html 上搜到 study.html 的某张卡）：
+    // 直接滚过去 / 设 hash，不用再套一层浮层 —— 否则等于把整页嵌进自己。
+    var here = (location.pathname.split('/').pop() || 'index').replace(/\.html$/, '');
+    if (base.replace(/\.html$/, '') === here) {
+      if (hash) location.hash = hash;
+      else window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     var f = d.querySelector('#cwPf');
     d.querySelector('#cwPt').textContent = title || titleOf(base);
     d.querySelector('#cwPn').setAttribute('href', url);
