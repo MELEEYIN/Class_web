@@ -328,52 +328,70 @@ h2.clk:hover,h3.clk:hover{color:var(--accent)}
 <h2 id="entry">1 · 入门篇</h2>
 <p class="lead">这 10 项的共性：它们不是「知识点」，而是<b>思维动作</b>。后面所有算法的代码都建立在它们的组合之上，务必练到不用想就能写。</p>
 
-<article class="algo" id="hb-1" data-cat="入门" data-kind="entry" data-name="枚举">
-<div class="ah"><h4>1. 枚举</h4><span class="lv lv-e">入门</span><span class="st">★</span><span class="tag">暴力</span><a class="prac" href="practice.html#P1036" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<article class="algo" id="hb-1" data-cat="入门" data-kind="entry" data-name="枚举 暴力 子集枚举"><div class="ah"><h4>1. 枚举</h4><span class="lv lv-e">入门</span><span class="st">★</span><span class="tag">暴力</span><a class="prac" href="practice.html#P1036" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
 <p class="idea"><b>本质</b>：把所有可能的答案候选一个个试过去。难点从来不是「枚举」，而是<b>枚举什么</b>与<b>如何压缩枚举量</b>。</p>
 <p class="meta"><b>复杂度</b>：O(状态数 × 单次验证代价)。优化方向：换一个维度枚举（枚举答案而非枚举方案）、子集枚举、配合前缀和/哈希把验证降到 O(1)。</p>
-<div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 子集枚举：n<=20 时遍历 2^n 个集合
+<div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>
+// ① 子集枚举：n <= 20 时遍历 2^n 个集合
 for(int s = 0; s < (1 << n); ++s)
     for(int i = 0; i < n; ++i)
-        if(s >> i & 1) { /* 选第 i 个元素 */ }
+        if(s >> i & 1) { /* 第 i 个元素被选中 */ }
 
-// 子集枚举的下界剪枝：只枚举 s 的超集，总复杂度 3^n
+// ② 只枚举 s 的子集：总复杂度 3^n（比 4^n 快得多）
 for(int s = 0; s < (1 << n); ++s)
-    for(int t = s; ; t = (t - 1) & s) {
+    for(int t = s; ; t = (t - 1) & s){
         /* 处理 s 的子集 t */
         if(t == 0) break;
     }
 
-// 双指针/抽屉思想枚举二元组：(i,j) 组合共 n^2，但很多问题可降到 O(n)
-long long ans = 0;
+// ③ 二元组 + 前缀和：把 O(n^2) 的验证降到 O(1)
+long long ans = -1e18;
 for(int i = 1; i <= n; ++i)
     for(int j = i; j <= n; ++j)
-        ans = max(ans, (long long)s[j] - s[i - 1]);   // 配合前缀和 O(1) 验证</script></div>
-<p class="tl"><b>题单</b> 洛谷 P1008 三连击 · P1036 选数 · P1157 组合的输出 · P1618 三连击（升级版）· P1706 全排列问题；CF 800~1000 分段题目。</p>
-<p class="ref"><b>资料</b> 《算法竞赛入门经典（第 2 版）》第 1~2 章；OI-Wiki「枚举」。</p>
-</article>
+        ans = max(ans, 1LL * (pre[j] - pre[i-1]));   // pre 是前缀和
 
-<article class="algo" id="hb-2" data-cat="入门" data-kind="entry" data-name="模拟">
-<div class="ah"><h4>2. 模拟</h4><span class="lv lv-e">入门</span><span class="st">★</span><span class="tag">实现</span><a class="prac" href="practice.html#P1540" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
-<p class="idea"><b>本质</b>：把题目描述直译成代码。它考察的是<b>把自然语言规则无损翻译成状态机</b>的能力，是「代码量失败」的主要来源。</p>
+// ④ 剪枝：dfs 里先判断「还来不来得及」
+if(best + possible_max <= ans) return;               // 最优性剪枝
+if(sum + suffix[i] < target) return;                 // 可行性剪枝</script></div>
+<div class="ex"><b>例题</b>：洛谷 P1036 选数 —— 从 n 个数里选 k 个，问有多少种选法使和为质数。n ≤ 20，直接子集枚举 2²⁰ ≈ 10⁶ 种，再加个 O(√s) 的质数判定即可。<b>看到 n ≤ 20 就该想到 2ⁿ 枚举</b>。</div>
+<p><b>三个层次</b>：① 枚举所有元素（O(n)）；② 枚举所有二元组（O(n²)）；③ 枚举所有子集（O(2ⁿ)，n ≤ 20）。压缩方向：换一个维度枚举（枚举答案而非方案）、用前缀和/哈希把验证降到 O(1)、加剪枝。</p>
+<p class="tl"><b>题单</b> 洛谷 P1008 三连击 · P1036 选数 · P1157 组合的输出 · P1618 三连击（升级版） · P1706 全排列问题 · CF 800~1000 分段题目。</p>
+<p class="ref"><b>资料</b> 《算法竞赛入门经典（第 2 版）》第 1~2 章；OI-Wiki「枚举」。</p></article>
+
+<article class="algo" id="hb-2" data-cat="入门" data-kind="entry" data-name="模拟 实现"><div class="ah"><h4>2. 模拟</h4><span class="lv lv-e">入门</span><span class="st">★</span><span class="tag">实现</span><a class="prac" href="practice.html#P1540" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<p class="idea"><b>本质</b>：把题目描述<b>无损地直译</b>成代码。它考察的是「把自然语言规则翻译成状态机」的能力，是「代码量失败」的主要来源。</p>
 <p class="meta"><b>要点</b>：①写前先用文字/流程图把规则列全；②明确状态变量含义与初值；③时间推进类问题按「事件」跳跃而不是逐时刻模拟；④注意取模、边界、多测清空。</p>
-<div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 模拟题的通用套路：把规则写成「状态 + 事件处理器」
-// 例：按时间推进的模拟，若时间跨度大，用事件驱动跳跃
-struct Event { long long t; int type, id; };   // 按 t 排序后逐个处理
-// 注意：同一时刻的多个事件，先后顺序往往决定正确与否，题面一定给了约定
+<div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 模拟题的通用套路：状态 + 事件
+// 若时间跨度极大（比如 10^9 秒），不要逐秒模拟，把「状态保持不变」的整段跳过去
+struct Event { long long t; int type, id; };
+// 按 t 排序后逐个处理；注意同一时刻多个事件的先后顺序，题面一定会给约定
 
 // 常见实现坑 checklist
 // 1. 循环边界：闭区间还是半开区间？下标从 0 还是 1 开始？
 // 2. 取模：结果可能为负时 (x % MOD + MOD) % MOD
-// 3. 多测：全局数组/容器必须清空
-// 4. 输入格式：一行多个数但可能有空行，建议用 scanf/cin 自动跳过空白</script></div>
-<p class="tl"><b>题单</b> 洛谷 P1042 乒乓球 · P1563 玩具谜题 · P1067 多项式输出 · P1328 生活大爆炸版石头剪刀布 · P4924 魔法少女小Scarlet；CF 1100~1300 分模拟题。</p>
-<p class="ref"><b>资料</b> OI-Wiki「模拟」；Codeforces 上 Div.3 的 A/B 题基本都是高质量模拟训练。</p>
-</article>
+// 3. 多组数据：全局数组 / 容器必须清空
+// 4. 输入格式：可能有空行、多余空格，用 cin / scanf 自动跳过
+// 5. 输出格式：行末空格、换行、每组之间空行，都要严丝合缝
 
-<article class="algo" id="hb-3" data-cat="入门" data-kind="entry" data-name="递归">
-<div class="ah"><h4>3. 递归</h4><span class="lv lv-e">入门</span><span class="st">★</span><span class="tag">思维</span><a class="prac" href="practice.html#P1219" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
-<p class="idea"><b>本质</b>：把规模为 n 的问题化为规模更小的同类问题。三要素：<b>参数含义</b>（函数定义要写清）、<b>边界条件</b>、<b>递推关系</b>。递归是 DP、分治、搜索、树形结构的共同语言。</p>
+// ---------- 环形数组的取模写法 ----------
+pos = (pos + 1) % n;                 // 向后走一格，绕回 0
+pos = (pos - 1 + n) % n;             // 向前走一格，负数也能绕回
+
+// ---------- 方向数组：网格走路的标准写法 ----------
+int dx[4] = {0, 0, 1, -1};
+int dy[4] = {1, -1, 0, 0};
+for(int d = 0; d < 4; d++){
+    int nx = x + dx[d], ny = y + dy[d];
+    if(nx < 1 || nx > n || ny < 1 || ny > m) continue;   // 越界判断永远放前面
+    /* 处理 (nx, ny) */
+}</script></div>
+<div class="ex"><b>例题</b>：洛谷 P1563 玩具谜题 —— 一圈小人，朝内/朝外 + 向左/向右，走若干步问你最后站在谁面前。核心就是上面那两行取模：<b>朝内 + 向左 = 顺时针 = pos + step，朝外 + 向左 = 逆时针 = pos − step</b>。把四种组合列成一张表，代码就是抄表。</div>
+<p><b>四步法</b>：① 用文字把规则<b>全部列出来</b>（包括你以为是废话的那些）；② 确定状态变量及其初值、含义；③ 确定推进方式（时间驱动 or 事件驱动）；④ 手工模拟一遍样例，确认逻辑。</p>
+<p class="tl"><b>题单</b> 洛谷 P1042 乒乓球 · P1563 玩具谜题 · P1067 多项式输出 · P1328 生活大爆炸版石头剪刀布 · P4924 魔法少女小Scarlet · CF 1100~1300 分模拟题。</p>
+<p class="ref"><b>资料</b> OI-Wiki「模拟」；Codeforces 上 Div.3 的 A/B 题基本都是高质量模拟训练。</p></article>
+
+<article class="algo" id="hb-3" data-cat="入门" data-kind="entry" data-name="递归 记忆化 搜索 分治"><div class="ah"><h4>3. 递归</h4><span class="lv lv-e">入门</span><span class="st">★</span><span class="tag">思维</span><a class="prac" href="practice.html#P1219" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<p class="idea"><b>本质</b>：把规模为 n 的问题化为规模更小的同类问题。三要素：<b>参数含义</b>（函数在语义上代表什么）、<b>边界条件</b>、<b>递推关系</b>。递归是 DP、分治、搜索、树形结构的共同语言。</p>
 <p class="meta"><b>复杂度</b>：由递归树节点数决定；不加记忆化常常指数级，加记忆化后转化为 DP。递归深度过大需改写成显式栈或增加栈空间。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 模板一：递归求值 / 递归枚举
 ll f(int n){
@@ -397,12 +415,41 @@ ll dfs(int n){
 // (1) 函数的参数和返回值在语义上代表什么？
 // (2) 最小规模（边界）答案是多少？
 // (3) 大问题如何由小问题拼出来？</script></div>
-<p class="tl"><b>题单</b> 洛谷 P1255 数楼梯 · P1036 选数 · P1464 Function（记忆化）· P1028 数的计算 · P1228 地毯填补问题（分治式递归）。</p>
-<p class="ref"><b>资料</b> OI-Wiki「递归 & 分治」；《算法竞赛进阶指南》0x03 节。</p>
-</article>
+<p class="idea"><b>补充</b>（来自「学习计划」里的同名卡片）：</p>
+<div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 模板一：朴素递归（无记忆化 → 指数级，只能算很小的 n）
+long long fib(int n){
+    if(n <= 1) return n;              // 边界
+    return fib(n-1) + fib(n-2);       // 递推
+}
 
-<article class="algo" id="hb-4" data-cat="入门" data-kind="entry" data-name="前缀和 差分">
-<div class="ah"><h4>4. 前缀和与差分</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">高频</span><a class="prac" href="practice.html#P2367" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+// 模板二：记忆化搜索（递归 + 缓存 = 自顶向下的 DP）
+long long memo[100]; bool vis[100];
+long long fib(int n){
+    if(n <= 1) return n;
+    if(vis[n]) return memo[n];        // ① 先查缓存
+    vis[n] = true;
+    return memo[n] = fib(n-1) + fib(n-2);   // ② 算完存起来
+}
+
+// 模板三：递归求排列 / 组合 + 回溯（见 10. DFS 搜索）
+
+// 写递归前先问自己三个问题
+// (1) 函数的参数和返回值，在语义上代表什么？
+// (2) 最小规模（边界）的答案是多少？
+// (3) 大问题如何由小问题拼出来？</script></div>
+<div class="box tip">
+        <span class="t">💡 递归为什么必须配记忆化</span>
+        <p><code>fib(40)</code> 朴素递归要调用约 3.3×10⁸ 次；加记忆化后每个 n 只算一次，<b>只有 40 次</b>。同一段递归，一个超时一个秒过，差别只在于「有没有把算过的答案存下来」。</p>
+      </div>
+<div class="box err">
+        <span class="t">🚫 递归的两个坑</span>
+        <p><b>① 忘记写边界。</b>递归会一直往下钻到栈溢出（RE）。<br>
+        <b>② 递归太深。</b>深度超过 10⁵ 层就会爆栈。解决办法：改写成迭代 / 显式栈，或者提高编译栈空间（<code>-Wl,--stack=268435456</code>）。</p>
+      </div>
+<p class="tl"><b>题单</b> 洛谷 P1255 数楼梯 · P1036 选数 · P1464 Function（记忆化） · P1028 数的计算 · P1228 地毯填补问题（分治式递归） · P1044 栈（卡塔兰数）。</p>
+<p class="ref"><b>资料</b> OI-Wiki「递归 & 分治」；《算法竞赛进阶指南》0x03 节。</p></article>
+
+<article class="algo" id="hb-4" data-cat="入门" data-kind="entry" data-name="前缀和 差分 二维前缀和 树上差分"><div class="ah"><h4>4. 前缀和与差分</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">高频</span><a class="prac" href="practice.html#P2367" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
 <p class="idea"><b>本质</b>：前缀和把「区间求和」变成「两次单点查询」；差分把「区间修改」变成「两次单点修改」。二者互为逆运算，是<b>离线区间操作</b>的第一把钥匙。</p>
 <p class="meta"><b>复杂度</b>：预处理 O(n)，单次询问/修改 O(1)。进阶延伸：二维差分、树上差分（点差分/边差分）、差分约束。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 一维前缀和 ----------
@@ -430,9 +477,41 @@ d[x1][y2+1] -= v;      d[x2+1][y2+1] += v;
 diff[u]++; diff[v]++; diff[lca(u,v)]--; diff[fa[lca(u,v)]]--;
 // 子树求和后，每个点的值 = 该点被多少条路径覆盖
 // 边差分：diff[u]++; diff[v]++; diff[lca] -= 2;  统计子树和后挂在 lca 的儿子边上</script></div>
-<p class="tl"><b>题单</b> 洛谷 P1114 最大子段和变形 · P1387 最大正方形 · P1719 最大加权矩形 · P2367 语文成绩 · P3406 海底高铁 · P4231 三步必杀（二阶差分）· P3258 松鼠的新家（树上差分）。</p>
-<p class="ref"><b>资料</b> OI-Wiki「前缀和 & 差分」；AcWing「算法基础课」第一章。</p>
-</article>
+<p class="idea"><b>补充</b>（来自「学习计划」里的同名卡片）：</p>
+<div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 一维前缀和：预处理 O(n)，查询 O(1) ----------
+pre[i] = pre[i-1] + a[i];
+区间和(l, r) = pre[r] - pre[l-1];
+
+// ---------- 一维差分：区间加 O(1)，最后 O(n) 还原 ----------
+// 目标：把 a[l..r] 全部加上 v
+d[l]     += v;
+d[r + 1] -= v;
+// 还原：cur += d[i];  a[i] += cur;
+for(int i = 1; i <= n; i++){ cur += d[i]; a[i] += cur; }
+
+// ---------- 二维前缀和 ----------
+pre[i][j] = pre[i-1][j] + pre[i][j-1] - pre[i-1][j-1] + a[i][j];
+子矩阵和(x1,y1,x2,y2)
+  = pre[x2][y2] - pre[x1-1][y2] - pre[x2][y1-1] + pre[x1-1][y1-1];
+
+// ---------- 二维差分：矩形加 O(1) ----------
+d[x1][y1]     += v;   d[x2+1][y1]   -= v;
+d[x1][y2+1]   -= v;   d[x2+1][y2+1] += v;
+// 还原：对 d 做一次二维前缀和
+
+// ---------- 前缀和的兄弟：前缀积、前缀异或、前缀 gcd ----------
+// 区间异或 [l,r] = px[r] ^ px[l-1]   （异或的逆运算是它自己）
+// 前缀 gcd 不可逆！区间 gcd 要用 ST 表或线段树</script></div>
+<div class="box idea">
+        <span class="t">🎯 判断「该用前缀和还是差分」</span>
+        <p><b>修改少、查询多 → 前缀和</b>（一次预处理，之后查询 O(1)）<br>
+        <b>修改多、查询少（或只在最后查一次）→ 差分</b>（修改 O(1)，最后统一还原）<br>
+        看到「若干次区间加，最后输出每个位置的值」——这几乎是差分的<b>标准信号</b>。</p>
+      </div>
+<div class="ex"><b>例题</b>：数组 <code>[1,2,3,4,5]</code>，依次执行「[1,3] 各 +2」「[2,5] 各 −1」，求最终数组与最小值。<br>
+      差分写法：<code>d[1]+=2, d[4]-=2; d[2]-=1, d[6]+=1</code>，前缀还原后得到 <code>[3, 3, 4, 3, 4]</code>，最小值 <b>3</b>（已用独立实现跑过）。若用暴力循环修改，每次 O(n)，区间多时直接超时。</div>
+<p class="tl"><b>题单</b> 洛谷 P1114 最大子段和变形 · P1387 最大正方形 · P1719 最大加权矩形 · P2367 语文成绩 · P3406 海底高铁 · P4231 三步必杀（二阶差分） · P3258 松鼠的新家（树上差分）。</p>
+<p class="ref"><b>资料</b> OI-Wiki「前缀和 & 差分」；AcWing「算法基础课」第一章。</p></article>
 
 <article class="algo" id="hb-5" data-cat="入门" data-kind="entry" data-name="尺取法 双指针 滑动窗口">
 <div class="ah"><h4>5. 尺取法（双指针 / 滑动窗口）</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">高频</span><a class="prac" href="practice.html#P1147" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
@@ -468,19 +547,8 @@ while(i < j){
 <p class="ref"><b>资料</b> OI-Wiki「双指针」；《挑战程序设计竞赛》第 2 版「尺取法」一节。</p>
 </article>
 
-<article class="algo" id="hb-6" data-cat="入门" data-kind="entry" data-name="排序">
-<div class="ah"><h4>6. 排序算法的原理理解</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">必背</span><a class="prac" href="practice.html#P1059" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<article class="algo" id="hb-6" data-cat="入门" data-kind="entry" data-name="排序 自定义比较 结构体排序 稳定性"><div class="ah"><h4>6. 排序算法的原理理解</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">必背</span><a class="prac" href="practice.html#P1059" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
 <p class="idea"><b>本质</b>：排序是「用比较换信息」。真正要掌握的不是会写快排，而是：<b>稳定性</b>、<b>是否原地</b>、<b>比较次数下界 O(n log n)</b>、以及<b>非比较排序</b>（计数/基数/桶）何时能突破下界。</p>
-<table>
-<tr><th>算法</th><th>平均</th><th>最坏</th><th>空间</th><th>稳定</th><th>什么时候用</th></tr>
-<tr><td>插入排序</td><td>O(n²)</td><td>O(n²)</td><td>O(1)</td><td>是</td><td>n ≤ 50，或近乎有序</td></tr>
-<tr><td>归并排序</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n)</td><td>是</td><td>需要稳定性 / 顺带求逆序对</td></tr>
-<tr><td>快速排序</td><td>O(n log n)</td><td>O(n²)</td><td>O(log n)</td><td>否</td><td>一般排序，注意随机化基准</td></tr>
-<tr><td>堆排序</td><td>O(n log n)</td><td>O(n log n)</td><td>O(1)</td><td>否</td><td>只要前 k 大 / 内存紧张</td></tr>
-<tr><td>计数排序</td><td>O(n + V)</td><td>O(n + V)</td><td>O(V)</td><td>是</td><td>值域 V 很小</td></tr>
-<tr><td>基数排序</td><td>O(k·n)</td><td>O(k·n)</td><td>O(n+V)</td><td>是</td><td>值域大但位数 k 小（如 32 位整数分 4 趟）</td></tr>
-<tr><td>std::sort</td><td>—</td><td>O(n log n)</td><td>O(log n)</td><td>否</td><td>默认选择；需稳定用 stable_sort</td></tr>
-</table>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// std::sort 的正确姿势
 sort(a + 1, a + 1 + n);                                  // 升序
 sort(a + 1, a + 1 + n, greater<int>());                  // 降序
@@ -505,12 +573,69 @@ int id = lower_bound(b.begin(), b.end(), x) - b.begin() + 1;
 // 手写快排：随机化基准防退化，注意三路划分处理大量重复元素
 mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
 int p = a[l + rng() % (r - l + 1)];</script></div>
-<p class="tl"><b>题单</b> 洛谷 P1177 快速排序模板 · P1059 明明的随机数（离散化）· P1093 奖学金（多关键字）· P1923 求第 k 小的数（nth_element）· P2678 跳石头（排序+二分）。</p>
-<p class="ref"><b>资料</b> OI-Wiki「排序」；《算法（第 4 版）》第 2 章；CSES Problem Set「Sorting and Searching」整章。</p>
-</article>
+<p class="idea"><b>补充</b>（来自「学习计划」里的同名卡片）：</p>
+<div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>、<functional>、<cstdlib>
+// ---------- ① 基本用法 ----------
+sort(a, a + n);                        // 升序
+sort(a, a + n, greater<int>());        // 降序
+sort(v.begin(), v.end());              // STL 容器
 
-<article class="algo" id="hb-7" data-cat="入门" data-kind="entry" data-name="二分 三分">
-<div class="ah"><h4>7. 二分与三分</h4><span class="lv lv-e">入门</span><span class="st">★★★</span><span class="tag">必背</span><a class="prac" href="practice.html#P2249" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+// ---------- ② 自定义比较：lambda ----------
+sort(v.begin(), v.end(), [](const int &x, const int &y){
+    return abs(x) < abs(y);            // 按绝对值升序
+});
+
+// ---------- ③ 结构体排序：写成成员函数（推荐）----------
+struct Node {
+    int id, score;
+    bool operator<(const Node &o) const {
+        if(score != o.score) return score > o.score;  // 分数高的在前
+        return id < o.id;                             // 分数相同，id 小的在前
+    }
+};
+sort(v.begin(), v.end());              // 直接排，不需要传比较函数
+
+// ---------- ④ 只求第 k 小：nth_element，平均 O(n) ----------
+nth_element(a, a + k, a + n);          // 执行后 a[k] 就是第 k+1 小的元素
+
+// ---------- ⑤ 逆序对：归并排序 / 树状数组 ----------
+// 归并排序在 merge 时，若 a[i] > a[j]，则贡献 (mid - i + 1) 个逆序对
+
+// ---------- ⑥ 稳定排序：stable_sort（相等元素保持原顺序）----------
+stable_sort(v.begin(), v.end(), cmp);</script></div>
+<div class="box err">
+        <span class="t">🚫 比较函数的死亡写法</span>
+        <pre style="margin:6px 0;background:var(--code-bg);border:1px solid var(--code-line);border-radius:8px;padding:10px 12px;overflow:auto;font-size:12.6px;color:var(--code-text)">bool cmp(int x, int y){ return x >= y; }   // ❌ 相等时返回 true，违反严格弱序 → RE</pre>
+        <p>规则：<b>相等时必须返回 false</b>。写成 <code>x &gt; y</code> 而不是 <code>x &gt;= y</code>；写结构体排序时，把「层层比较」写成 <code>if</code> 串，最后一行一定返回 <code>false</code> 的等价形式。</p>
+      </div>
+<div class="box ok">
+        <span class="t">✅ 实测：稳定排序 vs 不稳定排序</span>
+        <p>对 <code>[(1,5),(2,5),(3,4)]</code> 按分数降序：<code>stable_sort</code> 一定输出 <code>[(1,5),(2,5),(3,4)]</code>；<code>sort</code> 在小数组上通常也一样，但<b>不保证</b>。凡是题目说「相同分数按输入顺序输出」——<b>必须用 stable_sort 或者把原始下标写进比较函数</b>。</p>
+      </div>
+<div class="box tip">
+        <span class="t">🔎 排序家族：sort / stable_sort / nth_element</span>
+        <dl class="fn">
+          <dt>sort(first, last) ｜ sort(first, last, cmp)</dt><dd><b>作用</b>：区间升序 / 按 cmp 排序。<b>复杂度</b>：O(n log n)（内省排序：快排 + 堆排 + 插入排序的混合）。<b>不稳定</b>。<br><b>cmp 的语义</b>：<code>cmp(a, b)</code> 返回 <b>true 表示 a 应该排在 b 前面</b>。所以降序写 <code>[](int a, int b){ return a &gt; b; }</code>。<br><b>硬性要求</b>：cmp 必须满足<b>严格弱序</b> —— 也就是 <code>cmp(x, x)</code> 必须返回 <b>false</b>。写成 <code>&gt;=</code> 或 <code>&lt;=</code> 会让排序内部越界，直接 RE。</dd>
+          <dt>greater&lt;int&gt;() / less&lt;int&gt;()</dt><dd><b>作用</b>：标准库提供的比较器函数对象，在 <code>&lt;functional&gt;</code> 里。<code>greater</code> 表示「大的在前」（降序），<code>less</code> 表示「小的在前」（升序，也是默认）。<br><b>用法</b>：<code>sort(v.begin(), v.end(), greater&lt;int&gt;());</code>，比手写 lambda 短。</dd>
+          <dt>stable_sort(first, last, cmp)</dt><dd><b>作用</b>：<b>稳定</b>排序 —— 排序后值相等的元素保持原来的相对顺序。<br><b>什么时候必须用</b>：题目说「分数相同时按输入顺序输出」。<br><b>替代方案</b>：用 <code>sort</code>，但在比较函数里加上「以原始下标为第二关键字」，效果一样而且更可控。<br><b>复杂度</b>：有额外空间时 O(n log n)，空间不够时退化为 O(n log²n)。</dd>
+          <dt>nth_element(first, nth, last)</dt><dd><b>作用</b>：执行完保证 <code>*nth</code> 这个位置放的就是「排序后应该在这里的元素」，且它左边都不大于它、右边都不小于它。<br><b>返回值</b>：无。<b>复杂度</b>：平均 O(n)。<br><b>典型场景</b>：求第 k 小（或中位数）时，比完整排序快。注意它<b>不保证两侧有序</b>。</dd>
+          <dt>自定义比较的两种写法</dt><dd><b>① lambda</b>：<code>sort(v.begin(), v.end(), [](const T &amp;a, const T &amp;b){ ... });</code> —— 临时用一次时最方便。<br><b>② 结构体重载 <code>operator&lt;</code></b>：<code>bool operator&lt;(const Node &amp;o) const { ... }</code> —— 排序逻辑固定时更清晰，而且 <code>sort</code>、<code>set</code>、<code>priority_queue</code> 都能直接用。<br><b>建议</b>：多关键字排序写成一串 <code>if</code>，最后一定要能返回「相等时为 false」。</dd>
+        </dl>
+      </div>
+<table>
+<tr><th>算法</th><th>平均</th><th>最坏</th><th>空间</th><th>稳定</th><th>什么时候用</th></tr>
+<tr><td>插入排序</td><td>O(n²)</td><td>O(n²)</td><td>O(1)</td><td>是</td><td>n ≤ 50，或近乎有序</td></tr>
+<tr><td>归并排序</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n)</td><td>是</td><td>需要稳定性 / 顺带求逆序对</td></tr>
+<tr><td>快速排序</td><td>O(n log n)</td><td>O(n²)</td><td>O(log n)</td><td>否</td><td>一般排序，注意随机化基准</td></tr>
+<tr><td>堆排序</td><td>O(n log n)</td><td>O(n log n)</td><td>O(1)</td><td>否</td><td>只要前 k 大 / 内存紧张</td></tr>
+<tr><td>计数排序</td><td>O(n + V)</td><td>O(n + V)</td><td>O(V)</td><td>是</td><td>值域 V 很小</td></tr>
+<tr><td>基数排序</td><td>O(k·n)</td><td>O(k·n)</td><td>O(n+V)</td><td>是</td><td>值域大但位数 k 小（如 32 位整数分 4 趟）</td></tr>
+<tr><td>std::sort</td><td>—</td><td>O(n log n)</td><td>O(log n)</td><td>否</td><td>默认选择；需稳定用 stable_sort</td></tr>
+</table>
+<p class="tl"><b>题单</b> 洛谷 P1177 快速排序模板 · P1059 明明的随机数（离散化） · P1093 奖学金（多关键字） · P1923 求第 k 小的数（nth_element） · P2678 跳石头（排序+二分） · P1104 生日 · P1908 逆序对 · P1051 谁拿了最多奖学金。</p>
+<p class="ref"><b>资料</b> OI-Wiki「排序」；《算法（第 4 版）》第 2 章；CSES Problem Set「Sorting and Searching」整章。</p></article>
+
+<article class="algo" id="hb-7" data-cat="入门" data-kind="entry" data-name="二分 三分 二分查找 二分答案 lower_bound upper_bound"><div class="ah"><h4>7. 二分与三分</h4><span class="lv lv-e">入门</span><span class="st">★★★</span><span class="tag">必背</span><a class="prac" href="practice.html#P2249" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
 <p class="idea"><b>本质</b>：二分 = 在<b>单调的判定函数</b>上找分界点。写对二分的唯一诀窍是明确「<b>check(mid) 为真时答案落在哪一半</b>」，然后让循环不变式保持不变。三分 = 在<b>单峰/单谷函数</b>上比较两侧导数。</p>
 <p class="meta"><b>复杂度</b>：O(log n)，实数二分按精度迭代约 60~100 次即可达到 1e-15。二分答案的总复杂度是 O(log V × check)。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 模板 1：最小的满足 check 的位置（左闭右闭）----------
@@ -556,9 +681,61 @@ while(hi - lo > 1e-8){
 int p1 = lower_bound(a + 1, a + 1 + n, x) - a;
 int p2 = upper_bound(a + 1, a + 1 + n, x) - a;
 // x 出现次数 = p2 - p1</script></div>
-<p class="tl"><b>题单</b> 洛谷 P2249 查找 · P1102 A-B 数对 · P1873 砍树 · P1182 数列分段 Section II · P2678 跳石头 · P1414 又是毕业季II · P3382 三分法 · P1024 一元三次方程求解；AcWing「二分」专题。</p>
-<p class="ref"><b>资料</b> OI-Wiki「二分」「三分」；《算法竞赛进阶指南》0x04 节。</p>
-</article>
+<p class="idea"><b>补充</b>（来自「学习计划」里的同名卡片）：</p>
+<div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>
+// ---------- ① 整数二分：两套必须背下来的模板 ----------
+// 找「最后一个满足 check(mid) == true 的位置」（最大化答案）
+int l = lo, r = hi;
+while(l < r){
+    int mid = l + (r - l + 1) / 2;    // ★ 上取整，防止死循环
+    if(check(mid)) l = mid;           // mid 可行 → 记录并往右找
+    else           r = mid - 1;
+}
+// 答案 = l
+
+// 找「第一个满足 check(mid) == true 的位置」（最小化答案）
+int l = lo, r = hi;
+while(l < r){
+    int mid = l + (r - l) / 2;        // 下取整
+    if(check(mid)) r = mid;
+    else           l = mid + 1;
+}
+// 答案 = l
+
+// ---------- ② 实数二分：直接循环 100 次，比设 eps 更稳 ----------
+double l = lo, r = hi;
+for(int it = 0; it < 100; ++it){
+    double mid = (l + r) / 2;
+    if(check(mid)) l = mid; else r = mid;
+}
+
+// ---------- ③ STL 自带的二分（要求区间已有序）----------
+// lower_bound: 第一个 >= x 的位置
+// upper_bound: 第一个 >  x 的位置
+int cnt = upper_bound(a, a+n, x) - lower_bound(a, a+n, x);   // x 的出现次数
+
+// ---------- ④ 二分答案的解题框架 ----------
+// 1. 确定答案的范围 [lo, hi]（不要凭感觉，要从题面推）
+// 2. 写 check(mid)：在「答案 = mid」的前提下，判断方案是否可行
+// 3. 判断单调性方向：是「越大越容易满足」还是「越小越容易」→ 决定用哪套模板</script></div>
+<div class="box err">
+        <span class="t">🚫 二分最容易死在哪</span>
+        <p><b>① 死循环。</b>「最大化」的模板必须用 <code>mid = l + (r-l+1)/2</code>（上取整）；「最小化」用 <code>mid = l + (r-l)/2</code>。用错了当 <code>r = l+1</code> 时会永远 <code>l = mid = l</code>。<br>
+        <b>② 边界开错。</b><code>lo</code> 取「一定可行」的值，<code>hi</code> 取「一定不可行」的值，宁可放宽一点。<br>
+        <b>③ 忘记排序。</b>二分的前提是有序或单调，没排序直接二分 = 随机结果。</p>
+      </div>
+<div class="box tip">
+        <span class="t">🔎 lower_bound 与 upper_bound 到底差在哪</span>
+        <dl class="fn">
+          <dt>lower_bound(first, last, x)</dt><dd><b>含义</b>：第一个 <b>≥ x</b> 的位置（<b>lower</b> = 下界，包含等于）。<br><b>返回</b>：迭代器 / 指针，找不到返回 <code>last</code>。<b>复杂度</b>：O(log n)（比较次数 ≤ log₂n + 1）。<br><b>前提</b>：区间必须按 <code>&lt;</code> 有序。</dd>
+          <dt>upper_bound(first, last, x)</dt><dd><b>含义</b>：第一个 <b>&gt; x</b> 的位置（<b>upper</b> = 上界，跳过所有等于 x 的）。<br><b>返回</b>：同上。<b>复杂度</b>：O(log n)。</dd>
+          <dt>x 的出现次数 = upper_bound(...) - lower_bound(...)</dt><dd><b>这是两个函数最经典的组合用法</b>：<br><code>long long cnt = upper_bound(a, a+n, x) - lower_bound(a, a+n, x);</code><br>两者之差正好是「等于 x 的元素个数」，因为 <code>[lower, upper)</code> 就是所有 x 排成的区间。<br><b>注意指针相减的结果类型是 <code>ptrdiff_t</code>（有符号），可以放心用；但迭代器相减得到的是「元素个数」，不是字节数。</b></dd>
+          <dt>在「下降序列」上怎么用</dt><dd><b>默认版本</b>假设升序。如果数组是降序的，要么先反转、要么传自定义比较器 <code>greater&lt;int&gt;()</code>：<br><code>lower_bound(a, a+n, x, greater&lt;int&gt;());</code><br><b>更省事的做法</b>：把 「找最后一个 ≥ x」这类需求统一转成「在反转后的数组上找第一个」，思路更清楚。</dd>
+          <dt>set / map 的 lower_bound 是「成员函数」</dt><dd><b>重要区别</b>：<code>set&lt;int&gt; s;</code> 要用 <code>s.lower_bound(x)</code>（成员函数，O(log n)）。<br>如果写成 <code>lower_bound(s.begin(), s.end(), x)</code>（全局算法），因为 set 的迭代器<b>不支持随机访问</b>，每次都只能一步一步挪，复杂度退化成 <b>O(n)</b> —— 这是很隐蔽的性能陷阱。</dd>
+        </dl>
+      </div>
+<p class="tl"><b>题单</b> 洛谷 P2249 查找 · P1102 A-B 数对 · P1873 砍树 · P1182 数列分段 Section II · P2678 跳石头 · P1414 又是毕业季II · P3382 三分法 · P1024 一元三次方程求解 · AcWing「二分」专题 · P2440 木材加工。</p>
+<p class="ref"><b>资料</b> OI-Wiki「二分」「三分」；《算法竞赛进阶指南》0x04 节。</p></article>
 
 <article class="algo" id="hb-8" data-cat="入门" data-kind="entry" data-name="分治">
 <div class="ah"><h4>8. 分治</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">思维</span><a class="prac" href="practice.html#P1908" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
@@ -599,8 +776,7 @@ ll qpow(ll a, ll b, ll p){
 <p class="ref"><b>资料</b> OI-Wiki「递归 & 分治」「CDQ 分治」；《算法竞赛进阶指南》0x05 节。</p>
 </article>
 
-<article class="algo" id="hb-9" data-cat="入门" data-kind="entry" data-name="贪心">
-<div class="ah"><h4>9. 贪心</h4><span class="lv lv-e">入门</span><span class="st">★★★</span><span class="tag">思维</span><a class="prac" href="practice.html#P1090" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<article class="algo" id="hb-9" data-cat="入门" data-kind="entry" data-name="贪心 交换论证 反悔贪心"><div class="ah"><h4>9. 贪心</h4><span class="lv lv-e">入门</span><span class="st">★★★</span><span class="tag">思维</span><a class="prac" href="practice.html#P1090" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
 <p class="idea"><b>本质</b>：每步取局部最优，且能证明它不劣于任何最优解。常用的三种证明武器：<b>交换论证</b>（任意最优解可交换为我们的选择）、<b>归纳法</b>、<b>反证 + 界</b>。贪心没有通用模板，只有可证明的贪心才是贪心。</p>
 <p class="meta"><b>复杂度</b>：通常 O(n log n)（因为多数贪心要排序或用堆）。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 常见贪心模式 ----------
@@ -628,9 +804,46 @@ sort(p + 1, p + 1 + n, [](P a, P b){ return a.a * b.b < b.a * a.b; });
 // 例：按截止时间排序，维护已选集合的最小值，超限时弹出堆顶
 
 // 反例警示：0/1 背包按性价比贪心是错的，必须用 DP —— 这就是贪心与 DP 的分界</script></div>
-<p class="tl"><b>题单</b> 洛谷 P1090 合并果子 · P1223 排队接水 · P1803 线段覆盖 · P5019 铺设道路 · P1080 国王游戏 · P1631 序列合并 · P1094 纪念品分组 · P4447 分组。</p>
-<p class="ref"><b>资料</b> OI-Wiki「贪心」；《算法竞赛进阶指南》0x07 节；《挑战程序设计竞赛》「贪心」一章。</p>
-</article>
+<p class="idea"><b>补充</b>（来自「学习计划」里的同名卡片）：</p>
+<div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>、<vector>、<queue>、<functional>
+// ---------- 经典贪心：区间调度（按右端点排序）----------
+// 求最多能选多少个两两不重叠的区间
+sort(v.begin(), v.end(), [](auto &x, auto &y){ return x.r < y.r; });
+int cnt = 0, lastEnd = -1e18;
+for(auto &seg : v){
+    if(seg.l >= lastEnd){ ++cnt; lastEnd = seg.r; }   // 不冲突就选
+}
+// 为什么按「右端点」而不是「左端点」？右端点越小，留给后面的空间越大
+
+// ---------- 反悔贪心：带「撤销」的贪心（用堆实现）----------
+// 例：雇佣 n 个工人，第 i 个成本 w[i]，但可以「换掉」已选的最大值
+priority_queue<int> pq;                 // 大根堆，存已选的成本
+long long cost = 0;
+for(int i = 1; i <= n; ++i){
+    pq.push(w[i]); cost += w[i];
+    if(条件被破坏()){ cost -= pq.top(); pq.pop(); }   // 撤销最不划算的那个
+}
+
+// ---------- Huffman：合并果子 ----------
+// 每次取出最小的两个合并，用优先队列（小根堆）
+priority_queue<int, vector<int>, greater<int>> q(a.begin(), a.end());
+long long total = 0;
+while(q.size() > 1){
+    int x = q.top(); q.pop();
+    int y = q.top(); q.pop();
+    total += x + y;                     // 合并的代价
+    q.push(x + y);
+}</script></div>
+<div class="box warn">
+        <span class="t">⚠️ 贪心不成立时怎么办</span>
+        <p>反例：货币找零 —— 面值 <code>[1, 3, 4]</code>，凑 6 元。贪心拿 4+1+1 = 3 枚，但最优是 3+3 = 2 枚。<b>贪心失败 → 上 DP</b>。做题时如果举不出反例又证不出正确性，先写贪心 + 对拍，1 分钟就能验证。</p>
+      </div>
+<div class="ex"><b>例题</b>：洛谷 P1090 合并果子 —— n 堆果子，每次合并两堆，代价为两堆之和，求最小总代价。贪心策略：<b>每次合并当前最小的两堆</b>。用小根堆实现 O(n log n)。n = 10⁴ 时暴力找最小值 O(n²) 也能过，n = 10⁵ 就必须用堆。</div>
+<p><b>两种证明套路</b>：<br>
+      ① <b>交换论证</b>：假设存在最优解和贪心解不同，找到第一个不同的位置，把它俩交换，证明结果不会变差 → 贪心解也是最优。<br>
+      ② <b>反悔贪心</b>：先贪心拿，如果发现不划算，就用堆把之前的决定「撤销」掉。</p>
+<p class="tl"><b>题单</b> 洛谷 P1090 合并果子 · P1223 排队接水 · P1803 线段覆盖 · P5019 铺设道路 · P1080 国王游戏 · P1631 序列合并 · P1094 纪念品分组 · P4447 分组 · P2949 [USACO09OPEN] Work Scheduling（反悔贪心）。</p>
+<p class="ref"><b>资料</b> OI-Wiki「贪心」；《算法竞赛进阶指南》0x07 节；《挑战程序设计竞赛》「贪心」一章。</p></article>
 
 <article class="algo" id="hb-10" data-cat="入门" data-kind="entry" data-name="简单搜索 DFS BFS">
 <div class="ah"><h4>10. 简单搜索（DFS / BFS）</h4><span class="lv lv-e">入门</span><span class="st">★★★</span><span class="tag">必背</span><a class="prac" href="practice.html#P1605" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
@@ -695,9 +908,8 @@ while(!q.empty()){
 <h3 id="b-ds">2.1 基础数据结构（13 项）</h3>
 <p class="lead">这一层的关键不是「会用 STL」，而是<b>知道每个数据结构在维护什么不变量</b>。STL 只是实现，思想才是可迁移的。</p>
 
-<article class="algo" id="hb-11" data-cat="基础" data-kind="ds" data-name="栈 stack">
-<div class="ah"><h4>1. 栈</h4><span class="lv lv-b">基础</span><span class="st">★</span><span class="tag">LIFO</span><a class="prac" href="practice.html#P1449" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
-<p class="idea"><b>本质</b>：后进先出。它维护的不变量是「最近未处理的元素」。凡是「最近相关性」的场景都在用它：括号匹配、表达式求值、DFS、单调栈、回溯撤销。</p>
+<article class="algo" id="hb-11" data-cat="基础" data-kind="ds" data-name="栈 stack 单调栈"><div class="ah"><h4>1. 栈</h4><span class="lv lv-b">基础</span><span class="st">★</span><span class="tag">LIFO</span><a class="prac" href="practice.html#P1449" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<p class="idea"><b>本质</b>：栈是「后进先出」的容器。而<b>单调栈</b>是栈的一个用法——维护一个「从栈底到栈顶单调」的栈，用来求<b>每个元素左边/右边第一个比它大（或小）的元素</b>，一次 O(n) 扫完。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">stack<int> st;
 st.push(x); st.pop(); st.top(); st.size(); st.empty();
 
@@ -722,31 +934,85 @@ if(!st.empty()) ok = false;
 // 中缀转后缀（调度场算法）：输出数字，运算符按优先级出栈，后缀表达式再用栈求值
 
 // 应用三：单调栈（见第 11 项）</script></div>
-<p class="tl"><b>题单</b> 洛谷 P1449 后缀表达式 · P1739 表达式括号匹配 · P1981 表达式求值 · P1044 栈（卡特兰数，栈的计数问题）。</p>
-<p class="ref"><b>资料</b> OI-Wiki「栈」；CP-Algorithms: Stack 相关章节。</p>
-</article>
+<p class="idea"><b>补充</b>（来自「学习计划」里的同名卡片）：</p>
+<div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <vector>、<stack>
+// ---------- 栈的基本用法 ----------
+stack<int> st;
+st.push(3); st.top(); st.pop(); st.empty(); st.size();
+// 用 vector 手动当栈也完全没问题（更快、能取任意位置）
+vector<int> st;  st.push_back(3); st.back(); st.pop_back();
 
-<article class="algo" id="hb-12" data-cat="基础" data-kind="ds" data-name="队列 queue deque 循环队列">
-<div class="ah"><h4>2. 队列</h4><span class="lv lv-b">基础</span><span class="st">★</span><span class="tag">FIFO</span><a class="prac" href="practice.html#P1540" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+// ---------- 单调栈：求每个元素「右边第一个比它大的位置」----------
+// 思路：从右往左扫，栈里存「还没被比下去的候选」
+int nxt[N];  // nxt[i] = i 右边第一个大于 a[i] 的下标，不存在为 n+1
+vector<int> stk;
+for(int i = n; i >= 1; --i){
+    while(!stk.empty() && a[stk.back()] <= a[i]) stk.pop_back();  // ★ <= 会弹掉相等元素
+    nxt[i] = stk.empty() ? n + 1 : stk.back();                    // ★ 栈顶就是答案
+    stk.push_back(i);
+}
+// 每个元素最多进栈一次、出栈一次 → 总复杂度 O(n)
+// 想让「相等的保留」就把 <= 改写成 <</script></div>
+<div class="box tip">
+        <span class="t">💡 记住了这个「思维动作」你就赚了</span>
+        <p>单调栈之所以 O(n)，是因为用「<b>永久排除法</b>」：如果 a[j] ≤ a[i] 且 j &lt; i，那么对 i 右边的元素来说，<b>j 永远不可能成为答案</b>（因为 i 更近且更大），所以可以放心弹掉。以后看到「找最近的大于/小于」就往这个方向想。</p>
+      </div>
+<div class="ex"><b>例题</b>：洛谷 P5788「模板」单调栈 —— n ≤ 3×10⁶，输出每个数后面第一个大于它的数的下标。暴力 O(n²) 必超时；单调栈 O(n)，实测 3×10⁶ 规模在 1 秒内轻松通过。</div>
+<p class="tl"><b>题单</b> 洛谷 P1449 后缀表达式 · P1739 表达式括号匹配 · P1981 表达式求值 · P1044 栈（卡特兰数，栈的计数问题） · 洛谷 P5788「模板」单调栈 · P1901 发射站 · P2947 [USACO09MAR] Look Up · P4147 玉蟾宫（单调栈求最大矩形）。</p>
+<p class="ref"><b>资料</b> OI-Wiki「栈」；CP-Algorithms: Stack 相关章节。</p></article>
+
+<article class="algo" id="hb-12" data-cat="基础" data-kind="ds" data-name="队列 queue deque 循环队列 双端队列"><div class="ah"><h4>2. 队列</h4><span class="lv lv-b">基础</span><span class="st">★</span><span class="tag">FIFO</span><a class="prac" href="practice.html#P1540" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
 <p class="idea"><b>本质</b>：先进先出，保证处理的「层次性」——这正是 BFS 能得到最短路的原因。双端队列 deque 允许两端进出，是单调队列和 0-1 BFS 的容器。</p>
-<div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">queue<int> q;                 // push / pop / front / back / size / empty
-deque<int> dq;                // push_front / push_back / pop_front / pop_back
-priority_queue<int> pq;       // 底层是堆，不是队列（见第 4 项）
+<div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <deque>、<queue>、<utility>
+// ---------- queue ----------
+queue<int> q;  q.push(1); q.front(); q.back(); q.pop(); q.empty();
 
-// 手写循环队列（无动态分配，速度快）
-int q[N], head = 0, tail = 0;
-bool empty(){ return head == tail; }
-void push(int x){ q[tail++] = x; if(tail == N) tail = 0; }
-int front(){ return q[head]; }
-void pop(){ ++head; if(head == N) head = 0; }
+// ---------- deque：两端都能进出 ----------
+deque<int> dq;
+dq.push_back(1);  dq.pop_back();      // 尾部
+dq.push_front(2); dq.pop_front();     // 头部
+dq.front();       dq.back();
 
-// 单调队列：滑动窗口最值，O(n)（详见进阶篇"单调队列优化 DP"）
-// 0-1 BFS：边权只有 0/1 时用 deque，权 0 从前入队、权 1 从后入队 => O(n+m)
+// ---------- 手写队列（比 STL 快，且能存状态）----------
+int que[N], head = 0, tail = 0;       // [head, tail)
+que[tail++] = s;
+while(head < tail){
+    int u = que[head++];
+    /* ... */
+}
+// 循环队列（节省空间：pop 出来的位置能复用）
+head = (head + 1) % N;
+tail = (tail + 1) % N;
 
-// 应用：BFS（第 10 项）、拓扑排序（2.3 节）、DAG 上的按层 DP</script></div>
-<p class="tl"><b>题单</b> 洛谷 P1996 约瑟夫问题 · P1886 滑动窗口（单调队列）· P2952 牛的旅行？改：P1443 马的遍历（BFS 模板）。</p>
-<p class="ref"><b>资料</b> OI-Wiki「队列」「双端队列」。</p>
-</article>
+// ---------- 0-1 BFS：边权只有 0 / 1 时的最短路 ----------
+// 用 deque，权 0 的边 push_front，权 1 的 push_back
+deque<int> dq2; dq2.push_front(s); dist[s] = 0;
+while(!dq2.empty()){
+    int u = dq2.front(); dq2.pop_front();
+    for(auto [v, w] : g[u]){
+        if(dist[u] + w < dist[v]){
+            dist[v] = dist[u] + w;
+            if(w == 0) dq2.push_front(v);
+            else       dq2.push_back(v);
+        }
+    }
+}</script></div>
+<p class="idea"><b>补充</b>（来自「学习计划」里的同名卡片）：</p>
+<div class="box ok">
+        <span class="t">✅ 0-1 BFS 为什么比 Dijkstra 好</span>
+        <p>Dijkstra 要堆，复杂度 O(m log n)；0-1 BFS 只要 deque，复杂度 <b>O(n + m)</b>。代价是它要求边权只能是 0 或 1。看到「边权非 0 即 1」立刻想到它。</p>
+      </div>
+<div class="box tip">
+        <span class="t">🔎 queue 与 deque 的成员函数</span>
+        <dl class="fn">
+          <dt>queue&lt;T&gt;（&lt;queue&gt;）</dt><dd><code>push(x)</code> / <code>emplace(x)</code>：把元素放到<b>队尾</b>，O(1)。<br><code>front()</code>：取<b>队首</b>元素（不删除），O(1)。<br><code>pop()</code>：删除队首元素，O(1)。<b>注意它不返回值</b> —— 想「取出并删掉」要写 <code>T x = q.front(); q.pop();</code>，这是初学者最常踩的一个坑。<br><code>empty()</code> / <code>size()</code>：判空 / 求元素个数。<br><b>越界行为</b>：对空队列取 front 或 pop 是未定义行为，可能直接崩 —— <b>先判 empty 再取</b>。</dd>
+          <dt>deque&lt;T&gt;（&lt;deque&gt;，double-ended queue）</dt><dd><code>push_back(x)</code> / <code>pop_back()</code>：尾部进出，均摊 O(1)。<br><code>push_front(x)</code> / <code>pop_front()</code>：头部进出，均摊 O(1)。<br><code>front()</code> / <code>back()</code>：看两端元素（不删除）。<br><code>clear()</code>：清空。<br><code>operator[]</code>：<b>支持随机访问</b>（<code>dq[2]</code>），这是 queue 没有的。<br><b>复杂度</b>：两端增删都是均摊 O(1)；中间插入删除是 O(n)。</dd>
+          <dt>什么时候用哪个</dt><dd><b>queue</b>：只需要「队尾进、队首出」—— BFS、拓扑排序。<br><b>deque</b>：两端都要操作 —— 单调队列、0-1 BFS。<br><b>vector</b>：只在尾部操作、且需要频繁随机访问 —— 邻接表、普通数组。<br>竞赛里如果想省事，用 <code>deque</code> 或 <code>vector</code> 手动模拟 queue 也很常见（比 STL 快一些，而且能取任意位置）。</dd>
+          <dt>手写队列</dt><dd><b>写法</b>：<code>int que[N], head = 0, tail = 0;</code> 区间约定为 <code>[head, tail)</code>。<br><code>que[tail++] = x;</code> 入队，<code>int u = que[head++];</code> 出队，<code>head &lt; tail</code> 表示非空。<br><b>好处</b>：比 STL 快；而且队里可以同时存多个数组（比如同时存点编号和距离）；BFS 里还能直接按层遍历（记录当前层的 tail）。</dd>
+        </dl>
+      </div>
+<p class="tl"><b>题单</b> 洛谷 P1996 约瑟夫问题 · P1886 滑动窗口（单调队列） · P2952 牛的旅行？改：P1443 马的遍历（BFS 模板） · P2058 海港 · P1443 马的遍历 · P4667 [BalticOI2011] 电路维修（0-1 BFS）。</p>
+<p class="ref"><b>资料</b> OI-Wiki「队列」「双端队列」。</p></article>
 
 <article class="algo" id="hb-13" data-cat="基础" data-kind="ds" data-name="链表 前向星 静态链表">
 <div class="ah"><h4>3. 链表</h4><span class="lv lv-b">基础</span><span class="st">★</span><span class="tag">实现</span><a class="prac" href="practice.html#P1160" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
@@ -778,8 +1044,7 @@ for(int i = head[u]; i; i = e[i].nxt){ /* 遍历 u 的出边 */ }
 <p class="ref"><b>资料</b> OI-Wiki「链表」；《算法竞赛进阶指南》0x13 节。</p>
 </article>
 
-<article class="algo" id="hb-14" data-cat="基础" data-kind="ds" data-name="堆 优先队列 对顶堆">
-<div class="ah"><h4>4. 堆 / 优先队列</h4><span class="lv lv-b">基础</span><span class="st">★★</span><span class="tag">高频</span><a class="prac" href="practice.html#P1090" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<article class="algo" id="hb-14" data-cat="基础" data-kind="ds" data-name="堆 优先队列 对顶堆 大根堆 小根堆"><div class="ah"><h4>4. 堆 / 优先队列</h4><span class="lv lv-b">基础</span><span class="st">★★</span><span class="tag">高频</span><a class="prac" href="practice.html#P1090" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
 <p class="idea"><b>本质</b>：一棵满足「父 ≤ 子」的完全二叉树，用数组存储，支持 O(log n) 插入/删除、O(1) 取最值。竞赛中的堆多半是<b>用来做「动态取最值 + 反悔」</b>。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- STL ----------
 priority_queue<int> big;                                        // 大根堆
@@ -817,9 +1082,50 @@ int median(){ return L.top(); }
 // ③ Dijkstra / Prim 的优先队列
 // ④ 反悔贪心：先取，再用堆撤销
 // ⑤ 多路归并：k 个有序序列合并 O(n log k)</script></div>
-<p class="tl"><b>题单</b> 洛谷 P3378 堆模板 · P1090 合并果子 · P1631 序列合并 · P2085 最小函数值 · P1168 中位数（对顶堆）· P1801 黑匣子。</p>
-<p class="ref"><b>资料</b> OI-Wiki「堆」；CP-Algorithms「Binary Heap」。</p>
-</article>
+<p class="idea"><b>补充</b>（来自「学习计划」里的同名卡片）：</p>
+<div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>、<vector>、<queue>、<functional>、<utility>
+// ---------- 大根堆（默认）----------
+priority_queue<int> big;
+
+// ---------- 小根堆 ----------
+priority_queue<int, vector<int>, greater<int>> small;
+
+// ---------- 存结构体：重载小于号 ----------
+struct Node { int val, id; };
+bool operator<(const Node &x, const Node &y){
+    return x.val > y.val;          // ★ 注意：priority_queue 用 < 表示「优先级低」
+}                                   // 写成 > 就得到「值小的优先」= 小根堆
+priority_queue<Node> pq;
+
+// ---------- 最短路用的 pair 堆：{dist, node}，默认按 dist 小的优先 ----------
+priority_queue<pair<int,int>, vector<pair<int,int>>, greater<>> pq2;
+
+// ---------- 对顶堆：动态求中位数 ----------
+// 大根堆 L 存较小的那一半，小根堆 R 存较大的那一半，保证 L.size() == R.size() 或 L 多 1
+priority_queue<int> L;
+priority_queue<int, vector<int>, greater<int>> R;
+void insert(int x){
+    if(L.empty() || x <= L.top()) L.push(x); else R.push(x);
+    while(L.size() > R.size() + 1){ R.push(L.top()); L.pop(); }   // 平衡
+    while(R.size() > L.size()){ L.push(R.top()); R.pop(); }
+}
+int median(){ return L.top(); }    // 中位数（偶数个时取偏小的那个）</script></div>
+<div class="box warn">
+        <span class="t">⚠️ priority_queue 的运算符方向最容易记反</span>
+        <p><code>priority_queue&lt;T&gt;</code> 默认是<b>大根堆</b>，因为它内部用 <code>less&lt;T&gt;</code> 比较，<b>「较小的」被判定为「优先级低」</b>。所以自定义结构体时，想在堆顶放「值最大的」，就写 <code>return x.val &lt; y.val;</code>。<b>记忆口诀：堆顶永远是「不小于号指向的那一方」。</b></p>
+      </div>
+<div class="box tip">
+        <span class="t">🔎 priority_queue 的模板参数与成员函数</span>
+        <dl class="fn">
+          <dt>priority_queue&lt;T&gt;</dt><dd><b>默认是什么</b>：<b>大根堆</b>，也就是 <code>top()</code> 给出<b>最大</b>的元素。<br><b>三个模板参数</b>（需要小根堆时必须写全）：<br><code>priority_queue&lt;T, Container, Compare&gt;</code><br><b>① T</b>：元素类型，如 <code>int</code>、<code>pair&lt;int,int&gt;</code>。<br><b>② Container</b>：底层容器，必须支持随机访问，默认 <code>vector&lt;T&gt;</code>，通常照抄 <code>vector&lt;T&gt;</code> 就行。<br><b>③ Compare</b>：比较器，默认 <code>less&lt;T&gt;</code>。<b>规则是「比较器认为较小的元素优先级低、沉在下面」</b>，所以想小根堆就传 <code>greater&lt;T&gt;</code>（在 <code>&lt;functional&gt;</code> 里）。</dd>
+          <dt>top() / push() / pop() / empty() / size()</dt><dd><code>top()</code>：看堆顶（最值），<b>O(1)</b>。<br><code>push(x)</code>：插入并调整，<b>O(log n)</b>。<br><code>pop()</code>：删除堆顶，<b>O(log n)</b>。和 queue 一样，<b>它不返回值</b>。<br><code>empty()</code> / <code>size()</code>：判空 / 元素个数。<br><code>emplace(...)</code>：用参数原地构造元素，比 push 少一次拷贝（C++11 起）。<br><b>没有的功能</b>：不能遍历、不能删除任意元素、不能改堆里的值。需要这些就得换 <code>set</code>（O(log n) 但支持删除）或「懒删除」技巧。</dd>
+          <dt>pair 的比较规则</dt><dd><code>pair&lt;A,B&gt;</code> 的 <code>&lt;</code> 定义是：<b>先比 first，first 相等再比 second</b>。<br>所以 <code>priority_queue&lt;pair&lt;int,int&gt;, vector&lt;pair&lt;int,int&gt;&gt;, greater&lt;&gt;&gt;</code> 会按 first 从小到大出队 —— 这正是 Dijkstra 里「按距离出队」想要的效果，不用自己写比较函数。<br><code>greater&lt;&gt;</code> 里的空尖括号是 C++14 起的「透明比较器」，编译器能自动推导类型，等价于 <code>greater&lt;pair&lt;int,int&gt;&gt;</code>。</dd>
+          <dt>重载 operator&lt; 给自定义结构体</dt><dd><b>写法</b>：在结构体外面（或里面）写全局的 <code>bool operator&lt;(const Node &amp;a, const Node &amp;b)</code>。<br><b>方向提醒</b>：<code>priority_queue</code> 用的是 <code>less</code> 语义，即「<code>a &lt; b</code> 为真」表示 <b>a 的优先级更低、要沉下去</b>。所以想让「val 大的在堆顶」，就写 <code>return a.val &lt; b.val;</code>。<br><b>口诀</b>：堆顶永远是「小于号指向的那一方」。</dd>
+        </dl>
+      </div>
+<div class="ex"><b>例题</b>：洛谷 P1090 合并果子（Huffman）—— 每次取最小的两堆，小根堆 O(n log n)。洛谷 P1168 中位数 —— 用对顶堆，每次插入后 O(log n) 就能读出中位数。洛谷 P3378「模板」堆——入门第一道。</div>
+<p class="tl"><b>题单</b> 洛谷 P3378 堆模板 · P1090 合并果子 · P1631 序列合并 · P2085 最小函数值 · P1168 中位数（对顶堆） · P1801 黑匣子 · P2278 操作系统（模拟 + 堆）。</p>
+<p class="ref"><b>资料</b> OI-Wiki「堆」；CP-Algorithms「Binary Heap」。</p></article>
 
 <article class="algo" id="hb-15" data-cat="基础" data-kind="ds" data-name="哈希 HASH 字符串哈希">
 <div class="ah"><h4>5. HASH 表</h4><span class="lv lv-b">基础</span><span class="st">★★</span><span class="tag">高频</span><a class="prac" href="practice.html#P3370" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
@@ -894,8 +1200,7 @@ int build(int pl, int pr, int il, int ir){
 <p class="ref"><b>资料</b> OI-Wiki「二叉树 & 哈夫曼树」；《算法竞赛进阶指南》0x21 节。</p>
 </article>
 
-<article class="algo" id="hb-17" data-cat="基础" data-kind="ds" data-name="Trie 字典树 01Trie">
-<div class="ah"><h4>7. Trie 树（字典树）</h4><span class="lv lv-b">基础</span><span class="st">★★</span><span class="tag">字符串</span><a class="prac" href="practice.html#P2580" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<article class="algo" id="hb-17" data-cat="基础" data-kind="ds" data-name="Trie 字典树 01Trie 前缀树"><div class="ah"><h4>7. Trie 树（字典树）</h4><span class="lv lv-b">基础</span><span class="st">★★</span><span class="tag">字符串</span><a class="prac" href="practice.html#P2580" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
 <p class="idea"><b>本质</b>：把字符串按字符逐层挂在树上，用「公共前缀」共享存储。它把「前缀匹配」从 O(len) 次哈希比较变成 O(len) 的树上走步，天然支持前缀查询、前缀计数。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">int ch[N][26], cnt = 1, pass[N], end_[N];   // pass: 经过次数；end_: 以该节点结尾的串数
 void insert(const string& s){
@@ -944,13 +1249,60 @@ int maxxor(int x){                    // 求 x 与已插入的某个数的最大
 //    字符串题常用 ch[N][26] 的 int，但 N 大时要改用 map 或邻接表存儿子
 
 // 一道必须会：最大异或对 => 用 01-Trie O(n log V)</script></div>
-<p class="tl"><b>题单</b> 洛谷 P8306 Trie字符串统计 · P2580 于是他错误的点名开始了 · P4551 最长异或路径（01-Trie 上的树形 DP）· P4735 最大异或和（可持久化 01-Trie）。</p>
-<p class="ref"><b>资料</b> OI-Wiki「字典树 (Trie)」；CP-Algorithms「Trie」。</p>
-</article>
+<p class="idea"><b>补充</b>（来自「学习计划」里的同名卡片）：</p>
+<div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <string>
+int ch[N][26], cntNode, exist[N];
+// exist[u]：以 u 结尾的字符串数量。若只判存在，用 bool
 
-<article class="algo" id="hb-18" data-cat="基础" data-kind="ds" data-name="set map 平衡树容器">
-<div class="ah"><h4>8. set 和 map 的用法</h4><span class="lv lv-b">基础</span><span class="st">★★</span><span class="tag">STL</span><a class="prac rel" href="practice.html#P1059" target="_blank" title="本知识点暂无专属模板题，先做这道最相关的">相关练习 →</a></div>
-<p class="idea"><b>本质</b>：<code>set/map</code> 是基于<b>红黑树</b>的有序容器，提供 O(log n) 的插入、删除、查找，以及<b>前驱/后继</b>（这是数组做不到的）。<code>unordered_*</code> 是哈希表，O(1) 期望但无序。</p>
+void insert(const string &s){
+    int u = 0;
+    for(char c : s){
+        int &v = ch[u][c - 'a'];
+        if(!v) v = ++cntNode;
+        u = v;
+    }
+    exist[u]++;
+}
+int query(const string &s){          // 返回该字符串出现了几次
+    int u = 0;
+    for(char c : s){
+        int v = ch[u][c - 'a'];
+        if(!v) return 0;             // 中途断了 → 不存在
+        u = v;
+    }
+    return exist[u];
+}
+// 空间估算：N = 总字符数 × 26 个 int。10^6 个字符 → 26×10^6 个 int ≈ 104 MB，太大会 MLE
+// 优化：用 map<int,int> 存子节点（稀疏时省空间）；或改成一维数组 + 前向星
+
+// ---------- 经典应用 1：01 Trie 求最大异或对 ----------
+// 把每个数按二进制从高位到低位插入；查询时尽量走「相反位」
+int ch2[N * 31][2], tot = 1;
+void ins(int x){
+    int u = 1;
+    for(int b = 30; b >= 0; --b){
+        int c = (x >> b) & 1;
+        if(!ch2[u][c]) ch2[u][c] = ++tot;
+        u = ch2[u][c];
+    }
+}
+int ask(int x){                       // 返回能和 x 异或出的最大值
+    int u = 1, res = 0;
+    for(int b = 30; b >= 0; --b){
+        int c = (x >> b) & 1;
+        if(ch2[u][c ^ 1]){ res |= (1 << b); u = ch2[u][c ^ 1]; }   // 走相反位
+        else u = ch2[u][c];
+    }
+    return res;
+}
+
+// ---------- 经典应用 2：AC 自动机 = Trie + fail 指针（见第 7 章）----------</script></div>
+<div class="ex"><b>例题</b>：洛谷 P2580 于是他错误的点名开始了 —— n 个名字建 Trie，m 次查询分「不存在 / 第一次点到 / 重复点到」三种情形。<b>关键在于每个节点除了 <code>exist</code> 还要存一个「是否已被点过」的标记。</b></div>
+<p class="tl"><b>题单</b> 洛谷 P8306 Trie字符串统计 · P2580 于是他错误的点名开始了 · P4551 最长异或路径（01-Trie 上的树形 DP） · P4735 最大异或和（可持久化 01-Trie） · P2922 [USACO08DEC] Secret Message · P3879 [TJOI2010] 阅读理解。</p>
+<p class="ref"><b>资料</b> OI-Wiki「字典树 (Trie)」；CP-Algorithms「Trie」。</p></article>
+
+<article class="algo" id="hb-18" data-cat="基础" data-kind="ds" data-name="set map 平衡树容器 平衡树 STL 容器"><div class="ah"><h4>8. set 和 map 的用法</h4><span class="lv lv-b">基础</span><span class="st">★★</span><span class="tag">STL</span><a class="prac rel" href="practice.html#P1059" target="_blank" title="本知识点暂无专属模板题，先做这道最相关的">相关练习 →</a></div>
+<p class="idea"><b>本质</b>：<code>set</code>/<code>map</code> 底层是<b>红黑树（一种平衡二叉搜索树）</b>，所以查找、插入、删除都是 O(log n)，并且<b>天然有序</b>。它解决的是「需要动态维护有序集合 + 查前驱后继 / 排名」这类问题。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">set<int> s;
 s.insert(x); s.erase(x); s.count(x); s.find(x) != s.end();
 auto it = s.lower_bound(x);      // 第一个 >= x
@@ -984,12 +1336,63 @@ tree<int, null_type, less<int>, rb_tree_tag, tree_order_statistics_node_update> 
 // 只需要判重 / 计数 + 快       -> unordered_set / unordered_map（注意被卡）
 // 需要第 k 小 + 区间           -> 树状数组 / 权值线段树 / 平衡树
 // 值域小且已知                 -> 直接用数组（最快）</script></div>
-<p class="tl"><b>题单</b> 洛谷 P1097 统计数字 · P3879 阅读理解（map<string, vector>）· P2234 营业额统计（set 前驱后继）· P5250 木材仓库 · CF 上的「set 维护区间」题。</p>
-<p class="ref"><b>资料</b> cppreference「std::set / std::map」；OI-Wiki「STL 容器」。</p>
-</article>
+<p class="idea"><b>补充</b>（来自「学习计划」里的同名卡片）：</p>
+<div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <iostream>、<algorithm>、<vector>、<string>、<set>、<map>、<unordered_map>、<utility>
+// ---------- set：有序不重复集合 ----------
+set<int> s;
+s.insert(x);  s.erase(x);  s.count(x);  s.size();
+auto it = s.lower_bound(x);      // 第一个 >= x 的位置
+if(it != s.end()) cout << *it;   // 后继
+if(it != s.begin()) cout << *prev(it);   // 前驱
 
-<article class="algo" id="hb-19" data-cat="基础" data-kind="ds" data-name="并查集 DSU 种类并查集 带权并查集">
-<div class="ah"><h4>9. 并查集</h4><span class="lv lv-b">基础</span><span class="st">★★★</span><span class="tag">必背</span><a class="prac" href="practice.html#P1551" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+// 遍历（默认升序）
+for(int v : s) cout << v << " ";
+
+// ---------- multiset：允许重复元素 ----------
+multiset<int> ms;
+ms.insert(3); ms.insert(3);
+ms.erase(ms.find(3));            // ★ 只删一个（直接 erase(3) 会把所有 3 都删掉！）
+ms.count(3);                     // O(log n + 出现次数)
+
+// ---------- map：有序键值对（红黑树；unordered_map 是哈希表）----------
+map<string, int> mp;
+mp["abc"] = 1;
+mp.count("abc");
+for(auto &[k, v] : mp) cout << k << " " << v << "\n";
+
+// ---------- unordered_map / unordered_set：平均 O(1)，但无序且可能被卡 ----------
+unordered_map<int,int> um;
+um.reserve(1 << 20);             // 预留空间，减少 rehash
+// ★ 防卡技巧：换一个随机化的哈希函数，或者干脆用 map
+
+// ---------- 排序 + pair 也能当简易 map 用（离线时更简单）----------
+vector<pair<int,int>> vp;  sort(vp.begin(), vp.end());
+auto p = lower_bound(vp.begin(), vp.end(), make_pair(k, -1));</script></div>
+<div class="box tip">
+        <span class="t">💡 set / map 的三个必用场景</span>
+        <p><b>① 维护「当前有哪些元素」并反复查前后关系</b>（例如：找「比 x 大的最小元素」）。<br>
+        <b>② 需要去重后按大小顺序输出。</b><br>
+        <b>③ 动态维护「区间合并」</b>：用一个 <code>set&lt;pair&lt;int,int&gt;&gt;</code> 存区间，插入新区间时找前驱后继进行合并——这是「区间覆盖」类题的标准做法。</p>
+      </div>
+<div class="box warn">
+        <span class="t">⚠️ multiset 的 erase 陷阱</span>
+        <p><code>ms.erase(3)</code> 会删掉<b>所有</b>值为 3 的元素并返回删除个数，而不是只删一个。只想删一个必须写 <code>ms.erase(ms.find(3))</code>。这个坑在竞赛里坑过无数人。</p>
+      </div>
+<div class="box tip">
+        <span class="t">🔎 set / map 的成员函数</span>
+        <dl class="fn">
+          <dt>s.insert(x)</dt><dd><b>作用</b>：插入元素（<code>set</code> 会自动去重、自动保持有序），O(log n)。<br><b>返回值</b>：<code>pair&lt;iterator, bool&gt;</code> —— <b>第二项表示是否真的插入了</b>（false 说明本来就有）。判断「有没有重复插入」就靠它。<br>对 <code>map</code> 是 <code>insert({key, value})</code>，语义相同。</dd>
+          <dt>s.erase(...)　★ 两个版本完全不同</dt><dd><b>按值删</b>：<code>s.erase(x)</code> —— 删掉<b>所有</b>值为 x 的元素，返回删除的个数。对 <code>multiset</code> 来说这就是「一次删光」。<br><b>按迭代器删</b>：<code>s.erase(it)</code> —— 只删这一个，返回下一个元素的迭代器。<br><b>只想删一个怎么办</b>：<code>ms.erase(ms.find(x));</code> —— 先找到再按迭代器删。<b>这是 multiset 的头号坑。</b></dd>
+          <dt>s.count(x) / s.find(x)</dt><dd><code>count(x)</code>：值为 x 的元素个数。对 <code>set</code> 只有 0 或 1，对 <code>multiset</code> 是实际个数。<b>注意它的复杂度是 O(log n + 出现次数)</b>。<br><code>find(x)</code>：返回指向 x 的迭代器，找不到返回 <code>s.end()</code>。判断「在不在」时 <code>find</code> 和 <code>count</code> 都行，O(log n)。</dd>
+          <dt>s.lower_bound(x) / s.upper_bound(x)</dt><dd><b>含义</b>和全局的 <code>std::lower_bound</code> 一样（第一个 ≥ x / 第一个 &gt; x），但<b>必须用成员函数</b>：<code>s.lower_bound(x)</code>，O(log n)。<br><b>为什么</b>：全局版需要随机访问迭代器，而 set 的迭代器是双向的，调用全局版会退化成 O(n)。<br><b>经典用法</b>：求前驱和后继 —— <code>auto it = s.lower_bound(x);</code> 是后继；<code>if(it != s.begin()) --it;</code> 得到前驱。</dd>
+          <dt>prev(it) / next(it)（&lt;iterator&gt;）</dt><dd><b>作用</b>：返回迭代器向前 / 向后移动一步的副本，不会改变原迭代器。<br><code>prev(s.end())</code> 就是「最后一个元素」（<code>end()</code> 指向最后一个元素的<b>后面</b>）。<br><b>陷阱</b>：对 <code>begin()</code> 求 <code>prev</code>、对 <code>end()</code> 求 <code>next</code> 都是越界，必须先判边界。</dd>
+          <dt>map 的 operator[]　★ 会「凭空创建」</dt><dd><b>作用</b>：<code>mp[key]</code> 返回 value 的引用。<br><b>关键坑</b>：如果 key <b>不存在</b>，<code>operator[]</code> 会<b>插入一个默认值</b>（数值 0、字符串空）。所以「只想查、不想改」时应该用 <code>mp.count(k)</code> 或 <code>mp.find(k)</code>。<br><b>后果</b>：在多测 / 统计类题目里，无意中的 <code>mp[x]</code> 会把 size 撑大，导致答案错。<br><b>安全版</b>：<code>mp.at(k)</code> 在 key 不存在时抛异常（比赛里一般不推荐抛异常）；C++17 起可以用 <code>mp.contains(k)</code> 判断。</dd>
+          <dt>um.reserve(n)</dt><dd><b>作用</b>：给 <code>unordered_map</code> / <code>unordered_set</code> 预留足够的桶数，避免反复 rehash。<br><b>为什么需要</b>：不定量插入 10⁶ 个元素时，容器会多次重新分配哈希表，既慢又可能在中途爆内存；预估好容量能显著提速。<br><b>顺带提醒</b>：<code>unordered_*</code> 平均 O(1)，但出题人如果知道默认哈希函数，可以构造出让所有元素落进同一个桶的数据，把它卡成 O(n) —— 需要防卡时改用 <code>map</code>（稳定 O(log n)）或自定义哈希函数。</dd>
+        </dl>
+      </div>
+<p class="tl"><b>题单</b> 洛谷 P1097 统计数字 · P3879 阅读理解（map ） · P2234 营业额统计（set 前驱后继） · P5250 木材仓库 · CF 上的「set 维护区间」题。 资料 cppreference「std::set / std::map」 · OI-Wiki「STL 容器」 · P1102 A−B 数对 · P1054 等价表达式。</p></article>
+
+<article class="algo" id="hb-19" data-cat="基础" data-kind="ds" data-name="并查集 DSU 种类并查集 带权并查集 路径压缩 按秩合并 扩展域 带权"><div class="ah"><h4>9. 并查集</h4><span class="lv lv-b">基础</span><span class="st">★★★</span><span class="tag">必背</span><a class="prac" href="practice.html#P1551" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
 <p class="idea"><b>本质</b>：维护「等价关系」的划分。两个优化缺一不可：<b>路径压缩</b>（查询后把节点直接挂到根上）+ <b>按秩/按大小合并</b>，合起来使单次操作近似 O(α(n))，比 log 还小。</p>
 <p class="meta"><b>复杂度</b>：均摊 O(α(n)) ≈ O(1)。<b>注意</b>：并查集<b>不支持删除</b>，只能加边 —— 所以「删边」类问题要离线<b>倒序</b>处理（删边变加边）。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 基础并查集 ----------
@@ -1030,13 +1433,53 @@ int find(int x){
 // ② 判环（Kruskal）：加边前若已同根则成环
 // ③ 二分图中「矛盾检测」（种类并查集）
 // ④ 并查集 + 时间轴 => 可持久化并查集（进阶，用主席树维护 fa 数组）</script></div>
-<p class="tl"><b>题单</b> 洛谷 P3367 并查集模板 · P1551 亲戚 · P1525 关押罪犯 · P2024 食物链（种类并查集）· P1197 星球大战（倒序加边）· P1196 银河英雄传说（带权并查集）· P1955 程序自动分析。</p>
-<p class="ref"><b>资料</b> OI-Wiki「并查集」；CP-Algorithms「Disjoint Set Union」。</p>
-</article>
+<p class="idea"><b>补充</b>（来自「学习计划」里的同名卡片）：</p>
+<div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>
+// ---------- 基本并查集（路径压缩 + 按秩合并）----------
+int fa[N], sz[N];
+void init(int n){ for(int i = 1; i <= n; i++){ fa[i] = i; sz[i] = 1; } }
 
-<article class="algo" id="hb-20" data-cat="基础" data-kind="ds" data-name="KMP 前缀函数">
-<div class="ah"><h4>10. KMP 算法</h4><span class="lv lv-b">基础</span><span class="st">★★★</span><span class="tag">必背</span><a class="prac" href="practice.html#P4391" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
-<p class="idea"><b>本质</b>：模式串失配时，利用<b>已匹配部分的最长相等前后缀</b>跳过不可能的位置，使匹配过程不回退主串指针，从而 O(n+m)。<code>next[i]</code>（或 π 数组）= 「s[1..i] 的最长真前缀 == 真后缀」的长度。</p>
+int find(int x){                      // 路径压缩：把路上所有点直接挂到根上
+    return fa[x] == x ? x : fa[x] = find(fa[x]);
+}
+void merge(int x, int y){
+    x = find(x); y = find(y);
+    if(x == y) return;
+    if(sz[x] < sz[y]) swap(x, y);     // 小树并入大树 → 深度 O(log n)
+    fa[y] = x; sz[x] += sz[y];
+}
+
+// ---------- 带权并查集：维护「到根的距离」----------
+int d[N];                             // d[x] = x 到父节点的权值
+int find(int x){
+    if(fa[x] == x) return x;
+    int r = find(fa[x]);
+    d[x] += d[fa[x]];                 // ★ 先递归再累加（顺序不能反）
+    return fa[x] = r;
+}
+// 合并时：fa[x] = y 的同时要设 d[x] = 偏移量
+
+// ---------- 扩展域并查集（种类并查集）：处理「敌人 / 朋友」关系 ----------
+// 例：两类关系 → 开 2 倍空间，i 与 i+n 分别表示「i 属于 A 类 / B 类」
+// 合并 (x, y) 表示同类     → merge(x, y), merge(x+n, y+n)
+// 合并 (x, y) 表示异类     → merge(x, y+n), merge(x+n, y)
+// 判断矛盾：find(x) == find(x+n) → 已矛盾
+const int N = 100005;
+int fa[2 * N];
+// 洛谷 P2024 [NOI2001] 食物链 要开 3 倍空间（A 吃 B 吃 C 吃 A）</script></div>
+<div class="box tip">
+        <span class="t">💡 什么时候该想到并查集</span>
+        <p>题目里出现<b>「关系具有传递性」</b>——亲戚的亲戚是亲戚、连通的路可以互相到达、等价的等价类是等价——就该往并查集想。<br>
+        进一步，如果关系是<b>「两类互斥」</b>（敌人 / 朋友、男 / 女）用扩展域；如果是<b>「带数值的偏移」</b>（相对的排名、方向）用带权并查集。</p>
+      </div>
+<div class="ex"><b>例题</b>：洛谷 P1551 亲戚 —— 给出亲戚关系，多次询问两人是否亲戚。<br>
+      <span class="io2">输入：6 5 3 / 1 2 / 1 5 / 3 4 / 5 2 / 1 3 / 询问 1 4、2 3、5 6</span><br>
+      <span class="io2">输出：<b>Yes / Yes / No</b></span>（已用独立实现跑过）。1、2、3、4、5 连成一片，6 单独。</div>
+<p class="tl"><b>题单</b> 洛谷 P3367 并查集模板 · P1551 亲戚 · P1525 关押罪犯 · P2024 食物链（种类并查集） · P1197 星球大战（倒序加边） · P1196 银河英雄传说（带权并查集） · P1955 程序自动分析 · P1536 村村通。</p>
+<p class="ref"><b>资料</b> OI-Wiki「并查集」；CP-Algorithms「Disjoint Set Union」。</p></article>
+
+<article class="algo" id="hb-20" data-cat="基础" data-kind="ds" data-name="KMP 前缀函数 next数组 字符串匹配"><div class="ah"><h4>10. KMP 算法</h4><span class="lv lv-b">基础</span><span class="st">★★★</span><span class="tag">必背</span><a class="prac" href="practice.html#P4391" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<p class="idea"><b>本质</b>：当匹配失败时，<b>不要回到开头重来</b>，而是利用「已匹配部分的最长公共前后缀」跳到一个更靠后的位置继续。这个信息就是 <code>next</code> 数组（也叫前缀函数 π）。<b>总复杂度 O(n + m)。</b></p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">char s[N], p[M];        // 主串 s（长度 n），模式串 p（长度 m），均 1-indexed
 int nxt[M];
 
@@ -1069,9 +1512,58 @@ void kmp(){
 // ---------- 顺带记忆：Z 函数（扩展 KMP）----------
 // z[i] = s 与 s[i..] 的 LCP 长度；线性求法，模板与 KMP 同源
 // 用途：字符串匹配（构造 p + '#' + s 求 Z）、求最长公共前缀</script></div>
-<p class="tl"><b>题单</b> 洛谷 P3375 KMP字符串匹配 · P4391 Radio Transmission（最小循环节）· P4824 删字符串 · P5410 扩展KMP · P2375 动物园（border 计数）。</p>
-<p class="ref"><b>资料</b> OI-Wiki「前缀函数与 KMP」；CP-Algorithms「Prefix function. Knuth–Morris–Pratt」；《算法竞赛进阶指南》0x15 节。</p>
-</article>
+<p class="idea"><b>补充</b>（来自「学习计划」里的同名卡片）：</p>
+<div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <vector>、<string>
+// ---------- next 数组：nxt[i] = p[1..i] 的最长公共前后缀长度（1-indexed）----------
+vector<int> getNext(const string &p, int m){   // p 下标从 0 开始存放
+    vector<int> nxt(m + 1, 0);
+    nxt[1] = 0;
+    int k = 0;
+    for(int i = 2; i <= m; ++i){
+        while(k && p[i-1] != p[k]) k = nxt[k];  // ★ 失配时跳 next（不是回 0）
+        if(p[i-1] == p[k]) ++k;
+        nxt[i] = k;
+    }
+    return nxt;
+}
+// 例：p = "ABABACA"
+// nxt = [0, 0, 1, 2, 3, 0, 1]   ← 已独立跑过
+//        A  AB ABA ABAB ABABA ABABAC ABABACA
+//        0   0   1    2     3      0      1
+
+// ---------- KMP 匹配：在文本 s 里找 p 的所有出现位置 ----------
+vector<int> kmp(const string &s, const string &p){
+    int n = s.size(), m = p.size();
+    auto nxt = getNext(p, m);
+    vector<int> pos;
+    int k = 0;
+    for(int i = 1; i <= n; ++i){
+        while(k && s[i-1] != p[k]) k = nxt[k];
+        if(s[i-1] == p[k]) ++k;
+        if(k == m){                       // 匹配成功
+            pos.push_back(i - m + 1);     // 起始位置（1-indexed）
+            k = nxt[k];                   // ★ 继续找下一处，不要退出
+        }
+    }
+    return pos;
+}
+
+// ---------- 应用：求最小循环节 ----------
+// 若 n % (n - nxt[n]) == 0，则最小循环节长度为 n - nxt[n]，循环次数 n / (n - nxt[n])
+// 例："ababab"：n=6, nxt[6]=4, 6-4=2 → 循环节 "ab"，循环 3 次</script></div>
+<div class="box idea">
+        <span class="t">🎯 理解 next 数组的两个视角</span>
+        <p><b>视角一（匹配）</b>：失配时该跳到哪里继续比。<br>
+        <b>视角二（结构）</b>：<code>nxt[i]</code> 就是「前缀 p[1..i] 的最长公共前后缀长度」，所以 <code>i − nxt[i]</code> 就是这段前缀的<b>最小循环节</b>。<br>
+        很多 KMP 题的答案就藏在视角二里——看到「循环」「周期」「重复」这些词，先算一遍 next。</p>
+      </div>
+<div class="box err">
+        <span class="t">🚫 KMP 的两个经典错误</span>
+        <p><b>① 失配时写成 <code>k = 0</code>。</b>那就退化成暴力 O(nm)。必须是 <code>k = nxt[k]</code>，而且外面还要包一层 <code>while</code>（可能连跳多次）。<br>
+        <b>② 求 next 时忘记 <code>nxt[1] = 0</code>。</b>下标要统一：本文用 1-indexed 的 next，代码里访问字符串用 <code>p[i-1]</code>，很容易少减一个 1。</p>
+      </div>
+<p class="tl"><b>题单</b> 洛谷 P3375 KMP字符串匹配 · P4391 Radio Transmission（最小循环节） · P4824 删字符串 · P5410 扩展KMP · P2375 动物园（border 计数）。</p>
+<p class="ref"><b>资料</b> OI-Wiki「前缀函数与 KMP」；CP-Algorithms「Prefix function. Knuth–Morris–Pratt」；《算法竞赛进阶指南》0x15 节。</p></article>
 
 <article class="algo" id="hb-21" data-cat="基础" data-kind="ds" data-name="单调栈 单调队列 最大矩形">
 <div class="ah"><h4>11. 单调栈</h4><span class="lv lv-b">基础</span><span class="st">★★</span><span class="tag">高频</span><a class="prac" href="practice.html#P5788" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
@@ -1121,8 +1613,7 @@ for(int i = 1; i <= n; ++i){
 <p class="ref"><b>资料</b> OI-Wiki「单调栈」「单调队列」；《算法竞赛进阶指南》0x59 节。</p>
 </article>
 
-<article class="algo" id="hb-22" data-cat="基础" data-kind="ds" data-name="树状数组 BIT 逆序对 二维数点">
-<div class="ah"><h4>12. 树状数组（BIT）</h4><span class="lv lv-b">基础</span><span class="st">★★★</span><span class="tag">必背</span><a class="prac" href="practice.html#P3374" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<article class="algo" id="hb-22" data-cat="基础" data-kind="ds" data-name="树状数组 BIT 逆序对 二维数点 单点修改 区间查询"><div class="ah"><h4>12. 树状数组（BIT）</h4><span class="lv lv-b">基础</span><span class="st">★★★</span><span class="tag">必背</span><a class="prac" href="practice.html#P3374" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
 <p class="idea"><b>本质</b>：用 <code>i += lowbit(i)</code> 的倍增结构把「前缀」切成 log n 段，实现单点修改 + 前缀查询 O(log n)，常数远小于线段树。它只支持<b>可减的</b>运算（和、异或、计数），不支持最值（其实可以，但只能用于单点修改+前缀最值且无逆运算时需另想）。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">#define lowbit(x) ((x) & -(x))
 
@@ -1159,12 +1650,20 @@ int kth(int k){                       // 返回最小的 i 使前缀和 >= k
 // BIT：只能维护"可差分"的信息（和、计数、异或）；代码短、常数小 -> 首选
 // 线段树：可维护最值、懒标记区间赋值、复杂合并 -> 信息更复杂时用
 // 二维：BIT 可做二维数点、二维偏序（CDQ 的简化版）</script></div>
-<p class="tl"><b>题单</b> 洛谷 P3374 树状数组1 · P3368 树状数组2（差分）· P1908 逆序对 · P1966 火柴排队 · P2345 奶牛集会 · P1972 HH的项链（离线+树状数组，也属莫队经典）· P3332? 改：P4396 作业（二维数点）。</p>
-<p class="ref"><b>资料</b> OI-Wiki「树状数组」；CP-Algorithms「Fenwick Tree」；《算法竞赛进阶指南》0x42 节。</p>
-</article>
+<p class="idea"><b>补充</b>（来自「学习计划」里的同名卡片）：</p>
+<div class="box ok">
+        <span class="t">✅ 实测</span>
+        <p>数组 <code>[3,5,1,4,2,6,7,8]</code>：<code>sum(1..4) = 13</code>、<code>sum(3..7) = 20</code>；把 <code>a[4]</code> 加 10 后 <code>sum(4..4) = 14</code>。三组结果与暴力累加完全一致。</p>
+      </div>
+<div class="box warn">
+        <span class="t">⚠️ 树状数组支持不了什么</span>
+        <p>它只能维护<b>可减</b>的信息：和、异或、乘积（模质数时有逆元才能除）。<br>
+        <b>最值不可减</b>（你没法用 [1,r] 的最大值减去 [1,l−1] 的最大值得到区间最大值）→ 区间最值要用 <b>ST 表</b>（无修改）或<b>线段树</b>（有修改）。</p>
+      </div>
+<p class="tl"><b>题单</b> 洛谷 P3374 树状数组1 · P3368 树状数组2（差分） · P1908 逆序对 · P1966 火柴排队 · P2345 奶牛集会 · P1972 HH的项链（离线+树状数组，也属莫队经典） · P3332? 改：P4396 作业（二维数点） · P3605 [USACO17JAN] Promotion Counting。</p>
+<p class="ref"><b>资料</b> OI-Wiki「树状数组」；CP-Algorithms「Fenwick Tree」；《算法竞赛进阶指南》0x42 节。</p></article>
 
-<article class="algo" id="hb-23" data-cat="基础" data-kind="ds" data-name="线段树 懒标记 动态开点 权值线段树">
-<div class="ah"><h4>13. 线段树</h4><span class="lv lv-b">基础</span><span class="st">★★★</span><span class="tag">必背</span><a class="prac" href="practice.html#P3372" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<article class="algo" id="hb-23" data-cat="基础" data-kind="ds" data-name="线段树 懒标记 动态开点 权值线段树 segment tree lazy 区间修改"><div class="ah"><h4>13. 线段树</h4><span class="lv lv-b">基础</span><span class="st">★★★</span><span class="tag">必背</span><a class="prac" href="practice.html#P3372" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
 <p class="idea"><b>本质</b>：把区间二分成树，每个节点维护一段区间的<b>合并信息</b>。区间修改靠 <b>懒标记（lazy tag）</b>延迟下发，保证 O(log n)。它是「区间信息维护」的通用武器，进阶篇的主席树、树链剖分、李超树全是它的变形。</p>
 <p class="meta"><b>复杂度</b>：建树 O(n)，区间修改/查询 O(log n)，空间 4n（编号法）或 2n（zkw）。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 通用线段树：区间加 + 区间求和 ----------
@@ -1227,9 +1726,18 @@ struct Seg{
 // ② apply 是否更新了 s 又更新了 tag？
 // ③ 合并顺序（左 op 右）是否与定义一致？不可交换的运算写错必挂
 // ④ 数组开到 4n；多测清空；递归深度 log n 安全</script></div>
-<p class="tl"><b>题单</b> 洛谷 P3372 线段树1 · P3373 线段树2（乘法标记）· P6242 线段树3（吉司机）· P2572 序列操作 · P4145 花神游历各国（开方势能）· P1471 方差 · P3834 可持久化线段树2。</p>
-<p class="ref"><b>资料</b> OI-Wiki「线段树」；CP-Algorithms「Segment Tree」；《算法竞赛进阶指南》0x43~0x45 节。</p>
-</article>
+<p class="idea"><b>补充</b>（来自「学习计划」里的同名卡片）：</p>
+<div class="box ok">
+        <span class="t">✅ 实测</span>
+        <p>数组 <code>[1,5,4,2,3]</code>：初始 <code>sum(2..4) = 11</code>；执行「区间 [2,3] 各加 2」后，<code>sum(1..5) = 19</code>，<code>a[3] = 6</code>。全部与暴力算法一致。</p>
+      </div>
+<div class="box tip">
+        <span class="t">💡 线段树 vs 树状数组：怎么选</span>
+        <p><b>能用树状数组就用树状数组</b>——代码短一半，常数小十倍，不容易写错。<br>
+        必须用线段树的情形：① 要维护<b>区间最值 + 区间修改</b>；② 要维护的信息<b>不可减</b>（区间 gcd、区间最大子段和）；③ 要<b>合并两个子区间的信息</b>；④ 需要「线段树二分」（找第一个满足条件的位置）。</p>
+      </div>
+<p class="tl"><b>题单</b> 洛谷 P3372 线段树1 · P3373 线段树2（乘法标记） · P6242 线段树3（吉司机） · P2572 序列操作 · P4145 花神游历各国（开方势能） · P1471 方差 · P3834 可持久化线段树2 · P1198 最大数 · P1816 忠诚 · P4513 小白逛公园（区间最大子段和）。</p>
+<p class="ref"><b>资料</b> OI-Wiki「线段树」；CP-Algorithms「Segment Tree」；《算法竞赛进阶指南》0x43~0x45 节。</p></article>
 
 <div class="callout">
 <p><b>基础数据结构的选择决策表</b></p>
@@ -1527,8 +2035,7 @@ void solve(){
 <p><b>原文此处编号重复</b>：原文「2. 用 DFS 和 BFS 遍历整个图」与「2. 欧拉回路」编号都是 2。本节按 1~8 重新编号，并补上原文遗漏的 <b>Bellman-Ford 判负环</b>与<b>差分约束</b>（非常重要的漏项，见第 5 节）。</p>
 </div>
 
-<article class="algo" id="hb-30" data-cat="基础" data-kind="graph" data-name="建图 邻接表 链式前向星">
-<div class="ah"><h4>1. 建图方法</h4><span class="lv lv-b">基础</span><span class="st">★</span><span class="tag">基础</span><a class="prac rel" href="practice.html#P3366" target="_blank" title="本知识点暂无专属模板题，先做这道最相关的">相关练习 →</a></div>
+<article class="algo" id="hb-30" data-cat="基础" data-kind="graph" data-name="建图 邻接表 链式前向星 邻接矩阵 前向星"><div class="ah"><h4>1. 建图方法</h4><span class="lv lv-b">基础</span><span class="st">★</span><span class="tag">基础</span><a class="prac rel" href="practice.html#P3366" target="_blank" title="本知识点暂无专属模板题，先做这道最相关的">相关练习 →</a></div>
 <p class="idea"><b>本质</b>：选择「点出发的边怎么存」。竞赛中 90% 用 vector 邻接表，需要极限压空间/常数时用链式前向星。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 1) 邻接矩阵：O(n^2) 空间，稠密图 / 需要 O(1) 查边 / Floyd ----------
 int g[N][N];                              // 无边为 INF，自己到自己为 0
@@ -1560,9 +2067,46 @@ struct E { int u, v, w; } es[M];
 // ---------- 读入习惯 ----------
 // 无向边记得双向建；重边按题意决定保留或取最优；
 // 自环在最短路上无害（正权）但在拓扑/二分图上要特别处理</script></div>
-<p class="tl"><b>题单</b> 洛谷 P5318 查找文献（图遍历）· P3916 图的遍历（反向建图）· P3371 单源最短路（建图练习）。</p>
-<p class="ref"><b>资料</b> OI-Wiki「图论基础」「图的存储」；《算法竞赛进阶指南》0x21 节。</p>
-</article>
+<p class="idea"><b>补充</b>（来自「学习计划」里的同名卡片）：</p>
+<div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <vector>、<utility>
+// ---------- ① vector 邻接表：最好写，推荐 ----------
+vector<int> g[N];
+g[u].push_back(v);  g[v].push_back(u);        // 无向图加两条
+// 带权：
+vector<pair<int,int>> gw[N];                  // {终点, 边权}
+gw[u].push_back({v, w});
+// 遍历
+for(auto [v, w] : gw[u]) { /* ... */ }
+
+// ---------- ② 邻接矩阵：n <= 1000 且是稠密图时用 ----------
+int mp[1005][1005];                            // mp[u][v] = 边权，无边为 INF
+
+// ---------- ③ 链式前向星：卡常 / 存 10^6 条边时用 ----------
+int head[N], nxt[M], to[M], wgt[M], tot = 0;
+void add(int u, int v, int w){
+    to[++tot] = v;  wgt[tot] = w;  nxt[tot] = head[u];  head[u] = tot;
+}
+// 遍历
+for(int e = head[u]; e; e = nxt[e]) { int v = to[e], w = wgt[e]; /* ... */ }
+
+// ---------- ④ 网格图：不用显式建图，用方向数组 ----------
+int dx[4] = {0,0,1,-1}, dy[4] = {1,-1,0,0};
+// 把 (x, y) 编码成一维：id = x * m + y（或 (x-1)*m+y）
+
+// ---------- ⑤ 虚拟源点 / 汇点：多源问题 ----------
+// 建一个超级源点 S，向所有起点连一条权为 0 的边
+// 例：多源最短路、网络流、二分图匹配
+
+// ---------- ⑥ 拆点：点有容量限制时 ----------
+// 把点 u 拆成 u_in 和 u_out，中间连一条容量为限制值的边</script></div>
+<div class="box tip">
+        <span class="t">💡 三种存图怎么选</span>
+        <p><b>99% 的题用 vector 邻接表</b>就够了，代码短、不易写错。<br>
+        只有当边数超过 10⁶、或者卡常数卡得很死时，才换链式前向星。<br>
+        邻接矩阵只在 Floyd、传递闭包、n ≤ 500 的稠密图里用。</p>
+      </div>
+<p class="tl"><b>题单</b> 洛谷 P5318 查找文献（图遍历） · P3916 图的遍历（反向建图） · P3371 单源最短路（建图练习） · P1330 封锁阳光大学（二分图染色）。</p>
+<p class="ref"><b>资料</b> OI-Wiki「图论基础」「图的存储」；《算法竞赛进阶指南》0x21 节。</p></article>
 
 <article class="algo" id="hb-31" data-cat="基础" data-kind="graph" data-name="图的遍历 DFS BFS 连通块">
 <div class="ah"><h4>2. 用 DFS 和 BFS 遍历整个图</h4><span class="lv lv-b">基础</span><span class="st">★★</span><span class="tag">基础</span><a class="prac" href="practice.html#P1443" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
@@ -1619,8 +2163,7 @@ bool color(int u, int c){
 <p class="ref"><b>资料</b> OI-Wiki「BFS（搜索）」「DFS（搜索）」；CP-Algorithms「Graph traversal」。</p>
 </article>
 
-<article class="algo" id="hb-32" data-cat="基础" data-kind="graph" data-name="欧拉路 欧拉回路 Hierholzer">
-<div class="ah"><h4>3. 欧拉路 / 欧拉回路</h4><span class="lv lv-b">基础</span><span class="st">★★</span><span class="tag">经典</span><a class="prac" href="practice.html#P2731" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<article class="algo" id="hb-32" data-cat="基础" data-kind="graph" data-name="欧拉路 欧拉回路 Hierholzer 一笔画 度数"><div class="ah"><h4>3. 欧拉路 / 欧拉回路</h4><span class="lv lv-b">基础</span><span class="st">★★</span><span class="tag">经典</span><a class="prac" href="practice.html#P2731" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
 <p class="idea"><b>本质</b>：能否<b>不重不漏地走完每条边</b>。判定条件只看度数：无向图欧拉回路要求所有点度数为偶且连通；欧拉路要求恰有 0 或 2 个奇度点。构造用 <b>Hierholzer</b>：走到走不动再回溯，出栈序即为答案。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 判定 ----------
 // 无向图欧拉回路：所有点度数为偶数，且所有有边的点连通（孤立点不算）
@@ -1658,12 +2201,20 @@ void solve(int start){
 // ① 忘了判断连通性（图不连通时度数条件满足也走不完所有边）
 // ② 无向图算重边：每条边贡献 2 度
 // ③ 起点选择：优先奇度点；全偶则任取有边的点（题目常要求字典序最小 -> 选编号最小的点并正序删边）</script></div>
+<p class="idea"><b>补充</b>（来自「学习计划」里的同名卡片）：</p>
+<div class="box warn">
+        <span class="t">⚠️ 度数满足 ≠ 一定有解</span>
+        <p>还必须满足<b>连通性</b>：所有有边的点必须在同一个连通块里。很多题的测试点专门卡这一点。做法：对所有度数非 0 的点跑一次 DFS / 并查集，确认它们连通。</p>
+      </div>
+<table>
+        <tr><th></th><th>欧拉回路（能回到起点）</th><th>欧拉路（不用回起点）</th></tr>
+        <tr><td><b>无向图</b></td><td class="c">所有点度数为偶数</td><td class="c">恰好 0 个或 2 个奇度点</td></tr>
+        <tr><td><b>有向图</b></td><td class="c">每个点入度 = 出度</td><td class="c">恰一个点出−入=1，一个点入−出=1，其余相等</td></tr>
+      </table>
 <p class="tl"><b>题单</b> 洛谷 P1341 无序字母对 · P2731 骑马修栅栏 · P7771 欧拉路径 · P1127 词链 · CF 上「Euler tour」题目。</p>
-<p class="ref"><b>资料</b> OI-Wiki「欧拉图」；CP-Algorithms「Finding the Eulerian path in O(M)」。</p>
-</article>
+<p class="ref"><b>资料</b> OI-Wiki「欧拉图」；CP-Algorithms「Finding the Eulerian path in O(M)」。</p></article>
 
-<article class="algo" id="hb-33" data-cat="基础" data-kind="graph" data-name="拓扑排序 关键路径 最长路">
-<div class="ah"><h4>4. 拓扑排序</h4><span class="lv lv-b">基础</span><span class="st">★★</span><span class="tag">高频</span><a class="prac" href="practice.html#P1113" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<article class="algo" id="hb-33" data-cat="基础" data-kind="graph" data-name="拓扑排序 关键路径 最长路 DAG 入度"><div class="ah"><h4>4. 拓扑排序</h4><span class="lv lv-b">基础</span><span class="st">★★</span><span class="tag">高频</span><a class="prac" href="practice.html#P1113" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
 <p class="idea"><b>本质</b>：给 DAG 排一个线性序，使所有边都从前指向后。它是<b>DAG 上 DP 的通用引擎</b>——只要按拓扑序递推，依赖就一定满足。同时还能检测环（排序长度 < n 即有环）。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- Kahn 算法（BFS 版，最常用）----------
 int indeg[N], topo[N], cnt = 0;
@@ -1703,11 +2254,40 @@ void dfs(int u){
 // ④ 拓扑序不一定唯一 —— 需要字典序最小请用堆维护</script></div>
 <p class="tl"><b>题单</b> 洛谷 P1113 杂务 · P1807 最长路 · P4017 最大食物链计数 · P1983 车站分级 · P1347 排序 · P1038 神经网络 · P7113 排水系统。</p>
 <p class="ref"><b>资料</b> OI-Wiki「拓扑排序」；CP-Algorithms「Topological Sorting」；《算法竞赛进阶指南》0x21 节。</p>
-</article>
 
-<article class="algo" id="hb-34" data-cat="基础" data-kind="graph" data-name="Floyd 传递闭包 最小环">
-<div class="ah"><h4>5. 三种最短路之一：Floyd</h4><span class="lv lv-b">基础</span><span class="st">★★</span><span class="tag">全源最短路</span><a class="prac" href="practice.html#P1119" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
-<p class="idea"><b>本质</b>：动态规划。<code>dp[k][i][j]</code> 表示「只允许经过前 k 个点中转时 i→j 的最短路」，压掉 k 维后就是三重循环。能处理<b>负权</b>，不能处理负环。</p>
+<p class="idea"><b>补充</b>（来自「学习计划」里的同名卡片）：</p>
+<div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>、<vector>、<queue>、<functional>、<utility>
+int deg[N];                         // 入度
+vector<int> ord;
+queue<int> q;
+for(int i = 1; i <= n; ++i) if(deg[i] == 0) q.push(i);
+while(!q.empty()){
+    int u = q.front(); q.pop();
+    ord.push_back(u);
+    for(int v : g[u])
+        if(--deg[v] == 0) q.push(v);
+}
+if((int)ord.size() < n) { /* 存在环，无拓扑序 */ }
+
+// ---------- 拓扑序上做 DP：DAG 上的最长路 / 路径计数 ----------
+// dp[v] = max(dp[v], dp[u] + w) 按拓扑序推进即可，无需担心顺序
+for(int u : ord)
+    for(auto [v, w] : gw[u])
+        dp[v] = max(dp[v], dp[u] + w);
+
+// ---------- 字典序最小的拓扑序：把 queue 换成 priority_queue ----------
+priority_queue<int, vector<int>, greater<int>> pq;
+
+// ---------- 反向建图：处理「有多少点能到达 u」----------
+// 把边反向，问题变成「从 u 出发能到达多少点」，DFS 一遍即可（洛谷 P3916）</script></div>
+<div class="box ok">
+        <span class="t">✅ 实测</span>
+        <p>有向图 <code>1→2, 1→3, 2→4, 3→4, 4→5</code>：拓扑序为 <code>1 2 3 4 5</code>，与手工推导一致。<b>注意拓扑序不唯一</b>（2 和 3 可以互换），题目若要「字典序最小」就必须用优先队列。</p>
+      </div>
+<p class="tl"><b>题单</b>洛谷 P1113 杂务 · P1347 排序 · P1038 神经网络 · P1137 旅行计划 · P1807 最长路。</p></article>
+
+<article class="algo" id="hb-34" data-cat="基础" data-kind="graph" data-name="Floyd 传递闭包 最小环 最短路 多源"><div class="ah"><h4>5. 三种最短路之一：Floyd</h4><span class="lv lv-b">基础</span><span class="st">★★</span><span class="tag">全源最短路</span><a class="prac" href="practice.html#P1119" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<p class="idea"><b>本质</b>：动态规划。<code>f[k][i][j]</code> = 只允许经过前 k 个点中转时，i 到 j 的最短路。压掉第一维后就是那个三重循环。<b>O(n³)，但代码只有五行，n ≤ 500 时首选。</b></p>
 <p class="meta"><b>复杂度</b>：O(n³)，n ≤ 500 可用（约 1.25e8 次运算，常数小）。<b>注意</b>：原文写作 "Fload"，正确拼写是 <b>Floyd</b>。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 标准 Floyd ----------
 for(int k = 1; k <= n; ++k)              // 中转点必须放最外层！
@@ -1752,13 +2332,17 @@ for(int k = 1; k <= n; ++k){
 // 全源 + n <= 500        -> Floyd O(n^3)
 // 全源 + 稀疏 + 无负权    -> Dijkstra 跑 n 次 O(n m log n)
 // 带边权限制（如"最多 k 条边"）-> 矩阵乘法 / 倍增 Floyd</script></div>
-<p class="tl"><b>题单</b> 洛谷 P2419 牛大赛（传递闭包）· P6175 无向图的最小环问题 · P1119 灾后重建（Floyd 增量）· P1613 跑路（倍增 Floyd）· P2910 岛屿探险。</p>
-<p class="ref"><b>资料</b> OI-Wiki「Floyd 算法」；CP-Algorithms「Floyd-Warshall」；《算法竞赛进阶指南》0x61 节。</p>
-</article>
+<p class="idea"><b>补充</b>（来自「学习计划」里的同名卡片）：</p>
+<div class="box warn">
+        <span class="t">🚫 两个必踩的坑</span>
+        <p><b>① <code>k</code> 循环写到内层。</b>那就退化成「只允许经过一个中转点」，答案是错的。<b>k 必须在最外层</b>。<br>
+        <b>② INF 设置得太小。</b>用 <code>0x3f3f3f3f</code>（约 10⁹），不要用 <code>INT_MAX</code>——两个 INF 相加会溢出成负数，导致错误地「松弛」出一个很短的路径。</p>
+      </div>
+<p class="tl"><b>题单</b> 洛谷 P2419 牛大赛（传递闭包） · P6175 无向图的最小环问题 · P1119 灾后重建（Floyd 增量） · P1613 跑路（倍增 Floyd） · P2910 岛屿探险。</p>
+<p class="ref"><b>资料</b> OI-Wiki「Floyd 算法」；CP-Algorithms「Floyd-Warshall」；《算法竞赛进阶指南》0x61 节。</p></article>
 
-<article class="algo" id="hb-35" data-cat="基础" data-kind="graph" data-name="Dijkstra 堆优化 最短路">
-<div class="ah"><h4>6. 三种最短路之二：Dijkstra</h4><span class="lv lv-b">基础</span><span class="st">★★★</span><span class="tag">必背</span><a class="prac" href="practice.html#P4779" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
-<p class="idea"><b>本质</b>：贪心。每次取出「当前距离最小的未确定点」并正式确定它，因为所有边非负，之后不可能被绕更短的路追上。<b>非负权是硬前提</b>。</p>
+<article class="algo" id="hb-35" data-cat="基础" data-kind="graph" data-name="Dijkstra 堆优化 最短路 单源最短路 松弛"><div class="ah"><h4>6. 三种最短路之二：Dijkstra</h4><span class="lv lv-b">基础</span><span class="st">★★★</span><span class="tag">必背</span><a class="prac" href="practice.html#P4779" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<p class="idea"><b>本质</b>：贪心。每次取出「当前距离最小的未确定节点」，它的距离就确定下来了（因为边权非负，绕路不可能更短），然后拿它去<b>松弛</b>邻居。用堆优化后是 O(m log n)。</p>
 <p class="meta"><b>复杂度</b>：堆优化 O(m log n)，朴素 O(n²)（稠密图更快）。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 堆优化 Dijkstra（1-indexed，链式前向星/vector 均可）----------
 const ll INF = 0x3f3f3f3f3f3f3f3fLL;
@@ -1804,9 +2388,27 @@ int pre[N];
 // ---------- 为什么不能有负权 ----------
 // 反例：s->a (1), s->b (2), b->a (-5)。第一次会确定 a=1，但真正最短路是 -3。
 // 需要负权请用 Bellman-Ford 系列，或先用 SPFA 求势能再 Dijkstra（Johnson）</script></div>
-<p class="tl"><b>题单</b> 洛谷 P4779 单源最短路（标准版）· P3371 单源最短路（弱化版）· P1629 邮递员送信（反图）· P4568 飞行路线（分层图）· P1144 最短路计数 · P1608 路径统计。</p>
-<p class="ref"><b>资料</b> OI-Wiki「最短路 / Dijkstra」；CP-Algorithms「Dijkstra」；《算法竞赛进阶指南》0x61 节。</p>
-</article>
+<p class="idea"><b>补充</b>（来自「学习计划」里的同名卡片）：</p>
+<div class="box err">
+        <span class="t">🚫 Dijkstra 的三个坑</span>
+        <p><b>① 用在有负权的图上。</b>贪心前提被破坏，结果可能错。反例：<code>1→2 (5)、1→3 (2)、3→2 (−10)</code>，Dijkstra 会先确定 dist[2] = 5，但实际是 −8。<br>
+        <b>② <code>vis</code> 判断与堆的懒删除。</b>不加 <code>if(vis[u]) continue;</code> 也能对，但会重复处理同一个点导致变慢。<br>
+        <b>③ <code>dist</code> 数组清零。</b>多组数据或多次调用时忘记重置，第二组全错。</p>
+      </div>
+<div class="io">
+        <div class="b"><div class="l">样例输入（洛谷 P4779）</div><pre>4 6 1
+1 2 2
+2 3 2
+2 4 1
+1 3 5
+3 4 3
+1 4 4</pre></div>
+        <div class="b"><div class="l">样例输出（已独立跑过）</div><pre>0 2 4 3
+
+（起点到 1/2/3/4 的最短距离）</pre></div>
+      </div>
+<p class="tl"><b>题单</b> 洛谷 P4779 单源最短路（标准版） · P3371 单源最短路（弱化版） · P1629 邮递员送信（反图） · P4568 飞行路线（分层图） · P1144 最短路计数 · P1608 路径统计 · P1339 [USACO09OCT] Heat Wave · P1462 通往奥格瑞玛的道路（二分 + Dijkstra）。</p>
+<p class="ref"><b>资料</b> OI-Wiki「最短路 / Dijkstra」；CP-Algorithms「Dijkstra」；《算法竞赛进阶指南》0x61 节。</p></article>
 
 <article class="algo" id="hb-36" data-cat="基础" data-kind="graph" data-name="SPFA Bellman-Ford 负环 差分约束">
 <div class="ah"><h4>7. 三种最短路之三：SPFA（及 Bellman-Ford、差分约束）</h4><span class="lv lv-b">基础</span><span class="st">★★</span><span class="tag">慎用</span><a class="prac" href="practice.html#P5960" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
@@ -1866,8 +2468,7 @@ bool spfa(int s, int n){
 <p class="ref"><b>资料</b> OI-Wiki「SPFA」「差分约束」；CP-Algorithms「Bellman-Ford」「Johnson's algorithm」。</p>
 </article>
 
-<article class="algo" id="hb-37" data-cat="基础" data-kind="graph" data-name="最小生成树 Prim Kruskal">
-<div class="ah"><h4>8. 两种最小生成树：Prim 与 Kruskal</h4><span class="lv lv-b">基础</span><span class="st">★★★</span><span class="tag">必背</span><a class="prac" href="practice.html#P3366" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<article class="algo" id="hb-37" data-cat="基础" data-kind="graph" data-name="最小生成树 Prim Kruskal MST 并查集"><div class="ah"><h4>8. 两种最小生成树：Prim 与 Kruskal</h4><span class="lv lv-b">基础</span><span class="st">★★★</span><span class="tag">必背</span><a class="prac" href="practice.html#P3366" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
 <p class="idea"><b>本质</b>：在连通无向图中选 n−1 条边，使总权最小。Kruskal 是<b>贪心加边</b>（按边权排序 + 并查集判环），Prim 是<b>贪心加点</b>（类似 Dijkstra）。两者都是拟阵贪心，都可证明。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- Kruskal：O(m log m)，稀疏图首选 ----------
 struct E { int u, v, w; };
@@ -1917,15 +2518,18 @@ ll prim(int n){
 // ---------- 常错点 ----------
 // ① 忘了判连通（cnt < n-1）  ② 并查集未初始化  ③ 多重边/自环（自环可直接忽略）
 // ④ Prim 松弛条件写成 dis[u] + w（那是 Dijkstra，不是 MST）</script></div>
-<p class="tl"><b>题单</b> 洛谷 P3366 最小生成树模板 · P1546 最短网络 Agri-Net · P2330 繁忙的都市 · P4180 严格次小生成树 · P1967 货车运输（Kruskal 重构树 / 倍增）· P1195 口袋的天空。</p>
-<p class="ref"><b>资料</b> OI-Wiki「最小生成树」；CP-Algorithms「MST / Kruskal」「MST / Prim」；《算法竞赛进阶指南》0x62 节。</p>
-</article>
+<p class="idea"><b>补充</b>（来自「学习计划」里的同名卡片）：</p>
+<div class="box tip">
+        <span class="t">💡 Kruskal 为什么是正确的</span>
+        <p>因为它每一步都在执行「割性质」：把所有点分成已连和未连两部分，跨越这条割的最小边一定属于某棵最小生成树。按边权从小到大贪心，实际上是在不断找「当前最小的合法割边」。</p>
+      </div>
+<p class="tl"><b>题单</b> 洛谷 P3366 最小生成树模板 · P1546 最短网络 Agri-Net · P2330 繁忙的都市 · P4180 严格次小生成树 · P1967 货车运输（Kruskal 重构树 / 倍增） · P1195 口袋的天空。</p>
+<p class="ref"><b>资料</b> OI-Wiki「最小生成树」；CP-Algorithms「MST / Kruskal」「MST / Prim」；《算法竞赛进阶指南》0x62 节。</p></article>
 
 <h3 id="b-math">2.4 基础数学（9 项）</h3>
 <p class="lead">原文说「数学的学习不是一步到位，要依靠积累」——这是对的。补一句：数学板块的复习效率最高，因为<b>模板固定、结论可背、题量可控</b>，考场上属于「必须拿分」的部分。</p>
 
-<article class="algo" id="hb-38" data-cat="基础" data-kind="math" data-name="位运算 lowbit 异或">
-<div class="ah"><h4>1. 位运算</h4><span class="lv lv-b">基础</span><span class="st">★★</span><span class="tag">必背</span><a class="prac" href="practice.html#P1469" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<article class="algo" id="hb-38" data-cat="基础" data-kind="math" data-name="位运算 lowbit 异或 子集枚举 状态压缩"><div class="ah"><h4>1. 位运算</h4><span class="lv lv-b">基础</span><span class="st">★★</span><span class="tag">必背</span><a class="prac" href="practice.html#P1469" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
 <p class="idea"><b>本质</b>：把整数看成 01 向量，用硬件级并行做集合运算。位运算的价值有三：<b>压状态</b>（状压 DP）、<b>压常数</b>（替代取模与除法）、<b>提供数学性质</b>（异或的自反、按位独立）。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 基本操作 ----------
 x & (1 << i)        // 取第 i 位；注意 1<<31 溢出 int，用 1LL<<i
@@ -1957,13 +2561,21 @@ __builtin_ctz(x)    // 末尾 0 的个数；__builtin_clz(x) 前导 0 的个数
 // ① 1 << 40 是 UB（int 只有 32 位），必须写 1LL << 40
 // ② 有符号数左移溢出是 UB，竞赛里建议统一用无符号或 long long
 // ③ 负数位运算按补码进行，"位运算代替除法"对负数不成立</script></div>
-<p class="tl"><b>题单</b> 洛谷 P1100 高低位交换 · P1466 集合 Subset Sums · P2114 起床困难综合症（按位独立贪心，好题）· P1554 梦中的统计 · LeetCode 136/137/260 系列的位运算题。</p>
-<p class="ref"><b>资料</b> OI-Wiki「位运算」；《算法竞赛进阶指南》0x01 节。</p>
-</article>
+<p class="idea"><b>补充</b>（来自「学习计划」里的同名卡片）：</p>
+<div class="box tip">
+        <span class="t">🔎 三个编译器内建函数（不需要头文件）</span>
+        <dl class="fn">
+          <dt>__builtin_popcount(unsigned x)</dt><dd><b>作用</b>：返回 x 的二进制里 <b>1 的个数</b>（也叫 popcount、汉明重量）。<br><b>复杂度</b>：O(1) —— 编译成一条 CPU 指令（POPCNT），比循环数位快几十倍。<br><b>参数类型</b>：<code>unsigned int</code>。要数 64 位就加后缀：<code>__builtin_popcountll(x)</code>。<br><b>说明</b>：这是 <b>GCC / Clang 的扩展</b>，不是 C++ 标准库的一部分。换了编译器（比如 MSVC）要用 <code>__popcnt</code> 或 <code>&lt;bit&gt;</code>（C++20）。</dd>
+          <dt>__builtin_ctz(x)</dt><dd><b>作用</b>：count trailing zeros —— 返回二进制里<b>末尾连续的 0 的个数</b>。<br><b>等价关系</b>：<code>1 &lt;&lt; __builtin_ctz(x)</code> 就是 <code>x &amp; (-x)</code>，也就是 lowbit（树状数组用的那个）。<br><b>大坑</b>：<code>__builtin_ctz(0)</code> 是<b>未定义行为</b>（没有末尾 0 可数），会返回随机值。用之前必须先判 <code>x != 0</code>。<br><b>兄弟函数</b>：<code>__builtin_clz(x)</code> = 开头连续 0 的个数（同样，<code>clz(0)</code> 未定义）。</dd>
+          <dt>怎么自己算（不依赖内建函数）</dt><dd><b>数 1 的个数</b>：<code>while(x){ cnt += x &amp; 1; x &gt;&gt;= 1; }</code>，O(位数)。<br><b>更快的手写版</b>：<code>while(x){ x &amp;= x - 1; ++cnt; }</code> —— 每次 <code>x &amp; (x-1)</code> 都会消掉最低位的 1，循环次数等于 1 的个数。<br><b>取 lowbit</b>：<code>x &amp; (-x)</code>。这个写法依赖<b>补码</b>表示法，而所有现代平台都用补码，可以放心用。</dd>
+        </dl>
+      </div>
+<div class="ex"><b>例题</b>：<code>__builtin_popcount(x)</code> 返回 x 的二进制中 1 的个数（GCC 内置，O(1)）；<code>__builtin_ctz(x)</code> 返回末尾 0 的个数。洛谷 P1469 找筷子 —— 2n−1 根筷子，异或一遍就能找出唯一落单的那根。</div>
+<p class="tl"><b>题单</b> 洛谷 P1100 高低位交换 · P1466 集合 Subset Sums · P2114 起床困难综合症（按位独立贪心，好题） · P1554 梦中的统计 · LeetCode 136/137/260 系列的位运算题 · 洛谷 P1469 找筷子 · P3908 数列求和。</p>
+<p class="ref"><b>资料</b> OI-Wiki「位运算」；《算法竞赛进阶指南》0x01 节。</p></article>
 
-<article class="algo" id="hb-39" data-cat="基础" data-kind="math" data-name="快速幂 二进制幂">
-<div class="ah"><h4>2. 快速幂</h4><span class="lv lv-b">基础</span><span class="st">★★</span><span class="tag">必背</span><a class="prac" href="practice.html#P1226" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
-<p class="idea"><b>本质</b>：把指数二进制分解，用 O(log b) 次乘法算出 a^b。「倍增」思想的最简形式，也是矩阵快速幂、快速幂求逆元、等比数列求和的基础。</p>
+<article class="algo" id="hb-39" data-cat="基础" data-kind="math" data-name="快速幂 二进制幂 矩阵快速幂 斐波那契"><div class="ah"><h4>2. 快速幂</h4><span class="lv lv-b">基础</span><span class="st">★★</span><span class="tag">必背</span><a class="prac" href="practice.html#P1226" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<p class="idea"><b>快速幂</b>：把指数按二进制拆开，<code>a^b = a^(b₀)·a^(2b₁)·a^(4b₂)…</code>，O(log b)。<b>矩阵快速幂</b>：把线性递推写成矩阵形式，用 log n 次矩阵乘法算出第 n 项——<b>这是处理「n 高达 10¹⁸ 的递推」的唯一办法。</b></p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 迭代版（推荐）----------
 ll qpow(ll a, ll b, ll p){
     ll r = 1 % p;                       // p == 1 时答案为 0
@@ -1993,9 +2605,50 @@ ll qpow(ll a, ll b, ll p){
 // ① a 未先取模导致溢出
 // ② 指数为 0 且模数为 1 时返回 0 而非 1（1 % 1 == 0）
 // ③ 混用 int 与 long long：乘法前一定先转 long long</script></div>
-<p class="tl"><b>题单</b> 洛谷 P1226 快速幂模板 · P3197 越狱 · P3417? 改：P3935 Calculating · CF 上「modular exponentiation」入门题。</p>
-<p class="ref"><b>资料</b> OI-Wiki「快速幂」；CP-Algorithms「Binary Exponentiation」。</p>
-</article>
+<p class="idea"><b>补充</b>（来自「学习计划」里的同名卡片）：</p>
+<div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- ① 快速幂 ----------
+long long qpow(long long a, long long b, long long m){
+    long long r = 1;  a %= m;
+    while(b){
+        if(b & 1) r = r * a % m;        // 这一位是 1，乘进来
+        a = a * a % m;                 // 底数平方
+        b >>= 1;                       // 指数右移
+    }
+    return r;
+}
+// 2^10 mod 1000 = 24；2^100 mod 1e9+7 = 976371285（已独立跑过）
+
+// ---------- ② 斐波那契的矩阵形式 ----------
+// [F(n+1)]   [1 1]^n   [F(1)]
+// [F(n)  ] = [1 0]   · [F(0)]
+struct Mat { long long a[2][2]; };
+Mat mul(const Mat &A, const Mat &B, long long m){
+    Mat C{};
+    for(int i = 0; i < 2; ++i)
+        for(int k = 0; k < 2; ++k) if(A.a[i][k])
+            for(int j = 0; j < 2; ++j)
+                C.a[i][j] = (C.a[i][j] + A.a[i][k] * B.a[k][j]) % m;
+    return C;
+}
+Mat mpow(Mat M, long long e, long long m){
+    Mat R{}; R.a[0][0] = R.a[1][1] = 1;   // 单位矩阵
+    while(e){
+        if(e & 1) R = mul(R, M, m);
+        M = mul(M, M, m);  e >>= 1;
+    }
+    return R;
+}
+// fib(10) = 55，fib(50) = 586268941，fib(100) mod 1e9+7 = 687995182（均已独立跑过）
+
+// ---------- ③ 带「加法」常数的递推也要扩成一维 ----------
+// a(n) = p·a(n-1) + q  →  用 3x3 矩阵，把常数 1 也放进状态向量</script></div>
+<div class="box tip">
+        <span class="t">💡 看到「n ≤ 10¹⁸ 的递推」就该想到矩阵快速幂</span>
+        <p>线性递推（每一项是前几项的线性组合）+ n 极大 → 构造转移矩阵 + 矩阵快速幂，复杂度 O(k³ log n)（k 是状态数）。<br>
+        典型题：斐波那契第 n 项、<code>a(n) = a(n-1) + a(n-2) + c</code>、图上「走 k 步的方案数」（邻接矩阵的 k 次幂）。</p>
+      </div>
+<p class="tl"><b>题单</b> 洛谷 P1226 快速幂模板 · P3197 越狱 · P3417? 改：P3935 Calculating · CF 上「modular exponentiation」入门题 · P1962 斐波那契数列 · P1939「模板」矩阵加速 · P1397 [NOI2013] 矩阵游戏。</p>
+<p class="ref"><b>资料</b> OI-Wiki「快速幂」；CP-Algorithms「Binary Exponentiation」。</p></article>
 
 <article class="algo" id="hb-40" data-cat="基础" data-kind="math" data-name="线性筛 埃氏筛 欧拉筛 积性函数">
 <div class="ah"><h4>3. 线性素数筛（埃氏筛、欧拉筛）</h4><span class="lv lv-b">基础</span><span class="st">★★★</span><span class="tag">必背</span><a class="prac" href="practice.html#P3383" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
@@ -2057,8 +2710,7 @@ void sieve_phi(int n){
 <p class="ref"><b>资料</b> OI-Wiki「筛法」「积性函数」；CP-Algorithms「Sieve of Eratosthenes」；《算法竞赛进阶指南》0x31 节。</p>
 </article>
 
-<article class="algo" id="hb-41" data-cat="基础" data-kind="math" data-name="高精度 大整数加减乘除">
-<div class="ah"><h4>4. 高精度加减乘除</h4><span class="lv lv-b">基础</span><span class="st">★★</span><span class="tag">实现</span><a class="prac" href="practice.html#P1601" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<article class="algo" id="hb-41" data-cat="基础" data-kind="math" data-name="高精度 大整数加减乘除 大整数 加减乘除"><div class="ah"><h4>4. 高精度加减乘除</h4><span class="lv lv-b">基础</span><span class="st">★★</span><span class="tag">实现</span><a class="prac" href="practice.html#P1601" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
 <p class="idea"><b>本质</b>：手写十进制大整数。竞赛里通常用 <code>vector&lt;int&gt;</code> 倒序存（低位在前便于进位），或用压位（每 9 位存一个 int）提速。Python/Java 有现成大整数，但 C++ 必须会写。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 通用结构（倒序存储，低位在 a[0]）----------
 struct Big{
@@ -2127,9 +2779,13 @@ Big mul(const Big& x, const Big& y){
 
 // ---------- 斯特林公式（估算阶乘位数）----------
 // log10(n!) ≈ n*log10(n) - n/ln(10) + 0.5*log10(2*pi*n)</script></div>
-<p class="tl"><b>题单</b> 洛谷 P1601 A+B Problem（高精）· P2142 高精度减法 · P1303 A*B Problem · P1480 A/B Problem · P1005 矩阵取数游戏（高精 DP）· P1249 最大乘积 · P1255 数楼梯（高精斐波那契）。</p>
-<p class="ref"><b>资料</b> OI-Wiki「高精度计算」；《算法竞赛进阶指南》0x30 前的实现章节。</p>
-</article>
+<p class="idea"><b>补充</b>（来自「学习计划」里的同名卡片）：</p>
+<div class="box tip">
+        <span class="t">💡 什么时候真的需要高精度</span>
+        <p>先估算一下位数：<code>log10(答案) &gt; 18</code> 时 <code>long long</code> 就装不下了。比如 <code>n!</code>（n = 25 就超过 18 位）、<code>2^n</code>（n &gt; 62）、<code>n × m</code>（n = 10¹⁸ 时必然爆）。<b>但如果题目要求输出「答案 mod 998244353」，那就不需要高精度，中途取模即可。</b></p>
+      </div>
+<p class="tl"><b>题单</b> 洛谷 P1601 A+B Problem（高精） · P2142 高精度减法 · P1303 A*B Problem · P1480 A/B Problem · P1005 矩阵取数游戏（高精 DP） · P1249 最大乘积 · P1255 数楼梯（高精斐波那契） · P1045 麦森数。</p>
+<p class="ref"><b>资料</b> OI-Wiki「高精度计算」；《算法竞赛进阶指南》0x30 前的实现章节。</p></article>
 
 <article class="algo" id="hb-42" data-cat="基础" data-kind="math" data-name="组合数学 容斥原理 鸽巢原理">
 <div class="ah"><h4>5. 组合数学（鸽巢原理、容斥原理等）</h4><span class="lv lv-b">基础</span><span class="st">★★★</span><span class="tag">高频</span><a class="prac" href="practice.html#P2822" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
@@ -2477,9 +3133,8 @@ int erase(int root, int v){
 <p class="ref"><b>资料</b> OI-Wiki「Treap」「Splay」「替罪羊树」「AVL 树」「FHQ Treap」；《算法竞赛进阶指南》0x46 节。</p>
 </article>
 
-<article class="algo" id="hb-49" data-cat="进阶" data-kind="ds" data-name="AC自动机 fail树">
-<div class="ah"><h4>3. AC 自动机</h4><span class="lv lv-a">进阶</span><span class="st">★★★</span><span class="tag">字符串</span><a class="prac" href="practice.html#P3808" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
-<p class="idea"><b>本质</b>：Trie + KMP。把<b>模式串</b>建成 Trie，再给每个节点求 fail 指针（指向「最长真后缀对应的节点」），从而在 O(总长) 内完成「多模式串匹配」。fail 指针构成的树（fail 树）把匹配问题转成子树统计。</p>
+<article class="algo" id="hb-49" data-cat="进阶" data-kind="ds" data-name="AC自动机 fail树 多模式匹配 Tire图"><div class="ah"><h4>3. AC 自动机</h4><span class="lv lv-a">进阶</span><span class="st">★★★</span><span class="tag">字符串</span><a class="prac" href="practice.html#P3808" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<p class="idea"><b>本质</b>：<b>Trie 树 + KMP 的失配指针</b>。把一堆模式串建 Trie，然后给每个节点求出 <code>fail</code> 指针（「失配时该跳到哪个节点」），最后拿文本串在图上跑一遍，就能同时找出所有模式串的出现位置。<b>O(总模式串长度 + 文本串长度 + 命中次数)。</b></p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">int ch[N][26], fail[N], cnt[N], tot = 1;
 int id[N];                                   // id[i] = 第 i 个模式串的终止节点
 void insert(const string& s, int k){
@@ -2531,13 +3186,21 @@ void query(const string& t){                  // 统计每个模式串出现次�
 // ② 根节点的 fail 指向自己，别写成 0
 // ③ ch 数组内存：tot <= 总长，26 * tot 个 int -> 1e6 节点时约 100MB，要注意
 // ④ 统计次数时不要忘记把"经过"和"结尾"区分开</script></div>
-<p class="tl"><b>题单</b> 洛谷 P3808 AC自动机（简单版）· P3796 AC自动机（加强版）· P5357 AC自动机（二次加强版）· P4052 文本生成器 · P3311 数数。</p>
-<p class="ref"><b>资料</b> OI-Wiki「AC 自动机」；CP-Algorithms「Aho-Corasick」。</p>
-</article>
+<p class="idea"><b>补充</b>（来自「学习计划」里的同名卡片）：</p>
+<div class="box ok">
+        <span class="t">✅ 实测</span>
+        <p>模式串 <code>{abc, bc, c}</code>、文本串 <code>abcbcc</code>：命中 (0,abc)、(1,bc)、(2,c)、(3,bc)、(4,c)、(5,c)，与手工逐位核对一致。</p>
+      </div>
+<div class="box warn">
+        <span class="t">⚠️ AC 自动机的两个易错点</span>
+        <p><b>① 节点数开小了。</b>节点总数 = 所有模式串的长度之和 + 1，不是模式串个数。开小了直接 RE。<br>
+        <b>② 统计时忘记沿 fail 链往上走。</b>在节点 u 匹配成功，只说明有模式串以 u 结尾；<b>fail 链上的所有节点也都是匹配</b>（比如匹配到 <code>abc</code> 同时说明 <code>bc</code> 也匹配了）。</p>
+      </div>
+<p class="tl"><b>题单</b> 洛谷 P3808 AC自动机（简单版） · P3796 AC自动机（加强版） · P5357 AC自动机（二次加强版） · P4052 文本生成器 · P3311 数数 · P3966 [TJOI2013] 单词。</p>
+<p class="ref"><b>资料</b> OI-Wiki「AC 自动机」；CP-Algorithms「Aho-Corasick」。</p></article>
 
-<article class="algo" id="hb-50" data-cat="进阶" data-kind="ds" data-name="后缀数组 SA LCP height">
-<div class="ah"><h4>4. 后缀数组（SA）</h4><span class="lv lv-a">进阶</span><span class="st">★★★</span><span class="tag">字符串</span><a class="prac" href="practice.html#P3809" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
-<p class="idea"><b>本质</b>：把所有后缀按字典序排好（sa[i] = 排名第 i 的后缀起始位置），并用 RMQ 回答「任意两个后缀的 LCP」。它是「子串问题」的万能工具：本质不同子串数、最长重复子串、多串公共子串都能推。</p>
+<article class="algo" id="hb-50" data-cat="进阶" data-kind="ds" data-name="后缀数组 SA LCP height 后缀自动机 SAM 概念"><div class="ah"><h4>4. 后缀数组（SA）</h4><span class="lv lv-a">进阶</span><span class="st">★★★</span><span class="tag">字符串</span><a class="prac" href="practice.html#P3809" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<p class="idea"><b>本质</b>：把字符串的<b>所有后缀按字典序排序</b>放进一个数组，就是后缀数组 <code>sa</code>。排序后相邻两个后缀的最长公共前缀记为 <code>height</code>。有了这两样，一大类「子串相关问题」都能变成区间最值问题。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 倍增法求后缀数组 O(n log n) ----------
 int sa[N], rk[N], oldrk[N], id[N], px[N], cnt[N];
 bool cmp(int x, int y, int w){ return oldrk[x] == oldrk[y] && oldrk[x+w] == oldrk[y+w]; }
@@ -2587,8 +3250,7 @@ void build_height(const string& s, int n){
 // SAM：需要子串出现次数 / 本质不同子串 / 在线增量构建
 // 实践中 SAM 通常更好写，SA 的题目用 SAM 大多能做（反之亦然）</script></div>
 <p class="tl"><b>题单</b> 洛谷 P3809 后缀排序 · P2408 不同子串个数 · P2743 牛奶模式 · P2852 牛奶模式G · P4051 字符加密 · P1117 优秀的拆分（SA+调和级数）。</p>
-<p class="ref"><b>资料</b> OI-Wiki「后缀数组 (SA)」；CP-Algorithms「Suffix Array」；罗穗骞《后缀数组——处理字符串的有力工具》（集训队论文，必读）。</p>
-</article>
+<p class="ref"><b>资料</b> OI-Wiki「后缀数组 (SA)」；CP-Algorithms「Suffix Array」；罗穗骞《后缀数组——处理字符串的有力工具》（集训队论文，必读）。</p></article>
 
 <article class="algo" id="hb-51" data-cat="进阶" data-kind="ds" data-name="后缀自动机 SAM 后缀树">
 <div class="ah"><h4>5. 后缀树与后缀自动机（SAM）</h4><span class="lv lv-a">进阶</span><span class="st">★★★★</span><span class="tag">难点</span><a class="prac" href="practice.html#P3804" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
@@ -2855,9 +3517,8 @@ void rebuild(int& u){                        // 中序遍历拉平成有序数�
 <p class="ref"><b>资料</b> 《算法导论》第 13 章（红黑树）；OI-Wiki「AVL 树」「替罪羊树」「红黑树」；《数据结构与算法分析》AVL 章节。</p>
 </article>
 
-<article class="algo" id="hb-57" data-cat="进阶" data-kind="ds" data-name="树链剖分 HLD">
-<div class="ah"><h4>12. 树链剖分</h4><span class="lv lv-a">进阶</span><span class="st">★★★★</span><span class="tag">必会</span><a class="prac" href="practice.html#P3384" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
-<p class="idea"><b>本质</b>：把树<b>按重儿子优先</b>做 dfs 序，使「任意一条树链」被拆成 O(log n) 段连续区间，从而把树上的路径修改/查询转成序列上的线段树操作。<b>一切树上路径 + 区间维护的问题都靠它</b>。</p>
+<article class="algo" id="hb-57" data-cat="进阶" data-kind="ds" data-name="树链剖分 HLD 重链剖分 路径操作"><div class="ah"><h4>12. 树链剖分</h4><span class="lv lv-a">进阶</span><span class="st">★★★★</span><span class="tag">必会</span><a class="prac" href="practice.html#P3384" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<p class="idea"><b>本质</b>：把树按「重儿子」剖成若干条<b>重链</b>，然后按 DFS 序把节点排成一维数组——<b>每条重链在这条数组里是连续的一段</b>。于是「树上路径的修改/查询」就变成「对 O(log n) 段连续区间做线段树操作」。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 两次 DFS 预处理 ----------
 int fa[N], dep[N], sz[N], son[N], top[N], dfn[N], rnk[N], tim;
 void dfs1(int u, int f){
@@ -2906,13 +3567,11 @@ void path_update(int u, int v, ll val){
 // ② 重链顶点的 dfn 是最小的（因为先走重儿子），跳链时用 dfn[top[u]] <= dfn[u]
 // ③ 线段树下标用 dfn 值，数组要开 n 大小
 // ④ 递归深度 O(n)，链状树要小心爆栈（可改迭代或增大栈）</script></div>
-<p class="tl"><b>题单</b> 洛谷 P3384 树链剖分 · P2590 树的统计 · P3178 树上操作 · P1505 旅游 · P4315 月下毛景树 · P4114 Qtree1。</p>
-<p class="ref"><b>资料</b> OI-Wiki「树链剖分」；《算法竞赛进阶指南》0x63 节。</p>
-</article>
+<p class="tl"><b>题单</b> 洛谷 P3384 树链剖分 · P2590 树的统计 · P3178 树上操作 · P1505 旅游 · P4315 月下毛景树 · P4114 Qtree1 · P3379「模板」最近公共祖先（用树剖重做） · P3038 [USACO11DEC] Grass Planting。</p>
+<p class="ref"><b>资料</b> OI-Wiki「树链剖分」；《算法竞赛进阶指南》0x63 节。</p></article>
 
-<article class="algo" id="hb-58" data-cat="进阶" data-kind="ds" data-name="LCA 最近公共祖先 倍增 Tarjan">
-<div class="ah"><h4>13. 最近公共祖先（LCA）</h4><span class="lv lv-a">进阶</span><span class="st">★★★</span><span class="tag">必会</span><a class="prac" href="practice.html#P3379" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
-<p class="idea"><b>本质</b>：树上两点的公共祖先中深度最大的那个。它本身简单，但<b>是无数树上算法的零件</b>：树上差分、树上路径最值、Kruskal 重构树、基环树。四种实现都有用武之地。</p>
+<article class="algo" id="hb-58" data-cat="进阶" data-kind="ds" data-name="LCA 最近公共祖先 倍增 Tarjan 欧拉序"><div class="ah"><h4>13. 最近公共祖先（LCA）</h4><span class="lv lv-a">进阶</span><span class="st">★★★</span><span class="tag">必会</span><a class="prac" href="practice.html#P3379" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<p class="idea"><b>本质</b>：求树上两点的「分叉点」。<b>倍增法</b>：预处理每个点向上跳 2ʲ 步到达的祖先，查询时先让深的跳到同层，再一起往上跳。<b>它还能顺便求树上两点距离：<code>dist = dep[u] + dep[v] − 2·dep[lca]</code></b>。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 方法一：树上倍增（最常用）O((n+q) log n) ----------
 int up[LOG][N], dep[N];
 void dfs(int u, int f){
@@ -2963,9 +3622,13 @@ int lca_hld(int u, int v){
 // 常数敏感 / 已有树剖-> 树剖
 // 询问极多要 O(1)    -> 欧拉序 + ST
 // 全离线 + 内存紧    -> Tarjan</script></div>
-<p class="tl"><b>题单</b> 洛谷 P3379 LCA模板 · P3258 松鼠的新家（树上差分）· P4281 紧急会议 · P1967 货车运输（倍增 + MST）· P2680 运输计划（二分 + 树上差分）· P1600 天天爱跑步（LCA 好题）。</p>
-<p class="ref"><b>资料</b> OI-Wiki「最近公共祖先」；CP-Algorithms「LCA / binary lifting」。</p>
-</article>
+<p class="idea"><b>补充</b>（来自「学习计划」里的同名卡片）：</p>
+<div class="box ok">
+        <span class="t">✅ 实测</span>
+        <p>树：<code>1{2{4,5}, 3{6}}</code>。结果 <code>lca(4,5) = 2</code>、<code>lca(4,6) = 1</code>、<code>lca(5,3) = 1</code>，与手工推导一致。若树的规模只有 10³，也可以用「暴力爬父亲」的 O(深度) 做法，代码更短。</p>
+      </div>
+<p class="tl"><b>题单</b> 洛谷 P3379 LCA模板 · P3258 松鼠的新家（树上差分） · P4281 紧急会议 · P1967 货车运输（倍增 + MST） · P2680 运输计划（二分 + 树上差分） · P1600 天天爱跑步（LCA 好题）。</p>
+<p class="ref"><b>资料</b> OI-Wiki「最近公共祖先」；CP-Algorithms「LCA / binary lifting」。</p></article>
 
 <article class="algo" id="hb-59" data-cat="进阶" data-kind="ds" data-name="dsu on tree 树上启发式合并">
 <div class="ah"><h4>14. 树上启发式合并（dsu on tree）</h4><span class="lv lv-a">进阶</span><span class="st">★★★</span><span class="tag">技巧</span><a class="prac rel" href="practice.html#P3384" target="_blank" title="本知识点暂无专属模板题，先做这道最相关的">相关练习 →</a></div>
@@ -3044,8 +3707,7 @@ while(pq.size() > 1){
 <p class="ref"><b>资料</b> OI-Wiki「二叉树 & 哈夫曼树」；《算法导论》第 16.3 节（Huffman 编码）。</p>
 </article>
 
-<article class="algo" id="hb-61" data-cat="进阶" data-kind="ds" data-name="ST表 RMQ 稀疏表">
-<div class="ah"><h4>16. ST 表</h4><span class="lv lv-a">进阶</span><span class="st">★★★</span><span class="tag">必背</span><a class="prac" href="practice.html#P3865" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<article class="algo" id="hb-61" data-cat="进阶" data-kind="ds" data-name="ST表 RMQ 稀疏表 区间最值"><div class="ah"><h4>16. ST 表</h4><span class="lv lv-a">进阶</span><span class="st">★★★</span><span class="tag">必背</span><a class="prac" href="practice.html#P3865" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
 <p class="idea"><b>本质</b>：用倍增预处理「长度为 2^k 的区间」的答案，使任意区间（长度 L）都能由两个长度为 2^⌊log L⌋ 的重叠区间拼出。<b>只支持可重复贡献</b>的运算（max/min/gcd/and/or），不支持求和（重叠会重复计算）。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 一维 ST 表 O(n log n) 预处理，O(1) 查询 ----------
 int st[LOG][N], lg[N];
@@ -3081,9 +3743,17 @@ int query(int l, int r){                    // 区间最大值
 // ① 内存：LOG * N 的 int 数组，N=1e6, LOG=20 -> 80MB，需评估
 // ② 查询时第二段起点是 r - 2^k + 1，不是 r - 2^k
 // ③ lg 数组要预处理到 n（别用 log2() 浮点函数，有精度坑）</script></div>
+<p class="idea"><b>补充</b>（来自「学习计划」里的同名卡片）：</p>
+<div class="box ok">
+        <span class="t">✅ 实测</span>
+        <p>数组 <code>[7,2,3,0,5,10,3]</code>（下标 1~7）：<code>min(1,5) = 0</code>、<code>min(2,7) = 0</code>、<code>min(4,4) = 0</code>，与暴力逐个比较一致。</p>
+      </div>
+<div class="box tip">
+        <span class="t">💡 为什么能重叠？</span>
+        <p>因为 <code>min</code>/<code>max</code>/<code>gcd</code> 这些运算满足<b>幂等性</b>（<code>f(x,x) = x</code>）。而<b>区间求和不可幂等</b>，重叠会重复计数，所以 ST 表不能求区间和。求区间和要用前缀和或树状数组。</p>
+      </div>
 <p class="tl"><b>题单</b> 洛谷 P3865 ST表模板 · P2880 Balanced Lineup · P1816 忠诚 · P2251 质量检测 · P1198 最大数（可改线段树）。</p>
-<p class="ref"><b>资料</b> OI-Wiki「ST 表」；CP-Algorithms「Sparse Table」。</p>
-</article>
+<p class="ref"><b>资料</b> OI-Wiki「ST 表」；CP-Algorithms「Sparse Table」。</p></article>
 
 <article class="algo" id="hb-62" data-cat="进阶" data-kind="ds" data-name="主席树 可持久化线段树">
 <div class="ah"><h4>17. 主席树</h4><span class="lv lv-a">进阶</span><span class="st">★★★★</span><span class="tag">必会</span><a class="prac" href="practice.html#P3834" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
@@ -3171,8 +3841,7 @@ int query(int p, int q, int l, int r, int k){    // p = 第 r 版, q = 第 l-1 �
 <p class="ref"><b>资料</b> OI-Wiki「划分树」「整体二分」「CDQ 分治」；《算法竞赛进阶指南》0x45 节。</p>
 </article>
 
-<article class="algo" id="hb-64" data-cat="进阶" data-kind="ds" data-name="莫队 带修莫队 回滚莫队 树上莫队">
-<div class="ah"><h4>19. 莫队算法</h4><span class="lv lv-a">进阶</span><span class="st">★★★★</span><span class="tag">离线神器</span><a class="prac" href="practice.html#P3901" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<article class="algo" id="hb-64" data-cat="进阶" data-kind="ds" data-name="莫队 带修莫队 回滚莫队 树上莫队 离线 分块排序 吉司机"><div class="ah"><h4>19. 莫队算法</h4><span class="lv lv-a">进阶</span><span class="st">★★★★</span><span class="tag">离线神器</span><a class="prac" href="practice.html#P3901" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
 <p class="idea"><b>本质</b>：离线 + 分块 + 指针暴力移动。把询问按「左端点所在块」排序（同块内按右端点排序），两个指针总移动量为 O(n√q)，把「区间询问」变成「O(1) 增删元素」的问题。<b>几乎所有「只在端点增删即可维护」的区间统计题都能套。</b></p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 普通莫队 ----------
 int blk;                                        // 块长，通常 sqrt(n) 或 n / sqrt(q)
@@ -3224,9 +3893,8 @@ void solve(){
 // ② add/del 的对称性（很多信息删除比插入难 -> 用回滚）
 // ③ 块长选错导致 TLE（可用 n / sqrt(m) 微调）
 // ④ 数组下标从 0 还是 1 开始要统一</script></div>
-<p class="tl"><b>题单</b> 洛谷 P1972 HH的项链 · P1494 小Z的袜子 · P2709 小B的询问 · P1903 数颜色（带修）· P5906 回滚莫队模板 · P4074 糖果公园 · P4137 Rmq Problem。</p>
-<p class="ref"><b>资料</b> OI-Wiki「莫队算法」；《算法竞赛进阶指南》0x50 节；莫队原创论文「Mo's Algorithm」（Codeforces 博客）。</p>
-</article>
+<p class="tl"><b>题单</b> 洛谷 P1972 HH的项链 · P1494 小Z的袜子 · P2709 小B的询问 · P1903 数颜色（带修） · P5906 回滚莫队模板 · P4074 糖果公园 · P4137 Rmq Problem。</p>
+<p class="ref"><b>资料</b> OI-Wiki「莫队算法」；《算法竞赛进阶指南》0x50 节；莫队原创论文「Mo's Algorithm」（Codeforces 博客）。</p></article>
 
 <article class="algo" id="hb-65" data-cat="进阶" data-kind="ds" data-name="树套树 线段树套平衡树 主席树套树状数组">
 <div class="ah"><h4>20. 树套树</h4><span class="lv lv-a">进阶</span><span class="st">★★★</span><span class="tag">组合</span><a class="prac rel" href="practice.html#P3384" target="_blank" title="本知识点暂无专属模板题，先做这道最相关的">相关练习 →</a></div>
@@ -3806,8 +4474,7 @@ void tarjan(int u){
 <p class="ref"><b>资料</b> OI-Wiki「强连通分量」；CP-Algorithms「Strongly Connected Components - Tarjan」。</p>
 </article>
 
-<article class="algo" id="hb-77" data-cat="进阶" data-kind="graph" data-name="割点 桥 双连通分量 圆方树">
-<div class="ah"><h4>3. 割点和桥</h4><span class="lv lv-a">进阶</span><span class="st">★★★</span><span class="tag">必会</span><a class="prac" href="practice.html#P3388" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<article class="algo" id="hb-77" data-cat="进阶" data-kind="graph" data-name="割点 桥 双连通分量 圆方树 割边 点双 边双"><div class="ah"><h4>3. 割点和桥</h4><span class="lv lv-a">进阶</span><span class="st">★★★</span><span class="tag">必会</span><a class="prac" href="practice.html#P3388" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
 <p class="idea"><b>本质</b>：割点 = 删掉后连通块增多的点；桥 = 删掉后连通块增多的边。判定仍用 Tarjan 的 dfn/low：对树边 (u,v)，若 <code>low[v] >= dfn[u]</code> 则 u 是割点；若 <code>low[v] > dfn[u]</code> 则 (u,v) 是桥。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- Tarjan 求割点与桥 ----------
 int dfn[N], low[N], tim, root;
@@ -3854,9 +4521,14 @@ void tarjan(int u, int inEdge){               // inEdge: 进入 u 的边编号�
 // ② 根节点判割点要单独处理（child >= 2）
 // ③ dfn/low 多测清空；tarjan 的 low 值不能跨连通块混用
 // ④ 无向图 Tarjan 与有向图 Tarjan 的 low 更新方式不同（有向图用 inst[] 判定）</script></div>
-<p class="tl"><b>题单</b> 洛谷 P3388 割点模板 · P1656 炸铁路 · P3469 BLO-Blockade · P4630 铁人两项 · P4320 道路相遇 · P3225 矿场搭建。</p>
-<p class="ref"><b>资料</b> OI-Wiki「割点和桥」「双连通分量」「圆方树」；CP-Algorithms「Bridge searching」。</p>
-</article>
+<p class="idea"><b>补充</b>（来自「学习计划」里的同名卡片）：</p>
+<div class="box tip">
+        <span class="t">💡 割点和桥的判定式，只差一个符号</span>
+        <p>割点：<code>low[v] &gt;= dfn[u]</code>　桥：<code>low[v] &gt; dfn[u]</code><br>
+        直观理解：<code>low[v] &gt; dfn[u]</code> 说明边 (u,v) 是 v 那一侧的「唯一出口」，所以它是桥；而 <code>low[v] == dfn[u]</code> 时边不是桥（还能绕回 u），但 u 仍然可能是割点。</p>
+      </div>
+<p class="tl"><b>题单</b> 洛谷 P3388 割点模板 · P1656 炸铁路 · P3469 BLO-Blockade · P4630 铁人两项 · P4320 道路相遇 · P3225 矿场搭建 · P8435「模板」点双连通分量 · P8436「模板」边双连通分量。</p>
+<p class="ref"><b>资料</b> OI-Wiki「割点和桥」「双连通分量」「圆方树」；CP-Algorithms「Bridge searching」。</p></article>
 
 <article class="algo" id="hb-78" data-cat="进阶" data-kind="graph" data-name="二分图匹配 匈牙利 KM 带花树">
 <div class="ah"><h4>4. 二分图匹配</h4><span class="lv lv-a">进阶</span><span class="st">★★★★</span><span class="tag">必会</span><a class="prac" href="practice.html#P3386" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
@@ -5049,8 +5721,7 @@ double newton(double x0){
 <p class="ref"><b>资料</b> OI-Wiki「多项式求逆（牛顿迭代）」；《数值分析》牛顿迭代章节；《算法竞赛进阶指南》0x39 节。</p>
 </article>
 
-<article class="algo" id="hb-99" data-cat="进阶" data-kind="math" data-name="高斯消元 线性基 矩阵树定理">
-<div class="ah"><h4>14. 高斯消元</h4><span class="lv lv-a">进阶</span><span class="st">★★★★</span><span class="tag">必会</span><a class="prac" href="practice.html#P3389" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<article class="algo" id="hb-99" data-cat="进阶" data-kind="math" data-name="高斯消元 线性基 矩阵树定理 线性方程组 矩阵 消元"><div class="ah"><h4>14. 高斯消元</h4><span class="lv lv-a">进阶</span><span class="st">★★★★</span><span class="tag">必会</span><a class="prac" href="practice.html#P3389" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
 <p class="idea"><b>本质</b>：用初等行变换把矩阵化为阶梯形，从而解线性方程组、求逆矩阵、求行列式、求矩阵的秩。O(n³) 的核心算法，是<b>线性代数的计算引擎</b>。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 浮点版：解 n 元线性方程组 ----------
 double a[N][N + 1];                            // 增广矩阵
@@ -5111,9 +5782,18 @@ int gauss_xor(int n, int m){
 // ② 回代顺序与系数归一化的边界
 // ③ 异或版要把整行取反 / 交换的操作写对（用 bitset 时注意下标）
 // ④ 模运算下忘记取模、逆元不存在（模非素数时）</script></div>
-<p class="tl"><b>题单</b> 洛谷 P3389 高斯消元法 · P2455 线性方程组 · P4783 矩阵求逆 · P3317 重建（矩阵树+期望）· P4111 小Z的房间（矩阵树）· P3812 线性基 · P4151 最大XOR和路径（线性基）· P3175 按位或（期望+异或）。</p>
-<p class="ref"><b>资料</b> OI-Wiki「高斯消元」「线性基」「矩阵树定理」；CP-Algorithms「Gauss」「Kirchhoff theorem」；《算法竞赛进阶指南》0x35、0x37 节。</p>
-</article>
+<p class="idea"><b>补充</b>（来自「学习计划」里的同名卡片）：</p>
+<div class="box tip">
+        <span class="t">🔎 fabs 与 abs：浮点题的头号陷阱</span>
+        <dl class="fn">
+          <dt>fabs(x)（&lt;cmath&gt;）</dt><dd><b>作用</b>：求浮点数的绝对值，返回 <code>double</code>。<b>参数</b>可以是 int / double / long double。<br><b>在几何和高斯消元里的用法</b>：判断「是否为 0」不能写 <code>x == 0</code>（浮点有误差），要写 <code>fabs(x) &lt; 1e-9</code>，这个 1e-9 叫 <b>epsilon（eps）</b>。<br><b>eps 怎么取</b>：和数据的量级有关。一般 <code>1e-9</code> 够用；如果坐标是 10⁹ 级别的整数，除法后误差会放大，改用 <code>1e-6</code> 更稳；判断「两数相等」时用 <code>fabs(a-b) &lt; 1e-9</code> 而不是 <code>a == b</code>。</dd>
+          <dt>abs(x)（&lt;cstdlib&gt; 整数版 / &lt;cmath&gt; 浮点版）</dt><dd><b>致命坑</b>：只 <code>#include &lt;cstdlib&gt;</code> 时，<code>abs</code> 只有<b>整数</b>重载。写 <code>abs(3.14)</code> 会被<b>隐式截断成 3</b>，再返回 int 3 —— 看起来没错，但结果完全不对，而且不报错。<br><b>正确做法</b>：浮点一律用 <code>fabs</code>；或者同时 <code>#include &lt;cmath&gt;</code> 用 <code>std::abs</code> 的重载版本。<br><b>整数用 abs 也要小心</b>：<code>abs(INT_MIN)</code> 是未定义行为（−(−2³¹) 溢出）。</dd>
+          <dt>sqrt / pow / exp / log（&lt;cmath&gt;）</dt><dd><b>sqrt(x)</b>：平方根，返回 double，O(1)（硬件指令级）。<b>输入负数返回 NaN</b>，不会报错，会静默错下去。<br><b>pow(a, b)</b>：幂，返回 double。★ <b>整数幂不要用它</b> —— 它是浮点运算，算 10¹⁸ 这类大数会丢精度，而且慢。整数幂用快速幂，或直接乘。<br><b>exp(x) / log(x)</b>：e 的幂 / 自然对数。求 log₂ 用 <code>log(x)/log(2)</code> 或 <code>log2(x)</code>；取位数用 <code>log10(x)</code>。<br><b>floor / ceil / round</b>：下取整 / 上取整 / 四舍五入，返回<b>仍是 double</b>，要转 int 记得 <code>(int)floor(x)</code>。</dd>
+          <dt>浮点比较的正确姿势</dt><dd><b>错误</b>：<code>if(a == b)</code>、<code>if(a &gt; b)</code> —— 0.1+0.2 != 0.3 就是这个原因。<br><b>正确</b>：<code>if(fabs(a - b) &lt; 1e-9)</code> 判相等；比较大小用 <code>if(a - b &gt; 1e-9)</code> 表示「严格大于」。<br><b>更好的做法</b>：能不进浮点就别进 —— 判两向量方向用叉积的<b>符号</b>（整数坐标时叉积是整数，可以精确比较），这比算角度可靠得多。</dd>
+        </dl>
+      </div>
+<p class="tl"><b>题单</b> 洛谷 P3389 高斯消元法 · P2455 线性方程组 · P4783 矩阵求逆 · P3317 重建（矩阵树+期望） · P4111 小Z的房间（矩阵树） · P3812 线性基 · P4151 最大XOR和路径（线性基） · P3175 按位或（期望+异或） · P2962 [USACO09NOV] Lights Out G（异或方程组）。</p>
+<p class="ref"><b>资料</b> OI-Wiki「高斯消元」「线性基」「矩阵树定理」；CP-Algorithms「Gauss」「Kirchhoff theorem」；《算法竞赛进阶指南》0x35、0x37 节。</p></article>
 
 <article class="algo" id="hb-100" data-cat="进阶" data-kind="math" data-name="调和级数 数论分块 复杂度平衡">
 <div class="ah"><h4>15. 调和（调和级数 / 数论分块）</h4><span class="lv lv-a">进阶</span><span class="st">★★★</span><span class="tag">技巧</span><a class="prac" href="practice.html#P2261" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
@@ -6481,6 +7161,12 @@ int getSG(int x){
 
 <!-- ============ 7 训练表 ============ -->
 <h2 id="plan">7 · 12 周训练表（可直接执行）</h2>
+<div class="callout">
+<p><b>先看清楚这张表和「学习计划」那张表的关系，别选错。</b></p>
+<p>这张是<b>「已有基础、想快速铺满」的 12 周强化路线</b> —— 前 4 周把入门篇 + 基础篇铺满，中间 5 周攻四个方向，最后 3 周钻深。</p>
+<p>如果你是<b>零基础</b>、或者想要一份<b>带逐周题单与逐题讲解</b>的课程表，请用 <a href="./plan.html">学习计划</a> 里的 <b>8 周逐周安排</b> —— 那才是为本子站设计的正课路径，每一条都有对应的卡片与题单。</p>
+<p>两张表不冲突，选一条跟到底即可，不要交叉着走。</p>
+</div>
 <p class="lead">按原文"从广到深"的思路排一份可落地的计划：<b>前 4 周把入门篇 + 基础篇铺满，中间 5 周攻基础篇的四个方向，最后 3 周进进阶篇选一个方向钻深。</b>每周 6 天、每天 3~4 小时估算。</p>
 <table>
 <tr><th>周</th><th>主题</th><th>必做内容</th><th>验收标准</th></tr>
