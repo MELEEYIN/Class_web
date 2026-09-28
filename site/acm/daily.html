@@ -298,10 +298,11 @@ footer{max-width:1200px;margin:40px auto 0;padding:20px 24px 60px;color:var(--te
       <span class="acm-brand-text"><strong>ACM 算法</strong><small>校园主页 · 子站</small></span>
     </a>
     <nav class="acm-tabs" aria-label="子站页面">
-      <a href="./index.html">学习手册</a>
-      <a href="./practice.html">题练场</a>
+      <a href="./index.html">首页</a>
+      <a href="./handbook.html">学习手册</a>
       <a href="./plan.html">学习计划</a>
       <a href="./daily.html" class="on" aria-current="page">日常开发</a>
+      <a href="./practice.html">题练场</a>
     </nav>
     <div class="acm-nav-actions">
       <button class="acm-btn acm-btn-icon" type="button" id="themeBtn" title="切换深色 / 浅色（全站共用）" aria-label="切换深色或浅色主题">
@@ -1788,7 +1789,7 @@ print('全部通过')</script></div>
 <tr><td class="num"><b>真刀真枪</b></td><td>以后任何一道题只要 WA 了、又看不出问题，就写对拍。<b>养成这个反射，比多刷十道题有用。</b></td></tr>
 </tbody>
 </table>
-<p class="ref">搭配题单（原文给的）：先做 <a href="./index.html">学习手册</a> 里你已经有把握的入门题；想要有难度的可以直接上 <b>洛谷 P1908 逆序对</b> —— 它的暴力（双重循环 O(n²)）和正解（归并 / 树状数组）差得很远，是练对拍的好材料。</p>
+<p class="ref">搭配题单（原文给的）：先做 <a href="./handbook.html">学习手册</a> 里你已经有把握的入门题；想要有难度的可以直接上 <b>洛谷 P1908 逆序对</b> —— 它的暴力（双重循环 O(n²)）和正解（归并 / 树状数组）差得很远，是练对拍的好材料。</p>
 <div class="callout ok">
 <p><b>对拍是可以积累的：</b>把 gen / brute / loop 三个文件做成模板放进一个 <span class="mono">stress/</span> 目录，以后每道题只改 <span class="mono">gen</span> 和 <span class="mono">brute</span>。<b>越麻烦的东西越要变成模板，这是第 2 章那句话的延续。</b></p>
 </div>
@@ -2420,7 +2421,7 @@ b.erase(unique(b.begin(), b.end()), b.end());</script></div>
 <p><b>建议的顺序：</b>先做 P1908（最纯粹的离散化 + 树状数组，一遍就能把模板记住），
 再做 P1955（感受「离散化不止用于数组下标」），最后做 P5490（理解「坐标轴可以压、权值不能压」）。</p>
 </div>
-<p class="ref">这些题在 <a href="practice.html" target="_blank">题练场</a> 的「基础数据结构」与「进阶」分组里都能找到；对应的算法卡片在 <a href="./index.html">学习手册</a> 的「树状数组」「线段树」「并查集」三张卡上。</p>
+<p class="ref">这些题在 <a href="practice.html" target="_blank">题练场</a> 的「基础数据结构」与「进阶」分组里都能找到；对应的算法卡片在 <a href="./handbook.html">学习手册</a> 的「树状数组」「线段树」「并查集」三张卡上。</p>
 </div>
 </details>
 
@@ -2442,9 +2443,9 @@ b.erase(unique(b.begin(), b.end()), b.end());</script></div>
 <p><b>如果五件里只能记住一条：</b>把「我觉得对了」和「它确实对了」分开对待。前者什么都不是，后者需要证据 —— 而对拍就是最便宜的那份证据。</p>
 <p>这五件练成条件反射之后，「卡在入门」基本就不会再发生了：<b>不会因为估错复杂度而选错思路，不会因为环境问题浪费半小时，也不会在 WA 面前瞎改代码。</b></p>
 </div>
-<p class="ref">下一步：<a href="./index.html">学习手册</a>（122 张算法卡片，按入门 / 基础 / 进阶三层）· <a href="./practice.html">题练场</a>（洛谷真题 + 浏览器内判定）· <a href="./plan.html">学习计划</a>（8 周训练表）。</p>
+<p class="ref">下一步：<a href="./handbook.html">学习手册</a>（122 张算法卡片，按入门 / 基础 / 进阶三层）· <a href="./practice.html">题练场</a>（洛谷真题 + 浏览器内判定）· <a href="./plan.html">学习计划</a>（8 周训练表）。</p>
 
-<p class="ref">相关页面：<a href="./index.html">学习手册</a>（122 张算法卡片）· <a href="./practice.html">题练场</a>（洛谷真题 + 多语言题解）· <a href="./plan.html">学习计划</a>（12 周训练表）</p>
+<p class="ref">相关页面：<a href="./handbook.html">学习手册</a>（122 张算法卡片）· <a href="./practice.html">题练场</a>（洛谷真题 + 多语言题解）· <a href="./plan.html">学习计划</a>（12 周训练表）</p>
 <h2 id="glossary">7 · 术语词典（看不懂的来这里查）</h2>
 <p class="lead">这一页用到的术语都在下面，<b>按分类收好了</b>，每条给的是大白话解释，并标明它出现在哪一节 —— 看完解释可以直接点过去看上下文。共 <b>87 条</b>。</p>
 <div class="gbar">
@@ -2707,5 +2708,6 @@ b.erase(unique(b.begin(), b.end()), b.end());</script></div>
   });
 })();
 </script>
+<script src="./search.js" defer></script>
 </body>
 </html>

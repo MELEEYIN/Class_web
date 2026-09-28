@@ -273,3 +273,15 @@ header.top .sub { color: var(--text-2); }
   header.top { padding-top: 18px; }
   .acm-footer { margin-top: 24px; }
 }
+
+/* --------------------------------------------------------------------------
+   9. 子站导航加到 5 个页面按钮之后（首页 / 学习手册 / 学习计划 / 日常开发 / 题练场）
+      窄屏放不下，所以要收紧：先收品牌文字，再让 tab 横向滚动。
+      ⚠️ 这段只影响 /acm/ 下的页面；/en/ 用自己的 en.css，不受影响。
+   -------------------------------------------------------------------------- */
+@media (max-width: 660px) {
+  .acm-brand-text { display: none; }          /* 只留方形图标，省下约 70px */
+  .acm-tabs { max-width: 60vw; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; }
+  .acm-tabs::-webkit-scrollbar { display: none; }   /* 能横向滚，但不显示滚动条 */
+  .acm-tabs a { padding: 6px 8px; font-size: 11.5px; }
+}
