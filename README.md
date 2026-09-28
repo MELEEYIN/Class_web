@@ -893,6 +893,14 @@ M1 里有一张**教材板块骨架表**，逐行标出教材的每个板块对�
 
 ### 改动这一页时别踩的四个坑
 
+0. **背景层与主页是「同一份规则的两次实现」。** 主页背景由 `site/js/background.js` 负责（读 `cw.bg`
+   + IndexedDB `cw-bg/kv/bg-image`，写 `--bg-tint / --bg-image / --bg-size / --bg-dim / --bg-blur`）。
+   子站不能直接引它（那个 IIFE 绑死在主页 DOM 上），所以 `site/en/bg.js` 复刻了同一套规则；
+   `en.css` 里再用主页 `base.css` 的 `body::before` / `body::after` 结构去画。
+   **主页改预设、改变量名或改存储键时，`site/en/bg.js` 必须同步。**
+   顺带停用了 acm 子站那套 `.bgfx` / `.bgtint` 壁纸层（那套由 ACM 自己的「外观」面板驱动）。
+   注意 `boot.js` 只套用了 `--bg-dim` / `--bg-blur`，`--bg-tint` 与 `--bg-image` 它不管 ——
+   所以只靠 boot.js 是不够的，自定义背景图不会出现。
 1. **`en.css` 是「`acm.css` 原文 + 本子站的组件规则」拼出来的。** 改配色令牌时两边要同步 ——
    两个子站故意各抄一份，是为了让它们能独立换风格，别改成 `@import` 或直接引 `../acm/acm.css`。
 2. **CSP 与 `/acm/*` 完全一致**：`script-src` 不含任何 CDN，`connect-src` 只有 `'self'`。

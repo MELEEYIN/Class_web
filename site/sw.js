@@ -11,7 +11,7 @@
    更新流程：新 SW install 后**不自动接管**，由页面提示「有新版本，点一下更新」，
    用户点了才 skipWaiting + reload（避免像以前那样用户长期跑在旧代码上）。
    ========================================================================== */
-var VERSION = 'v9';   // 改样式/脚本时记得 +1（v9：新增「大学英语」子站 site/en/，四册 24 单元）
+var VERSION = 'v10';  // 改样式/脚本时记得 +1（v10：大学英语子站背景层对齐主页，加 bg.js 与「回主页」按钮）
 var SHELL_CACHE = 'cw-shell-' + VERSION;
 var RUNTIME_CACHE = 'cw-runtime-' + VERSION;
 

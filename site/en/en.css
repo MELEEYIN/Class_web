@@ -337,6 +337,47 @@ ol.exlist>li:first-child::before{top:4px}
 .exgrp.veil .exq u{border-bottom-color:var(--text-3)}
 .exnote{font-size:12.4px;color:var(--text-3);margin:6px 0 0;line-height:1.7}
 
+/* ---- 背景层：与校园主页完全一致（照抄 site/css/base.css 的 body::before / ::after） ---- */
+/* 主页的变量名是 --bg-tint / --bg-image / --bg-size / --bg-dim / --bg-blur，
+   由 site/js/background.js 写入；bg.js 在本子站里按同一套规则复刻了一遍。
+   这里把 acm.css 那层 --acm-tint 换掉，并停用 acm 那套 .bgfx / .bgtint 壁纸层。 */
+html{
+  --bg-image:none;
+  --bg-size:cover, cover;
+  --bg-dim:0;
+  --bg-blur:0px;
+  --bg-tint:linear-gradient(180deg, #f3f8ff 0%, #eaf2fe 60%, #f5f9ff 100%);
+}
+html[data-theme="dark"], html:not([data-theme]){
+  --bg-tint:linear-gradient(180deg, #060d1a 0%, #08111f 60%, #060d1a 100%);
+}
+body{background:rgb(var(--bg-rgb))}
+body::before{
+  content:"";
+  position:fixed;
+  inset:-8vmax;
+  z-index:-3;
+  pointer-events:none;
+  background-image:var(--bg-image), var(--bg-tint);
+  background-size:var(--bg-size);
+  background-position:center, center;
+  background-repeat:no-repeat, repeat;
+  filter:blur(var(--bg-blur));
+  transform:scale(1.02);
+  transition:filter .44s var(--acm-ease);
+}
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-2;
+  pointer-events:none;
+  background:rgba(6, 16, 32, var(--bg-dim));
+  transition:background .26s linear;
+}
+/* 子站不再使用 acm 子站那套壁纸层（.bgfx 的 --wall + .bgtint 的压暗叠层） */
+.bgfx, .bgtint { display:none !important; }
+
 /* ---- 单元折叠卡（按单元分开） ---- */
 details.unit{border:1px solid var(--line);border-radius:var(--radius);
   background:rgb(var(--panel-rgb) / var(--panel-a));margin:14px 0;
