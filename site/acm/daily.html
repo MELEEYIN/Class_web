@@ -228,6 +228,40 @@ details.fold>summary:hover::before{color:var(--accent)}
 .rm.done b{color:var(--accent)}
 .rm.done em{color:rgb(var(--ok-rgb))}
 .figcap{font-size:12.5px;color:var(--text-3);margin:2px 0 14px}
+/* ---------- 新人通道 ---------- */
+.path{border:1px solid var(--line);border-radius:var(--radius);background:rgb(var(--panel-rgb) / var(--panel-a));
+  margin:12px 0;overflow:hidden}
+.path-hd{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding:12px 18px;
+  border-bottom:1px solid var(--line);background:rgb(var(--accent-rgb) / .07)}
+.path-hd b{font-size:15px;color:var(--text)}
+.path-hd em{font-size:11.5px;color:var(--text-3);font-style:normal;margin-left:auto}
+.path-no{font-size:11.5px;font-weight:600;color:var(--accent);
+  border:1px solid rgb(var(--accent-rgb) / .4);background:rgb(var(--accent-rgb) / .12);
+  border-radius:20px;padding:1px 9px;white-space:nowrap}
+.path-bd{padding:12px 18px 14px}
+.path-line{margin:6px 0;font-size:13.5px;color:var(--text-2);line-height:1.8}
+.path-line b{color:var(--text)}
+.path-bd table{margin:8px 0 2px}
+
+/* ---------- 术语词典 ---------- */
+.gbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:14px 0 4px}
+#gq{flex:1 1 260px;min-width:200px;padding:9px 13px;border:1px solid var(--line-2);border-radius:10px;
+  font-size:13.5px;background:rgb(var(--panel-rgb) / .6);color:var(--text)}
+#gq::placeholder{color:var(--text-3)}
+#gq:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgb(var(--accent-rgb) / .18)}
+.gcount{font-size:12px;color:var(--text-3);white-space:nowrap}
+.gwrap{margin:18px 0}
+.gcat{display:flex;align-items:baseline;gap:10px;margin:0 0 6px;border:0;padding:0;font-size:15px}
+.gcat em{font-size:11.5px;color:var(--text-3);font-style:normal}
+.gtx{font-weight:600}
+.gtx-acc{color:var(--accent)} .gtx-vio{color:rgb(var(--vio-rgb))} .gtx-dan{color:rgb(var(--danger-rgb))}
+.gtx-ok{color:rgb(var(--ok-rgb))} .gtx-warn{color:rgb(var(--warn-rgb))}
+#glossary table{margin:0}
+#glossary .gterm{white-space:nowrap;width:1%;font-size:12.5px}
+#glossary .gref{white-space:nowrap;width:1%;text-align:right}
+#glossary .gref a{font-family:"Cascadia Code",Consolas,Menlo,monospace;font-size:12px}
+
+
 .legend{display:flex;flex-wrap:wrap;gap:14px;margin:8px 0 2px;font-size:12px;color:var(--text-2)}
 .legend span{display:flex;align-items:center;gap:5px}
 .legend i{width:14px;height:3px;display:inline-block;border-radius:2px}
@@ -287,15 +321,18 @@ footer{max-width:1200px;margin:40px auto 0;padding:20px 24px 60px;color:var(--te
   <span class="stat">本章共 5 件事</span>
   <span class="stat">全部上线 5 / 5</span>
   <span class="stat">41 张可折叠卡片</span>
+  <span class="stat">术语词典 87 条</span>
   <span class="stat">18 张手绘图表（零外部依赖）</span>
   <span class="stat">代码可直接复制编译</span>
 </div>
-<p class="hint">页面较长，<b>每个主题都做成了可折叠的卡片</b>，点标题展开，或用顶部的 <b>全部展开 / 全部折叠</b> 一次性控制。所有图表都是内联 SVG，<b>不加载任何外部脚本或 CDN</b>；深浅色跟随校园主页。</p>
+<p class="hint">第一次来先看 <a href="#start"><b>新人通道</b></a>（第一遍只需要 6 张）；遇到不认识的词去 <a href="#glossary"><b>术语词典</b></a> 查。页面较长，<b>每个主题都做成了可折叠的卡片</b>，点标题展开，或用顶部的 <b>全部展开 / 全部折叠</b> 一次性控制。所有图表都是内联 SVG，<b>不加载任何外部脚本或 CDN</b>；深浅色跟随校园主页。</p>
 </div></header>
 
 <div class="layout">
 <aside>
   <div class="ttl">目录</div>
+  <a href="#start">新人通道（先读这个）</a>
+  <a href="#glossary">7 · 术语词典</a>
   <a href="#c1">1 · 复杂度分析</a>
   <a href="#f1" class="sub2">1.1 计数的本质</a>
   <a href="#f2" class="sub2">1.2 能不能过</a>
@@ -347,6 +384,8 @@ footer{max-width:1200px;margin:40px auto 0;padding:20px 24px 60px;color:var(--te
 
 <main>
 <div class="bar">
+  <a class="chip go" href="#start">新人通道</a>
+  <a class="chip" href="#glossary">术语词典</a>
   <button class="chip act" type="button" data-act="expand">全部展开</button>
   <button class="chip act" type="button" data-act="collapse">全部折叠</button>
   <a class="chip go" href="practice.html" target="_blank" title="打开例题练习场">题练场 →</a>
@@ -361,6 +400,58 @@ footer{max-width:1200px;margin:40px auto 0;padding:20px 24px 60px;color:var(--te
     <a class="rm done" href="#c4"><b>4</b><span>常见错误字典</span><em>8 张卡片</em></a>
     <a class="rm done" href="#c5"><b>5</b><span>离散化</span><em>7 张卡片</em></a>
   </div>
+</div>
+
+<h2 id="start">新人通道：不用全读，先读这六张</h2>
+<p class="lead">这一页有 <b>41 张卡片</b>，但它不是「从第 1 张读到第 41 张」用的。<b>第一遍你只需要 6 张</b>，加起来约半小时；剩下 35 张对应的是<b>具体的问题</b> —— 撞到了再回来查，一遍就能记住，比提前硬啃十遍都管用。</p>
+
+<div class="path">
+  <div class="path-hd"><span class="path-no">第一段</span><b>建立「能不能过」的直觉</b><em>约 15 分钟</em></div>
+  <div class="path-bd">
+    <p class="path-line"><b>先读</b><a href="#f1">1.1</a> · <a href="#f2">1.2</a> · <a href="#f3">1.3</a> —— 计数的本质、增长曲线、数据规模对照表。</p>
+    <p class="path-line"><b>读完你会</b>：拿到题先看 <span class="mono">n</span> 的范围，反推该用什么复杂度。<b>这一步想清楚，能省掉后面一半的返工</b> —— 很多人卡住不是因为不会算法，是因为一开始就在用注定超时的思路。</p>
+  </div>
+</div>
+
+<div class="path">
+  <div class="path-hd"><span class="path-no">第二段</span><b>抄一份脚手架 + 知道出错该查哪</b><em>约 15 分钟</em></div>
+  <div class="path-bd">
+    <p class="path-line"><b>先读</b><a href="#g7">2.7</a> · <a href="#i2">4.2</a> · <a href="#i7">4.7</a> —— 完整的脚手架模板、六种评测结果对照表、三个最贵的坑。</p>
+    <p class="path-line"><b>读完你会</b>：有一套自己的模板可以直接用；看到 <span class="mono">WA</span> / <span class="mono">RE</span> / <span class="mono">TLE</span> 知道第一个该怀疑什么，而不是到处瞎改。</p>
+    <p class="path-line"><b>2.7 那段代码可以直接复制走</b>，存成编辑器的代码片段。4.2 那张表建议打印出来贴在显示器旁边。</p>
+  </div>
+</div>
+
+<div class="path">
+  <div class="path-hd"><span class="path-no">第三段</span><b>真正写起来之后，按问题回来查</b><em>之后一直用</em></div>
+  <div class="path-bd">
+    <table>
+      <thead><tr><th>你现在的情况</th><th>直接去看</th></tr></thead>
+      <tbody>
+        <tr><td>刚开始学，还没写过几道题</td><td class="mono"><a href="#f1">1.1</a> · <a href="#f2">1.2</a> · <a href="#f3">1.3</a></td></tr>
+        <tr><td>代码编译不过，或者看不懂报错</td><td class="mono"><a href="#i2">4.2</a> · <a href="#i3">4.3</a> · <a href="#i4">4.4</a></td></tr>
+        <tr><td>能写出来，但总是超时</td><td class="mono"><a href="#g4">2.4</a> · <a href="#g5">2.5</a> · <a href="#i5">4.5</a></td></tr>
+        <tr><td>答案不对，又看不出错在哪</td><td class="mono"><a href="#i3">4.3</a> · <a href="#i6">4.6</a> · <a href="#h1">3.1</a> · <a href="#h2">3.2</a> · <a href="#h3">3.3</a></td></tr>
+        <tr><td>想确认自己写的到底对不对</td><td class="mono"><a href="#h1">3.1</a> · <a href="#h2">3.2</a> · <a href="#h3">3.3</a> · <a href="#h5">3.5</a></td></tr>
+        <tr><td>值域太大，数组开不下</td><td class="mono"><a href="#j1">5.1</a> · <a href="#j2">5.2</a> · <a href="#j6">5.6</a></td></tr>
+        <tr><td>只想要一份能直接抄的模板</td><td class="mono"><a href="#g7">2.7</a> · <a href="#g8">2.8</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="callout warn">
+<p><b>剩下的 35 张，不要提前读。</b>它们不是「更高级的知识」，而是「针对某个具体毛病的解法」。举个例：</p>
+<ul class="tight">
+<li><b>1.5 调和级数</b>、<b>1.7 麦森数</b>、<b>2.3 INF 为什么是 0x3f3f3f3f</b> —— 这些是「你已经在写，想搞懂为什么」的时候看的。</li>
+<li><b>3.4 rand() 的四个坑</b>、<b>4.4 栈与内存</b>、<b>4.6 五个调试手法</b> —— 这些是「本地跑得对、交上去不对」的时候看的。</li>
+<li><b>5.3～5.7</b> —— 这些是「你要用树状数组 / 线段树了」的时候看的。</li>
+</ul>
+<p>提前读它们的效果，和你现在读一篇你没做过题目的题解差不多：看得懂，但记不住。<b>撞到问题再读，一次就记住。</b></p>
+</div>
+<div class="callout ok">
+<p><b>五件里如果只能先做一件，做第 1 件；做完立刻做第 3 件。</b>第 1 件（复杂度）让你不浪费时间，第 3 件（对拍）让你不再骗自己 —— 这两件加起来，能解决入门阶段八成的卡顿。</p>
+<p>另外：<b>遇到不认识的词，直接去文末的 <a href="#glossary">术语词典</a></b>。那里按分类收了这一页用到的所有术语，用大白话解释，每条还标了它出现在哪一节。</p>
 </div>
 
 <h2 id="c1">1 · 复杂度分析：一分钟算出「能不能过」</h2>
@@ -2354,6 +2445,160 @@ b.erase(unique(b.begin(), b.end()), b.end());</script></div>
 <p class="ref">下一步：<a href="./index.html">学习手册</a>（122 张算法卡片，按入门 / 基础 / 进阶三层）· <a href="./practice.html">题练场</a>（洛谷真题 + 浏览器内判定）· <a href="./plan.html">学习计划</a>（8 周训练表）。</p>
 
 <p class="ref">相关页面：<a href="./index.html">学习手册</a>（122 张算法卡片）· <a href="./practice.html">题练场</a>（洛谷真题 + 多语言题解）· <a href="./plan.html">学习计划</a>（12 周训练表）</p>
+<h2 id="glossary">7 · 术语词典（看不懂的来这里查）</h2>
+<p class="lead">这一页用到的术语都在下面，<b>按分类收好了</b>，每条给的是大白话解释，并标明它出现在哪一节 —— 看完解释可以直接点过去看上下文。共 <b>87 条</b>。</p>
+<div class="gbar">
+  <input id="gq" type="search" placeholder="输入不认识的词，比如：均摊 / 溢出 / 对拍 / 迭代器">
+  <span id="gcount" class="gcount"></span>
+</div>
+<div class="gwrap">
+<h3 class="gcat"><span class="gtx gtx-acc">判复杂度时会遇到的词</span><em>12 条</em></h3>
+<table>
+<thead><tr><th class="gterm">术语</th><th>大白话</th><th class="gref">在哪节</th></tr></thead>
+<tbody>
+<tr><td class="gterm mono">复杂度</td><td>一句话：n 变大时，程序要跑的步数涨得多快。O(n) 约等于「和 n 成正比」，O(n²) 约等于「和 n 的平方成正比」。</td><td class="gref"><a href="#f1">1.1</a></td></tr>
+<tr><td class="gterm mono">常数因子</td><td>复杂度里的「系数」。2n 和 100n 都写成 O(n) —— 只看涨得快不快，不看具体是几倍。</td><td class="gref"><a href="#f6">1.6</a></td></tr>
+<tr><td class="gterm mono">渐进（渐进行为）</td><td>只看 n 非常大时的趋势，不管 n 小的时候谁更快。所以复杂度不预测具体秒数。</td><td class="gref"><a href="#f2">1.2</a></td></tr>
+<tr><td class="gterm mono">上界</td><td>「最多跑到这么多」。说某个算法的复杂度是 O(n)，意思是「不会比正比增长更快」。</td><td class="gref"><a href="#f1">1.1</a></td></tr>
+<tr><td class="gterm mono">均摊</td><td>某一次操作可能很慢，但把它摊到很多次操作上，平均下来很快。</td><td class="gref"><a href="#f4">1.4</a></td></tr>
+<tr><td class="gterm mono">对数 / log</td><td>反着问「2 的多少次方等于 n」。n = 100 万时，log₂n 只有 20。</td><td class="gref"><a href="#f4">1.4</a></td></tr>
+<tr><td class="gterm mono">底数</td><td>log₂ 和 log₁₀ 里那个 2 和 10。换底只差一个固定倍数，所以复杂度里不写底数。</td><td class="gref"><a href="#f5">1.5</a></td></tr>
+<tr><td class="gterm mono">调和级数</td><td>1 + 1/2 + 1/3 + … + 1/n 这种和。看起来会很大，其实只涨到 ln n 那么大。</td><td class="gref"><a href="#f5">1.5</a></td></tr>
+<tr><td class="gterm mono">调和数 H(n)</td><td>上面那个和的数学名字。不用手算，只要知道它约等于 ln n。</td><td class="gref"><a href="#f5">1.5</a></td></tr>
+<tr><td class="gterm mono">欧拉常数 γ</td><td>≈ 0.5772 的一个固定数，出现在调和数的精确公式里。记不住完全没关系。</td><td class="gref"><a href="#f5">1.5</a></td></tr>
+<tr><td class="gterm mono">级数</td><td>一串数相加。</td><td class="gref"><a href="#f5">1.5</a></td></tr>
+<tr><td class="gterm mono">值域</td><td>这些数可能取到的范围。比如「值域到 10⁹」= 数最大能到十亿。</td><td class="gref"><a href="#j1">5.1</a></td></tr>
+</tbody>
+</table>
+</div>
+<div class="gwrap">
+<h3 class="gcat"><span class="gtx gtx-vio">C++ 语言</span><em>15 条</em></h3>
+<table>
+<thead><tr><th class="gterm">术语</th><th>大白话</th><th class="gref">在哪节</th></tr></thead>
+<tbody>
+<tr><td class="gterm mono">头文件</td><td>C++ 把功能分成一包包，用 #include 拿进来。要什么拿什么，别一次全拿。</td><td class="gref"><a href="#g2">2.2</a></td></tr>
+<tr><td class="gterm mono">万能头</td><td>#include &lt;bits/stdc++.h&gt;，一行几乎把所有功能都拿进来。方便，但不是标准，换编译器可能就编译不过。</td><td class="gref"><a href="#g2">2.2</a></td></tr>
+<tr><td class="gterm mono">预处理</td><td>编译之前先做的一遍文本加工，#include 和 #define 都在这一步完成。</td><td class="gref"><a href="#g6">2.6</a></td></tr>
+<tr><td class="gterm mono">宏（#define）</td><td>编译前的「查找替换」。写 #define N 100，之后代码里所有的 N 都会被换成 100。</td><td class="gref"><a href="#g6">2.6</a></td></tr>
+<tr><td class="gterm mono">文本替换</td><td>宏的本质：它不懂语法，只是把字换掉 —— 所以经常出你没想到的意外。</td><td class="gref"><a href="#g6">2.6</a></td></tr>
+<tr><td class="gterm mono">函数式宏</td><td>#define sqr(x) ((x)*(x)) 这种「带参数的宏」。参数会被替换两次，容易出错。</td><td class="gref"><a href="#g6">2.6</a></td></tr>
+<tr><td class="gterm mono">类型</td><td>一个变量能装什么、能装多大。int 装约 ±21 亿，long long 装约 ±9.2×10¹⁸。</td><td class="gref"><a href="#i7">4.7</a></td></tr>
+<tr><td class="gterm mono">溢出</td><td>装不下了，数字绕回去变成离谱的值。int 相加超过约 21 亿就会发生。</td><td class="gref"><a href="#i7">4.7</a></td></tr>
+<tr><td class="gterm mono">未定义行为</td><td>标准没规定该发生什么，所以「本机跑对了、评测机跑错了」都可能。溢出、越界都属于这一类。</td><td class="gref"><a href="#i7">4.7</a></td></tr>
+<tr><td class="gterm mono">引用</td><td>给变量起的第二个名字，改它就等于改原来的变量。</td><td class="gref"><a href="#g6">2.6</a></td></tr>
+<tr><td class="gterm mono">内联（inline）</td><td>告诉编译器「这个小函数直接展开到调用处」，省一次函数调用的开销。</td><td class="gref"><a href="#g6">2.6</a></td></tr>
+<tr><td class="gterm mono">模板（template）</td><td>写一份代码适配多种类型，比如同一个 sqr 既能算 int 也能算 double。</td><td class="gref"><a href="#g6">2.6</a></td></tr>
+<tr><td class="gterm mono">容器</td><td>能装一堆东西的「盒子」，比如 vector（变长数组）、map（有序键值表）。</td><td class="gref"><a href="#g8">2.8</a></td></tr>
+<tr><td class="gterm mono">迭代器</td><td>指向容器里某个位置的「游标」，类似数组下标，但更通用。</td><td class="gref"><a href="#j3">5.3</a></td></tr>
+<tr><td class="gterm mono">迭代器失效</td><td>容器被改动（比如删了元素）之后，之前拿到的迭代器可能指向无效位置，再用就会出错。</td><td class="gref"><a href="#j3">5.3</a></td></tr>
+</tbody>
+</table>
+</div>
+<div class="gwrap">
+<h3 class="gcat"><span class="gtx gtx-dan">内存与初始化</span><em>12 条</em></h3>
+<table>
+<thead><tr><th class="gterm">术语</th><th>大白话</th><th class="gref">在哪节</th></tr></thead>
+<tbody>
+<tr><td class="gterm mono">栈（stack 内存）</td><td>程序运行时自动分配的一小块内存，默认只有 1～8 MB。函数里的局部变量住这里，放太多会爆。</td><td class="gref"><a href="#i4">4.4</a></td></tr>
+<tr><td class="gterm mono">堆（heap）</td><td>手动申请的大块内存（new、vector 用的是这里），空间大，但不会自动释放。</td><td class="gref"><a href="#i4">4.4</a></td></tr>
+<tr><td class="gterm mono">静态区</td><td>全局变量和 static 变量住的地方。程序启动就分配好，空间比栈大得多。</td><td class="gref"><a href="#i4">4.4</a></td></tr>
+<tr><td class="gterm mono">全局变量</td><td>写在所有函数外面的变量。默认全是 0，能开很大。</td><td class="gref"><a href="#i4">4.4</a></td></tr>
+<tr><td class="gterm mono">局部变量</td><td>写在函数里面的变量。默认是随机值，住在栈上。</td><td class="gref"><a href="#i4">4.4</a></td></tr>
+<tr><td class="gterm mono">爆栈</td><td>栈用完了，程序直接崩，而且不给有用的报错。</td><td class="gref"><a href="#i4">4.4</a></td></tr>
+<tr><td class="gterm mono">越界</td><td>用了数组范围之外的下标，比如只开了 5 个却访问第 6 个。最常见的 RE 原因。</td><td class="gref"><a href="#i4">4.4</a></td></tr>
+<tr><td class="gterm mono">字节 / bit</td><td>内存的基本单位。一个 int 占 4 个字节，一个字节是 8 个 bit。</td><td class="gref"><a href="#f3">1.3</a></td></tr>
+<tr><td class="gterm mono">位宽</td><td>一个类型用多少个 bit 存。int 是 32 位，long long 是 64 位。</td><td class="gref"><a href="#g2">2.2</a></td></tr>
+<tr><td class="gterm mono">零初始化</td><td>把变量的值设成 0。全局变量自动做，局部变量不会。</td><td class="gref"><a href="#i7">4.7</a></td></tr>
+<tr><td class="gterm mono">memset</td><td>按「字节」批量填内存的函数。只能填 0、-1、0x3f 这种每个字节都一样的值。</td><td class="gref"><a href="#i7">4.7</a></td></tr>
+<tr><td class="gterm mono">sizeof</td><td>求「占多少个字节」。数组传进函数后会变成指针，这时 sizeof 就不再是数组大小了。</td><td class="gref"><a href="#i7">4.7</a></td></tr>
+</tbody>
+</table>
+</div>
+<div class="gwrap">
+<h3 class="gcat"><span class="gtx gtx-ok">工具与环境</span><em>10 条</em></h3>
+<table>
+<thead><tr><th class="gterm">术语</th><th>大白话</th><th class="gref">在哪节</th></tr></thead>
+<tbody>
+<tr><td class="gterm mono">编译</td><td>把 C++ 代码翻译成能运行的程序。翻译不过去就是 CE。</td><td class="gref"><a href="#i2">4.2</a></td></tr>
+<tr><td class="gterm mono">评测机</td><td>在线题库（OJ）背后自动编译、运行、对比答案的机器。</td><td class="gref"><a href="#i2">4.2</a></td></tr>
+<tr><td class="gterm mono">OJ</td><td>Online Judge，在线判题网站，比如洛谷、Codeforces。</td><td class="gref"><a href="#i2">4.2</a></td></tr>
+<tr><td class="gterm mono">AC</td><td>Accepted，答案正确、通过。</td><td class="gref"><a href="#i2">4.2</a></td></tr>
+<tr><td class="gterm mono">优化 / O2</td><td>编译时开的加速开关。同一个程序开 O2 会快好几倍。</td><td class="gref"><a href="#i5">4.5</a></td></tr>
+<tr><td class="gterm mono">调试</td><td>找出程序为什么不对的过程。</td><td class="gref"><a href="#i6">4.6</a></td></tr>
+<tr><td class="gterm mono">断言（assert）</td><td>写一句「我认为这里一定成立」，不成立时程序立刻停下并告诉你在哪一行。</td><td class="gref"><a href="#i6">4.6</a></td></tr>
+<tr><td class="gterm mono">stdout / stderr</td><td>程序的两个输出口。stdout 是你交上去的答案，stderr 是给自己看的调试信息（不参与判题）。</td><td class="gref"><a href="#i6">4.6</a></td></tr>
+<tr><td class="gterm mono">缓冲 / 刷新</td><td>输出先攒在内存里，攒够一批才真正写出去。flush（刷新）就是「立刻写出去」。</td><td class="gref"><a href="#g5">2.5</a></td></tr>
+<tr><td class="gterm mono">重定向</td><td>把程序的输入改成从文件读、输出改成写到文件（对拍脚本就靠它）。</td><td class="gref"><a href="#h5">3.5</a></td></tr>
+</tbody>
+</table>
+</div>
+<div class="gwrap">
+<h3 class="gcat"><span class="gtx gtx-warn">竞赛黑话</span><em>19 条</em></h3>
+<table>
+<thead><tr><th class="gterm">术语</th><th>大白话</th><th class="gref">在哪节</th></tr></thead>
+<tbody>
+<tr><td class="gterm mono">暴力</td><td>最笨但一定对的写法：把所有可能一个个试过去。慢，但可以用来给正解当参照。</td><td class="gref"><a href="#h2">3.2</a></td></tr>
+<tr><td class="gterm mono">正解</td><td>你打算提交的那份解法。</td><td class="gref"><a href="#h2">3.2</a></td></tr>
+<tr><td class="gterm mono">对拍</td><td>让暴力和正解跑同一份随机数据，输出不一致就说明正解错了。</td><td class="gref"><a href="#h1">3.1</a></td></tr>
+<tr><td class="gterm mono">数据生成器</td><td>自动造测试数据的程序。对拍能不能抓到错，九成取决于它写得好不好。</td><td class="gref"><a href="#h3">3.3</a></td></tr>
+<tr><td class="gterm mono">反例</td><td>一个能让你的程序出错的输入。对拍停下的那一刻，就是在给你反例。</td><td class="gref"><a href="#h2">3.2</a></td></tr>
+<tr><td class="gterm mono">特判</td><td>针对特殊输入单独写一段处理，比如 n = 0 时直接输出 0。</td><td class="gref"><a href="#i3">4.3</a></td></tr>
+<tr><td class="gterm mono">边界</td><td>数据范围的极端情况：最小、最大、全部相同、空。最容易写错的地方。</td><td class="gref"><a href="#i3">4.3</a></td></tr>
+<tr><td class="gterm mono">卡常</td><td>算法复杂度已经够了，但程序常数太大、跑得慢，结果还是超时。</td><td class="gref"><a href="#i5">4.5</a></td></tr>
+<tr><td class="gterm mono">卡掉</td><td>出题人专门构造数据，让你的某种写法过不了。</td><td class="gref"><a href="#g8">2.8</a></td></tr>
+<tr><td class="gterm mono">骗分</td><td>用不完整的解法拿部分分。</td><td class="gref"><a href="#h6">3.6</a></td></tr>
+<tr><td class="gterm mono">打表</td><td>把答案提前算好，写死在代码里。</td><td class="gref"><a href="#h6">3.6</a></td></tr>
+<tr><td class="gterm mono">交互题</td><td>你的程序和评测机来回对话，输入输出是交错的。这种题不能离线对拍。</td><td class="gref"><a href="#h6">3.6</a></td></tr>
+<tr><td class="gterm mono">special judge</td><td>答案不止一种时用的特殊判分程序（普通评测机只逐字符比对答案）。</td><td class="gref"><a href="#h6">3.6</a></td></tr>
+<tr><td class="gterm mono">样例</td><td>题目给的示例输入输出。写完先用它测一遍。</td><td class="gref"><a href="#i6">4.6</a></td></tr>
+<tr><td class="gterm mono">数据范围</td><td>题目给的 n、a 的最大最小值。<b>它决定你该用什么复杂度。</b></td><td class="gref"><a href="#f3">1.3</a></td></tr>
+<tr><td class="gterm mono">多组数据</td><td>一次输入里有好几组测试，通常读到文件末尾为止。每组之间要清空全局数组。</td><td class="gref"><a href="#i7">4.7</a></td></tr>
+<tr><td class="gterm mono">输出格式</td><td>空格、换行、大小写、小数位数。看起来对，但逐字符比对时错就是错。</td><td class="gref"><a href="#i3">4.3</a></td></tr>
+<tr><td class="gterm mono">离线</td><td>把所有询问先读进来、一起处理，而不是边读边答。</td><td class="gref"><a href="#h6">3.6</a></td></tr>
+<tr><td class="gterm mono">提交</td><td>把代码交到评测机上去判。</td><td class="gref"><a href="#i2">4.2</a></td></tr>
+</tbody>
+</table>
+</div>
+<div class="gwrap">
+<h3 class="gcat"><span class="gtx gtx-acc">数组与寻址</span><em>10 条</em></h3>
+<table>
+<thead><tr><th class="gterm">术语</th><th>大白话</th><th class="gref">在哪节</th></tr></thead>
+<tbody>
+<tr><td class="gterm mono">下标</td><td>元素在数组里的编号。C++ 数组从 0 开始，很多算法习惯从 1 开始。</td><td class="gref"><a href="#j2">5.2</a></td></tr>
+<tr><td class="gterm mono">映射</td><td>把一种东西对应到另一种东西。离散化就是把「大数」映射到「小下标」。</td><td class="gref"><a href="#j1">5.1</a></td></tr>
+<tr><td class="gterm mono">离散化</td><td>数很大但个数很少时，把它们的「排名」当新下标用，值域就从 10⁹ 缩到 n。</td><td class="gref"><a href="#j1">5.1</a></td></tr>
+<tr><td class="gterm mono">去重</td><td>把重复的数值只保留一份。</td><td class="gref"><a href="#j2">5.2</a></td></tr>
+<tr><td class="gterm mono">排名</td><td>一个数在「排序去重后的序列」里排第几。离散化后的新下标就是它。</td><td class="gref"><a href="#j1">5.1</a></td></tr>
+<tr><td class="gterm mono">前缀和</td><td>先预处理一个数组 s[i] = 前 i 个数的和，之后求任意区间和只要减一下（O(1)）。</td><td class="gref"><a href="#j5">5.5</a></td></tr>
+<tr><td class="gterm mono">二分</td><td>每次都把查找范围砍掉一半。所以是 O(log n)。</td><td class="gref"><a href="#f4">1.4</a></td></tr>
+<tr><td class="gterm mono">取模</td><td>求余数（%）。竞赛里 10⁹+7 是常用的模数。</td><td class="gref"><a href="#i3">4.3</a></td></tr>
+<tr><td class="gterm mono">位运算</td><td>直接对二进制位做运算（&amp; | ^ &lt;&lt; &gt;&gt;）。</td><td class="gref"><a href="#g2">2.2</a></td></tr>
+<tr><td class="gterm mono">桶</td><td>用一个数组当计数器，下标就是值。值域大就开不下 —— 所以才需要离散化。</td><td class="gref"><a href="#j5">5.5</a></td></tr>
+</tbody>
+</table>
+</div>
+<div class="gwrap">
+<h3 class="gcat"><span class="gtx gtx-vio">会遇到的库与结构</span><em>9 条</em></h3>
+<table>
+<thead><tr><th class="gterm">术语</th><th>大白话</th><th class="gref">在哪节</th></tr></thead>
+<tbody>
+<tr><td class="gterm mono">优先队列</td><td>随时能取出「当前最大 / 最小」的容器。Dijkstra、哈夫曼树都用它。</td><td class="gref"><a href="#g2">2.2</a></td></tr>
+<tr><td class="gterm mono">树状数组</td><td>支持「单点修改 + 前缀查询」的轻量结构，每个操作 O(log n)。常配离散化求逆序对。</td><td class="gref"><a href="#j5">5.5</a></td></tr>
+<tr><td class="gterm mono">线段树</td><td>比树状数组更通用，支持区间修改 / 区间查询。</td><td class="gref"><a href="#j5">5.5</a></td></tr>
+<tr><td class="gterm mono">并查集</td><td>维护「谁和谁是一伙的」，支持快速合并与查询。</td><td class="gref"><a href="#j5">5.5</a></td></tr>
+<tr><td class="gterm mono">扫描线</td><td>求矩形面积并的经典做法，配线段树 + 离散化。</td><td class="gref"><a href="#j4">5.4</a></td></tr>
+<tr><td class="gterm mono">主席树</td><td>可持久化线段树，用来求「区间内第 k 小」。</td><td class="gref"><a href="#j5">5.5</a></td></tr>
+<tr><td class="gterm mono">权值线段树</td><td>以下标 = 数值（离散化后）建的线段树，用来数「某个范围内的数有几个」。</td><td class="gref"><a href="#j5">5.5</a></td></tr>
+<tr><td class="gterm mono">邻接表</td><td>存图的方式之一：每个点挂一张它邻居的列表。</td><td class="gref"><a href="#f5">1.5</a></td></tr>
+<tr><td class="gterm mono">洛谷</td><td>国内常用的在线题库，这一页的题单都指向它。</td><td class="gref"><a href="#h8">3.8</a></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout">
+<p><b>怎么用最省时间：</b>读到一半被一个词卡住时，<b>不要停下来死磕</b> —— 直接来这里查一句大白话，回去接着读。等你回头再看到这个词时，就已经认识了。</p>
+<p>如果某个词在词典里也看不懂，那多半是因为它依赖了更前面的概念 —— 顺着「在哪节」那一列点过去，从头看那一条通常就通了。</p>
+</div>
+
 </main>
 </div>
 
@@ -2433,6 +2678,32 @@ b.erase(unique(b.begin(), b.end()), b.end());</script></div>
     root.setAttribute('data-mode', next);
     try { localStorage.setItem('cw.theme', JSON.stringify(next)); } catch (e) { }
     paint();
+  });
+})();
+</script>
+<script>
+/* 术语词典的即时过滤：按术语 + 解释全文匹配，过滤后隐藏空掉的分组 */
+(function () {
+  'use strict';
+  var q = document.getElementById('gq');
+  if (!q) return;
+  var wraps = [].slice.call(document.querySelectorAll('#glossary .gwrap'));
+  var rows = [].slice.call(document.querySelectorAll('#glossary tbody tr'));
+  var out = document.getElementById('gcount');
+  rows.forEach(function (tr) { tr.__hay = tr.textContent.toLowerCase(); });
+
+  q.addEventListener('input', function () {
+    var k = q.value.trim().toLowerCase();
+    var n = 0;
+    rows.forEach(function (tr) {
+      var hit = !k || tr.__hay.indexOf(k) >= 0;
+      tr.classList.toggle('hidden', !hit);
+      if (hit) n++;
+    });
+    wraps.forEach(function (w) {
+      w.classList.toggle('hidden', w.querySelectorAll('tbody tr:not(.hidden)').length === 0);
+    });
+    out.textContent = !k ? '' : (n ? '命中 ' + n + ' 条' : '没找到，换个词试试');
   });
 })();
 </script>
