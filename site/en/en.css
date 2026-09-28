@@ -305,6 +305,38 @@ header.top .sub { color: var(--text-2); }
 .th{border:1px solid var(--line);border-radius:10px;padding:7px 12px;background:rgb(var(--accent-rgb) / .06);font-size:12.6px}
 .th b{display:block;font-size:11px;color:var(--accent);letter-spacing:.06em;font-weight:750}
 
+/* ---- 课内例题精讲 ---- */
+.exgrp{margin:16px 0 4px;border:1px solid rgb(var(--accent-rgb) / .26);border-radius:12px;
+  background:rgb(var(--accent-rgb) / .045);padding:12px 16px 14px}
+.exh{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:14.6px;font-weight:700;margin-bottom:4px}
+.exh b{color:var(--accent)}
+.exk{font-size:11px;font-weight:700;border-radius:6px;padding:1px 8px;border:1px solid transparent;white-space:nowrap}
+.exk.off{background:rgb(var(--ok-rgb) / .14);color:rgb(var(--ok-rgb));border-color:rgb(var(--ok-rgb) / .3)}
+.exk.self{background:rgb(var(--warn-rgb) / .14);color:rgb(var(--warn-rgb));border-color:rgb(var(--warn-rgb) / .3)}
+.exh .chip{margin-left:auto}
+.bank{font-size:12.8px;color:var(--text-2);background:rgb(var(--panel-rgb) / var(--panel-a));
+  border:1px solid var(--line);border-radius:8px;padding:7px 11px;margin:8px 0 10px;line-height:2}
+.bank b{color:var(--text)}
+.bank i{font-style:normal;font-family:"Cascadia Code",Consolas,monospace;font-size:12.4px;
+  color:var(--accent);border-bottom:1px dashed rgb(var(--accent-rgb) / .45)}
+ol.exlist{margin:0;padding:0;list-style:none;counter-reset:ex}
+ol.exlist>li{counter-increment:ex;position:relative;padding:10px 0 10px 32px;border-top:1px dashed var(--line-2)}
+ol.exlist>li:first-child{border-top:0;padding-top:4px}
+ol.exlist>li::before{content:counter(ex) ")";position:absolute;left:0;top:10px;font-size:12.5px;
+  color:var(--text-3);font-weight:700}
+ol.exlist>li:first-child::before{top:4px}
+.exq{margin:0 0 5px;font-size:13.6px;line-height:1.75}
+.exq u{text-decoration:none;border-bottom:2px solid rgb(var(--accent-rgb) / .5);padding:0 10px}
+.exa{font-size:13.2px;line-height:1.78;background:rgb(var(--panel-rgb) / var(--panel-a));
+  border-left:3px solid rgb(var(--ok-rgb) / .55);border-radius:0 8px 8px 0;padding:7px 12px}
+.exa .k{color:rgb(var(--ok-rgb));font-weight:750}
+.exa p{margin:3px 0}
+.exa .tagx{display:inline-block;font-size:11px;color:var(--text-3);
+  border:1px solid var(--line);border-radius:5px;padding:0 6px;margin-right:6px;white-space:nowrap}
+.exgrp.veil .exa{visibility:hidden}
+.exgrp.veil .exq u{border-bottom-color:var(--text-3)}
+.exnote{font-size:12.4px;color:var(--text-3);margin:6px 0 0;line-height:1.7}
+
 /* ---- 单元折叠卡（按单元分开） ---- */
 details.unit{border:1px solid var(--line);border-radius:var(--radius);
   background:rgb(var(--panel-rgb) / var(--panel-a));margin:14px 0;
