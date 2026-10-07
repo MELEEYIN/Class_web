@@ -29,6 +29,22 @@
             --scrollbar-thumb: rgba(139, 92, 246, 0.4);
             --glass-blur: blur(16px);
             --transition-speed: 0.25s;
+
+            /* ==================== 等级（评级）配色 ====================
+               这里是唯一的颜色来源：圆点图例 / 卡片徽章 / 选择面板 / 排行榜
+               全部引用下面这组变量，想改色只改这里。
+               每个等级给一个**独立色相**，这样在 12px 的圆点和 0.75rem 的徽章上
+               也能一眼分辨（旧版 A+/A/A- 是三种绿、B+/B/B- 是三种黄橙，几乎看不出差别）。 */
+            --g-s:   #FFC93C;  --g-s-rgb:   255, 201, 60;    /* S    琥珀金 */
+            --g-ap:  #A3E635;  --g-ap-rgb:  163, 230, 53;    /* A+   青柠 */
+            --g-a:   #22C55E;  --g-a-rgb:   34, 197, 94;     /* A    翡翠绿 */
+            --g-am:  #14C7B8;  --g-am-rgb:  20, 199, 184;    /* A-   蓝绿 */
+            --g-bp:  #38BDF8;  --g-bp-rgb:  56, 189, 248;    /* B+   晴空蓝 */
+            --g-b:   #818CF8;  --g-b-rgb:   129, 140, 248;   /* B    靛青 */
+            --g-bm:  #C084FC;  --g-bm-rgb:  192, 132, 252;   /* B-   紫罗兰 */
+            --g-c:   #FB7185;  --g-c-rgb:   251, 113, 133;   /* C    玫红 */
+            --g-d:   #A8A29E;  --g-d-rgb:   168, 162, 158;   /* D    暖灰 */
+            --g-none:#64748B;  --g-none-rgb:100, 116, 139;   /* 未评级 冷灰 */
         }
 
         [data-theme="purple"] {
@@ -452,16 +468,16 @@
             margin-right: 2px;
             border: 1px solid rgba(255,255,255,0.1);
         }
-        .grade-dot.S { background: #FFD700; }
-        .grade-dot.A\+ { background: #00E676; }
-        .grade-dot.A { background: #4CAF50; }
-        .grade-dot.A\- { background: #8BC34A; }
-        .grade-dot.B\+ { background: #FFEB3B; }
-        .grade-dot.B { background: #FF9800; }
-        .grade-dot.B\- { background: #FF6F00; }
-        .grade-dot.C { background: #F44336; }
-        .grade-dot.D { background: #9E9E9E; }
-        .grade-dot.none { background: #555; }
+        .grade-dot.S { background: var(--g-s); }
+        .grade-dot.A\+ { background: var(--g-ap); }
+        .grade-dot.A { background: var(--g-a); }
+        .grade-dot.A\- { background: var(--g-am); }
+        .grade-dot.B\+ { background: var(--g-bp); }
+        .grade-dot.B { background: var(--g-b); }
+        .grade-dot.B\- { background: var(--g-bm); }
+        .grade-dot.C { background: var(--g-c); }
+        .grade-dot.D { background: var(--g-d); }
+        .grade-dot.none { background: var(--g-none); }
 
         /* ==================== 工具栏 ==================== */
         .toolbar {
@@ -1041,69 +1057,69 @@
             transform: scale(1.05);
         }
 
-        /* 各等级颜色（更鲜艳，带发光） */
+        /* 各等级颜色 —— 值统一取 :root 里的 --g-* 变量（改色只改那一处） */
         .grade-display.has-grade.grade-S {
-            color: #FFD700;
-            border-color: #FFD700;
-            background: rgba(255, 215, 0, 0.2);
-            text-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
-            box-shadow: 0 0 16px rgba(255, 215, 0, 0.15);
+            color: var(--g-s);
+            border-color: var(--g-s);
+            background: rgba(var(--g-s-rgb), 0.2);
+            text-shadow: 0 0 12px rgba(var(--g-s-rgb), 0.6);
+            box-shadow: 0 0 16px rgba(var(--g-s-rgb), 0.15);
         }
         .grade-display.has-grade.grade-A\+ {
-            color: #00E676;
-            border-color: #00E676;
-            background: rgba(0, 230, 118, 0.2);
-            text-shadow: 0 0 12px rgba(0, 230, 118, 0.6);
-            box-shadow: 0 0 16px rgba(0, 230, 118, 0.15);
+            color: var(--g-ap);
+            border-color: var(--g-ap);
+            background: rgba(var(--g-ap-rgb), 0.2);
+            text-shadow: 0 0 12px rgba(var(--g-ap-rgb), 0.6);
+            box-shadow: 0 0 16px rgba(var(--g-ap-rgb), 0.15);
         }
         .grade-display.has-grade.grade-A {
-            color: #4CAF50;
-            border-color: #4CAF50;
-            background: rgba(76, 175, 80, 0.2);
-            text-shadow: 0 0 12px rgba(76, 175, 80, 0.5);
-            box-shadow: 0 0 16px rgba(76, 175, 80, 0.12);
+            color: var(--g-a);
+            border-color: var(--g-a);
+            background: rgba(var(--g-a-rgb), 0.2);
+            text-shadow: 0 0 12px rgba(var(--g-a-rgb), 0.5);
+            box-shadow: 0 0 16px rgba(var(--g-a-rgb), 0.12);
         }
         .grade-display.has-grade.grade-A\- {
-            color: #8BC34A;
-            border-color: #8BC34A;
-            background: rgba(139, 195, 74, 0.2);
-            text-shadow: 0 0 12px rgba(139, 195, 74, 0.5);
-            box-shadow: 0 0 16px rgba(139, 195, 74, 0.12);
+            color: var(--g-am);
+            border-color: var(--g-am);
+            background: rgba(var(--g-am-rgb), 0.2);
+            text-shadow: 0 0 12px rgba(var(--g-am-rgb), 0.5);
+            box-shadow: 0 0 16px rgba(var(--g-am-rgb), 0.12);
         }
         .grade-display.has-grade.grade-B\+ {
-            color: #FFEB3B;
-            border-color: #FFEB3B;
-            background: rgba(255, 235, 59, 0.2);
-            text-shadow: 0 0 12px rgba(255, 235, 59, 0.6);
-            box-shadow: 0 0 16px rgba(255, 235, 59, 0.15);
+            color: var(--g-bp);
+            border-color: var(--g-bp);
+            background: rgba(var(--g-bp-rgb), 0.2);
+            text-shadow: 0 0 12px rgba(var(--g-bp-rgb), 0.6);
+            box-shadow: 0 0 16px rgba(var(--g-bp-rgb), 0.15);
         }
         .grade-display.has-grade.grade-B {
-            color: #FF9800;
-            border-color: #FF9800;
-            background: rgba(255, 152, 0, 0.2);
-            text-shadow: 0 0 12px rgba(255, 152, 0, 0.6);
-            box-shadow: 0 0 16px rgba(255, 152, 0, 0.15);
+            color: var(--g-b);
+            border-color: var(--g-b);
+            background: rgba(var(--g-b-rgb), 0.2);
+            text-shadow: 0 0 12px rgba(var(--g-b-rgb), 0.6);
+            box-shadow: 0 0 16px rgba(var(--g-b-rgb), 0.15);
         }
         .grade-display.has-grade.grade-B\- {
-            color: #FF6F00;
-            border-color: #FF6F00;
-            background: rgba(255, 111, 0, 0.2);
-            text-shadow: 0 0 12px rgba(255, 111, 0, 0.5);
-            box-shadow: 0 0 16px rgba(255, 111, 0, 0.12);
+            color: var(--g-bm);
+            border-color: var(--g-bm);
+            background: rgba(var(--g-bm-rgb), 0.2);
+            text-shadow: 0 0 12px rgba(var(--g-bm-rgb), 0.5);
+            box-shadow: 0 0 16px rgba(var(--g-bm-rgb), 0.12);
         }
         .grade-display.has-grade.grade-C {
-            color: #F44336;
-            border-color: #F44336;
-            background: rgba(244, 67, 54, 0.2);
-            text-shadow: 0 0 12px rgba(244, 67, 54, 0.5);
-            box-shadow: 0 0 16px rgba(244, 67, 54, 0.12);
+            color: var(--g-c);
+            border-color: var(--g-c);
+            background: rgba(var(--g-c-rgb), 0.2);
+            text-shadow: 0 0 12px rgba(var(--g-c-rgb), 0.5);
+            box-shadow: 0 0 16px rgba(var(--g-c-rgb), 0.12);
         }
         .grade-display.has-grade.grade-D {
-            color: #9E9E9E;
-            border-color: #9E9E9E;
-            background: rgba(158, 158, 158, 0.2);
-            text-shadow: 0 0 12px rgba(158, 158, 158, 0.3);
-            box-shadow: 0 0 16px rgba(158, 158, 158, 0.08);
+            color: var(--g-d);
+            border-color: var(--g-d);
+            background: rgba(var(--g-d-rgb), 0.2);
+            text-shadow: 0 0 12px rgba(var(--g-d-rgb), 0.3);
+            box-shadow: 0 0 16px rgba(var(--g-d-rgb), 0.08);
         }
 
         /* ==================== 等级选择面板 ==================== */
@@ -1144,27 +1160,27 @@
             border-color: var(--theme-primary-light);
             background: var(--theme-primary-bg);
         }
-        .grade-option.grade-S { color: #FFD700; }
-        .grade-option.grade-A\+ { color: #00E676; }
-        .grade-option.grade-A { color: #4CAF50; }
-        .grade-option.grade-A\- { color: #8BC34A; }
-        .grade-option.grade-B\+ { color: #FFEB3B; }
-        .grade-option.grade-B { color: #FF9800; }
-        .grade-option.grade-B\- { color: #FF6F00; }
-        .grade-option.grade-C { color: #F44336; }
-        .grade-option.grade-D { color: #9E9E9E; }
-        .grade-option.grade-none { color: var(--text-muted); }
+        .grade-option.grade-S { color: var(--g-s); }
+        .grade-option.grade-A\+ { color: var(--g-ap); }
+        .grade-option.grade-A { color: var(--g-a); }
+        .grade-option.grade-A\- { color: var(--g-am); }
+        .grade-option.grade-B\+ { color: var(--g-bp); }
+        .grade-option.grade-B { color: var(--g-b); }
+        .grade-option.grade-B\- { color: var(--g-bm); }
+        .grade-option.grade-C { color: var(--g-c); }
+        .grade-option.grade-D { color: var(--g-d); }
+        .grade-option.grade-none { color: var(--g-none); }
 
-        /* ==================== 排行榜等级颜色 ==================== */
-        .ranking-table .has-grade.grade-S { color: #FFD700; }
-        .ranking-table .has-grade.grade-A\+ { color: #00E676; }
-        .ranking-table .has-grade.grade-A { color: #4CAF50; }
-        .ranking-table .has-grade.grade-A\- { color: #8BC34A; }
-        .ranking-table .has-grade.grade-B\+ { color: #FFEB3B; }
-        .ranking-table .has-grade.grade-B { color: #FF9800; }
-        .ranking-table .has-grade.grade-B\- { color: #FF6F00; }
-        .ranking-table .has-grade.grade-C { color: #F44336; }
-        .ranking-table .has-grade.grade-D { color: #9E9E9E; }
+        /* ==================== 排行榜等级颜色（同样取 --g-*） ==================== */
+        .ranking-table .has-grade.grade-S { color: var(--g-s); }
+        .ranking-table .has-grade.grade-A\+ { color: var(--g-ap); }
+        .ranking-table .has-grade.grade-A { color: var(--g-a); }
+        .ranking-table .has-grade.grade-A\- { color: var(--g-am); }
+        .ranking-table .has-grade.grade-B\+ { color: var(--g-bp); }
+        .ranking-table .has-grade.grade-B { color: var(--g-b); }
+        .ranking-table .has-grade.grade-B\- { color: var(--g-bm); }
+        .ranking-table .has-grade.grade-C { color: var(--g-c); }
+        .ranking-table .has-grade.grade-D { color: var(--g-d); }
 
         .card-series-row {
             display: flex;
@@ -1834,16 +1850,16 @@
             <h3>🏷️ 批量设置等级</h3>
             <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:8px;">为选中的 <span id="batchGradeCount">0</span> 部番剧设置等级</p>
             <select id="batchGradeSelect">
-                <option value="">− 无等级</option>
-                <option value="S">S</option>
-                <option value="A+">A+</option>
-                <option value="A">A</option>
-                <option value="A-">A-</option>
-                <option value="B+">B+</option>
-                <option value="B">B</option>
-                <option value="B-">B-</option>
-                <option value="C">C</option>
-                <option value="D">D</option>
+                <option value="" style="color:var(--g-none)">− 无等级</option>
+                <option value="S" style="color:var(--g-s)">S</option>
+                <option value="A+" style="color:var(--g-ap)">A+</option>
+                <option value="A" style="color:var(--g-a)">A</option>
+                <option value="A-" style="color:var(--g-am)">A-</option>
+                <option value="B+" style="color:var(--g-bp)">B+</option>
+                <option value="B" style="color:var(--g-b)">B</option>
+                <option value="B-" style="color:var(--g-bm)">B-</option>
+                <option value="C" style="color:var(--g-c)">C</option>
+                <option value="D" style="color:var(--g-d)">D</option>
             </select>
             <br />
             <button id="btnBatchGradeApply" class="btn-success">✅ 应用</button>
@@ -2061,9 +2077,14 @@
                 return anime.title || '未命名';
             }
 
+            /* 生成等级 class 名。
+               ★ 这里千万不要做 `\+` / `\-` 转义：那套转义是写给 **CSS 选择器** 的
+                 （选择器里必须写 .grade-A\+ 才能选中 class="grade-A+"），
+                 而写进 HTML 的 class 属性里就必须是原样的 A+ —— 两边都转义就永远对不上，
+                 结果是 A+ / A- / B+ / B- 四个等级在所有位置都没有颜色。 */
             function getGradeClass(grade) {
                 if (!grade) return '';
-                return 'grade-' + grade.replace(/\+/g, '\\+').replace(/\-/g, '\\-');
+                return 'grade-' + grade;
             }
 
             const GENRE_MAP = {
@@ -2649,13 +2670,11 @@
                 const gradeOrder = ['S', 'A+', 'A', 'A-', 'B+', 'B', 'B-', 'C', 'D', 'none'];
                 const gradeLabels = { 'S': 'S', 'A+': 'A+', 'A': 'A', 'A-': 'A-', 'B+': 'B+', 'B': 'B', 'B-': 'B-', 'C': 'C', 'D': 'D',
                     'none': '未评级' };
-                const gradeColors = { 'S': 'S', 'A+': 'A\\+', 'A': 'A', 'A-': 'A\\-', 'B+': 'B\\+', 'B': 'B', 'B-': 'B\\-',
-                    'C': 'C', 'D': 'D', 'none': 'none' };
                 html += `<div class="stats-chip"><span class="stat-label">📊 等级分布</span>`;
                 for (const g of gradeOrder) {
                     if (gradeCount[g]) {
                         const pct = Math.round((gradeCount[g] / total) * 100);
-                        const cls = g === 'none' ? 'none' : gradeColors[g];
+                        const cls = g === 'none' ? 'none' : g;   /* class 名用原样等级，不转义 */
                         html +=
                             `<span class="grade-dot ${cls}" title="${gradeLabels[g]}: ${gradeCount[g]} (${pct}%)"></span>`;
                     }
