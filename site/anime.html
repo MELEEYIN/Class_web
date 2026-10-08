@@ -215,18 +215,49 @@
             box-shadow: 0 0 20px var(--theme-primary-glow);
         }
 
-        /* ==================== 评级对照（顶栏右侧小卡片） ====================
+        /* ==================== 总览区（仪表盘 + 统计 ｜ 评级对照） ====================
+           两列 grid：左列吃掉剩余宽度，右列是评级对照的自然宽度。
+           左列里的 dashboard / stats 保持原来的「整体居中」不动 ——
+           列变窄之后它们自然就往左挪了，不需要额外改 justify-content
+           （改 justify-content 会让卡片贴死左边，那就不是"偏移一点"了）。 */
+        .overview {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 20px;
+            align-items: center;
+            padding: 20px 24px 8px;
+        }
+        .overview-left {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+        /* 左右内边距交给 .overview 统一给，这两个区块自己就别再加了，不然是双份 */
+        .overview .dashboard {
+            padding: 0 0 14px;
+        }
+        .overview .stats-grid {
+            padding: 0;
+        }
+        /* 窄屏：评级对照掉到下一行，自己占满 */
+        @media (max-width: 1120px) {
+            .overview {
+                grid-template-columns: minmax(0, 1fr);
+                gap: 14px;
+            }
+        }
+
+        /* ==================== 评级对照 ====================
            内容写在 HTML 里、不靠 JS 生成，保证首屏一定看得到；
            每行颜色统一取 :root 的 --g-* 与 --g-*-rgb，
            和卡片徽章 / 排行榜 / 批量设置面板用的是同一套颜色，改色只改那一处。
 
-           "评级等级 + 区间 + 一句话评价" 三列，两列并排 → 四行放完八个等级，
-           不让 sticky 顶栏长得太高。窄屏时塌成一列。 */
+           "评级等级 + 区间 + 一句话评价" 三列，两列铺四行放完八个等级。
+           width: max-content 是为了在任何容器里都不被拉宽 ——
+           否则掉到单列布局时它会撑满整行，右边空一大片。 */
         .grade-legend {
-            flex: 0 0 auto;
-            /* 靠右：搜索框是 flex:1，正常情况下它自然被推到最右；
-               万一行不够换行了，margin-left:auto 也能让它继续贴右 */
-            margin-left: auto;
+            width: max-content;
+            max-width: 100%;
             border: 1px solid var(--card-border);
             background: var(--card-bg);
             backdrop-filter: blur(12px);
@@ -274,6 +305,10 @@
         .gl-body {
             display: grid;
             grid-template-columns: repeat(2, max-content);
+            grid-template-rows: repeat(4, auto);
+            /* 列优先填充：左列从上到下 S / A+ / A / A-，右列 B+ / B / B- / C·D。
+               默认的按行填充会变成「第一行 S|A+」，那样右列才是靠后的等级，读起来乱。 */
+            grid-auto-flow: column;
             column-gap: 16px;
             row-gap: 3px;
         }
@@ -328,9 +363,12 @@
         .gl-row.gl-bm { --g: var(--g-bm); --g-rgb: var(--g-bm-rgb); }
         .gl-row.gl-cd { --g: var(--g-c);  --g-rgb: var(--g-c-rgb); }
 
-        @media (max-width: 600px) {
+        @media (max-width: 620px) {
             .gl-body {
+                /* 单列时要把「列优先 + 固定 4 行」撤掉，否则会挤出空的第二列 */
                 grid-template-columns: max-content;
+                grid-template-rows: none;
+                grid-auto-flow: row;
             }
         }
 
@@ -919,20 +957,30 @@
         .anime-card {
             cursor: grab;
         }
-        .anime-card.is-dragging {
+        .anime-card.is-dragging,
+        .series-group-container.is-dragging {
             /* 必须关掉入场动画：cardFadeIn 是 forwards 填充，
                动画最终值会盖过普通声明，不关的话下面的 display:none 之外的属性都不生效 */
             animation: none;
             display: none;
         }
-        .anime-card.drag-ghost {
+        .anime-card.drag-ghost,
+        .series-group-container.drag-ghost {
             position: fixed;
             z-index: 10050;
             pointer-events: none;
             animation: none;
             opacity: 0.92;
-            transform: rotate(1.5deg) scale(1.02);
+            transform: rotate(1.2deg) scale(1.01);
             box-shadow: 0 22px 54px rgba(0, 0, 0, 0.72);
+        }
+        /* 系列标题是「拖动整个系列」的把手 —— 卡片本身要留给换排序，
+           所以系列整体换序只能从标题上按下，两者不会打架。 */
+        .series-group-label {
+            cursor: grab;
+        }
+        .series-group-label:active {
+            cursor: grabbing;
         }
         .drag-placeholder {
             border: 2px dashed var(--theme-primary-light);
@@ -1638,7 +1686,28 @@
                Bangumi 的大图能到 1200px 高，一行就被撑成 200px+，整张表全乱。
              · 另外 object-fit 默认是 fill，图会被硬拉变形；也没有圆角。
            现在：表格自带尺寸类（默认中号）、object-fit: cover、圆角 + 阴影，
-           并把封面这一列压成「贴住内容」的窄列，宽度不再抢标题的位置。 */
+           并把封面这一列压成「贴住内容」的窄列，宽度不再抢标题的位置。
+
+           分页后的列表按列优先拆成左右两份（左列名次靠前），
+           所以一屏能看两倍的名次，不用滚那么长。 */
+        .rank-columns {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+            align-items: start;
+        }
+        /* 只有一列数据时别让表格只占左半边 */
+        .rank-columns.single {
+            grid-template-columns: minmax(0, 1fr);
+        }
+        .rank-col {
+            min-width: 0;
+        }
+        @media (max-width: 1040px) {
+            .rank-columns {
+                grid-template-columns: minmax(0, 1fr);
+            }
+        }
         .ranking-table {
             width: 100%;
             border-collapse: separate;
@@ -1910,6 +1979,63 @@
             to { opacity:0; transform: translateX(-50%) translateY(-10px); }
         }
 
+        /* ==================== 回到顶部 ====================
+           滑过一段距离才出现：一开始就杵在那儿会跟顶栏的搜索框抢注意力。
+           z-index 取 1500 —— 在正文之上、模态遮罩(2000)之下，
+           所以任何弹窗打开时它都会被自动盖住，不用额外处理。
+           隐藏用 opacity + visibility 而不是 display，
+           display 切换没法做过渡，会「啪」地跳出来。 */
+        .to-top {
+            position: fixed;
+            right: 24px;
+            bottom: 28px;
+            z-index: 1500;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border-radius: 50%;
+            border: 1px solid var(--card-border);
+            background: rgba(20, 14, 36, 0.85);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            color: var(--theme-primary-light);
+            cursor: pointer;
+            box-shadow: 0 6px 22px rgba(0, 0, 0, 0.55);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(12px);
+            transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s,
+                border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .to-top.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .to-top:hover {
+            border-color: var(--theme-primary-light);
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.65), 0 0 18px var(--theme-primary-glow);
+            transform: translateY(-2px);
+        }
+        .to-top:active {
+            transform: translateY(0) scale(0.94);
+        }
+        .to-top:focus-visible {
+            outline: 2px solid var(--theme-primary-light);
+            outline-offset: 2px;
+        }
+        @media (max-width: 600px) {
+            .to-top {
+                right: 14px;
+                bottom: 18px;
+                width: 40px;
+                height: 40px;
+            }
+        }
+
         /* ==================== 自动保存提醒 ==================== */
         .save-reminder-overlay {
             position: fixed;
@@ -2029,11 +2155,44 @@
             <input type="text" id="searchInput" placeholder="🔍 搜索番剧（支持中文关键词）..." autocomplete="off" />
             <div class="search-results-dropdown" id="searchDropdown"></div>
         </div>
+    </div>
+
+    <!-- ====== 总览区 ======
+         左边是仪表盘 + 统计 chips，右边是评级对照。
+         评级对照原来挂在顶栏里，8 行文字把 sticky 顶栏撑到 141px 太高了；
+         挪到这里之后顶栏回到 68px，而且这两行本来就右侧留白很多，正好填上。 -->
+    <div class="overview">
+        <div class="overview-left">
+
+            <!-- ====== 仪表盘 ====== -->
+            <div class="dashboard" id="dashboard">
+                <div class="dash-card">
+                    <div class="dash-num" id="statTotal">0</div>
+                    <div class="dash-label">总作品数</div>
+                </div>
+                <div class="dash-card">
+                    <div class="dash-num" id="statWatching">0</div>
+                    <div class="dash-label">追番中</div>
+                </div>
+                <div class="dash-card">
+                    <div class="dash-num" id="statCompleted">0</div>
+                    <div class="dash-label">已完成</div>
+                </div>
+                <div class="dash-card">
+                    <div class="dash-num" id="statCompletion">0%</div>
+                    <div class="dash-label">总完成度</div>
+                </div>
+            </div>
+
+            <!-- ====== 统计看板 ====== -->
+            <div class="stats-grid" id="statsGrid"></div>
+
+        </div>
 
         <!-- ====== 评级对照 ======
              八个等级的判定区间与一句话评价。纯 HTML，不依赖 JS 生成。
-             DOM 顺序 = 用户列出的顺序；两列 grid 按行填充，
-             所以第一行是 S / A+，第二行 A / A-，以此类推。 -->
+             DOM 顺序 = 用户列出的顺序；两列按「列优先」填充（grid-auto-flow: column），
+             所以左列从上到下是 S / A+ / A / A-，右列是 B+ / B / B- / C·D —— 左列靠前。 -->
         <div class="grade-legend" id="gradeLegend">
             <button type="button" class="gl-head" id="gradeLegendToggle" aria-expanded="true" aria-controls="gradeLegendBody" title="点击收起／展开评级对照">
                 <span>📊 评级对照</span>
@@ -2051,29 +2210,6 @@
             </div>
         </div>
     </div>
-
-    <!-- ====== 仪表盘 ====== -->
-    <div class="dashboard" id="dashboard">
-        <div class="dash-card">
-            <div class="dash-num" id="statTotal">0</div>
-            <div class="dash-label">总作品数</div>
-        </div>
-        <div class="dash-card">
-            <div class="dash-num" id="statWatching">0</div>
-            <div class="dash-label">追番中</div>
-        </div>
-        <div class="dash-card">
-            <div class="dash-num" id="statCompleted">0</div>
-            <div class="dash-label">已完成</div>
-        </div>
-        <div class="dash-card">
-            <div class="dash-num" id="statCompletion">0%</div>
-            <div class="dash-label">总完成度</div>
-        </div>
-    </div>
-
-    <!-- ====== 统计看板 ====== -->
-    <div class="stats-grid" id="statsGrid"></div>
 
     <!-- ====== 工具栏 ====== -->
     <div class="toolbar" id="toolbar">
@@ -2301,6 +2437,17 @@
             </div>
         </div>
     </div>
+
+    <!-- ====== 回到顶部 ======
+         默认隐藏（opacity/visibility 都是关的），往下滑过一段距离才淡入。
+         用 button 而不是 div，这样键盘 Tab 能聚焦、回车空格都能触发。 -->
+    <button type="button" class="to-top" id="toTop" aria-label="回到顶部" title="回到顶部">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+             stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 19V5"></path>
+            <path d="M5 12l7-7 7 7"></path>
+        </svg>
+    </button>
 
     <!-- ============================================================ -->
     <!-- ===================== JavaScript ============================== -->
@@ -2967,7 +3114,7 @@
                 let html = '';
                 for (const [name, arr] of Object.entries(groups.groups)) {
                     html +=
-                        `<div class="series-group-container"><span class="series-group-label">📁 ${escapeHTML(name)}</span><div class="card-grid" data-series="${escapeAttr(name)}">${arr.map((a,i) => buildCardHTML(a,i,showBatch)).join('')}</div></div>`;
+                        `<div class="series-group-container" data-series="${escapeAttr(name)}"><span class="series-group-label" title="按住可以拖动整个系列换位">📁 ${escapeHTML(name)}</span><div class="card-grid" data-series="${escapeAttr(name)}">${arr.map((a,i) => buildCardHTML(a,i,showBatch)).join('')}</div></div>`;
                 }
                 if (groups.ungrouped.length) {
                     html += `<div class="card-grid" data-series="">${groups.ungrouped.map((a,i) => buildCardHTML(a,i,showBatch)).join('')}</div>`;
@@ -2995,11 +3142,15 @@
             }
 
             /* ==============================================================
-               拖动换排序
-               · 卡片顺序的「真相」是 animeList 数组的顺序，DOM 只是它的投影。
+               拖动换排序（卡片 + 整个系列）
+               · 顺序的「真相」是 animeList 数组的顺序，DOM 只是它的投影。
                  所以落点算完要「改数组 → 写 localStorage → 整表重绘」。
-               · 拖进别的系列分组 = 顺带改归属（series_group）；
-                 拖回无分组区域 = 退出系列。改归属会弹提示，不静默发生。
+               · 两种拖法：
+                   kind='card'  从卡片空白处按下 → 换卡片顺序；
+                                拖进别的系列分组 = 顺带改归属（series_group），
+                                拖回无分组区域 = 退出系列
+                   kind='group' 从系列标题（📁 那个小胶囊）按下 → 整个系列换位
+                 把手分开是为了不打架：在卡片上按下永远只拖卡片。
                · 起步阈值 6px：否则普通点击会被判成拖动，
                  卡片里的「±1 集」「评分」「笔记」这些控件就点不动了。
                ============================================================== */
@@ -3016,14 +3167,10 @@
                 document.addEventListener('pointercancel', onCardDragUp);
             }
 
-            function onCardDragDown(e) {
-                if (e.button !== 0 || dragSt || batchMode) return;   /* 批量模式下让位给勾选框 */
-                if (!e.target || !e.target.closest) return;
-                if (e.target.closest(DRAG_SKIP)) return;             /* 从控件上按下不算拖 */
-                const card = e.target.closest('.card-grid .anime-card');
-                if (!card) return;
-                dragSt = {
-                    card: card,
+            function newDragState(kind, src, e) {
+                return {
+                    kind: kind,
+                    src: src,
                     pointerId: e.pointerId,
                     startX: e.clientX,
                     startY: e.clientY,
@@ -3033,27 +3180,49 @@
                 };
             }
 
+            function onCardDragDown(e) {
+                if (e.button !== 0 || dragSt || batchMode) return;   /* 批量模式下让位给勾选框 */
+                if (!e.target || !e.target.closest) return;
+
+                /* ① 系列标题是「拖整个系列」的把手，优先判定 */
+                const label = e.target.closest('.series-group-label');
+                if (label) {
+                    const box = label.closest('.series-group-container');
+                    if (box) {
+                        dragSt = newDragState('group', box, e);
+                        return;
+                    }
+                }
+
+                /* ② 从控件上按下不算拖 */
+                if (e.target.closest(DRAG_SKIP)) return;
+                const card = e.target.closest('.card-grid .anime-card');
+                if (!card) return;
+                dragSt = newDragState('card', card, e);
+            }
+
             function onCardDragMove(e) {
                 const st = dragSt;
                 if (!st || e.pointerId !== st.pointerId) return;
                 if (!st.started) {
                     if (Math.abs(e.clientX - st.startX) < 6 && Math.abs(e.clientY - st.startY) < 6) return;
-                    beginCardDrag(st);
+                    beginDrag(st);
                 }
                 if (st.ghost) {
                     st.ghost.style.left = (e.clientX - st.grabDX) + 'px';
                     st.ghost.style.top = (e.clientY - st.grabDY) + 'px';
                 }
-                moveCardPlaceholder(e.clientX, e.clientY);
+                if (st.kind === 'group') moveGroupPlaceholder(e.clientX, e.clientY);
+                else moveCardPlaceholder(e.clientX, e.clientY);
             }
 
-            function beginCardDrag(st) {
+            function beginDrag(st) {
                 st.started = true;
-                const rect = st.card.getBoundingClientRect();
+                const rect = st.src.getBoundingClientRect();
 
                 /* 克隆体跟着指针走。克隆会连 id 一起复制，
                    DOM 里出现重复 id 会让 getElementById 拿到错的元素，先摘干净。 */
-                const ghost = st.card.cloneNode(true);
+                const ghost = st.src.cloneNode(true);
                 ghost.removeAttribute('id');
                 ghost.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
                 ghost.classList.add('drag-ghost');
@@ -3064,12 +3233,12 @@
                 document.body.appendChild(ghost);
 
                 /* 原件抽走（display:none），腾出来的位置交给占位块 ——
-                   这样网格里不会同时出现「原件 + 空隙」两份。 */
-                st.card.classList.add('is-dragging');
+                   这样布局里不会同时出现「原件 + 空隙」两份。 */
+                st.src.classList.add('is-dragging');
                 const ph = document.createElement('div');
                 ph.className = 'drag-placeholder';
                 ph.style.height = rect.height + 'px';
-                st.card.parentElement.insertBefore(ph, st.card);
+                st.src.parentElement.insertBefore(ph, st.src);
 
                 document.body.classList.add('is-dragging-card');
                 st.ghost = ghost;
@@ -3111,7 +3280,7 @@
                 if (!target) return;
 
                 const cards = Array.from(target.children)
-                    .filter(el => el.classList.contains('anime-card') && el !== st.card);
+                    .filter(el => el.classList.contains('anime-card') && el !== st.src);
 
                 /* 按阅读顺序找插入点。判定「指针在这张卡之前」要满足两个条件之一：
                      · 指针在这一行下方（y > 卡片底边）→ 肯定在这张之后，跳过
@@ -3131,38 +3300,75 @@
                 else target.appendChild(st.placeholder);
             }
 
+            /* 系列是单列竖直排下来的，所以这里比「垂直中点」就是对的
+               —— 和卡片不同：卡片是多列网格，比中点会全错。 */
+            function moveGroupPlaceholder(x, y) {
+                const st = dragSt;
+                if (!st || !st.placeholder) return;
+                const parent = st.src.parentElement;
+                if (!parent) return;
+                const boxes = Array.from(parent.children)
+                    .filter(el => el.classList.contains('series-group-container') && el !== st.src);
+                if (!boxes.length) return;   /* 只有一个系列，没得换 */
+
+                let idx = boxes.length;
+                for (let i = 0; i < boxes.length; i++) {
+                    const r = boxes[i].getBoundingClientRect();
+                    if (y < r.top + r.height / 2) { idx = i; break; }
+                }
+                const before = boxes[idx] || null;
+                if (before) {
+                    parent.insertBefore(st.placeholder, before);
+                } else {
+                    /* 排在最后一个系列之后。不能直接 appendChild ——
+                       无分组网格也是 parent 的子节点且排在后面，appendChild 会跑到它后面去。 */
+                    parent.insertBefore(st.placeholder, boxes[boxes.length - 1].nextSibling);
+                }
+            }
+
             function onCardDragUp(e) {
                 const st = dragSt;
                 if (!st) return;
                 if (e && e.pointerId !== undefined && e.pointerId !== st.pointerId) return;
                 const moved = st.started;
                 /* 先按占位块的位置落定，再清场（清场会把占位块删掉） */
-                if (moved && st.placeholder && st.placeholder.parentElement) commitCardDrop(st);
-                endCardDrag(st);
+                if (moved && st.placeholder && st.placeholder.parentElement) {
+                    if (st.kind === 'group') commitGroupDrop(st);
+                    else commitCardDrop(st);
+                }
+                endDrag(st);
                 dragSt = null;
             }
 
-            function endCardDrag(st) {
+            function endDrag(st) {
                 document.body.classList.remove('is-dragging-card');
                 if (st.ghost && st.ghost.parentElement) st.ghost.remove();
                 if (st.placeholder && st.placeholder.parentElement) st.placeholder.remove();
-                st.card.classList.remove('is-dragging');
+                st.src.classList.remove('is-dragging');
             }
 
-            /* 占位块的位置 → animeList 的新顺序 */
+            /* 落定之后统一重绘：分组结构可能变了，整表重绘最省心。
+               但要压掉卡片入场动画，否则每拖一次满屏卡片都会重新闪一遍。 */
+            function rerenderAfterDrop() {
+                suppressCardAnim = true;
+                fullRenderAll();
+                suppressCardAnim = false;
+            }
+
+            /* ---------- 卡片的落点 → animeList 的新顺序 ---------- */
             function commitCardDrop(st) {
                 const grid = st.placeholder.parentElement;
-                const dragId = parseInt(st.card.dataset.mal);
+                const dragId = parseInt(st.src.dataset.mal);
                 const dragged = animeList.find(a => a.mal_id === dragId);
                 if (!dragged) return;
 
                 /* 占位块前面有几张「别的卡」，就是要插到第几个 */
                 const others = Array.from(grid.children)
-                    .filter(el => el.classList.contains('anime-card') && el !== st.card);
+                    .filter(el => el.classList.contains('anime-card') && el !== st.src);
                 let idx = 0;
                 for (const el of grid.children) {
                     if (el === st.placeholder) break;
-                    if (el.classList.contains('anime-card') && el !== st.card) idx++;
+                    if (el.classList.contains('anime-card') && el !== st.src) idx++;
                 }
                 const beforeId = others[idx] ? parseInt(others[idx].dataset.mal) : null;
 
@@ -3188,16 +3394,65 @@
                 arr.splice(at, 0, dragged);
                 animeList = arr;
                 saveAnimeList(animeList);
-
-                /* 分组结构可能变了，直接整表重绘；但要压掉入场动画，
-                   否则每拖一次满屏卡片都会重新闪一遍。 */
-                suppressCardAnim = true;
-                fullRenderAll();
-                suppressCardAnim = false;
+                rerenderAfterDrop();
 
                 if (seriesChanged) {
                     showToast(targetSeries ? `已移入系列「${targetSeries}」` : '已退出系列分组');
                 }
+            }
+
+            /* ---------- 系列分组的落点 → 系列顺序 ---------- */
+            function seriesNamesOf(list) {
+                const names = [];
+                for (const a of list) {
+                    const sg = (a.series_group || '').trim();
+                    if (sg && names.indexOf(sg) === -1) names.push(sg);
+                }
+                return names;
+            }
+
+            /* 按给定顺序重排 animeList：每个系列的记录聚成连续的一块，
+               无分组记录统一挪到最后 —— 因为无分组网格本来就渲染在所有系列之后。 */
+            function rebuildBySeriesOrder(names) {
+                const buckets = new Map();
+                names.forEach(n => buckets.set(n, []));
+                const rest = [];
+                for (const a of animeList) {
+                    const sg = (a.series_group || '').trim();
+                    if (sg && buckets.has(sg)) buckets.get(sg).push(a);
+                    else rest.push(a);
+                }
+                const out = [];
+                names.forEach(n => { out.push.apply(out, buckets.get(n)); });
+                out.push.apply(out, rest);
+                animeList = out;
+            }
+
+            function commitGroupDrop(st) {
+                const parent = st.src.parentElement;
+                const myName = (st.src.dataset.series || '').trim();
+                if (!parent || !myName) return;
+
+                const boxes = Array.from(parent.children)
+                    .filter(el => el.classList.contains('series-group-container') && el !== st.src);
+                let idx = 0;
+                for (const el of parent.children) {
+                    if (el === st.placeholder) break;
+                    if (el.classList.contains('series-group-container') && el !== st.src) idx++;
+                }
+                const visible = boxes.map(el => (el.dataset.series || '').trim()).filter(Boolean);
+                visible.splice(idx, 0, myName);
+
+                /* 只重排「当前可见」的那些系列（标签筛选可能藏掉了一些），
+                   被藏起来的在原位不动 —— 把可见的那几个位置按新顺序填回去即可。 */
+                const wanted = new Set(visible);
+                let k = 0;
+                const merged = seriesNamesOf(animeList).map(n => wanted.has(n) ? visible[k++] : n);
+
+                rebuildBySeriesOrder(merged);
+                saveAnimeList(animeList);
+                rerenderAfterDrop();
+                showToast(`已调整系列「${myName}」的顺序`);
             }
 
             function fullRenderAll() {
@@ -3414,10 +3669,10 @@
                 const rankSize = ['small', 'medium', 'large'].includes(settings.rankSize) ?
                     settings.rankSize : 'medium';
 
-                let html =
-                    `<table class="ranking-table size-${rankSize}"><thead><tr><th class="rank-num">#</th><th class="rank-cover-cell">封面</th><th>标题</th><th class="rank-score">${labels[field]||'得分'}</th></tr></thead><tbody>`;
-                pageList.forEach((a, i) => {
-                    const idx = start + i + 1;
+                const thead = `<thead><tr><th class="rank-num">#</th><th class="rank-cover-cell">封面</th><th>标题</th><th class="rank-score">${labels[field]||'得分'}</th></tr></thead>`;
+
+                /* 一行 = 一个名次。idx 是全局名次（1 起） */
+                const rowOf = (a, idx) => {
                     let val;
                     if (field === 'grade') {
                         val = a.grade || '−';
@@ -3431,13 +3686,28 @@
                     const gradeClass = a.grade ? 'has-grade ' + getGradeClass(a.grade) : '';
                     const isGrade = field === 'grade';
                     const isBangumi = field === 'bangumi_score';
-                    html += `<tr><td class="rank-num">${idx}</td>` +
+                    return `<tr><td class="rank-num">${idx}</td>` +
                         `<td class="rank-cover-cell"><img src="${cover}" class="rank-cover" alt="" loading="lazy" decoding="async" onerror="window._rankCoverFallback(this)"></td>` +
                         `<td><span class="rank-title" title="${escapeHTML(displayTitle)}">${escapeHTML(displayTitle)}</span></td>` +
                         `<td class="rank-score" style="font-weight:700;${isGrade ? ` font-size:1.1rem;` : ''}${isBangumi ? ` color:#64b5f6;` : ''}">${isGrade ? `<span class="${gradeClass}">${val}</span>` : val}</td></tr>`;
-                });
-                html += '</tbody></table>';
-                container.innerHTML = html;
+                };
+                const tableOf = (rows, firstIdx) =>
+                    `<table class="ranking-table size-${rankSize}">${thead}<tbody>` +
+                    rows.map((a, i) => rowOf(a, firstIdx + i)).join('') +
+                    '</tbody></table>';
+
+                /* 分成左右两列：左列放名次靠前的一半，右列放后半 —— 列优先，
+                   所以「1 号在最左上、往下排到一半，再接着右列」。
+                   两列各自带表头，这样每一列都能独立看懂是第几名。 */
+                const half = Math.ceil(pageList.length / 2);
+                const leftRows = pageList.slice(0, half);
+                const rightRows = pageList.slice(half);
+                let cols = `<div class="rank-col">${tableOf(leftRows, start + 1)}</div>`;
+                if (rightRows.length) {
+                    cols += `<div class="rank-col">${tableOf(rightRows, start + half + 1)}</div>`;
+                }
+                container.innerHTML =
+                    `<div class="rank-columns${rightRows.length ? '' : ' single'}">${cols}</div>`;
 
                 const pagination = document.getElementById('rankPagination');
                 let phtml = '';
@@ -4856,6 +5126,44 @@
                 btn.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
             }
 
+            /* ==============================================================
+               回到顶部
+               · scroll 事件的触发频率远高于渲染帧，用 rAF 节流，
+                 同一帧内只算一次，免得白跑几十遍 classList.toggle
+               · 尊重系统「减少动态效果」：开了就直接跳，不做平滑滚动
+               ============================================================== */
+            const TO_TOP_THRESHOLD = 320;
+
+            function initToTop() {
+                const btn = document.getElementById('toTop');
+                if (!btn) return;
+
+                let ticking = false;
+                const sync = function() {
+                    ticking = false;
+                    const y = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
+                    btn.classList.toggle('show', y > TO_TOP_THRESHOLD);
+                };
+                window.addEventListener('scroll', function() {
+                    if (ticking) return;
+                    ticking = true;
+                    requestAnimationFrame(sync);
+                }, { passive: true });
+                sync();   /* 刷新时可能本来就停在中间（比如浏览器恢复滚动位置） */
+
+                btn.addEventListener('click', function() {
+                    const reduce = window.matchMedia &&
+                        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                    try {
+                        window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+                    } catch (_) {
+                        window.scrollTo(0, 0);   /* 老浏览器不认 options 对象 */
+                    }
+                    /* 这里不手动去掉 .show：平滑滚动过程中 scroll 还会持续触发，
+                       让它自己随滚动位置收起来，手动去掉反而会被下一次事件加回来、闪一下 */
+                });
+            }
+
             function initGradeLegend() {
                 const box = document.getElementById('gradeLegend');
                 const btn = document.getElementById('gradeLegendToggle');
@@ -4899,6 +5207,9 @@
 
                 // 拖动卡片换排序
                 initCardDrag();
+
+                // 回到顶部
+                initToTop();
 
                 // 排行榜封面尺寸：把上次选的档位恢复成按钮的选中态
                 const savedRankSize = ['small', 'medium', 'large'].includes(settings.rankSize) ?
