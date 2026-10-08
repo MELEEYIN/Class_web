@@ -80,6 +80,23 @@
   Cache-Control: public, max-age=0, must-revalidate
   Content-Security-Policy: default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://bgmapi.anibt.net https://graphql.anilist.co https://api.jikan.moe https://api.bgm.tv; media-src 'self' data:
 
+# ------------------------------ 时间线（/timeline） ------------------------------
+# · 与 /admin.html 同一种组织方式：样式在 css/timeline.css、脚本在 js/timeline.js，
+#   页面本身没有内联脚本，所以 script-src 保持严格的 'self'
+# · 记录只写本机 localStorage，不发任何请求 → connect-src 只要 'self'
+# · 个人记录页，不需要被搜索引擎收录
+/timeline.html
+  X-Frame-Options: DENY
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: public, max-age=0, must-revalidate
+  Content-Security-Policy: default-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'; frame-ancestors 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'
+
+/timeline
+  X-Frame-Options: DENY
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: public, max-age=0, must-revalidate
+  Content-Security-Policy: default-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'; frame-ancestors 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'
+
 # ------------------------------ ACM 算法子站（/acm/） ------------------------------
 # · 四个页面（学习手册 / 题练场 / 学习计划 / 日常开发）都是单文件，样式和脚本内联，
 #   所以必须放开 inline

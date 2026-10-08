@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>时间线 · 校园主页</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="按天记录时间与事件：每个日期一张小卡片，卡片颜色可自选，每月一处总结。数据只保存在本机浏览器里。">
+<meta name="theme-color" content="#2563eb">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="./css/base.css">
+<link rel="stylesheet" href="./css/layout.css">
+<link rel="stylesheet" href="./css/components.css">
+<link rel="stylesheet" href="./css/timeline.css">
+<!-- 先套用站点已保存的主题 / 显示模式，避免闪白 -->
+<script src="./js/boot.js"></script>
+</head>
+<body class="tl-body">
+
+<!-- 本页用到的图标；与首页 sprite 同名同路径，页面独立也能正常渲染 -->
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;overflow:hidden">
+  <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.6 12 3.8l8.5 6.8V20a1 1 0 0 1-1 1h-4.2v-6.2H8.7V21H4.5a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="M6.2 7l.9 13a2 2 0 0 0 2 1.9h5.8a2 2 0 0 0 2-1.9l.9-13"/><path d="M10 11v6M14 11v6"/></symbol>
+  <symbol id="i-chev-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5 8 12l6.5 7"/></symbol>
+  <symbol id="i-chev-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 5 16 12l-6.5 7"/></symbol>
+  <symbol id="i-note" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h9l6 6v12H5z"/><path d="M14 3v6h6"/><path d="M9 13h7M9 17h4"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></symbol>
+  <symbol id="i-reset" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4v5h5"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="m4.5 12.5 5 5 10-11"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 6h12M8.5 12h12M8.5 18h12"/><path d="M3.6 6h.01M3.6 12h.01M3.6 18h.01"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6 18 18M18 6 6 18"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12.2 2.8 2.8L16 9.4"/></symbol>
+  <symbol id="i-warn-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.3M12 16.4h.01"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 2.5 20h19L12 3.5Z"/><path d="M12 9.5v4.6M12 17.2h.01"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.8h.01"/></symbol>
+</svg>
+
+<header class="tl-top">
+  <div class="tl-wrap tl-top-in">
+    <div class="tl-brand">
+      <span class="tl-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><use href="#i-clock"/></svg>
+      </span>
+      <span class="tl-brand-text">
+        <strong>时间线</strong>
+        <small>按天记录时间与事件 · 每月一处总结</small>
+      </span>
+    </div>
+    <div class="tl-top-actions">
+      <a class="btn btn-sm" href="./index.html" title="回到校园主页">
+        <svg class="ico" aria-hidden="true"><use href="#i-home"/></svg><span class="label">回首页</span>
+      </a>
+      <button class="btn btn-sm btn-icon" type="button" id="themeBtn" title="切换深色 / 浅色（全站共用）" aria-label="切换深色或浅色主题">
+        <svg class="ico" aria-hidden="true" id="themeIco"><use href="#i-moon"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="tl-wrap tl-stack">
+
+  <!-- ============ 工具条：月份 / 搜索 / 统计 / 记一笔 ============ -->
+  <section class="card">
+    <div class="tl-bar">
+      <div class="tl-month">
+        <button class="tl-mb" type="button" data-act="prev" title="上一个月" aria-label="上一个月">
+          <svg viewBox="0 0 24 24"><use href="#i-chev-left"/></svg>
+        </button>
+        <b id="monthLabel">—</b>
+        <button class="tl-mb" type="button" data-act="next" title="下一个月" aria-label="下一个月">
+          <svg viewBox="0 0 24 24"><use href="#i-chev-right"/></svg>
+        </button>
+      </div>
+
+      <button class="btn btn-sm" type="button" data-act="today">回到今天</button>
+      <button class="btn btn-sm" type="button" data-act="add-toggle">＋ 记一笔</button>
+
+      <label class="tl-find">
+        <svg aria-hidden="true"><use href="#i-search"/></svg>
+        <input id="q" type="search" placeholder="搜索事件或时间（跨全部月份）" autocomplete="off" spellcheck="false">
+      </label>
+
+      <span class="tl-save" id="monthTip" hidden></span>
+
+      <div class="tl-stats" id="stats"></div>
+    </div>
+
+    <!-- 记一笔：日期 + 时间 + 事件，回车即可提交 -->
+    <div class="tl-addbox" id="addBox" hidden>
+      <input class="input tl-datein" type="date" aria-label="日期">
+      <input class="input tl-qtime" type="text" inputmode="numeric" maxlength="5" placeholder="09:00" aria-label="时间">
+      <input class="input tl-qtext" type="text" placeholder="做了什么？（回车提交）" aria-label="事件">
+      <button class="btn btn-primary" type="button" data-act="quick-add">添加</button>
+    </div>
+  </section>
+
+  <!-- ============ 本月总结（每月一处，输入即保存） ============ -->
+  <section class="card tl-sum">
+    <div class="card-head">
+      <h3 class="card-title">
+        <svg class="ico" aria-hidden="true"><use href="#i-note"/></svg>本月总结
+      </h3>
+      <span class="tl-save" id="sumHint">自动保存</span>
+    </div>
+    <textarea id="sum" rows="3" placeholder="这个月发生了什么、下个月想怎么调整……（留空则不保存）"></textarea>
+  </section>
+
+  <!-- ============ 日期卡片 ============ -->
+  <section class="tl-grid" id="days" aria-live="polite"></section>
+
+  <footer class="tl-foot">
+    <p><b>用法</b>：点「＋ 记一笔」加第一条（日期随便选，跨月也会自动跳过去）；日期卡片上的 <b>＋</b> 可以在当天连续记多条，按回车就提交。每条记录由 <b>时间 + 事件</b> 两段组成，时间不必写冒号（输入 <code>930</code> 会变成 <code>09:30</code>），留空表示「不确定几点」。</p>
+    <p><b>颜色</b>：点日期卡片左上角的小圆点，可以给这一天指定一种颜色，用来区分不同类型的日子；颜色跟随全站深浅色自动调整。</p>
+    <p><b>数据</b>：全部保存在你自己的浏览器里（localStorage），不上传服务器；换设备或清缓存会丢，重要内容建议自己留一份备份。事件按时间自动排序。</p>
+  </footer>
+
+</main>
+
+<div class="toast-wrap" id="toastWrap" aria-live="polite" aria-atomic="false"></div>
+
+<script src="./js/util.js"></script>
+<script src="./js/timeline.js"></script>
+</body>
+</html>

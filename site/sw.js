@@ -11,7 +11,7 @@
    更新流程：新 SW install 后**不自动接管**，由页面提示「有新版本，点一下更新」，
    用户点了才 skipWaiting + reload（避免像以前那样用户长期跑在旧代码上）。
    ========================================================================== */
-var VERSION = 'v13';  // 改样式/脚本时记得 +1（v13：学习手册 + 学习计划 + 日常开发 合并成一个模块 study.html，导航只剩 首页 / 学习资料 / 题练场）
+var VERSION = 'v14';  // 改样式/脚本时记得 +1（v14：新增时间线页 timeline.html + 它的 css/js）
 var SHELL_CACHE = 'cw-shell-' + VERSION;
 var RUNTIME_CACHE = 'cw-runtime-' + VERSION;
 
@@ -43,6 +43,9 @@ var SHELL = [
   './js/app.js',
   './js/stats.js',
   './js/pwa.js',
+  './timeline.html',
+  './css/timeline.css',
+  './js/timeline.js',
   './assets/favicon.svg',
   './assets/icon-192.png',
   './assets/icon-512.png',
@@ -94,13 +97,20 @@ self.addEventListener('fetch', function (e) {
   if (req.mode === 'navigate') {
     e.respondWith(
       fetch(req).then(function (res) {
+        /* ★ 按「自己的 URL」存，不要统一塞进 './index.html'：
+           否则打开任意子页面（/timeline.html、/admin.html…）都会把首页那份
+           离线兜底覆盖掉，下次断网开首页就变成了那个子页面。 */
         var copy = res.clone();
-        caches.open(RUNTIME_CACHE).then(function (c) { c.put('./index.html', copy); });
+        caches.open(RUNTIME_CACHE).then(function (c) { c.put(req.url, copy); });
         return res;
       }).catch(function () {
-        return caches.match('./index.html').then(function (hit) {
-          return hit || new Response('离线了，而且还没缓存过页面。联网打开一次即可。', {
-            status: 503, headers: { 'content-type': 'text/plain; charset=utf-8' }
+        /* 先找这一页自己的缓存，再退回首页，最后才是错误页 */
+        return caches.match(req.url).then(function (hit) {
+          if (hit) return hit;
+          return caches.match('./index.html').then(function (home) {
+            return home || new Response('离线了，而且还没缓存过这个页面。联网打开一次即可。', {
+              status: 503, headers: { 'content-type': 'text/plain; charset=utf-8' }
+            });
           });
         });
       })

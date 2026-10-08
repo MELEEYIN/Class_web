@@ -1,0 +1,258 @@
+/* ==========================================================================
+   timeline.css — 时间线页（/timeline.html）
+   --------------------------------------------------------------------------
+   只做这一页需要的东西，其余全部复用 base/layout/components 里的既有组件：
+     · 卡片    .card / .card-head / .card-title / .card-sub
+     · 按钮    .btn / .btn-sm / .btn-ghost / .btn-icon
+     · 表单    .field / .input / .label
+     · 颜色    [data-color="0".."7"]  ——  站点原有的 8 色系统（--cc / --cc-soft）
+               直接挂在每日卡片上，就等于「每天的卡片可以自选颜色」
+   设计目标：一屏尽量多塞事件 —— 行高 12.5px、内边距极小、窄列自动铺开。
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. 页面骨架
+   -------------------------------------------------------------------------- */
+.tl-body { background: var(--bg); }
+
+.tl-top {
+  position: sticky; top: 0; z-index: 30;
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface) 84%, transparent);
+  -webkit-backdrop-filter: saturate(180%) blur(14px);
+  backdrop-filter: saturate(180%) blur(14px);
+}
+.tl-top-in {
+  display: flex; align-items: center; gap: 12px;
+  min-height: var(--nav-h);
+}
+.tl-brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.tl-mark {
+  width: 34px; height: 34px; flex: none; border-radius: var(--r-sm);
+  display: grid; place-items: center; color: var(--accent-ink);
+  background: linear-gradient(140deg, var(--accent), var(--accent-2));
+  box-shadow: 0 3px 10px rgba(37, 99, 235, .26);
+}
+.tl-mark svg { width: 19px; height: 19px; }
+.tl-brand-text { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
+.tl-brand-text strong { font-size: 15px; font-weight: 760; letter-spacing: -.01em; }
+.tl-brand-text small { font-size: 10.5px; color: var(--muted); font-weight: 600; }
+.tl-top-actions { margin-left: auto; display: flex; align-items: center; gap: 6px; flex: none; }
+
+.tl-wrap { max-width: var(--wrap); margin: 0 auto; padding: 18px 22px 64px; }
+.tl-stack { display: grid; gap: 14px; }
+
+/* --------------------------------------------------------------------------
+   2. 工具条：月份导航 / 今天 / 搜索 / 统计
+   -------------------------------------------------------------------------- */
+.tl-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.tl-month {
+  display: flex; align-items: center; gap: 2px;
+  border: 1px solid var(--line-strong); border-radius: var(--r-pill);
+  background: var(--surface-2); padding: 2px;
+}
+.tl-month b {
+  font-size: 14px; font-weight: 760; min-width: 116px; text-align: center;
+  font-variant-numeric: tabular-nums; letter-spacing: -.01em;
+}
+.tl-mb {
+  width: 28px; height: 28px; flex: none; border: 0; border-radius: var(--r-pill);
+  background: none; color: var(--muted); cursor: pointer;
+  display: grid; place-items: center;
+}
+.tl-mb:hover { background: var(--surface-3); color: var(--accent); }
+.tl-mb svg { width: 15px; height: 15px; }
+
+.tl-find {
+  display: flex; align-items: center; gap: 7px; flex: 1 1 190px; min-width: 150px;
+  padding: 0 11px; height: 34px;
+  border: 1px solid var(--line-strong); border-radius: var(--r-pill);
+  background: var(--surface);
+}
+.tl-find svg { width: 15px; height: 15px; color: var(--faint); flex: none; }
+.tl-find input {
+  flex: 1; min-width: 0; border: 0; background: none; outline: none;
+  font: inherit; font-size: 13px; color: var(--ink);
+}
+.tl-find input::placeholder { color: var(--faint); }
+
+.tl-stats { display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+
+/* 工具条里的「记一笔」展开区（字段用站点标准的 .input 外观） */
+.tl-addbox {
+  display: grid; gap: 8px; align-items: center;
+  grid-template-columns: 148px 86px minmax(0, 1fr) auto;
+  margin-top: 12px; padding-top: 12px;
+  border-top: 1px dashed var(--line);
+}
+.tl-addbox .input { min-height: 34px; padding: 6px 10px; font-size: 13px; }
+.tl-qtime { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+@media (max-width: 720px) {
+  .tl-addbox { grid-template-columns: 1fr 1fr; }
+  .tl-addbox .tl-qtext { grid-column: 1 / -1; }
+  .tl-addbox button { grid-column: 1 / -1; }
+}
+
+/* --------------------------------------------------------------------------
+   3. 本月总结（每月一处，自动保存）
+   -------------------------------------------------------------------------- */
+.tl-sum { padding: 13px 15px; }
+.tl-sum .card-head { margin-bottom: 9px; }
+.tl-sum textarea {
+  width: 100%; min-height: 62px; resize: vertical;
+  padding: 9px 11px; font: inherit; font-size: 13px; line-height: 1.62;
+  color: var(--ink); background: var(--surface-2);
+  border: 1px solid var(--line); border-radius: var(--r-sm);
+}
+.tl-sum textarea::placeholder { color: var(--faint); }
+.tl-sum textarea:focus {
+  outline: none; border-color: var(--accent-line);
+  background: var(--surface); box-shadow: var(--ring);
+}
+.tl-save { font-size: 11.5px; color: var(--faint); font-variant-numeric: tabular-nums; }
+.tl-save.on { color: var(--ok); }
+
+/* --------------------------------------------------------------------------
+   4. 每日卡片网格 —— 窄列自动铺满，尽量多放
+   -------------------------------------------------------------------------- */
+.tl-grid {
+  display: grid; gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(208px, 1fr));
+  align-items: start;
+}
+
+.tl-day {
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--cc, var(--line-strong));
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  box-shadow: var(--sh-1);
+  padding: 8px 9px 7px;
+  min-width: 0;
+  transition: border-color var(--t) var(--ease), box-shadow var(--t) var(--ease);
+}
+.tl-day:hover { border-color: var(--accent-line); border-left-color: var(--cc, var(--accent)); box-shadow: var(--sh-2); }
+.tl-day.is-today { background: linear-gradient(180deg, var(--cc-soft, var(--accent-soft)), var(--surface) 62%); }
+
+.tl-dh {
+  display: flex; align-items: center; gap: 5px;
+  padding-bottom: 5px; margin-bottom: 4px;
+  border-bottom: 1px solid var(--line);
+}
+.tl-date {
+  font-size: 12.5px; font-weight: 760; letter-spacing: -.01em;
+  font-variant-numeric: tabular-nums; color: var(--ink);
+}
+.tl-wd { font-size: 10.5px; color: var(--muted); font-weight: 600; }
+.tl-cnt {
+  font-size: 10.5px; font-weight: 700; color: var(--cc, var(--accent));
+  background: var(--cc-soft, var(--accent-soft));
+  border-radius: var(--r-pill); padding: 0 6px; line-height: 16px;
+  font-variant-numeric: tabular-nums;
+}
+.tl-dh .tl-sp { margin-left: auto; }
+.tl-ib {
+  width: 20px; height: 20px; flex: none; padding: 0;
+  border: 0; border-radius: var(--r-xs); background: none;
+  color: var(--faint); cursor: pointer; display: grid; place-items: center;
+}
+.tl-ib:hover { background: var(--surface-3); color: var(--accent); }
+.tl-ib svg { width: 13px; height: 13px; }
+.tl-cc {
+  width: 13px; height: 13px; flex: none; padding: 0; cursor: pointer;
+  border-radius: 50%; border: 1px solid var(--line-strong);
+  background: var(--cc, var(--surface-3));
+}
+.tl-cc:hover { transform: scale(1.16); }
+.tl-cc[data-c="-1"] { background: repeating-linear-gradient(45deg, var(--surface-3) 0 3px, var(--line) 3px 6px); }
+
+/* --------------------------------------------------------------------------
+   5. 事件行（时间 + 事件，两列）
+   -------------------------------------------------------------------------- */
+.tl-rows { display: grid; gap: 1px; }
+.tl-row { display: flex; align-items: center; gap: 4px; border-radius: var(--r-xs); }
+.tl-row:hover { background: var(--surface-2); }
+
+.tl-time, .tl-evt {
+  border: 1px solid transparent; border-radius: var(--r-xs);
+  background: none; font: inherit; color: var(--ink);
+  padding: 2px 3px; min-width: 0;
+}
+.tl-time {
+  width: 44px; flex: none; text-align: center;
+  font-family: var(--mono); font-size: 11.5px; color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.tl-time:not(:placeholder-shown) { color: var(--ink-2); font-weight: 650; }
+.tl-evt { flex: 1; font-size: 12.5px; line-height: 1.5; }
+.tl-evt::placeholder { color: var(--faint); }
+.tl-time:hover, .tl-evt:hover { border-color: var(--line); }
+.tl-time:focus, .tl-evt:focus {
+  outline: none; border-color: var(--accent-line);
+  background: var(--surface); box-shadow: var(--ring);
+}
+.tl-del {
+  width: 17px; height: 17px; flex: none; padding: 0; opacity: 0;
+  border: 0; border-radius: var(--r-xs); background: none;
+  color: var(--faint); cursor: pointer; font-size: 13px; line-height: 1;
+  transition: opacity var(--t-fast) var(--ease);
+}
+.tl-row:hover .tl-del, .tl-row:focus-within .tl-del { opacity: 1; }
+.tl-del:hover { color: var(--danger); background: var(--surface-3); }
+
+/* 行内新增：默认收起，点日期卡右上角的 ＋ 展开 */
+.tl-add { display: none; gap: 4px; margin-top: 4px; padding-top: 4px; border-top: 1px dashed var(--line); }
+.tl-day.editing .tl-add { display: flex; }
+.tl-day.editing .tl-addon { display: none; }
+
+.tl-addon {
+  display: block; width: 100%; margin-top: 3px; padding: 2px 3px;
+  border: 0; background: none; text-align: left; cursor: pointer;
+  font: inherit; font-size: 11.5px; color: var(--faint);
+}
+.tl-addon:hover { color: var(--accent); }
+
+/* --------------------------------------------------------------------------
+   6. 调色板（挂在 .tl-cc 上）
+   -------------------------------------------------------------------------- */
+.tl-pal {
+  position: fixed; z-index: 90;
+  display: flex; gap: 6px; flex-wrap: wrap; width: 152px;
+  padding: 9px; border-radius: var(--r-sm);
+  border: 1px solid var(--line-strong); background: var(--surface);
+  box-shadow: var(--sh-3);
+}
+.tl-sw {
+  width: 20px; height: 20px; flex: none; padding: 0; cursor: pointer;
+  border-radius: 50%; border: 2px solid transparent;
+  background: var(--cc, var(--surface-3));
+}
+.tl-sw:hover { transform: scale(1.14); }
+.tl-sw.on { border-color: var(--ink); }
+.tl-sw[data-c="-1"] { background: repeating-linear-gradient(45deg, var(--surface-3) 0 4px, var(--line) 4px 8px); }
+
+/* --------------------------------------------------------------------------
+   7. 页脚与空状态
+   -------------------------------------------------------------------------- */
+.tl-foot {
+  margin-top: 26px; padding-top: 16px; border-top: 1px solid var(--line);
+  font-size: 12px; color: var(--faint); line-height: 1.7;
+}
+.tl-foot b { color: var(--muted); }
+
+/* --------------------------------------------------------------------------
+   8. 窄屏：单列 + 触摸友好（放不下的就纵向堆）
+   -------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .tl-grid { grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); }
+}
+@media (max-width: 720px) {
+  .tl-wrap { padding: 14px 14px 52px; }
+  .tl-grid { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .tl-brand-text small { display: none; }
+  .tl-top-actions .label { display: none; }
+  .tl-time { width: 52px; font-size: 12.5px; }
+  .tl-evt { font-size: 13.5px; }
+  .tl-del { opacity: 1; }
+  .tl-stats { margin-left: 0; width: 100%; }
+}
