@@ -67,6 +67,12 @@
 
   <!-- ============ 工具条：月份 / 搜索 / 统计 / 记一笔 ============ -->
   <section class="card">
+    <!-- 两种看法：列表（只列有记录的日子，三列铺开）/ 月度（小方块日历，每天都有） -->
+    <div class="tabs" id="viewTabs" role="tablist" aria-label="视图切换">
+      <button type="button" role="tab" data-view="list" aria-selected="true">列表</button>
+      <button type="button" role="tab" data-view="month" aria-selected="false">月度</button>
+    </div>
+
     <div class="tl-bar">
       <div class="tl-month">
         <button class="tl-mb" type="button" data-act="prev" title="上一个月" aria-label="上一个月">
@@ -111,10 +117,14 @@
     <textarea id="sum" rows="3" placeholder="这个月发生了什么、下个月想怎么调整……（留空则不保存）"></textarea>
   </section>
 
-  <!-- ============ 日期卡片 ============ -->
+  <!-- ============ 列表视图：每个有记录的日子一张卡片（三列） ============ -->
   <section class="tl-grid" id="days" aria-live="polite"></section>
 
+  <!-- ============ 月度视图：一个月一张小方块日历，没有记录的日子也显示 ============ -->
+  <section class="tl-calwrap" id="calBox" hidden aria-live="polite"></section>
+
   <footer class="tl-foot">
+    <p><b>两种看法</b>：<b>列表</b>把有记录的日子排成三列，只有时间与事件两段，一屏能看很多条；<b>月度</b>是一个小方块日历，一个月里<b>每一天都有格子</b>（没记录的也在，点一下就能补记），格子里的事件小条会跟着这一天的颜色走。</p>
     <p><b>用法</b>：点「＋ 记一笔」加第一条（日期随便选，跨月也会自动跳过去）；日期卡片上的 <b>＋</b> 可以在当天连续记多条，按回车就提交。每条记录由 <b>时间 + 事件</b> 两段组成，时间不必写冒号（输入 <code>930</code> 会变成 <code>09:30</code>），留空表示「不确定几点」。</p>
     <p><b>颜色</b>：点日期卡片左上角的小圆点，可以给这一天指定一种颜色，用来区分不同类型的日子；颜色跟随全站深浅色自动调整。</p>
     <p><b>数据</b>：全部保存在你自己的浏览器里（localStorage），不上传服务器；换设备或清缓存会丢，重要内容建议自己留一份备份。事件按时间自动排序。</p>

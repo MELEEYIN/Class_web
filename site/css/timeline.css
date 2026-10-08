@@ -117,7 +117,7 @@
    -------------------------------------------------------------------------- */
 .tl-grid {
   display: grid; gap: 10px;
-  grid-template-columns: repeat(auto-fill, minmax(208px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));   /* 固定三列 */
   align-items: start;
 }
 
@@ -232,6 +232,32 @@
 .tl-sw[data-c="-1"] { background: repeating-linear-gradient(45deg, var(--surface-3) 0 4px, var(--line) 4px 8px); }
 
 /* --------------------------------------------------------------------------
+   6.5 月度视图（复用站点的 .cal-full / .cal-day / .cd-event 小方块日历）
+   -------------------------------------------------------------------------- */
+.tl-calwrap { padding: 2px 0 0; }
+#calBox .cal-full { gap: 8px; }
+#calBox .cal-day { cursor: pointer; }
+/* 这一天选过颜色：左边来一道色条，一眼能认出是哪类日子 */
+#calBox .cal-day[data-color] { border-left: 3px solid var(--cc); }
+/* 格子右上角：条数 + 颜色点 */
+.tl-cd-r { display: flex; align-items: center; gap: 4px; }
+.tl-cd-c {
+  font-size: 10px; font-weight: 800; line-height: 1;
+  color: var(--cc, var(--accent)); font-variant-numeric: tabular-nums;
+}
+.cal-day.is-out .tl-cd-c { color: var(--faint); }
+.tl-cd-dot {
+  display: block; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--cc, var(--accent));
+}
+#calBox .cal-day.is-today .tl-cd-c { color: inherit; }
+/* 从月度点进列表后，把那张卡片闪一下 */
+.tl-day.hit {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft), var(--sh-2);
+}
+
+/* --------------------------------------------------------------------------
    7. 页脚与空状态
    -------------------------------------------------------------------------- */
 .tl-foot {
@@ -243,8 +269,8 @@
 /* --------------------------------------------------------------------------
    8. 窄屏：单列 + 触摸友好（放不下的就纵向堆）
    -------------------------------------------------------------------------- */
-@media (max-width: 900px) {
-  .tl-grid { grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); }
+@media (max-width: 1000px) {
+  .tl-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 720px) {
   .tl-wrap { padding: 14px 14px 52px; }

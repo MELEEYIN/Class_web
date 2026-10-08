@@ -23,6 +23,8 @@
   var KEY = 'timeline.v1';
   var NCOLOR = 8;                           /* [data-color="0".."7"] */
   var WD = ['日', '一', '二', '三', '四', '五', '六'];
+  var WD_MON = ['一', '二', '三', '四', '五', '六', '日'];   /* 月度视图列顺序：周一起 */
+  var MODE_KEY = 'timeline.viewmode';                         /* 记住用户上次选的视图 */
 
   /* ======================================================================
      1. 数据层
@@ -119,10 +121,14 @@
      2. 视图状态
      ====================================================================== */
   var today = U.today();
-  var view = { ym: U.fmtDate(today).slice(0, 7), q: '', editing: '' };
+  var view = {
+    ym: U.fmtDate(today).slice(0, 7),
+    q: '', editing: '',
+    mode: U.lsGet(MODE_KEY, 'list') === 'month' ? 'month' : 'list'
+  };
 
   var $ = U.$, $$ = U.$$;
-  var hostDays, hostStats, sumTa, sumHint, monthLabel, monthTip, qInput, addBox;
+  var hostDays, hostCal, hostStats, sumTa, sumHint, monthLabel, monthTip, qInput, addBox;
 
   function ymLabel(ym) {
     var p = ym.split('-');
@@ -146,21 +152,22 @@
   /* ======================================================================
      3. 渲染
      ====================================================================== */
+  /* ---- 顶部工具条 + 当前视图，一次渲染完 ---- */
   function render() {
     var q = view.q.trim().toLowerCase();
     var searching = !!q;
+    /* 搜索只在列表视图里有意义：在月度视图下开始打字，就自动切回列表 */
+    if (searching && view.mode === 'month') view.mode = 'list';
+    syncMode();
+
     var keys = searching ? allKeys() : monthKeys(view.ym);
 
     /* 3.1 工具条 */
     monthLabel.textContent = ymLabel(view.ym);
-    if (searching) {
-      monthTip.innerHTML = '搜索中：跨全部月份';
-      monthTip.hidden = false;
-    } else {
-      monthTip.hidden = true;
-    }
+    monthTip.hidden = !searching;
+    if (searching) monthTip.textContent = '搜索中：跨全部月份';
 
-    /* 3.2 统计（按当前显示范围算） */
+    /* 3.2 统计（搜索时按全部月份算，否则按本月） */
     var nd = 0, ni = 0;
     keys.forEach(function (k) {
       var n = picked(data.days[k].items, q).length;
@@ -170,11 +177,32 @@
       chip('天数', nd) + chip('事件', ni) +
       (nd ? chip('平均', (ni / nd).toFixed(1) + ' 条/天') : '');
 
-    /* 3.3 本月总结（搜索时仍然显示当前月的那一份） */
+    /* 3.3 本月总结（搜索时也显示当前月的那一份） */
     if (sumTa.value !== (data.months[view.ym] || '')) sumTa.value = data.months[view.ym] || '';
     updateSumHint();
 
-    /* 3.4 日期卡片 */
+    /* 3.4 只渲染当前视图，另一个清空 */
+    if (view.mode === 'month') {
+      hostDays.hidden = true;
+      hostDays.innerHTML = '';
+      hostCal.hidden = false;
+      renderCal();
+    } else {
+      hostCal.hidden = true;
+      hostCal.innerHTML = '';
+      hostDays.hidden = false;
+      renderList(searching, q, keys);
+    }
+  }
+
+  function syncMode() {
+    $$('#viewTabs button').forEach(function (b) {
+      b.setAttribute('aria-selected', b.getAttribute('data-view') === view.mode ? 'true' : 'false');
+    });
+  }
+
+  /* ---- 视图一 · 列表：只有有记录的日子，三列铺开 ---- */
+  function renderList(searching, q, keys) {
     hostDays.innerHTML = '';
     var shown = 0;
     keys.forEach(function (k) {
@@ -185,6 +213,105 @@
     });
     if (!shown) hostDays.appendChild(emptyState(searching, q));
     hostDays.dataset.count = shown;
+  }
+
+  /* ---- 视图二 · 月度：小方块日历，一个月里每一天都有格子 ---- */
+  /* 复刻 schedule.js 的 monthMatrix：从本月 1 号所在周的周一开始铺，铺满整周 */
+  function matrixOf(d) {
+    var start = U.mondayOf(U.startOfMonth(d));
+    var weeks = [];
+    for (var w = 0; w < 6; w++) {
+      var row = [];
+      for (var i = 0; i < 7; i++) row.push(U.addDays(start, w * 7 + i));
+      weeks.push(row);
+    }
+    var last = weeks[5];
+    /* 最后一行整行都不属于本月就去掉，省得空出一整行 */
+    if (last[0].getMonth() !== d.getMonth() && last[6].getMonth() !== d.getMonth()) weeks.pop();
+    return weeks;
+  }
+
+  function renderCal() {
+    var cur = U.parseDate(view.ym + '-01');
+    var grid = U.el('div', { class: 'cal-grid' });
+
+    matrixOf(cur).forEach(function (row) {
+      row.forEach(function (dt) {
+        var key = U.fmtDate(dt);
+        var day = dayOf(key);
+        var items = day ? day.items : [];
+        var n = items.length;
+        var out = dt.getMonth() !== cur.getMonth();
+
+        var cls = 'cal-day';
+        if (out) cls += ' is-out';
+        if (U.isSameDay(dt, today)) cls += ' is-today';
+
+        /* 右上角：条数 + 颜色点（颜色点让「没记录但选过色」的日子也看得出） */
+        var num = U.el('span', { class: 'cd-num' }, [
+          U.el('span', { text: String(dt.getDate()) }),
+          U.el('span', { class: 'tl-cd-r' }, [
+            n ? U.el('span', { class: 'tl-cd-c', text: String(n) }) : null,
+            (day && day.c >= 0) ? U.el('span', { class: 'tl-cd-dot' }) : null
+          ])
+        ]);
+
+        /* 格子里最多放 3 条，多的用 +N 条 表示 */
+        var evBox = U.el('span', { class: 'cd-events' });
+        items.slice(0, 3).forEach(function (it) {
+          evBox.appendChild(U.el('span', {
+            class: 'cd-event',
+            title: (it.t ? it.t + ' ' : '') + it.e,
+            text: (it.t ? it.t + ' ' : '') + it.e
+          }));
+        });
+        if (n > 3) evBox.appendChild(U.el('span', { class: 'cd-more', text: '+' + (n - 3) + ' 条' }));
+
+        var btn = U.el('button', {
+          type: 'button', class: cls, 'data-key': key,
+          title: key + (n ? ' · ' + n + ' 条' : ' · 还没有记录，点一下就能补记'),
+          onclick: function () { onCalDay(key); }
+        }, [num, evBox]);
+        if (day && day.c >= 0) btn.setAttribute('data-color', String(day.c));
+        grid.appendChild(btn);
+      });
+    });
+
+    U.render(hostCal, U.el('div', { class: 'cal-full' }, [
+      U.el('div', { class: 'cal-week' }, WD_MON.map(function (t, i) {
+        return U.el('span', { class: i >= 5 ? 'is-weekend' : '', text: t });
+      })),
+      grid
+    ]));
+  }
+
+  /* 点月度格子：有记录 → 切回列表并定位到那天；没记录 → 直接开「记一笔」并把日期填好 */
+  function onCalDay(key) {
+    view.ym = key.slice(0, 7);
+    view.editing = '';
+    if (hasItems(key)) {
+      view.mode = 'list';
+      U.lsSet(MODE_KEY, 'list');
+      render();
+      var card = hostDays.querySelector('.tl-day[data-key="' + key + '"]');
+      if (card) {
+        card.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        card.classList.add('hit');
+        setTimeout(function () { card.classList.remove('hit'); }, 1400);
+      }
+    } else {
+      render();
+      openQuickAdd(key);
+    }
+  }
+
+  /* 打开「记一笔」，可顺便把日期填好 */
+  function openQuickAdd(dt) {
+    addBox.hidden = false;
+    addBox.querySelector('.tl-datein').value = dt || U.fmtDate(today);
+    var tm = addBox.querySelector('.tl-qtime');
+    if (!tm.value) tm.value = pad2(new Date().getHours()) + ':' + pad2(Math.floor(new Date().getMinutes() / 5) * 5);
+    addBox.querySelector('.tl-qtext').focus();
   }
 
   /* 过滤出命中的行，并保留它在原数组里的下标（编辑/删除要用原下标） */
@@ -454,22 +581,25 @@
     $('[data-act="prev"]').addEventListener('click', function () { shiftMonth(-1); });
     $('[data-act="next"]').addEventListener('click', function () { shiftMonth(1); });
     $('[data-act="today"]').addEventListener('click', function () {
-      view.ym = U.fmtDate(U.today()).slice(0, 7);
+      view.ym = U.fmtDate(today).slice(0, 7);
       view.q = ''; qInput.value = '';
+      view.mode = 'list';
+      U.lsSet(MODE_KEY, 'list');
       render();
       var c = hostDays.querySelector('.tl-day.is-today');
       if (c) c.scrollIntoView({ block: 'center', behavior: 'smooth' });
     });
     $('[data-act="add-toggle"]').addEventListener('click', function () {
-      var on = addBox.hidden;
-      addBox.hidden = !on;
-      if (on) {
-        var dt = addBox.querySelector('.tl-datein');
-        var tm = addBox.querySelector('.tl-qtime');
-        dt.value = U.fmtDate(U.today());
-        tm.value = pad2(new Date().getHours()) + ':' + pad2(Math.floor(new Date().getMinutes() / 5) * 5);
-        addBox.querySelector('.tl-qtext').focus();
-      }
+      if (addBox.hidden) openQuickAdd(U.fmtDate(today)); else addBox.hidden = true;
+    });
+
+    /* 视图切换：列表 / 月度，选完记住 */
+    $$('#viewTabs button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        view.mode = b.getAttribute('data-view') === 'month' ? 'month' : 'list';
+        U.lsSet(MODE_KEY, view.mode);
+        render();
+      });
     });
     addBox.addEventListener('keydown', function (ev) {
       if (ev.key === 'Enter') { ev.preventDefault(); quickAdd(); }
@@ -485,6 +615,8 @@
       addItem(dt, tm, ev);
       addBox.querySelector('.tl-qtext').value = '';
       view.ym = dt.slice(0, 7);
+      view.mode = 'list';                 /* 切回列表，好让用户马上看到刚记的这条 */
+      U.lsSet(MODE_KEY, 'list');
       render();
       focusRow(dt, -1);
       U.toast('已记到 ' + dt.replace(/-/g, '/'), 'ok', { timeout: 2600 });
@@ -607,6 +739,7 @@
      ====================================================================== */
   function init() {
     hostDays = $('#days');
+    hostCal = $('#calBox');
     hostStats = $('#stats');
     sumTa = $('#sum');
     sumHint = $('#sumHint');
