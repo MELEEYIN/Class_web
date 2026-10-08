@@ -126,7 +126,7 @@
    -------------------------------------------------------------------------- */
 .tl-grid {
   display: grid; gap: 10px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));   /* 固定三列 */
+  grid-template-columns: repeat(5, minmax(0, 1fr));   /* 一页固定五列 */
   align-items: start;
 }
 
@@ -271,12 +271,14 @@
 /* --------------------------------------------------------------------------
    8. 窄屏：单列 + 触摸友好（放不下的就纵向堆）
    -------------------------------------------------------------------------- */
-@media (max-width: 1000px) {
-  .tl-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
+/* 窄屏逐级降列：5 → 4 → 3 → 2 → 1 */
+@media (max-width: 1240px) { .tl-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 1000px) { .tl-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 780px)  { .tl-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px)  { .tl-grid { grid-template-columns: minmax(0, 1fr); gap: 8px; } }
+
 @media (max-width: 720px) {
   .tl-wrap { padding: 14px 14px 52px; }
-  .tl-grid { grid-template-columns: minmax(0, 1fr); gap: 8px; }
   .tl-brand-text small { display: none; }
   .tl-top-actions .label { display: none; }
   .tl-time { width: 52px; font-size: 12.5px; }
