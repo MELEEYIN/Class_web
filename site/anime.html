@@ -234,18 +234,44 @@
             border-radius: 14px;
             padding: 6px 11px 7px;
         }
-        /* 标题行：只是个说明，不可点、不折叠 —— 这张卡片是常驻展示的 */
+        /* 标题行同时是折叠开关：点一下把八行说明收起来，
+           顶栏就从 141px 回到 ~68px（收起来后只剩这一行，比搜索框还矮）。 */
         .gl-head {
             display: flex;
             align-items: center;
             gap: 6px;
+            width: 100%;
             padding: 0 1px 4px;
             margin: 0 0 5px;
+            background: none;
+            border: 0;
             border-bottom: 1px solid var(--divider);
             color: var(--text-muted);
+            font-family: inherit;
             font-size: 0.68rem;
             line-height: 1.2;
             letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .gl-head:hover {
+            color: var(--text-secondary);
+        }
+        .gl-caret {
+            margin-left: auto;
+            font-size: 0.8rem;
+            line-height: 1;
+            transition: transform 0.2s ease;
+        }
+        .grade-legend.collapsed .gl-caret {
+            transform: rotate(-90deg);
+        }
+        /* 收起时把标题下面那条分隔线和留白一起去掉，
+           否则会剩一条悬空的横线和多余的空白 */
+        .grade-legend.collapsed .gl-head {
+            padding-bottom: 0;
+            margin-bottom: 0;
+            border-bottom-color: transparent;
         }
         .gl-body {
             display: grid;
@@ -256,6 +282,9 @@
             grid-auto-flow: column;
             column-gap: 16px;
             row-gap: 3px;
+        }
+        .grade-legend.collapsed .gl-body {
+            display: none;
         }
         /* 三个子元素统一 line-height + align-items:center，
            否则 baseline 对齐会把每行撑高 3~4px（八行就差出十几像素）。 */
@@ -2099,16 +2128,18 @@
         </div>
 
         <!-- ====== 评级对照 ======
-             八个等级的判定区间与一句话评价。纯 HTML，不依赖 JS 生成，常驻展示。
+             八个等级的判定区间与一句话评价。纯 HTML，不依赖 JS 生成。
              DOM 顺序 = 用户列出的顺序；两列按「列优先」填充（grid-auto-flow: column），
              所以左列从上到下是 S / A+ / A / A-，右列是 B+ / B / B- / C·D —— 左列靠前。
 
-             注意：它挂在 sticky 顶栏里，8 行文字会把顶栏撑到 ~141px。
-             嫌高的话只能挪出去（历史上的做法），或者把文字精简掉。 -->
+             它挂在 sticky 顶栏里，展开时 8 行文字会把顶栏撑到 ~141px。
+             点标题可以收起，收起后顶栏回到 ~68px；选择记在 localStorage 里。 -->
         <div class="grade-legend" id="gradeLegend">
-            <div class="gl-head">
+            <button type="button" class="gl-head" id="gradeLegendToggle" aria-expanded="true"
+                    aria-controls="gradeLegendBody" title="点击收起／展开评级对照">
                 <span>📊 评级对照</span>
-            </div>
+                <span class="gl-caret" aria-hidden="true">⌄</span>
+            </button>
             <div class="gl-body" id="gradeLegendBody">
                 <div class="gl-row gl-s"><span class="gl-badge">S</span><span class="gl-range">9.0~10.0</span><span class="gl-desc">神作，无需多言</span></div>
                 <div class="gl-row gl-ap"><span class="gl-badge">A+</span><span class="gl-range">8.6~8.9</span><span class="gl-desc">上好的佳作，很值得看</span></div>
@@ -5049,6 +5080,37 @@
             }
 
             /* ==============================================================
+               评级对照的展开 / 收起
+               · 它挂在 sticky 顶栏里，展开 141px、收起 ~68px，所以这个开关是刚需
+               · 状态单独存一个 key，不掺进 settings —— 免得设置面板回写时把它抹掉
+               · 窄屏首次访问默认收起：小屏幕上 141px 的 sticky 顶栏太吃地方
+               ============================================================== */
+            const STORAGE_KEY_GRADE_LEGEND = 'anime_grade_legend';
+
+            function applyGradeLegendState(box, btn, isCollapsed) {
+                box.classList.toggle('collapsed', isCollapsed);
+                btn.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
+                btn.title = isCollapsed ? '点击展开评级对照' : '点击收起评级对照';
+            }
+
+            function initGradeLegend() {
+                const box = document.getElementById('gradeLegend');
+                const btn = document.getElementById('gradeLegendToggle');
+                if (!box || !btn) return;
+
+                let saved = null;
+                try { saved = localStorage.getItem(STORAGE_KEY_GRADE_LEGEND); } catch (_) { saved = null; }
+                if (saved !== '0' && saved !== '1') saved = window.innerWidth < 620 ? '1' : '0';
+                applyGradeLegendState(box, btn, saved === '1');
+
+                btn.addEventListener('click', function() {
+                    const next = !box.classList.contains('collapsed');
+                    applyGradeLegendState(box, btn, next);
+                    try { localStorage.setItem(STORAGE_KEY_GRADE_LEGEND, next ? '1' : '0'); } catch (_) {}
+                });
+            }
+
+            /* ==============================================================
                回到顶部
                · scroll 事件的触发频率远高于渲染帧，用 rAF 节流，
                  同一帧内只算一次，免得白跑几十遍 classList.toggle
@@ -5106,6 +5168,9 @@
                 if ((settings.autoSaveInterval || 0) > 0) {
                     startAutoSaveTimer();
                 }
+
+                // 评级对照的展开 / 收起
+                initGradeLegend();
 
                 // 拖动卡片换排序
                 initCardDrag();
