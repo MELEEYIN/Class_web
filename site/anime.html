@@ -215,6 +215,125 @@
             box-shadow: 0 0 20px var(--theme-primary-glow);
         }
 
+        /* ==================== 评级对照（顶栏右侧小卡片） ====================
+           内容写在 HTML 里、不靠 JS 生成，保证首屏一定看得到；
+           每行颜色统一取 :root 的 --g-* 与 --g-*-rgb，
+           和卡片徽章 / 排行榜 / 批量设置面板用的是同一套颜色，改色只改那一处。
+
+           "评级等级 + 区间 + 一句话评价" 三列，两列并排 → 四行放完八个等级，
+           不让 sticky 顶栏长得太高。窄屏时塌成一列。 */
+        .grade-legend {
+            flex: 0 0 auto;
+            /* 靠右：搜索框是 flex:1，正常情况下它自然被推到最右；
+               万一行不够换行了，margin-left:auto 也能让它继续贴右 */
+            margin-left: auto;
+            border: 1px solid var(--card-border);
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 14px;
+            padding: 6px 11px 7px;
+        }
+        .gl-head {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+            padding: 0 1px 4px;
+            margin: 0 0 5px;
+            background: none;
+            border: 0;
+            border-bottom: 1px solid var(--divider);
+            color: var(--text-muted);
+            font-family: inherit;
+            font-size: 0.68rem;
+            line-height: 1.2;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .gl-head:hover {
+            color: var(--text-secondary);
+        }
+        .gl-caret {
+            margin-left: auto;
+            font-size: 0.8rem;
+            line-height: 1;
+            transition: transform 0.2s ease;
+        }
+        .grade-legend.collapsed .gl-caret {
+            transform: rotate(-90deg);
+        }
+        /* 收起时把标题下面那条分隔线和留白一起去掉，
+           否则会剩一条悬空的横线和多余的空白 */
+        .grade-legend.collapsed .gl-head {
+            padding-bottom: 0;
+            margin-bottom: 0;
+            border-bottom-color: transparent;
+        }
+        .gl-body {
+            display: grid;
+            grid-template-columns: repeat(2, max-content);
+            column-gap: 16px;
+            row-gap: 3px;
+        }
+        .grade-legend.collapsed .gl-body {
+            display: none;
+        }
+        /* 三个子元素统一 line-height + align-items:center，
+           否则 baseline 对齐会把每行撑高 3~4px（八行就差出十几像素）。 */
+        .gl-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.66rem;
+            line-height: 1.35;
+            white-space: nowrap;
+        }
+        .gl-badge {
+            flex: none;
+            min-width: 30px;
+            padding: 0 5px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 800;
+            font-size: 0.68rem;
+            line-height: 1.5;
+            color: var(--g);
+            background: rgba(var(--g-rgb), 0.16);
+        }
+        /* C、D 共用一个区间，所以并排放两枚徽章，各自用自己的颜色 */
+        .gl-badge.gl-badge-d {
+            --g: var(--g-d);
+            --g-rgb: var(--g-d-rgb);
+            min-width: 24px;
+        }
+        .gl-range {
+            flex: none;
+            font-size: 0.6rem;
+            line-height: 1.5;
+            color: var(--text-muted);
+            font-variant-numeric: tabular-nums;
+        }
+        .gl-desc {
+            color: var(--text-secondary);
+        }
+        /* 八个等级各自的颜色（只做一次映射：--g 给文字/描边，--g-rgb 给淡底） */
+        .gl-row.gl-s  { --g: var(--g-s);  --g-rgb: var(--g-s-rgb); }
+        .gl-row.gl-ap { --g: var(--g-ap); --g-rgb: var(--g-ap-rgb); }
+        .gl-row.gl-a  { --g: var(--g-a);  --g-rgb: var(--g-a-rgb); }
+        .gl-row.gl-am { --g: var(--g-am); --g-rgb: var(--g-am-rgb); }
+        .gl-row.gl-bp { --g: var(--g-bp); --g-rgb: var(--g-bp-rgb); }
+        .gl-row.gl-b  { --g: var(--g-b);  --g-rgb: var(--g-b-rgb); }
+        .gl-row.gl-bm { --g: var(--g-bm); --g-rgb: var(--g-bm-rgb); }
+        .gl-row.gl-cd { --g: var(--g-c);  --g-rgb: var(--g-c-rgb); }
+
+        @media (max-width: 600px) {
+            .gl-body {
+                grid-template-columns: max-content;
+            }
+        }
+
         .search-results-dropdown {
             position: absolute;
             top: 110%;
@@ -1328,18 +1447,42 @@
             color: var(--text-secondary);
             white-space: nowrap;
         }
+        /* 数值胶囊同时是「可直接输入的输入框」：
+           平时看起来是一个色块，鼠标移上去出现描边提示可编辑，聚焦后变成输入框。
+           appearance:textfield 是为了去掉 number 输入框自带的那对上下箭头。 */
         .score-panel .sp-val {
+            width: 54px;
+            padding: 1px 6px;
+            border: 1px solid transparent;
+            border-radius: 999px;
+            background: var(--sc-soft);
+            color: var(--sc);
             font-size: 0.78rem;
             font-weight: 800;
+            font-family: inherit;
             font-variant-numeric: tabular-nums;
-            color: var(--sc);
-            background: var(--sc-soft);
-            padding: 1px 9px;
-            border-radius: 999px;
-            min-width: 44px;
             text-align: center;
+            outline: none;
+            cursor: text;
+            -moz-appearance: textfield;
+            appearance: textfield;
+            transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+        }
+        .score-panel .sp-val::-webkit-outer-spin-button,
+        .score-panel .sp-val::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .score-panel .sp-val:hover {
+            border-color: var(--sc);
+        }
+        .score-panel .sp-val:focus {
+            border-color: var(--sc);
+            background: rgba(0, 0, 0, 0.35);
+            box-shadow: 0 0 0 3px var(--sc-soft);
         }
         .score-panel .sp-overall .sp-val {
+            width: 58px;
             font-size: 0.88rem;
         }
         /* 滑杆：input 高度 = 轨道高度，靠 thumb 的负 margin 居中 */
@@ -1431,7 +1574,15 @@
             background: rgba(220, 40, 40, 0.85);
         }
 
-        /* ==================== 排行榜 ==================== */
+        /* ==================== 排行榜 ====================
+           封面的坑（实测出来的）：
+             · 尺寸只写在 .size-small/medium/large 里，但第一次 renderRanking()
+               建出来的 <table> 上根本没有 size-* 类（类只在用户点「小/中/大」时才加），
+               于是 <img> 没有任何宽高约束 → 按原图渲染。
+               Bangumi 的大图能到 1200px 高，一行就被撑成 200px+，整张表全乱。
+             · 另外 object-fit 默认是 fill，图会被硬拉变形；也没有圆角。
+           现在：表格自带尺寸类（默认中号）、object-fit: cover、圆角 + 阴影，
+           并把封面这一列压成「贴住内容」的窄列，宽度不再抢标题的位置。 */
         .ranking-table {
             width: 100%;
             border-collapse: separate;
@@ -1450,6 +1601,11 @@
             background: var(--card-bg);
             backdrop-filter: blur(12px);
             border: 1px solid var(--card-border);
+            vertical-align: middle;
+            transition: border-color 0.2s ease;
+        }
+        .ranking-table tbody tr:hover td {
+            border-color: var(--card-hover-border);
         }
         .ranking-table tr td:first-child {
             border-radius: 12px 0 0 12px;
@@ -1457,26 +1613,52 @@
         .ranking-table tr td:last-child {
             border-radius: 0 12px 12px 0;
         }
-        .rank-num {
+        .ranking-table th.rank-num,
+        .ranking-table td.rank-num {
+            width: 52px;
+            text-align: center;
             font-weight: 800;
             font-size: 1.2rem;
-            text-align: center;
             color: var(--theme-primary-light);
         }
-        .ranking-table .rank-cover {
-            transition: all 0.3s ease;
+        /* 封面列：width:1px + nowrap = 浏览器把这一列压到刚好包住图片，
+           剩下的宽度全给标题列。 */
+        .ranking-table th.rank-cover-cell,
+        .ranking-table td.rank-cover-cell {
+            width: 1px;
+            white-space: nowrap;
         }
+        /* 得分列同理：贴住内容，不跟标题抢宽度 */
+        .ranking-table th.rank-score,
+        .ranking-table td.rank-score {
+            width: 1px;
+            white-space: nowrap;
+        }
+        .ranking-table .rank-cover {
+            display: block;
+            object-fit: cover;
+            object-position: center;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .ranking-table tbody tr:hover .rank-cover {
+            transform: scale(1.04);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+        }
+        /* 三档尺寸统一按封面的 2:3 比例来，避免裁掉封面上下两端的标题字 */
         .ranking-table.size-small .rank-cover {
             width: 36px;
-            height: 50px;
+            height: 54px;
         }
         .ranking-table.size-medium .rank-cover {
             width: 56px;
-            height: 78px;
+            height: 84px;
         }
         .ranking-table.size-large .rank-cover {
-            width: 76px;
-            height: 106px;
+            width: 80px;
+            height: 120px;
         }
         .rank-title {
             font-weight: 600;
@@ -1487,6 +1669,7 @@
             white-space: nowrap;
             display: block;
         }
+        /* 大号封面时整行也松一点，不然图片上下顶着边框 */
         .ranking-table.size-large td {
             padding: 12px 12px;
         }
@@ -1790,6 +1973,27 @@
             <input type="text" id="searchInput" placeholder="🔍 搜索番剧（支持中文关键词）..." autocomplete="off" />
             <div class="search-results-dropdown" id="searchDropdown"></div>
         </div>
+
+        <!-- ====== 评级对照 ======
+             八个等级的判定区间与一句话评价。纯 HTML，不依赖 JS 生成。
+             DOM 顺序 = 用户列出的顺序；两列 grid 按行填充，
+             所以第一行是 S / A+，第二行 A / A-，以此类推。 -->
+        <div class="grade-legend" id="gradeLegend">
+            <button type="button" class="gl-head" id="gradeLegendToggle" aria-expanded="true" aria-controls="gradeLegendBody" title="点击收起／展开评级对照">
+                <span>📊 评级对照</span>
+                <span class="gl-caret" aria-hidden="true">⌄</span>
+            </button>
+            <div class="gl-body" id="gradeLegendBody">
+                <div class="gl-row gl-s"><span class="gl-badge">S</span><span class="gl-range">9.0~10.0</span><span class="gl-desc">神作，无需多言</span></div>
+                <div class="gl-row gl-ap"><span class="gl-badge">A+</span><span class="gl-range">8.6~8.9</span><span class="gl-desc">上好的佳作，很值得看</span></div>
+                <div class="gl-row gl-a"><span class="gl-badge">A</span><span class="gl-range">8.4~8.5</span><span class="gl-desc">佳作，看了不会后悔</span></div>
+                <div class="gl-row gl-am"><span class="gl-badge">A-</span><span class="gl-range">7.9~8.3</span><span class="gl-desc">平作，值得一看</span></div>
+                <div class="gl-row gl-bp"><span class="gl-badge">B+</span><span class="gl-range">7.6~7.8</span><span class="gl-desc">有可取的地方，但大概率有硬伤</span></div>
+                <div class="gl-row gl-b"><span class="gl-badge">B</span><span class="gl-range">7.3~7.5</span><span class="gl-desc">算是能看¿</span></div>
+                <div class="gl-row gl-bm"><span class="gl-badge">B-</span><span class="gl-range">7.0~7.2</span><span class="gl-desc">不推荐看，特定人群可考虑</span></div>
+                <div class="gl-row gl-cd"><span class="gl-badge">C</span><span class="gl-badge gl-badge-d">D</span><span class="gl-range">0.0~6.9</span><span class="gl-desc">不推荐看，我一般不赤石</span></div>
+            </div>
+        </div>
     </div>
 
     <!-- ====== 仪表盘 ====== -->
@@ -2066,6 +2270,10 @@
                 autoSaveInterval: 0,
                 dataLimit: 0,
                 viewMode: 'detailed',
+                /* 排行榜封面尺寸：small / medium / large。
+                   存进 settings 是为了刷新后仍然保持上次选的档位 ——
+                   以前只加在 <table> 的 class 上，一刷新就回到「没有尺寸类」的状态。 */
+                rankSize: 'medium',
             };
 
             /* ==============================================================
@@ -2744,13 +2952,9 @@
                     return;
                 }
 
-                const gradeCount = {};
-                let graded = 0;
-                animeList.forEach(a => {
-                    const g = a.grade || 'none';
-                    gradeCount[g] = (gradeCount[g] || 0) + 1;
-                    if (g !== 'none') graded++;
-                });
+                /* 评级覆盖率的分子：已评级（grade 不为空且不是 none）的数量。
+                   这里不再顺带统计「等级分布」——那一块已经挪到顶栏的评级对照卡片里了。 */
+                const graded = animeList.filter(a => (a.grade || 'none') !== 'none').length;
 
                 const genreCount = {};
                 animeList.forEach(a => {
@@ -2771,19 +2975,6 @@
                 const avgScore = scored > 0 ? (totalScore / scored).toFixed(1) : 'N/A';
 
                 let html = '';
-                const gradeOrder = ['S', 'A+', 'A', 'A-', 'B+', 'B', 'B-', 'C', 'D', 'none'];
-                const gradeLabels = { 'S': 'S', 'A+': 'A+', 'A': 'A', 'A-': 'A-', 'B+': 'B+', 'B': 'B', 'B-': 'B-', 'C': 'C', 'D': 'D',
-                    'none': '未评级' };
-                html += `<div class="stats-chip"><span class="stat-label">📊 等级分布</span>`;
-                for (const g of gradeOrder) {
-                    if (gradeCount[g]) {
-                        const pct = Math.round((gradeCount[g] / total) * 100);
-                        const cls = g === 'none' ? 'none' : g;   /* class 名用原样等级，不转义 */
-                        html +=
-                            `<span class="grade-dot ${cls}" title="${gradeLabels[g]}: ${gradeCount[g]} (${pct}%)"></span>`;
-                    }
-                }
-                html += `<span class="stat-value">${graded}/${total}</span></div>`;
 
                 if (sortedGenres.length) {
                     html += `<div class="stats-chip"><span class="stat-label">🏷️ 热门类型</span>`;
@@ -2920,8 +3111,27 @@
                     grade: '等级'
                 };
 
+                /* 封面占位图：按 2:3 画一个中性占位（圆角框 + 播放三角），
+                   比原来那个纯灰块更像「这里应该有一张封面」。
+                   用 encodeURIComponent 编码，避免 data URI 里的 < > " 破坏 src 属性。 */
+                const RANK_COVER_FALLBACK = 'data:image/svg+xml,' + encodeURIComponent(
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="180">' +
+                    '<rect width="120" height="180" fill="#241a3a"/>' +
+                    '<rect x="30" y="62" width="60" height="56" rx="8" fill="none" stroke="#5c4a80" stroke-width="4"/>' +
+                    '<path d="M54 78 L78 90 L54 102 Z" fill="#5c4a80"/></svg>');
+
+                /* 封面加载失败时换成占位图。先摘掉 onerror 再换 src，
+                   否则占位图万一也失败会无限递归。 */
+                window._rankCoverFallback = function(el) {
+                    el.onerror = null;
+                    el.src = RANK_COVER_FALLBACK;
+                };
+
+                const rankSize = ['small', 'medium', 'large'].includes(settings.rankSize) ?
+                    settings.rankSize : 'medium';
+
                 let html =
-                    `<table class="ranking-table"><thead><tr><th>#</th><th>封面</th><th>标题</th><th>${labels[field]||'得分'}</th></tr></thead><tbody>`;
+                    `<table class="ranking-table size-${rankSize}"><thead><tr><th class="rank-num">#</th><th class="rank-cover-cell">封面</th><th>标题</th><th class="rank-score">${labels[field]||'得分'}</th></tr></thead><tbody>`;
                 pageList.forEach((a, i) => {
                     const idx = start + i + 1;
                     let val;
@@ -2932,13 +3142,15 @@
                     } else {
                         val = (a.scores?.[field] ?? 0).toFixed(1);
                     }
-                    const cover = bgmImage(a.image_url) ||
-                        'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="36" height="50" fill="%23333"><rect width="36" height="50"/></svg>';
+                    const cover = bgmImage(a.image_url) || RANK_COVER_FALLBACK;
                     const displayTitle = getDisplayTitle(a);
                     const gradeClass = a.grade ? 'has-grade ' + getGradeClass(a.grade) : '';
                     const isGrade = field === 'grade';
                     const isBangumi = field === 'bangumi_score';
-                    html += `<tr><td class="rank-num">${idx}</td><td><img src="${cover}" class="rank-cover" onerror="this.style.background='%23333';"></td><td><span class="rank-title" title="${escapeHTML(displayTitle)}">${escapeHTML(displayTitle)}</span></td><td style="font-weight:700;${isGrade ? ` font-size:1.1rem;` : ''}${isBangumi ? ` color:#64b5f6;` : ''}">${isGrade ? `<span class="${gradeClass}">${val}</span>` : val}</td></tr>`;
+                    html += `<tr><td class="rank-num">${idx}</td>` +
+                        `<td class="rank-cover-cell"><img src="${cover}" class="rank-cover" alt="" loading="lazy" decoding="async" onerror="window._rankCoverFallback(this)"></td>` +
+                        `<td><span class="rank-title" title="${escapeHTML(displayTitle)}">${escapeHTML(displayTitle)}</span></td>` +
+                        `<td class="rank-score" style="font-weight:700;${isGrade ? ` font-size:1.1rem;` : ''}${isBangumi ? ` color:#64b5f6;` : ''}">${isGrade ? `<span class="${gradeClass}">${val}</span>` : val}</td></tr>`;
                 });
                 html += '</tbody></table>';
                 container.innerHTML = html;
@@ -3163,14 +3375,22 @@
                 if (!anime) return null;
                 const scores = anime.scores || { story: 0, visual: 0, character: 0, overall: 0 };
 
-                /* 一行一个维度：上面是「圆点 + 名称 …… 数值」，下面是整行滑杆。
-                   --p 是滑杆的进度百分比，拖动的过程中由 _updateScoreSlider 实时改。 */
+                /* 一行一个维度：上面是「名称 …… 数值输入框」，下面是整行滑杆。
+                   --p 是滑杆的进度百分比，由拖动或键入时实时改。
+                   数值框和滑杆是**双向绑定**的：拖滑杆改数字，敲数字滑杆跟着走。 */
                 const metricRow = (field, label, value) => {
                     const v = Number(value) || 0;
                     return `<div class="sp-item sp-${field}">
                         <div class="sp-head">
                             <span class="sp-name">${label}</span>
-                            <span class="sp-val" id="val-${field}-${malId}">${v.toFixed(1)}</span>
+                            <input type="number" class="sp-val" id="val-${field}-${malId}"
+                                min="0" max="10" step="0.1" value="${v.toFixed(1)}"
+                                aria-label="${label}"
+                                title="可直接输入 0~10 的数字"
+                                oninput="window._updateScoreNumber(${malId},'${field}',this)"
+                                onchange="window._commitScoreNumber(${malId},'${field}',this)"
+                                onblur="window._commitScoreNumber(${malId},'${field}',this)"
+                                onkeydown="if(event.key==='Enter'){this.blur();}">
                         </div>
                         <input type="range" min="0" max="10" step="0.1" value="${v}" style="--p: ${(v * 10).toFixed(0)}%"
                             aria-label="${label}"
@@ -3182,7 +3402,7 @@
                 panel.className = 'score-panel';
                 panel.id = 'scorePanel-' + malId;
                 panel.innerHTML =
-                    `<div class="sp-top"><span>评分</span><b>拖动即保存</b></div>` +
+                    `<div class="sp-top"><span>评分</span><b>拖动或直接输入</b></div>` +
                     metricRow('story', '📝 剧情', scores.story) +
                     metricRow('visual', '🎨 画面', scores.visual) +
                     metricRow('character', '👤 人物', scores.character) +
@@ -3280,17 +3500,9 @@
                 }, 300);
             }
 
-            /* 拖动过程中：数值胶囊、滑杆进度填充、卡片上的 ⭐ 三者同步刷新；
-               落库走 300ms 防抖，避免拖一次滑块写几十遍 localStorage。 */
-            function updateScoreSlider(malId, field, value) {
-                const num = Math.round((parseFloat(value) || 0) * 10) / 10;
-                const valEl = document.getElementById(`val-${field}-${malId}`);
-                if (valEl) valEl.textContent = num.toFixed(1);
-
-                const panel = document.getElementById('scorePanel-' + malId);
-                const input = panel?.querySelector(`.sp-${field} input[type="range"]`);
-                if (input) input.style.setProperty('--p', (num * 10) + '%');
-
+            /* 把分数落到数据里，并同步卡片上的 ⭐（只有总评需要同步卡片）。
+               落库走防抖，免得拖一次滑杆写几十遍 localStorage。 */
+            function applyScore(malId, field, num) {
                 const anime = animeList.find(a => a.mal_id === malId);
                 if (anime) {
                     if (!anime.scores) anime.scores = { story: 0, visual: 0, character: 0, overall: 0 };
@@ -3302,6 +3514,54 @@
                     }
                 }
                 scheduleScoreSave();
+            }
+
+            /* 把某一项的滑杆进度和数字框刷成同一个值 */
+            function syncScoreControls(malId, field, num) {
+                const panel = document.getElementById('scorePanel-' + malId);
+                if (!panel) return;
+                const range = panel.querySelector(`.sp-${field} input[type="range"]`);
+                if (range) {
+                    range.value = num;
+                    range.style.setProperty('--p', (num * 10) + '%');
+                }
+                const numEl = document.getElementById(`val-${field}-${malId}`);
+                /* 用户正在这个框里打字时不要去改他的内容，否则光标会跳 */
+                if (numEl && document.activeElement !== numEl) numEl.value = num.toFixed(1);
+            }
+
+            /* 拖滑杆 → 数字框跟着走 */
+            function updateScoreSlider(malId, field, value) {
+                const num = Math.round((parseFloat(value) || 0) * 10) / 10;
+                syncScoreControls(malId, field, num);
+                applyScore(malId, field, num);
+            }
+
+            /* 直接在数字框里输入 → 滑杆跟着走。
+               输入过程中可能是 "9." / "8.2" / 空串，所以这里只做「能解析就同步」，
+               不强行改写输入框内容，免得跟用户抢光标。 */
+            function updateScoreNumber(malId, field, el) {
+                const raw = String(el.value).trim();
+                if (raw === '' || raw === '-' || raw === '.') return;
+                const num = parseFloat(raw);
+                if (isNaN(num)) return;
+                const clamped = Math.min(10, Math.max(0, Math.round(num * 10) / 10));
+                const panel = document.getElementById('scorePanel-' + malId);
+                const range = panel?.querySelector(`.sp-${field} input[type="range"]`);
+                if (range) {
+                    range.value = clamped;
+                    range.style.setProperty('--p', (clamped * 10) + '%');
+                }
+                applyScore(malId, field, clamped);
+            }
+
+            /* 回车 / 失焦 / 步进箭头触发：把 "9."、""、"12"、"abc" 这类输入规整成 0~10 的一位小数 */
+            function commitScoreNumber(malId, field, el) {
+                const num = parseFloat(el.value);
+                const clamped = Math.min(10, Math.max(0, Math.round((isNaN(num) ? 0 : num) * 10) / 10));
+                el.value = clamped.toFixed(1);
+                syncScoreControls(malId, field, clamped);
+                applyScore(malId, field, clamped);
             }
 
             function saveScore(malId) {
@@ -3318,6 +3578,8 @@
 
             window._toggleScorePanel = toggleScorePanel;
             window._updateScoreSlider = updateScoreSlider;
+            window._updateScoreNumber = updateScoreNumber;
+            window._commitScoreNumber = commitScoreNumber;
             window._saveScore = saveScore;
 
             document.addEventListener('click', function(e) {
@@ -4286,6 +4548,8 @@
                 window._setEpisode = setEpisode;
                 window._toggleScorePanel = toggleScorePanel;
                 window._updateScoreSlider = updateScoreSlider;
+                window._updateScoreNumber = updateScoreNumber;
+                window._commitScoreNumber = commitScoreNumber;
                 window._saveScore = saveScore;
                 window._openSeriesEdit = openSeriesEdit;
                 window._addAnimeFromSearch = window._addAnimeFromSearch;
@@ -4294,6 +4558,35 @@
                 window._openNoteEdit = openNoteEdit;
                 window._rankGoTo = rankGoTo;
                 window._refreshScores = refreshScoresForCard;
+            }
+
+            /* ==============================================================
+               顶栏「评级对照」卡片的折叠
+               · 状态单独存一个 key，不掺进 settings —— 免得设置面板回写时把它抹掉
+               · 窄屏首次访问默认收起：sticky 顶栏本来就不该占掉小半个屏幕
+               ============================================================== */
+            const STORAGE_KEY_GRADE_LEGEND = 'anime_grade_legend';
+
+            function applyGradeLegendState(box, btn, isCollapsed) {
+                box.classList.toggle('collapsed', isCollapsed);
+                btn.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
+            }
+
+            function initGradeLegend() {
+                const box = document.getElementById('gradeLegend');
+                const btn = document.getElementById('gradeLegendToggle');
+                if (!box || !btn) return;
+
+                let saved = null;
+                try { saved = localStorage.getItem(STORAGE_KEY_GRADE_LEGEND); } catch (_) { saved = null; }
+                if (saved !== '0' && saved !== '1') saved = window.innerWidth < 620 ? '1' : '0';
+                applyGradeLegendState(box, btn, saved === '1');
+
+                btn.addEventListener('click', function() {
+                    const next = !box.classList.contains('collapsed');
+                    applyGradeLegendState(box, btn, next);
+                    try { localStorage.setItem(STORAGE_KEY_GRADE_LEGEND, next ? '1' : '0'); } catch (_) {}
+                });
             }
 
             function init() {
@@ -4316,6 +4609,16 @@
                 if ((settings.autoSaveInterval || 0) > 0) {
                     startAutoSaveTimer();
                 }
+
+                // 顶栏评级对照卡片的折叠
+                initGradeLegend();
+
+                // 排行榜封面尺寸：把上次选的档位恢复成按钮的选中态
+                const savedRankSize = ['small', 'medium', 'large'].includes(settings.rankSize) ?
+                    settings.rankSize : 'medium';
+                document.querySelectorAll('.rank-size-btn').forEach(b => {
+                    b.classList.toggle('active', b.dataset.size === savedRankSize);
+                });
 
                 // Tab 切换
                 document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -4498,12 +4801,13 @@
                 document.querySelectorAll('.rank-size-btn').forEach(btn => {
                     btn.addEventListener('click', function() {
                         const size = this.dataset.size;
-                        const table = document.querySelector('#sectionRanking .ranking-table');
-                        if (!table) return;
-                        table.classList.remove('size-small', 'size-medium', 'size-large');
-                        table.classList.add('size-' + size);
+                        /* 记进 settings 并立刻重绘：重绘会把 size-* 类写进 <table>，
+                           刷新之后也不会再退回「无尺寸」那版 */
+                        settings.rankSize = size;
+                        saveSettings(settings);
                         document.querySelectorAll('.rank-size-btn').forEach(b => b.classList.remove('active'));
                         this.classList.add('active');
+                        renderRanking();
                     });
                 });
 
