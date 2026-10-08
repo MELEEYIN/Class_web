@@ -126,8 +126,9 @@
    -------------------------------------------------------------------------- */
 .tl-grid {
   display: grid; gap: 10px;
-  grid-template-columns: repeat(6, minmax(0, 1fr));   /* 宽屏固定六列 */
-  /* 卡片顺序由 js/timeline.js 按「列优先」重排：一列从上往下读完再读下一列 */
+  /* 这里写的是**列数上限**：实际用几列由 js/timeline.js 按卡片数算
+     （一列堆满 4 张再开右边一列，最多 6 列），并用行内样式覆盖这一行 */
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   align-items: start;
 }
 
@@ -272,7 +273,7 @@
 /* --------------------------------------------------------------------------
    8. 窄屏：单列 + 触摸友好（放不下的就纵向堆）
    -------------------------------------------------------------------------- */
-/* 窄屏逐级降列：6 → 4 → 3 → 2 → 1（卡片顺序的重排会自动跟着列数走） */
+/* 窄屏逐级降列上限：6 → 4 → 3 → 2 → 1（实际列数由卡片数再取一次 min） */
 @media (max-width: 1240px) { .tl-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 @media (max-width: 1000px) { .tl-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 780px)  { .tl-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

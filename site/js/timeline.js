@@ -237,20 +237,29 @@
     });
   }
 
-  /* ---- 列优先排布 ----
-     列数由 CSS 断点决定（这里从计算样式读实际列数），
-     然后把卡片重排成「竖着往下填」：每个格子该放第几张卡，按列算好再写回 DOM。
-     这样一列的从上到下就是时间顺序，读完一列再读右边一列。 */
-  function colsOf(el) {
+  /* ======================================================================
+     列表的排布：卡片先往「下」堆，堆满 4 张再开右边一列，最多 6 列
+       · 列数不写死，由卡片数决定：used = min(受屏幕限制的上限, 6, ⌈n/4⌉)
+         n = 4 张 → 1 列（就是一竖列）；8 张 → 2 列；24 张以上 → 6 列
+       · 这几列铺满整行宽度，所以卡片少时是宽卡片，多时自动变窄
+       · 列优先的观感靠重排 DOM 实现（CSS 仍是按行填的）：
+         每个格子放第几张卡按列算好，再依次 append（移动已有节点，不重建元素）
+     ====================================================================== */
+  var PER_COL = 4;      /* 一列最多堆几张 */
+  var MAX_COLS = 6;     /* 最多几列 */
+
+  /* 读 CSS 断点给的最大列数；读之前先清掉上一次写在行内的那份，避免自我叠加 */
+  function colsCap(el) {
+    el.style.gridTemplateColumns = '';
     var t = getComputedStyle(el).gridTemplateColumns;
     if (!t || t === 'none') return 1;
     return t.split(' ').filter(function (x) { return x; }).length;
   }
 
-  /* 把 cards 重排成「列优先」；各列长度尽量均匀，避免右边空掉一整列 */
+  /* 把 cards 重排成「列优先」；各列长度自然相差不超过 1 */
   function orderCards(cards, cols) {
     var n = cards.length;
-    if (cols <= 1 || n <= cols) return cards;          /* 一行放得下，不用动 */
+    if (cols <= 1 || n <= cols) return cards;          /* 一列就够，不用动 */
     var rows = Math.ceil(n / cols);
     var base = Math.floor(n / cols), extra = n % cols;
     var lens = [], starts = [], s = 0;
@@ -266,19 +275,21 @@
   }
 
   function layoutCards() {
-    var cards = [].slice.call(hostDays.children).filter(function (el) {
-      return el.classList.contains('tl-day');
-    });
-    if (cards.length < 2) return;
-    var ordered = orderCards(cards, colsOf(hostDays));
+    var kids = [].slice.call(hostDays.children);
+    var cards = kids.filter(function (el) { return el.classList.contains('tl-day'); });
+    var n = cards.length;
+    if (!n) { hostDays.style.gridTemplateColumns = ''; return; }
+
+    var used = Math.max(1, Math.min(colsCap(hostDays), MAX_COLS, Math.ceil(n / PER_COL)));
+    hostDays.style.gridTemplateColumns = 'repeat(' + used + ', minmax(0, 1fr))';
+
+    var ordered = orderCards(cards, used);
     var same = true;
     for (var i = 0; i < ordered.length; i++) if (ordered[i] !== cards[i]) { same = false; break; }
-    if (same) return;
-    /* appendChild 对已有节点是「移动」，不会复制；依次 append 就得到新顺序 */
-    ordered.forEach(function (el) { hostDays.appendChild(el); });
+    if (!same) ordered.forEach(function (el) { hostDays.appendChild(el); });
   }
 
-  /* ---- 视图一 · 列表：只有有记录的日子，六列铺开 ---- */
+  /* ---- 视图一 · 列表：只有有记录的日子 ---- */
   function renderList(searching, q, keys) {
     hostDays.innerHTML = '';
     var shown = 0;
@@ -290,7 +301,7 @@
     });
     if (!shown) hostDays.appendChild(emptyState(searching, q));
     hostDays.dataset.count = shown;
-    layoutCards();                       /* 卡片按列优先重排 */
+    layoutCards();                       /* 按「先往下堆」排布 */
   }
 
   /* ---- 视图二 · 月度：小方块日历，一个月里每一天都有格子 ---- */
