@@ -112,6 +112,15 @@
 .tl-save { font-size: 11.5px; color: var(--faint); font-variant-numeric: tabular-nums; }
 .tl-save.on { color: var(--ok); }
 
+.tl-summonth {
+  margin-left: 7px; padding: 1px 8px; border-radius: var(--r-pill);
+  background: var(--surface-3); color: var(--muted);
+  font-size: 11px; font-weight: 700; letter-spacing: .02em;
+}
+
+/* 时间框：预置的冒号是「提示色」，真的填了时间就转成正常文字色 */
+.tl-time.masked { color: var(--muted); }
+
 /* --------------------------------------------------------------------------
    4. 每日卡片网格 —— 窄列自动铺满，尽量多放
    -------------------------------------------------------------------------- */
@@ -152,12 +161,12 @@
 }
 .tl-dh .tl-sp { margin-left: auto; }
 .tl-ib {
-  width: 20px; height: 20px; flex: none; padding: 0;
+  width: 22px; height: 22px; flex: none; padding: 0;
   border: 0; border-radius: var(--r-xs); background: none;
   color: var(--faint); cursor: pointer; display: grid; place-items: center;
 }
 .tl-ib:hover { background: var(--surface-3); color: var(--accent); }
-.tl-ib svg { width: 13px; height: 13px; }
+.tl-ib svg { width: 14px; height: 14px; }
 .tl-cc {
   width: 13px; height: 13px; flex: none; padding: 0; cursor: pointer;
   border-radius: 50%; border: 1px solid var(--line-strong);
@@ -183,7 +192,7 @@
   font-family: var(--mono); font-size: 11.5px; color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
-.tl-time:not(:placeholder-shown) { color: var(--ink-2); font-weight: 650; }
+.tl-time:not(.masked) { color: var(--ink-2); font-weight: 650; }
 .tl-evt { flex: 1; font-size: 12.5px; line-height: 1.5; }
 .tl-evt::placeholder { color: var(--faint); }
 .tl-time:hover, .tl-evt:hover { border-color: var(--line); }
@@ -203,14 +212,7 @@
 /* 行内新增：默认收起，点日期卡右上角的 ＋ 展开 */
 .tl-add { display: none; gap: 4px; margin-top: 4px; padding-top: 4px; border-top: 1px dashed var(--line); }
 .tl-day.editing .tl-add { display: flex; }
-.tl-day.editing .tl-addon { display: none; }
 
-.tl-addon {
-  display: block; width: 100%; margin-top: 3px; padding: 2px 3px;
-  border: 0; background: none; text-align: left; cursor: pointer;
-  font: inherit; font-size: 11.5px; color: var(--faint);
-}
-.tl-addon:hover { color: var(--accent); }
 
 /* --------------------------------------------------------------------------
    6. 调色板（挂在 .tl-cc 上）

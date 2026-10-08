@@ -75,25 +75,55 @@
     saveTimer = setTimeout(function () { saveTimer = 0; U.lsSet(KEY, data); }, 320);
   }
 
-  /* ---- 时间归一化：'9' → 09:00、'930' → 09:30、'9:3' → 09:03，非法则留空 ---- */
+  /* ---- 时间归一化 ----
+     预置的冒号 + 随手敲的数字 → 标准 HH:MM：
+       '9'    -> 09:00     '13'   -> 13:00
+       '930'  -> 09:30     '93'   -> 09:30   （93 不是合法小时，第二位数按「分钟十位」解）
+       '1200' -> 12:00     '9:3'  -> 09:03   （手写的冒号也认）
+     只剩一个冒号 → ''，表示「不确定几点」。 */
   function pad2(n) { return (n < 10 ? '0' : '') + n; }
   function normTime(v) {
     var s = String(v == null ? '' : v).trim();
-    if (!s) return '';
-    var m = /^(\d{1,2})\s*[:：.、]\s*(\d{1,2})$/.exec(s);
-    var h, mi;
-    if (m) { h = +m[1]; mi = +m[2]; }
-    else {
-      var dg = s.replace(/\D/g, '');
+    var h, mm;
+
+    var m = /^(\d{1,2})\s*[:：.、]\s*(\d{0,2})$/.exec(s);
+    if (m) {
+      h = +m[1];
+      mm = m[2] === '' ? 0 : +m[2];
+      if (h > 23) {                        /* '93:' / '93:0' 这种：按 H:MM 再解一次 */
+        var all = (m[1] + m[2]).replace(/\D/g, '');
+        h = +all.charAt(0);
+        mm = all.length === 2 ? +all.charAt(1) * 10 : (+all.slice(1, 3) || 0);
+      }
+    } else {
+      var dg = s.replace(/\D/g, '').slice(0, 4);
       if (!dg) return '';
-      if (dg.length <= 2) { h = +dg; mi = 0; }
-      else if (dg.length === 3) { h = +dg.slice(0, 1); mi = +dg.slice(1); }
-      else { h = +dg.slice(0, 2); mi = +dg.slice(2, 4); }
+      if (dg.length <= 2) { h = +dg; mm = 0; }
+      else if (dg.length === 3) { h = +dg.charAt(0); mm = +dg.slice(1); }
+      else { h = +dg.slice(0, 2); mm = +dg.slice(2); }
+      if (h > 23) {                        /* 小时不合法（如 '93'）→ 第二位数当分钟十位 */
+        h = +dg.charAt(0);
+        mm = dg.length === 2 ? +dg.charAt(1) * 10 : (+dg.slice(1, 3) || 0);
+      }
     }
-    if (!isFinite(h) || !isFinite(mi)) return '';
+    if (!isFinite(h) || !isFinite(mm)) return '';
     if (h > 23) h = 23;
-    if (mi > 59) mi = 59;
-    return pad2(h) + ':' + pad2(mi);
+    if (mm > 59) mm = 59;
+    return pad2(h) + ':' + pad2(mm);
+  }
+
+  /* 时间框的实时成型：冒号是预置的，随手敲数字就自动补成 HH:MM
+     ':' → '9:' → '93:' → '9:30' → （继续敲）'12:00' */
+  function maskTime(el) {
+    var dg = el.value.replace(/\D/g, '').slice(0, 4);
+    var out, caret;
+    if (!dg) { out = ':'; caret = 0; }
+    else if (dg.length <= 2) { out = dg + ':'; caret = dg.length; }   /* 光标停在冒号前 */
+    else if (dg.length === 3) { out = dg.charAt(0) + ':' + dg.slice(1); caret = 4; }
+    else { out = dg.slice(0, 2) + ':' + dg.slice(2); caret = 5; }
+    if (el.value === out) return;
+    el.value = out;
+    try { el.setSelectionRange(caret, caret); } catch (e) { /* 忽略 */ }
   }
 
   /* 按时间排序；没填时间的排在最后（用 99:99 当哨兵，稳定排序保留先后） */
@@ -128,7 +158,8 @@
   };
 
   var $ = U.$, $$ = U.$$;
-  var hostDays, hostCal, hostStats, sumTa, sumHint, monthLabel, monthTip, qInput, addBox;
+  var hostDays, hostCal, hostStats, sumTa, sumHint, sumMonth, monthLabel, monthNav,
+      btnToday, monthTip, qInput, addBox;
 
   function ymLabel(ym) {
     var p = ym.split('-');
@@ -160,10 +191,15 @@
     if (searching && view.mode === 'month') view.mode = 'list';
     syncMode();
 
-    var keys = searching ? allKeys() : monthKeys(view.ym);
+    /* 列表：所有月份一起排（最新在前）；月度：只看当前月 */
+    var isMonth = view.mode === 'month';
+    var keys = isMonth ? monthKeys(view.ym) : allKeys().slice().reverse();
 
-    /* 3.1 工具条 */
+    /* 3.1 工具条：月份导航与「回到今天」只在月度视图里有意义 */
+    monthNav.hidden = !isMonth;
+    btnToday.hidden = !isMonth;
     monthLabel.textContent = ymLabel(view.ym);
+    sumMonth.textContent = ymLabel(view.ym);
     monthTip.hidden = !searching;
     if (searching) monthTip.textContent = '搜索中：跨全部月份';
 
@@ -310,7 +346,7 @@
     addBox.hidden = false;
     addBox.querySelector('.tl-datein').value = dt || U.fmtDate(today);
     var tm = addBox.querySelector('.tl-qtime');
-    if (!tm.value) tm.value = pad2(new Date().getHours()) + ':' + pad2(Math.floor(new Date().getMinutes() / 5) * 5);
+    if (!tm.value) { tm.value = ':'; tm.classList.add('masked'); }   /* 预置冒号，敲数字自动成型 */
     addBox.querySelector('.tl-qtext').focus();
   }
 
@@ -333,7 +369,7 @@
     box.className = 'empty';
     box.innerHTML = searching
       ? '<strong>没有匹配的记录</strong><span>换个关键词试试；搜索是跨月份进行的。</span>'
-      : '<strong>这个月还没有记录</strong><span>用上面的「记一笔」加第一条：填日期、时间、事件就行。</span>';
+      : '<strong>还没有任何记录</strong><span>用上面的「记一笔」加第一条：填日期、时间、事件就行（时间框里已经有个冒号，直接敲数字）。</span>';
     return box;
   }
 
@@ -369,15 +405,7 @@
     rows.forEach(function (o) { body.appendChild(rowEl(o.it, o.i)); });
     card.appendChild(body);
 
-    /* 收起状态下的「＋ 加一条」提示 */
-    var addon = document.createElement('button');
-    addon.className = 'tl-addon';
-    addon.type = 'button';
-    addon.dataset.act = 'add';
-    addon.textContent = '＋ 加一条';
-    card.appendChild(addon);
-
-    /* 展开后的行内新增 */
+    /* 行内新增：默认收起，点右上角的 ＋ 展开 */
     card.appendChild(addRowEl());
     return card;
   }
@@ -392,8 +420,8 @@
     t.type = 'text';
     t.inputMode = 'numeric';
     t.maxLength = 5;
-    t.placeholder = '--:--';
-    t.value = item.t || '';
+    t.value = item.t || ':';        /* 空的时候预置一个冒号，敲数字就自动成型 */
+    t.classList.toggle('masked', !item.t);
     t.setAttribute('aria-label', '时间');
 
     var e = document.createElement('input');
@@ -425,7 +453,8 @@
     t.type = 'text';
     t.inputMode = 'numeric';
     t.maxLength = 5;
-    t.placeholder = '09:00';
+    t.value = ':';                  /* 预置冒号 */
+    t.classList.add('masked');
     t.setAttribute('aria-label', '新记录的时间');
 
     var e = document.createElement('input');
@@ -474,7 +503,8 @@
     var t = normTime(tEl.value);
     var e = eEl.value.trim();
 
-    tEl.value = t;
+    tEl.value = t || ':';                  /* 清空后留个冒号，方便接着填 */
+    tEl.classList.toggle('masked', !t);
     if (!e) {                                  /* 事件被清空 = 删掉这条 */
       day.items.splice(i, 1);
       dropIfEmpty(key);
@@ -496,13 +526,13 @@
     var eEl = card.querySelector('.tl-add .tl-evt');
     var e = eEl.value.trim();
     if (!e) {                                  /* 空着回车 = 收起这一行 */
-      tEl.value = ''; eEl.value = '';
+      tEl.value = ':'; tEl.classList.add('masked'); eEl.value = '';
       view.editing = '';
       render();
       return;
     }
     addItem(key, tEl.value, e);
-    tEl.value = ''; eEl.value = '';
+    tEl.value = ':'; tEl.classList.add('masked'); eEl.value = '';
     view.editing = key;                        /* 保持展开，方便连着记好几条 */
     render();
     focusAdd(key);
@@ -625,7 +655,25 @@
     /* 5.5 搜索 */
     qInput.addEventListener('input', function () { view.q = qInput.value; render(); });
 
-    /* 5.6 本月总结：输入即存 */
+    /* 5.6 时间框：预置冒号 + 随手敲数字自动成型（行内行 / 行内新增 / 顶部记一笔 共用） */
+    function isTimeBox(el) {
+      return !!el && !!el.classList &&
+        (el.classList.contains('tl-time') || el.classList.contains('tl-qtime'));
+    }
+    document.addEventListener('input', function (ev) {
+      if (!isTimeBox(ev.target)) return;
+      maskTime(ev.target);
+      ev.target.classList.toggle('masked', normTime(ev.target.value) === '');
+    }, true);
+    document.addEventListener('focusin', function (ev) {
+      var el = ev.target;
+      if (isTimeBox(el) && !el.value) {
+        el.value = ':';
+        try { el.setSelectionRange(0, 0); } catch (e) { /* 忽略 */ }
+      }
+    });
+
+    /* 5.7 月度总结：输入即存 */
     sumTa.addEventListener('input', function () {
       var t = sumTa.value;
       if (t.trim()) data.months[view.ym] = t; else delete data.months[view.ym];
@@ -740,6 +788,9 @@
   function init() {
     hostDays = $('#days');
     hostCal = $('#calBox');
+    sumMonth = $('#sumMonth');
+    monthNav = $('#monthNav');
+    btnToday = $('#btnToday');
     hostStats = $('#stats');
     sumTa = $('#sum');
     sumHint = $('#sumHint');
