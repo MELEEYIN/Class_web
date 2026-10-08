@@ -34,6 +34,9 @@
   <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="m4.5 12.5 5 5 10-11"/></symbol>
   <symbol id="i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 6h12M8.5 12h12M8.5 18h12"/><path d="M3.6 6h.01M3.6 12h.01M3.6 18h.01"/></symbol>
   <symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6 18 18M18 6 6 18"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="8.5" cy="9.5" r="1.8"/><path d="m4 18 5-5 4 4 3-2.5 4 3.5"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16.5V4"/><path d="m7.5 8.5 4.5-4.5 4.5 4.5"/><path d="M4 15v3.5A2.5 2.5 0 0 0 6.5 21h11a2.5 2.5 0 0 0 2.5-2.5V15"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3.2 9.5h17.6M3.2 14.5h17.6"/><path d="M12 3c2.4 2.6 3.6 5.6 3.6 9S14.4 18.4 12 21c-2.4-2.6-3.6-5.6-3.6-9S9.6 5.6 12 3Z"/></symbol>
   <symbol id="i-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
   <symbol id="i-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12.2 2.8 2.8L16 9.4"/></symbol>
   <symbol id="i-warn-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.3M12 16.4h.01"/></symbol>
@@ -56,6 +59,9 @@
       <a class="btn btn-sm" href="./index.html" title="回到校园主页">
         <svg class="ico" aria-hidden="true"><use href="#i-home"/></svg><span class="label">回首页</span>
       </a>
+      <button class="btn btn-sm" type="button" id="bgBtn" title="自定义背景（与校园主页共用同一份设置）">
+        <svg class="ico" aria-hidden="true"><use href="#i-image"/></svg><span class="label">背景</span>
+      </button>
       <button class="btn btn-sm btn-icon" type="button" id="themeBtn" title="切换深色 / 浅色（全站共用）" aria-label="切换深色或浅色主题">
         <svg class="ico" aria-hidden="true" id="themeIco"><use href="#i-moon"/></svg>
       </button>
@@ -125,7 +131,7 @@
 
   <!-- 用法说明：默认隐藏，需要时去掉 hidden 即可（内容仍在，没删） -->
   <footer class="tl-foot" hidden>
-    <p><b>两种看法</b>：<b>列表</b>把<b>所有</b>有记录的日子排成六列（不分月份，最新的在最前面）。卡片一列<b>最多堆 4 张</b>，堆满再开右边一列，最多 6 列（所以只有几天记录时就是竖着的一列）；窄屏自动减少列数，只有时间与事件两段，一屏能看很多条；<b>月度</b>是一个小方块日历，一个月里<b>每一天都有格子</b>（没记录的也在，点一下就能补记），格子里的事件小条会跟着这一天的颜色走。</p>
+    <p><b>两种看法</b>：<b>列表</b>把<b>所有</b>有记录的日子排成六列（不分月份，最新的在最前面）。卡片横着铺，宽屏六列；窄屏自动降成 4 / 3 / 2 / 1 列，只有时间与事件两段，一屏能看很多条；<b>月度</b>是一个小方块日历，一个月里<b>每一天都有格子</b>（没记录的也在，点一下就能补记），格子里的事件小条会跟着这一天的颜色走。</p>
     <p><b>用法</b>：点「＋ 记一笔」加第一条（日期随便选，跨月也会自动跳过去）；日期卡片上的 <b>＋</b> 可以在当天连续记多条，按回车就提交。每条记录由 <b>时间 + 事件</b> 两段组成，时间框已经预置了一个冒号，直接敲数字就行：<code>9</code> → <code>9:</code>、<code>930</code> → <code>09:30</code>、<code>1200</code> → <code>12:00</code>；只敲 <code>13</code> 就是 <code>13:00</code>，整段删掉留空表示「不确定几点」。</p>
     <p><b>颜色</b>：点日期卡片左上角的小圆点，可以给这一天指定一种颜色，用来区分不同类型的日子；颜色跟随全站深浅色自动调整。</p>
     <p><b>数据</b>：全部保存在你自己的浏览器里（localStorage），不上传服务器；换设备或清缓存会丢，重要内容建议自己留一份备份。事件按时间自动排序。</p>
@@ -133,9 +139,70 @@
 
 </main>
 
+<!-- ====== 自定义背景：与校园主页同一套（同一个 cw.bg、同一张本地图片） ====== -->
+<div class="modal" id="modal-bg" role="dialog" aria-modal="true" aria-labelledby="bgTitle" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-panel mw-md">
+    <div class="modal-head">
+      <span class="lc-icon" style="--cc:var(--accent);--cc-soft:var(--accent-soft);width:34px;height:34px;border-radius:10px;display:grid;place-items:center" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:17px;height:17px"><use href="#i-image"/></svg>
+      </span>
+      <div class="mh-text">
+        <h2 id="bgTitle">自定义背景</h2>
+        <p>图片只保存在这台设备的浏览器里，不会上传到任何服务器。</p>
+      </div>
+      <button class="modal-close" type="button" data-close aria-label="关闭背景设置">
+        <svg aria-hidden="true"><use href="#i-close"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p class="field-label" style="margin-bottom:9px">预设</p>
+      <div class="bg-presets" id="bgPresets"></div>
+
+      <p class="field-label" style="margin:20px 0 9px">本地图片</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-sm btn-primary" type="button" id="bgPick">
+          <svg class="ico" aria-hidden="true"><use href="#i-upload"/></svg>选择本地图片
+        </button>
+        <button class="btn btn-sm" type="button" id="bgPasteUrl">
+          <svg class="ico" aria-hidden="true"><use href="#i-globe"/></svg>用图片网址
+        </button>
+        <button class="btn btn-sm btn-ghost" type="button" id="bgClear">
+          <svg class="ico" aria-hidden="true"><use href="#i-trash"/></svg>清除背景
+        </button>
+        <input type="file" id="bgFile" accept="image/*" hidden>
+      </div>
+      <p class="hint" style="margin-top:8px">建议用 1920×1080 以上的横向图片。大图会自动压缩到最长边 2560px 再存，避免占满浏览器配额。</p>
+
+      <div id="bgCurrent" style="margin-top:16px"></div>
+
+      <p class="field-label" style="margin:20px 0 9px">微调</p>
+      <div style="display:grid;gap:14px">
+        <div class="field">
+          <label for="bgDim" class="field-label">压暗遮罩 <span class="mono faint" id="bgDimVal">0%</span></label>
+          <input type="range" id="bgDim" min="0" max="80" step="2" value="0">
+          <span class="hint">背景太花、文字看不清时往右拉。</span>
+        </div>
+        <div class="field">
+          <label for="bgBlur" class="field-label">背景模糊 <span class="mono faint" id="bgBlurVal">0px</span></label>
+          <input type="range" id="bgBlur" min="0" max="24" step="1" value="0">
+        </div>
+        <label class="check">
+          <input type="checkbox" id="bgGlass" checked>
+          <span>卡片使用半透明玻璃效果（推荐）</span>
+        </label>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-sm" type="button" data-close>完成</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast-wrap" id="toastWrap" aria-live="polite" aria-atomic="false"></div>
 
 <script src="./js/util.js"></script>
+<script src="./js/background.js"></script>
 <script src="./js/timeline.js"></script>
 </body>
 </html>

@@ -237,58 +237,6 @@
     });
   }
 
-  /* ======================================================================
-     列表的排布：卡片先往「下」堆，堆满 4 张再开右边一列，最多 6 列
-       · 列数不写死，由卡片数决定：used = min(受屏幕限制的上限, 6, ⌈n/4⌉)
-         n = 4 张 → 1 列（就是一竖列）；8 张 → 2 列；24 张以上 → 6 列
-       · 这几列铺满整行宽度，所以卡片少时是宽卡片，多时自动变窄
-       · 列优先的观感靠重排 DOM 实现（CSS 仍是按行填的）：
-         每个格子放第几张卡按列算好，再依次 append（移动已有节点，不重建元素）
-     ====================================================================== */
-  var PER_COL = 4;      /* 一列最多堆几张 */
-  var MAX_COLS = 6;     /* 最多几列 */
-
-  /* 读 CSS 断点给的最大列数；读之前先清掉上一次写在行内的那份，避免自我叠加 */
-  function colsCap(el) {
-    el.style.gridTemplateColumns = '';
-    var t = getComputedStyle(el).gridTemplateColumns;
-    if (!t || t === 'none') return 1;
-    return t.split(' ').filter(function (x) { return x; }).length;
-  }
-
-  /* 把 cards 重排成「列优先」；各列长度自然相差不超过 1 */
-  function orderCards(cards, cols) {
-    var n = cards.length;
-    if (cols <= 1 || n <= cols) return cards;          /* 一列就够，不用动 */
-    var rows = Math.ceil(n / cols);
-    var base = Math.floor(n / cols), extra = n % cols;
-    var lens = [], starts = [], s = 0;
-    for (var c = 0; c < cols; c++) {
-      var L = base + (c < extra ? 1 : 0);
-      lens.push(L); starts.push(s); s += L;
-    }
-    var out = [];
-    for (var r = 0; r < rows; r++)
-      for (var cc = 0; cc < cols; cc++)
-        if (r < lens[cc]) out.push(cards[starts[cc] + r]);
-    return out;
-  }
-
-  function layoutCards() {
-    var kids = [].slice.call(hostDays.children);
-    var cards = kids.filter(function (el) { return el.classList.contains('tl-day'); });
-    var n = cards.length;
-    if (!n) { hostDays.style.gridTemplateColumns = ''; return; }
-
-    var used = Math.max(1, Math.min(colsCap(hostDays), MAX_COLS, Math.ceil(n / PER_COL)));
-    hostDays.style.gridTemplateColumns = 'repeat(' + used + ', minmax(0, 1fr))';
-
-    var ordered = orderCards(cards, used);
-    var same = true;
-    for (var i = 0; i < ordered.length; i++) if (ordered[i] !== cards[i]) { same = false; break; }
-    if (!same) ordered.forEach(function (el) { hostDays.appendChild(el); });
-  }
-
   /* ---- 视图一 · 列表：只有有记录的日子 ---- */
   function renderList(searching, q, keys) {
     hostDays.innerHTML = '';
@@ -301,7 +249,6 @@
     });
     if (!shown) hostDays.appendChild(emptyState(searching, q));
     hostDays.dataset.count = shown;
-    layoutCards();                       /* 按「先往下堆」排布 */
   }
 
   /* ---- 视图二 · 月度：小方块日历，一个月里每一天都有格子 ---- */
@@ -726,16 +673,6 @@
       }
     });
 
-    /* 5.7 视口变化：列数变了就重排列表（月度视图不涉及） */
-    var rzTimer = 0;
-    window.addEventListener('resize', function () {
-      if (rzTimer) clearTimeout(rzTimer);
-      rzTimer = setTimeout(function () {
-        rzTimer = 0;
-        if (view.mode !== 'month') layoutCards();
-      }, 150);
-    }, { passive: true });
-
     /* 5.8 月度总结：输入即存 */
     sumTa.addEventListener('input', function () {
       var t = sumTa.value;
@@ -842,7 +779,47 @@
       document.documentElement.setAttribute('data-theme', next);
       U.lsSet('theme', next);                 /* 与校园主页共用同一个键 */
       paintThemeIcon();
+      if (window.CW && CW.bg && CW.bg.onThemeChange) CW.bg.onThemeChange();
     });
+  }
+
+  /* ======================================================================
+     8.5 自定义背景
+     直接复用主站的 js/background.js：读写的都是同一份 cw.bg、同一张存在
+     IndexedDB 的本地图片，所以在主站设过的背景在这里一样生效，改这里也全站生效。
+     弹窗内的按钮/滑杆由 background.js 自己绑定，这里只管开与关。
+     ====================================================================== */
+  var bgModal = null;
+
+  function openBg() {
+    if (!bgModal) return;
+    bgModal.hidden = false;
+    void bgModal.offsetWidth;              /* 强制重排，保证 transition 生效 */
+    bgModal.classList.add('open');
+    document.body.classList.add('modal-open');
+    if (window.CW && CW.bg && CW.bg.syncControls) CW.bg.syncControls();
+  }
+  function closeBg() {
+    if (!bgModal || bgModal.hidden) return;
+    bgModal.classList.remove('open');
+    document.body.classList.remove('modal-open');
+    setTimeout(function () {
+      if (!bgModal.classList.contains('open')) bgModal.hidden = true;
+    }, 300);
+  }
+  function bindBg() {
+    bgModal = $('#modal-bg');
+    if (!bgModal) return;
+    var btn = $('#bgBtn');
+    if (btn) btn.addEventListener('click', openBg);
+    $$('#modal-bg [data-close]').forEach(function (el) {
+      el.addEventListener('click', closeBg);
+    });
+    document.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Escape') closeBg();
+    });
+    /* 背景本身由 background.js 负责套用（读 cw.bg → 写 --bg-* 变量） */
+    if (window.CW && CW.bg && CW.bg.init) CW.bg.init();
   }
 
   /* ======================================================================
@@ -865,6 +842,7 @@
 
     bind();
     bindTheme();
+    bindBg();
     render();
     addBox.hidden = true;
   }
