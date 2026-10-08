@@ -908,6 +908,59 @@
             }
         }
 
+        /* ==================== 拖动换排序 ====================
+           用 Pointer Events 实现（不是 HTML5 的 dragstart/drop）：
+           触屏也能用，而且不用给每张卡挂 draggable、不用跟浏览器默认行为较劲。
+
+           拖动时三样东西同时存在，各司其职：
+             · .drag-ghost    —— 跟随指针的克隆体，让用户看得见自己在拖什么
+             · .is-dragging   —— 原件从网格里抽掉（display:none），避免出现两份
+             · .drag-placeholder —— 落点空隙，插到哪一格就撑在哪一格 */
+        .anime-card {
+            cursor: grab;
+        }
+        .anime-card.is-dragging {
+            /* 必须关掉入场动画：cardFadeIn 是 forwards 填充，
+               动画最终值会盖过普通声明，不关的话下面的 display:none 之外的属性都不生效 */
+            animation: none;
+            display: none;
+        }
+        .anime-card.drag-ghost {
+            position: fixed;
+            z-index: 10050;
+            pointer-events: none;
+            animation: none;
+            opacity: 0.92;
+            transform: rotate(1.5deg) scale(1.02);
+            box-shadow: 0 22px 54px rgba(0, 0, 0, 0.72);
+        }
+        .drag-placeholder {
+            border: 2px dashed var(--theme-primary-light);
+            border-radius: 18px;
+            background: var(--theme-primary-bg);
+            box-shadow: inset 0 0 24px var(--theme-primary-glow);
+            animation: dragPulse 1.15s ease-in-out infinite;
+        }
+        @keyframes dragPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        body.is-dragging-card {
+            cursor: grabbing;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        /* 空的无分组区域也要留个落点，否则「把卡片拖出系列」没有地方放 */
+        .card-grid-empty-hint {
+            grid-column: 1 / -1;
+            padding: 18px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            border: 2px dashed var(--card-border);
+            border-radius: 16px;
+        }
+
         /* ==================== 系列分组 ==================== */
         .series-group-container {
             border: 2px dashed var(--card-border);
@@ -1338,6 +1391,9 @@
             align-items: center;
             gap: 5px;
             flex-shrink: 0;
+            /* 它本身是可点的（刷新 Bangumi 评分），
+               不写的话会从 .anime-card 继承到 grab，看起来像能拖，误导 */
+            cursor: pointer;
         }
         .score-badges .score-empty {
             opacity: 0.4;
@@ -2353,6 +2409,10 @@
             let lastReminderTime = Date.now();
             let batchMode = false;
             let selectedBatch = new Set();
+            /* 拖动换排序之后会整表重绘，但那时候不该再播一遍卡片入场动画
+               （否则每拖一次，满屏卡片全闪一下）。置 true 让 buildCardHTML
+               直接输出 animation:none + opacity:1。 */
+            let suppressCardAnim = false;
             let currentPage = 1;
             let pageSize = 20;
             let totalRankItems = 0;
@@ -2376,6 +2436,18 @@
                 const div = document.createElement('div');
                 div.textContent = str;
                 return div.innerHTML;
+            }
+
+            /* 属性值专用转义。
+               escapeHTML 走的是 textContent → innerHTML，那条路只会转义 & < >，
+               **不会转义英文双引号**，所以放进 data-x="..." / title="..." 里
+               一旦值里有 " 就会把属性截断。系列分组的名字是用户自己起的，必须防这一手。 */
+            function escapeAttr(str) {
+                return String(str == null ? '' : str)
+                    .replace(/&/g, '&amp;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;');
             }
 
             function hasChinese(str) {
@@ -2853,7 +2925,7 @@
                 const isSelected = selectedBatch.has(anime.mal_id);
 
                 return `
-                <div class="anime-card${isSelected ? ' batch-selected' : ''}" id="anime-card-${anime.mal_id}" style="animation-delay:${animDelay}s;">
+                <div class="anime-card${isSelected ? ' batch-selected' : ''}" id="anime-card-${anime.mal_id}" data-mal="${anime.mal_id}" style="animation-delay:${animDelay}s;${suppressCardAnim ? 'animation:none;opacity:1;transform:none;' : ''}">
                     ${showBatch ? `<input type="checkbox" class="batch-checkbox-on-card" data-mal="${anime.mal_id}" ${isSelected ? 'checked' : ''} />` : ''}
                     <button class="btn-delete" onclick="window._deleteAnime(${anime.mal_id})">✕</button>
                     <div class="card-cover"><img src="${cover}" alt="封面" loading="lazy" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2275%22 height=%22108%22 fill=%22%23333%22><rect width=%2275%22 height=%22108%22/></svg>'"></div>
@@ -2895,10 +2967,16 @@
                 let html = '';
                 for (const [name, arr] of Object.entries(groups.groups)) {
                     html +=
-                        `<div class="series-group-container"><span class="series-group-label">📁 ${escapeHTML(name)}</span><div class="card-grid">${arr.map((a,i) => buildCardHTML(a,i,showBatch)).join('')}</div></div>`;
+                        `<div class="series-group-container"><span class="series-group-label">📁 ${escapeHTML(name)}</span><div class="card-grid" data-series="${escapeAttr(name)}">${arr.map((a,i) => buildCardHTML(a,i,showBatch)).join('')}</div></div>`;
                 }
                 if (groups.ungrouped.length) {
-                    html += `<div class="card-grid">${groups.ungrouped.map((a,i) => buildCardHTML(a,i,showBatch)).join('')}</div>`;
+                    html += `<div class="card-grid" data-series="">${groups.ungrouped.map((a,i) => buildCardHTML(a,i,showBatch)).join('')}</div>`;
+                } else if (Object.keys(groups.groups).length) {
+                    /* 所有卡片都在系列里时，也把无分组区域留出来 ——
+                       否则「把卡片从系列里拖出去」没有落点可放。
+                       这个提示块不是 .anime-card，拖动逻辑会跳过它。 */
+                    html +=
+                        `<div class="card-grid" data-series=""><div class="card-grid-empty-hint">把卡片拖到这里可以退出系列分组</div></div>`;
                 }
                 container.innerHTML = html;
                 if (countId) document.getElementById(countId).textContent = list.length;
@@ -2913,6 +2991,212 @@
                             if (card) card.classList.toggle('batch-selected', this.checked);
                         });
                     });
+                }
+            }
+
+            /* ==============================================================
+               拖动换排序
+               · 卡片顺序的「真相」是 animeList 数组的顺序，DOM 只是它的投影。
+                 所以落点算完要「改数组 → 写 localStorage → 整表重绘」。
+               · 拖进别的系列分组 = 顺带改归属（series_group）；
+                 拖回无分组区域 = 退出系列。改归属会弹提示，不静默发生。
+               · 起步阈值 6px：否则普通点击会被判成拖动，
+                 卡片里的「±1 集」「评分」「笔记」这些控件就点不动了。
+               ============================================================== */
+            const DRAG_SKIP = 'input, textarea, select, button, a, .btn-step,' +
+                ' .batch-checkbox-on-card, .note-toggle, .card-score-trigger, .grade-display,' +
+                ' .score-badges, .card-series-row, .card-note, .btn-delete';
+
+            let dragSt = null;
+
+            function initCardDrag() {
+                document.addEventListener('pointerdown', onCardDragDown);
+                document.addEventListener('pointermove', onCardDragMove);
+                document.addEventListener('pointerup', onCardDragUp);
+                document.addEventListener('pointercancel', onCardDragUp);
+            }
+
+            function onCardDragDown(e) {
+                if (e.button !== 0 || dragSt || batchMode) return;   /* 批量模式下让位给勾选框 */
+                if (!e.target || !e.target.closest) return;
+                if (e.target.closest(DRAG_SKIP)) return;             /* 从控件上按下不算拖 */
+                const card = e.target.closest('.card-grid .anime-card');
+                if (!card) return;
+                dragSt = {
+                    card: card,
+                    pointerId: e.pointerId,
+                    startX: e.clientX,
+                    startY: e.clientY,
+                    started: false,
+                    ghost: null,
+                    placeholder: null
+                };
+            }
+
+            function onCardDragMove(e) {
+                const st = dragSt;
+                if (!st || e.pointerId !== st.pointerId) return;
+                if (!st.started) {
+                    if (Math.abs(e.clientX - st.startX) < 6 && Math.abs(e.clientY - st.startY) < 6) return;
+                    beginCardDrag(st);
+                }
+                if (st.ghost) {
+                    st.ghost.style.left = (e.clientX - st.grabDX) + 'px';
+                    st.ghost.style.top = (e.clientY - st.grabDY) + 'px';
+                }
+                moveCardPlaceholder(e.clientX, e.clientY);
+            }
+
+            function beginCardDrag(st) {
+                st.started = true;
+                const rect = st.card.getBoundingClientRect();
+
+                /* 克隆体跟着指针走。克隆会连 id 一起复制，
+                   DOM 里出现重复 id 会让 getElementById 拿到错的元素，先摘干净。 */
+                const ghost = st.card.cloneNode(true);
+                ghost.removeAttribute('id');
+                ghost.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+                ghost.classList.add('drag-ghost');
+                ghost.style.width = rect.width + 'px';
+                ghost.style.height = rect.height + 'px';
+                ghost.style.left = rect.left + 'px';
+                ghost.style.top = rect.top + 'px';
+                document.body.appendChild(ghost);
+
+                /* 原件抽走（display:none），腾出来的位置交给占位块 ——
+                   这样网格里不会同时出现「原件 + 空隙」两份。 */
+                st.card.classList.add('is-dragging');
+                const ph = document.createElement('div');
+                ph.className = 'drag-placeholder';
+                ph.style.height = rect.height + 'px';
+                st.card.parentElement.insertBefore(ph, st.card);
+
+                document.body.classList.add('is-dragging-card');
+                st.ghost = ghost;
+                st.placeholder = ph;
+                st.grabDX = st.startX - rect.left;
+                st.grabDY = st.startY - rect.top;
+
+                /* 捕获到 body：指针划出窗口再松手也能收到 pointerup，
+                   不然页面会卡在「拖动中」的状态里出不来。 */
+                try { document.body.setPointerCapture(st.pointerId); } catch (_) {}
+            }
+
+            /* 把占位块挪到指针当前指着的那一格 */
+            function moveCardPlaceholder(x, y) {
+                const st = dragSt;
+                if (!st || !st.placeholder) return;
+                const grids = Array.from(document.querySelectorAll('.tab-content.active .card-grid'))
+                    .filter(g => g.offsetParent !== null);
+                if (!grids.length) return;
+
+                /* 选落点所在的网格。card-grid 是纯 grid，自身没有内边距，
+                   而分组容器有 14px padding —— 指针停在最后一行下方时其实已经在网格矩形之外了，
+                   所以先把矩形上下各放宽 12px 再判「在里面」；
+                   都不在就退到「到矩形最近距离」最小的那个（比到中心的距离稳得多，
+                   否则指针稍微往下偏一点就会被上面那个网格的中心抢走）。 */
+                let target = null;
+                let best = Infinity;
+                for (const g of grids) {
+                    const r = g.getBoundingClientRect();
+                    if (x >= r.left - 12 && x <= r.right + 12 && y >= r.top - 12 && y <= r.bottom + 12) {
+                        target = g;
+                        break;
+                    }
+                    const dx = Math.max(r.left - x, 0, x - r.right);
+                    const dy = Math.max(r.top - y, 0, y - r.bottom);
+                    const d = Math.hypot(dx, dy);
+                    if (d < best) { best = d; target = g; }
+                }
+                if (!target) return;
+
+                const cards = Array.from(target.children)
+                    .filter(el => el.classList.contains('anime-card') && el !== st.card);
+
+                /* 按阅读顺序找插入点。判定「指针在这张卡之前」要满足两个条件之一：
+                     · 指针在这一行下方（y > 卡片底边）→ 肯定在这张之后，跳过
+                     · 同一行且指针在卡片左半边 → 在这张之前
+                   不能写成「y < 卡片垂直中点就算在它之前」——
+                   多列网格里同一行的每张卡中点一样高，那样会一律命中该行第一张。 */
+                let idx = cards.length;
+                for (let i = 0; i < cards.length; i++) {
+                    const r = cards[i].getBoundingClientRect();
+                    if (y > r.bottom) continue;
+                    if (y >= r.top && x >= r.left + r.width / 2) continue;
+                    idx = i;
+                    break;
+                }
+                const before = cards[idx] || null;
+                if (before) target.insertBefore(st.placeholder, before);
+                else target.appendChild(st.placeholder);
+            }
+
+            function onCardDragUp(e) {
+                const st = dragSt;
+                if (!st) return;
+                if (e && e.pointerId !== undefined && e.pointerId !== st.pointerId) return;
+                const moved = st.started;
+                /* 先按占位块的位置落定，再清场（清场会把占位块删掉） */
+                if (moved && st.placeholder && st.placeholder.parentElement) commitCardDrop(st);
+                endCardDrag(st);
+                dragSt = null;
+            }
+
+            function endCardDrag(st) {
+                document.body.classList.remove('is-dragging-card');
+                if (st.ghost && st.ghost.parentElement) st.ghost.remove();
+                if (st.placeholder && st.placeholder.parentElement) st.placeholder.remove();
+                st.card.classList.remove('is-dragging');
+            }
+
+            /* 占位块的位置 → animeList 的新顺序 */
+            function commitCardDrop(st) {
+                const grid = st.placeholder.parentElement;
+                const dragId = parseInt(st.card.dataset.mal);
+                const dragged = animeList.find(a => a.mal_id === dragId);
+                if (!dragged) return;
+
+                /* 占位块前面有几张「别的卡」，就是要插到第几个 */
+                const others = Array.from(grid.children)
+                    .filter(el => el.classList.contains('anime-card') && el !== st.card);
+                let idx = 0;
+                for (const el of grid.children) {
+                    if (el === st.placeholder) break;
+                    if (el.classList.contains('anime-card') && el !== st.card) idx++;
+                }
+                const beforeId = others[idx] ? parseInt(others[idx].dataset.mal) : null;
+
+                const targetSeries = (grid.dataset.series || '').trim();
+                const oldSeries = (dragged.series_group || '').trim();
+                const seriesChanged = oldSeries !== targetSeries;
+                if (seriesChanged) dragged.series_group = targetSeries;
+
+                /* 先把被拖的那条摘出来再算下标 —— 不摘的话下标会整体差一位 */
+                const arr = animeList.filter(a => a.mal_id !== dragId);
+                let at;
+                if (beforeId !== null) {
+                    at = arr.findIndex(a => a.mal_id === beforeId);
+                    if (at < 0) at = arr.length;
+                } else {
+                    /* 丢在这一组末尾：找组内最后一个元素，插到它后面 */
+                    let last = -1;
+                    arr.forEach((a, i) => {
+                        if (((a.series_group || '').trim()) === targetSeries) last = i;
+                    });
+                    at = last >= 0 ? last + 1 : arr.length;
+                }
+                arr.splice(at, 0, dragged);
+                animeList = arr;
+                saveAnimeList(animeList);
+
+                /* 分组结构可能变了，直接整表重绘；但要压掉入场动画，
+                   否则每拖一次满屏卡片都会重新闪一遍。 */
+                suppressCardAnim = true;
+                fullRenderAll();
+                suppressCardAnim = false;
+
+                if (seriesChanged) {
+                    showToast(targetSeries ? `已移入系列「${targetSeries}」` : '已退出系列分组');
                 }
             }
 
@@ -4612,6 +4896,9 @@
 
                 // 顶栏评级对照卡片的折叠
                 initGradeLegend();
+
+                // 拖动卡片换排序
+                initCardDrag();
 
                 // 排行榜封面尺寸：把上次选的档位恢复成按钮的选中态
                 const savedRankSize = ['small', 'medium', 'large'].includes(settings.rankSize) ?
