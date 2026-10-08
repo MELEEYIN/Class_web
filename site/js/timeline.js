@@ -237,7 +237,48 @@
     });
   }
 
-  /* ---- 视图一 · 列表：只有有记录的日子，三列铺开 ---- */
+  /* ---- 列优先排布 ----
+     列数由 CSS 断点决定（这里从计算样式读实际列数），
+     然后把卡片重排成「竖着往下填」：每个格子该放第几张卡，按列算好再写回 DOM。
+     这样一列的从上到下就是时间顺序，读完一列再读右边一列。 */
+  function colsOf(el) {
+    var t = getComputedStyle(el).gridTemplateColumns;
+    if (!t || t === 'none') return 1;
+    return t.split(' ').filter(function (x) { return x; }).length;
+  }
+
+  /* 把 cards 重排成「列优先」；各列长度尽量均匀，避免右边空掉一整列 */
+  function orderCards(cards, cols) {
+    var n = cards.length;
+    if (cols <= 1 || n <= cols) return cards;          /* 一行放得下，不用动 */
+    var rows = Math.ceil(n / cols);
+    var base = Math.floor(n / cols), extra = n % cols;
+    var lens = [], starts = [], s = 0;
+    for (var c = 0; c < cols; c++) {
+      var L = base + (c < extra ? 1 : 0);
+      lens.push(L); starts.push(s); s += L;
+    }
+    var out = [];
+    for (var r = 0; r < rows; r++)
+      for (var cc = 0; cc < cols; cc++)
+        if (r < lens[cc]) out.push(cards[starts[cc] + r]);
+    return out;
+  }
+
+  function layoutCards() {
+    var cards = [].slice.call(hostDays.children).filter(function (el) {
+      return el.classList.contains('tl-day');
+    });
+    if (cards.length < 2) return;
+    var ordered = orderCards(cards, colsOf(hostDays));
+    var same = true;
+    for (var i = 0; i < ordered.length; i++) if (ordered[i] !== cards[i]) { same = false; break; }
+    if (same) return;
+    /* appendChild 对已有节点是「移动」，不会复制；依次 append 就得到新顺序 */
+    ordered.forEach(function (el) { hostDays.appendChild(el); });
+  }
+
+  /* ---- 视图一 · 列表：只有有记录的日子，六列铺开 ---- */
   function renderList(searching, q, keys) {
     hostDays.innerHTML = '';
     var shown = 0;
@@ -249,6 +290,7 @@
     });
     if (!shown) hostDays.appendChild(emptyState(searching, q));
     hostDays.dataset.count = shown;
+    layoutCards();                       /* 卡片按列优先重排 */
   }
 
   /* ---- 视图二 · 月度：小方块日历，一个月里每一天都有格子 ---- */
@@ -673,7 +715,17 @@
       }
     });
 
-    /* 5.7 月度总结：输入即存 */
+    /* 5.7 视口变化：列数变了就重排列表（月度视图不涉及） */
+    var rzTimer = 0;
+    window.addEventListener('resize', function () {
+      if (rzTimer) clearTimeout(rzTimer);
+      rzTimer = setTimeout(function () {
+        rzTimer = 0;
+        if (view.mode !== 'month') layoutCards();
+      }, 150);
+    }, { passive: true });
+
+    /* 5.8 月度总结：输入即存 */
     sumTa.addEventListener('input', function () {
       var t = sumTa.value;
       if (t.trim()) data.months[view.ym] = t; else delete data.months[view.ym];
