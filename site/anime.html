@@ -215,52 +215,17 @@
             box-shadow: 0 0 20px var(--theme-primary-glow);
         }
 
-        /* ==================== 总览区（仪表盘 + 统计 ｜ 评级对照） ====================
-           两列都按「内容宽度」算，再整体居中：
-           这样评级对照会紧贴着左边那组卡片（只隔一个 gap），
-           而不是被 flex:1 的左列推到屏幕最右边。
-           第一列用 minmax(0, max-content) 而不是 max-content ——
-           窗口不够宽时它能让步收缩、卡片自动折行，不会把布局顶出横向滚动条。
-           （原来的写法是 minmax(0,1fr)，左列会把剩余宽度全吃掉，于是中间空一大片。） */
-        .overview {
-            display: grid;
-            grid-template-columns: minmax(0, max-content) max-content;
-            gap: 14px 16px;
-            align-items: center;
-            justify-content: center;
-            padding: 20px 24px 8px;
-        }
-        .overview-left {
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
-        }
-        /* 左右内边距交给 .overview 统一给，这两个区块自己就别再加了，不然是双份 */
-        .overview .dashboard {
-            padding: 0 0 14px;
-        }
-        .overview .stats-grid {
-            padding: 0;
-        }
-        /* 窄屏：评级对照掉到下一行，自己占满 */
-        @media (max-width: 1120px) {
-            .overview {
-                grid-template-columns: minmax(0, 1fr);
-                justify-content: stretch;
-                gap: 14px;
-            }
-        }
-
         /* ==================== 评级对照 ====================
-           内容写在 HTML 里、不靠 JS 生成，保证首屏一定看得到；
+           内容写在 HTML 里、不靠 JS 生成，保证首屏一定看得到；常驻展示、不折叠。
            每行颜色统一取 :root 的 --g-* 与 --g-*-rgb，
            和卡片徽章 / 排行榜 / 批量设置面板用的是同一套颜色，改色只改那一处。
 
            "评级等级 + 区间 + 一句话评价" 三列，两列铺四行放完八个等级。
-           width: max-content 是为了在任何容器里都不被拉宽 ——
-           否则掉到单列布局时它会撑满整行，右边空一大片。 */
+           挂在 sticky 顶栏的最右端：搜索框是 flex:1 会把它自然顶到右边，
+           万一换行了 margin-left:auto 也能继续贴右。 */
         .grade-legend {
-            width: max-content;
+            flex: 0 0 auto;
+            margin-left: auto;
             max-width: 100%;
             border: 1px solid var(--card-border);
             background: var(--card-bg);
@@ -2132,44 +2097,14 @@
             <input type="text" id="searchInput" placeholder="🔍 搜索番剧（支持中文关键词）..." autocomplete="off" />
             <div class="search-results-dropdown" id="searchDropdown"></div>
         </div>
-    </div>
-
-    <!-- ====== 总览区 ======
-         左边是仪表盘 + 统计 chips，右边是评级对照。
-         评级对照原来挂在顶栏里，8 行文字把 sticky 顶栏撑到 141px 太高了；
-         挪到这里之后顶栏回到 68px，而且这两行本来就右侧留白很多，正好填上。 -->
-    <div class="overview">
-        <div class="overview-left">
-
-            <!-- ====== 仪表盘 ====== -->
-            <div class="dashboard" id="dashboard">
-                <div class="dash-card">
-                    <div class="dash-num" id="statTotal">0</div>
-                    <div class="dash-label">总作品数</div>
-                </div>
-                <div class="dash-card">
-                    <div class="dash-num" id="statWatching">0</div>
-                    <div class="dash-label">追番中</div>
-                </div>
-                <div class="dash-card">
-                    <div class="dash-num" id="statCompleted">0</div>
-                    <div class="dash-label">已完成</div>
-                </div>
-                <div class="dash-card">
-                    <div class="dash-num" id="statCompletion">0%</div>
-                    <div class="dash-label">总完成度</div>
-                </div>
-            </div>
-
-            <!-- ====== 统计看板 ====== -->
-            <div class="stats-grid" id="statsGrid"></div>
-
-        </div>
 
         <!-- ====== 评级对照 ======
              八个等级的判定区间与一句话评价。纯 HTML，不依赖 JS 生成，常驻展示。
              DOM 顺序 = 用户列出的顺序；两列按「列优先」填充（grid-auto-flow: column），
-             所以左列从上到下是 S / A+ / A / A-，右列是 B+ / B / B- / C·D —— 左列靠前。 -->
+             所以左列从上到下是 S / A+ / A / A-，右列是 B+ / B / B- / C·D —— 左列靠前。
+
+             注意：它挂在 sticky 顶栏里，8 行文字会把顶栏撑到 ~141px。
+             嫌高的话只能挪出去（历史上的做法），或者把文字精简掉。 -->
         <div class="grade-legend" id="gradeLegend">
             <div class="gl-head">
                 <span>📊 评级对照</span>
@@ -2186,6 +2121,29 @@
             </div>
         </div>
     </div>
+
+    <!-- ====== 仪表盘 ====== -->
+    <div class="dashboard" id="dashboard">
+        <div class="dash-card">
+            <div class="dash-num" id="statTotal">0</div>
+            <div class="dash-label">总作品数</div>
+        </div>
+        <div class="dash-card">
+            <div class="dash-num" id="statWatching">0</div>
+            <div class="dash-label">追番中</div>
+        </div>
+        <div class="dash-card">
+            <div class="dash-num" id="statCompleted">0</div>
+            <div class="dash-label">已完成</div>
+        </div>
+        <div class="dash-card">
+            <div class="dash-num" id="statCompletion">0%</div>
+            <div class="dash-label">总完成度</div>
+        </div>
+    </div>
+
+    <!-- ====== 统计看板 ====== -->
+    <div class="stats-grid" id="statsGrid"></div>
 
     <!-- ====== 工具栏 ====== -->
     <div class="toolbar" id="toolbar">
