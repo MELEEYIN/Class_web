@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>时间线 · 校园主页</title>
 <meta name="robots" content="noindex, nofollow">
-<meta name="description" content="按天记录时间与事件：每个日期一张小卡片，卡片颜色可自选，每月一处总结。数据只保存在本机浏览器里。">
+<meta name="description" content="按天记录时间与事件：每个日期一张小卡片，颜色可自选，另有一处近期总结。数据只保存在本机浏览器里。">
 <meta name="theme-color" content="#2563eb">
 <meta name="color-scheme" content="light dark">
 <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
@@ -52,7 +52,7 @@
       </span>
       <span class="tl-brand-text">
         <strong>时间线</strong>
-        <small>按天记录时间与事件 · 每月一处总结</small>
+        <small>按天记录时间与事件 · 一处近期总结</small>
       </span>
     </div>
     <div class="tl-top-actions">
@@ -112,15 +112,15 @@
     </div>
   </section>
 
-  <!-- ============ 本月总结（每月一处，输入即保存） ============ -->
+  <!-- ============ 近期总结（一处，输入即保存） ============ -->
   <section class="card tl-sum">
     <div class="card-head">
       <h3 class="card-title">
-        <svg class="ico" aria-hidden="true"><use href="#i-note"/></svg>月度总结<span class="tl-summonth" id="sumMonth"></span>
+        <svg class="ico" aria-hidden="true"><use href="#i-note"/></svg>近期总结
       </h3>
       <span class="tl-save" id="sumHint">自动保存</span>
     </div>
-    <textarea id="sum" rows="3" placeholder="这个月发生了什么、下个月想怎么调整……（留空则不保存）"></textarea>
+    <textarea id="sum" rows="3" placeholder="最近在忙什么、下一步想怎么走……（内容自动保存，留空则清掉）"></textarea>
   </section>
 
   <!-- ============ 列表视图：每个有记录的日子一张卡片（三列） ============ -->

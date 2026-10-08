@@ -94,7 +94,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   3. 本月总结（每月一处，自动保存）
+   3. 近期总结（一处，自动保存）
    -------------------------------------------------------------------------- */
 .tl-sum { padding: 13px 15px; }
 .tl-sum .card-head { margin-bottom: 9px; }
@@ -111,12 +111,6 @@
 }
 .tl-save { font-size: 11.5px; color: var(--faint); font-variant-numeric: tabular-nums; }
 .tl-save.on { color: var(--ok); }
-
-.tl-summonth {
-  margin-left: 7px; padding: 1px 8px; border-radius: var(--r-pill);
-  background: var(--surface-3); color: var(--muted);
-  font-size: 11px; font-weight: 700; letter-spacing: .02em;
-}
 
 /* 时间框：预置的冒号是「提示色」，真的填了时间就转成正常文字色 */
 .tl-time.masked { color: var(--muted); }

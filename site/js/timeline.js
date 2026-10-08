@@ -33,7 +33,7 @@
   /* ======================================================================
      1. 数据层
      ====================================================================== */
-  function blank() { return { v: 1, days: {}, months: {} }; }
+  function blank() { return { v: 1, days: {}, months: {}, recent: '' }; }
 
   function load() {
     var raw = U.lsGet(KEY, null);
@@ -63,6 +63,13 @@
       var t = String(months[k] == null ? '' : months[k]);
       if (t.trim()) d.months[k] = t;
     });
+
+    /* 「近期总结」：一处就够，不跟月份绑。早期按月存的那些取最近一个月的内容迁过来 */
+    d.recent = String(raw.recent == null ? '' : raw.recent);
+    if (!d.recent.trim()) {
+      var old = Object.keys(d.months).sort();
+      if (old.length) d.recent = d.months[old[old.length - 1]];
+    }
     return d;
   }
 
@@ -168,7 +175,7 @@
   };
 
   var $ = U.$, $$ = U.$$;
-  var hostDays, hostCal, hostStats, sumTa, sumHint, sumMonth, monthLabel, monthNav,
+  var hostDays, hostCal, hostStats, sumTa, sumHint, monthLabel, monthNav,
       btnToday, monthTip, qInput, addBox;
 
   function ymLabel(ym) {
@@ -209,7 +216,6 @@
     monthNav.hidden = !isMonth;
     btnToday.hidden = !isMonth;
     monthLabel.textContent = ymLabel(view.ym);
-    sumMonth.textContent = ymLabel(view.ym);
     monthTip.hidden = !searching;
     if (searching) monthTip.textContent = '搜索中：跨全部月份';
 
@@ -223,8 +229,8 @@
       chip('天数', nd) + chip('事件', ni) +
       (nd ? chip('平均', (ni / nd).toFixed(1) + ' 条/天') : '');
 
-    /* 3.3 本月总结（搜索时也显示当前月的那一份） */
-    if (sumTa.value !== (data.months[view.ym] || '')) sumTa.value = data.months[view.ym] || '';
+    /* 3.3 近期总结（一处，不跟月份绑） */
+    if (sumTa.value !== data.recent) sumTa.value = data.recent || '';
     updateSumHint();
 
     /* 3.4 只渲染当前视图，另一个清空 */
@@ -684,10 +690,10 @@
       }
     });
 
-    /* 5.8 月度总结：输入即存 */
+    /* 5.8 近期总结：输入即存 */
     sumTa.addEventListener('input', function () {
       var t = sumTa.value;
-      if (t.trim()) data.months[view.ym] = t; else delete data.months[view.ym];
+      data.recent = t.trim() ? t : '';
       updateSumHint(t.length);
       saveSoon();
     });
@@ -839,7 +845,6 @@
   function init() {
     hostDays = $('#days');
     hostCal = $('#calBox');
-    sumMonth = $('#sumMonth');
     monthNav = $('#monthNav');
     btnToday = $('#btnToday');
     hostStats = $('#stats');
