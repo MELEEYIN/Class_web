@@ -134,14 +134,21 @@
   border: 1px solid var(--line);
   border-left: 3px solid var(--cc, var(--line-strong));
   border-radius: var(--r-sm);
-  background: var(--surface);
+  /* 每张卡都铺一层「当天颜色」的淡底（浅色是浅底、深色是暗底，跟随主题） */
+  background: linear-gradient(180deg, var(--cc-soft, var(--surface)), var(--surface) 58%);
   box-shadow: var(--sh-1);
   padding: 8px 9px 7px;
   min-width: 0;
   transition: border-color var(--t) var(--ease), box-shadow var(--t) var(--ease);
 }
 .tl-day:hover { border-color: var(--accent-line); border-left-color: var(--cc, var(--accent)); box-shadow: var(--sh-2); }
-.tl-day.is-today { background: linear-gradient(180deg, var(--cc-soft, var(--accent-soft)), var(--surface) 62%); }
+/* 「今天」不再靠底色区分（底色现在每张都有），改成描边 + 一枚「今天」标签 */
+.tl-day.is-today { border-color: var(--cc); box-shadow: 0 0 0 2px var(--cc-soft), var(--sh-2); }
+.tl-today {
+  font-size: 9.5px; font-weight: 800; letter-spacing: .04em; line-height: 15px;
+  padding: 0 5px; border-radius: var(--r-pill);
+  background: var(--cc, var(--accent)); color: var(--accent-ink);
+}
 
 .tl-dh {
   display: flex; align-items: center; gap: 5px;

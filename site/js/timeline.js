@@ -22,6 +22,10 @@
 
   var KEY = 'timeline.v1';
   var NCOLOR = 8;                           /* [data-color="0".."7"] */
+  /* 没手动选过颜色的日子，按「星期几」自动上一色（稳定、且一眼能看出周几）：
+     getDay() 0=周日 … 6=周六  →  草绿 / 蓝 / 绿 / 橙 / 玫红 / 紫 / 青
+     留出 7 号色（红）不给自动用，想标记「重要的一天」时可以手动点它。 */
+  var AUTO_C = [6, 0, 1, 2, 3, 4, 5];
   var WD = ['日', '一', '二', '三', '四', '五', '六'];
   var WD_MON = ['一', '二', '三', '四', '五', '六', '日'];   /* 月度视图列顺序：周一起 */
   var MODE_KEY = 'timeline.viewmode';                         /* 记住用户上次选的视图 */
@@ -138,6 +142,12 @@
   }
 
   function dayOf(key) { return data.days[key] || null; }
+
+  /* 这一天实际用哪个颜色：手动选过就用手动的，否则按星期自动给一个 */
+  function colorOf(day, d) {
+    if (day && day.c >= 0 && day.c < NCOLOR) return day.c;
+    return AUTO_C[(d || U.today()).getDay()];
+  }
   function ensureDay(key) {
     if (!data.days[key]) data.days[key] = { c: -1, items: [] };
     return data.days[key];
@@ -380,7 +390,7 @@
     var card = document.createElement('article');
     card.className = 'tl-day';
     card.dataset.key = key;
-    if (day.c >= 0) card.setAttribute('data-color', String(day.c));
+    card.setAttribute('data-color', String(colorOf(day, d)));   /* 没选过就按星期自动上色 */
     if (U.isSameDay(d, today)) card.classList.add('is-today');
     if (view.editing === key) card.classList.add('editing');
 
@@ -388,10 +398,11 @@
     var head = document.createElement('div');
     head.className = 'tl-dh';
     head.innerHTML =
-      '<button class="tl-cc" type="button" data-c="' + day.c + '" ' +
+      '<button class="tl-cc" type="button" data-c="' + colorOf(day, d) + '" ' +
         'title="给这一天选颜色" aria-label="选择这一天的颜色"></button>' +
       '<span class="tl-date">' + (d.getMonth() + 1) + '/' + d.getDate() + '</span>' +
       '<span class="tl-wd">周' + WD[d.getDay()] + '</span>' +
+      (U.isSameDay(d, today) ? '<span class="tl-today">今天</span>' : '') +
       '<span class="tl-sp"></span>' +
       '<span class="tl-cnt" title="这一天共 ' + day.items.length + ' 条">' + day.items.length + '</span>' +
       '<button class="tl-ib" type="button" data-act="add" title="在这一天加一条" aria-label="加一条">' +
@@ -712,7 +723,7 @@
     pal = document.createElement('div');
     pal.className = 'tl-pal';
     pal.hidden = true;
-    var html = '<button class="tl-sw" type="button" data-c="-1" title="默认（跟随主题）"></button>';
+    var html = '<button class="tl-sw" type="button" data-c="-1" title="默认：按星期自动上色"></button>';
     for (var i = 0; i < NCOLOR; i++) {
       html += '<button class="tl-sw" type="button" data-c="' + i + '" data-color="' + i + '" title="颜色 ' + (i + 1) + '"></button>';
     }
