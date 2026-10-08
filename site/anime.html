@@ -995,6 +995,12 @@
             border-color: var(--theme-primary-light);
             box-shadow: 0 0 12px var(--theme-primary-glow);
         }
+        /* 面板打开时把触发器点亮，让「面板属于这张卡」这件事有视觉连线 */
+        .card-score-trigger.is-open {
+            border-color: var(--theme-primary-light);
+            background: var(--btn-hover-bg);
+            box-shadow: 0 0 12px var(--theme-primary-glow), 0 0 0 2px var(--theme-primary-bg);
+        }
 
         .note-toggle {
             font-size: 0.7rem;
@@ -1249,55 +1255,153 @@
             opacity: 1;
         }
 
-        /* ==================== 评分面板 ==================== */
+        /* ==================== 评分面板 ====================
+           旧版把「名称 + 数值 + 滑杆」三样东西塞进同一个 flex 行里：
+           288px 的面板减去左右内边距只剩 208px 可用，
+           于是名称被挤断成两行（emoji 一行、文字一行），滑杆只剩 132px。
+           现在改成上下两层结构：
+             第一层 sp-head —— 左侧「圆点 + 名称」，右侧「数值胶囊」
+             第二层 input     —— 整行滑杆，自带同色进度填充
+           四个维度各给一个独立色相，扫一眼就能区分是哪一项。 */
         .score-panel {
             position: absolute;
             z-index: 10000;
-            background: rgba(16, 10, 26, 0.96);
+            background: rgba(16, 10, 26, 0.97);
             backdrop-filter: var(--glass-blur);
-            border: 2px solid var(--card-border);
+            border: 1px solid var(--card-border);
             border-radius: 16px;
-            padding: 16px;
-            width: 240px;
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8);
+            padding: 12px 14px 14px;
+            width: 288px;
+            max-width: calc(100vw - 20px);
+            box-sizing: border-box;
+            box-shadow: 0 18px 44px rgba(0, 0, 0, 0.82), inset 0 0 0 1px rgba(255, 255, 255, 0.04);
             display: none;
             flex-direction: column;
-            gap: 10px;
+            gap: 11px;
         }
         .score-panel.show {
             display: flex;
         }
-        .score-panel label {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
+        .score-panel .sp-top {
             display: flex;
+            align-items: baseline;
             justify-content: space-between;
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--divider);
+        }
+        .score-panel .sp-top b {
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0;
+            color: var(--text-muted);
+            opacity: 0.75;
+        }
+        .score-panel .sp-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        /* 每个维度的专属色：名称圆点、数值胶囊、滑杆填充共用 --sc */
+        .score-panel .sp-story     { --sc: #A78BFA; --sc-soft: rgba(167, 139, 250, 0.18); }
+        .score-panel .sp-visual    { --sc: #38BDF8; --sc-soft: rgba(56, 189, 248, 0.18); }
+        .score-panel .sp-character { --sc: #FB7185; --sc-soft: rgba(251, 113, 133, 0.18); }
+        .score-panel .sp-overall   { --sc: #FFC93C; --sc-soft: rgba(255, 201, 60, 0.18); }
+        .score-panel .sp-overall {
+            margin-top: 2px;
+            padding-top: 11px;
+            border-top: 1px dashed var(--divider);
+        }
+        .score-panel .sp-head {
+            display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 8px;
         }
-        .score-panel label span.val {
-            font-weight: 700;
-            color: var(--theme-primary-light);
-            min-width: 28px;
-            text-align: right;
+        .score-panel .sp-name {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
         }
+        .score-panel .sp-val {
+            font-size: 0.78rem;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+            color: var(--sc);
+            background: var(--sc-soft);
+            padding: 1px 9px;
+            border-radius: 999px;
+            min-width: 44px;
+            text-align: center;
+        }
+        .score-panel .sp-overall .sp-val {
+            font-size: 0.88rem;
+        }
+        /* 滑杆：input 高度 = 轨道高度，靠 thumb 的负 margin 居中 */
         .score-panel input[type="range"] {
             -webkit-appearance: none;
+            appearance: none;
+            display: block;
             width: 100%;
-            height: 6px;
-            border-radius: 3px;
-            background: rgba(255, 255, 255, 0.15);
+            height: 8px;
+            margin: 5px 0;
+            padding: 0;
+            background: transparent;
             outline: none;
             cursor: pointer;
         }
+        .score-panel input[type="range"]::-webkit-slider-runnable-track {
+            height: 8px;
+            border-radius: 999px;
+            background: linear-gradient(90deg,
+                var(--sc) 0,
+                var(--sc) var(--p, 0%),
+                rgba(255, 255, 255, 0.13) var(--p, 0%),
+                rgba(255, 255, 255, 0.13) 100%);
+        }
         .score-panel input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 22px;
-            height: 22px;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            margin-top: -4px;
             border-radius: 50%;
-            background: var(--theme-primary-light);
-            border: 2px solid #fff;
-            box-shadow: 0 0 10px var(--theme-primary-glow);
+            background: #fff;
+            border: 3px solid var(--sc);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6), 0 0 10px var(--sc);
+            transition: transform 0.15s ease;
+        }
+        .score-panel input[type="range"]:hover::-webkit-slider-thumb,
+        .score-panel input[type="range"]:active::-webkit-slider-thumb {
+            transform: scale(1.18);
+        }
+        .score-panel input[type="range"]:focus-visible {
+            box-shadow: 0 0 0 3px var(--sc-soft);
+            border-radius: 999px;
+        }
+        /* Firefox */
+        .score-panel input[type="range"]::-moz-range-track {
+            height: 8px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.13);
+        }
+        .score-panel input[type="range"]::-moz-range-progress {
+            height: 8px;
+            border-radius: 999px;
+            background: var(--sc);
+        }
+        .score-panel input[type="range"]::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #fff;
+            border: 3px solid var(--sc);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
         }
 
         /* ==================== 删除按钮 ==================== */
@@ -3058,38 +3162,58 @@
                 const anime = animeList.find(a => a.mal_id === malId);
                 if (!anime) return null;
                 const scores = anime.scores || { story: 0, visual: 0, character: 0, overall: 0 };
+
+                /* 一行一个维度：上面是「圆点 + 名称 …… 数值」，下面是整行滑杆。
+                   --p 是滑杆的进度百分比，拖动的过程中由 _updateScoreSlider 实时改。 */
+                const metricRow = (field, label, value) => {
+                    const v = Number(value) || 0;
+                    return `<div class="sp-item sp-${field}">
+                        <div class="sp-head">
+                            <span class="sp-name">${label}</span>
+                            <span class="sp-val" id="val-${field}-${malId}">${v.toFixed(1)}</span>
+                        </div>
+                        <input type="range" min="0" max="10" step="0.1" value="${v}" style="--p: ${(v * 10).toFixed(0)}%"
+                            aria-label="${label}"
+                            oninput="window._updateScoreSlider(${malId},'${field}',this.value)">
+                    </div>`;
+                };
+
                 panel = document.createElement('div');
                 panel.className = 'score-panel';
                 panel.id = 'scorePanel-' + malId;
-                panel.innerHTML = `
-                    <label>📝 剧情 <span class="val" id="val-story-${malId}">${(scores.story||0).toFixed(1)}</span>
-                        <input type="range" min="0" max="10" step="0.1" value="${scores.story||0}"
-                        oninput="window._updateScoreSlider(${malId},'story',this.value)"
-                        onchange="window._saveScore(${malId})"></label>
-                    <label>🎨 画面 <span class="val" id="val-visual-${malId}">${(scores.visual||0).toFixed(1)}</span>
-                        <input type="range" min="0" max="10" step="0.1" value="${scores.visual||0}"
-                        oninput="window._updateScoreSlider(${malId},'visual',this.value)"
-                        onchange="window._saveScore(${malId})"></label>
-                    <label>👤 人物 <span class="val" id="val-character-${malId}">${(scores.character||0).toFixed(1)}</span>
-                        <input type="range" min="0" max="10" step="0.1" value="${scores.character||0}"
-                        oninput="window._updateScoreSlider(${malId},'character',this.value)"
-                        onchange="window._saveScore(${malId})"></label>
-                    <label style="font-weight:700;color:var(--theme-primary-light);">⭐ 总评 <span class="val" id="val-overall-${malId}">${(scores.overall||0).toFixed(1)}</span>
-                        <input type="range" min="0" max="10" step="0.1" value="${scores.overall||0}"
-                        oninput="window._updateScoreSlider(${malId},'overall',this.value)"
-                        onchange="window._saveScore(${malId})"></label>
-                `;
+                panel.innerHTML =
+                    `<div class="sp-top"><span>评分</span><b>拖动即保存</b></div>` +
+                    metricRow('story', '📝 剧情', scores.story) +
+                    metricRow('visual', '🎨 画面', scores.visual) +
+                    metricRow('character', '👤 人物', scores.character) +
+                    metricRow('overall', '⭐ 总评', scores.overall);
                 panel.addEventListener('click', e => e.stopPropagation());
                 return panel;
             }
 
+            /* 面板默认贴在触发器正下方；如果下方空间不够（卡片在屏幕底部），
+               就翻到触发器上方，避免面板被浏览器窗口裁掉。 */
             function positionScorePanel(panel, trigger) {
                 const rect = trigger.getBoundingClientRect();
-                panel.style.top = (rect.bottom + window.scrollY + 4) + 'px';
-                let left = rect.left + window.scrollX + trigger.offsetWidth - panel.offsetWidth;
-                if (left < 10) left = 10;
-                const maxLeft = window.innerWidth + window.scrollX - panel.offsetWidth - 10;
+                const pw = panel.offsetWidth || 288;
+                const ph = panel.offsetHeight || 0;
+                const gap = 6;
+
+                let top = rect.bottom + window.scrollY + gap;
+                const spaceBelow = window.innerHeight - rect.bottom;
+                if (ph && spaceBelow < ph + gap + 8 && rect.top > ph + gap + 8) {
+                    top = rect.top + window.scrollY - ph - gap;
+                }
+                panel.style.top = top + 'px';
+
+                /* 首选「面板右边缘对齐触发器右边缘」；
+                   右边贴到屏幕边了就改成「左边缘对齐触发器左边缘」，
+                   这样面板始终挂在触发器上，不会莫名其妙飘到屏幕另一头。 */
+                let left = rect.left + window.scrollX + trigger.offsetWidth - pw;
+                if (left < 10) left = rect.left + window.scrollX;
+                const maxLeft = window.innerWidth + window.scrollX - pw - 10;
                 if (left > maxLeft) left = maxLeft;
+                if (left < 10) left = 10;
                 panel.style.left = left + 'px';
             }
 
@@ -3101,28 +3225,39 @@
 
                 const isShowing = panel.classList.contains('show');
                 if (isShowing) {
-                    panel.classList.remove('show');
-                    const card = document.getElementById('anime-card-' + malId);
-                    if (card && panel.parentElement !== card) card.appendChild(panel);
-                    activeScorePanelId = null;
-                    window.removeEventListener('scroll', updateActivePanelPosition);
-                    window.removeEventListener('resize', updateActivePanelPosition);
+                    closeScorePanel(malId);
                 } else {
                     if (activeScorePanelId && activeScorePanelId !== malId) {
-                        const oldPanel = document.getElementById('scorePanel-' + activeScorePanelId);
-                        if (oldPanel) {
-                            oldPanel.classList.remove('show');
-                            const oldCard = document.getElementById('anime-card-' + activeScorePanelId);
-                            if (oldCard && oldPanel.parentElement !== oldCard) oldCard.appendChild(oldPanel);
-                        }
+                        closeScorePanel(activeScorePanelId);
                     }
                     document.body.appendChild(panel);
-                    positionScorePanel(panel, trigger);
+                    /* 先挂 .show 再定位：offsetHeight 只有在可见时才是真值，
+                       两行同步执行不会产生中间帧，所以看不到"闪一下"。 */
                     panel.classList.add('show');
+                    positionScorePanel(panel, trigger);
+                    trigger.classList.add('is-open');
                     activeScorePanelId = malId;
                     window._activeTrigger = trigger;
                     window.addEventListener('scroll', updateActivePanelPosition, { passive: true });
                     window.addEventListener('resize', updateActivePanelPosition);
+                }
+            }
+
+            function closeScorePanel(malId) {
+                const panel = document.getElementById('scorePanel-' + malId);
+                if (panel) {
+                    panel.classList.remove('show');
+                    const card = document.getElementById('anime-card-' + malId);
+                    if (card && panel.parentElement !== card) card.appendChild(panel);
+                }
+                const card = document.getElementById('anime-card-' + malId);
+                const trig = card?.querySelector('.card-score-trigger');
+                if (trig) trig.classList.remove('is-open');
+                if (activeScorePanelId === malId) {
+                    activeScorePanelId = null;
+                    window._activeTrigger = null;
+                    window.removeEventListener('scroll', updateActivePanelPosition);
+                    window.removeEventListener('resize', updateActivePanelPosition);
                 }
             }
 
@@ -3134,15 +3269,39 @@
                 }
             }
 
+            let scoreSaveTimer = null;
+            function scheduleScoreSave() {
+                if (scoreSaveTimer) clearTimeout(scoreSaveTimer);
+                scoreSaveTimer = setTimeout(() => {
+                    scoreSaveTimer = null;
+                    saveAnimeList(animeList);
+                    scheduleRankRender();
+                    updateStats();
+                }, 300);
+            }
+
+            /* 拖动过程中：数值胶囊、滑杆进度填充、卡片上的 ⭐ 三者同步刷新；
+               落库走 300ms 防抖，避免拖一次滑块写几十遍 localStorage。 */
             function updateScoreSlider(malId, field, value) {
-                const num = parseFloat(value) || 0;
+                const num = Math.round((parseFloat(value) || 0) * 10) / 10;
                 const valEl = document.getElementById(`val-${field}-${malId}`);
                 if (valEl) valEl.textContent = num.toFixed(1);
+
+                const panel = document.getElementById('scorePanel-' + malId);
+                const input = panel?.querySelector(`.sp-${field} input[type="range"]`);
+                if (input) input.style.setProperty('--p', (num * 10) + '%');
+
                 const anime = animeList.find(a => a.mal_id === malId);
                 if (anime) {
                     if (!anime.scores) anime.scores = { story: 0, visual: 0, character: 0, overall: 0 };
                     anime.scores[field] = num;
+                    if (field === 'overall') {
+                        const card = document.getElementById('anime-card-' + malId);
+                        const trig = card?.querySelector('.score-val');
+                        if (trig) trig.textContent = num.toFixed(1);
+                    }
                 }
+                scheduleScoreSave();
             }
 
             function saveScore(malId) {
@@ -3165,12 +3324,10 @@
                 if (activeScorePanelId) {
                     const panel = document.getElementById('scorePanel-' + activeScorePanelId);
                     if (panel && !panel.contains(e.target) && !e.target.closest('.card-score-trigger')) {
-                        panel.classList.remove('show');
-                        const card = document.getElementById('anime-card-' + activeScorePanelId);
-                        if (card && panel.parentElement !== card) card.appendChild(panel);
-                        activeScorePanelId = null;
-                        window.removeEventListener('scroll', updateActivePanelPosition);
-                        window.removeEventListener('resize', updateActivePanelPosition);
+                        const closingId = activeScorePanelId;
+                        closeScorePanel(closingId);
+                        if (scoreSaveTimer) clearTimeout(scoreSaveTimer);
+                        scoreSaveTimer = null;
                         saveAnimeList(animeList);
                         scheduleRankRender();
                     }
@@ -3193,12 +3350,7 @@
                 animeList = animeList.filter(a => a.mal_id !== malId);
                 saveAnimeList(animeList);
                 if (activeScorePanelId === malId) {
-                    const panel = document.getElementById('scorePanel-' + malId);
-                    if (panel) { panel.classList.remove('show'); if (panel.parentElement) panel.parentElement.removeChild(
-                            panel); }
-                    activeScorePanelId = null;
-                    window.removeEventListener('scroll', updateActivePanelPosition);
-                    window.removeEventListener('resize', updateActivePanelPosition);
+                    closeScorePanel(malId);
                 }
                 if (activeGradePanelId === malId) {
                     const panel = document.getElementById('gradePanel-' + malId);
