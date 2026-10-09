@@ -130,7 +130,7 @@
         '<button type="button" class="cw-x" id="cwSx" title="关闭（Esc）">✕</button>' +
       '</div>' +
       '<div class="cw-ov-bd" id="cwSr"></div>' +
-      '<div class="cw-ov-ft">搜索范围：学习手册 122 张 · 学习计划 67 张 · 日常开发 41 张 —— 点结果直接在当前页弹出全文</div>');
+      '<div class="cw-ov-ft">搜索范围：学习手册 122 张 · 学习计划 67 张 · 日常开发 41 张 · 入门篇详解 10 篇 —— 点结果直接在当前页弹出全文</div>');
     var q = elSearch.querySelector('#cwSq');
     q.addEventListener('input', function () { renderInto(q.value, elSearch.querySelector('#cwSr')); });
     elSearch.querySelector('#cwSx').addEventListener('click', function () { close('cwSearchOv'); });

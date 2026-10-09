@@ -597,6 +597,40 @@ aside details.tocgrp:not([open])>summary::before{transform:rotate(-90deg)}
 aside details.tocgrp>summary:hover{background:rgb(var(--accent-rgb) / .12);color:var(--text)}
 aside details.tocgrp>summary em{font-style:normal;margin-left:auto;opacity:.75}
 
+
+/* ===== 学习手册 · 入门篇「深入讲解」二级面板（2026-10-09 新增） ===== */
+details.fold.deep{margin-top:14px;border-color:rgb(var(--accent-rgb) / .3);background:rgb(var(--accent-rgb) / .045)}
+details.fold.deep[open]{border-color:rgb(var(--accent-rgb) / .55)}
+details.fold.deep>summary{color:var(--accent);font-size:15.5px}
+details.fold.deep>summary .sum-note{color:var(--text-3)}
+.ddchip{font-size:11.5px;border-radius:6px;padding:1px 8px;white-space:nowrap;color:rgb(var(--vio-rgb));
+  background:rgb(var(--vio-rgb) / .12);border:1px solid rgb(var(--vio-rgb) / .35)}
+.fold-body .dd-h{font-size:14px;font-weight:600;color:var(--text);margin:20px 0 8px;padding:1px 0 1px 10px;
+  border-left:3px solid var(--accent);line-height:1.45}
+.fold-body .dd-lead{margin:8px 0;font-size:13.6px;color:var(--text-2);line-height:1.78}
+.fold-body .dd-q{margin:10px 0;padding:10px 14px;border:1px dashed var(--line-2);border-radius:9px;
+  background:rgb(var(--panel-rgb) / var(--panel-a));font-size:13.4px;color:var(--text-2);line-height:1.75}
+.fold-body .dd-cap{font-size:11.5px;color:var(--text-3);text-align:center;margin:4px 0 14px;line-height:1.5}
+.fold-body .callout.vio{background:rgb(var(--vio-rgb) / .1);border-color:rgb(var(--vio-rgb) / .32)}
+.fold-body table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13.2px}
+svg.fig.dff{display:block;margin:10px 0 2px;max-width:100%}
+svg.dff text{font-family:inherit}
+.dff-b{fill:rgb(var(--panel-rgb) / var(--panel-a));stroke:var(--line-2);stroke-width:.8}
+.dff-ba{fill:rgb(var(--accent-rgb) / .14);stroke:rgb(var(--accent-rgb) / .5);stroke-width:.8}
+.dff-bo{fill:rgb(var(--ok-rgb) / .13);stroke:rgb(var(--ok-rgb) / .48);stroke-width:.8}
+.dff-bw{fill:rgb(var(--warn-rgb) / .14);stroke:rgb(var(--warn-rgb) / .5);stroke-width:.8}
+.dff-bd{fill:rgb(var(--danger-rgb) / .13);stroke:rgb(var(--danger-rgb) / .5);stroke-width:.8}
+.dff-bv{fill:rgb(var(--vio-rgb) / .14);stroke:rgb(var(--vio-rgb) / .5);stroke-width:.8}
+.dff-t{fill:var(--text);font-size:12.5px}
+.dff-m{fill:var(--text);font-size:12.5px;font-family:"Cascadia Code",Consolas,Menlo,monospace}
+.dff-s{fill:var(--text-2);font-size:11.5px}
+.dff-h{fill:var(--text-3);font-size:11px}
+.dff-acc{fill:var(--accent);font-size:12.5px;font-weight:600}
+.dff-ln{stroke:var(--line-2);stroke-width:1.2;fill:none}
+.dff-ar{stroke:var(--text-3);stroke-width:1.4;fill:none}
+.dff-ah{fill:var(--text-3)}
+.dff-da{stroke:rgb(var(--danger-rgb));stroke-width:1.8;fill:none}
+.dff-dh{fill:rgb(var(--danger-rgb))}
 </style>
 <link rel="stylesheet" href="./acm.css">
 </head>
@@ -641,6 +675,7 @@ aside details.tocgrp>summary em{font-style:normal;margin-left:auto;opacity:.75}
     <span class="stat">学习手册 122 张</span>
     <span class="stat">学习计划 67 张</span>
     <span class="stat">日常开发 41 张</span>
+    <span class="stat">入门篇详解 10 篇</span>
     <span class="stat">合计 230 张卡片</span>
   </div>
   <p class="hint">三块的搜索与筛选<b>各管各的</b>，互不干扰。想跨三块找，用首页的 <b>跨块搜索</b>，或者浏览器 <b>Ctrl+F</b>。</p>
@@ -765,8 +800,9 @@ aside details.tocgrp>summary em{font-style:normal;margin-left:auto;opacity:.75}
 <!-- ============ 1 入门篇 ============ -->
 <h2 id="entry">1 · 入门篇</h2>
 <p class="lead">这 10 项的共性：它们不是「知识点」，而是<b>思维动作</b>。后面所有算法的代码都建立在它们的组合之上，务必练到不用想就能写。</p>
+<div class="callout ok"><p><b>这一章 10 张卡片，每张都带一篇「深入讲解」</b> —— 点卡片里带 <b>详解</b> 标记的那一栏展开。讲解是写给<b>「只会 C++ 基础语法」</b>的人看的：从最朴素的直觉讲起，配手绘示意图、逐行拆模板代码、讲透例题与坑。卡片本身是速查表，讲解是把它讲明白 —— 两层并存，按需取用。</p></div>
 
-<article class="algo" id="hb-1" data-cat="入门" data-kind="entry" data-name="枚举 暴力 子集枚举"><div class="ah"><h4>1. 枚举</h4><span class="lv lv-e">入门</span><span class="st">★</span><span class="tag">暴力</span><a class="prac" href="practice.html#P1036" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<article class="algo" id="hb-1" data-cat="入门" data-kind="entry" data-name="枚举 暴力 子集枚举"><div class="ah"><h4>1. 枚举</h4><span class="lv lv-e">入门</span><span class="st">★</span><span class="tag">暴力</span><span class="ddchip">详解</span><a class="prac" href="practice.html#P1036" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
 <p class="idea"><b>本质</b>：把所有可能的答案候选一个个试过去。难点从来不是「枚举」，而是<b>枚举什么</b>与<b>如何压缩枚举量</b>。</p>
 <p class="meta"><b>复杂度</b>：O(状态数 × 单次验证代价)。优化方向：换一个维度枚举（枚举答案而非枚举方案）、子集枚举、配合前缀和/哈希把验证降到 O(1)。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>
@@ -794,9 +830,312 @@ if(sum + suffix[i] < target) return;                 // 可行性剪枝</script>
 <div class="ex"><b>例题</b>：洛谷 P1036 选数 —— 从 n 个数里选 k 个，问有多少种选法使和为质数。n ≤ 20，直接子集枚举 2²⁰ ≈ 10⁶ 种，再加个 O(√s) 的质数判定即可。<b>看到 n ≤ 20 就该想到 2ⁿ 枚举</b>。</div>
 <p><b>三个层次</b>：① 枚举所有元素（O(n)）；② 枚举所有二元组（O(n²)）；③ 枚举所有子集（O(2ⁿ)，n ≤ 20）。压缩方向：换一个维度枚举（枚举答案而非方案）、用前缀和/哈希把验证降到 O(1)、加剪枝。</p>
 <p class="tl"><b>题单</b> 洛谷 P1008 三连击 · P1036 选数 · P1157 组合的输出 · P1618 三连击（升级版） · P1706 全排列问题 · CF 800~1000 分段题目。</p>
-<p class="ref"><b>资料</b> 《算法竞赛入门经典（第 2 版）》第 1~2 章；OI-Wiki「枚举」。</p></article>
+<p class="ref"><b>资料</b> 《算法竞赛入门经典（第 2 版）》第 1~2 章；OI-Wiki「枚举」。</p>
+<details class="fold deep" id="hb-1-deep" open>
+<summary>深入讲解 · 枚举：从「一个一个试」到「少试一个数量级」<span class="sum-note">假设你只会 C++ 的基础语法</span></summary>
+<div class="fold-body">
 
-<article class="algo" id="hb-2" data-cat="入门" data-kind="entry" data-name="模拟 实现"><div class="ah"><h4>2. 模拟</h4><span class="lv lv-e">入门</span><span class="st">★</span><span class="tag">实现</span><a class="prac" href="practice.html#P1540" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<h5 class="dd-h">一、先建立直觉：枚举就是「一个一个试」</h5>
+<p class="dd-lead">我给你两个任务，感受一下差别：</p>
+<div class="dd-q">
+<b>任务 A</b>：在 10 个数里找出最大值。<br>
+<b>任务 B</b>：从 10 个数里挑出若干个，使它们的和恰好等于 100，问有几种挑法。
+</div>
+<p class="dd-lead">任务 A 你扫一眼就会 —— 这就是枚举，看一眼就懂。<br>
+任务 B 你会卡住，因为你<b>连「候选答案」有哪些都列不出来</b>。</p>
+<p class="dd-lead">这就是枚举真正的难点。所谓「枚举」，本质上是两步：</p>
+<ol class="tight">
+<li><b>确定候选集合</b> —— 把所有可能的解，用一个「可遍历」的形式表示出来；</li>
+<li><b>逐个验证</b> —— 对每个候选，判断它合不合法，或者用它更新答案。</li>
+</ol>
+<p class="dd-lead">所以复杂度天然就是 <b class="mono">O(候选个数 × 单次验证代价)</b>。优化也只有两条路：
+<b>减少候选个数</b>，或者<b>加快单次验证</b>。卡片上写的「枚举什么」对应第一条，「压缩枚举量」两条都算。</p>
+
+
+<h5 class="dd-h">二、把「候选集合」分成三个层次</h5>
+<p class="dd-lead">先给你一把尺子。所有的枚举题，候选集合基本落在下面三层里：</p>
+
+<svg class="fig dff" viewBox="0 0 680 256" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>枚举的三个层次</title>
+<desc>从枚举单个元素的 O(n)，到枚举二元组的 O(n²)，再到枚举子集的 O(2 的 n 次方)</desc>
+<line x1="96" y1="54" x2="96" y2="204" class="dff-ar"/>
+<path d="M96 208 l-3.3000000000000003 -6.0 l6.6000000000000005 0 z" class="dff-ah"/>
+<rect x="120" y="24" width="520" height="60" rx="10" class="dff-bo"/>
+<text x="144" y="46" class="dff-t" dominant-baseline="central">① 枚举单个元素 · O(n)</text>
+<text x="144" y="68" class="dff-s" dominant-baseline="central">一行循环扫过去：求和、计数、求最值</text>
+<rect x="120" y="100" width="520" height="60" rx="10" class="dff-ba"/>
+<text x="144" y="122" class="dff-t" dominant-baseline="central">② 枚举二元组 · O(n²)</text>
+<text x="144" y="144" class="dff-s" dominant-baseline="central">两层循环，n ≤ 5000 还能忍；配前缀和 / 哈希可压到 O(n)</text>
+<rect x="120" y="176" width="520" height="60" rx="10" class="dff-bv"/>
+<text x="144" y="198" class="dff-t" dominant-baseline="central">③ 枚举子集 · O(2ⁿ)</text>
+<text x="144" y="220" class="dff-s" dominant-baseline="central">n ≤ 20 才敢用，2²⁰ ≈ 10⁶ 是竞赛里的经验红线</text>
+</svg>
+<p class="dd-cap">候选集合的三个层次：从枚举元素，到枚举二元组，再到枚举子集。</p>
+
+<h5 class="dd-h">三、模板①：子集枚举 —— 用一个整数表示一个集合</h5>
+<p class="dd-lead">这是四个模板里最需要你啃下来的。先说思想：</p>
+<p class="dd-lead">一个集合有 n 个元素，每个元素只有「选 / 不选」两种状态。那就<b>用一个 n 位的二进制整数
+<span class="mono">s</span> 来表示这个集合 —— 第 i 位是 1，就表示第 i 个元素被选中</b>。</p>
+<p class="dd-lead">于是「所有子集」和「所有 n 位二进制数」就一一对应了，也就是 <span class="mono">0</span> 到
+<span class="mono">2ⁿ−1</span>。三个关键点：</p>
+<ul class="tight">
+<li><span class="mono">1 &lt;&lt; n</span> 就是 2ⁿ（把 1 左移 n 位 = 乘 2 乘 n 次）；</li>
+<li><span class="mono">for (s = 0; s &lt; (1 &lt;&lt; n); ++s)</span> 就把 2ⁿ 个集合全遍历了一遍；</li>
+<li><span class="mono">s &gt;&gt; i &amp; 1</span> 在问「第 i 位是不是 1」，也就是「第 i 个元素选没选」。</li>
+</ul>
+<p class="dd-lead">把 <span class="mono">s &gt;&gt; i &amp; 1</span> 拆开看：<span class="mono">s &gt;&gt; i</span>
+把第 i 位挪到最低位，<span class="mono">&amp; 1</span> 再把最低位单独取出来。结果是 1，就说明第 i 个元素被选中了。</p>
+<p class="dd-lead">以 n = 3（元素记作 a₀ / a₁ / a₂）为例，8 个 <span class="mono">s</span> 对应的就是 8 个子集：</p>
+
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// ① 子集枚举：n <= 20 时遍历 2^n 个集合
+for (int s = 0; s < (1 << n); ++s)
+    for (int i = 0; i < n; ++i)
+        if (s >> i & 1) { /* 第 i 个元素被选中 */ }</script></div>
+<svg class="fig dff" viewBox="0 0 680 180" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>位掩码与子集的一一对应</title>
+<desc>n 等于 3 时，000 到 111 共 8 个掩码分别对应 8 个子集</desc>
+<rect x="40" y="36" width="130" height="52" rx="8" class="dff-b"/>
+<text x="54" y="54" class="dff-s" dominant-baseline="central">s = 0 · 000₂</text>
+<text x="54" y="74" class="dff-t" dominant-baseline="central">{ } 空集</text>
+<rect x="195" y="36" width="130" height="52" rx="8" class="dff-b"/>
+<text x="209" y="54" class="dff-s" dominant-baseline="central">s = 1 · 001₂</text>
+<text x="209" y="74" class="dff-t" dominant-baseline="central">{ a₀ }</text>
+<rect x="350" y="36" width="130" height="52" rx="8" class="dff-b"/>
+<text x="364" y="54" class="dff-s" dominant-baseline="central">s = 2 · 010₂</text>
+<text x="364" y="74" class="dff-t" dominant-baseline="central">{ a₁ }</text>
+<rect x="505" y="36" width="130" height="52" rx="8" class="dff-b"/>
+<text x="519" y="54" class="dff-s" dominant-baseline="central">s = 3 · 011₂</text>
+<text x="519" y="74" class="dff-t" dominant-baseline="central">{ a₀, a₁ }</text>
+<rect x="40" y="104" width="130" height="52" rx="8" class="dff-b"/>
+<text x="54" y="122" class="dff-s" dominant-baseline="central">s = 4 · 100₂</text>
+<text x="54" y="142" class="dff-t" dominant-baseline="central">{ a₂ }</text>
+<rect x="195" y="104" width="130" height="52" rx="8" class="dff-bv"/>
+<text x="209" y="122" class="dff-s" dominant-baseline="central">s = 5 · 101₂</text>
+<text x="209" y="142" class="dff-acc" dominant-baseline="central">{ a₀, a₂ }</text>
+<rect x="350" y="104" width="130" height="52" rx="8" class="dff-b"/>
+<text x="364" y="122" class="dff-s" dominant-baseline="central">s = 6 · 110₂</text>
+<text x="364" y="142" class="dff-t" dominant-baseline="central">{ a₁, a₂ }</text>
+<rect x="505" y="104" width="130" height="52" rx="8" class="dff-b"/>
+<text x="519" y="122" class="dff-s" dominant-baseline="central">s = 7 · 111₂</text>
+<text x="519" y="142" class="dff-t" dominant-baseline="central">{ a₀, a₁, a₂ }</text>
+</svg>
+<p class="dd-cap">s 的第 i 位是 1，就代表第 i 个元素被选中。</p>
+
+<h5 class="dd-h">三个必须记住的坑</h5>
+<p class="dd-lead"><b>坑 1：运算符优先级。</b><span class="mono">&amp;</span> 的优先级<b>低于</b>
+<span class="mono">==</span> 和 <span class="mono">!=</span>。所以：</p>
+
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">if (s & (1 << i) != 0)   // ✗ 错！等价于 s & ((1<<i) != 0)，也就是 s & 1
+if ((s & (1 << i)) != 0) // ✓ 对
+if (s >> i & 1)          // ✓ 对（>> 的优先级高于 &）</script></div>
+
+<p class="dd-lead">这就是为什么标准写法是 <span class="mono">s &gt;&gt; i &amp; 1</span> —— 少打括号还不容易写错。</p>
+<p class="dd-lead"><b>坑 2：<span class="mono">1 &lt;&lt; n</span> 会溢出。</b>
+<span class="mono">1</span> 是 <span class="mono">int</span>，当 n ≥ 31 时 <span class="mono">1 &lt;&lt; n</span>
+直接溢出成负数。本题 n ≤ 20 用不到，但养成习惯：<b>n 可能很大时写 <span class="mono">1LL &lt;&lt; n</span></b>。</p>
+<p class="dd-lead"><b>坑 3：为什么偏偏是 n ≤ 20？</b>这是竞赛里最关键的一个「手感」：</p>
+<ul class="tight">
+<li>n = 20 → 2²⁰ ≈ <b>10⁶</b>。如果每次验证是 O(1)，总共 10⁶，稳过；</li>
+<li>如果每次验证要 O(√V) 的质数判定（约 10⁴ 次），那 10⁶ × 10⁴ = <b>10¹⁰</b>，必炸。</li>
+</ul>
+<p class="dd-lead">所以「n ≤ 20 就能 2ⁿ 枚举」这句话有个<b>隐含前提</b>：单次验证足够便宜。
+看到 n ≤ 20 要先想 2ⁿ，但接着必须问自己「<b>验证一次要多久</b>」。</p>
+
+
+<h5 class="dd-h">四、模板②：只枚举 s 的子集 —— 把 4ⁿ 压成 3ⁿ</h5>
+
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">for (int s = 0; s < (1 << n); ++s)
+    for (int t = s; ; t = (t - 1) & s) {
+        /* 处理 s 的子集 t */
+        if (t == 0) break;
+    }</script></div>
+
+<p class="dd-lead"><b>它在干嘛？</b>面对「我在枚举一个集合 s，同时还要枚举 s 的所有子集 t」这类问题
+（例如「把 n 个物品分成三组」、「先选一个集合再从中选子集」），你当然可以写两层
+<span class="mono">0 ~ 2ⁿ</span> 的循环，但那样是 (2ⁿ)² = <b>4ⁿ</b>，n = 15 就 10⁹ 了，不行。</p>
+<p class="dd-lead">这段代码做的事是：<b>固定 s 之后，只在 s 的「内部」跳</b>，跳过所有不是 s 子集的 t。</p>
+<p class="dd-lead">关键在于 <span class="mono">t = (t - 1) &amp; s</span> 这一句。它的效果是：
+<b>按数值从大到小，依次生成 s 的下一个子集</b>。原理是「<span class="mono">t - 1</span> 会把 t 最低位的那个 1
+变成 0、把右边的 0 全变成 1」，再 <span class="mono">&amp; s</span> 一下，就只保留了仍然属于 s 的那些 1。</p>
+<p class="dd-lead">拿 s = 5（101₂，也就是 {a₀, a₂}）走一遍：</p>
+<ul class="tight">
+<li>t = 5 → 处理 → <span class="mono">(5-1) &amp; 5</span> = <span class="mono">4 &amp; 5</span> = 4</li>
+<li>t = 4 → 处理 → <span class="mono">(4-1) &amp; 5</span> = <span class="mono">3 &amp; 5</span> = 1</li>
+<li>t = 1 → 处理 → <span class="mono">(1-1) &amp; 5</span> = 0</li>
+<li>t = 0 → 处理 → 然后 <span class="mono">if (t == 0) break;</span> 退出</li>
+</ul>
+<p class="dd-lead">正好是 {a₀, a₂} 的全部 4 个子集：{ }、{a₀}、{a₂}、{a₀,a₂}，一个不多一个不少。
+注意 <span class="mono">break</span> 写在处理之后，所以 <b>t = 0 这个空集也会被处理到</b> —— 这个位置千万别挪。</p>
+<p class="dd-lead">那为什么总复杂度是 3ⁿ 而不是 4ⁿ？看这张图就懂了 —— 关键在于<b>对每个元素来说，它只有 3 种状态</b>：</p>
+
+<svg class="fig dff" viewBox="0 0 680 216" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>为什么总复杂度是 3 的 n 次方</title>
+<desc>每个元素相对外层集合 s 与内层子集 t 有三种归属状态，因此总组合数是 3 的 n 次方</desc>
+<rect x="260" y="20" width="160" height="52" rx="8" class="dff-b"/><text x="340" y="46" class="dff-t" text-anchor="middle" dominant-baseline="central">元素 aᵢ</text>
+<line x1="340" y1="72" x2="340" y2="100" class="dff-ar"/>
+<line x1="125" y1="100" x2="555" y2="100" class="dff-ar"/>
+<line x1="125" y1="100" x2="125" y2="136" class="dff-ar"/><path d="M125 136 l-3.3000000000000003 -6.0 l6.6000000000000005 0 z" class="dff-ah"/>
+<line x1="340" y1="100" x2="340" y2="136" class="dff-ar"/><path d="M340 136 l-3.3000000000000003 -6.0 l6.6000000000000005 0 z" class="dff-ah"/>
+<line x1="555" y1="100" x2="555" y2="136" class="dff-ar"/><path d="M555 136 l-3.3000000000000003 -6.0 l6.6000000000000005 0 z" class="dff-ah"/>
+<rect x="40" y="140" width="170" height="56" rx="8" class="dff-b"/><text x="125" y="159" class="dff-t" text-anchor="middle" dominant-baseline="central">不在 s 里</text><text x="125" y="178" class="dff-s" text-anchor="middle" dominant-baseline="central">状态 1</text>
+<rect x="255" y="140" width="170" height="56" rx="8" class="dff-ba"/><text x="340" y="159" class="dff-t" text-anchor="middle" dominant-baseline="central">在 s 里，不在 t 里</text><text x="340" y="178" class="dff-s" text-anchor="middle" dominant-baseline="central">状态 2</text>
+<rect x="470" y="140" width="170" height="56" rx="8" class="dff-bv"/><text x="555" y="159" class="dff-t" text-anchor="middle" dominant-baseline="central">在 s 里，也在 t 里</text><text x="555" y="178" class="dff-s" text-anchor="middle" dominant-baseline="central">状态 3</text>
+</svg>
+<p class="dd-cap">每个元素相对 s 与 t 只有三种归属，所以全部组合数是 3ⁿ。</p>
+
+<p class="dd-lead"><b>正式一点的证明</b>：固定一个 s，内层要跑 2<sup>|s|</sup> 次（|s| 是 s 里 1 的个数）。
+那么总次数就是所有 s 的 2<sup>|s|</sup> 之和。按「1 的个数」归并同类项：</p>
+<p class="dd-lead mono">Σ<sub>s</sub> 2<sup>|s|</sup> = Σ<sub>k=0..n</sub> C(n,k)·2<sup>k</sup> = (1+2)<sup>n</sup> = 3<sup>n</sup></p>
+<p class="dd-lead">最后一步是<b>二项式定理</b>：把 (1+2)ⁿ 展开，第 k 项正好是 C(n,k)·2ᵏ。
+所以 3ⁿ 不是凑出来的，是严格推出来的。n = 20 时 3²⁰ ≈ 3.5×10⁹ —— 偏大，实际用的时候一般 n ≤ 15 左右。</p>
+
+
+<h5 class="dd-h">五、模板③：二元组 + 前缀和 —— 把验证从 O(n) 压到 O(1)</h5>
+
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">long long ans = -1e18;
+for (int i = 1; i <= n; ++i)
+    for (int j = i; j <= n; ++j)
+        ans = max(ans, 1LL * (pre[j] - pre[i - 1]));   // pre 是前缀和</script></div>
+
+<p class="dd-lead">这是「求最大子段和 / 最大区间和」的暴力版本。<b>枚举的东西没变</b> —— 还是枚举所有区间
+<span class="mono">[i, j]</span>，共 O(n²) 个。变的是<b>验证代价</b>：</p>
+<ul class="tight">
+<li>朴素做法：对每个区间再 <span class="mono">for</span> 一遍求和 → O(n²) × O(n) = <b>O(n³)</b>；</li>
+<li>前缀和做法：先预处理 <span class="mono">pre[i] = a[1] + ... + a[i]</span>，那么
+<span class="mono">sum(i..j) = pre[j] - pre[i-1]</span>，<b>O(1)</b> 直接算出来 → 总共 <b>O(n²)</b>。</li>
+</ul>
+<p class="dd-lead">这就是卡片上那句「<b>用前缀和 / 哈希把验证降到 O(1)</b>」的意思。</p>
+<p class="dd-lead">三个新手细节：</p>
+<ul class="tight">
+<li><span class="mono">pre[0] = 0</span>，并且数组下标从 1 开始，这样 <span class="mono">pre[i-1]</span> 在 i = 1 时才不会越界；</li>
+<li><span class="mono">1LL * (...)</span> 里的 <span class="mono">LL</span> 是 <span class="mono">long long</span> 的后缀。
+写成 <span class="mono">1LL * x</span> 会先把 1 变成 long long 再做乘法，<b>避免 int 溢出</b> —— 这是竞赛里最常见的 WA 原因之一；</li>
+<li><span class="mono">-1e18</span> 是个 double 字面量，赋给 long long 时自动转换。当初值够用，但更稳的写法是
+<span class="mono">LLONG_MIN / 2</span>。原则是<b>初值必须比所有可能的答案都小</b>。</li>
+</ul>
+<p class="dd-lead"><b>顺带说说「换一个维度枚举」到底是什么</b>，这是最高级的一招。</p>
+<p class="dd-lead">题目：<b>求有多少对 i &lt; j 满足 a<sub>i</sub> + a<sub>j</sub> = S</b>。</p>
+<ul class="tight">
+<li>笨办法：枚举所有二元组 O(n²)，每组检查一次 → <b>O(n²)</b>；</li>
+<li>换维度：<b>枚举 j</b>，然后问「前面有多少个等于 S − a<sub>j</sub>」——
+用一个哈希表记录前面出现过的数，O(1) 查询 → 总共 <b>O(n)</b>。</li>
+</ul>
+<p class="dd-lead">枚举量从 n² 掉到 n。核心动作是把「枚举方案（二元组）」换成「枚举答案的一个端点 + 快速查另一个」。
+同一招，就是「两数之和」从暴力到最优的全部关键。</p>
+
+
+<h5 class="dd-h">六、模板④：剪枝 —— 不枚举那些「注定不行」的</h5>
+
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">if (best + possible_max <= ans) return;   // 最优性剪枝
+if (sum + suffix[i] < target) return;     // 可行性剪枝</script></div>
+
+<p class="dd-lead">搜索（DFS）本质也是枚举，只不过是把候选集合组织成一棵树，一个一个分支往下试。
+剪枝就是在树的中间砍掉一整棵子树：</p>
+<ul class="tight">
+<li><b>最优性剪枝</b>：我手上已经有答案 <span class="mono">ans</span> 了。如果「沿着当前分支往下，
+理论上能拿到的最好结果」（<span class="mono">best + possible_max</span>）都不如 <span class="mono">ans</span>，
+那这条分支就是白跑，直接 return；</li>
+<li><b>可行性剪枝</b>：目标是凑 <span class="mono">target</span>。剩下的数全都加上
+（<span class="mono">sum + suffix[i]</span>，<span class="mono">suffix[i]</span> 是后缀和）都够不着 target，
+那这分支也不可能成功，直接 return。</li>
+</ul>
+<p class="dd-lead"><b>剪枝的灵魂是「估计」</b> —— 你必须能算出一个「乐观上界 / 乐观下界」，
+才能判断值不值得继续。估计得越准，砍得越狠。</p>
+
+
+<h5 class="dd-h">七、例题精讲：洛谷 P1036 选数</h5>
+<div class="ex">
+<b>题意</b>：给 n 个数，从中选 k 个，问有多少种选法使它们的和为质数。（n ≤ 20）<br>
+<b>第一步 —— 想清楚候选集合是什么</b>：这是「从 n 个位置里选 k 个位置」，是一个<b>组合</b>问题。<br>
+<b>第二步 —— 用最粗暴的方式枚举</b>：<span class="mono">for (s = 0; s &lt; (1&lt;&lt;n); ++s)</span>，
+只要 s 里恰好有 k 个 1 就检查。n ≤ 20 → 2²⁰ ≈ 10⁶ 种，符合「看到 n ≤ 20 就想 2ⁿ」。<br>
+<b>第三步 —— 单次验证</b>：把选中的数加起来，再判质数。
+</div>
+<p class="dd-lead">两个必须注意的点：</p>
+<ul class="tight">
+<li><b>判质数要写对。</b>不要写 <span class="mono">for (i = 2; i &lt; s; ++i)</span> 的 O(s) 循环，
+要写 O(√s)：<span class="mono">for (i = 2; 1LL*i*i &lt;= s; ++i)</span>。否则 10⁶ × 10⁶ 直接超时；</li>
+<li><b>更快的写法是 DFS 枚举组合</b>，而不是枚举全部 2ⁿ 个子集。
+因为 C(20,10) = 184,756，比 2²⁰ = 1,048,576 少了 5 倍多。枚举子集写起来短，
+但会浪费大量时间在「1 的个数不等于 k」的集合上。</li>
+</ul>
+
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// DFS 枚举组合：只走「选够 k 个」的分支，天然不重复
+int n, k, x[25], cnt = 0;
+bool isprime(long long v){
+    if (v < 2) return false;
+    for (long long d = 2; d * d <= v; ++d)
+        if (v % d == 0) return false;
+    return true;
+}
+void dfs(int pos, int chosen, long long sum){
+    if (chosen == k){ if (isprime(sum)) ++cnt; return; }
+    if (n - pos < k - chosen) return;      // 剩下的数不够选了 → 剪枝
+    dfs(pos + 1, chosen + 1, sum + x[pos]);  // 选第 pos 个
+    dfs(pos + 1, chosen, sum);               // 不选第 pos 个
+}</script></div>
+
+<p class="dd-lead">这个对比很能说明问题 —— <b>同样是枚举，选对「枚举什么」就能省一个数量级</b>。
+下图是 n = 20 时几种做法的运算量（横轴是对数刻度，所以视觉上的差距远小于真实差距）：</p>
+
+<svg class="fig dff" viewBox="0 0 680 272" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>n 等于 20 时各做法的运算量对比</title>
+<desc>横轴为对数刻度：线性 20 次，平方 400 次，组合枚举约 18.5 万，子集枚举约 105 万，子集套子集约 34.9 亿</desc>
+<text x="142" y="46" class="dff-t" text-anchor="end" dominant-baseline="central">O(n)</text>
+<rect x="152" y="34" width="54.5" height="24" rx="4" class="dff-bo"/>
+<text x="214.5" y="46" class="dff-s" dominant-baseline="central">20 次</text>
+<text x="142" y="90" class="dff-t" text-anchor="end" dominant-baseline="central">O(n²)</text>
+<rect x="152" y="78" width="109.1" height="24" rx="4" class="dff-bo"/>
+<text x="269.1" y="90" class="dff-s" dominant-baseline="central">400 次</text>
+<text x="142" y="134" class="dff-t" text-anchor="end" dominant-baseline="central">C(20,10)</text>
+<rect x="152" y="122" width="220.8" height="24" rx="4" class="dff-bo"/>
+<text x="380.8" y="134" class="dff-s" dominant-baseline="central">约 18.5 万</text>
+<text x="142" y="178" class="dff-t" text-anchor="end" dominant-baseline="central">2ⁿ 子集枚举</text>
+<rect x="152" y="166" width="252.4" height="24" rx="4" class="dff-bw"/>
+<text x="412.4" y="178" class="dff-s" dominant-baseline="central">约 105 万</text>
+<text x="142" y="222" class="dff-t" text-anchor="end" dominant-baseline="central">3ⁿ 子集套子集</text>
+<rect x="152" y="210" width="400.0" height="24" rx="4" class="dff-bd"/>
+<text x="560.0" y="222" class="dff-s" dominant-baseline="central">约 34.9 亿</text>
+<line x1="152" y1="26" x2="152" y2="254" class="dff-ln"/>
+</svg>
+<p class="dd-cap">横轴为对数刻度：线性 20 次、平方 400 次、组合枚举 18.5 万、子集枚举 105 万、子集套子集 34.9 亿。</p>
+
+<h5 class="dd-h">八、我给你一张「看约束猜算法」的对照表</h5>
+<p class="dd-lead">竞赛里九成的思路，是从题目给的 n 范围倒推出来的。这张表早点背下来：</p>
+<table>
+<thead><tr><th>看到 n 的范围</th><th>该想什么</th></tr></thead>
+<tbody>
+<tr><td class="num">n ≤ 10</td><td>阶乘级：全排列、3ⁿ、2ⁿ 随便跑</td></tr>
+<tr><td class="num">n ≤ 20</td><td>2ⁿ 子集枚举（<b>先确认单次验证够快</b>）</td></tr>
+<tr><td class="num">n ≤ 500</td><td>O(n³) 还行</td></tr>
+<tr><td class="num">n ≤ 5000</td><td>O(n²)，配前缀和</td></tr>
+<tr><td class="num">n ≤ 2×10⁵</td><td>O(n log n)，必须换维度 / 哈希 / 二分</td></tr>
+<tr><td class="num">n ≤ 10⁷</td><td>O(n) 线性扫一遍</td></tr>
+</tbody>
+</table>
+<div class="callout ok">
+<p><b>这一节要练成的条件反射：</b>看到 n ≤ 20 就想 2ⁿ 位运算；看到「一对 / 两个数」就想前缀和或哈希换维度；
+看到搜索树就想能不能剪枝。这三条反射练出来，枚举这一关就过了。</p>
+</div>
+
+
+<h5 class="dd-h">九、题单怎么刷（按这个顺序，别按题目编号）</h5>
+<ol class="tight">
+<li><b>P1008 三连击</b> —— 最基础的暴力，零门槛，先建立「枚举 + 验证」的手感；</li>
+<li><b>P1036 选数</b> —— 本题，练子集枚举 + 判质数，<b>再用 DFS 写一遍对比效率</b>；</li>
+<li><b>P1157 组合的输出</b> / <b>P1706 全排列问题</b> —— 转去练 DFS 枚举组合 / 排列。
+这一步是后面搜索（DFS / 回溯）的入口，非常重要；</li>
+<li><b>P1618 三连击（升级版）</b> —— 稍难，练「枚举 + 剪枝」；</li>
+<li><b>CF 800~1000 分段</b> —— 刷手感，目标是「读完题 30 秒内说出枚举什么」。</li>
+</ol>
+<p class="tl"><b>题单</b> 洛谷 P1008 三连击 · P1036 选数 · P1157 组合的输出 · P1618 三连击（升级版） · P1706 全排列问题 · CF 800~1000 分段题目。</p>
+<p class="ref"><b>资料</b> 《算法竞赛入门经典（第 2 版）》第 1~2 章；OI-Wiki「枚举」。先把<b>位运算</b>和<b>复杂度估算</b>两节读透，这一页的内容就再也不会卡了。</p>
+
+</div>
+</details>
+</article>
+
+<article class="algo" id="hb-2" data-cat="入门" data-kind="entry" data-name="模拟 实现"><div class="ah"><h4>2. 模拟</h4><span class="lv lv-e">入门</span><span class="st">★</span><span class="tag">实现</span><span class="ddchip">详解</span><a class="prac" href="practice.html#P1540" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
 <p class="idea"><b>本质</b>：把题目描述<b>无损地直译</b>成代码。它考察的是「把自然语言规则翻译成状态机」的能力，是「代码量失败」的主要来源。</p>
 <p class="meta"><b>要点</b>：①写前先用文字/流程图把规则列全；②明确状态变量含义与初值；③时间推进类问题按「事件」跳跃而不是逐时刻模拟；④注意取模、边界、多测清空。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 模拟题的通用套路：状态 + 事件
@@ -826,9 +1165,184 @@ for(int d = 0; d < 4; d++){
 <div class="ex"><b>例题</b>：洛谷 P1563 玩具谜题 —— 一圈小人，朝内/朝外 + 向左/向右，走若干步问你最后站在谁面前。核心就是上面那两行取模：<b>朝内 + 向左 = 顺时针 = pos + step，朝外 + 向左 = 逆时针 = pos − step</b>。把四种组合列成一张表，代码就是抄表。</div>
 <p><b>四步法</b>：① 用文字把规则<b>全部列出来</b>（包括你以为是废话的那些）；② 确定状态变量及其初值、含义；③ 确定推进方式（时间驱动 or 事件驱动）；④ 手工模拟一遍样例，确认逻辑。</p>
 <p class="tl"><b>题单</b> 洛谷 P1042 乒乓球 · P1563 玩具谜题 · P1067 多项式输出 · P1328 生活大爆炸版石头剪刀布 · P4924 魔法少女小Scarlet · CF 1100~1300 分模拟题。</p>
-<p class="ref"><b>资料</b> OI-Wiki「模拟」；Codeforces 上 Div.3 的 A/B 题基本都是高质量模拟训练。</p></article>
+<p class="ref"><b>资料</b> OI-Wiki「模拟」；Codeforces 上 Div.3 的 A/B 题基本都是高质量模拟训练。</p>
+<details class="fold deep" id="hb-2-deep">
+<summary>深入讲解 · 模拟：把题面一字不差地翻译成代码<span class="sum-note">这一篇没有算法，只有「翻译」</span></summary>
+<div class="fold-body">
 
-<article class="algo" id="hb-3" data-cat="入门" data-kind="entry" data-name="递归 记忆化 搜索 分治"><div class="ah"><h4>3. 递归</h4><span class="lv lv-e">入门</span><span class="st">★</span><span class="tag">思维</span><a class="prac" href="practice.html#P1219" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<h5 class="dd-h">一、模拟题为什么最容易写错</h5>
+<p class="dd-lead">模拟题不考算法，它考的是<b>一件事：把自然语言规则，无损地翻译成状态机</b>。
+所有「代码量失败」都出在这里 —— 你写出来的东西，和题面描述的不是同一件事。</p>
+<p class="dd-lead">举个最典型的例子。题面说「小明从 1 号开始，每次往后数 <b>k</b> 个人」。
+你的代码写 <span class="mono">pos += k;</span>。看起来没问题，但：</p>
+<ul class="tight">
+<li>「从 1 号开始」——1 号本人算不算第一个人？</li>
+<li>「往后数 k 个人」——数到的是第 k 个，还是数 k 次之后的那个？</li>
+<li>数到末尾要不要绕回开头？</li>
+</ul>
+<p class="dd-lead">这三个问题，题面里一定都写了答案，但很可能写在三个不同的段落后半句。
+模拟题丢分从来不是「不会」，而是<b>漏读一句</b>。</p>
+
+
+<h5 class="dd-h">二、四步法：先想清楚，再动手</h5>
+<p class="dd-lead">下边这四步顺序不要颠倒。第三步和第四步之间，才是写代码的地方。</p>
+
+<svg class="fig dff" viewBox="0 0 680 252" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>模拟题的四步法</title>
+<desc>先列规则、再定状态、再定推进方式、最后手工跑样例，四步做完再写代码</desc>
+<text x="40" y="18" class="dff-s" dominant-baseline="central">模拟题的通用四步：把题面拆成一张「输入 → 新状态」的表</text>
+<rect x="40" y="40" width="44" height="32" rx="6" class="dff-b"/>
+<text x="62" y="56" class="dff-t" text-anchor="middle" dominant-baseline="central">1</text>
+<rect x="96" y="40" width="544" height="32" rx="6" class="dff-b"/>
+<text x="112" y="56" class="dff-t" dominant-baseline="central">写前先用文字把规则全部列出来</text>
+<rect x="40" y="80" width="44" height="32" rx="6" class="dff-ba"/>
+<text x="62" y="96" class="dff-t" text-anchor="middle" dominant-baseline="central">2</text>
+<rect x="96" y="80" width="544" height="32" rx="6" class="dff-b"/>
+<text x="112" y="96" class="dff-t" dominant-baseline="central">定状态变量：含义、初值、更新时机</text>
+<rect x="40" y="120" width="44" height="32" rx="6" class="dff-bo"/>
+<text x="62" y="136" class="dff-t" text-anchor="middle" dominant-baseline="central">3</text>
+<rect x="96" y="120" width="544" height="32" rx="6" class="dff-b"/>
+<text x="112" y="136" class="dff-t" dominant-baseline="central">定推进方式：逐时刻，还是按事件跳跃</text>
+<rect x="40" y="160" width="44" height="32" rx="6" class="dff-bv"/>
+<text x="62" y="176" class="dff-t" text-anchor="middle" dominant-baseline="central">4</text>
+<rect x="96" y="160" width="544" height="32" rx="6" class="dff-b"/>
+<text x="112" y="176" class="dff-t" dominant-baseline="central">手工跑一遍样例，逐格核对</text>
+<line x1="96" y1="208" x2="96" y2="232" class="dff-ar"/>
+<text x="120" y="232" class="dff-s" dominant-baseline="central">四步做完再动手写代码，能省掉一多半调试时间</text>
+</svg>
+<p class="dd-cap">先把规则写成一张表，再动手写代码。</p>
+
+<h5 class="dd-h">三、两个必须背下来的实现套路</h5>
+<p class="dd-lead">模拟题里出现的所有「绕圈」和「走路」，都逃不出下面这两个写法：</p>
+
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 环形数组的取模 ----------
+pos = (pos + 1) % n;                 // 向后走一格，到末尾自动绕回 0
+pos = (pos - 1 + n) % n;             // 向前走一格：先加 n 再取模，负数也能绕回
+
+// ---------- 方向数组：网格走路的标准写法 ----------
+int dx[4] = {0, 0, 1, -1};
+int dy[4] = {1, -1, 0, 0};
+for (int d = 0; d < 4; ++d) {
+    int nx = x + dx[d], ny = y + dy[d];
+    if (nx < 1 || nx > n || ny < 1 || ny > m) continue;   // 越界判断永远放最前面
+    /* 处理 (nx, ny) */
+}</script></div>
+<svg class="fig dff" viewBox="0 0 680 252" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>环形数组与方向数组</title>
+<desc>数组首尾相接时用取模绕回；网格走路用两个常量数组表示四个方向</desc>
+<rect x="60" y="40" width="46" height="40" rx="8" class="dff-b"/>
+<text x="83" y="60" class="dff-t" text-anchor="middle" dominant-baseline="central">0</text>
+<rect x="122" y="40" width="46" height="40" rx="8" class="dff-b"/>
+<text x="145" y="60" class="dff-t" text-anchor="middle" dominant-baseline="central">1</text>
+<rect x="184" y="40" width="46" height="40" rx="8" class="dff-b"/>
+<text x="207" y="60" class="dff-t" text-anchor="middle" dominant-baseline="central">2</text>
+<rect x="246" y="40" width="46" height="40" rx="8" class="dff-ba"/>
+<text x="269" y="60" class="dff-acc" text-anchor="middle" dominant-baseline="central">3</text>
+<rect x="308" y="40" width="46" height="40" rx="8" class="dff-b"/>
+<text x="331" y="60" class="dff-t" text-anchor="middle" dominant-baseline="central">4</text>
+<rect x="370" y="40" width="46" height="40" rx="8" class="dff-b"/>
+<text x="393" y="60" class="dff-t" text-anchor="middle" dominant-baseline="central">5</text>
+<rect x="432" y="40" width="46" height="40" rx="8" class="dff-b"/>
+<text x="455" y="60" class="dff-t" text-anchor="middle" dominant-baseline="central">6</text>
+<rect x="494" y="40" width="46" height="40" rx="8" class="dff-b"/>
+<text x="517" y="60" class="dff-t" text-anchor="middle" dominant-baseline="central">7</text>
+<text x="40" y="110" class="dff-m" dominant-baseline="central">pos = (pos + 1) % n</text>
+<text x="40" y="136" class="dff-m" dominant-baseline="central">pos = (pos - 1 + n) % n   ← 加 n 是为了让负数也能绕回</text>
+<rect x="40" y="160" width="600" height="74" rx="8" class="dff-b"/>
+<text x="56" y="182" class="dff-t" dominant-baseline="central">方向数组（网格走路的标准写法）</text>
+<text x="56" y="206" class="dff-m" dominant-baseline="central">int dx[4] = {0, 0, 1, -1};   int dy[4] = {1, -1, 0, 0};</text>
+<text x="56" y="228" class="dff-s" dominant-baseline="central">下标 0~3 依次是「右 / 左 / 下 / 上」，nx = x + dx[d]</text>
+</svg>
+<p class="dd-cap">环形取模与方向数组：模拟题里所有「绕圈」和「走路」都逃不出这两个写法。</p>
+
+<p class="dd-lead"><b>为什么往前的那个要写成 <span class="mono">(pos - 1 + n) % n</span>？</b>
+因为在 C++ 里 <span class="mono">-1 % 5</span> 的结果是 <b>-1</b> 而不是 4 —— C++ 的取模结果符号跟被除数走。
+先加一个 n 把它抬成非负数，再取模就对了。这一行不知道坑掉过多少人。</p>
+<p class="dd-lead"><b>方向数组为什么要写成两个数组？</b>因为把「右下左上」这四个方向编码成下标 0~3 之后，
+遍历方向就变成了一句 <span class="mono">for (int d = 0; d &lt; 4; ++d)</span>，
+以后要加对角线方向（八联通）只需要把数组改成 8 个元素，循环条件改一个数字 —— 不用动任何别的代码。</p>
+
+
+<h5 class="dd-h">四、例题精讲：洛谷 P1563 玩具谜题</h5>
+<div class="ex">
+<b>题意</b>：一圈玩具小人，每个小人朝<b>圈内</b>或朝<b>圈外</b>。给 m 条指令，每条是
+「<b>向左 / 向右</b>数 <b>s</b> 个人」。问最后站在谁面前。<br>
+<b>难点</b>：小人朝向不同，「向左数」在圈上的实际移动方向是<b>反的</b>。
+</div>
+<p class="dd-lead">先别急着写代码，按四步法的第一步 —— <b>把规则全部列出来</b>：</p>
+<table>
+<thead><tr><th>小人的朝向</th><th>指令方向</th><th>在圈上实际怎么走</th></tr></thead>
+<tbody>
+<tr><td class="num">朝内</td><td class="num">向左</td><td>顺时针 → <span class="mono">pos + s</span></td></tr>
+<tr><td class="num">朝内</td><td class="num">向右</td><td>逆时针 → <span class="mono">pos − s</span></td></tr>
+<tr><td class="num">朝外</td><td class="num">向左</td><td>逆时针 → <span class="mono">pos − s</span></td></tr>
+<tr><td class="num">朝外</td><td class="num">向右</td><td>顺时针 → <span class="mono">pos + s</span></td></tr>
+</tbody>
+</table>
+<p class="dd-lead">看出规律了吗？<b>四行里只有两种结果，而分界线是「朝向是否等于指令方向」</b>：
+相等就加，不等就减。于是四种情况压缩成一行：</p>
+
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// 朝向 0 = 朝内，1 = 朝外；指令 0 = 向左，1 = 向右
+if (face[cur] == dir) cur = (cur + s) % n;        // 朝向与指令相同 → 顺时针
+else                  cur = ((cur - s) % n + n) % n;  // 否则 → 逆时针
+
+// 更短的写法：把「加 / 减」也塞进表达式
+int step = (face[cur] == dir) ? s : -s;
+cur = ((cur + step) % n + n) % n;</script></div>
+
+<p class="dd-lead">把表列完，代码就是<b>抄表</b>。这就是四步法里第一步的价值 ——
+它把「边写边想」变成了「想完再抄」。</p>
+<div class="callout warn">
+<p><b>注意最后那层 <span class="mono">((x % n) + n) % n</span>：</b>题目里 s 可能比 n 大得多，
+也可能为负，套两层括号才能保证结果一定落在 <span class="mono">[0, n)</span> 里。
+这是所有「环形 + 步数」类模拟题的通用收尾。</p>
+</div>
+
+
+<h5 class="dd-h">五、时间推进：逐时刻，还是按事件跳</h5>
+<p class="dd-lead">模拟题的第二个分水岭，是<b>时间怎么推进</b>。</p>
+<p class="dd-lead">比如一题说「第 0 秒开始，每 3 秒 A 变化一次，每 5 秒 B 变化一次，问第 10⁹ 秒的状态」。<br>
+如果你写 <span class="mono">for (t = 0; t &lt;= 1e9; ++t)</span> —— 10⁹ 次循环，写法没错但一定会超时。</p>
+<p class="dd-lead">正确做法是<b>事件驱动</b>：只关心「状态发生变化」的时刻。</p>
+<ul class="tight">
+<li>把所有会变的时间点算出来（3 的倍数、5 的倍数），排序后逐个处理；</li>
+<li>两个事件之间的「这段时间状态不变」，可以整段跳过去；</li>
+<li>如果题面说「同一时刻多个事件，规则 X 优先」，那排序的比较函数里要带上优先级 ——
+这是模拟题里最容易被忽略的一句话。</li>
+</ul>
+
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">struct Event { long long t; int type, id; };
+// 按 t 排序；t 相同时用 type 决定先后（题面一定会给这个约定）
+sort(ev, ev + cnt, [](const Event& a, const Event& b){
+    if (a.t != b.t) return a.t < b.t;
+    return a.type < b.type;          // 同一时刻的先后，看题面怎么规定
+});
+for (int i = 0; i < cnt; ++i) { /* 处理 ev[i] */ }</script></div>
+
+<h5 class="dd-h">六、坑清单（写完对着扫一遍）</h5>
+<ul class="tight">
+<li><b>循环边界</b>：是闭区间还是半开区间？下标从 0 还是 1 开始？写之前先定死，别中途改；</li>
+<li><b>取模结果可能为负</b>：统一写 <span class="mono">(x % MOD + MOD) % MOD</span>；</li>
+<li><b>多组数据要清空</b>：全局数组、<span class="mono">vector</span>、<span class="mono">map</span>
+在每组数据开始前都得重置 —— 这是「多测不清空，爆零两行泪」的来源；</li>
+<li><b>输入格式</b>：可能有空行、多余空格、行尾的 <span class="mono">\r</span>。
+用 <span class="mono">cin &gt;&gt;</span> 或 <span class="mono">scanf("%d")</span> 会自动跳过空白，比
+<span class="mono">getline</span> 省心；</li>
+<li><b>输出格式</b>：行末有没有多余空格？每组之间要不要空行？最后有没有漏换行？
+模拟题对输出格式的容忍度是 0。</li>
+</ul>
+<div class="callout vio">
+<p><b>一个能省一半调试时间的习惯：</b>拿样例手推一遍的时候，<b>在纸上把每个状态变量列成表</b>，
+每一步都写清楚。推完再写代码 —— 这时你写的不是"我的理解"，而是"题面的规则"。</p>
+</div>
+<p class="tl"><b>题单</b> 洛谷 P1042 乒乓球 · P1563 玩具谜题 · P1067 多项式输出 · P1328 生活大爆炸版石头剪刀布 · P4924 魔法少女小Scarlet · CF 1100~1300 分模拟题。</p>
+<p class="ref"><b>资料</b> OI-Wiki「模拟」；Codeforces 上 Div.3 的 A / B 题基本都是高质量的模拟训练。</p>
+
+</div>
+</details>
+</article>
+
+<article class="algo" id="hb-3" data-cat="入门" data-kind="entry" data-name="递归 记忆化 搜索 分治"><div class="ah"><h4>3. 递归</h4><span class="lv lv-e">入门</span><span class="st">★</span><span class="tag">思维</span><span class="ddchip">详解</span><a class="prac" href="practice.html#P1219" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
 <p class="idea"><b>本质</b>：把规模为 n 的问题化为规模更小的同类问题。三要素：<b>参数含义</b>（函数在语义上代表什么）、<b>边界条件</b>、<b>递推关系</b>。递归是 DP、分治、搜索、树形结构的共同语言。</p>
 <p class="meta"><b>复杂度</b>：由递归树节点数决定；不加记忆化常常指数级，加记忆化后转化为 DP。递归深度过大需改写成显式栈或增加栈空间。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 模板一：递归求值 / 递归枚举
@@ -885,9 +1399,129 @@ long long fib(int n){
         <b>② 递归太深。</b>深度超过 10⁵ 层就会爆栈。解决办法：改写成迭代 / 显式栈，或者提高编译栈空间（<code>-Wl,--stack=268435456</code>）。</p>
       </div>
 <p class="tl"><b>题单</b> 洛谷 P1255 数楼梯 · P1036 选数 · P1464 Function（记忆化） · P1028 数的计算 · P1228 地毯填补问题（分治式递归） · P1044 栈（卡塔兰数）。</p>
-<p class="ref"><b>资料</b> OI-Wiki「递归 & 分治」；《算法竞赛进阶指南》0x03 节。</p></article>
+<p class="ref"><b>资料</b> OI-Wiki「递归 & 分治」；《算法竞赛进阶指南》0x03 节。</p>
+<details class="fold deep" id="hb-3-deep">
+<summary>深入讲解 · 递归：把大问题交给「规模更小的自己」<span class="sum-note">递归的三要素 + 为什么会指数爆炸</span></summary>
+<div class="fold-body">
 
-<article class="algo" id="hb-4" data-cat="入门" data-kind="entry" data-name="前缀和 差分 二维前缀和 树上差分"><div class="ah"><h4>4. 前缀和与差分</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">高频</span><a class="prac" href="practice.html#P2367" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<h5 class="dd-h">一、先想明白一件事：递归不是「函数调用自己」</h5>
+<p class="dd-lead">「函数调用自己」是递归的<b>语法</b>，不是它的<b>思想</b>。真正的思想是一句话：</p>
+<div class="dd-q"><b>如果我知道了「规模更小的同一个问题」的答案，我能不能拼出当前这个问题的答案？</b></div>
+<p class="dd-lead">举个例子。我问你「n! 是多少」，你答不上来；但我换个问法：「如果你已经知道 (n−1)! 是多少，
+n! 怎么算？」你立刻就能答：<b>乘以 n 就行</b>。这就是递归。</p>
+<p class="dd-lead">所以写递归永远只做三件事，顺序也不能变：</p>
+<ol class="tight">
+<li><b>语义</b> —— 我这个函数的<b>参数</b>和<b>返回值</b>，用一句话说清楚代表什么。
+例如「<span class="mono">fib(n)</span> 返回第 n 项斐波那契数」。这一句不说清楚，边界一定会写错；</li>
+<li><b>边界</b> —— 最小规模（不用再递归）的答案是多少。例如 <span class="mono">fib(0) = 0, fib(1) = 1</span>；</li>
+<li><b>递推</b> —— 大问题怎么由小问题拼出来。例如 <span class="mono">fib(n) = fib(n-1) + fib(n-2)</span>。</li>
+</ol>
+<p class="dd-lead">绝大多数人的递归写错，不是第三点写错，而是<b>第一点根本没想</b>。</p>
+
+
+<h5 class="dd-h">二、递归树：为什么朴素递归会「指数爆炸」</h5>
+<p class="dd-lead">看最经典的例子 <span class="mono">fib(5)</span> 展开成什么样子：</p>
+
+<svg class="fig dff" viewBox="0 0 680 258" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>朴素递归与记忆化的差距</title>
+<desc>朴素递归里 fib(3) 被重复计算多次，总调用量指数级；加记忆化后每个规模只算一次</desc>
+<line x1="340" y1="76" x2="220" y2="116" class="dff-ln"/>
+<line x1="340" y1="76" x2="460" y2="116" class="dff-ln"/>
+<line x1="220" y1="76" x2="300" y2="116" class="dff-ln"/>
+<line x1="220" y1="76" x2="460" y2="116" class="dff-ln"/>
+<rect x="310" y="116" width="60" height="34" rx="8" class="dff-b"/>
+<text x="340" y="133" class="dff-t" text-anchor="middle" dominant-baseline="central">fib(5)</text>
+<rect x="190" y="116" width="60" height="34" rx="8" class="dff-b"/>
+<text x="220" y="133" class="dff-t" text-anchor="middle" dominant-baseline="central">fib(4)</text>
+<rect x="430" y="116" width="60" height="34" rx="8" class="dff-bd"/>
+<text x="460" y="133" class="dff-t" text-anchor="middle" dominant-baseline="central">fib(3)</text>
+<rect x="270" y="116" width="60" height="34" rx="8" class="dff-bd"/>
+<text x="300" y="133" class="dff-t" text-anchor="middle" dominant-baseline="central">fib(2)</text>
+<rect x="510" y="116" width="60" height="34" rx="8" class="dff-b"/>
+<text x="540" y="133" class="dff-t" text-anchor="middle" dominant-baseline="central">fib(1)</text>
+<rect x="60" y="30" width="190" height="34" rx="8" class="dff-bd"/>
+<text x="155" y="47" class="dff-t" text-anchor="middle" dominant-baseline="central">fib(3) 被算了 2 次</text>
+<rect x="270" y="30" width="190" height="34" rx="8" class="dff-bd"/>
+<text x="365" y="47" class="dff-t" text-anchor="middle" dominant-baseline="central">fib(2) 被算了 3 次</text>
+<text x="500" y="47" class="dff-s" dominant-baseline="central">→ 3.3×10⁸ 次调用</text>
+<line x1="40" y1="176" x2="640" y2="176" class="dff-ln"/>
+<rect x="60" y="196" width="560" height="40" rx="8" class="dff-bo"/>
+<text x="340" y="216" class="dff-t" text-anchor="middle" dominant-baseline="central">加一行 if (vis[n]) return memo[n];  每个 n 只算一次 → 40 次调用</text>
+</svg>
+<p class="dd-cap">朴素递归里 fib(3) 被重复计算，总调用量指数级；加记忆化后每个规模只算一次。</p>
+
+<p class="dd-lead"><span class="mono">fib(3)</span> 被算了 <b>2 次</b>，<span class="mono">fib(2)</span> 被算了
+<b>3 次</b>，而它们每次的答案<b>完全一样</b>。这就是浪费的来源。</p>
+<p class="dd-lead">规模一大就非常恐怖：<span class="mono">fib(40)</span> 朴素递归要调用约
+<b>3.3×10⁸</b> 次；而加一行记忆化之后，每个 n 只算一次，<b>总共 40 次</b>。
+同一段递归，一个超时一个秒过，差别只在于「有没有把算过的答案存下来」。</p>
+
+
+<h5 class="dd-h">三、两套模板：朴素递归 与 记忆化搜索</h5>
+
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// 模板一：朴素递归 —— 无记忆化，指数级，只能算很小的 n
+long long fib(int n){
+    if (n <= 1) return n;               // 边界
+    return fib(n - 1) + fib(n - 2);     // 递推
+}
+
+// 模板二：记忆化搜索 —— 递归 + 缓存，也就是「自顶向下的 DP」
+long long memo[100];
+bool vis[100];
+long long fib(int n){
+    if (n <= 1) return n;
+    if (vis[n]) return memo[n];         // ① 先查缓存
+    vis[n] = true;
+    return memo[n] = fib(n - 1) + fib(n - 2);   // ② 算完立刻存起来
+}</script></div>
+
+<p class="dd-lead"><b>记忆化的含义要想透</b>：所谓「自顶向下的 DP」，就是「我要算 <span class="mono">fib(40)</span>」，
+但我<u>不去按 0、1、2…40 的顺序填表</u>，而是<u>从 40 出发，需要谁就算谁，算完记下来</u>。
+两者算的是同一张表，只是遍历顺序相反。</p>
+<div class="callout vio">
+<p><b>看到「重复子问题」这五个字，就该想到记忆化。</b>判断方法：把递归树画两层，
+如果出现两个<b>长得一模一样</b>的节点（参数相同），那么它就是重复子问题。</p>
+</div>
+
+
+<h5 class="dd-h">四、例题精讲：洛谷 P1255 数楼梯</h5>
+<div class="ex">
+<b>题意</b>：楼梯有 n 阶，每次可以跨 1 阶或 2 阶，问有多少种走法。<br>
+<b>第一步 —— 定义语义</b>：设 <span class="mono">f(n)</span> 表示「走到第 n 阶的走法数」。<br>
+<b>第二步 —— 边界</b>：<span class="mono">f(1) = 1</span>（只能跨 1 阶），<span class="mono">f(2) = 2</span>（1+1 或 2）。<br>
+<b>第三步 —— 递推</b>：最后一步只有两种可能 —— 从第 n−1 阶跨 1 阶上来，或从第 n−2 阶跨 2 阶上来。
+所以 <b><span class="mono">f(n) = f(n-1) + f(n-2)</span></b>。
+</div>
+<p class="dd-lead">看出来了吗？<b>这题的递推式和斐波那契一模一样</b>，只是换了起始值。
+竞赛里大量「数方案」的题，最后都会落到这种「最后一步分类讨论」的思路上 —— 这就是「线性 DP」的起点。</p>
+<div class="callout warn">
+<p><b>P1255 的额外坑：n 可以到 5000，答案是天文数字，<span class="mono">long long</span> 存不下。</b>
+要么写高精度（数组存每一位），要么用 Python 大整数。这是这道题真正的考点 ——
+<b>先想清楚「答案有多大」</b>，再决定用什么类型存。</p>
+</div>
+
+
+<h5 class="dd-h">五、两个必须躲开的坑</h5>
+<ul class="tight">
+<li><b>① 忘记写边界。</b>递归会一直往下钻，直到栈空间被吃光 —— 结果是 RE（运行错误），
+而且报错位置往往指不到你真正出错的那一行；</li>
+<li><b>② 递归太深。</b>深度超过 10⁵ 层左右就会爆栈。三条出路：
+改成迭代 / 显式栈；把递归改写成从小到大的递推（DP）；或者提高编译栈空间
+<span class="mono">-Wl,--stack=268435456</span>。</li>
+</ul>
+<div class="callout ok">
+<p><b>一个实用的检查顺序</b>：写完递归先别跑，盯着代码问自己三句话 ——
+「最小时会不会停？」「每一层的参数有没有变小？」「同一个参数会不会算两次？」。
+前两问防 RE，第三问防超时。</p>
+</div>
+<p class="tl"><b>题单</b> 洛谷 P1255 数楼梯 · P1036 选数 · P1464 Function（记忆化） · P1028 数的计算 · P1228 地毯填补问题（分治式递归） · P1044 栈（卡塔兰数）。</p>
+<p class="ref"><b>资料</b> OI-Wiki「递归 &amp; 分治」；《算法竞赛进阶指南》0x03 节。递归硬了，后面三块（搜索、分治、树形 DP）会一起变简单。</p>
+
+</div>
+</details>
+</article>
+
+<article class="algo" id="hb-4" data-cat="入门" data-kind="entry" data-name="前缀和 差分 二维前缀和 树上差分"><div class="ah"><h4>4. 前缀和与差分</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">高频</span><span class="ddchip">详解</span><a class="prac" href="practice.html#P2367" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
 <p class="idea"><b>本质</b>：前缀和把「区间求和」变成「两次单点查询」；差分把「区间修改」变成「两次单点修改」。二者互为逆运算，是<b>离线区间操作</b>的第一把钥匙。</p>
 <p class="meta"><b>复杂度</b>：预处理 O(n)，单次询问/修改 O(1)。进阶延伸：二维差分、树上差分（点差分/边差分）、差分约束。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 一维前缀和 ----------
@@ -949,10 +1583,184 @@ d[x1][y2+1]   -= v;   d[x2+1][y2+1] += v;
 <div class="ex"><b>例题</b>：数组 <code>[1,2,3,4,5]</code>，依次执行「[1,3] 各 +2」「[2,5] 各 −1」，求最终数组与最小值。<br>
       差分写法：<code>d[1]+=2, d[4]-=2; d[2]-=1, d[6]+=1</code>，前缀还原后得到 <code>[3, 3, 4, 3, 4]</code>，最小值 <b>3</b>（已用独立实现跑过）。若用暴力循环修改，每次 O(n)，区间多时直接超时。</div>
 <p class="tl"><b>题单</b> 洛谷 P1114 最大子段和变形 · P1387 最大正方形 · P1719 最大加权矩形 · P2367 语文成绩 · P3406 海底高铁 · P4231 三步必杀（二阶差分） · P3258 松鼠的新家（树上差分）。</p>
-<p class="ref"><b>资料</b> OI-Wiki「前缀和 & 差分」；AcWing「算法基础课」第一章。</p></article>
+<p class="ref"><b>资料</b> OI-Wiki「前缀和 & 差分」；AcWing「算法基础课」第一章。</p>
+<details class="fold deep" id="hb-4-deep">
+<summary>深入讲解 · 前缀和与差分：一对互为逆运算的「记账」技巧<span class="sum-note">区间问题的第一把钥匙</span></summary>
+<div class="fold-body">
+
+<h5 class="dd-h">一、先从「求区间和」说起</h5>
+<p class="dd-lead">题目：给一个数组，之后有 <b>10 万次</b>询问，每次问「第 l 个到第 r 个的和」。</p>
+<p class="dd-lead">最直白的写法是每次询问都 <span class="mono">for (i = l; i &lt;= r; ++i) sum += a[i]</span>。
+单次 O(n)，10 万次就是 10¹⁰ —— 超时。问题出在<b>每次都在重复算同一段前缀</b>。</p>
+<p class="dd-lead">那就在最开始把「所有前缀的和」一次算完，存进另一个数组：</p>
+<div class="dd-q"><b>pre[i] = a[1] + a[2] + ... + a[i]</b>，预处理 O(n)。<br>
+之后任何区间和 <b>sum(l, r) = pre[r] − pre[l−1]</b>，一次减法，O(1)。</div>
+<p class="dd-lead">这是「<b>用一次预处理，换掉之后所有重复计算</b>」的第一次出场 ——
+后面你会反复见到这个套路（排序、离散化、ST 表、莫队……都是同一个想法）。</p>
+
+
+<h5 class="dd-h">二、差分：把同一件事反过来想</h5>
+<p class="dd-lead">现在把问题反过来：不是「问你区间和」，而是「<b>给 10 万次区间加，最后问每个位置是多少</b>」。</p>
+<p class="dd-lead">朴素做法：每次把区间里每个数都加上 v，单次 O(区间长) → 又是 10¹⁰。</p>
+<p class="dd-lead">差分的思想是：<b>不要在区间里每个位置都改，只在「开始的地方」和「结束的下一格」记两笔账。</b>
+最后从头到尾累加一遍，账就自动"摊开"到每个位置了。</p>
+
+<svg class="fig dff" viewBox="0 0 680 238" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>差分把区间修改变成两次单点修改</title>
+<desc>给区间每一个位置加同一个值，等价于在开头加、在末尾的后一位减，最后前缀累加还原</desc>
+<text x="40" y="20" class="dff-t" dominant-baseline="central">要让 a[2..5] 都加上 2</text>
+<rect x="60" y="40" width="56" height="36" rx="6" class="dff-b"/>
+<text x="88" y="58" class="dff-s" text-anchor="middle" dominant-baseline="central">a[0]</text>
+<rect x="126" y="40" width="56" height="36" rx="6" class="dff-b"/>
+<text x="154" y="58" class="dff-s" text-anchor="middle" dominant-baseline="central">a[1]</text>
+<rect x="192" y="40" width="56" height="36" rx="6" class="dff-ba"/>
+<text x="220" y="58" class="dff-s" text-anchor="middle" dominant-baseline="central">a[2]</text>
+<rect x="258" y="40" width="56" height="36" rx="6" class="dff-ba"/>
+<text x="286" y="58" class="dff-s" text-anchor="middle" dominant-baseline="central">a[3]</text>
+<rect x="324" y="40" width="56" height="36" rx="6" class="dff-ba"/>
+<text x="352" y="58" class="dff-s" text-anchor="middle" dominant-baseline="central">a[4]</text>
+<rect x="390" y="40" width="56" height="36" rx="6" class="dff-ba"/>
+<text x="418" y="58" class="dff-s" text-anchor="middle" dominant-baseline="central">a[5]</text>
+<rect x="456" y="40" width="56" height="36" rx="6" class="dff-b"/>
+<text x="484" y="58" class="dff-s" text-anchor="middle" dominant-baseline="central">a[6]</text>
+<rect x="522" y="40" width="56" height="36" rx="6" class="dff-b"/>
+<text x="550" y="58" class="dff-s" text-anchor="middle" dominant-baseline="central">a[7]</text>
+<line x1="192" y1="88" x2="446" y2="88" class="dff-ar"/>
+<path d="M446 88 l-6.0 -3.3000000000000003 l0 6.6000000000000005 z" class="dff-ah"/>
+<text x="340" y="104" class="dff-s" text-anchor="middle" dominant-baseline="central">朴素写法：这 4 个位置逐個 +2 → O(区间长)</text>
+<rect x="40" y="126" width="600" height="96" rx="8" class="dff-b"/>
+<text x="60" y="148" class="dff-t" dominant-baseline="central">差分写法：只在两个位置记账</text>
+<text x="60" y="174" class="dff-m" dominant-baseline="central">d[2] += 2;        d[6] -= 2;</text>
+<text x="60" y="200" class="dff-s" dominant-baseline="central">最后做一次前缀累加：cur += d[i]; a[i] += cur;  → 每个位置自动 +2</text>
+</svg>
+<p class="dd-cap">区间加只在两端记两笔账，最后累加一遍就自动摊到每个位置。</p>
+
+<p class="dd-lead">为什么会这样？把「累加」这一步单独看：<span class="mono">a[i] = a[i-1] + d[i]</span>，
+也就是说 <b>a 其实就是 d 的前缀和</b>。</p>
+<p class="dd-lead">所以前缀和与差分的关系是：</p>
+<div class="dd-q">
+<b>d 的前缀和 = a</b>，<b>a 的差分 = d</b> —— 两者互为逆运算。<br>
+差分"还原"的过程，本身就是在做一次前缀和。
+</div>
+
+
+<h5 class="dd-h">三、二维：多出来的那一块要减回去</h5>
+<p class="dd-lead">一维只有「左」和「右」，二维多了「上」和「下」，于是出现了<b>重叠</b> —— 这就是容斥。</p>
+
+<svg class="fig dff" viewBox="0 0 680 250" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>二维前缀和的容斥原理</title>
+<desc>左上角区域在两个方向的前缀里各算了一次，所以要减掉一次，再加回当前格子</desc>
+<rect x="60" y="40" width="240" height="180" rx="6" class="dff-b"/>
+<text x="80" y="62" class="dff-s" dominant-baseline="central">S[i-1][j-1]</text>
+<text x="300" y="62" class="dff-s" dominant-baseline="central">S[i-1][j]</text>
+<text x="80" y="214" class="dff-s" dominant-baseline="central">S[i][j-1]</text>
+<text x="300" y="214" class="dff-acc" dominant-baseline="central">S[i][j]  ← 目标</text>
+<line x1="180" y1="40" x2="180" y2="220" class="dff-ln"/>
+<line x1="60" y1="130" x2="300" y2="130" class="dff-ln"/>
+<text x="390" y="70" class="dff-t" dominant-baseline="central">容斥公式：</text>
+<text x="390" y="98" class="dff-m" dominant-baseline="central">S[i][j] = S[i-1][j] + S[i][j-1]</text>
+<text x="390" y="124" class="dff-m" dominant-baseline="central">          − S[i-1][j-1] + a[i][j]</text>
+<text x="390" y="156" class="dff-s" dominant-baseline="central">左上角那块被加了两次，要减回去一次。</text>
+<text x="390" y="180" class="dff-s" dominant-baseline="central">子矩阵同理，用四个角加减。</text>
+</svg>
+<p class="dd-cap">二维前缀和是容斥：左上角被算重复了，要减掉一次。</p>
+
+<p class="dd-lead">把公式和这张图对着看：<span class="mono">S[i-1][j]</span> 覆盖了左上 + 左下，
+<span class="mono">S[i][j-1]</span> 覆盖了左上 + 右上，<b>左上那块被算了两次</b>，所以要减掉一次
+<span class="mono">S[i-1][j-1]</span>，再加上当前格 <span class="mono">a[i][j]</span>。</p>
+<p class="dd-lead">记忆口诀：<b>「加两个、减一个、再加自己」</b>。子矩阵和的公式同理，
+只是把「两个」变成「四个角」，符号是 <span class="mono">+ − − +</span>。</p>
+<div class="callout vio">
+<p><b>二维差分正好相反</b>，也是四个角，符号同样是 <span class="mono">+ − − +</span> ——
+但它是作用在差分数组上的「打标记」，最后做一次二维前缀和还原。两套公式长得像，别记混方向。</p>
+</div>
+
+
+<h5 class="dd-h">四、到底该用哪个？一句话判断</h5>
+
+<svg class="fig dff" viewBox="0 0 680 216" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>前缀和与差分怎么选</title>
+<desc>修改少查询多用前缀和，修改多查询少用差分，差分的还原就是一次前缀和</desc>
+<rect x="40" y="20" width="280" height="56" rx="8" class="dff-bo"/><text x="180" y="39" class="dff-t" text-anchor="middle" dominant-baseline="central">前缀和：查询多、修改少</text><text x="180" y="58" class="dff-s" text-anchor="middle" dominant-baseline="central">预处理 O(n)，查询 O(1)</text>
+<rect x="360" y="20" width="280" height="56" rx="8" class="dff-ba"/><text x="500" y="39" class="dff-t" text-anchor="middle" dominant-baseline="central">差分：修改多、查询少</text><text x="500" y="58" class="dff-s" text-anchor="middle" dominant-baseline="central">修改 O(1)，最后统一还原</text>
+<rect x="40" y="100" width="600" height="96" rx="8" class="dff-b"/>
+<text x="60" y="124" class="dff-t" dominant-baseline="central">看到「若干次区间加，最后输出每个位置的值」→ 差分</text>
+<text x="60" y="150" class="dff-t" dominant-baseline="central">看到「若干次区间求和」→ 前缀和</text>
+<text x="60" y="176" class="dff-s" dominant-baseline="central">两者的关系：前缀和是「累加」，差分是「记账」—— 差分的还原过程就是一次前缀和。</text>
+</svg>
+<p class="dd-cap">修改少查询多用前缀和，修改多查询少用差分。</p>
+
+<p class="dd-lead">再补一个容易忽略的兄弟：<b>前缀异或</b>。因为异或的逆运算是它自己（<span class="mono">x ^ x = 0</span>），
+所以 <span class="mono">xor(l, r) = px[r] ^ px[l-1]</span>，一样是 O(1)。</p>
+<p class="dd-lead"><b>但前缀 <span class="mono">gcd</span> 不行</b> —— 因为 gcd 不可逆，你没法从
+<span class="mono">gcd(1..r)</span> 和 <span class="mono">gcd(1..l-1)</span> 反推出
+<span class="mono">gcd(l..r)</span>。区间 gcd 要用 ST 表或者线段树。<b>「能不能用前缀和」的判断标准是：
+这个运算有没有逆运算。</b></p>
+
+
+<h5 class="dd-h">五、例题精讲：洛谷 P2367 语文成绩</h5>
+<div class="ex">
+<b>题意</b>：n 个同学的分数，p 次操作，每次给区间 <span class="mono">[l, r]</span> 的每个人加 <span class="mono">v</span>。
+最后输出最低分。<br>
+<b>第一步判信号</b>：「若干次区间加，最后输出每个位置的值」——
+这是 <b>差分的标准信号</b>，几乎不用想。<br>
+<b>第二步写</b>：<span class="mono">d[l] += v; d[r+1] -= v;</span> 全部操作做完，
+一趟前缀累加还原出每个人最终的成绩，顺手取 min。<br>
+<b>第三步看边界</b>：<span class="mono">d[r+1]</span> 在 r = n 时会写到 n+1，
+<b>数组一定要开到 n+2</b>，否则越界。
+</div>
+<p class="dd-lead">复杂度：<span class="mono">O(n + p)</span>。暴力是 <span class="mono">O(np)</span>。</p>
+
+
+<h5 class="dd-h">六、坑清单</h5>
+<ul class="tight">
+<li><b>下标要从 1 开始。</b>前缀和公式里出现 <span class="mono">pre[l-1]</span>，l = 1 时会碰到
+<span class="mono">pre[0]</span>。所以 <span class="mono">pre[0] = 0</span> 是必须的，数组也多开一格；</li>
+<li><b>差分数组要开 n+2。</b>因为会写 <span class="mono">d[r+1]</span>；</li>
+<li><b>注意溢出。</b>n 个 10⁹ 加起来会超过 int，前缀和要用 <span class="mono">long long</span>；</li>
+<li><b>别把「离线」忘了。</b>差分只有在「<b>所有修改做完之后再统一查询</b>」时才 O(1) 生效。
+如果题目要求「每次修改之后立刻回答一次查询」，那就要用树状数组 / 线段树，差分救不了。</li>
+</ul>
+<div class="callout ok">
+<p><b>这两种技巧值得你练到不用想：</b>它们的代码都不到五行，但能不能想到用它们，
+直接决定这道题是 O(n²) 还是 O(n)。做题时看到「区间」两个字，先问一句
+「<b>是问和，还是改值？</b>」—— 问和想前缀和，改值想差分。</p>
+</div>
+<p class="tl"><b>题单</b> 洛谷 P1114 最大子段和变形 · P1387 最大正方形 · P1719 最大加权矩形 · P2367 语文成绩 · P3406 海底高铁 · P4231 三步必杀（二阶差分） · P3258 松鼠的新家（树上差分）。</p>
+<p class="ref"><b>资料</b> OI-Wiki「前缀和 &amp; 差分」；AcWing「算法基础课」第一章。树上差分属于进阶内容，先把一维练熟。</p>
+
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 一维前缀和：预处理 O(n)，查询 O(1) ----------
+pre[0] = 0;
+for (int i = 1; i <= n; ++i) pre[i] = pre[i - 1] + a[i];
+long long sum = pre[r] - pre[l - 1];        // 区间 [l, r] 的和
+
+// ---------- 一维差分：区间加 O(1)，最后 O(n) 还原 ----------
+// 目标：把 a[l..r] 全部加上 v
+d[l]     += v;
+d[r + 1] -= v;
+// 还原：
+long long cur = 0;
+for (int i = 1; i <= n; ++i) { cur += d[i]; a[i] += cur; }
+
+// ---------- 二维前缀和 ----------
+pre[i][j] = pre[i-1][j] + pre[i][j-1] - pre[i-1][j-1] + a[i][j];
+// 子矩阵和 (x1,y1)-(x2,y2)：
+//   pre[x2][y2] - pre[x1-1][y2] - pre[x2][y1-1] + pre[x1-1][y1-1]
+
+// ---------- 二维差分：矩形加 O(1) ----------
+d[x1][y1]     += v;   d[x2+1][y1]   -= v;
+d[x1][y2+1]   -= v;   d[x2+1][y2+1] += v;
+// 还原：对 d 做一次二维前缀和
+
+// ---------- 前缀和家族里还有谁 ----------
+// 前缀异或：xor(l, r) = px[r] ^ px[l - 1]     （异或的逆运算是它自己）
+// 前缀 gcd：不可逆！区间 gcd 要用 ST 表或线段树</script></div>
+</div>
+</details>
+</article>
 
 <article class="algo" id="hb-5" data-cat="入门" data-kind="entry" data-name="尺取法 双指针 滑动窗口">
-<div class="ah"><h4>5. 尺取法（双指针 / 滑动窗口）</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">高频</span><a class="prac" href="practice.html#P1147" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<div class="ah"><h4>5. 尺取法（双指针 / 滑动窗口）</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">高频</span><span class="ddchip">详解</span><a class="prac" href="practice.html#P1147" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
 <p class="idea"><b>本质</b>：当「区间的可行性关于包含关系单调」时，右端点右移只会让左端点单调右移，于是两个指针总共走 O(n) 步。经典形态：同向双指针（最长/最短满足条件的子段）、相向双指针（有序数组两数之和）、快慢指针（链表）。</p>
 <p class="meta"><b>复杂度</b>：O(n)（每个元素最多进出窗口一次）。<b>前提必须验证单调性</b>，否则不成立 —— 这也是最常见的误用。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// 模板 A：最短/最长满足条件的区间
@@ -983,9 +1791,158 @@ while(i < j){
 // slow 每次走 1 步，fast 每次走 2 步；相遇则有环，相遇后从头同速再走到交点即为环入口</script></div>
 <p class="tl"><b>题单</b> 洛谷 P1638 逛画展 · P1147 连续自然数和 · P1381 单词背诵 · P3143 Diamond Collector（排序+双指针）· P3144 关闭农场？不作推荐，改：P2032 扫描（单调队列）；CF 1200~1600 双指针题；LeetCode 3、76、209、438。</p>
 <p class="ref"><b>资料</b> OI-Wiki「双指针」；《挑战程序设计竞赛》第 2 版「尺取法」一节。</p>
+<details class="fold deep" id="hb-5-deep">
+<summary>深入讲解 · 尺取法：一条只会往前爬的「蠕虫」<span class="sum-note">核心不是模板，是「单调性」</span></summary>
+<div class="fold-body">
+
+<h5 class="dd-h">一、先看它解决了什么问题</h5>
+<p class="dd-lead">题目：给一个<b>正整数</b>数组，求和恰好等于 S 的连续子段有多少个。</p>
+<p class="dd-lead">暴力枚举所有子段是 O(n²)。尺取法的想法很朴素：<b>把子段想象成一条蠕虫，
+左端点是头，右端点是尾。尾巴先往前拱，拱到"太长"了，头再往前拱一点。</b></p>
+<p class="dd-lead">整个过程里，<b>头只往右，尾只往右，谁也不回头</b>。所以两个指针加起来一共只走约 2n 步，
+总复杂度 O(n)。</p>
+
+
+<h5 class="dd-h">二、凭什么可以「不回头」—— 单调性</h5>
+<p class="dd-lead">这是整篇最重要的一段，模板反而次要。</p>
+<p class="dd-lead">为什么头可以放心地只往右走？因为我们用了一个性质：<b>数组全是正数</b>。</p>
+<ul class="tight">
+<li>尾巴往右挪一格 → 窗口的和<b>只会变大</b>；</li>
+<li>头往右挪一格 → 窗口的和<b>只会变小</b>。</li>
+</ul>
+<p class="dd-lead">所以当「窗口和 &gt; S」时，把尾巴再往右挪<b>不可能让和变小</b>，
+唯一能做的就是让头往右。这就是「不回头」的依据。</p>
+<div class="callout warn">
+<p><b>反过来说：如果数组里有负数，这招立刻就废了。</b>
+因为尾巴往右挪可能让和变小、头往右挪也可能让和变大，两个指针都失去了方向。
+这是尺取法最常见的误用 —— <b>看到题先确认有没有单调性，再动手写模板</b>。</p>
+</div>
+<p class="dd-lead">更通用的说法是：<b>「区间的可行性关于包含关系单调」</b>。也就是
+「如果 <span class="mono">[l, r]</span> 已经不合法了，那么任何包含它的更大区间
+<span class="mono">[l', r']</span> 也不合法」。满足这条，才能用双指针。</p>
+
+
+<h5 class="dd-h">三、两个指针怎么动</h5>
+
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 模板 A：最长 / 最短满足条件的区间（同向双指针）----------
+int l = 1, ans = 0;
+for (int r = 1; r <= n; ++r) {
+    add(a[r]);                                  // 把 a[r] 纳入窗口
+    while (窗口非法) { remove(a[l]); ++l; }      // 头往前拱，直到窗口合法
+    ans = max(ans, r - l + 1);                  // 此刻 [l, r] 是一个合法窗口
+}
+
+// ---------- 模板 B：区间和的滑动窗口（要求数组全为正数）----------
+int l = 1; long long sum = 0;
+for (int r = 1; r <= n; ++r) {
+    sum += a[r];
+    while (sum > S) { sum -= a[l]; ++l; }        // 太长就收头
+    if (sum == S) { /* 找到一组解 */ }
+}
+
+// ---------- 模板 C：相向双指针（要求数组有序）----------
+int i = 1, j = n;
+while (i < j) {
+    long long s = a[i] + a[j];
+    if (s == target) { /* 找到 */ ++i; --j; }
+    else if (s < target) ++i;                    // 和太小 → 换一个更大的左端
+    else --j;                                    // 和太大 → 换一个更小的右端
+}
+
+// ---------- 模板 D：快慢指针（链表 / 序列找环）----------
+// slow 每次走 1 步，fast 每次走 2 步
+// 相遇 → 有环；相遇之后让一个指针从头出发，同速再走，交点就是环的入口</script></div>
+<svg class="fig dff" viewBox="0 0 680 240" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>滑动窗口的两个指针都只朝一个方向走</title>
+<desc>右指针每次加一，左指针在窗口非法时才右移，因此两个指针总共移动 O(n) 步</desc>
+<text x="40" y="18" class="dff-s" dominant-baseline="central">右指针 r 每步 +1，窗口非法时左指针 l 才被迫右移 —— 两个指针都只往右，共 2n 步</text>
+<rect x="60" y="40" width="50" height="34" rx="6" class="dff-b"/>
+<text x="85" y="57" class="dff-t" text-anchor="middle" dominant-baseline="central">0</text>
+<rect x="122" y="40" width="50" height="34" rx="6" class="dff-b"/>
+<text x="147" y="57" class="dff-t" text-anchor="middle" dominant-baseline="central">1</text>
+<rect x="184" y="40" width="50" height="34" rx="6" class="dff-b"/>
+<text x="209" y="57" class="dff-t" text-anchor="middle" dominant-baseline="central">2</text>
+<rect x="246" y="40" width="50" height="34" rx="6" class="dff-bo"/>
+<text x="271" y="57" class="dff-t" text-anchor="middle" dominant-baseline="central">3</text>
+<rect x="308" y="40" width="50" height="34" rx="6" class="dff-bo"/>
+<text x="333" y="57" class="dff-t" text-anchor="middle" dominant-baseline="central">4</text>
+<rect x="370" y="40" width="50" height="34" rx="6" class="dff-bo"/>
+<text x="395" y="57" class="dff-t" text-anchor="middle" dominant-baseline="central">5</text>
+<rect x="432" y="40" width="50" height="34" rx="6" class="dff-bo"/>
+<text x="457" y="57" class="dff-t" text-anchor="middle" dominant-baseline="central">6</text>
+<rect x="494" y="40" width="50" height="34" rx="6" class="dff-b"/>
+<text x="519" y="57" class="dff-t" text-anchor="middle" dominant-baseline="central">7</text>
+<rect x="556" y="40" width="50" height="34" rx="6" class="dff-b"/>
+<text x="581" y="57" class="dff-t" text-anchor="middle" dominant-baseline="central">8</text>
+<line x1="246" y1="84" x2="482" y2="84" class="dff-ar"/>
+<path d="M482 84 l-6.0 -3.3000000000000003 l0 6.6000000000000005 z" class="dff-ah"/>
+<text x="340" y="102" class="dff-s" text-anchor="middle" dominant-baseline="central">当前窗口 [l, r]</text>
+<text x="60" y="130" class="dff-m" dominant-baseline="central">for (int r = 1; r &lt;= n; ++r) {</text>
+<text x="60" y="152" class="dff-m" dominant-baseline="central">    add(a[r]);                      // 纳入 a[r]</text>
+<text x="60" y="174" class="dff-m" dominant-baseline="central">    while (窗口非法) { remove(a[l]); ++l; }   // l 只往右</text>
+<text x="60" y="196" class="dff-m" dominant-baseline="central">    ans = max(ans, r - l + 1);</text>
+<text x="60" y="218" class="dff-m" dominant-baseline="central">}</text>
+</svg>
+<p class="dd-cap">两个指针都只朝一个方向走：尾巴每步 +1，头在窗口非法时才右移。</p>
+
+<h5 class="dd-h">四、四套模板，覆盖九成的双指针题</h5>
+
+
+<p class="dd-lead"><b>四套模板的共同骨架其实只有一句：</b>
+<span class="mono">for (r ...) { 把 r 纳进来; while (不合法) 把 l 吐出去; 记录答案; }</span>。
+A 和 B 是同一套骨头，只是「不合法」的定义不同；C 是两个指针相向而行；D 是同一个方向、不同速度。</p>
+<div class="callout vio">
+<p><b>为什么 <span class="mono">while</span> 不是 <span class="mono">if</span>？</b>
+因为把头只挪一格可能还不够 —— 比如窗口里塞进了两个"坏元素"，得挪两次才合法。
+写成 <span class="mono">while</span> 才不会漏。<b>这一段写成 if 是双指针最经典的 bug</b>：
+样例能过，大样例就错。</p>
+</div>
+
+
+<h5 class="dd-h">五、例题精讲：洛谷 P1147 连续自然数和</h5>
+<div class="ex">
+<b>题意</b>：给一个 M，找出所有「连续的自然数之和等于 M」的区间。<br>
+<b>第一步判单调性</b>：自然数全是正的，尾巴往右和变大、头往右和变小 —— <b>满足单调性，可以用双指针</b>。<br>
+<b>第二步套模板 B</b>：<span class="mono">sum &gt; M</span> 就收头，<span class="mono">sum == M</span> 就记录。<br>
+<b>第三步想边界</b>：题面要求「至少两个数」，所以 <span class="mono">r &gt; l</span> 才记录；
+区间上界不用穷举到 M，因为 1 + 2 + ... 到某个长度就超过 M 了，
+上界取 <span class="mono">M/2 + 1</span> 足够。
+</div>
+<p class="dd-lead">另一道更典型的：<b>P1638 逛画展</b> —— 求「包含所有画家的最短区间」。
+这题用的是<b>模板 A</b>：用一个计数数组统计窗口里每个画家出现几次，
+再维护一个「窗口里不同画家的个数」变量。当它等于总数时窗口合法，此时收头求最短。</p>
+<div class="callout ok">
+<p><b>「维护一个计数变量」是模板 A 的关键技巧。</b>不要每次都重新数一遍窗口里有几种画 ——
+那样单次就是 O(窗口长)。正确做法是：<span class="mono">add</span> 时若该画家计数从 0 变 1，种类数 +1；
+<span class="mono">remove</span> 时若计数变成 0，种类数 −1。这样每次移动都是 O(1)。</p>
+</div>
+
+
+<h5 class="dd-h">六、坑清单</h5>
+<ul class="tight">
+<li><b>没验证单调性就写。</b>数组里有负数时，同向双指针直接失效 —— 这时应该用前缀和 + 哈希表；</li>
+<li><b>把 <span class="mono">while</span> 写成 <span class="mono">if</span>。</b>见上文；</li>
+<li><b>计数数组忘了清零 / 忘了边界。</b><span class="mono">remove</span> 之后要把计数减回去，
+否则下一次 <span class="mono">add</span> 判断就错了；</li>
+<li><b>「最短」和「最长」的记录位置不同。</b>
+求<b>最长</b>：窗口合法时用当前 <span class="mono">r − l + 1</span> 更新；
+求<b>最短</b>：在 <span class="mono">while</span> 循环<b>内部</b>每收一次头就更新一次，
+因为收头的过程中每一个位置都可能是合法的最短窗口。</li>
+</ul>
+<div class="callout vio">
+<p><b>做题时的判断顺序：</b>看到「连续子段 / 子数组」+「最长 / 最短 / 恰好等于」，
+先问两个问题 ——「数组是正数吗？」「区间变大时可行性是单调的吗？」
+两个都是「是」，那就是双指针，直接套模板。</p>
+</div>
+<p class="tl"><b>题单</b> 洛谷 P1638 逛画展 · P1147 连续自然数和 · P1381 单词背诵 · P3143 Diamond Collector（排序 + 双指针） · P2032 扫描（单调队列） · CF 1200~1600 双指针题 · LeetCode 3 / 76 / 209 / 438。</p>
+<p class="ref"><b>资料</b> OI-Wiki「双指针」；《挑战程序设计竞赛》第 2 版「尺取法」一节。LeetCode 上的滑动窗口题是最好的练手场。</p>
+
+</div>
+</details>
+
 </article>
 
-<article class="algo" id="hb-6" data-cat="入门" data-kind="entry" data-name="排序 自定义比较 结构体排序 稳定性"><div class="ah"><h4>6. 排序算法的原理理解</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">必背</span><a class="prac" href="practice.html#P1059" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<article class="algo" id="hb-6" data-cat="入门" data-kind="entry" data-name="排序 自定义比较 结构体排序 稳定性"><div class="ah"><h4>6. 排序算法的原理理解</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">必背</span><span class="ddchip">详解</span><a class="prac" href="practice.html#P1059" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
 <p class="idea"><b>本质</b>：排序是「用比较换信息」。真正要掌握的不是会写快排，而是：<b>稳定性</b>、<b>是否原地</b>、<b>比较次数下界 O(n log n)</b>、以及<b>非比较排序</b>（计数/基数/桶）何时能突破下界。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// std::sort 的正确姿势
 sort(a + 1, a + 1 + n);                                  // 升序
@@ -1071,9 +2028,164 @@ stable_sort(v.begin(), v.end(), cmp);</script></div>
 <tr><td>std::sort</td><td>—</td><td>O(n log n)</td><td>O(log n)</td><td>否</td><td>默认选择；需稳定用 stable_sort</td></tr>
 </table>
 <p class="tl"><b>题单</b> 洛谷 P1177 快速排序模板 · P1059 明明的随机数（离散化） · P1093 奖学金（多关键字） · P1923 求第 k 小的数（nth_element） · P2678 跳石头（排序+二分） · P1104 生日 · P1908 逆序对 · P1051 谁拿了最多奖学金。</p>
-<p class="ref"><b>资料</b> OI-Wiki「排序」；《算法（第 4 版）》第 2 章；CSES Problem Set「Sorting and Searching」整章。</p></article>
+<p class="ref"><b>资料</b> OI-Wiki「排序」；《算法（第 4 版）》第 2 章；CSES Problem Set「Sorting and Searching」整章。</p>
+<details class="fold deep" id="hb-6-deep">
+<summary>深入讲解 · 排序：真正要掌握的不是「会写快排」<span class="sum-note">稳定性 / 严格弱序 / 离散化</span></summary>
+<div class="fold-body">
 
-<article class="algo" id="hb-7" data-cat="入门" data-kind="entry" data-name="二分 三分 二分查找 二分答案 lower_bound upper_bound"><div class="ah"><h4>7. 二分与三分</h4><span class="lv lv-e">入门</span><span class="st">★★★</span><span class="tag">必背</span><a class="prac" href="practice.html#P2249" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<h5 class="dd-h">一、为什么「比较排序」突破不了 O(n log n)</h5>
+<p class="dd-lead">这不是背结论，是一个很漂亮的推理，值得你花三分钟想通。</p>
+<p class="dd-lead">任何基于「两两比较」的排序，整个过程可以画成一棵<b>决策树</b>：
+每个内部节点是一次比较（a &lt; b？），两条分支是两种结果，每个叶子是一种可能的输出顺序。</p>
+<ul class="tight">
+<li>n 个数一共有 <b>n!</b> 种排列，每种都可能成为答案 → 决策树至少要有 <b>n! 个叶子</b>；</li>
+<li>一棵高度为 h 的二叉树最多有 <b>2<sup>h</sup></b> 个叶子；</li>
+<li>所以 <span class="mono">2<sup>h</sup> ≥ n!</span>，取对数用斯特林公式就有 <b>h ≥ n log n</b>。</li>
+</ul>
+<p class="dd-lead">结论：<b>只要你是靠比较来决定顺序的，就至少要比较 n log n 次</b>。
+这就是为什么 std::sort 的最坏复杂度停在 O(n log n) 上不去。</p>
+<p class="dd-lead"><b>那怎么突破它？</b>答案是<b>不比较</b>。计数排序、基数排序、桶排序都是
+「不看两个数谁大谁小，而是直接利用数值本身的信息」—— 比如「这个数等于 5，那就放到第 5 个桶里」。
+所以它们的复杂度写成 <span class="mono">O(n + V)</span> 或 <span class="mono">O(k·n)</span>，
+里面对数的那一项消失了。代价是<b>要求值域小或者位数少</b>。</p>
+
+
+<h5 class="dd-h">二、稳定性：相等元素的相对顺序会不会被打乱</h5>
+<p class="dd-lead">这个概念一句话就能说清：<b>排序前 a 在 b 前面，且 a 和 b 的"比较键"相等，
+排序后 a 还在 b 前面 —— 这就是稳定的。</b></p>
+<p class="dd-lead">为什么它重要？因为现实里的排序键往往只是"一部分信息"。比如按分数降序排一张成绩表，
+分数相同的人应该保持原来的（比如学号）顺序。这时如果用了不稳定的排序，
+同分的人可能被打乱 —— 题目如果说「分数相同的按输入顺序输出」，你就直接 WA 了。</p>
+<div class="callout warn">
+<p><b>两个解法，选一个：</b><br>
+① 用 <span class="mono">stable_sort</span>；<br>
+② <b>更推荐</b>：用普通 <span class="mono">sort</span>，但在比较函数里<b>把原始下标作为第二关键字</b>。
+这样效果一样，而且「稳定性」成了你自己代码的一部分，不受标准库实现影响。</p>
+</div>
+
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// 方案 ①：直接用 stable_sort
+stable_sort(v.begin(), v.end(), [](const Node& a, const Node& b){
+    return a.score > b.score;
+});
+
+// 方案 ②（更推荐）：把原始下标写进比较函数，用普通 sort 也能稳定
+sort(v.begin(), v.end(), [](const Node& a, const Node& b){
+    if (a.score != b.score) return a.score > b.score;   // 分数高的在前
+    return a.id < b.id;                                 // 分数相同，按原始下标
+});</script></div>
+
+<h5 class="dd-h">三、选择哪一套：先问三个问题</h5>
+
+<svg class="fig dff" viewBox="0 0 680 286" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>排序算法的选择路径</title>
+<desc>按数据规模、是否需要稳定性、值域大小三个问题选择排序算法</desc>
+<rect x="240" y="20" width="200" height="52" rx="8" class="dff-b"/><text x="340" y="46" class="dff-t" text-anchor="middle" dominant-baseline="central">要排序的是什么？</text>
+<line x1="340" y1="72" x2="340" y2="100" class="dff-ar"/>
+<line x1="120" y1="100" x2="560" y2="100" class="dff-ar"/>
+<line x1="120" y1="100" x2="120" y2="132" class="dff-ar"/><path d="M120 132 l-3.3000000000000003 -6.0 l6.6000000000000005 0 z" class="dff-ah"/>
+<line x1="340" y1="100" x2="340" y2="132" class="dff-ar"/><path d="M340 132 l-3.3000000000000003 -6.0 l6.6000000000000005 0 z" class="dff-ah"/>
+<line x1="560" y1="100" x2="560" y2="132" class="dff-ar"/><path d="M560 132 l-3.3000000000000003 -6.0 l6.6000000000000005 0 z" class="dff-ah"/>
+<rect x="40" y="136" width="160" height="56" rx="8" class="dff-b"/><text x="120" y="155" class="dff-t" text-anchor="middle" dominant-baseline="central">n ≤ 50 或近乎有序</text><text x="120" y="174" class="dff-s" text-anchor="middle" dominant-baseline="central">插入排序</text>
+<rect x="260" y="136" width="160" height="56" rx="8" class="dff-bo"/><text x="340" y="155" class="dff-t" text-anchor="middle" dominant-baseline="central">要稳定 / 顺带求逆序对</text><text x="340" y="174" class="dff-s" text-anchor="middle" dominant-baseline="central">归并排序</text>
+<rect x="480" y="136" width="160" height="56" rx="8" class="dff-bv"/><text x="560" y="155" class="dff-t" text-anchor="middle" dominant-baseline="central">值域 V 很小</text><text x="560" y="174" class="dff-s" text-anchor="middle" dominant-baseline="central">计数 / 基数排序</text>
+<rect x="150" y="214" width="380" height="52" rx="8" class="dff-ba"/><text x="340" y="240" class="dff-t" text-anchor="middle" dominant-baseline="central">其他情况：std::sort（需稳定就 stable_sort）</text>
+<line x1="340" y1="192" x2="340" y2="214" class="dff-ar"/>
+</svg>
+<p class="dd-cap">按「数据规模 / 是否需要稳定性 / 值域大小」三个问题选排序算法。</p>
+
+<p class="dd-lead">把这张图和卡片里的表格对着看，就等于把「排序家族」整个收进脑子里了。</p>
+
+
+<h5 class="dd-h">四、比较函数：竞赛里最容易 RE 的一行</h5>
+<p class="dd-lead">比较函数有一个<b>硬性要求</b>：必须满足<b>严格弱序</b>。
+用大白话说就是两条：</p>
+<ol class="tight">
+<li><b>自己不能小于自己</b>：<span class="mono">cmp(x, x)</span> 必须返回 <span class="mono">false</span>；</li>
+<li><b>不能互相小于</b>：<span class="mono">cmp(a, b)</span> 和 <span class="mono">cmp(b, a)</span>
+不能同时为真。</li>
+</ol>
+<p class="dd-lead">违反它的后果不是"排出来顺序怪怪的"，而是 <b>std::sort 内部越界访问，直接 RE</b>
+（因为它的实现会在数组前面放一个哨兵元素，依赖这个性质）。</p>
+
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// ✗ 死亡写法：相等时返回 true，违反严格弱序 → 可能直接 RE
+bool cmp(int x, int y){ return x >= y; }
+
+// ✓ 正确：相等时返回 false
+bool cmp(int x, int y){ return x > y; }
+
+// ✓ 多关键字：写成一串 if，天然满足严格弱序
+struct Node {
+    int id, score;
+    bool operator<(const Node& o) const {
+        if (score != o.score) return score > o.score;   // 分数高的在前
+        return id < o.id;                              // 分数相同，id 小的在前
+    }
+};
+sort(v.begin(), v.end());        // 重载了 <，直接 sort 就行，不用传比较函数</script></div>
+
+<p class="dd-lead"><b>怎么保证自己没写错？</b>一个机械的检查法：<b>把最后一行的相等情况代进去试试</b>。
+上面那个结构体，如果 <span class="mono">score</span> 和 <span class="mono">id</span> 都相等，
+第一行不成立，落到 <span class="mono">return id &lt; o.id</span> —— 相等时返回 false ✓。</p>
+
+
+<h5 class="dd-h">五、排序最实用的一次副产品：离散化</h5>
+<p class="dd-lead">题目给的值范围是 <span class="mono">1 ~ 10⁹</span>，但你只关心它们<b>之间的大小关系</b>，
+而且 n 只有 10⁵。这时把它们压成 <span class="mono">1 ~ n</span> 的排名，就能用数组做桶 / 树状数组了。
+这个操作叫<b>离散化</b>，是排序的一次经典副产品。</p>
+
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">vector<int> b(a + 1, a + 1 + n);
+sort(b.begin(), b.end());                                  // ① 排序
+b.erase(unique(b.begin(), b.end()), b.end());              // ② 去重
+// ③ 二分查排名：x 对应的新下标就是它在 b 里的位置
+int id = lower_bound(b.begin(), b.end(), x) - b.begin() + 1;</script></div>
+
+<p class="dd-lead">这三行的顺序不能乱：<b>先排序，才能用 unique；先 unique，二分查到的才是唯一的排名。</b>
+如果先去重再排序，去重是没用的（<span class="mono">unique</span> 只把<b>相邻</b>的重复元素移到末尾）。</p>
+<div class="callout vio">
+<p><b>记住 unique 的真实行为：</b>它不删除元素，只是把不重复的元素挪到前面，
+返回「新的逻辑结尾」的迭代器，剩下的元素内容是不确定的。
+所以必须紧跟着 <span class="mono">erase</span>，否则容器长度没变。</p>
+</div>
+
+
+<h5 class="dd-h">六、例题精讲：洛谷 P1093 奖学金</h5>
+<div class="ex">
+<b>题意</b>：按总分降序排序，总分相同按语文降序，语文也相同按学号升序。<br>
+<b>解法</b>：这就是一个纯粹的多关键字排序 —— 把「层层比较」写成一串 <span class="mono">if</span>：<br>
+<span class="mono">if (总 != o.总) return 总 &gt; o.总;</span><br>
+<span class="mono">if (语文 != o.语文) return 语文 &gt; o.语文;</span><br>
+<span class="mono">return 学号 &lt; o.学号;</span><br>
+<b>注意最后一行</b>：学号是唯一的，所以这一行永远不会遇到"全相等"的情况 ——
+但就算万一遇到了，<span class="mono">&lt;</span> 也保证了相等时返回 false，依然安全。
+</div>
+<p class="dd-lead"><b>这道题真正的训练价值</b>：以后凡是遇到「优先级从高到低的一系列比较条件」，
+都用这个「一串 if 收尾」的骨架，一次都不用去想排序的其余部分。</p>
+
+
+<h5 class="dd-h">七、坑清单</h5>
+<ul class="tight">
+<li><b>比较函数用了 <span class="mono">&gt;=</span> 或 <span class="mono">&lt;=</span></b> → RE。见上文；</li>
+<li><b>比较函数里改状态。</b>比较函数会被调用 O(n log n) 次，任何带副作用的操作都会炸；</li>
+<li><b>浮点数比较。</b>不要写 <span class="mono">a.x &lt; b.x</span>，要用
+<span class="mono">a.x &lt; b.x - eps</span> 之类，否则同值的浮点会被判成不等，顺序随机；</li>
+<li><b><span class="mono">sort</span> 区间写成了闭区间。</b><span class="mono">sort(a, a + n)</span>
+是<b>左闭右开</b>；如果是 1-based 数组，要写 <span class="mono">sort(a + 1, a + 1 + n)</span>；</li>
+<li><b>拿 <span class="mono">sort</span> 去求第 k 小。</b>那样是 O(n log n)。只求一个第 k 小时用
+<span class="mono">nth_element</span>，平均 O(n)；</li>
+<li><b>需要 Top-K 且数据流式到来。</b>不要每次重排，维护一个大小为 k 的堆，O(n log k)。</li>
+</ul>
+<div class="callout ok">
+<p><b>这一节真正的产出是两个习惯：</b>① 写比较函数时，习惯性检查「相等时返回什么」；
+② 看到值域很大但只关心相对大小，立刻想到离散化。</p>
+</div>
+<p class="tl"><b>题单</b> 洛谷 P1177 快速排序模板 · P1059 明明的随机数（离散化） · P1093 奖学金（多关键字） · P1923 求第 k 小的数（nth_element） · P2678 跳石头（排序 + 二分） · P1104 生日 · P1908 逆序对 · P1051 谁拿了最多奖学金。</p>
+<p class="ref"><b>资料</b> OI-Wiki「排序」；《算法（第 4 版）》第 2 章；CSES Problem Set「Sorting and Searching」整章（公认最好的排序 / 查找题单）。</p>
+
+</div>
+</details>
+</article>
+
+<article class="algo" id="hb-7" data-cat="入门" data-kind="entry" data-name="二分 三分 二分查找 二分答案 lower_bound upper_bound"><div class="ah"><h4>7. 二分与三分</h4><span class="lv lv-e">入门</span><span class="st">★★★</span><span class="tag">必背</span><span class="ddchip">详解</span><a class="prac" href="practice.html#P2249" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
 <p class="idea"><b>本质</b>：二分 = 在<b>单调的判定函数</b>上找分界点。写对二分的唯一诀窍是明确「<b>check(mid) 为真时答案落在哪一半</b>」，然后让循环不变式保持不变。三分 = 在<b>单峰/单谷函数</b>上比较两侧导数。</p>
 <p class="meta"><b>复杂度</b>：O(log n)，实数二分按精度迭代约 60~100 次即可达到 1e-15。二分答案的总复杂度是 O(log V × check)。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 模板 1：最小的满足 check 的位置（左闭右闭）----------
@@ -1173,10 +2285,221 @@ int cnt = upper_bound(a, a+n, x) - lower_bound(a, a+n, x);   // x 的出现次�
         </dl>
       </div>
 <p class="tl"><b>题单</b> 洛谷 P2249 查找 · P1102 A-B 数对 · P1873 砍树 · P1182 数列分段 Section II · P2678 跳石头 · P1414 又是毕业季II · P3382 三分法 · P1024 一元三次方程求解 · AcWing「二分」专题 · P2440 木材加工。</p>
-<p class="ref"><b>资料</b> OI-Wiki「二分」「三分」；《算法竞赛进阶指南》0x04 节。</p></article>
+<p class="ref"><b>资料</b> OI-Wiki「二分」「三分」；《算法竞赛进阶指南》0x04 节。</p>
+<details class="fold deep" id="hb-7-deep">
+<summary>深入讲解 · 二分：在一串 0 后面找第一个 1<span class="sum-note">把「写不对」变成「一定写得对」</span></summary>
+<div class="fold-body">
+
+<h5 class="dd-h">一、先扔掉「猜数字」那个比喻</h5>
+<p class="dd-lead">所有人初学二分听的都是「猜 1~100 之间的数」。这个比喻让你懂了「每次砍一半」，
+但它<b>解释不了你为什么写不对二分</b>。真正有用的模型是下面这个：</p>
+<div class="dd-q">
+有一个关于 x 的判定函数 <b>check(x)</b>，它的取值只有 真 / 假 两种，而且满足
+<b>「前面全是假，后面全是真」</b>（这叫单调）。<br>
+二分就是在这一串 假 后面，找到<b>第一个 真</b>。
+</div>
+<p class="dd-lead">为什么这个模型有用？因为一旦你把题目翻译成这个模型，
+「数组下标」这件事就消失了 —— 剩下的只是「区间在缩小」，你不会再去纠结
+<span class="mono">mid + 1</span> 还是 <span class="mono">mid − 1</span>。</p>
+
+
+<h5 class="dd-h">二、二分在做什么</h5>
+
+<svg class="fig dff" viewBox="0 0 680 254" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>二分就是在一串 0 后面找第一个 1</title>
+<desc>二分的作用是在单调的判定函数上找到 0 与 1 的分界点</desc>
+<text x="40" y="18" class="dff-s" dominant-baseline="central">单调的 check 数组：前面全是 0（不可行），后面全是 1（可行）</text>
+<rect x="60" y="40" width="56" height="36" rx="6" class="dff-b"/>
+<text x="88" y="58" class="dff-t" text-anchor="middle" dominant-baseline="central">0</text>
+<rect x="126" y="40" width="56" height="36" rx="6" class="dff-b"/>
+<text x="154" y="58" class="dff-t" text-anchor="middle" dominant-baseline="central">0</text>
+<rect x="192" y="40" width="56" height="36" rx="6" class="dff-b"/>
+<text x="220" y="58" class="dff-t" text-anchor="middle" dominant-baseline="central">0</text>
+<rect x="258" y="40" width="56" height="36" rx="6" class="dff-b"/>
+<text x="286" y="58" class="dff-t" text-anchor="middle" dominant-baseline="central">0</text>
+<rect x="324" y="40" width="56" height="36" rx="6" class="dff-bo"/>
+<text x="352" y="58" class="dff-t" text-anchor="middle" dominant-baseline="central">1</text>
+<rect x="390" y="40" width="56" height="36" rx="6" class="dff-bo"/>
+<text x="418" y="58" class="dff-t" text-anchor="middle" dominant-baseline="central">1</text>
+<rect x="456" y="40" width="56" height="36" rx="6" class="dff-bo"/>
+<text x="484" y="58" class="dff-t" text-anchor="middle" dominant-baseline="central">1</text>
+<rect x="522" y="40" width="56" height="36" rx="6" class="dff-bo"/>
+<text x="550" y="58" class="dff-t" text-anchor="middle" dominant-baseline="central">1</text>
+<line x1="324" y1="92" x2="324" y2="116" class="dff-da"/>
+<path d="M324 120 l-3.3000000000000003 6.0 l6.6000000000000005 0 z" class="dff-dh"/>
+<text x="324" y="134" class="dff-acc" text-anchor="middle" dominant-baseline="central">答案：第一个 1</text>
+<rect x="40" y="160" width="600" height="76" rx="8" class="dff-b"/>
+<text x="60" y="182" class="dff-m" dominant-baseline="central">while (lo &lt; hi) {   int mid = lo + (hi - lo) / 2;</text>
+<text x="60" y="204" class="dff-m" dominant-baseline="central">    if (check(mid)) hi = mid;   // mid 可行 → 答案在 [lo, mid]</text>
+<text x="60" y="226" class="dff-m" dominant-baseline="central">    else            lo = mid + 1; }</text>
+</svg>
+<p class="dd-cap">二分就是在一串 0 里找第一个 1：check(mid) 为真就往左收，为假就往右收。</p>
+
+<p class="dd-lead">看这张图，你只要记住一句话：<b>每次拿到 mid，先问「mid 是 0 还是 1」，
+然后想「答案在 mid 的左边还是右边」。</b></p>
+<p class="dd-lead">如果 <span class="mono">check(mid)</span> 是<b>真</b>，说明 mid 已经在"1 那一段"里了，
+但答案可能是 mid 左边更靠前的那个 1，所以 <b><span class="mono">hi = mid</span></b>（注意不是
+<span class="mono">mid − 1</span>，因为 mid 本身还有可能是答案）；<br>
+如果是<b>假</b>，说明 mid 还在"0 那一段"里，答案一定在它右边，所以
+<b><span class="mono">lo = mid + 1</span></b>。循环结束时 <span class="mono">lo == hi</span>，
+那就是分界点。</p>
+
+
+<h5 class="dd-h">三、两套模板与它们的「配套口诀」</h5>
+
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 模板 1：最小的满足 check 的位置（找第一个 1）----------
+// 语义：[lo, hi] 内找第一个满足 check(x) 的 x（保证一定有解）
+int lo = 1, hi = n;
+while (lo < hi) {
+    int mid = lo + (hi - lo) / 2;      // 向下取整
+    if (check(mid)) hi = mid;          // mid 可行 → 答案在 [lo, mid]
+    else            lo = mid + 1;
+}
+// 答案 = lo
+
+// ---------- 模板 2：最大的满足 check 的位置（找最后一个 1）----------
+int lo = 1, hi = n;
+while (lo < hi) {
+    int mid = lo + (hi - lo + 1) / 2;  // ★ 向上取整，否则死循环
+    if (check(mid)) lo = mid;          // mid 可行 → 答案在 [mid, hi]
+    else            hi = mid - 1;
+}
+// 答案 = lo
+
+// ---------- 模板 3：实数二分：循环固定次数，比设 eps 更稳 ----------
+double l = 0, r = 1e9;
+for (int it = 0; it < 80; ++it) {
+    double mid = (l + r) / 2;
+    if (check(mid)) l = mid; else r = mid;
+}
+printf("%.6f\n", l);</script></div>
+
+<p class="dd-lead"><b>「<span class="mono">lo + (hi - lo) / 2</span> 而不是 <span class="mono">(lo + hi) / 2</span>」
+不是洁癖</b> —— 当 lo、hi 都是接近 <span class="mono">INT_MAX</span> 的大数时，
+<span class="mono">lo + hi</span> 会<b>溢出成负数</b>，然后数组越界 / 死循环。
+加法改成减法，就永远不会溢出。这是个真实存在过的 bug（JDK 的
+<span class="mono">Arrays.binarySearch</span> 就踩过）。</p>
+<p class="dd-lead"><b>两套模板的记忆口诀：</b></p>
+<ul class="tight">
+<li><b>谁可行就留住谁</b> —— 模板 1 里 mid 可行就 <span class="mono">hi = mid</span>（留住 mid），
+模板 2 里 mid 可行就 <span class="mono">lo = mid</span>（也是留住 mid）；</li>
+<li><b>只要写了 <span class="mono">lo = mid</span>，就必须向上取整</b> —— 反过来，
+写了 <span class="mono">hi = mid</span> 就用向下取整。这是唯一需要死记的一条。</li>
+</ul>
+
+
+<h5 class="dd-h">四、为什么会死循环 —— 一个必须看懂的例子</h5>
+
+<svg class="fig dff" viewBox="0 0 680 220" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>二分死循环是怎么来的</title>
+<desc>区间只剩两个数时，中点的取整方向决定区间是否还在缩小；写 lo 等于 mid 就必须向上取整</desc>
+<text x="40" y="18" class="dff-s" dominant-baseline="central">当 lo = 5、hi = 6（相邻）时，中点的取整方向决定会不会卡死</text>
+<rect x="40" y="40" width="600" height="62" rx="8" class="dff-bd"/>
+<text x="60" y="62" class="dff-t" dominant-baseline="central">错：上取整模板配 lo = mid + 1 时，mid = 5，check(5) 为假 → lo = 6，正常</text>
+<text x="60" y="86" class="dff-t" dominant-baseline="central">错：上取整模板写成 hi = mid 时，mid = 6，check(6) 为真 → hi = 6，区间不动</text>
+<rect x="40" y="118" width="600" height="62" rx="8" class="dff-bo"/>
+<text x="60" y="140" class="dff-t" dominant-baseline="central">对：最大化答案用 mid = lo + (hi - lo + 1) / 2，可行就 lo = mid</text>
+<text x="60" y="164" class="dff-t" dominant-baseline="central">对：最小化答案用 mid = lo + (hi - lo) / 2，可行就 hi = mid</text>
+<text x="40" y="200" class="dff-s" dominant-baseline="central">记法：谁可行就留住谁；写 lo = mid 的那一支，必须配上取整。</text>
+</svg>
+<p class="dd-cap">区间只剩两个数时，取整方向决定区间是否还在缩小；不缩小就是死循环。</p>
+
+<p class="dd-lead">把区间缩到只有两个数（<span class="mono">lo = 5, hi = 6</span>）看：
+如果写成「向上取整 + <span class="mono">hi = mid</span>」，那么 <span class="mono">mid = 6</span>，
+若 <span class="mono">check(6)</span> 为真就 <span class="mono">hi = 6</span> ——
+<b>区间原封不动，循环永远出不去</b>。</p>
+<div class="callout warn">
+<p><b>反过来也有对应的死法：</b>「向下取整 + <span class="mono">lo = mid</span>」时，
+<span class="mono">mid = 5</span>，若 <span class="mono">check(5)</span> 为真就
+<span class="mono">lo = 5</span> —— 同样原地打转。<br>
+所以「<span class="mono">lo = mid</span> 配向上取整」这一条不是建议，是<b>必须</b>。</p>
+</div>
+
+
+<h5 class="dd-h">五、二分答案：把「求最值」变成「判定可行性」</h5>
+<p class="dd-lead">二分真正值钱的地方在这里。<b>很多题不是让你在一个数组里查东西，
+而是让你求一个「最大的最小值」或者「最小的最大值」。</b>这类题的标准流程是：</p>
+<ol class="tight">
+<li><b>确定答案的范围</b> <span class="mono">[lo, hi]</span>。不要凭感觉 ——
+要从题面推。比如「砍树的高度」范围就是 <span class="mono">[0, max(树高)]</span>；</li>
+<li><b>写 check(mid)</b>：假设「答案是 mid」，判断这件事<b>可不可行</b>。
+这一步往往就是一遍简单的贪心或者模拟；</li>
+<li><b>判断单调方向</b>：是「越大越容易满足」还是「越小越容易满足」，
+这决定你用哪套模板。</li>
+</ol>
+<p class="dd-lead"><b>为什么这样是对的？</b>因为「可行性」通常关于答案大小是单调的：
+如果高度 x 能砍够木材，那么比 x 矮的任何高度也一定能砍够。
+于是「可行」这件事就变成了「一串 假 后面跟着一串 真」—— 正好是二分要找的分界点。</p>
+<p class="dd-lead">总复杂度是 <b><span class="mono">O(log V × check 的代价)</span></b>。
+看到 <span class="mono">10⁹</span> 级别的答案范围 + 一个容易验证的可行性条件，就该想到二分答案。</p>
+
+
+<h5 class="dd-h">六、例题精讲：洛谷 P1873 砍树</h5>
+<div class="ex">
+<b>题意</b>：n 棵树各有高度，选一个锯片高度 H，把所有比 H 高的树砍掉高出的部分，
+问「砍下的木材总量 ≥ M」的前提下，H 最大是多少。<br>
+<b>第一步 —— 范围</b>：<span class="mono">lo = 0, hi = max(树高)</span>。<br>
+<b>第二步 —— check(H)</b>：遍历所有树，<span class="mono">sum += max(0, h[i] - H)</span>，
+判断 <span class="mono">sum &gt;= M</span>。<br>
+<b>第三步 —— 单调方向</b>：H 越小，砍下的木材越多 → 「<b>H 越小越容易满足</b>」，
+而我们要的是<b>最大的 H</b>。用<b>模板 2</b>。<br>
+<b>注意</b>：木材总量可能超过 int，<span class="mono">sum</span> 要用
+<span class="mono">long long</span>。
+</div>
+<p class="dd-lead">把它和「在数组里查找一个数」对比一下 —— 你会发现二分答案的
+<span class="mono">check</span> 就是一次独立的小问题，而二分只是套在外面的一层壳。
+<b>想清楚 check 怎么写，题就做完了一半。</b></p>
+
+
+<h5 class="dd-h">七、三分：单峰函数上的"找山顶"</h5>
+<p class="dd-lead">二分要求单调；如果函数是<b>先升后降</b>（单峰）或者<b>先降后升</b>（单谷），
+就轮到三分出场了。做法是取两个三等分点 <span class="mono">m1 &lt; m2</span>，
+比较 <span class="mono">f(m1)</span> 和 <span class="mono">f(m2)</span>：</p>
+<ul class="tight">
+<li>求<b>最大值</b>时：若 <span class="mono">f(m1) &lt; f(m2)</span>，说明山顶在 m1 右边，
+舍去左边 → <span class="mono">lo = m1</span>；否则舍去右边 → <span class="mono">hi = m2</span>；</li>
+<li>求最小值时反过来。</li>
+</ul>
+<p class="dd-lead">整数三分要小心：当区间长度只剩 2 或 3 时，两个三等分点可能重合。
+稳妥的写法是<b>长度很小时直接暴力比较剩下的几个点</b>，别硬套公式。</p>
+
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// 三分求单峰函数的最大值
+double lo = 0, hi = 1e9;
+while (hi - lo > 1e-8) {
+    double m1 = lo + (hi - lo) / 3, m2 = hi - (hi - lo) / 3;
+    if (f(m1) < f(m2)) lo = m1;      // 山顶在 m1 右边 → 舍去左边
+    else               hi = m2;      // 否则舍去右边
+}
+printf("%.6f\n", lo);</script></div>
+
+<h5 class="dd-h">八、坑清单</h5>
+<ul class="tight">
+<li><b>死循环</b> —— 唯一原因是取整方向与 <span class="mono">lo = mid / hi = mid</span> 不配套；</li>
+<li><b>边界开错</b>：<span class="mono">lo</span> 取「一定可行 / 一定在答案左侧」的值，
+<span class="mono">hi</span> 取「一定不可行 / 一定在答案右侧」的值，<b>宁可放宽一点</b>；</li>
+<li><b>忘了先排序</b>。在无序数组上二分 = 得到随机结果，而且不报错；</li>
+<li><b>实数二分用 <span class="mono">while (r - l &gt; eps)</span></b> 可能迭代次数过多或过少。
+<b>固定循环 80~100 次更稳</b>（80 次已经能到 <span class="mono">10⁻²⁴</span> 的精度，远超 double 极限）；</li>
+<li><b>set / map 用全局 <span class="mono">lower_bound</span></b>。
+因为它们的迭代器不支持随机访问，全局算法会退化成 O(n)。
+必须用成员函数 <span class="mono">s.lower_bound(x)</span> —— 这是个很隐蔽的性能陷阱；</li>
+<li><b>二分答案时 check 写成了 O(n²)</b>。那总复杂度就变成
+<span class="mono">O(n² log V)</span>，照样超时。</li>
+</ul>
+<div class="callout ok">
+<p><b>这一节要练成的反射：</b>看到「最大化的最小值 / 最小化的最大值」→ 二分答案；
+看到「有序数组上找第一个 ≥ x」→ <span class="mono">lower_bound</span>；
+看到「先增后减」→ 三分。以及那句口诀要背下来：<b>谁可行就留住谁，写 lo = mid 就向上取整。</b></p>
+</div>
+<p class="tl"><b>题单</b> 洛谷 P2249 查找 · P1102 A-B 数对 · P1873 砍树 · P1182 数列分段 Section II · P2678 跳石头 · P1414 又是毕业季II · P3382 三分法 · P1024 一元三次方程求解 · P2440 木材加工 · AcWing「二分」专题。</p>
+<p class="ref"><b>资料</b> OI-Wiki「二分」「三分」；《算法竞赛进阶指南》0x04 节。二分是入门篇里唯一一个「写不对就永远写不对」的知识点 —— 值得你手写二十遍模板。</p>
+
+</div>
+</details>
+</article>
 
 <article class="algo" id="hb-8" data-cat="入门" data-kind="entry" data-name="分治">
-<div class="ah"><h4>8. 分治</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">思维</span><a class="prac" href="practice.html#P1908" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<div class="ah"><h4>8. 分治</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">思维</span><span class="ddchip">详解</span><a class="prac" href="practice.html#P1908" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
 <p class="idea"><b>本质</b>：把问题切成互不相交的子问题分别求解再合并。复杂度由主定理给出：T(n) = aT(n/b) + f(n)。分治的难点在 <b>merge</b>，不在 divide。</p>
 <p class="meta"><b>复杂度</b>：归并/快速排序 O(n log n)；快速幂 O(log n)；CDQ 分治 O(n log² n)。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 归并排序 + 统计逆序对 ----------
@@ -1212,9 +2535,188 @@ ll qpow(ll a, ll b, ll p){
 // T(n)=T(n/b)+O(n^log_b(a)) 这类换底后可直接比较，别硬背</script></div>
 <p class="tl"><b>题单</b> 洛谷 P1908 逆序对 · P1010 幂次方 · P1228 地毯填补问题 · P1966 火柴排队（排序+逆序对）· P1429 平面最近点对（分治经典，也是计算几何入门）。</p>
 <p class="ref"><b>资料</b> OI-Wiki「递归 & 分治」「CDQ 分治」；《算法竞赛进阶指南》0x05 节。</p>
+<details class="fold deep" id="hb-8-deep">
+<summary>深入讲解 · 分治：切、治、合，难点在「合」<span class="sum-note">为什么归并能顺手数出逆序对</span></summary>
+<div class="fold-body">
+
+<h5 class="dd-h">一、分治就是三步，但第三步最容易想不明白</h5>
+<p class="dd-lead">分治（Divide and Conquer）听起来很抽象，其实就是三个动作：</p>
+<ol class="tight">
+<li><b>切（divide）</b>：把大问题拆成几个<b>规模更小、结构相同</b>的子问题；</li>
+<li><b>治（conquer）</b>：递归地把子问题解决掉（规模足够小时直接给答案）；</li>
+<li><b>合（merge）</b>：把子问题的答案拼成原问题的答案。</li>
+</ol>
+<p class="dd-lead">第 1、2 步是机械的 —— 几乎所有分治题的切法都是「从中间切一半」。
+真正需要动脑、也真正决定这道题能不能做出来的是<b>第三步</b>。
+很多人的分治学不会，就是因为只背了模板的骨架，没有想清楚「合什么、怎么合」。</p>
+<div class="dd-q">
+<b>归并排序的「合」是什么？</b>「我有两个已经排好序的数组，怎么把它们并成一个有序数组？」
+—— 双指针一次扫描就够。<br>
+<b>逆序对的「合」是什么？</b>「数出所有『左半边元素 &gt; 右半边元素』的数对个数。」
+—— 恰好可以在上面那次扫描里顺便数出来。
+</div>
+<p class="dd-lead">所以分治题的正确切入方式是：<b>先想「如果我拿到了两个子问题的答案，我能不能拼出来」，
+再去写代码。</b></p>
+
+
+<h5 class="dd-h">二、分治树与「合」的时机</h5>
+
+<svg class="fig dff" viewBox="0 0 680 302" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>归并排序的分治树与逆序对计数</title>
+<desc>先递归排好左右两半，再在合并时统计跨过中点的逆序对，合并过程本身是线性的</desc>
+<rect x="40" y="0" width="600" height="48" rx="8" class="dff-b"/><text x="340" y="24" class="dff-t" text-anchor="middle" dominant-baseline="central">8 个数</text>
+<rect x="40" y="76" width="290" height="48" rx="8" class="dff-b"/><text x="185" y="100" class="dff-t" text-anchor="middle" dominant-baseline="central">左半</text>
+<rect x="350" y="76" width="290" height="48" rx="8" class="dff-b"/><text x="495" y="100" class="dff-t" text-anchor="middle" dominant-baseline="central">右半</text>
+<rect x="40" y="152" width="130" height="48" rx="8" class="dff-b"/><text x="105" y="176" class="dff-t" text-anchor="middle" dominant-baseline="central">4</text>
+<rect x="190" y="152" width="130" height="48" rx="8" class="dff-b"/><text x="255" y="176" class="dff-t" text-anchor="middle" dominant-baseline="central">4</text>
+<rect x="350" y="152" width="130" height="48" rx="8" class="dff-b"/><text x="415" y="176" class="dff-t" text-anchor="middle" dominant-baseline="central">4</text>
+<rect x="500" y="152" width="130" height="48" rx="8" class="dff-b"/><text x="565" y="176" class="dff-t" text-anchor="middle" dominant-baseline="central">4</text>
+<line x1="340" y1="48" x2="185" y2="76" class="dff-ln"/>
+<line x1="340" y1="48" x2="495" y2="76" class="dff-ln"/>
+<line x1="185" y1="124" x2="105" y2="152" class="dff-ln"/>
+<line x1="185" y1="124" x2="255" y2="152" class="dff-ln"/>
+<line x1="495" y1="124" x2="415" y2="152" class="dff-ln"/>
+<line x1="495" y1="124" x2="565" y2="152" class="dff-ln"/>
+<rect x="40" y="216" width="600" height="66" rx="8" class="dff-bo"/>
+<text x="60" y="238" class="dff-t" dominant-baseline="central">合并左右两半时：若 a[i] &gt; a[j]，说明左边剩下 mid-i+1 个都比 a[j] 大</text>
+<text x="60" y="264" class="dff-s" dominant-baseline="central">→ 一次就数出 (mid - i + 1) 个逆序对，总复杂度仍是 O(n log n)</text>
+</svg>
+<p class="dd-cap">先递归排好左右两半，合并时顺便数出跨过中点的逆序对 —— 每次合并都是线性的。</p>
+
+<p class="dd-lead">看图注意一件事：<b>逆序对的统计发生在"合"的那一步，不是"切"的那一步。</b>
+每一层的合并只负责数「跨过中点的逆序对」（左半边取一个、右半边取一个），
+而「两个都在左半边」或「两个都在右半边」的逆序对，由<b>下一层的递归</b>负责。
+一层一层加起来，就一个不漏。</p>
+<p class="dd-lead"><b>为什么可以一次数出 (mid − i + 1) 个？</b>
+因为左半边是<b>有序</b>的。当 <span class="mono">a[i] &gt; a[j]</span> 时，
+<span class="mono">a[i], a[i+1], ..., a[mid]</span> 全都大于 <span class="mono">a[j]</span>
+（它们都比 a[i] 还大）。所以不用一个个数，一次就知道有
+<span class="mono">mid − i + 1</span> 个。</p>
+<div class="callout vio">
+<p><b>这一句话就是整道题的核心。</b>如果一个元素比 a[j] 大，那么它后面所有元素也都比 a[j] 大吗？
+—— <b>只有当这一段有序时才成立。</b>所以「先递归排好序，再合并时统计」这个顺序不能反。</p>
+</div>
+
+
+<h5 class="dd-h">三、模板：归并排序 + 逆序对</h5>
+
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">int tmp[N];
+long long inv = 0;
+
+void ms(int *a, int l, int r) {
+    if (l >= r) return;                       // 边界：只剩一个元素，天然有序
+    int mid = (l + r) >> 1;
+    ms(a, l, mid);                            // 治：左半边
+    ms(a, mid + 1, r);                        // 治：右半边
+
+    int i = l, j = mid + 1, k = l;            // 合：双指针归并
+    while (i <= mid && j <= r) {
+        if (a[i] <= a[j]) tmp[k++] = a[i++];
+        else {
+            inv += mid - i + 1;               // 左半边剩下的全都 > a[j]
+            tmp[k++] = a[j++];
+        }
+    }
+    while (i <= mid) tmp[k++] = a[i++];       // 左半边有剩，直接接上
+    while (j <= r)   tmp[k++] = a[j++];       // 右半边有剩
+    for (int t = l; t <= r; ++t) a[t] = tmp[t];   // 写回原数组
+}</script></div>
+
+<p class="dd-lead">三个容易写错的地方：</p>
+<ul class="tight">
+<li><b><span class="mono">tmp</span> 必须用全局数组（或提前分配好）</b>。
+在递归函数里 <span class="mono">new</span> 一个数组会慢到超时；</li>
+<li><b>判定写成 <span class="mono">a[i] &lt;= a[j]</span> 而不是 <span class="mono">&lt;</span></b>。
+写成严格小于会让「相等的两个元素」也被算成逆序对 ——
+题目问的通常是「严格大于」构成的逆序对；</li>
+<li><b>最后一定要把 <span class="mono">tmp</span> 写回 <span class="mono">a</span></b>。
+忘了这一步，排序结果永远不生效，但递归还是会跑完（不报错，只是答案错）。</li>
+</ul>
+
+
+<h5 class="dd-h">四、分治的复杂度怎么算 —— 主定理速查</h5>
+<p class="dd-lead">分治的复杂度写成递推式 <span class="mono">T(n) = a·T(n/b) + f(n)</span>：
+把问题切成 <b>a</b> 份，每份大小是 <b>n/b</b>，合并的代价是 <b>f(n)</b>。入门阶段你只需要记住下面几种形状：</p>
+<table>
+<thead><tr><th>递推式</th><th>复杂度</th><th>典型算法</th></tr></thead>
+<tbody>
+<tr><td class="num">T(n) = T(n/2) + O(1)</td><td><b>O(log n)</b></td><td>二分查找、快速幂</td></tr>
+<tr><td class="num">T(n) = 2T(n/2) + O(n)</td><td><b>O(n log n)</b></td><td>归并排序、快速排序</td></tr>
+<tr><td class="num">T(n) = T(n/2) + O(n)</td><td><b>O(n)</b></td><td>线性选择（nth_element）</td></tr>
+<tr><td class="num">T(n) = 2T(n/2) + O(n²)</td><td><b>O(n²)</b></td><td>朴素分治失效，合并太贵</td></tr>
+</tbody>
+</table>
+<p class="dd-lead"><b>怎么快速判断？</b>看「切开之后的合并代价」和「叶子结点总数」谁大：</p>
+<ul class="tight">
+<li>合并是线性的、叶子有 n 个 → 一共 n log n（每一层都是 n，共 log n 层）；</li>
+<li>合并是线性的、但只往下走一条路（a = 1）→ 一共 n（只有一层有效代价）；</li>
+<li>合并比线性还贵（比如 O(n²)）→ 分治白做了，总复杂度被最贵的那一层压住。</li>
+</ul>
+<p class="dd-lead">用「每一层总共花了多少」横向相加，比死记主定理公式更好用。
+归并排序每一层都是 n，一共 log n 层，所以是 n log n —— 就这么简单。</p>
+
+
+<h5 class="dd-h">五、快速幂：最迷你的一个分治</h5>
+<p class="dd-lead">「求 <span class="mono">a<sup>b</sup> mod p</span>」，b 可以到 10¹⁸。
+朴素做法循环 b 次 —— 不可能。分治的想法是：</p>
+<div class="dd-q">
+<b>a<sup>b</sup> = (a<sup>b/2</sup>)²</b> —— 只要算出「一半」的答案，平方一下就是整个答案。<br>
+所以问题规模每次减半，一共只需 log b 步。
+</div>
+<p class="dd-lead">写成迭代形式就是那五行经典代码。注意几个细节：初值要写
+<span class="mono">1 % p</span> 而不是 <span class="mono">1</span>（因为 p 可能等于 1，答案是 0）；
+每次乘法都要 <span class="mono">% p</span>，否则溢出。</p>
+
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// 快速幂：分治思想的最小例子，O(log b)
+long long qpow(long long a, long long b, long long p) {
+    long long r = 1 % p;
+    for (a %= p; b; b >>= 1, a = a * a % p)
+        if (b & 1) r = r * a % p;
+    return r;
+}</script></div>
+
+<h5 class="dd-h">六、例题精讲：洛谷 P1908 逆序对</h5>
+<div class="ex">
+<b>题意</b>：求数组里有多少对 (i, j) 满足 i &lt; j 且 a<sub>i</sub> &gt; a<sub>j</sub>。<br>
+<b>朴素做法</b>：枚举所有数对，O(n²)。n = 5×10⁵ 时是 2.5×10¹¹，必炸。<br>
+<b>分治做法</b>：直接用上面的归并排序，一次 <span class="mono">O(n log n)</span>。<br>
+<b>另一种做法</b>：树状数组 / 离散化 + 前缀和，也是 O(n log n)。两种都对，
+归并的代码短但要理解「合」；树状数组的思路更通用（能扩展到多维偏序）。
+</div>
+<div class="callout warn">
+<p><b>答案要用 <span class="mono">long long</span>。</b>n = 5×10⁵ 时逆序对最多有
+n(n−1)/2 ≈ 1.25×10¹¹ 个，<span class="mono">int</span> 装不下 ——
+这是这道题最经典的一个 WA 原因。</p>
+</div>
+
+
+<h5 class="dd-h">七、坑清单</h5>
+<ul class="tight">
+<li><b>递归边界写成了 <span class="mono">l &gt; r</span></b> 而不是 <span class="mono">l &gt;= r</span>。
+前者在只剩一个元素时还会继续递归，栈会无限加深；</li>
+<li><b>临时数组每次重新分配。</b>放进递归里 <span class="mono">vector&lt;int&gt; tmp(r - l + 1)</span>
+看着干净，但每次分配内存会把复杂度常数抬高好几倍，n 大时直接 TLE；</li>
+<li><b>合并代价估计错。</b>如果你在合并时对每个元素又扫了一遍整个区间，
+那合并就是 O(n²)，分治的收益全部归零 —— 一定要检查 merge 是不是 O(区间长)；</li>
+<li><b>「切」得不均匀。</b>切法必须是「规模按比例缩小」。
+如果每次都只把问题缩小 1（比如快速排序里基准永远取到最小值），
+递归深度会退化成 n —— 这就是快排最坏 O(n²) 的来源。</li>
+</ul>
+<div class="callout ok">
+<p><b>这一节要练成的反射：</b>看到「统计某种数对的个数」「求最值的最值」，
+先问一句「<b>能不能切成两半，只在合并时数跨中点的那些？</b>」。
+能，就是分治。归并排序和逆序对是这一招的原型，把它吃透，
+后面 CDQ 分治、点分治都是同一个骨架。</p>
+</div>
+<p class="tl"><b>题单</b> 洛谷 P1908 逆序对 · P1010 幂次方 · P1228 地毯填补问题 · P1966 火柴排队（排序 + 逆序对） · P1429 平面最近点对（分治经典，也是计算几何入门）。</p>
+<p class="ref"><b>资料</b> OI-Wiki「递归 &amp; 分治」「CDQ 分治」；《算法竞赛进阶指南》0x05 节。</p>
+
+</div>
+</details>
+
 </article>
 
-<article class="algo" id="hb-9" data-cat="入门" data-kind="entry" data-name="贪心 交换论证 反悔贪心"><div class="ah"><h4>9. 贪心</h4><span class="lv lv-e">入门</span><span class="st">★★★</span><span class="tag">思维</span><a class="prac" href="practice.html#P1090" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<article class="algo" id="hb-9" data-cat="入门" data-kind="entry" data-name="贪心 交换论证 反悔贪心"><div class="ah"><h4>9. 贪心</h4><span class="lv lv-e">入门</span><span class="st">★★★</span><span class="tag">思维</span><span class="ddchip">详解</span><a class="prac" href="practice.html#P1090" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
 <p class="idea"><b>本质</b>：每步取局部最优，且能证明它不劣于任何最优解。常用的三种证明武器：<b>交换论证</b>（任意最优解可交换为我们的选择）、<b>归纳法</b>、<b>反证 + 界</b>。贪心没有通用模板，只有可证明的贪心才是贪心。</p>
 <p class="meta"><b>复杂度</b>：通常 O(n log n)（因为多数贪心要排序或用堆）。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 常见贪心模式 ----------
@@ -1281,10 +2783,194 @@ while(q.size() > 1){
       ① <b>交换论证</b>：假设存在最优解和贪心解不同，找到第一个不同的位置，把它俩交换，证明结果不会变差 → 贪心解也是最优。<br>
       ② <b>反悔贪心</b>：先贪心拿，如果发现不划算，就用堆把之前的决定「撤销」掉。</p>
 <p class="tl"><b>题单</b> 洛谷 P1090 合并果子 · P1223 排队接水 · P1803 线段覆盖 · P5019 铺设道路 · P1080 国王游戏 · P1631 序列合并 · P1094 纪念品分组 · P4447 分组 · P2949 [USACO09OPEN] Work Scheduling（反悔贪心）。</p>
-<p class="ref"><b>资料</b> OI-Wiki「贪心」；《算法竞赛进阶指南》0x07 节；《挑战程序设计竞赛》「贪心」一章。</p></article>
+<p class="ref"><b>资料</b> OI-Wiki「贪心」；《算法竞赛进阶指南》0x07 节；《挑战程序设计竞赛》「贪心」一章。</p>
+<details class="fold deep" id="hb-9-deep">
+<summary>深入讲解 · 贪心：敢贪的前提是「能证明」<span class="sum-note">三种证明武器 + 什么时候该转 DP</span></summary>
+<div class="fold-body">
+
+<h5 class="dd-h">一、先分清：什么时候能贪，什么时候必须 DP</h5>
+<p class="dd-lead">贪心和动态规划长得很像 —— 都在「一步一步做决定」。区别只有一句话：</p>
+<div class="dd-q">
+<b>贪心</b>：每一步只考虑<b>当前</b>最优，做完就不再回头。<br>
+<b>DP</b>：每一步都保留<b>所有可能的状态</b>，因为现在看着不好的选择，后面可能翻盘。
+</div>
+<p class="dd-lead">所以「贪心能不能用」等价于一个问题：<b>当前的最优选择，会不会堵死后面的路？</b>
+不会，才能贪。</p>
+<p class="dd-lead">举两个最经典的对照：</p>
+<ul class="tight">
+<li><b>合并果子（能贪）</b>：每次合并最小的两堆。因为合并的代价只跟这两堆的大小有关，
+先合小的，大的被"垫底"的次数更少 —— 前面怎么选，不影响后面能做哪些选择；</li>
+<li><b>0/1 背包（不能贪）</b>：按「性价比（价值 / 重量）」从高到低拿。
+反例：背包容量 10，物品 A 性价比最高但重 10、价值 11；B、C 各重 5、价值各 6。
+贪心拿 A 得 11，最优是 B + C = 12。<b>拿了 A 就把后面的路堵死了。</b></li>
+</ul>
+<p class="dd-lead">这句话要记住：<b>0/1 背包是「贪心与 DP 的分界线」</b>。
+凡是「选了就没法反悔、且选择之间互相挤占资源」的问题，都要上 DP。</p>
+
+
+<h5 class="dd-h">二、三种证明武器</h5>
+<p class="dd-lead">竞赛里，<b>没有证明的贪心等于猜</b>。你至少要能说出一个理由。
+下面三种是最常用的：</p>
+<ol class="tight">
+<li><b>交换论证</b>（最常用）：假设存在一个最优解，它和贪心解在<b>第一个不同的位置</b>上选的不一样。
+把它的选择<b>交换</b>成贪心的选择，证明结果不会变差 —— 于是贪心解也是最优解；</li>
+<li><b>归纳法</b>：证明「做完第 i 步之后，仍然存在一个最优解包含我当前的选择」；</li>
+<li><b>反证 + 界</b>：证明「任何解都不优于我给出的上界 / 下界」，而我的解恰好达到这个界。
+区间调度就是这么证的 ——「最多只能选 k 个」这个上界被贪心达到了。</li>
+</ol>
+<p class="dd-lead">交换论证的模板长这样，背下来能套很多题：</p>
+<div class="dd-q">
+设贪心第一步选了 <b>A</b>，某个最优解第一步选了 <b>B</b>（A ≠ B）。<br>
+如果能证明「<b>把那个最优解里的 B 换成 A，解仍然最优</b>」，那么第一步选 A 不会更差 ——
+递归地对剩下的部分用同样的论证，贪心就是最优的。
+</div>
+
+
+<h5 class="dd-h">三、最典型的例子：区间调度为什么按右端点排</h5>
+<p class="dd-lead">题目：给一堆区间，选出尽量多的<b>互不重叠</b>的区间。</p>
+<p class="dd-lead">两种看起来都合理的贪心：「按左端点从小到大」「按右端点从小到大」。
+哪个对？看这张图：</p>
+
+<svg class="fig dff" viewBox="0 0 680 194" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>区间调度为什么要按右端点排序</title>
+<desc>按右端点排序能选出最多互不重叠的区间；按左端点排序会先选走太长的区间，挡住后面的选择</desc>
+<text x="40" y="18" class="dff-t" dominant-baseline="central">正确：按右端点排序，能选的都选上</text>
+<rect x="60" y="36" width="186" height="32" rx="6" class="dff-bo"/>
+<text x="153" y="52" class="dff-t" text-anchor="middle" dominant-baseline="central">A</text>
+<rect x="184" y="36" width="124" height="32" rx="6" class="dff-bo"/>
+<text x="246" y="52" class="dff-t" text-anchor="middle" dominant-baseline="central">B</text>
+<rect x="370" y="36" width="186" height="32" rx="6" class="dff-bo"/>
+<text x="463" y="52" class="dff-t" text-anchor="middle" dominant-baseline="central">C</text>
+<text x="40" y="92" class="dff-t" dominant-baseline="central">按左端点排序的反例：先选到 A（最长），就再也塞不下 B</text>
+<rect x="60" y="110" width="144" height="32" rx="6" class="dff-bd"/>
+<text x="132" y="126" class="dff-t" text-anchor="middle" dominant-baseline="central">A</text>
+<rect x="156" y="110" width="96" height="32" rx="6" class="dff-b"/>
+<text x="204" y="126" class="dff-t" text-anchor="middle" dominant-baseline="central">B</text>
+<rect x="300" y="110" width="144" height="32" rx="6" class="dff-b"/>
+<text x="372" y="126" class="dff-t" text-anchor="middle" dominant-baseline="central">C</text>
+<text x="40" y="164" class="dff-s" dominant-baseline="central">结论：右端点越小，留给后面的空间越大 —— 这就是贪心的依据</text>
+</svg>
+<p class="dd-cap">按右端点排序能选出最多互不重叠的区间；按左端点排序会先选走太长的区间，挡住后面的选择。</p>
+
+<p class="dd-lead"><b>为什么右端点是对的？</b>因为选完一个区间之后，
+你唯一在意的就是「<b>下一个区间最早能从哪儿开始</b>」—— 也就是上一个区间的右端点。
+<b>右端点越小，留给后面的空间越大</b>，后面的选择只会更多、不会更少。</p>
+<p class="dd-lead">而按左端点排序时，你会先把「开始得早但特别长」的区间选进来，
+它虽然开始得早，却把一大段位置占掉了 —— 这就是图里 A 挡住 B 的情况。</p>
+<div class="callout vio">
+<p><b>这个思路值得迁移</b>：贪心的排序键往往就是「<b>把最稀缺的资源优先留给后面</b>」。
+区间调度里稀缺的是「位置」，所以按右端点排；排队接水题里稀缺的是「总等待时间」，
+所以按接水时间从短到长排。想清楚「什么资源最紧」，排序键就出来了。</p>
+</div>
+
+
+<h5 class="dd-h">四、四种常见贪心模式</h5>
+
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- 模式 1：按右端点排序（区间调度）----------
+sort(seg + 1, seg + 1 + n, [](S a, S b){ return a.r < b.r; });
+int last = -1e9, cnt = 0;
+for (int i = 1; i <= n; ++i)
+    if (seg[i].l >= last) { last = seg[i].r; ++cnt; }
+
+// ---------- 模式 2：堆维护（合并果子 / Huffman）----------
+priority_queue<int, vector<int>, greater<int>> pq;   // 小根堆
+for (int i = 1; i <= n; ++i) pq.push(a[i]);
+long long cost = 0;
+while (pq.size() > 1) {
+    int x = pq.top(); pq.pop();
+    int y = pq.top(); pq.pop();
+    cost += x + y; pq.push(x + y);      // 合并的代价就是两堆之和
+}
+
+// ---------- 模式 3：邻项交换（国王游戏 / 排队接水）----------
+// 只需比较「i 在前」和「j 在前」哪个更优，把这个式子作为排序键
+sort(p + 1, p + 1 + n, [](P a, P b){ return a.a * b.b < b.a * a.b; });
+
+// ---------- 模式 4：反悔贪心（限时任务）----------
+// 先按贪心拿，维护一个堆；一旦发现不划算，就把堆顶（最不划算的）弹掉
+priority_queue<int> pq;                  // 大根堆，存已选的成本
+long long cost = 0;
+for (int i = 1; i <= n; ++i) {
+    pq.push(w[i]); cost += w[i];
+    if (条件被破坏()) { cost -= pq.top(); pq.pop(); }   // 撤销最不划算的那个
+}</script></div>
+
+<p class="dd-lead"><b>模式 3 的「邻项交换」值得单独说说</b>，因为它是交换论证的直接代码化。
+做法是：假设只有两个相邻元素 i 和 j，分别算出「i 在前」和「j 在前」的代价，
+让 i 排在 j 前面的条件就是「前者更小」。把这个不等式化简，得到的式子就是排序键。</p>
+<p class="dd-lead"><b>模式 4 的「反悔贪心」是贪心的升级形态</b>：
+它承认「我可能选错了」，于是用一个堆保留所有已做的选择，
+当条件被破坏时，把<b>代价最大</b>的那个撤掉。
+对顶堆、带撤销的调度问题都是这个套路。</p>
+
+
+<h5 class="dd-h">五、贪心到底会不会失效</h5>
+
+<svg class="fig dff" viewBox="0 0 680 216" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>贪心成立与不成立</title>
+<desc>合并果子可以用交换论证证明每次合并最小的两堆是最优的；货币找零则是贪心的经典反例</desc>
+<rect x="40" y="20" width="280" height="56" rx="8" class="dff-bo"/><text x="180" y="39" class="dff-t" text-anchor="middle" dominant-baseline="central">成立：合并果子</text><text x="180" y="58" class="dff-s" text-anchor="middle" dominant-baseline="central">每次合并最小的两堆</text>
+<rect x="360" y="20" width="280" height="56" rx="8" class="dff-bd"/><text x="500" y="39" class="dff-t" text-anchor="middle" dominant-baseline="central">不成立：货币找零</text><text x="500" y="58" class="dff-s" text-anchor="middle" dominant-baseline="central">面值 1 / 3 / 4 凑 6 元</text>
+<rect x="40" y="100" width="280" height="96" rx="8" class="dff-b"/>
+<text x="60" y="124" class="dff-m" dominant-baseline="central">1 + 2 = 3 → 3 + 3 = 6 → 6 + 4 = 10</text>
+<text x="60" y="150" class="dff-s" dominant-baseline="central">每次取最小的两堆，小根堆 O(n log n)。</text>
+<text x="60" y="174" class="dff-s" dominant-baseline="central">可以用「交换论证」证明它不劣于任何最优解。</text>
+<rect x="360" y="100" width="280" height="96" rx="8" class="dff-b"/>
+<text x="380" y="124" class="dff-m" dominant-baseline="central">贪心：4 + 1 + 1 = 3 枚</text>
+<text x="380" y="150" class="dff-m" dominant-baseline="central">最优：3 + 3 = 2 枚</text>
+<text x="380" y="174" class="dff-s" dominant-baseline="central">举不出反例也证不出正确性 → 先写对拍。</text>
+</svg>
+<p class="dd-cap">成立与不成立的两个经典例子：合并果子可以用交换论证证明；货币找零是贪心的反例。</p>
+
+<p class="dd-lead"><b>举不出反例，也证不出正确性，怎么办？</b>—— <b>写对拍</b>。
+贪心的验证成本特别低：写一个 O(n²) 的暴力（或者直接枚举小规模的所有方案），
+随机生成几百组小数据，跑一遍比对。如果 300 组都过，那你至少可以放心交上去了。
+这是投入产出比最高的一次验证（具体的对拍写法见「日常开发 · 对拍」那一章）。</p>
+
+
+<h5 class="dd-h">六、例题精讲：洛谷 P1090 合并果子</h5>
+<div class="ex">
+<b>题意</b>：n 堆果子，每次可以合并两堆，代价是两堆之和。问合并成一堆的最小总代价。<br>
+<b>贪心策略</b>：<b>每次合并当前最小的两堆。</b><br>
+<b>为什么对（交换论证的直观版）</b>：总代价 = 每堆果子被"合并"的次数 × 它的重量。
+小的堆多被合几次不心疼，大的堆要尽量少被合 —— 所以让小的先合，
+大堆就会晚一点参与、少参与几次。<br>
+<b>实现</b>：小根堆，每次弹出两个、压回一个，O(n log n)。
+</div>
+<p class="dd-lead"><b>这题的复杂度很有意思</b>：n = 10⁴ 时暴力找最小值（O(n²)）也能过；
+n = 10⁵ 就必须用堆。这就是「同一个贪心策略，换一种数据结构实现」的典型例子 ——
+思路是对的，卡住你的经常只是实现效率。</p>
+<div class="callout ok">
+<p><b>顺带记一个等价表述</b>：合并果子其实就是 <b>Huffman 编码</b>的构造过程。
+如果你学过哈夫曼树，会发现两者一模一样 —— 竞赛里大量「合并 / 拆分求最小代价」
+的题都是它换个皮。</p>
+</div>
+
+
+<h5 class="dd-h">七、坑清单</h5>
+<ul class="tight">
+<li><b>拿贪心当 DP 用。</b>最典型的就是 0/1 背包按性价比贪心 —— 记住它<b>是错的</b>；</li>
+<li><b>贪心的排序键算错。</b>尤其是模式 3 的邻项交换，不等式化简一步错就全错。
+建议：<b>在小数据上手写两组对比验证一下排序键</b>；</li>
+<li><b>没考虑「相等时」。</b>排序键相等时，不同的处理可能导致不同答案。
+如果题目会卡这一层，比较函数里要补齐第二关键字；</li>
+<li><b>溢出。</b>贪心经常要求「代价之和」，n 大时一定要用 <span class="mono">long long</span>；</li>
+<li><b>没验证就交。</b>贪心的错误往往只在小数据上暴露，大样例反而是对的。</li>
+</ul>
+<div class="callout vio">
+<p><b>这一节要练成的反射：</b>拿到一道「求最大 / 最小」的题，先假设它是贪心，问自己
+<b>「当前这一步选最优，会不会让后面变差？」</b>。如果这个问题的答案显然是否定的（而且你能说出为什么），
+就写贪心；如果发现某个量在互相挤占，那就是 DP。</p>
+</div>
+<p class="tl"><b>题单</b> 洛谷 P1090 合并果子 · P1223 排队接水 · P1803 线段覆盖 · P5019 铺设道路 · P1080 国王游戏 · P1631 序列合并 · P1094 纪念品分组 · P4447 分组 · P2949 [USACO09OPEN] Work Scheduling（反悔贪心）。</p>
+<p class="ref"><b>资料</b> OI-Wiki「贪心」；《算法竞赛进阶指南》0x07 节；《挑战程序设计竞赛》「贪心」一章。练习顺序建议：先 P1223 和 P1803 建立手感，再 P1090，最后碰 P1080 这种需要推排序键的。</p>
+
+</div>
+</details>
+</article>
 
 <article class="algo" id="hb-10" data-cat="入门" data-kind="entry" data-name="简单搜索 DFS BFS">
-<div class="ah"><h4>10. 简单搜索（DFS / BFS）</h4><span class="lv lv-e">入门</span><span class="st">★★★</span><span class="tag">必背</span><a class="prac" href="practice.html#P1605" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
+<div class="ah"><h4>10. 简单搜索（DFS / BFS）</h4><span class="lv lv-e">入门</span><span class="st">★★★</span><span class="tag">必背</span><span class="ddchip">详解</span><a class="prac" href="practice.html#P1605" target="_blank" title="该知识点的模板 / 典型题">做例题 →</a></div>
 <p class="idea"><b>本质</b>：搜索 = 枚举状态空间。DFS 用栈（递归）走到底再回头，适合<b>求所有方案 / 判定存在性 / 需要维护路径</b>；BFS 用队列逐层扩散，适合<b>无权图最短路 / 最少步数 / 层序性质</b>。核心是<b>状态的表示 + 剪枝</b>。</p>
 <p class="meta"><b>复杂度</b>：O(状态数 × 转移代价)。剪枝（可行性剪枝、最优性剪枝、去重、启发式排序）是把指数级压到能过的唯一办法。</p>
 <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- DFS：全排列 / 组合 / 八皇后（回溯三件套）----------
@@ -1333,6 +3019,187 @@ while(!q.empty()){
 // ⑤ 对称性剪枝：等价状态只保留一个代表</script></div>
 <p class="tl"><b>题单</b> 洛谷 P1219 八皇后 · P1605 迷宫 · P1443 马的遍历 · P2404 自然数的拆分 · P1019 单词接龙 · P1032 字串变换 · P1379 八数码难题（BFS/双向 BFS/IDA*）。</p>
 <p class="ref"><b>资料</b> OI-Wiki「DFS（搜索）」「BFS（搜索）」；《算法竞赛进阶指南》0x21~0x25 节。</p>
+<details class="fold deep" id="hb-10-deep">
+<summary>深入讲解 · 搜索：把状态空间走一遍<span class="sum-note">DFS 与 BFS 的分工，以及剪枝的四种武器</span></summary>
+<div class="fold-body">
+
+<h5 class="dd-h">一、搜索 = 枚举状态空间</h5>
+<p class="dd-lead">搜索听起来玄，其实就是「枚举」的升级版：<b>把「一步」的定义放宽成「一次转移」</b>，
+然后沿着转移关系把所有能到达的状态走一遍。</p>
+<p class="dd-lead">于是所有搜索题都归结成两个问题：</p>
+<ol class="tight">
+<li><b>状态怎么表示？</b>（一个坐标？一个棋盘？一个整数编码的字符串？）</li>
+<li><b>怎么从状态转移到下一个状态？</b>（上下左右走？选 / 不选？交换两个位置？）</li>
+</ol>
+<p class="dd-lead">把这两个问题答清楚，剩下的就是 DFS 还是 BFS 的选择题。
+复杂度也统一写成 <b><span class="mono">O(状态数 × 每个状态的转移数)</span></b>。</p>
+
+
+<h5 class="dd-h">二、DFS 和 BFS 的分工：一句话记住</h5>
+<div class="dd-q">
+<b>DFS</b>（用栈 / 递归）—— 一条道走到黑，走不通就回退。<br>
+适合：<b>求所有方案、判定存在性、需要维护一条完整路径</b>。<br><br>
+<b>BFS</b>（用队列）—— 一层一层向外扩散。<br>
+适合：<b>无权图 / 无权网格的最短路、最少步数、按层处理</b>。
+</div>
+<p class="dd-lead">为什么 BFS 能求最短路？因为它<b>按距离由近到远</b>地访问节点：
+第一次走到某个点时，走的步数一定是最少的。DFS 没有这个性质 ——
+它可能先绕很远的路到达同一个点。</p>
+<p class="dd-lead"><b>所以「最短 / 最少」三个字出现时，先想 BFS；
+「所有方案 / 有没有解」出现时，先想 DFS。</b></p>
+
+
+<h5 class="dd-h">三、同一张图，两种走法</h5>
+
+<svg class="fig dff" viewBox="0 0 680 268" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>DFS 与 BFS 的访问顺序</title>
+<desc>DFS 沿一条路径走到底再回退，BFS 按距离一层层向外扩散</desc>
+<text x="40" y="18" class="dff-s" dominant-baseline="central">同一张图，两种搜索的访问顺序完全不同</text>
+<line x1="150" y1="60" x2="330" y2="60" class="dff-ln"/>
+<line x1="330" y1="60" x2="510" y2="60" class="dff-ln"/>
+<line x1="150" y1="60" x2="150" y2="140" class="dff-ln"/>
+<line x1="330" y1="60" x2="330" y2="140" class="dff-ln"/>
+<line x1="510" y1="60" x2="510" y2="140" class="dff-ln"/>
+<line x1="150" y1="140" x2="330" y2="140" class="dff-ln"/>
+<rect x="124" y="40" width="52" height="40" rx="8" class="dff-b"/><text x="150" y="60" class="dff-t" text-anchor="middle" dominant-baseline="central">A</text>
+<rect x="304" y="40" width="52" height="40" rx="8" class="dff-b"/><text x="330" y="60" class="dff-t" text-anchor="middle" dominant-baseline="central">B</text>
+<rect x="484" y="40" width="52" height="40" rx="8" class="dff-b"/><text x="510" y="60" class="dff-t" text-anchor="middle" dominant-baseline="central">C</text>
+<rect x="124" y="120" width="52" height="40" rx="8" class="dff-b"/><text x="150" y="140" class="dff-t" text-anchor="middle" dominant-baseline="central">D</text>
+<rect x="304" y="120" width="52" height="40" rx="8" class="dff-b"/><text x="330" y="140" class="dff-t" text-anchor="middle" dominant-baseline="central">E</text>
+<rect x="484" y="120" width="52" height="40" rx="8" class="dff-b"/><text x="510" y="140" class="dff-t" text-anchor="middle" dominant-baseline="central">F</text>
+<rect x="40" y="190" width="600" height="60" rx="8" class="dff-ba"/>
+<text x="60" y="210" class="dff-t" dominant-baseline="central">DFS（一条道走到黑，靠递归回退）：A → B → C → F → 回退 → E → D</text>
+<text x="60" y="234" class="dff-t" dominant-baseline="central">BFS（一层一层扩散，靠队列）：A → B → D → C → E → F</text>
+</svg>
+<p class="dd-cap">同一张图：DFS 沿一条路走到底再回退；BFS 按距离一层层向外扩散。</p>
+
+<p class="dd-lead">图里 A 是起点。<b>DFS</b> 走 A→B→C→F，走到 F 没路了才回退到 C、再到 B，
+然后去 E、最后才到 D。而 <b>BFS</b> 是 A → B、D → C、E → F，
+<b>距离起点 1 的一层先访问完，再去距离 2 的那一层</b>。</p>
+<p class="dd-lead">注意 D 的位置：DFS 最后才访问它，但它的<b>距离其实和 B 一样近</b>。
+这就是为什么「求最短路必须用 BFS」—— DFS 找到的第一条路不保证最短。</p>
+
+
+<h5 class="dd-h">四、DFS：回溯三件套</h5>
+<p class="dd-lead">DFS 写「枚举所有方案」时的骨架叫<b>回溯</b>，核心是三步：</p>
+<div class="dd-q">
+<b>① 做选择</b>（把当前选择记下来）→ <b>② 递归下一层</b> → <b>③ 撤销选择</b>（恢复现场）。</div>
+<p class="dd-lead"><b>第 ③ 步是回溯的灵魂，也是新手最常忘的一步。</b>
+忘了撤销，前一条分支的痕迹会带到下一条分支里，答案会莫名其妙地少或者多。</p>
+
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// ---------- DFS 回溯：全排列 ----------
+int vis[N], p[N];
+void dfs(int dep){
+    if (dep > n) { /* 输出一组解 */ return; }      // 边界：选够了
+    for (int i = 1; i <= n; ++i) {
+        if (vis[i]) continue;                      // 可行性剪枝
+        vis[i] = 1; p[dep] = i;                    // ① 做选择
+        dfs(dep + 1);                              // ② 递归下一层
+        vis[i] = 0;                                // ③ 撤销选择（恢复现场）
+    }
+}
+
+// ---------- 八皇后：用三个标记数组代替集合，O(1) 判冲突 ----------
+// 同一列：        col[y]
+// 同一主对角线：  d1[x + y]
+// 同一副对角线：  d2[x - y + n]        （加 n 是为了让下标非负）</script></div>
+
+<p class="dd-lead"><b>八皇后那三行是「用空间换时间」的典型</b>：
+与其每放一个皇后就回头检查前面所有皇后，不如维护三个布尔数组，
+放下去的时候顺手标记，拿走的时候顺手取消 —— 判定一次冲突就是 O(1)。</p>
+<p class="dd-lead">这个技巧在搜索题里反复出现：<b>把「验证合法性」变成「维护合法性」</b>。
+如果每到一个状态都要扫描全部已有元素去检查冲突，剪枝的效率会被吃掉一大半。</p>
+
+
+<h5 class="dd-h">五、BFS：网格最短路的标准写法</h5>
+
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">const int dx[] = {1, -1, 0, 0}, dy[] = {0, 0, 1, -1};
+int dist[N][N];
+memset(dist, -1, sizeof dist);           // -1 表示「没访问过」
+queue<pii> q;
+q.push({sx, sy}); dist[sx][sy] = 0;      // 起点入队
+while (!q.empty()) {
+    auto [x, y] = q.front(); q.pop();
+    for (int k = 0; k < 4; ++k) {
+        int nx = x + dx[k], ny = y + dy[k];
+        if (nx < 1 || ny < 1 || nx > n || ny > m) continue;   // 越界
+        if (g[nx][ny] == '#') continue;                       // 障碍
+        if (dist[nx][ny] != -1) continue;                     // 已经访问过
+        dist[nx][ny] = dist[x][y] + 1;
+        q.push({nx, ny});                                     // ★ 入队之前就标记
+    }
+}</script></div>
+
+<div class="callout warn">
+<p><b>「入队之前就标记」是 BFS 唯一的硬性要求。</b>如果把
+<span class="mono">dist[nx][ny] = ...</span> 挪到出队时再做，同一个点会被<b>重复入队</b>，
+队列规模可能指数级膨胀 —— 小数据照样过，大数据直接 MLE / TLE。</p>
+<p><b>反过来，DFS 是「出栈时标记」还是「入栈时标记」要小心：</b>
+如果题目允许同一个点被不同路径经过（比如求所有路径），就不能简单地标记访问过。
+先想清楚「同一个状态允不允许被访问两次」，再决定在哪一行打标记。</p>
+</div>
+<p class="dd-lead"><b>多源 BFS</b>：如果起点有多个，只要在初始化时<b>把所有源点都压进队列</b>，
+其余代码一个字都不用改 —— 这就是「多源最短路」的标准写法（比如「求每个格子到最近的火的距离」）。</p>
+
+
+<h5 class="dd-h">六、剪枝：把指数级压到能过的唯一办法</h5>
+<p class="dd-lead">搜索的搜索树往往是指数级的，能不能过全看剪枝。四种武器：</p>
+<table>
+<thead><tr><th>剪枝</th><th>一句话</th><th>典型场景</th></tr></thead>
+<tbody>
+<tr><td class="num">可行性剪枝</td><td>当前状态已经不可能满足约束 → 直接 return</td><td>「剩下的数不够选了」</td></tr>
+<tr><td class="num">最优性剪枝</td><td>当前代价已经 ≥ 已知答案 → 直接 return</td><td>求最小代价，配合贪心先求一个较优解</td></tr>
+<tr><td class="num">顺序剪枝</td><td>优先搜索更可能出解的分支</td><td>先选大的数、先试更优的方向</td></tr>
+<tr><td class="num">记忆化 / 去重</td><td>同一个状态只搜一次</td><td>状态可编码成整数时用哈希表</td></tr>
+</tbody>
+</table>
+<p class="dd-lead"><b>最优性剪枝有一条很实用的技巧：先用贪心求一个"还不错"的解作为初始答案。</b>
+初始答案越接近最优，被剪掉的分支就越多 —— 同样的代码可能从 TLE 变成 AC。</p>
+
+
+<h5 class="dd-h">七、例题精讲：两道题，两种骨架</h5>
+<div class="ex">
+<b>P1219 八皇后（DFS + 剪枝）</b><br>
+在 6×6 到 13×13 的棋盘上放 n 个皇后，两两不能同行、同列、同对角线，问方案数与前三个解。<br>
+骨架就是前面的回溯三件套：<b>按行枚举</b>（每一行放一个），行内枚举列。
+每次放之前用 <span class="mono">col / d1 / d2</span> 三个数组 O(1) 判冲突。
+题目只要求输出前三个解 —— 不要去找"更好的算法"，
+它就是要你老老实实搜出来，考点是<b>回溯的写法</b>。
+</div>
+<div class="ex">
+<b>P1443 马的遍历（BFS 求最短路）</b><br>
+n×m 的棋盘上有一匹马，求它到每个格子的最少步数。<br>
+骨架就是上面的 BFS：把「四个方向」换成马的八个跳法，
+<span class="mono">dist</span> 初值设成 −1，输出时把 −1 打成 0 以外的特殊值。
+<b>注意输出格式</b>：洛谷这道题要求每个数占 5 个字符宽度（<span class="mono">%5d</span>），
+格式错一样不给分。
+</div>
+
+
+<h5 class="dd-h">八、坑清单</h5>
+<ul class="tight">
+<li><b>BFS 忘记「入队即标记」</b> → 同一点重复入队，队列爆炸。见上文；</li>
+<li><b>DFS 忘记「撤销选择」</b> → 前一条分支的痕迹污染后面的分支；</li>
+<li><b>越界判断放在了访问之后</b>。数组越界读到的可能是别的变量，程序不崩但答案错。
+<b>越界判断永远放最前面</b>；</li>
+<li><b>递归太深</b>。DFS 深度可能上万，记得提高栈空间或者改成显式栈；</li>
+<li><b>状态没编码好</b>。八数码这类题要把棋盘压成一个整数（比如康托展开 / 9 位十进制数），
+否则 <span class="mono">map&lt;string, int&gt;</span> 会慢到不可接受；</li>
+<li><b>双向 BFS 忘了判「起点终点重合」</b>。这是双向 BFS 最常见的边界错误；</li>
+<li><b>该剪枝没剪</b>。搜索题如果超时，先问自己「<b>我有没有在进入下一层之前就把不可能的情况挡掉？</b>」</li>
+</ul>
+<div class="callout ok">
+<p><b>这一节要练成的反射：</b>看到「最少步数 / 最短距离」→ BFS；
+看到「所有方案 / 方案数 / 有解吗」→ DFS + 回溯；
+看到搜索超时 → 先问「状态能不能编码去重」，再问「有没有上界可以剪枝」。
+把 P1219 和 P1443 独立写到不用看模板，搜索这一关就稳了。</p>
+</div>
+<p class="tl"><b>题单</b> 洛谷 P1219 八皇后 · P1605 迷宫 · P1443 马的遍历 · P2404 自然数的拆分 · P1019 单词接龙 · P1032 字串变换 · P1379 八数码难题（BFS / 双向 BFS / IDA*）。</p>
+<p class="ref"><b>资料</b> OI-Wiki「DFS（搜索）」「BFS（搜索）」；《算法竞赛进阶指南》0x21~0x25 节。搜索是入门篇的最后一块，也是通往「图论」和「DP」的桥。</p>
+
+</div>
+</details>
+
 </article>
 
 <div class="callout ok">
@@ -13412,5 +15279,35 @@ b.erase(unique(b.begin(), b.end()), b.end());</script></div>
 
 </script>
 <script src="./search.js" defer></script>
+
+<script>
+/* ===== 学习手册 · 入门篇「深入讲解」面板：深链展开 + 工具条联动 ===== */
+(function () {
+  'use strict';
+  var panels = [].slice.call(document.querySelectorAll('details.fold.deep'));
+  if (!panels.length) return;
+  function openUp(el) {
+    var n = el;
+    while (n) { if (n.tagName === 'DETAILS') { n.open = true; } n = n.parentElement; }
+  }
+  function reveal(hash) {
+    if (!hash || hash.charAt(0) !== '#') return;
+    var el = document.getElementById(hash.slice(1));
+    if (!el) return;
+    var d = el.closest ? el.closest('details.fold.deep') : null;
+    if (!d) return;
+    openUp(el);
+    if (el.scrollIntoView) el.scrollIntoView({ block: 'start' });
+  }
+  reveal(location.hash);
+  window.addEventListener('hashchange', function () { reveal(location.hash); }, { passive: true });
+  [].slice.call(document.querySelectorAll('#mod-hb [data-act]')).forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var open = btn.getAttribute('data-act') === 'expand';
+      panels.forEach(function (d) { d.open = open; });
+    });
+  });
+})();
+</script>
 </body>
 </html>
