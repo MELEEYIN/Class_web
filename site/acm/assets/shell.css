@@ -752,3 +752,13 @@ html.theme-anim .top, html.theme-anim .doc { transition: background-color .3s va
 @media (min-width: 1200px) {
   .to-top { right: calc(var(--rail-w) + 58px); }
 }
+
+/* 超宽屏：内容块居中，避免全挤在左侧 */
+@media (min-width: 1600px) {
+  .view { margin-inline: auto; }
+}
+
+/* 超宽屏：内容块居中，避免全挤在左侧 */
+@media (min-width: 1600px) {
+  .view { margin-inline: auto; }
+}
