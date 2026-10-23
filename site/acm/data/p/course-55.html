@@ -1,0 +1,351 @@
+
+<p id="b0">第 46~54 节一共给了 8 类工具，看着互不相干，其实都在做同一个替换：<b>把「每次重扫一遍」换成「只碰 O(log n) 个位置或 O(1) 个位置」</b>。树状数组把前缀和切成 log n 段；线段树把区间摊成二叉树，用懒标记把整段操作压成一个数；单调队列把「永远不会再成为答案」的元素直接扔掉；Trie 把公共前缀合成一条链；KMP 把「已经匹配上的那一段」记成 nxt 不重算；ST 表用倍增把区间最值压成两次查表；匈牙利把「请你换一个」写成一次 dfs。</p><div class="quote" id="b1">判断标准只有一句：如果暴力里有一处「把这一段重新扫一遍」，就有一个 O(log n) 或 O(1) 的结构在等你。</div><table><thead><tr><th id="b2">节</th><th id="b3">工具</th><th id="b4">看到这些字就上它</th><th id="b5">一次操作</th></tr></thead><tbody><tr><td id="b6">46</td><td id="b7">树状数组</td><td id="b8">「单点改 + 前缀和」「逆序对」「值域上数个数」</td><td id="b9">O(log n)</td></tr><tr><td id="b10">47</td><td id="b11">线段树 + 懒标记</td><td id="b12">「区间加 / 区间赋值」配「区间求和 / 区间最值」</td><td id="b13">O(log n)</td></tr><tr><td id="b14">48</td><td id="b15">单调栈 / 单调队列</td><td id="b16">「左边第一个更大的」「窗口最值，且窗口只往右滑」</td><td id="b17">O(n)</td></tr><tr><td id="b18">49</td><td id="b19">堆 / 对顶堆</td><td id="b20">「每次取最小」「动态中位数」「k 路归并取前 k 小」</td><td id="b21">O(log n)</td></tr><tr><td id="b22">51</td><td id="b23">字符串哈希 / Trie</td><td id="b24">「两个子串是否相等」「前缀查询」「单词出现过没有」</td><td id="b25">O(1) / O(L)</td></tr><tr><td id="b26">52</td><td id="b27">KMP</td><td id="b28">「模式串在主串里的出现位置」「最长 border」</td><td id="b29">O(n + m)</td></tr><tr><td id="b30">53</td><td id="b31">倍增 / ST 表</td><td id="b32">「静态区间最值」「第 2^k 级祖先」「LCA」</td><td id="b33">O(1) / O(log n)</td></tr><tr><td id="b34">54</td><td id="b35">二分图 / 匈牙利</td><td id="b36">「两两配对」「冲突分两组」「最大匹配」</td><td id="b37">O(VE)</td></tr></tbody></table><p id="b38">第 50 节是模拟赛，P1886 滑动窗口与 P1908 逆序对已经在里面考过一次。这一节换 P1440 和 P1168 练单调队列与堆，另外三道覆盖 Trie、KMP、二分图。先把 P1908 完整写一遍——它同时用上离散化和树状数组，是 46 节所有套路的汇合点。</p><div class="prob"><div class="ph"><span class="pn" id="b39">例题 · 逆序对</span><span class="oi">洛谷 P1908</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P1908" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b40">给定一段正整数序列 a，若 i &lt; j 且 a[i] &gt; a[j]，则称 (i, j) 是一个逆序对。求逆序对总数。</p><p id="b41">输入格式：第一行一个整数 n（1 ≤ n ≤ 5×10⁵）；第二行 n 个整数 a[i]（1 ≤ a[i] ≤ 10⁹）。</p><p id="b42">输出格式：一行一个整数，表示逆序对总数。</p></div><div class="io" id="b43">输入：
+6
+5 4 2 6 3 1
+
+输出：
+11</div></div><p id="b44">题意换个说法：每一对逆序对都唯一对应一个「右边比左边小」的关系。固定左边的数 a[i]，它贡献的个数就是「i 右边严格小于 a[i] 的数的个数」。于是题目变成 n 次提问：<b>在值域上问「比 x 小的数已经出现了几个」</b>。值域开桶、单点加、前缀查询——三句话正好是树状数组。</p><p id="b45">先把三块骨头拆开：<b>lowbit</b> 决定管辖长度，<b>add / query</b> 决定怎么跳下标，<b>离散化</b> 把 10⁹ 的值域压到 1..m（m ≤ n）。</p><div class="fn"><div class="fh" id="b46">新函数拆解 · lowbit（取最低位的 1）</div><div class="fb"><div class="sig" id="b47">int lowbit(int x) { return x &amp; -x; }</div><table class="lines"><thead><tr><th id="b48">组成</th><th id="b49">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b50"><code>x &amp; -x</code></td><td id="b51">取 x 二进制里最低位的那个 1，连同它后面的 0，返回一个 2 的幂。</td></tr><tr><td id="b52"><code>为什么成立</code></td><td id="b53">补码下 −x = ~x + 1。取反把最低位的 1 变 0、后面的 0 全变 1，再加 1 全部进位回去，高位互相抵消，只剩那一位。</td></tr><tr><td id="b54"><code>算几个</code></td><td id="b55">lowbit(6) = 2（110 → 10）；lowbit(8) = 8（1000 → 1000）；lowbit(7) = 1。</td></tr><tr><td id="b56"><code>在树状数组里</code></td><td id="b57">t[x] 管的区间长度恰好是 lowbit(x)，管辖范围是 (x − lowbit(x), x]。</td></tr><tr><td id="b58"><code>x = 0 时</code></td><td id="b59">lowbit(0) = 0。下标一旦从 0 开始，add 里 p += 0 永不前进 → 死循环 TLE。</td></tr></tbody></table><div class="cap" id="b60">最小可运行示例</div><div class="cap" id="b61">示例</div><pre id="b62"><code><span class="k">for</span> (<span class="k">int</span> x = <span class="n">1</span>; x &lt;= <span class="n">8</span>; ++x)
+    <span class="k">printf</span>(<span class="s">"%d "</span>, x &amp; -x);        <span class="c">// 1 2 1 4 1 2 1 8</span></code></pre><div class="box tip"><div class="t" id="b63">注意</div><p id="b64">对 int 与 long long 都成立，因为补码规则一样。</p><p id="b65">树状数组的下标恒从 1 开始；题目给 0-based 就整体 +1。</p></div></div></div><div class="fn"><div class="fh" id="b66">新函数拆解 · 树状数组（单点加 + 前缀和）</div><div class="fb"><div class="sig" id="b67">void add(int p, int v);
+int query(int p);</div><table class="lines"><thead><tr><th id="b68">组成</th><th id="b69">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b70"><code>add(p, v)</code></td><td id="b71">a[p] += v。沿 p → p + lowbit(p) 一路上跳，改掉每个管到 p 的 t，最多 log n 步。</td></tr><tr><td id="b72"><code>query(p)</code></td><td id="b73">返回 a[1..p] 的和。沿 p → p − lowbit(p) 一路下跳，把覆盖到的 t 累加。</td></tr><tr><td id="b74"><code>区间和</code></td><td id="b75">sum(l, r) = query(r) − query(l − 1)。树状数组只会求前缀，区间一律靠相减。</td></tr><tr><td id="b76"><code>循环上界</code></td><td id="b77">add 写 p &lt;= n；值域压缩过时写 p &lt;= m（m 为不同值个数），写 n 也不会错，只是多跑空位。</td></tr><tr><td id="b78"><code>t 不是原数组</code></td><td id="b79">t 是「若干段区间和」的堆叠，读 t[i] 得不到 a[i]。</td></tr><tr><td id="b80"><code>复杂度</code></td><td id="b81">n = 5×10⁵ 时 log₂n ≈ 19，一次操作最多 19 次加法。</td></tr></tbody></table><div class="cap" id="b82">最小可运行示例</div><div class="cap" id="b83">示例</div><pre id="b84"><code><span class="k">int</span> t[N], n;
+<span class="k">void</span> <span class="f">add</span>(<span class="k">int</span> p, <span class="k">int</span> v) { <span class="k">for</span> (; p &lt;= n; p += p &amp; -p) t[p] += v; }
+<span class="k">int</span> <span class="f">query</span>(<span class="k">int</span> p) { <span class="k">int</span> s = <span class="n">0</span>; <span class="k">for</span> (; p &gt; <span class="n">0</span>; p -= p &amp; -p) s += t[p]; <span class="k">return</span> s; }
+
+<span class="f">add</span>(<span class="n">3</span>, <span class="n">5</span>); <span class="f">add</span>(<span class="n">5</span>, -<span class="n">2</span>);
+<span class="k">printf</span>(<span class="s">"%d\n"</span>, <span class="f">query</span>(<span class="n">5</span>) - <span class="f">query</span>(<span class="n">2</span>));    <span class="c">// a[3..5] 的和 = 3</span></code></pre><div class="box tip"><div class="t" id="b85">注意</div><p id="b86">多组数据在每组开头 memset(t, 0, sizeof t)，否则第二组开始全错。</p><p id="b87">树状数组不能求区间最值：query 靠相减，max 没有逆运算。要最值就换线段树或 ST 表。</p></div></div></div><div class="fn"><div class="fh" id="b88">新函数拆解 · 离散化：sort + unique + lower_bound</div><div class="fb"><div class="sig" id="b89">sort(b + 1, b + n + 1);
+m = unique(b + 1, b + n + 1) - b - 1;
+rk[i] = lower_bound(b + 1, b + m + 1, a[i]) - b;</div><table class="lines"><thead><tr><th id="b90">组成</th><th id="b91">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b92"><code>sort</code></td><td id="b93">先排序。不排序就 unique，去重无效、名次整体错位 → WA。</td></tr><tr><td id="b94"><code>unique(first, last)</code></td><td id="b95">把相邻重复元素搬到后面，返回到「新末尾」的迭代器。它不删元素、不改容量，只是搬移。</td></tr><tr><td id="b96"><code>− b − 1</code></td><td id="b97">迭代器减首地址得到下标；因为从 b[1] 开始存，再减 1 才是不同值的个数 m。</td></tr><tr><td id="b98"><code>lower_bound(...) − b</code></td><td id="b99">在去重后的有序数组里二分，得到 a[i] 的名次 1..m。</td></tr><tr><td id="b100"><code>保序性</code></td><td id="b101">a[i] &lt; a[j] ⇔ rk[i] &lt; rk[j]，a[i] == a[j] ⇔ rk[i] == rk[j]，所以「比大小」可以整体换成名次比较。</td></tr><tr><td id="b102"><code>代价</code></td><td id="b103">O(n log n)。n = 5×10⁵ 时约 10⁷ 次比较，和后面的树状数组同阶。</td></tr></tbody></table><div class="cap" id="b104">最小可运行示例</div><div class="cap" id="b105">示例</div><pre id="b106"><code><span class="k">int</span> a[<span class="n">6</span>] = {<span class="n">0</span>, <span class="n">30</span>, <span class="n">10</span>, <span class="n">30</span>, <span class="n">20</span>, <span class="n">10</span>};
+<span class="k">int</span> b[<span class="n">6</span>]; <span class="k">memcpy</span>(b, a, <span class="k">sizeof</span> a);
+<span class="k">sort</span>(b + <span class="n">1</span>, b + <span class="n">6</span>);                      <span class="c">// 10 10 20 30 30</span>
+<span class="k">int</span> m = <span class="k">unique</span>(b + <span class="n">1</span>, b + <span class="n">6</span>) - b - <span class="n">1</span>;    <span class="c">// m = 3</span>
+<span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= <span class="n">5</span>; ++i)
+    <span class="k">printf</span>(<span class="s">"%d "</span>, <span class="k">lower_bound</span>(b + <span class="n">1</span>, b + m + <span class="n">1</span>, a[i]) - b);   <span class="c">// 3 1 3 2 1</span></code></pre><div class="box tip"><div class="t" id="b107">注意</div><p id="b108">m 写成 n 也能过，只是树状数组多开一些用不到的位置。</p><p id="b109">原数组 a 必须留着：扫的时候按原顺序，按 b 的顺序扫就把逆序对关系弄没了。</p></div></div></div><div class="step"><div class="sh" id="b110">例题怎么想：把「数对」拆成「单点查询」</div><p id="b111">朴素做法枚举所有 i &lt; j 比较，n = 5×10⁵ 时是 1.25×10¹¹ 次比较。C++ 每秒约 10⁸ 次，要跑 20 分钟 → TLE。</p><p id="b112">换个数法：不枚举数对，只枚举<b>右边的数</b> a[i]，数它右边有几个比它小。所有位置的答案加起来，每对逆序对恰好被算一次。</p><p id="b113">「右边有多少个比 x 小」是一个值域上的前缀计数：开桶 c[v]，出现一次就 c[v]++，查询 Σ<sub>v &lt; x</sub> c[v]。单点加 + 前缀和 = 树状数组，两种操作都是 O(log n)。</p><p id="b114">值域到 10⁹，桶开不下。但题目只关心「谁比谁大」，不关心具体值：把每个数换成它在去重后的名次，严格小、相等这些关系全部保留，值域就压到 1..m ≤ n。</p><p id="b115">从右往左扫 i = n..1：此刻桶里装的全是 a[i] 右边的数，<code>query(rk[i] − 1)</code> 数的是名次 ≤ rk[i]−1，也就是值严格小于 a[i] 的个数，直接累加。</p><p id="b116"><b>先查后加</b>：query 必须在 add 之前，否则会把自己算进去，答案恰好大 n。</p><p id="b117">对称写法是从左往右 <code>ans += (i − 1) − query(rk[i])</code>。两种写法答案一样，因为每一对 (i, j) 只在靠右的那个数处被统计一次；两者只差一个 i−1，记住一种即可。</p></div><div class="cap" id="b118">完整代码：离散化 + 树状数组</div><pre id="b119"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">500005</span>;
+<span class="k">int</span> a[MAXN], b[MAXN], rk[MAXN], t[MAXN];
+<span class="k">int</span> n, m;                       <span class="c">// m：不同值的个数，也是树状数组的值域上界</span>
+<span class="k">long</span> <span class="k">long</span> ans;                  <span class="c">// 最多 1.25×10^11，必须 long long</span>
+
+<span class="k">int</span> <span class="f">lowbit</span>(<span class="k">int</span> x) { <span class="k">return</span> x &amp; -x; }
+
+<span class="k">void</span> <span class="f">add</span>(<span class="k">int</span> p) {               <span class="c">// 在名次 p 上记一次出现</span>
+    <span class="k">for</span> (; p &lt;= m; p += <span class="f">lowbit</span>(p)) ++t[p];
+}
+<span class="k">int</span> <span class="f">query</span>(<span class="k">int</span> p) {              <span class="c">// 名次 1..p 上一共出现过多少个数</span>
+    <span class="k">int</span> s = <span class="n">0</span>;
+    <span class="k">for</span> (; p &gt; <span class="n">0</span>; p -= <span class="f">lowbit</span>(p)) s += t[p];
+    <span class="k">return</span> s;
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;n);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) { <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;a[i]); b[i] = a[i]; }
+
+    <span class="k">sort</span>(b + <span class="n">1</span>, b + n + <span class="n">1</span>);                                <span class="c">// 离散化第一步：排序</span>
+    m = <span class="k">unique</span>(b + <span class="n">1</span>, b + n + <span class="n">1</span>) - b - <span class="n">1</span>;                  <span class="c">// 第二步：去重，得到值域 1..m</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i)
+        rk[i] = <span class="k">lower_bound</span>(b + <span class="n">1</span>, b + m + <span class="n">1</span>, a[i]) - b;   <span class="c">// 第三步：查名次</span>
+
+    <span class="k">for</span> (<span class="k">int</span> i = n; i &gt;= <span class="n">1</span>; --i) {
+        ans += <span class="f">query</span>(rk[i] - <span class="n">1</span>);   <span class="c">// 桶里全是 i 右边的数，这里数出严格小于 a[i] 的</span>
+        <span class="f">add</span>(rk[i]);                <span class="c">// 再把 a[i] 放进桶，留给更左边的人用</span>
+    }
+    <span class="k">printf</span>(<span class="s">"%lld\n"</span>, ans);
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b120">逐行拆解</div><table class="lines"><thead><tr><th id="b121">代码片段</th><th id="b122">含义与理由</th></tr></thead><tbody><tr><td id="b123"><code>const int MAXN = 500005;</code></td><td id="b124">n 的上限是 5×10⁵，多开 5 个防止 off-by-one。</td></tr><tr><td id="b125"><code>long long ans;</code></td><td id="b126">5×10⁵ 个数全逆序时对数 = n(n−1)/2 ≈ 1.25×10¹¹，int 装不下，溢出后是负数。</td></tr><tr><td id="b127"><code>b[i] = a[i];</code></td><td id="b128">复制一份用于排序，原数组一动手，逆序对关系就没了。</td></tr><tr><td id="b129"><code>m = unique(b + 1, b + n + 1) - b - 1;</code></td><td id="b130">去重后的元素个数。unique 只搬移不删除，因此必须先 sort；返回值减首地址再减 1，因为下标从 1 起。</td></tr><tr><td id="b131"><code>lower_bound(b + 1, b + m + 1, a[i]) - b</code></td><td id="b132">在去重数组里二分 a[i]，得到名次 1..m。相等的元素拿到同一个名次，这正是我们要的。</td></tr><tr><td id="b133"><code>for (int i = n; i &gt;= 1; --i)</code></td><td id="b134">倒着扫。扫描方向决定了桶里装的是「左边」还是「右边」，两种都对，混着写就错。</td></tr><tr><td id="b135"><code>ans += query(rk[i] - 1);</code></td><td id="b136">rk[i] − 1 把「相等」排除在外，数出的是严格小于 a[i] 的个数，正好是逆序对的定义。</td></tr><tr><td id="b137"><code>add(rk[i]);</code></td><td id="b138">先查后加。顺序反了会把自己算进去，答案固定多 n。</td></tr><tr><td id="b139"><code>printf("%lld\n", ans);</code></td><td id="b140">long long 必须配 %lld，用 %d 会输出高 32 位的垃圾。</td></tr></tbody></table></div><p id="b141">逆序对还有第二种 O(n log n) 数法：<b>归并排序</b>。合并两段有序数组时，右段的 a[j] 每被取出一次，左段剩下的 mid − i + 1 个数都比它大，直接累加。常数比树状数组小一半，代价是会打乱原数组，也回答不了「每个位置右边有多少个更小的」这类附加问题。下一节讲分治时会再用到这段。</p><div class="cap" id="b142">第二种数法：归并排序（片段，需自己补 MAXN、a、tmp）</div><pre id="b143"><code><span class="k">int</span> tmp[MAXN];
+<span class="k">long</span> <span class="k">long</span> <span class="f">merge_sort</span>(<span class="k">int</span> l, <span class="k">int</span> r) {      <span class="c">// 返回 [l, r] 内的逆序对数，顺手把 a[l..r] 排好</span>
+    <span class="k">if</span> (l &gt;= r) <span class="k">return</span> <span class="n">0</span>;
+    <span class="k">int</span> mid = (l + r) &gt;&gt; <span class="n">1</span>;
+    <span class="k">long</span> <span class="k">long</span> res = <span class="f">merge_sort</span>(l, mid) + <span class="f">merge_sort</span>(mid + <span class="n">1</span>, r);
+    <span class="k">int</span> i = l, j = mid + <span class="n">1</span>, k = l;
+    <span class="k">while</span> (i &lt;= mid &amp;&amp; j &lt;= r) {
+        <span class="k">if</span> (a[i] &lt;= a[j]) tmp[k++] = a[i++];              <span class="c">// 相等时先取左边，保证相等不算逆序</span>
+        <span class="k">else</span> { res += mid - i + <span class="n">1</span>; tmp[k++] = a[j++]; }   <span class="c">// a[i..mid] 这 mid-i+1 个全都 &gt; a[j]</span>
+    }
+    <span class="k">while</span> (i &lt;= mid) tmp[k++] = a[i++];
+    <span class="k">while</span> (j &lt;= r)   tmp[k++] = a[j++];
+    <span class="k">for</span> (<span class="k">int</span> p = l; p &lt;= r; ++p) a[p] = tmp[p];
+    <span class="k">return</span> res;
+}</code></pre><p id="b144">46 节的题到这里收口。下面 6 张卡片分别对应 47、48、51、52、53、54，只留<b>最容易写错的那几行</b>；49 的堆与对顶堆不单独给卡片，第 2 题就是它的完整代码。</p><div class="fn"><div class="fh" id="b145">新函数拆解 · 线段树：apply 与 pushdown</div><div class="fb"><div class="sig" id="b146">void apply(int p, int l, int r, long long v);
+void pushdown(int p, int l, int r);</div><table class="lines"><thead><tr><th id="b147">组成</th><th id="b148">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b149"><code>tr[p] 管 [l, r]</code></td><td id="b150">每个节点管一段。sum 是这段之和，tag 是「整段要加、但还没分给孩子」的懒标记。</td></tr><tr><td id="b151"><code>数组开 4n</code></td><td id="b152">递归划分出的节点编号最大接近 4n。开 2n 一定越界，症状是 RE 或「样例过、大测试点错」。</td></tr><tr><td id="b153"><code>apply(p, l, r, v)</code></td><td id="b154">sum[p] += v × (r − l + 1); tag[p] += v; 加的是整段，长度必须乘进去。</td></tr><tr><td id="b155"><code>pushdown</code></td><td id="b156">把 tag 分给两个孩子并清零。任何「要进孩子」的 update / query 都必须先调它。</td></tr><tr><td id="b157"><code>不清零的后果</code></td><td id="b158">标记被反复下传，同一段被加多次 → WA，答案偏大，区间越大偏得越多。</td></tr><tr><td id="b159"><code>long long</code></td><td id="b160">10⁵ 次区间加、每次 +10⁹，和可达 10¹⁴，sum 与 tag 都必须是 long long。</td></tr></tbody></table><div class="cap" id="b161">最小可运行示例</div><div class="cap" id="b162">示例</div><pre id="b163"><code><span class="k">long</span> <span class="k">long</span> sum[N &lt;&lt; <span class="n">2</span>], tag[N &lt;&lt; <span class="n">2</span>];
+
+<span class="k">void</span> <span class="f">apply</span>(<span class="k">int</span> p, <span class="k">int</span> l, <span class="k">int</span> r, <span class="k">long</span> <span class="k">long</span> v) {
+    sum[p] += v * (r - l + <span class="n">1</span>);     <span class="c">// 整段加 v，和要乘长度</span>
+    tag[p] += v;                   <span class="c">// 记账，孩子以后补</span>
+}
+<span class="k">void</span> <span class="f">pushdown</span>(<span class="k">int</span> p, <span class="k">int</span> l, <span class="k">int</span> r) {
+    <span class="k">if</span> (!tag[p]) <span class="k">return</span>;           <span class="c">// 没账可还</span>
+    <span class="k">int</span> mid = (l + r) &gt;&gt; <span class="n">1</span>;
+    <span class="f">apply</span>(p &lt;&lt; <span class="n">1</span>, l, mid, tag[p]);
+    <span class="f">apply</span>(p &lt;&lt; <span class="n">1</span> | <span class="n">1</span>, mid + <span class="n">1</span>, r, tag[p]);
+    tag[p] = <span class="n">0</span>;                    <span class="c">// 还完必须清零，否则下次又发一遍</span>
+}</code></pre><div class="box tip"><div class="t" id="b164">注意</div><p id="b165">query 里也要 pushdown：孩子的 sum 可能是旧值，不推标记直接读会少算。</p><p id="b166">区间赋值（不是加）时，tag 要记「赋值成几」，并用一个特殊值表示「没有标记」。</p></div></div></div><div class="fn"><div class="fh" id="b167">新函数拆解 · 单调队列（滑动窗口最值）</div><div class="fb"><div class="sig" id="b168">deque&lt;int&gt; q;   // 存下标，不存值</div><table class="lines"><thead><tr><th id="b169">组成</th><th id="b170">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b171"><code>存下标</code></td><td id="b172">只有下标才能判断「有没有滑出窗口」。存值的话过期信息就丢了。</td></tr><tr><td id="b173"><code>保单调</code></td><td id="b174">求最小值时队列里的值单调递增：新元素 a[i] 进队前，把队尾所有 ≥ a[i] 的弹掉。</td></tr><tr><td id="b175"><code>为什么能弹</code></td><td id="b176">下标更大、值又不更大，在它过期之前永远优于被弹掉的元素；被弹掉的再也回不来。</td></tr><tr><td id="b177"><code>队头过期</code></td><td id="b178">窗口左端是 i − k + 1，队头下标 &lt; 左端就 pop_front。</td></tr><tr><td id="b179"><code>取答案</code></td><td id="b180">最小值 = a[q.front()]，O(1)。求最大值把两个比较方向反过来。</td></tr><tr><td id="b181"><code>复杂度</code></td><td id="b182">每个下标进队一次、出队一次，总 O(n)；n = 2×10⁶ 也只有几十毫秒。</td></tr></tbody></table><div class="cap" id="b183">最小可运行示例</div><div class="cap" id="b184">示例</div><pre id="b185"><code>deque&lt;<span class="k">int</span>&gt; q;
+<span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+    <span class="k">while</span> (!q.<span class="k">empty</span>() &amp;&amp; a[q.<span class="f">back</span>()] &gt;= a[i]) q.<span class="k">pop_back</span>();  <span class="c">// 队尾没有存在价值了</span>
+    q.<span class="k">push_back</span>(i);
+    <span class="k">while</span> (q.<span class="f">front</span>() &lt;= i - k) q.<span class="f">pop_front</span>();                <span class="c">// 滑出窗口</span>
+    <span class="k">if</span> (i &gt;= k) <span class="k">printf</span>(<span class="s">"%d "</span>, a[q.<span class="f">front</span>()]);
+}</code></pre><div class="box tip"><div class="t" id="b186">注意</div><p id="b187">用 multiset 是 O(n log n)，常数大 3~5 倍；每个窗口重扫一遍是 O(nk)，n = 10⁶ 必 TLE。</p><p id="b188">队列里元素个数 ≤ k，手写数组队列比 deque 快一倍，2×10⁶ 的数据建议手写。</p></div></div></div><div class="fn"><div class="fh" id="b189">新函数拆解 · Trie（字典树）</div><div class="fb"><div class="sig" id="b190">int ch[MAXNODE][26], tot;
+int vis[MAXNODE];   // 0 非单词 / 1 未点过 / 2 已点过</div><table class="lines"><thead><tr><th id="b191">组成</th><th id="b192">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b193"><code>根</code></td><td id="b194">0 号节点是根，不代表任何字符。</td></tr><tr><td id="b195"><code>ch[p][c]</code></td><td id="b196">节点 p 走字符 c 到达的儿子编号。0 表示没有这条边，所以节点编号从 1 开始，0 专门当「空」。</td></tr><tr><td id="b197"><code>tot</code></td><td id="b198">已用节点数，新节点编号 = ++tot。</td></tr><tr><td id="b199"><code>节点数上界</code></td><td id="b200">所有串长度之和 + 1。10⁴ 个名字、每个 ≤ 50 → 5×10⁵ 个节点。</td></tr><tr><td id="b201"><code>空间</code></td><td id="b202">26 × 节点数 × 4 字节。5×10⁵ 个节点 = 52 MB，128 MB 限制下要算清楚。</td></tr><tr><td id="b203"><code>结尾标记</code></td><td id="b204">走到底还不够：必须看这个节点有没有被标成「单词结尾」。</td></tr></tbody></table><div class="cap" id="b205">最小可运行示例</div><div class="cap" id="b206">示例</div><pre id="b207"><code><span class="k">int</span> ch[N][<span class="n">26</span>], vis[N], tot;
+
+<span class="k">void</span> <span class="f">insert</span>(<span class="k">const</span> <span class="k">string</span> &amp;s) {
+    <span class="k">int</span> p = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">char</span> c : s) {
+        <span class="k">int</span> x = c - <span class="s">'a'</span>;
+        <span class="k">if</span> (!ch[p][x]) ch[p][x] = ++tot;   <span class="c">// 没有就新建</span>
+        p = ch[p][x];
+    }
+    vis[p] = <span class="n">1</span>;                            <span class="c">// 只在结尾打标记</span>
+}
+<span class="k">int</span> <span class="f">query</span>(<span class="k">const</span> <span class="k">string</span> &amp;s) {
+    <span class="k">int</span> p = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">char</span> c : s) {
+        <span class="k">int</span> x = c - <span class="s">'a'</span>;
+        <span class="k">if</span> (!ch[p][x]) <span class="k">return</span> <span class="n">0</span>;           <span class="c">// 断链</span>
+        p = ch[p][x];
+    }
+    <span class="k">return</span> vis[p];                         <span class="c">// 只看结尾标记</span>
+}</code></pre><div class="box tip"><div class="t" id="b208">注意</div><p id="b209">字符集是 52 个字母就开 52，别硬套 26，越界写坏的是别的变量。</p><p id="b210">把 ch 换成 map 能省空间，但每次多一个 log，10⁵ 次查询会慢 5 倍。</p></div></div></div><div class="fn"><div class="fh" id="b211">新函数拆解 · KMP 的 nxt 数组</div><div class="fb"><div class="sig" id="b212">nxt[i] = p[0..i-1] 的最长 border 长度</div><table class="lines"><thead><tr><th id="b213">组成</th><th id="b214">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b215"><code>border</code></td><td id="b216">既是前缀又是后缀、且不等于自身的子串。</td></tr><tr><td id="b217"><code>nxt[i]</code></td><td id="b218">前缀 p[0..i-1] 的最长 border 长度，同时就是「第 i 位失配后 j 该退到哪」。</td></tr><tr><td id="b219"><code>nxt[1] = 0</code></td><td id="b220">单字符前缀没有非空真 border。</td></tr><tr><td id="b221"><code>递推</code></td><td id="b222">j = nxt[i]；若 p[i] == p[j] 则 nxt[i+1] = j + 1；否则 j = nxt[j] 继续退，退到 0 为止。</td></tr><tr><td id="b223"><code>匹配</code></td><td id="b224">主串指针 i 只增不减，失配时只动 j。总复杂度 O(n + m)。</td></tr><tr><td id="b225"><code>别用 find</code></td><td id="b226">string::find 最坏 O(nm)；n = m = 10⁶ 时是 10¹² 次比较 → TLE。</td></tr></tbody></table><div class="cap" id="b227">最小可运行示例</div><div class="cap" id="b228">示例</div><pre id="b229"><code>nxt[<span class="n">1</span>] = <span class="n">0</span>;                              <span class="c">// 下标是「前缀长度」</span>
+<span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>, j = <span class="n">0</span>; i &lt; m; ++i) {     <span class="c">// 循环开始时 j 恒等于 nxt[i]</span>
+    <span class="k">while</span> (j &amp;&amp; p[i] != p[j]) j = nxt[j];    <span class="c">// 失配就退到更短的 border</span>
+    <span class="k">if</span> (p[i] == p[j]) ++j;                   <span class="c">// 接得上就延长一位</span>
+    nxt[i + <span class="n">1</span>] = j;                          <span class="c">// 记的是长度 i+1 的前缀</span>
+}</code></pre><div class="box tip"><div class="t" id="b230">注意</div><p id="b231">nxt 的下标是「前缀长度」，不是字符位置；写成 nxt[i] = j 会整体错一位。</p><p id="b232">n − nxt[n] 是最小循环节长度；当 n 能被 n − nxt[n] 整除时，循环次数就是 n / (n − nxt[n])。</p></div></div></div><div class="fn"><div class="fh" id="b233">新函数拆解 · ST 表（静态区间最值）</div><div class="fb"><div class="sig" id="b234">int st[LOG][N], lg[N];</div><table class="lines"><thead><tr><th id="b235">组成</th><th id="b236">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b237"><code>lg[i]</code></td><td id="b238">floor(log2 i)。预处理 lg[i] = lg[i/2] + 1，别用 log2 的浮点结果，误差一位就是错答案。</td></tr><tr><td id="b239"><code>st[k][i]</code></td><td id="b240">从 i 开始、长度 2^k 的区间的最值。</td></tr><tr><td id="b241"><code>建表</code></td><td id="b242">st[0][i] = a[i]；st[k][i] = max(st[k−1][i], st[k−1][i + 2^(k−1)])，k 由小到大。</td></tr><tr><td id="b243"><code>查询</code></td><td id="b244">len = r − l + 1，k = lg[len]；答案 = max(st[k][l], st[k][r − 2^k + 1])，两段允许重叠。</td></tr><tr><td id="b245"><code>能用于哪些运算</code></td><td id="b246">只限「可重复贡献」的运算：max、min、gcd、按位与/或。区间和不行，重叠部分会被算两次。</td></tr><tr><td id="b247"><code>空间</code></td><td id="b248">LOG × N 个 int。N = 10⁶、LOG = 20 → 80 MB，注意内存限制。</td></tr></tbody></table><div class="cap" id="b249">最小可运行示例</div><div class="cap" id="b250">示例</div><pre id="b251"><code><span class="k">for</span> (<span class="k">int</span> i = <span class="n">2</span>; i &lt;= n; ++i) lg[i] = lg[i &gt;&gt; <span class="n">1</span>] + <span class="n">1</span>;    <span class="c">// lg[i] = floor(log2 i)</span>
+<span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) st[<span class="n">0</span>][i] = a[i];
+<span class="k">for</span> (<span class="k">int</span> k = <span class="n">1</span>; (<span class="n">1</span> &lt;&lt; k) &lt;= n; ++k)
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i + (<span class="n">1</span> &lt;&lt; k) - <span class="n">1</span> &lt;= n; ++i)
+        st[k][i] = <span class="k">max</span>(st[k - <span class="n">1</span>][i], st[k - <span class="n">1</span>][i + (<span class="n">1</span> &lt;&lt; (k - <span class="n">1</span>))]);
+
+<span class="k">int</span> len = r - l + <span class="n">1</span>, k = lg[len];
+<span class="k">int</span> mx = <span class="k">max</span>(st[k][l], st[k][r - (<span class="n">1</span> &lt;&lt; k) + <span class="n">1</span>]);</code></pre><div class="box tip"><div class="t" id="b252">注意</div><p id="b253">表建好后不能改：题目带修改就换线段树。</p><p id="b254">倍增求 LCA 的内存版本也是 ST 表：把「欧拉序上的深度最小值」当区间最值，思路完全一样。</p></div></div></div><div class="fn"><div class="fh" id="b255">新函数拆解 · 匈牙利算法（二分图最大匹配）</div><div class="fb"><div class="sig" id="b256">bool dfs(int u);
+int match[N], vis[N], stamp;</div><table class="lines"><thead><tr><th id="b257">组成</th><th id="b258">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b259"><code>match[v]</code></td><td id="b260">右部点 v 的搭档。0 表示空闲。</td></tr><tr><td id="b261"><code>vis[v]</code></td><td id="b262">本轮 dfs 是否试过 v。少了它，dfs 会在两个点之间反复走 → 栈溢出 RE。</td></tr><tr><td id="b263"><code>让位</code></td><td id="b264">v 被 match[v] 占着，就递归问 match[v] 能不能换一个；能换则 v 归 u。</td></tr><tr><td id="b265"><code>时间戳</code></td><td id="b266">vis 存轮次号，每轮 ++stamp，等价于 memset(vis) 但只花 O(1)。</td></tr><tr><td id="b267"><code>答案</code></td><td id="b268">每成功一次 dfs，匹配数 +1。最终 ans 就是最大匹配边数。</td></tr><tr><td id="b269"><code>复杂度</code></td><td id="b270">O(V·E)。V = 500、E = 5×10⁴ 时 2.5×10⁷，1 秒内可过。</td></tr></tbody></table><div class="cap" id="b271">最小可运行示例</div><div class="cap" id="b272">示例</div><pre id="b273"><code><span class="k">bool</span> <span class="f">dfs</span>(<span class="k">int</span> u) {
+    <span class="k">for</span> (<span class="k">int</span> v : g[u]) {
+        <span class="k">if</span> (vis[v] == stamp) <span class="k">continue</span>;   <span class="c">// 本轮试过，跳过，否则绕圈</span>
+        vis[v] = stamp;
+        <span class="k">if</span> (!match[v] || <span class="f">dfs</span>(match[v])) {<span class="c">// v 空闲，或 v 的搭档能换走</span>
+            match[v] = u;
+            <span class="k">return</span> <span class="k">true</span>;
+        }
+    }
+    <span class="k">return</span> <span class="k">false</span>;
+}</code></pre><div class="box tip"><div class="t" id="b274">注意</div><p id="b275">只从左部往右部连边，右部不需要存边，省一半空间。</p><p id="b276">n、m 到 10⁵ 时匈牙利会 TLE，要换 Dinic 或 Hopcroft-Karp。</p></div></div></div><div class="box warn"><div class="t" id="b277">数据结构部分：6 个具体症状</div><p id="b278">树状数组下标从 0 开始：<code>add(0)</code> 里 <code>p += lowbit(0) = 0</code>，循环永不结束 → <b>TLE</b>，而且一个字符都不输出。</p><p id="b279">逆序对答案用 int：n = 5×10⁵ 时最多 1.25×10¹¹，溢出成负数 → <b>WA</b>，小数据全对，只有大测试点挂。</p><p id="b280">线段树数组只开 2n：递归编号能到 4n，越界写坏相邻变量 → <b>RE 或答案随机</b>。本地跑得通、交上去挂，最难查。</p><p id="b281">pushdown 后忘记 <code>tag[p] = 0</code>：同一段被反复加 → <b>WA</b>，答案偏大，区间越大偏得越多。</p><p id="b282">单调队列忘判队头过期：输出的是早就滑出窗口的最值 → <b>WA</b>，前 k 个对、后面全错。</p><p id="b283">对顶堆只在插入后平衡、输出前不再检查：偶数位置的不变式被破坏，下一次 <code>top()</code> 取到错的 → <b>WA</b>。</p></div><div class="box warn"><div class="t" id="b284">字符串与二分图：6 个具体症状</div><p id="b285">Trie 的节点数组按 n 开（10⁴）而实际要 5×10⁵：写 <code>ch</code> 越界 → <b>RE</b> 或输出乱码。</p><p id="b286">Trie 查询不判结尾标记：把某个名字的前缀当成名字，输出 OK → <b>WA</b>，只在「a 与 ab」这类数据上错。</p><p id="b287">KMP 的 nxt 只开主串长度：模式串 10⁶ 时越界 → <b>RE</b>。nxt 的长度由模式串决定。</p><p id="b288">KMP 里 <code>j = nxt[j]</code> 没判 <code>j &gt; 0</code>，退到 0 还继续取 <code>nxt[0]</code>（未定义）→ <b>死循环 / RE</b>。</p><p id="b289">ST 表拿去求区间和：重叠部分被算两次 → <b>WA</b>，答案偏大，区间越长偏得越多。</p><p id="b290">匈牙利忘写 <code>vis[v] = stamp</code>：同一轮反复走同一条边 → <b>RE</b>（栈溢出），数据小时表现为卡死。</p></div><div class="reproduce"><div class="rt" id="b291">自己动手复现</div><p id="b292">关掉页面，把 P1908 从空文件敲一遍并提交，样例必须输出 11。</p><p id="b293">把 <code>query(rk[i] - 1)</code> 改成 <code>query(rk[i])</code> 再交：答案会变成「右边 ≤ a[i] 的个数」之和，自己造一组含相等元素的数据，算一算差多少。</p><p id="b294">再改成从 1 扫到 n 的写法 <code>ans += (i - 1) - query(rk[i])</code>，确认两种写法输出相同，并说清为什么。</p><p id="b295">改一改：把 a[i] 限制到 [1, 1000]，删掉离散化直接开桶（<code>t[a[i]]++</code>），用 5×10⁵ 随机数据和原版比一次运行时间。</p></div><div class="reproduce"><div class="rt" id="b296">自己动手复现</div><p id="b297">把 P1440 的单调队列敲一遍，用 m = 1 和 m = n 各交一次，确认边界不越界。</p><p id="b298">把弹队尾的条件从 <code>&gt;=</code> 改成 <code>&gt;</code>，用 2×10⁶ 个全部相同的数测一次，比较队列最大长度和运行时间。</p><p id="b299">再改成「每个位置向前重扫 m 个」，同样的数据下看它跑多久——这就是 O(nm) 的手感。</p></div><div class="box tip"><div class="t" id="b300">赛前 10 分钟默写清单</div><p id="b301">树状数组：<code>lowbit</code>、<code>add</code>、<code>query</code> 三行，写完用 P3374 交一次。</p><p id="b302">线段树：<code>apply</code>、<code>pushdown</code>、<code>update</code>、<code>query</code> 四个函数，pushdown 最后一行别忘了清零。</p><p id="b303">单调队列：弹队尾 → 入队 → 弹队头 → 取答案，四步顺序固定。</p><p id="b304">Trie：<code>insert</code> 与 <code>query</code>，节点数按「总长度 + 1」估。</p><p id="b305">KMP：nxt 的六行递推，<code>nxt[1] = 0</code> 不能省。</p><p id="b306">ST 表：lg 预处理 + 两层循环建表 + 两段重叠查询。</p><p id="b307">匈牙利：一轮一个 stamp，dfs 里先判 vis 再让位。</p></div><p id="b308">下面 5 道按「数据结构 → 字符串 → 图」排列，覆盖 48、49、51、52、54 五节。每题先自己写 20 分钟；卡住先看提示，再给 10 分钟；还不行才展开思路。做完再往下走。</p><h2 id="b309">本次训练 · 共 5 题</h2><div class="box tip"><div class="t" id="b310">做题方式</div><p id="b311">限时 <b>100 分钟</b>。每题先自己写 20~25 分钟；写不出来先看提示，再给自己 10 分钟；还不行才点开思路。每题都独立限时，不要一题耗死。</p></div><div class="challenge"><div class="ct" id="b312">大题 挑战题 1 · 求 m 区间内的最小值</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1440</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P1440" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b313">给出一个含 n 项的数列，对每个元素求出它<b>前面 m 个元素</b>中的最小值。</p><p id="b314">若前面的数不足 m 个，则从第 1 个数算起；若前面一个数都没有，输出 0。</p><p id="b315">输入格式：第一行两个整数 n、m（1 ≤ m ≤ n ≤ 2×10⁶）；第二行 n 个整数 a[i]（0 ≤ a[i] ≤ 10⁹）。</p><p id="b316">输出格式：n 行，第 i 行是 a[1..i−1] 中最后 min(m, i−1) 个数的最小值。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b317">处理第 i 个数时，它关心的是一段左端和右端都随 i 增大而增大的区间——这就是滑动窗口。</p><p id="b318">如果 a[i] 比队尾那个元素还小，队尾在它过期之前都不可能再当最小值。</p><p id="b319">插入 i 之后，队列里只该留下下标 ≥ i − m + 1 的元素；下标 ≤ i − m 的从队头弹掉。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b320">处理第 i 个数时，窗口是 [max(1, i−m), i−1]。</p><p id="b321">队列里存下标，对应的值单调递增，队头就是当前窗口最小值。</p><p id="b322">三步固定：① 输出队头（队列空则输出 0）；② 插入 i，插入前把队尾所有 ≥ a[i] 的弹掉；③ 把下标 ≤ i−m 的队头弹掉。</p><p id="b323">为什么被弹掉的不会回来：它下标更小、值又不更小，在它过期之前全面劣于新元素，之后也不会重新进入窗口。</p><p id="b324">复杂度 O(n)：每个下标最多进队一次、出队一次。n = 2×10⁶ 时约 4×10⁶ 次操作。</p><p id="b325">对照：每个位置向前重扫 m 个是 O(nm)，m = n 时 4×10¹² → TLE；multiset 是 O(n log n)，常数大 3~5 倍。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b326">参考代码</div><pre id="b327"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">2000005</span>;
+<span class="k">int</span> a[MAXN], q[MAXN];          <span class="c">// q 存下标：手写队列，比 deque 快一倍</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> n, m;
+    <span class="k">scanf</span>(<span class="s">"%d%d"</span>, &amp;n, &amp;m);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;a[i]);
+
+    <span class="k">int</span> head = <span class="n">1</span>, tail = <span class="n">0</span>;     <span class="c">// 队列区间 [head, tail]，head &gt; tail 表示空</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        <span class="k">if</span> (head &gt; tail) <span class="k">printf</span>(<span class="s">"0\n"</span>);          <span class="c">// 只有 i = 1 会走到这里</span>
+        <span class="k">else</span> <span class="k">printf</span>(<span class="s">"%d\n"</span>, a[q[head]]);         <span class="c">// 队头就是前 m 个数的最小值</span>
+
+        <span class="k">while</span> (head &lt;= tail &amp;&amp; a[q[tail]] &gt;= a[i]) --tail;  <span class="c">// 又大又早的队尾没用了</span>
+        q[++tail] = i;                           <span class="c">// 存下标，才能判过期</span>
+
+        <span class="k">while</span> (head &lt;= tail &amp;&amp; q[head] &lt;= i - m) ++head;    <span class="c">// 窗口左端是 i-m+1</span>
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b328">关键片段拆解</div><table class="lines"><thead><tr><th id="b329">片段</th><th id="b330">作用</th></tr></thead><tbody><tr><td id="b331"><code>int head = 1, tail = 0;</code></td><td id="b332">用 [head, tail] 表示队列，空队列是 head = tail + 1。省掉 deque 的封装，2×10⁶ 次操作能快一倍。</td></tr><tr><td id="b333"><code>if (head &gt; tail) printf("0\n");</code></td><td id="b334">只有 i = 1 时队列为空：前面没有数，按题意输出 0。</td></tr><tr><td id="b335"><code>a[q[head]]</code></td><td id="b336">队头下标对应的值就是答案，O(1) 取，不需要再维护别的东西。</td></tr><tr><td id="b337"><code>while (head &lt;= tail &amp;&amp; a[q[tail]] &gt;= a[i]) --tail;</code></td><td id="b338">写 ≥ 而不是 &gt;：值相等的旧元素下标更小、过期更早，留着没用。用 &gt; 会让队列里堆一堆相等的值。</td></tr><tr><td id="b339"><code>q[++tail] = i;</code></td><td id="b340">存下标而不是值。存值就不知道这个元素是什么时候进来的，无法判断过期。</td></tr><tr><td id="b341"><code>while (head &lt;= tail &amp;&amp; q[head] &lt;= i - m) ++head;</code></td><td id="b342">窗口左端是 i−m+1，所以下标 ≤ i−m 的必须走。放在插入之后，保证下一轮队头有效。</td></tr></tbody></table><div class="box warn"><div class="t" id="b343">这题最容易错的地方</div><ul><li id="b344">队列里存值不存下标：无法判断队头是否过期，输出会变成整个前缀的最小值 → WA。</li><li id="b345">输出放在插入之后：第 i 行会把 a[i] 自己也算进去，而题意要的是「前面」m 个数 → WA。</li><li id="b346">数组只开 10⁶：n = 2×10⁶ 时越界，表现为前面几个数对、后面乱或直接 RE。</li><li id="b347">用 cin/cout 读 2×10⁶ 个数又没关同步 → TLE；请用 scanf 或加两行提速。</li><li id="b348">输出写成一行空格分隔：题目要 n 行，每行一个数 → WA。</li></ul></div></div></details></div><div class="challenge"><div class="ct" id="b349">大题 挑战题 2 · 中位数</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1168</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P1168" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b350">给出一个长度为 N 的非负整数序列 A。对每个 1 ≤ k ≤ (N+1)/2，输出 A<sub>1</sub>, A<sub>3</sub>, …, A<sub>2k−1</sub> 的中位数，也就是<b>前 2k−1 个数</b>的中位数。</p><p id="b351">输入格式：第一行 N（1 ≤ N ≤ 10⁵，N 为奇数）；第二行 N 个整数（0 ≤ A[i] ≤ 10⁹）。</p><p id="b352">输出格式：(N+1)/2 行，每行一个整数。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b353">中位数只关心「比它小的有多少个」，不需要把整个前缀排序。</p><p id="b354">把数分成两堆：小的一半放一起，大的一半放一起。中位数就是小堆里最大的那个。</p><p id="b355">两堆的大小差不能超过 1，每次插入后立刻调整。哪种容器能 O(log n) 取最值？</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b356">用一个大根堆 small 存较小的一半，一个小根堆 large 存较大的一半。</p><p id="b357">不变式：small.size() = large.size() 或 large.size() + 1，并且 small 里所有元素 ≤ large 里所有元素。</p><p id="b358">插入 x：x ≤ small.top() 就进 small，否则进 large。</p><p id="b359">调整：small 比 large 多出 2 个或更多，就把 small 的堆顶（小半部分的最大值）搬给 large；small 比 large 少，就把 large 的堆顶（大半部分的最小值）搬回 small。</p><p id="b360">长度为 2k−1 时，small 恰好 k 个、large 恰好 k−1 个，中位数 = small.top()。</p><p id="b361">复杂度 O(n log n)：每个数至多进堆一次、跨堆搬一次。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b362">参考代码</div><pre id="b363"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> n;
+    <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;n);
+    <span class="k">priority_queue</span>&lt;<span class="k">int</span>&gt; small;                                  <span class="c">// 大根堆：较小的一半</span>
+    <span class="k">priority_queue</span>&lt;<span class="k">int</span>, <span class="k">vector</span>&lt;<span class="k">int</span>&gt;, <span class="k">greater</span>&lt;<span class="k">int</span>&gt; &gt; large;      <span class="c">// 小根堆：较大的一半</span>
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        <span class="k">int</span> x;
+        <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;x);
+        <span class="k">if</span> (small.<span class="k">empty</span>() || x &lt;= small.<span class="f">top</span>()) small.<span class="f">push</span>(x);
+        <span class="k">else</span> large.<span class="f">push</span>(x);
+
+        <span class="c">// 插入后立刻恢复不变式，别等到输出前才调</span>
+        <span class="k">if</span> ((<span class="k">int</span>)small.<span class="k">size</span>() &gt; (<span class="k">int</span>)large.<span class="k">size</span>() + <span class="n">1</span>) {
+            large.<span class="f">push</span>(small.<span class="f">top</span>()); small.<span class="f">pop</span>();
+        } <span class="k">else</span> <span class="k">if</span> ((<span class="k">int</span>)small.<span class="k">size</span>() &lt; (<span class="k">int</span>)large.<span class="k">size</span>()) {
+            small.<span class="f">push</span>(large.<span class="f">top</span>()); large.<span class="f">pop</span>();
+        }
+
+        <span class="k">if</span> (i &amp; <span class="n">1</span>) <span class="k">printf</span>(<span class="s">"%d\n"</span>, small.<span class="f">top</span>());   <span class="c">// 长度 2k-1 时，中位数是 small 的堆顶</span>
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b364">关键片段拆解</div><table class="lines"><thead><tr><th id="b365">片段</th><th id="b366">作用</th></tr></thead><tbody><tr><td id="b367"><code>priority_queue&lt;int&gt; small;</code></td><td id="b368">默认大根堆，堆顶是 small 里最大的，正好是「小半部分的最大值」。</td></tr><tr><td id="b369"><code>priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt; &gt; large;</code></td><td id="b370">三个参数缺一不可。greater 让堆顶变成最小值，才能 O(1) 拿到大半部分的最小值。</td></tr><tr><td id="b371"><code>if (small.empty() || x &lt;= small.top())</code></td><td id="b372">第一个数必须进 small（空堆不能 top）。用 ≤ 而不是 &lt;，让相等的数优先留在 small，堆大小才稳定。</td></tr><tr><td id="b373"><code>if ((int)small.size() &gt; (int)large.size() + 1)</code></td><td id="b374">small 最多比 large 多 1 个。多出两个就把 small 的堆顶搬过去。</td></tr><tr><td id="b375"><code>else if ((int)small.size() &lt; (int)large.size())</code></td><td id="b376">small 比 large 少就搬回来。两个分支互斥，一轮只可能触发一个。</td></tr><tr><td id="b377"><code>if (i &amp; 1) printf("%d\n", small.top());</code></td><td id="b378">只在奇数长度输出。此时 small 有 k 个、large 有 k−1 个，第 k 小就是 small 的堆顶。</td></tr></tbody></table><div class="box warn"><div class="t" id="b379">这题最容易错的地方</div><ul><li id="b380">写成 <code>priority_queue&lt;int&gt;</code> 当小根堆：取到的是最大值，整个逻辑反了 → WA。</li><li id="b381">插入后不调整堆大小：small.top() 不是中位数，输出整体偏大或偏小。</li><li id="b382">只在输出前调整：偶数位置的不变式被破坏，下一次取 top 直接取错 → WA。</li><li id="b383">中位数位置搞错：长度 2k−1 时是第 k 小，不是第 k+1 小。</li><li id="b384">用 vector + 每次 sort：O(n² log n)，n = 10⁵ 必 TLE。</li></ul></div></div></details></div><div class="challenge"><div class="ct" id="b385">大题 挑战题 3 · 于是他错误的点名开始了</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P2580</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P2580" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b386">老师手上有 n 个学生的名字，接下来要点名 m 次。</p><p id="b387">被点的名字不在名单里输出 <code>WRONG</code>；在名单里且是第一次被点到输出 <code>OK</code>；在名单里但之前已经点到过输出 <code>REPEAT</code>。</p><p id="b388">输入格式：第一行 n（n ≤ 10⁴）；接下来 n 行每行一个名字（只含小写字母，长度 ≤ 50）；然后一行 m（m ≤ 10⁵）；接下来 m 行每行一个被点的名字（格式同上）。</p><p id="b389">输出格式：m 行，每行是 <code>OK</code>、<code>REPEAT</code> 或 <code>WRONG</code>。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b390">名字只含小写字母，字符集只有 26 个——这正是 Trie 的形状：每个节点 26 个儿子。</p><p id="b391">「单词结尾」必须单独标记：名字 a 和名字 ab 会共用节点 0→a，不能只看走没走到。</p><p id="b392">OK 与 REPEAT 的差别只是这个结尾节点被访问过几次，用一个 0/1/2 的状态数组就够。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b393">建 Trie：0 号是根，边表示字符，ch[p][c] 是节点 p 走字符 c 的儿子。</p><p id="b394">插入：沿字符往下走，没有儿子就新建，最后在结尾节点上标 1。</p><p id="b395">查询：沿字符往下走，中途没有儿子 → WRONG（断链）；走到底但结尾没标记 → WRONG（它只是别人的前缀）；标记为 1 → 改成 2 并输出 OK；标记为 2 → REPEAT。</p><p id="b396">节点数上界 = 所有名字长度之和 + 1 ≤ 10⁴ × 50 + 1 ≈ 5×10⁵。</p><p id="b397">空间 26 × 5×10⁵ × 4 字节 ≈ 52 MB，在 128 MB 限制内，但不能再多开一倍。</p><p id="b398">复杂度 O(总字符数) ≈ 5×10⁵ + 5×10⁶（查询串总长），比 map 的每行一次 log 快得多。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b399">参考代码</div><pre id="b400"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXNODE = <span class="n">500005</span>;      <span class="c">// 所有名字的总长度 + 1</span>
+<span class="k">int</span> ch[MAXNODE][<span class="n">26</span>];             <span class="c">// ch[p][c]：节点 p 走字符 c 的儿子，0 表示没有</span>
+<span class="k">int</span> vis[MAXNODE];                <span class="c">// 0 不是单词；1 是单词且没点过；2 点过了</span>
+<span class="k">int</span> tot;                         <span class="c">// 已用节点数，新节点编号 = ++tot</span>
+
+<span class="k">void</span> <span class="f">insert</span>(<span class="k">const</span> <span class="k">string</span> &amp;s) {
+    <span class="k">int</span> p = <span class="n">0</span>;                                       <span class="c">// 0 号是根</span>
+    <span class="k">for</span> (<span class="k">char</span> c : s) {
+        <span class="k">int</span> x = c - <span class="s">'a'</span>;
+        <span class="k">if</span> (!ch[p][x]) ch[p][x] = ++tot;             <span class="c">// 没有这条边就新建</span>
+        p = ch[p][x];
+    }
+    vis[p] = <span class="n">1</span>;                                      <span class="c">// 只在单词结尾打标记</span>
+}
+
+<span class="k">int</span> <span class="f">query</span>(<span class="k">const</span> <span class="k">string</span> &amp;s) {
+    <span class="k">int</span> p = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">char</span> c : s) {
+        <span class="k">int</span> x = c - <span class="s">'a'</span>;
+        <span class="k">if</span> (!ch[p][x]) <span class="k">return</span> <span class="n">0</span>;                     <span class="c">// 断链：名单里没有</span>
+        p = ch[p][x];
+    }
+    <span class="k">if</span> (vis[p] == <span class="n">0</span>) <span class="k">return</span> <span class="n">0</span>;                       <span class="c">// 走到底却没标记：只是别人的前缀</span>
+    <span class="k">if</span> (vis[p] == <span class="n">1</span>) { vis[p] = <span class="n">2</span>; <span class="k">return</span> <span class="n">1</span>; }       <span class="c">// 第一次点到</span>
+    <span class="k">return</span> <span class="n">2</span>;                                        <span class="c">// 之前点过</span>
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">int</span> n;
+    <span class="k">cin</span> &gt;&gt; n;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; n; ++i) { <span class="k">string</span> s; <span class="k">cin</span> &gt;&gt; s; <span class="f">insert</span>(s); }
+
+    <span class="k">int</span> m;
+    <span class="k">cin</span> &gt;&gt; m;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; m; ++i) {
+        <span class="k">string</span> s;
+        <span class="k">cin</span> &gt;&gt; s;
+        <span class="k">int</span> r = <span class="f">query</span>(s);
+        <span class="k">if</span> (r == <span class="n">0</span>) <span class="k">cout</span> &lt;&lt; <span class="s">"WRONG\n"</span>;
+        <span class="k">else</span> <span class="k">if</span> (r == <span class="n">1</span>) <span class="k">cout</span> &lt;&lt; <span class="s">"OK\n"</span>;
+        <span class="k">else</span> <span class="k">cout</span> &lt;&lt; <span class="s">"REPEAT\n"</span>;
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b401">关键片段拆解</div><table class="lines"><thead><tr><th id="b402">片段</th><th id="b403">作用</th></tr></thead><tbody><tr><td id="b404"><code>ch[MAXNODE][26]</code></td><td id="b405">字符集 26 个字母，所以第二维是 26。全部初始化为 0，正好表示「没有这条边」。</td></tr><tr><td id="b406"><code>if (!ch[p][x]) ch[p][x] = ++tot;</code></td><td id="b407">新节点编号从 1 开始，0 专门留给「空」。如果从 0 开始编号，就无法区分「根」和「不存在」。</td></tr><tr><td id="b408"><code>vis[p] = 1;</code></td><td id="b409">只在单词的最后一个节点上标记：中间节点可能是别的单词的前缀，标了就会把前缀当成名字。</td></tr><tr><td id="b410"><code>if (!ch[p][x]) return 0;</code></td><td id="b411">查询中途断开，这个串一定不在名单里，直接返回，不用再走。</td></tr><tr><td id="b412"><code>if (vis[p] == 0) return 0;</code></td><td id="b413">走到位却没有标记，说明它只是某个名字的前缀（例如名单里只有 ab，来查 a）。</td></tr><tr><td id="b414"><code>vis[p] = 1 → 2</code></td><td id="b415">第一次点到就把状态改成 2，下次再来走 REPEAT 分支。三个状态刚好够用。</td></tr></tbody></table><div class="box warn"><div class="t" id="b416">这题最容易错的地方</div><ul><li id="b417">节点数组按 n（10⁴）开：实际最长 5×10⁵，写 ch 越界 → RE 或输出乱码。</li><li id="b418">MAXNODE 开到 10⁶：26×10⁶×4 ≈ 104 MB，直接 MLE。按「总长度 + 1」估。</li><li id="b419">查询只判走到底、不判结尾标记：前缀被当成名字，输出 OK → WA。</li><li id="b420">用 map 每行 O(L log n)：m = 10⁵、L = 50，字符比较量约 10⁸，可能 TLE。</li><li id="b421">输出写成 Ok、ok、Wrong：大小写不符 → WA。</li></ul></div></div></details></div><div class="challenge"><div class="ct" id="b422">大题 挑战题 4 · 【模板】KMP字符串匹配</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P3375</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P3375" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b423">给出两个字符串 s1 与 s2。若 s1 的区间 [l, r] 与 s2 完全相同，则称 s2 在 s1 中出现在位置 l。</p><p id="b424">求出 s2 在 s1 中所有出现的位置（每行一个，按从小到大）。</p><p id="b425">再对 s2 的每个前缀 s2[1..i] 求出它的<b>最长 border</b> 长度（border 指既是前缀又是后缀、且不等于自身的子串），最后输出一行 |s2| 个用空格分隔的整数。</p><p id="b426">输入格式：第一行 s1，第二行 s2（1 ≤ |s1|, |s2| ≤ 10⁶，只含大写字母）。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b427">暴力匹配失配时把主串指针往回退，退掉的那些字符其实已经比较过了。</p><p id="b428">记下「模式串前 i 个字符的最长 border」，失配时把 j 退到那里，主串指针一步都不回退。</p><p id="b429">border 的 border 还是 border，所以可以一路 j = nxt[j] 退下去，不会漏掉更短的可能。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b430">nxt[i] = p[0..i−1] 的最长 border 长度，nxt[1] = 0。</p><p id="b431">递推：已知 nxt[i]，令 j = nxt[i]；若 p[i] == p[j] 则 nxt[i+1] = j + 1，否则 j = nxt[j] 继续退到 0。</p><p id="b432">匹配：i 扫主串，j 是已匹配长度；s[i] == p[j] 则 ++j，否则 j = nxt[j]；j == m 时记录起点。</p><p id="b433">起点换成 1-based：i 是 0-based 的结尾，起点 = i − m + 1（0-based）= i − m + 2（1-based）。</p><p id="b434">找到一次后令 j = nxt[m]，才能继续找<b>重叠</b>的出现（如 s1 = aaa、s2 = aa 有两个位置）。</p><p id="b435">复杂度 O(n + m)：i 只增不减；j 每次失配至少减 1，总减少量不超过总增加量。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b436">参考代码</div><pre id="b437"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">1000005</span>;
+<span class="k">int</span> nxt[MAXN];                  <span class="c">// nxt[i]：p[0..i-1] 的最长 border 长度</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">string</span> s, p;
+    <span class="k">cin</span> &gt;&gt; s &gt;&gt; p;
+    <span class="k">int</span> n = s.<span class="k">size</span>(), m = p.<span class="k">size</span>();
+
+    nxt[<span class="n">1</span>] = <span class="n">0</span>;                                       <span class="c">// 单字符前缀没有非空真 border</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>, j = <span class="n">0</span>; i &lt; m; ++i) {              <span class="c">// 循环开始时 j 恒等于 nxt[i]</span>
+        <span class="k">while</span> (j &amp;&amp; p[i] != p[j]) j = nxt[j];         <span class="c">// 失配就退到更短的 border</span>
+        <span class="k">if</span> (p[i] == p[j]) ++j;                        <span class="c">// 接得上就延长一位</span>
+        nxt[i + <span class="n">1</span>] = j;                               <span class="c">// 记的是「长度 i+1 的前缀」</span>
+    }
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>, j = <span class="n">0</span>; i &lt; n; ++i) {
+        <span class="k">while</span> (j &amp;&amp; s[i] != p[j]) j = nxt[j];         <span class="c">// 主串指针 i 从不后退</span>
+        <span class="k">if</span> (s[i] == p[j]) ++j;
+        <span class="k">if</span> (j == m) {                                 <span class="c">// 找到一个完整匹配</span>
+            <span class="k">printf</span>(<span class="s">"%d\n"</span>, i - m + <span class="n">2</span>);                <span class="c">// 换成 1-based 起点</span>
+            j = nxt[j];                               <span class="c">// 退一步，继续找重叠的出现</span>
+        }
+    }
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= m; ++i) <span class="k">printf</span>(<span class="s">"%d "</span>, nxt[i]);
+    <span class="k">printf</span>(<span class="s">"\n"</span>);
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b438">关键片段拆解</div><table class="lines"><thead><tr><th id="b439">片段</th><th id="b440">作用</th></tr></thead><tbody><tr><td id="b441"><code>nxt[1] = 0;</code></td><td id="b442">长度为 1 的前缀没有非空真前缀，border 必为 0。nxt 是全局数组时漏写也恰好是 0，改成局部数组就成随机值。</td></tr><tr><td id="b443"><code>for (int i = 1, j = 0; i &lt; m; ++i)</code></td><td id="b444">i 是「正在算 nxt[i+1]」的位置，j 在循环开始时恒等于 nxt[i]。这个不变式是整个算法的骨架。</td></tr><tr><td id="b445"><code>while (j &amp;&amp; p[i] != p[j]) j = nxt[j];</code></td><td id="b446">失配就退到更短的 border 再比。j == 0 时停下，否则会去读 nxt[0]（未定义）。</td></tr><tr><td id="b447"><code>if (p[i] == p[j]) ++j;</code></td><td id="b448">能接上就延长一位。j 是 0 时比较 p[0] 与 p[i] 也是合法的，不能用 if (j && ...) 包起来。</td></tr><tr><td id="b449"><code>nxt[i + 1] = j;</code></td><td id="b450">nxt 的下标是前缀长度而不是字符位置，所以写 i+1。写成 nxt[i] 会整体错一位。</td></tr><tr><td id="b451"><code>j = nxt[j];</code></td><td id="b452">匹配成功后必须退，否则下一轮 p[j] 越界；退到 nxt[m] 才能找到重叠的出现。</td></tr><tr><td id="b453"><code>printf("%d\n", i - m + 2);</code></td><td id="b454">i 是 0-based 结尾，起点 = i−m+1（0-based）= i−m+2（1-based），少加 1 就整体偏小。</td></tr></tbody></table><div class="box warn"><div class="t" id="b455">这题最容易错的地方</div><ul><li id="b456">nxt 数组只开主串长度：模式串 10⁶ 时越界 → RE。nxt 的长度由模式串决定。</li><li id="b457">输出位置用 0-based：全部小 1 → WA。</li><li id="b458">忘了最后一行 nxt 的输出，或不用空格分隔 → WA / 格式错。</li><li id="b459">匹配成功后写 j = 0：漏掉重叠出现，s1 = aaa、s2 = aa 会少输出一个位置。</li><li id="b460">把 j = nxt[j] 写成 --j：最坏退化成 O(nm)，n = m = 10⁶ → TLE。</li></ul></div></div></details></div><div class="challenge"><div class="ct" id="b461">大题 挑战题 5 · 【模板】二分图最大匹配</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P3386</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P3386" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b462">给定一个二分图：左部 n 个点、右部 m 个点、e 条边。求<b>最大匹配</b>——最多能选出多少条边，使任意两条选中的边没有公共端点。</p><p id="b463">输入格式：第一行 n、m、e（1 ≤ n, m ≤ 500，1 ≤ e ≤ 5×10⁴）；接下来 e 行每行 u、v，表示左部点 u 与右部点 v 之间有一条边。</p><p id="b464">输出格式：一行一个整数，表示最大匹配数。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b465">一条边被选中后，它两端的点都不能再用。题目问的是「最多能选几条」。</p><p id="b466">从左部点一个一个处理：要么直接连一个空闲的右部点，要么请占着它的左部点「换一个」。</p><p id="b467">「请别人换一个」就是递归。必须记录本轮试过哪些右部点，否则会在两个点之间绕圈。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b468">依次给每个左部点 u 找匹配，用 dfs 找一条增广路。</p><p id="b469">dfs(u)：枚举 u 的每条边 (u, v)。若 v 本轮没试过，标记它；v 空闲则 match[v] = u 直接成功；否则递归 dfs(match[v])，若能给 match[v] 找到新位置，就让 v 归 u。</p><p id="b470">成功一次，匹配数 +1。匈牙利算法的正确性来自「不存在增广路 ⇔ 当前匹配已是最大匹配」。</p><p id="b471">vis 用时间戳：每轮 ++stamp，vis[v] == stamp 表示本轮试过，省掉每组 O(m) 的 memset。</p><p id="b472">复杂度 O(V·E)：500 × 5×10⁴ = 2.5×10⁷，1 秒内可过。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b473">参考代码</div><pre id="b474"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">505</span>;
+<span class="k">vector</span>&lt;<span class="k">int</span>&gt; g[MAXN];             <span class="c">// 只存左部 → 右部的边</span>
+<span class="k">int</span> match[MAXN];                 <span class="c">// match[v]：右部点 v 的搭档，0 表示空闲</span>
+<span class="k">int</span> vis[MAXN], stamp;            <span class="c">// vis[v] == stamp 表示「本轮 dfs 试过 v」</span>
+
+<span class="k">bool</span> <span class="f">dfs</span>(<span class="k">int</span> u) {
+    <span class="k">for</span> (<span class="k">int</span> v : g[u]) {
+        <span class="k">if</span> (vis[v] == stamp) <span class="k">continue</span>;      <span class="c">// 本轮试过就跳过，否则会绕圈</span>
+        vis[v] = stamp;
+        <span class="k">if</span> (!match[v] || <span class="f">dfs</span>(match[v])) {   <span class="c">// v 空闲，或 v 的搭档能换走</span>
+            match[v] = u;                   <span class="c">// 让位成功，v 归 u</span>
+            <span class="k">return</span> <span class="k">true</span>;
+        }
+    }
+    <span class="k">return</span> <span class="k">false</span>;
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> n, m, e;
+    <span class="k">scanf</span>(<span class="s">"%d%d%d"</span>, &amp;n, &amp;m, &amp;e);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; e; ++i) {
+        <span class="k">int</span> u, v;
+        <span class="k">scanf</span>(<span class="s">"%d%d"</span>, &amp;u, &amp;v);
+        g[u].<span class="k">push_back</span>(v);
+    }
+
+    <span class="k">int</span> ans = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> u = <span class="n">1</span>; u &lt;= n; ++u) {
+        ++stamp;                            <span class="c">// 等价于 memset(vis)，但只花 O(1)</span>
+        <span class="k">if</span> (<span class="f">dfs</span>(u)) ++ans;
+    }
+    <span class="k">printf</span>(<span class="s">"%d\n"</span>, ans);
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b475">关键片段拆解</div><table class="lines"><thead><tr><th id="b476">片段</th><th id="b477">作用</th></tr></thead><tbody><tr><td id="b478"><code>vector&lt;int&gt; g[MAXN];</code></td><td id="b479">只存左部到右部的边。右部的邻接表用不到，省一半空间。</td></tr><tr><td id="b480"><code>if (vis[v] == stamp) continue;</code></td><td id="b481">同一轮里每个右部点只试一次。少了这一句，dfs 会在两个点之间来回走 → 栈溢出 RE。</td></tr><tr><td id="b482"><code>if (!match[v] || dfs(match[v]))</code></td><td id="b483">v 空闲就直接占；否则问 v 现在的搭档能不能换地方。|| 的短路顺序不能反，先判空再递归。</td></tr><tr><td id="b484"><code>match[v] = u;</code></td><td id="b485">让位成功之后才改 match。写在判断之前，失败时会把原来的匹配也弄丢。</td></tr><tr><td id="b486"><code>++stamp;</code></td><td id="b487">每个左部点一轮，stamp 自增相当于 memset(vis)，但每次只花 O(1)。</td></tr><tr><td id="b488"><code>if (dfs(u)) ++ans;</code></td><td id="b489">每找到一条增广路，匹配数加一。ans 就是最大匹配边数。</td></tr></tbody></table><div class="box warn"><div class="t" id="b490">这题最容易错的地方</div><ul><li id="b491">忘写 vis[v] = stamp：同一轮反复走同一条边 → 死循环或栈溢出 RE。</li><li id="b492">vis 清得比右部点少（循环写到 n 而不是 m）：n &lt; m 时右部点没清，第二轮起匹配出错 → WA。</li><li id="b493">把 match[v] = u 写在判断成功之前：dfs 失败时匹配已被破坏 → WA。</li><li id="b494">递归时传 v 而不是 match[v]：在右部点上递归，编号含义全乱 → WA 或 RE。</li><li id="b495">n、m 到 10⁵ 还用匈牙利：O(VE) 到 5×10⁹ → TLE，要换 Hopcroft-Karp 或 Dinic。</li></ul></div></div></details></div><div class="box tip" style="margin:24px 0 -6px"><div class="t" id="b496">附加挑战 2（不计入限时）</div><p id="b497">做完上面的整套题还有余力，再啃这一道。它比本套题的平均难度高一级。</p></div><div class="challenge ch2"><div class="ct" id="b498">挑战 2 · HH 的项链</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1972</span><span class="badge diff">提高-/提高</span><a href="https://www.luogu.com.cn/problem/P1972" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b499">HH 有一串由各种贝壳组成的项链，第 i 颗贝壳的种类编号是 a<sub>i</sub>。他有 m 个询问，每个询问给出一段区间 [l, r]，问这段区间里一共有多少<b>种不同</b>的贝壳。</p><p id="b500">输入：第一行一个整数 n（1 ≤ n ≤ 10<sup>6</sup>）；第二行 n 个正整数 a<sub>i</sub>（1 ≤ a<sub>i</sub> ≤ 10<sup>6</sup>）；第三行一个整数 m（1 ≤ m ≤ 10<sup>6</sup>）；接下来 m 行，每行两个整数 l、r（1 ≤ l ≤ r ≤ n）。</p><p id="b501">输出：m 行，每行一个整数，依次是每个询问的答案。</p><p id="b502">样例：序列 1 2 3 4 3 5。询问 [1,2] 只有 1、2 两种；[3,5] 是 3、4、3，两种；[2,6] 是 2、3、4、3、5，四种。</p></div><div class="cap" id="b503">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+6
+1 2 3 4 3 5
+3
+1 2
+3 5
+2 6
+输出：
+2
+2
+4</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b504">n 和 m 都是 10<sup>6</sup>，每个询问扫一遍区间是 10<sup>12</sup>。但这道题<b>没有修改</b>，所以可以把所有询问放在一起、换个顺序处理。</p><p id="b505">假设右端点 r 从 1 慢慢推到 n，你只维护一个长度为 n 的 0/1 数组。怎么让它始终保持「[1, r] 里每个出现过的值恰好被记 1 次」？</p><p id="b506">同一个值出现多次时，只保留它<b>最右</b>的那一次。那么每来一个新元素，它上一次出现的位置要做什么？区间和又要用什么结构 O(log n) 求？</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b507">暴力：每个询问扫一遍，O(nm) = 10<sup>12</sup>，必 TLE。</p><p id="b508">把「区间里有几种不同的值」换成「区间和」。维护 0/1 数组 c，规则：每个值只在它<b>当前最右一次</b>出现的位置上记 1。</p><p id="b509">为什么这样就对：固定 r，对任意值 v，若 v 在 [l, r] 里出现过，那它在 [1, r] 里的最右出现位置 ≥ l，恰好落在 [l, r] 内，贡献 1；若 v 没在 [l, r] 里出现，它的最右出现位置就在 l 左边（或根本没有），贡献 0。所以 c 在 [l, r] 上的和就是不同种类数。</p><p id="b510">右端点从 r−1 推到 r（新元素 a[r]）：先把 a[r] 上一次出现的位置上的 1 清成 0，再把 r 置 1。维护 last[值] 就能 O(1) 找到上一次的位置。</p><p id="b511">区间和用树状数组：单点改 O(log n)，前缀和 O(log n)。</p><p id="b512">离线：把询问按 r 升序排序，指针 p 从 1 扫到 n；每推进一步就把所有 r = p 的询问用 sum(r) − sum(l−1) 回答，答案按原编号存回去。r 只能往前推，所以必须按 r 排序。</p><p id="b513">复杂度：O((n + m) log n) ≈ 2×10<sup>6</sup>×20 = 4×10<sup>7</sup> 次加法；输入约 20 MB，用 getchar 手写快读（cin 关同步在 10<sup>6</sup> 量级仍然吃力）。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b514">参考代码</div><pre id="b515"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">1000005</span>;
+<span class="k">int</span> a[MAXN], last[MAXN], bit[MAXN], ans[MAXN];
+<span class="k">struct</span> Q { <span class="k">int</span> l, r, id; } qs[MAXN];
+<span class="k">int</span> n, m;
+
+<span class="k">inline</span> <span class="k">int</span> <span class="f">lowbit</span>(<span class="k">int</span> x) { <span class="k">return</span> x &amp; -x; }
+<span class="k">void</span> <span class="f">add</span>(<span class="k">int</span> i, <span class="k">int</span> d) { <span class="k">for</span> (; i &lt;= n; i += <span class="f">lowbit</span>(i)) bit[i] += d; }
+<span class="k">int</span> <span class="f">sum</span>(<span class="k">int</span> i) { <span class="k">int</span> s = <span class="n">0</span>; <span class="k">for</span> (; i &gt; <span class="n">0</span>; i -= <span class="f">lowbit</span>(i)) s += bit[i]; <span class="k">return</span> s; }
+
+<span class="k">inline</span> <span class="k">int</span> <span class="f">readInt</span>() {
+    <span class="k">int</span> x = <span class="n">0</span>;
+    <span class="k">char</span> c = <span class="f">getchar</span>();
+    <span class="k">while</span> (c &lt; <span class="s">'0'</span> || c &gt; <span class="s">'9'</span>) c = <span class="f">getchar</span>();
+    <span class="k">while</span> (c &gt;= <span class="s">'0'</span> &amp;&amp; c &lt;= <span class="s">'9'</span>) { x = x * <span class="n">10</span> + (c - <span class="s">'0'</span>); c = <span class="f">getchar</span>(); }
+    <span class="k">return</span> x;
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    n = <span class="f">readInt</span>();
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) a[i] = <span class="f">readInt</span>();
+    m = <span class="f">readInt</span>();
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; m; ++i) {
+        qs[i].l = <span class="f">readInt</span>(); qs[i].r = <span class="f">readInt</span>(); qs[i].id = i;
+    }
+    <span class="k">sort</span>(qs, qs + m, [](<span class="k">const</span> Q&amp; x, <span class="k">const</span> Q&amp; y) { <span class="k">return</span> x.r &lt; y.r; });
+
+    <span class="k">int</span> p = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; m; ++i) {
+        <span class="k">while</span> (p &lt; qs[i].r) {
+            ++p;
+            <span class="k">if</span> (last[a[p]]) <span class="f">add</span>(last[a[p]], -<span class="n">1</span>);   <span class="c">// 同一个值只保留最右一次出现</span>
+            <span class="f">add</span>(p, <span class="n">1</span>);
+            last[a[p]] = p;
+        }
+        <span class="c">// 此时 c 里为 1 的位置，恰好是每种贝壳在 [1, r] 里的最右出现</span>
+        ans[qs[i].id] = <span class="f">sum</span>(qs[i].r) - <span class="f">sum</span>(qs[i].l - <span class="n">1</span>);
+    }
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; m; ++i) <span class="k">printf</span>(<span class="s">"%d\n"</span>, ans[i]);
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b516">关键片段拆解</div><table class="lines"><thead><tr><th id="b517">片段</th><th id="b518">作用</th></tr></thead><tbody><tr><td id="b519"><code>if (last[a[p]]) add(last[a[p]], -1);</code></td><td id="b520">★ 同一个值只保留最右一次出现：把上一次的 1 撤掉，[1, r] 里每个值就恰好被记 1 次。</td></tr><tr><td id="b521"><code>add(p, 1); last[a[p]] = p;</code></td><td id="b522">last 的大小是值域 10<sup>6</sup>，不是 n。两者数值接近但含义不同，写错就 RE。</td></tr><tr><td id="b523"><code>sort(qs, qs + m, ... x.r &lt; y.r)</code></td><td id="b524">离线核心：按右端点排序，树状数组只需要往后推进。</td></tr><tr><td id="b525"><code>while (p &lt; qs[i].r) { ++p; ... }</code></td><td id="b526">指针 p 只增不减，全部询问处理完总共走 n 步。</td></tr><tr><td id="b527"><code>ans[qs[i].id] = sum(r) - sum(l - 1);</code></td><td id="b528">前缀和相减就是区间和；此时和为 1 的位置正好是每种贝壳的最右出现。</td></tr><tr><td id="b529"><code>inline int readInt()</code></td><td id="b530">n = m = 10<sup>6</sup>、输入 20 MB，getchar 快读是本题的第二个知识点。</td></tr></tbody></table><div class="box warn"><div class="t" id="b531">这题最容易错的地方</div><ul><li id="b532">last 按 n 开：a<sub>i</sub> ≤ 10<sup>6</sup>，值域和长度不是一回事，越界后答案随机。</li><li id="b533">对每个询问单独从 1 扫到 r：退化成 O(nm)，指针 p 必须单调。</li><li id="b534">忘了清掉上一次出现的 1：每个值被重复计数，答案变成区间长度。</li><li id="b535">按处理顺序输出：排序打乱了顺序，必须按 id 回填。</li></ul></div></div></details></div><div class="box ok"><div class="t" id="b536">做完之后自问</div><ul><li id="b537">能不看模板写出 lowbit、add、query 三行，并说清 query 为什么是 O(log n)。</li><li id="b538">能说清离散化三步各自的作用，以及漏掉 sort 会发生什么。</li><li id="b539">看到「区间加 + 区间求和」能立刻指出 pushdown 要在 update 和 query 两处调用。</li><li id="b540">能区分何时用单调队列、何时用堆：一个是「固定窗口 + 顺序滑动」，一个是「全局最值」。</li><li id="b541">能写出 Trie 的 insert 与 query，并说出节点数上界怎么估、空间怎么算。</li><li id="b542">能默写 KMP 的 nxt 递推，并解释 nxt[i] 的含义与 n − nxt[n] 的意义。</li><li id="b543">能说出 ST 表为什么能求 max 却不能求区间和。</li><li id="b544">能写出匈牙利的 dfs 框架，并解释 vis 数组与 stamp 时间戳各自防的是什么。</li></ul></div><div class="box info"><div class="t" id="b545">延伸阅读</div><ul><li id="b546">《算法竞赛入门笔记》：树状数组、线段树、单调队列、字符串匹配相关章节</li><li id="b547">《算法竞赛进阶指南》：树状数组、线段树、字符串哈希、KMP 与 Trie 相关章节</li><li id="b548">《算法竞赛试炼场：洛谷300题精析》：P1908、P1440、P1168、P2580、P3375、P3386 的精析</li><li id="b549">《算法竞赛黄金法则》：先把暴力里「重扫一遍」的那句标出来，再选结构</li><li id="b550">想再练一道 Trie，加做 P3879 阅读理解（不计入本次限时）</li></ul></div>
+
+<footer>算竞教程 · 算竞教程 · 生成于自建课程体系，题目版权归洛谷及各命题方所有<br>
+转载请注明出处；模板代码可直接用于比赛</footer>

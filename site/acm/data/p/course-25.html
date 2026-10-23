@@ -1,0 +1,359 @@
+
+<p id="b0">第 21~24 节只教了一件东西：<b>把一个大问题拆成「第一步 + 剩下的同样问题」</b>，拆到不能再拆（出口），再把答案一层层抛回来。四节课是同一副骨架换了四种状态：递归算数、递推打表、枚举组合排列、在网格上走路。这一节不讲新算法，只练四个动作——<b>出口写对</b>、<b>状态写全</b>、<b>现场恢复</b>、<b>不该走的枝不走了</b>。</p><div class="quote" id="b1">DFS 的分数 90% 不在 for 循环里，而在三个地方：出口、标记数组的下标、回溯那一行。</div><table><thead><tr><th id="b2">节</th><th id="b3">内容</th><th id="b4">一句话判据</th></tr></thead><tbody><tr><td id="b5">21</td><td id="b6">递归：出口、递推与栈</td><td id="b7">函数体第一句是 <code>if (到出口) { 记答案; return; }</code>，之后才是「拆小 + 合并」</td></tr><tr><td id="b8">22</td><td id="b9">递推与记忆化搜索</td><td id="b10">同一个子问题被算第二次，就该把它存进表里</td></tr><tr><td id="b11">23</td><td id="b12">DFS 枚举：子集、组合与排列</td><td id="b13">题目问「有哪些选法 / 怎么排」，就画一棵每个结点开 n 个儿子的树</td></tr><tr><td id="b14">24</td><td id="b15">DFS 与回溯：网格搜索与剪枝</td><td id="b16">走一步改状态，退一步还原状态；注定不行的路当场 continue</td></tr></tbody></table><div class="prob"><div class="ph"><span class="pn" id="b17">例题 · Backward Digit Sums</span><span class="oi">洛谷 P1118</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P1118" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b18">把 1 到 N 的某个排列写成一行，然后把相邻两个数相加，得到少一个数的新一行；重复这个过程，直到只剩一个数。例如 N = 4 的排列 <code>3 1 2 4</code>：<code>3 1 2 4 → 4 3 6 → 7 9 → 16</code>，最后得到 16。</p><p id="b19">现在给定 N 与最终的和 sum，求满足条件的<b>字典序最小</b>的初始排列。</p><p id="b20">输入格式：一行两个正整数 n、sum（1 ≤ n ≤ 12，1 ≤ sum ≤ 12345）。</p><p id="b21">输出格式：一行 n 个整数，即字典序最小的答案；若无解，什么都不输出。</p></div><div class="io" id="b22">输入：
+4 16
+输出：
+3 1 2 4</div></div><p id="b23">第 23 节讲排列枚举，第 24 节讲剪枝，这一题把两者接起来：<b>枚举排列</b>（每层选一个没用过的数），<b>边枚举边剪枝</b>（当前的和已经超标就回头）。中间还藏着一个 combinatorics 的小结论——最终结果其实是初始排列的一个加权和，权重正好是杨辉三角。</p><div class="fn"><div class="fh" id="b24">新函数拆解 · 递归函数（DFS 骨架）</div><div class="fb"><div class="sig" id="b25">void dfs(int 状态参数, ...)</div><table class="lines"><thead><tr><th id="b26">组成</th><th id="b27">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b28"><code>返回类型</code></td><td id="b29">只做枚举和计数时用 <code>void</code>，答案写进全局变量；只求「能不能到」时用 <code>bool</code>。</td></tr><tr><td id="b30"><code>参数</code></td><td id="b31">只放「随分支变化」的量：第几行、第几步、当前和。不随分支变的（n、棋盘大小）一律放全局。</td></tr><tr><td id="b32"><code>出口</code></td><td id="b33">函数体第一句永远是 <code>if (到出口) { 记录/输出; return; }</code>。没有出口就是无限递归，结果 RE（爆栈）。</td></tr><tr><td id="b34"><code>分支</code></td><td id="b35"><code>for</code> 枚举这一步的所有选择，每个选择先「改状态」，再递归，再「还原状态」。</td></tr><tr><td id="b36"><code>回溯</code></td><td id="b37">递归返回后把状态改回去。漏了这一步，后面的分支会看到被污染的状态，答案偏少且难查。</td></tr><tr><td id="b38"><code>深度上限</code></td><td id="b39">默认栈约 8MB，一帧 48~64 字节，递归到 10⁵ 层就可能爆栈。更深的搜索要改手写栈或 BFS。</td></tr></tbody></table><div class="cap" id="b40">最小可运行示例</div><div class="cap" id="b41">示例</div><pre id="b42"><code><span class="k">int</span> n, ans = <span class="n">0</span>;
+
+<span class="k">void</span> <span class="f">dfs</span>(<span class="k">int</span> step) {
+    <span class="k">if</span> (step &gt; n) { ++ans; <span class="k">return</span>; }      <span class="c">// 出口：n 步都走完了，得到一种方案</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {         <span class="c">// 枚举这一步的所有选择</span>
+        <span class="c">// 改状态（本题没有需要改的数组）</span>
+        <span class="f">dfs</span>(step + <span class="n">1</span>);                     <span class="c">// 递归到下一步</span>
+        <span class="c">// 还原状态</span>
+    }
+}</code></pre><div class="box tip"><div class="t" id="b43">注意</div><p id="b44">出口里的 <code>return</code> 不能省，否则走完一步还会接着往下枚举，同一方案被重复计数。</p><p id="b45">递归函数的返回值只用来「传答案」或「报告成败」，不要既返回值又改全局量，那样必然乱。</p></div></div></div><div class="fn"><div class="fh" id="b46">新函数拆解 · 全局标记数组</div><div class="fb"><div class="sig" id="b47">bool vis[N];  // 写在 main 外面</div><table class="lines"><thead><tr><th id="b48">组成</th><th id="b49">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b50"><code>为什么放全局</code></td><td id="b51">全局变量在静态区：自动清零（false），而且不占栈空间。在 main 里开 10⁶ 个 int（4MB）就可能爆栈。</td></tr><tr><td id="b52"><code>两种写法</code></td><td id="b53"><code>vis[x] = true</code> 记录访问过；网格题里也可以直接把地图 <code>g[x][y]</code> 改成 '.'，省一个数组。</td></tr><tr><td id="b54"><code>成套出现</code></td><td id="b55"><code>mark(x); dfs(...); unmark(x);</code> 三句一定连在一起，中间不要插别的逻辑。</td></tr><tr><td id="b56"><code>数组大小</code></td><td id="b57">按<b>最大可能下标</b>开，不是按元素个数：列号最大 n，就开 n+2；对角线下标最大 2n，就开 2n+2。</td></tr><tr><td id="b58"><code>下标要能当索引</code></td><td id="b59">负数不能做下标。<code>row - col</code> 最小是 1-n，加 n 平移成 1 ~ 2n-1 就能用了。</td></tr></tbody></table><div class="cap" id="b60">最小可运行示例</div><div class="cap" id="b61">示例</div><pre id="b62"><code><span class="k">int</span> n;
+<span class="k">bool</span> col[<span class="n">30</span>], d1[<span class="n">30</span>], d2[<span class="n">30</span>];      <span class="c">// 列、↘ 方向、↙ 方向</span>
+
+<span class="c">// 试图把第 row 行的皇后放在第 c 列</span>
+<span class="k">if</span> (col[c] || d1[row + c] || d2[row - c + n]) <span class="k">continue</span>;   <span class="c">// 三条线有任一条被占，就不能放</span>
+col[c] = d1[row + c] = d2[row - c + n] = <span class="k">true</span>;            <span class="c">// 占住三条线</span>
+<span class="f">dfs</span>(row + <span class="n">1</span>);
+col[c] = d1[row + c] = d2[row - c + n] = <span class="k">false</span>;           <span class="c">// 回溯：三处一起还原</span></code></pre><div class="box tip"><div class="t" id="b63">注意</div><p id="b64">连续赋值 <code>a = b = c = true</code> 是右结合，三处都会被赋 true，可以放心连写。</p><p id="b65">还原时漏掉一条线，那个位置后面就永远被占着，解会少一大截——这是八皇后最典型的错法。</p></div></div></div><div class="fn"><div class="fh" id="b66">新函数拆解 · memset（批量初始化）</div><div class="fb"><div class="sig" id="b67">memset(数组名, 值, sizeof 数组名);</div><table class="lines"><thead><tr><th id="b68">组成</th><th id="b69">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b70"><code>按字节填</code></td><td id="b71">memset 把内存按<b>字节</b>填成同一个值：填 0 得到全 0，填 -1 得到全 -1（每字节 0xFF），填 1 得到 16843009。</td></tr><tr><td id="b72"><code>只有 0 / -1 能用</code></td><td id="b73">想把 int 数组全设成 5、把 double 设成 0.3，memset 都做不到，只能用 <code>fill</code> 或循环。</td></tr><tr><td id="b74"><code>sizeof</code></td><td id="b75">对数组名写 <code>sizeof f</code>。写成 <code>sizeof(int)</code> 只清 4 个字节；数组传进函数后已退化成指针，此时 sizeof 只有 8。</td></tr><tr><td id="b76"><code>替代品</code></td><td id="b77"><code>fill(f, f + N, 值)</code> 可以填任意值，速度略慢，但语义清楚。</td></tr><tr><td id="b78"><code>什么时候需要</code></td><td id="b79">记忆化搜索里「没算过」要用 -1 标记时；多组数据之间清空状态数组时。</td></tr></tbody></table><div class="cap" id="b80">最小可运行示例</div><div class="cap" id="b81">示例</div><pre id="b82"><code><span class="k">long</span> <span class="k">long</span> f[<span class="n">40</span>][<span class="n">40</span>];              <span class="c">// 全局：本来就全是 0，不用清</span>
+
+<span class="k">int</span> dp[<span class="n">1005</span>];
+<span class="k">memset</span>(dp, -<span class="n">1</span>, <span class="k">sizeof</span> dp);       <span class="c">// 全部变成 -1，用作「还没算过」的标记</span>
+<span class="c">// memset(dp, 1, sizeof dp);      // 错误：得到 16843009，不是 1</span></code></pre><div class="box tip"><div class="t" id="b83">注意</div><p id="b84">用 0 当「没算过」的标记时，必须保证真实答案是 0 的情况不存在；否则要换成 -1。</p><p id="b85">memset 只能处理 POD 类型（int、char、double、结构体），vector、string 不要 memset。</p></div></div></div><div class="fn"><div class="fh" id="b86">新函数拆解 · 方向数组</div><div class="fb"><div class="sig" id="b87">const int dx[4] = {-1, 1, 0, 0};
+const int dy[4] = {0, 0, -1, 1};</div><table class="lines"><thead><tr><th id="b88">组成</th><th id="b89">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b90"><code>两个下标数组</code></td><td id="b91"><code>dx[k]</code>、<code>dy[k]</code> 是第 k 个方向的横纵增量，配成一对才表示一个方向。</td></tr><tr><td id="b92"><code>4 连通</code></td><td id="b93">上下左右：<code>(-1,0) (1,0) (0,-1) (0,1)</code>。顺序只影响输出顺序，不影响答案。</td></tr><tr><td id="b94"><code>8 连通</code></td><td id="b95">再加四条斜线 <code>(-1,-1) (-1,1) (1,-1) (1,1)</code>，一共 8 组，两个数组要一一对应。</td></tr><tr><td id="b96"><code>越界判断在前</code></td><td id="b97"><code>nx &lt; 1 || nx &gt; n || ny &lt; 1 || ny &gt; m</code> 必须写在访问 <code>g[nx][ny]</code> <b>之前</b>。</td></tr><tr><td id="b98"><code>const</code></td><td id="b99">方向表是常量，加 <code>const</code> 让编译器直接内联，也防手滑改掉。</td></tr></tbody></table><div class="cap" id="b100">最小可运行示例</div><div class="cap" id="b101">示例</div><pre id="b102"><code><span class="k">const</span> <span class="k">int</span> dx[<span class="n">8</span>] = {-<span class="n">1</span>, -<span class="n">1</span>, -<span class="n">1</span>, <span class="n">0</span>, <span class="n">0</span>, <span class="n">1</span>, <span class="n">1</span>, <span class="n">1</span>};
+<span class="k">const</span> <span class="k">int</span> dy[<span class="n">8</span>] = {-<span class="n">1</span>,  <span class="n">0</span>,  <span class="n">1</span>, -<span class="n">1</span>, <span class="n">1</span>, -<span class="n">1</span>, <span class="n">0</span>, <span class="n">1</span>};
+
+<span class="k">for</span> (<span class="k">int</span> k = <span class="n">0</span>; k &lt; <span class="n">8</span>; ++k) {
+    <span class="k">int</span> nx = x + dx[k], ny = y + dy[k];
+    <span class="k">if</span> (nx &lt; <span class="n">1</span> || nx &gt; n || ny &lt; <span class="n">1</span> || ny &gt; m) <span class="k">continue</span>;   <span class="c">// 先判界，再访问</span>
+    <span class="k">if</span> (g[nx][ny] == <span class="s">'W'</span>) <span class="f">dfs</span>(nx, ny);
+}</code></pre><div class="box tip"><div class="t" id="b103">注意</div><p id="b104">8 个方向手写 8 个 if 极易把 dy 抄错；写成表以后，改方向只改表，循环体不动。</p><p id="b105">方向表用不用哨兵边界（四周留一圈 '.'）是风格问题；留了就不用判界，但数组要开大两圈。</p></div></div></div><div class="step"><div class="sh" id="b106">例题怎么想：先把“最终和”写成初始排列的加权和</div><p id="b107">① <b>关键一步：算权重。</b>把一次合并看成“每个位置向上贡献一次”。合并一行之后，位置 i 的数会同时进入它左边和右边两个和里（边界只有一个）。反复 n−1 轮，位置 i 对最终答案的贡献次数就是 <code>C(n−1, i−1)</code>——杨辉三角第 n 行的第 i 个数。</p><p id="b108">② <b>于是题目变成等式求根。</b>求排列 a₁…aₙ 使 <code>Σ C(n−1, i−1) · aᵢ = sum</code>。N = 4 时系数是 1 3 3 1，验证 <code>3 1 2 4</code>：3×1 + 1×3 + 2×3 + 4×1 = 16，与题面一致。</p><p id="b109">③ <b>状态</b>：<code>dfs(step, s)</code> 表示“前 step 个位置已经填好，加权和为 s”。全局的 <code>used[v]</code> 记哪些数字已经用过——这就是第 23 节的排列模板。</p><p id="b110">④ <b>出口</b>：<code>step == n</code> 时判断 <code>s == sum</code>。因为每一层都往下传了确定的 s，出口处不用再算一遍。</p><p id="b111">⑤ <b>剪枝</b>：系数全是正的，所以 s 只增不减；一旦 <code>s &gt; sum</code>，这一整棵子树都不可能再回到 sum，立刻 return false。这一句把 n = 12 时的 4.8×10⁸ 条排列砍到可以接受。</p><p id="b112">⑥ <b>为什么第一次找到的就是字典序最小</b>：每层都从 1 到 n 递增地试、用过就跳过，于是搜索树的叶子按字典序排列。函数一旦在某条分支上返回 true 就层层往上返回，所以拿到的一定是第一个（也就是字典序最小的）解。</p><p id="b113">为什么这题不能用记忆化：状态是 <code>(step, s, 已用集合)</code>，只靠 <code>(step, s)</code> 区分不了不同集合，存表会算错。这类“状态里含集合”的搜索只能老老实实枚举，靠剪枝降复杂度。</p><p id="b114">规模：N ≤ 12，全排列 4.8×10⁸ 看着吓人，但系数是 1, 11, 55, 165, … 增长很快，只要 sum 不是特别大，绝大多数分支在前几层就被剪掉了。实测 N = 12 的极端数据也在毫秒级。</p></div><div class="cap" id="b115">完整代码 · 排列枚举 + 加权和剪枝</div><pre id="b116"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> n, target, a[<span class="n">15</span>], coef[<span class="n">15</span>];     <span class="c">// coef[i] = C(n-1, i)</span>
+<span class="k">bool</span> used[<span class="n">15</span>];
+
+<span class="c">// step：正在填第几个位置；s：已填部分的加权和</span>
+<span class="k">bool</span> <span class="f">dfs</span>(<span class="k">int</span> step, <span class="k">int</span> s) {
+    <span class="k">if</span> (s &gt; target) <span class="k">return</span> <span class="k">false</span>;              <span class="c">// 剪枝：系数全正，s 只会越来越大</span>
+    <span class="k">if</span> (step == n) <span class="k">return</span> s == target;         <span class="c">// 出口：n 个位置都填好了</span>
+    <span class="k">for</span> (<span class="k">int</span> v = <span class="n">1</span>; v &lt;= n; ++v) {
+        <span class="k">if</span> (used[v]) <span class="k">continue</span>;                 <span class="c">// 排列：每个数只能用一次</span>
+        used[v] = <span class="k">true</span>;
+        a[step] = v;
+        <span class="k">if</span> (<span class="f">dfs</span>(step + <span class="n">1</span>, s + v * coef[step])) <span class="k">return</span> <span class="k">true</span>;   <span class="c">// 找到就一路返回</span>
+        used[v] = <span class="k">false</span>;                       <span class="c">// 回溯</span>
+    }
+    <span class="k">return</span> <span class="k">false</span>;
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; target;
+
+    coef[<span class="n">0</span>] = <span class="n">1</span>;                               <span class="c">// 杨辉三角第 n 行：C(n-1, i) = C(n-1, i-1) * (n-i) / i</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt; n; ++i) coef[i] = coef[i - <span class="n">1</span>] * (n - i) / i;
+
+    <span class="k">if</span> (<span class="f">dfs</span>(<span class="n">0</span>, <span class="n">0</span>)) {                           <span class="c">// 有解才输出</span>
+        <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; n; ++i) <span class="k">cout</span> &lt;&lt; a[i] &lt;&lt; (i == n - <span class="n">1</span> ? <span class="s">'\n'</span> : <span class="s">' '</span>);
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b117">逐行拆解</div><table class="lines"><thead><tr><th id="b118">代码片段</th><th id="b119">含义与理由</th></tr></thead><tbody><tr><td id="b120"><code>int coef[15];</code></td><td id="b121">存杨辉三角第 n 行（n−1 次），最大 C(11,5) = 462，int 足够。它是“每个位置贡献几次”的权重，是本题唯一的数学。</td></tr><tr><td id="b122"><code>coef[i] = coef[i - 1] * (n - i) / i;</code></td><td id="b123">组合数的递推：C(m,i) = C(m,i−1)·(m−i+1)/i，m = n−1。先乘后除，中间值仍在 int 范围内，且每步都能整除。</td></tr><tr><td id="b124"><code>bool dfs(int step, int s)</code></td><td id="b125">返回 bool 而不是 void：搜索到第一个解就要停下并层层上报，这是“求字典序最小”类题目的通用写法。</td></tr><tr><td id="b126"><code>if (s &gt; target) return false;</code></td><td id="b127">剪枝。因为 coef[i] ≥ 1 且每个 a[i] ≥ 1，s 单调不减，超标之后永远回不来。这一行是全题的性能关键。</td></tr><tr><td id="b128"><code>if (step == n) return s == target;</code></td><td id="b129">出口直接返回真假，不写 if/else。注意这里是 <code>==n</code> 而不是 <code>&gt;n</code>：第 n 个位置填完就停，不会再进一层。</td></tr><tr><td id="b130"><code>if (used[v]) continue;</code></td><td id="b131">排列的判重，和第 23 节完全一样。注意本题没有 start 参数——排列允许任意顺序，不能像组合那样强制递增。</td></tr><tr><td id="b132"><code>if (dfs(step + 1, s + v * coef[step])) return true;</code></td><td id="b133">把“当前数 × 当前权重”累加进 s。返回 true 说明后面已经找到完整解，本层立即返回，不再试别的 v。</td></tr><tr><td id="b134"><code>used[v] = false;</code></td><td id="b135">回溯。漏了这一句，后面的分支会以为数字被占着，方案数骤减甚至无解。</td></tr><tr><td id="b136"><code>if (dfs(0, 0)) { ... }</code></td><td id="b137">无解时什么都不输出——题目要求“当无解的时候请什么也不输出”，连换行都不要多打。</td></tr></tbody></table></div><div class="box warn"><div class="t" id="b138">这一章最容易踩的 6 个坑（每个都写清了症状）</div><p id="b139">把权重算成 2 的幂或 1,2,3,…：样例 3 1 2 4 就跑不出 16。<b>权重是杨辉三角</b>，先手算 n = 4 验证 1 3 3 1。</p><p id="b140">组合数递推写成 <code>coef[i-1] * (n-i+1) / i</code>：把 m = n−1 记成 n，权重整体错一位，样例能跑但后面全错。</p><p id="b141">剪枝条件写成 <code>s &gt;= target</code>：把恰好等于 sum 的分支也砍掉，答案永远是“无解”。</p><p id="b142">出口写成 <code>step &gt; n</code> 后才发现：n 个位置填完就该判，多进一层会访问越界的 coef[n]。</p><p id="b143">忘了回溯 <code>used[v] = false</code>：只能试出第一条路径，多数数据直接输出空。</p><p id="b144">无解时输出了换行或 0：题目要求什么也不输出，多一个字符就是 WA。</p></div><div class="reproduce"><div class="rt" id="b145">自己动手复现</div><p id="b146">关掉页面，把上面 P1118 的代码手打一遍，输入 <code>4 16</code>，核对输出是不是 <code>3 1 2 4</code>。</p><p id="b147">改一改①：把系数打印出来（n = 4 时应为 1 3 3 1，n = 6 时为 1 5 10 10 5 1），再手算一遍 3 1 2 4 的加权和，确认公式没错。</p><p id="b148">改一改②：把 <code>if (s &gt; target) return false;</code> 注释掉，输入 <code>12 12345</code>，用 <code>time</code> 看耗时变化——这一行就是全题的性能来源。</p><p id="b149">改一改③：把列循环改成 <code>for (int v = n; v &gt;= 1; --v)</code>，输入 <code>4 16</code>，观察输出——字典序最小原来只由尝试顺序决定。</p><p id="b150">改一改④：把 <code>used[v] = false;</code> 注释掉，输入 <code>6 100</code>，先预测会不会有输出，再运行验证。</p></div><div class="box tip"><div class="t" id="b151">第 21~24 节各留一句话，以后写搜索前按这个顺序检查</div><p id="b152"><b>21 递归</b>：先写出口，再写递归调用。函数里第一句永远是出口判断。</p><p id="b153"><b>22 记忆化</b>：同一个状态算第二次就是浪费。递归 + 一张 f 表，「算过就取、算完就存」。</p><p id="b154"><b>23 枚举</b>：子集是「选 / 不选」，组合是「从 start 往后选」，排列是「vis 标记 + 全枚举」。三种树不同，出口相同。</p><p id="b155"><b>24 网格</b>：方向数组 + 越界判断 + 标记 + 回溯，四件缺一件就是 RE 或死循环。</p></div><p id="b156">下面 5 道题按「递归 → 网格选数 → 网格路径 → 剪枝 → 回溯」排：前两题把模板写熟，第三题多带一个状态，第四题专门练剪枝，最后一题回到字符串。每题都先自己想 20 分钟，卡住了再看提示。</p><table><thead><tr><th id="b157">题</th><th id="b158">编号</th><th id="b159">主要考什么</th><th id="b160">最容易错在哪</th></tr></thead><tbody><tr><td id="b161">A</td><td id="b162">P1928</td><td id="b163">递归下降：读一段，读到配对括号为止</td><td id="b164">读到 <code>]</code> 忘了 return；重复次数读的位置不对</td></tr><tr><td id="b165">B</td><td id="b166">P1123</td><td id="b167">网格 DFS：选 / 不选 + 8 邻域检查</td><td id="b168">只查 4 邻域；多组数据忘了清空 used 与 best</td></tr><tr><td id="b169">C</td><td id="b170">P7995</td><td id="b171">网格 DFS + 状态：走格子并数转向次数</td><td id="b172">第一步也算转向；dir 的编码两处不一致</td></tr><tr><td id="b173">D</td><td id="b174">P10483</td><td id="b175">搜索 + 剪枝：分组使组数最少</td><td id="b176">不排序导致剪枝失效 TLE；回溯漏还原载重</td></tr><tr><td id="b177">E</td><td id="b178">P1019</td><td id="b179">回溯 + 全局最优：每一步都更新答案</td><td id="b180">重叠长度取了最大而不是最小</td></tr></tbody></table><div class="box info"><div class="t" id="b181">这 90 分钟怎么用</div><p id="b182">0~8 分钟：只读题，按「能立刻写 → 有思路 → 没思路」排序。这五题代码都不长，难在想清楚状态。</p><p id="b183">8~22 分钟：A（P1928）。先想清楚递归函数<b>返回什么</b>、<b>在哪里停</b>，再动手写。</p><p id="b184">22~38 分钟：B（P1123）。骨架就是第 23 节的「选 / 不选」，多一步邻域检查。</p><p id="b185">38~55 分钟：C（P7995）。注意「转向次数」是状态的一部分，不能只传坐标。</p><p id="b186">55~72 分钟：D（P10483）。先写出不剪枝的版本对拍小数据，再加两条剪枝。</p><p id="b187">72~90 分钟：E（P1019）。重点在重叠长度的预处理；DFS 本身只是带回溯的模板。</p></div><div class="box ok"><div class="t" id="b188">提交前的 30 秒检查清单（搜索题专用）</div><p id="b189">每个 <code>dfs</code> 的第一行是不是出口？出口里有没有 <code>return</code>？</p><p id="b190">每一处「改状态」，返回后有没有配一句「还原状态」？数量对上没有？</p><p id="b191">标记数组的实际最大下标是多少？开的大小是不是比它大？</p><p id="b192">最坏递归深度是多少？超过 10⁵ 就要考虑爆栈，或改用 BFS。</p><p id="b193">有没有同一个状态被反复计算？有就加记忆化，或者用剪枝不再往下搜。</p><p id="b194">多组数据的题：答案、标记数组、累加量，每组开始前都重置了吗？</p></div><h2 id="b195">本次训练 · 共 5 题</h2><div class="box tip"><div class="t" id="b196">做题方式</div><p id="b197">限时 <b>100 分钟</b>。每题先自己写 20~25 分钟；写不出来先看提示，再给自己 10 分钟；还不行才点开思路。每题都独立限时，不要一题耗死。</p></div><div class="challenge"><div class="ct" id="b198">大题 挑战题 1 · 外星密码</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1928</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P1928" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b199">外星人把连续的若干个相同子串 X 压缩成 <code>[DX]</code> 的形式，其中 D 是 1 到 99 的整数。例如 <code>CBCBCBCB</code> 可以压成 <code>[4CB]</code>，也可以压成 <code>[2[2CB]]</code>；后者叫二重压缩，方括号还可以继续嵌套。</p><p id="b200">例如 <code>AC[3FUN]</code> 展开是 <code>ACFUNFUNFUN</code>，<code>[2[2A]]</code> 展开是 <code>AAAA</code>。</p><p id="b201">给定一个压缩串，输出解压后的字符串。</p><p id="b202">输入格式：一行一个字符串，只含数字、大写字母和方括号，保证格式合法；解压后的长度不超过 20000，压缩最多十重。</p><p id="b203">输出格式：一行，解压后的字符串。</p></div><div class="cap" id="b204">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+AC[3FUN]
+
+输出：
+ACFUNFUNFUN</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b205">这个串的结构天生是递归的：一个方括号里可以再套方括号，结构完全一样。</p><p id="b206">把「从当前位置一直读到配对的方括号为止」写成一个函数，让它自己调用自己。</p><p id="b207">读到左括号时，先读出重复次数，再递归读出里面那一整段，最后把那段重复拼接上去。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b208">递归函数 <code>readStr()</code> 的语义是：<b>从当前读位置开始，读一段内容，读到配对的 <code>]</code> 或输入末尾为止，返回这段内容</b>。</p><p id="b209">循环读字符，三种情况：普通字母 → 直接接在结果后面；<code>[</code> → 读整数 D，递归读出子串 t，把 t 重复 D 次接上；<code>]</code> → 本层读完，return。</p><p id="b210">出口有两个：读到 <code>]</code>（这一层结束）和读到输入末尾（最外层结束）。</p><p id="b211">为什么这样一定对：左括号和右括号严格配对，递归进入一层就消耗掉一个左括号，返回时刚好消耗掉配对的右括号，流的位置自然停在括号后面，外层接着往下读。</p><p id="b212">复杂度：每个字符只被读一次，拼接总量等于输出长度，总时间 O(输出长度)。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b213">参考代码</div><pre id="b214"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="c">// 从当前读位置读一段，读到配对的 ']' 或输入结束为止</span>
+<span class="k">string</span> <span class="f">readStr</span>() {
+    <span class="k">string</span> s;
+    <span class="k">char</span> c;
+    <span class="k">while</span> (<span class="k">cin</span> &gt;&gt; c) {                  <span class="c">// 一次读一个字符</span>
+        <span class="k">if</span> (c == <span class="s">'['</span>) {                 <span class="c">// 遇到左括号：后面紧跟重复次数</span>
+            <span class="k">int</span> k = <span class="n">0</span>;
+            <span class="k">cin</span> &gt;&gt; k;                   <span class="c">// 读整数，正好停在内容第一个字符上</span>
+            <span class="k">string</span> t = <span class="f">readStr</span>();       <span class="c">// 递归读括号里的内容</span>
+            <span class="k">while</span> (k--) s += t;         <span class="c">// 重复 k 次（k-- 是先用后减）</span>
+        } <span class="k">else</span> <span class="k">if</span> (c == <span class="s">']'</span>) {          <span class="c">// 出口：这一层结束</span>
+            <span class="k">return</span> s;
+        } <span class="k">else</span> {
+            s += c;                     <span class="c">// 普通字母：直接接上</span>
+        }
+    }
+    <span class="k">return</span> s;                           <span class="c">// 最外层读到输入结束也要返回值</span>
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+    <span class="k">cout</span> &lt;&lt; <span class="f">readStr</span>() &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b215">关键片段拆解</div><table class="lines"><thead><tr><th id="b216">片段</th><th id="b217">作用</th></tr></thead><tbody><tr><td id="b218"><code>while (cin &gt;&gt; c)</code></td><td id="b219">一次读一个字符；<code>cin</code> 在读不到东西时转成 false，循环自动结束。</td></tr><tr><td id="b220"><code>if (c == '[')</code></td><td id="b221">左括号表示「这里要重复」，它后面紧跟的是次数。</td></tr><tr><td id="b222"><code>cin &gt;&gt; k</code></td><td id="b223">读整数会自动跳过空白，并读到第一个非数字字符为止，正好停在内容的第一个字符上。</td></tr><tr><td id="b224"><code>string t = readStr();</code></td><td id="b225">递归读内容：这一层不知道里面有多长，交给同名函数读到配对的右括号。</td></tr><tr><td id="b226"><code>while (k--) s += t;</code></td><td id="b227"><code>k--</code> 先取值再减，循环体恰好执行 k 次；k 是局部变量，不影响别的层。</td></tr><tr><td id="b228"><code>} else if (c == ']') { return s; }</code></td><td id="b229">出口。把本层攒到的内容交回上一层，同时右括号已经被消耗掉。</td></tr><tr><td id="b230"><code>return s;</code></td><td id="b231">最外层读到输入结束后，循环退出，同样要返回结果。</td></tr></tbody></table><div class="box warn"><div class="t" id="b232">这题最容易错的地方</div><ul><li id="b233"><code>]</code> 分支忘记 <code>return</code>，函数会继续往下读，把外层的内容也吞进来，输出整体错乱。</li><li id="b234">读入顺序反了：先 <code>cin &gt;&gt; k</code> 再判断 <code>c == '['</code>，遇到字母时 <code>cin</code> 会失败，之后所有读入失效，输出空串。</li><li id="b235">用 <code>getline</code> 读整行再手动递归，忘了前面 <code>cin &gt;&gt; n</code> 残留的换行。</li><li id="b236">输出用 <code>endl</code> 逐行刷新，输出很长时明显变慢；本题只需拼好一次输出。</li></ul></div></div></details></div><div class="challenge"><div class="ct" id="b237">大题 挑战题 2 · 取数游戏</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1123</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P1123" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b238">给定一个 N × M 的由非负整数构成的矩阵，从中取出若干个数，要求取出的任意两个数<b>不相邻</b>（一个格子在另一个格子的 8 个相邻格中，就认为这两个数相邻），求取出的数之和的最大值。</p><p id="b239">输入格式：第一行一个正整数 T（T ≤ 20），表示数据组数。每组数据的第一行两个正整数 N、M（1 ≤ N, M ≤ 6）；接下来 N 行，每行 M 个不超过 10⁵ 的非负整数。</p><p id="b240">输出格式：共 T 行，每行一个非负整数，表示该组数据的最大和。</p></div><div class="cap" id="b241">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+1
+4 4
+67 75 63 10
+29 29 92 14
+21 68 71 56
+8 67 91 25
+
+输出：
+271</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b242">每个格子只有两种命运：取或不取。按行序一个个决定，就得到一棵二叉搜索树。</p><p id="b243">决定「取」之前要检查它和已经决定过的格子是否相邻。按行序处理时，只需要看左、左上、上、右上四个方向。</p><p id="b244">所有格子都决定完才能更新答案；走不下去时，用「剩下的格子全取也超不过当前最优」把这一支砍掉。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b245"><b>状态</b>：<code>dfs(x, y, sum)</code> 表示正在决定第 x 行第 y 列，已取数字之和是 sum。</p><p id="b246"><b>分支</b>：不取 → 直接走到下一个格子；取 → 先检查 4 个已处理方向的邻格，没冲突才标记并累加。</p><p id="b247"><b>出口</b>：走完最后一行时用 sum 更新 best。</p><p id="b248"><b>剪枝</b>：预处理 <code>suf[x][y]</code> = 从 (x,y) 按行序到末尾的<b>所有</b>数字之和。若 <code>sum + suf[x][y] &lt;= best</code>，后面的格子全取也不可能更好，直接 return。</p><p id="b249">为什么只查 4 个方向：行序遍历时，右、左下、下、右下都还没决定，不可能与当前格冲突。</p><p id="b250">规模：6×6 网格的独立集约 5.6×10⁶ 个，比 2³⁶ = 6.9×10¹⁰ 小得多；再加后缀和剪枝，T ≤ 20 也很快。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b251">参考代码</div><pre id="b252"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> T, n, m;
+<span class="k">int</span> a[<span class="n">8</span>][<span class="n">8</span>];
+<span class="k">bool</span> used[<span class="n">8</span>][<span class="n">8</span>];
+<span class="k">int</span> suf[<span class="n">8</span>][<span class="n">8</span>];              <span class="c">// suf[x][y]：从 (x,y) 按行序到末尾的所有数字之和</span>
+<span class="k">int</span> best;
+
+<span class="c">// 按行序处理时，只需要检查已经决定过的 4 个方向</span>
+<span class="k">const</span> <span class="k">int</span> dx[<span class="n">4</span>] = {<span class="n">0</span>, -<span class="n">1</span>, -<span class="n">1</span>, -<span class="n">1</span>};
+<span class="k">const</span> <span class="k">int</span> dy[<span class="n">4</span>] = {-<span class="n">1</span>, -<span class="n">1</span>, <span class="n">0</span>, <span class="n">1</span>};
+
+<span class="k">bool</span> <span class="f">canTake</span>(<span class="k">int</span> x, <span class="k">int</span> y) {
+    <span class="k">for</span> (<span class="k">int</span> k = <span class="n">0</span>; k &lt; <span class="n">4</span>; ++k) {
+        <span class="k">int</span> nx = x + dx[k], ny = y + dy[k];
+        <span class="k">if</span> (nx &lt; <span class="n">1</span> || nx &gt; n || ny &lt; <span class="n">1</span> || ny &gt; m) <span class="k">continue</span>;
+        <span class="k">if</span> (used[nx][ny]) <span class="k">return</span> <span class="k">false</span>;          <span class="c">// 和已选的格子相邻，不能取</span>
+    }
+    <span class="k">return</span> <span class="k">true</span>;
+}
+
+<span class="k">void</span> <span class="f">dfs</span>(<span class="k">int</span> x, <span class="k">int</span> y, <span class="k">int</span> sum) {
+    <span class="k">if</span> (x &gt; n) {                                 <span class="c">// 出口：所有格子都决定完了</span>
+        best = <span class="k">max</span>(best, sum);
+        <span class="k">return</span>;
+    }
+    <span class="k">if</span> (sum + suf[x][y] &lt;= best) <span class="k">return</span>;         <span class="c">// 剪枝：后面全取也超不过当前最优</span>
+
+    <span class="k">int</span> nx = x, ny = y + <span class="n">1</span>;                      <span class="c">// 下一个格子（到行末就换行）</span>
+    <span class="k">if</span> (ny &gt; m) { nx = x + <span class="n">1</span>; ny = <span class="n">1</span>; }
+
+    <span class="f">dfs</span>(nx, ny, sum);                            <span class="c">// 分支一：不取当前格</span>
+    <span class="k">if</span> (<span class="f">canTake</span>(x, y)) {                         <span class="c">// 分支二：取当前格</span>
+        used[x][y] = <span class="k">true</span>;
+        <span class="f">dfs</span>(nx, ny, sum + a[x][y]);
+        used[x][y] = <span class="k">false</span>;                      <span class="c">// 回溯：还回去</span>
+    }
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+    <span class="k">cin</span> &gt;&gt; T;
+    <span class="k">while</span> (T--) {
+        <span class="k">cin</span> &gt;&gt; n &gt;&gt; m;
+        <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i)
+            <span class="k">for</span> (<span class="k">int</span> j = <span class="n">1</span>; j &lt;= m; ++j) {
+                <span class="k">cin</span> &gt;&gt; a[i][j];
+                used[i][j] = <span class="k">false</span>;              <span class="c">// 多组数据：每组都要清空</span>
+            }
+        <span class="k">memset</span>(suf, <span class="n">0</span>, <span class="k">sizeof</span> suf);              <span class="c">// 边界 suf[n+1][1] 必须是 0，多组数据要还原</span>
+        <span class="k">for</span> (<span class="k">int</span> i = n; i &gt;= <span class="n">1</span>; --i)             <span class="c">// 从右下往左上递推后缀和</span>
+            <span class="k">for</span> (<span class="k">int</span> j = m; j &gt;= <span class="n">1</span>; --j) {
+                <span class="k">int</span> nxt = (j == m) ? suf[i + <span class="n">1</span>][<span class="n">1</span>] : suf[i][j + <span class="n">1</span>];
+                suf[i][j] = a[i][j] + nxt;
+            }
+        best = <span class="n">0</span>;
+        <span class="f">dfs</span>(<span class="n">1</span>, <span class="n">1</span>, <span class="n">0</span>);
+        <span class="k">cout</span> &lt;&lt; best &lt;&lt; <span class="s">"\n"</span>;
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b253">关键片段拆解</div><table class="lines"><thead><tr><th id="b254">片段</th><th id="b255">作用</th></tr></thead><tbody><tr><td id="b256"><code>int suf[8][8];</code></td><td id="b257">后缀和表：把「剩下所有格子的数字之和」预先算好，剪枝时 O(1) 查。</td></tr><tr><td id="b258"><code>for (int i = n; i &gt;= 1; --i)</code></td><td id="b259">从右下往左上递推：每个位置 = 自己的值 + 下一个位置的后缀和。i = n、j = m 时会读到边界 suf[n+1][1]，所以上面先 memset 成 0。</td></tr><tr><td id="b260"><code>if (sum + suf[x][y] &lt;= best) return;</code></td><td id="b261">所有数字非负，所以「后面全取」是这个分支能达到的上界；上界都不如已知最优就砍掉。</td></tr><tr><td id="b262"><code>int nx = x, ny = y + 1; if (ny &gt; m) { nx = x + 1; ny = 1; }</code></td><td id="b263">把二维格子压成一条顺序，递归时只剩一个「下一个」。</td></tr><tr><td id="b264"><code>dfs(nx, ny, sum);</code></td><td id="b265">分支一：不取，什么都不改，直接往后走。</td></tr><tr><td id="b266"><code>if (canTake(x, y))</code></td><td id="b267">分支二：只有和已决定的 4 个邻格都不冲突才取。</td></tr><tr><td id="b268"><code>used[x][y] = false;</code></td><td id="b269">回溯：离开这一支前必须还回去，否则后面所有分支都以为这格被占了。</td></tr><tr><td id="b270"><code>used[i][j] = false;</code></td><td id="b271">多组数据：上一组的标记必须在这里清掉，否则第二组开始全错。</td></tr></tbody></table><div class="box warn"><div class="t" id="b272">这题最容易错的地方</div><ul><li id="b273">邻域检查写错：只查上下左右 4 个方向（漏斜对角），或者「取」的分支干脆不检查 —— 两种都会取出相邻的数，答案偏大。</li><li id="b274">回溯漏写 <code>used[x][y] = false</code> → 后面的分支全被挡住，答案偏小。</li><li id="b275">多组数据忘了清空 <code>used</code> 或 <code>best</code> → 从第二组开始答案全错。</li><li id="b276">剪枝里把 <code>suf[x][y]</code> 写成 <code>suf[x][y + 1]</code>，把当前格也算进「已取」→ 漏掉最优解。</li></ul></div></div></details></div><div class="challenge"><div class="ct" id="b277">大题 挑战题 3 · Walking Home B</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P7995</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P7995" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b278">农场是一个 N × N 的方阵（2 ≤ N ≤ 50），草地在左上角 (1,1)，牛棚在右下角 (N,N)。</p><p id="b279">Bessie 只向下或向右走，有干草捆的格子（<code>H</code>）不能通过。她希望改变行走方向<b>至多 K 次</b>（1 ≤ K ≤ 3）。</p><p id="b280">求不同的路线数量。两条路线只要经过的格子集合不同就算不同。</p><p id="b281">输入格式：第一行一个整数 T（1 ≤ T ≤ 50），表示子测试用例数。每个用例的第一行是 N、K；接下来 N 行，每行 N 个字符，<code>.</code> 表示空格子，<code>H</code> 表示干草捆。保证起点和终点不是干草捆。</p><p id="b282">输出格式：共 T 行，第 i 行是第 i 个用例的路线数。</p></div><div class="cap" id="b283">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+2
+3 1
+...
+.H.
+...
+3 2
+...
+...
+...
+
+输出：
+2
+4</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b284">只往右下走，所以一条路线最多 2N-2 步，可以完整枚举。</p><p id="b285">递归时多带两个信息：上一步的方向（下 / 右），以及已经转了几次方向。</p><p id="b286">换方向才 +1，沿原方向继续走不 +1；转向预算超了就不要走这一格。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b287"><b>状态</b>：<code>dfs(x, y, turns, dir)</code> 表示站在 (x,y)，已经转了 turns 次，最后一步的方向是 dir（0 下、1 右）。</p><p id="b288"><b>分支</b>：向下或向右，各判一次「这一格能不能走」和「换方向后 turns 是否超 K」。</p><p id="b289"><b>出口</b>：走到 (N,N) 就 <code>++ans</code>，然后立刻 return。</p><p id="b290">起点的第一步不算转向，所以先单独迈出第一步（向下或向右），再进入递归。</p><p id="b291">为什么不会重复计数：只往右下走时，一条路线的方向序列唯一确定这条路线，反过来也唯一，所以枚举方向序列等于枚举路线。</p><p id="b292">复杂度：K = 3 时合法路线只有 O(N³) 级别，N ≤ 50 时不过十几万条，T ≤ 50 也跑得完。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b293">参考代码</div><pre id="b294"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> T, n, K;
+<span class="k">char</span> g[<span class="n">55</span>][<span class="n">55</span>];
+<span class="k">long</span> <span class="k">long</span> ans;
+
+<span class="c">// x,y：当前位置；turns：已经转向几次；dir：0 表示上一步向下，1 表示向右</span>
+<span class="k">void</span> <span class="f">dfs</span>(<span class="k">int</span> x, <span class="k">int</span> y, <span class="k">int</span> turns, <span class="k">int</span> dir) {
+    <span class="k">if</span> (x == n &amp;&amp; y == n) { ++ans; <span class="k">return</span>; }      <span class="c">// 出口：到牛棚</span>
+    <span class="k">if</span> (x + <span class="n">1</span> &lt;= n &amp;&amp; g[x + <span class="n">1</span>][y] == <span class="s">'.'</span>) {       <span class="c">// 向下走一格</span>
+        <span class="k">int</span> t = (dir == <span class="n">1</span>) ? <span class="n">1</span> : <span class="n">0</span>;               <span class="c">// 原来向右，现在向下 = 转一次</span>
+        <span class="k">if</span> (turns + t &lt;= K) <span class="f">dfs</span>(x + <span class="n">1</span>, y, turns + t, <span class="n">0</span>);
+    }
+    <span class="k">if</span> (y + <span class="n">1</span> &lt;= n &amp;&amp; g[x][y + <span class="n">1</span>] == <span class="s">'.'</span>) {       <span class="c">// 向右走一格</span>
+        <span class="k">int</span> t = (dir == <span class="n">0</span>) ? <span class="n">1</span> : <span class="n">0</span>;
+        <span class="k">if</span> (turns + t &lt;= K) <span class="f">dfs</span>(x, y + <span class="n">1</span>, turns + t, <span class="n">1</span>);
+    }
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+    <span class="k">cin</span> &gt;&gt; T;
+    <span class="k">while</span> (T--) {
+        <span class="k">cin</span> &gt;&gt; n &gt;&gt; K;
+        <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i)
+            <span class="k">for</span> (<span class="k">int</span> j = <span class="n">1</span>; j &lt;= n; ++j) <span class="k">cin</span> &gt;&gt; g[i][j];
+
+        ans = <span class="n">0</span>;
+        <span class="k">if</span> (g[<span class="n">2</span>][<span class="n">1</span>] == <span class="s">'.'</span>) <span class="f">dfs</span>(<span class="n">2</span>, <span class="n">1</span>, <span class="n">0</span>, <span class="n">0</span>);      <span class="c">// 第一步向下：前面没有方向，不算转向</span>
+        <span class="k">if</span> (g[<span class="n">1</span>][<span class="n">2</span>] == <span class="s">'.'</span>) <span class="f">dfs</span>(<span class="n">1</span>, <span class="n">2</span>, <span class="n">0</span>, <span class="n">1</span>);      <span class="c">// 第一步向右：同样不算转向</span>
+        <span class="k">cout</span> &lt;&lt; ans &lt;&lt; <span class="s">"\n"</span>;
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b295">关键片段拆解</div><table class="lines"><thead><tr><th id="b296">片段</th><th id="b297">作用</th></tr></thead><tbody><tr><td id="b298"><code>void dfs(int x, int y, int turns, int dir)</code></td><td id="b299">四个参数都是随分支变化的状态：位置、已转次数、上一步方向。</td></tr><tr><td id="b300"><code>if (x == n &amp;&amp; y == n) { ++ans; return; }</code></td><td id="b301">出口。走到牛棚就完成一条路线，必须立刻 return，否则还会继续往下试探。</td></tr><tr><td id="b302"><code>int t = (dir == 1) ? 1 : 0;</code></td><td id="b303">方向变了才算一次转向；沿原方向继续走 t = 0。</td></tr><tr><td id="b304"><code>if (turns + t &lt;= K)</code></td><td id="b305">转向预算超了就不走这一格，等于整棵子树被剪掉。</td></tr><tr><td id="b306"><code>if (g[x + 1][y] == '.')</code></td><td id="b307">干草捆不能通过；<code>x + 1 &lt;= n</code> 顺便把越界挡掉。</td></tr><tr><td id="b308"><code>dfs(2, 1, 0, 0)</code></td><td id="b309">起点单独迈第一步：第一步前面没有方向，所以不计转向，这正是本题最容易错的地方。</td></tr><tr><td id="b310"><code>ans = 0;</code></td><td id="b311">多组数据，每组开始前必须清零。</td></tr></tbody></table><div class="box warn"><div class="t" id="b312">这题最容易错的地方</div><ul><li id="b313">把第一步也算成一次转向 → K = 1 时答案几乎全错（少了所有只转一次的路线）。</li><li id="b314">方向编码两处不一致（一处判断 <code>dir == 0</code>、另一处传了 2）→ 转向次数算错。</li><li id="b315">出口忘记 <code>return</code>，或者把「走到最后一行 / 最后一列」当成到达终点 → 重复计数。</li><li id="b316">多组数据忘了把 <code>ans</code> 置 0 → 答案一路累加，越往后越大。</li></ul></div></div></details></div><div class="challenge"><div class="ct" id="b317">大题 挑战题 4 · 小猫爬山</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P10483</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P10483" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b318">N 只小猫要坐索道下山（N ≤ 18）。第 i 只小猫重 C<sub>i</sub>，每辆缆车的最大承重是 W，一辆车上小猫的重量之和不能超过 W。保证每只猫的重量都不超过 W。</p><p id="b319">每租一辆缆车要付 1 美元，求把所有小猫都运下山最少要付多少美元（也就是最少几辆车）。</p><p id="b320">输入格式：第一行两个用空格隔开的整数 N、W（1 ≤ C<sub>i</sub>, W ≤ 10⁸）；接下来 N 行，每行一个整数 C<sub>i</sub>。</p><p id="b321">输出格式：一个整数，表示最少缆车数。</p></div><div class="cap" id="b322">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+5 5
+1
+2
+3
+4
+5
+
+输出：
+3</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b323">把猫一只只往车上放：放进某一辆已经开过的车，或者新开一辆，这就是一棵搜索树。</p><p id="b324">直接枚举到 3¹⁸ 级别会超时，必须剪枝：当前车数已经不优于已知答案，就没必要再往下搜。</p><p id="b325">先放大猫。大猫可选的车少，越早把「车不够用」的分支砍掉，剪枝越有效。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b326"><b>状态</b>：<code>dfs(i, cnt)</code> 表示正在安排第 i 只猫，目前已经租了 cnt 辆车；<code>car[j]</code> 记第 j 辆车的当前载重。</p><p id="b327"><b>分支</b>：放进某辆还装得下的车；或者新开一辆车。</p><p id="b328"><b>出口</b>：i &gt; N 时用 cnt 更新答案。</p><p id="b329"><b>剪枝一（最优性）</b>：<code>cnt &gt;= ans</code> 时直接 return——已经租的车不比已知答案少，后面再完美也不可能更优。</p><p id="b330"><b>剪枝二（对称性）</b>：如果这只猫放进去之前那辆车是空的，说明前面几辆都装不下它；此时再试其它空车完全是重复枚举，直接 break。</p><p id="b331"><b>排序</b>：把 C 从大到小排。这是本题能过的关键，不是可有可无的优化。</p><p id="b332">复杂度：3^18 ≈ 3.9×10⁸ 太大，但排序 + 两条剪枝之后实际搜索量很小，N = 18 稳定通过。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b333">参考代码</div><pre id="b334"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> n, W;
+<span class="k">int</span> c[<span class="n">25</span>];
+<span class="k">int</span> car[<span class="n">25</span>];              <span class="c">// car[j]：第 j 辆车当前的载重</span>
+<span class="k">int</span> ans;
+
+<span class="k">void</span> <span class="f">dfs</span>(<span class="k">int</span> i, <span class="k">int</span> cnt) {              <span class="c">// 安排第 i 只猫，已用 cnt 辆车</span>
+    <span class="k">if</span> (cnt &gt;= ans) <span class="k">return</span>;             <span class="c">// 剪枝一：车数已不优于答案，放弃这一支</span>
+    <span class="k">if</span> (i &gt; n) {                        <span class="c">// 出口：全部安排完</span>
+        ans = cnt;                      <span class="c">// 能到这里的 cnt 一定比 ans 小</span>
+        <span class="k">return</span>;
+    }
+    <span class="k">for</span> (<span class="k">int</span> j = <span class="n">1</span>; j &lt;= cnt; ++j) {
+        <span class="k">if</span> (car[j] + c[i] &lt;= W) {
+            car[j] += c[i];
+            <span class="f">dfs</span>(i + <span class="n">1</span>, cnt);
+            car[j] -= c[i];             <span class="c">// 回溯：把猫从车上拿下来</span>
+            <span class="k">if</span> (car[j] == <span class="n">0</span>) <span class="k">break</span>;     <span class="c">// 剪枝二：空车彼此等价，不再重复试</span>
+        }
+    }
+    car[cnt + <span class="n">1</span>] = c[i];                <span class="c">// 新开一辆车</span>
+    <span class="f">dfs</span>(i + <span class="n">1</span>, cnt + <span class="n">1</span>);
+    car[cnt + <span class="n">1</span>] = <span class="n">0</span>;                   <span class="c">// 回溯</span>
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; W;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) <span class="k">cin</span> &gt;&gt; c[i];
+    <span class="k">sort</span>(c + <span class="n">1</span>, c + n + <span class="n">1</span>, <span class="k">greater</span>&lt;<span class="k">int</span>&gt;());   <span class="c">// 大猫先放，剪枝才狠</span>
+    ans = n;                                  <span class="c">// 上界：一只猫一辆车</span>
+    <span class="f">dfs</span>(<span class="n">1</span>, <span class="n">0</span>);
+    <span class="k">cout</span> &lt;&lt; ans &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b335">关键片段拆解</div><table class="lines"><thead><tr><th id="b336">片段</th><th id="b337">作用</th></tr></thead><tbody><tr><td id="b338"><code>int car[25];</code></td><td id="b339">记录每辆车当前的载重。搜索时只增不减，回溯时还原。</td></tr><tr><td id="b340"><code>if (cnt &gt;= ans) return;</code></td><td id="b341">剪枝一。已经租了 cnt 辆，车数不可能再变小，这一支直接放弃。</td></tr><tr><td id="b342"><code>if (i &gt; n) { ans = cnt; return; }</code></td><td id="b343">出口。能走到这里说明 cnt &lt; ans，所以直接赋值就是更新最优。</td></tr><tr><td id="b344"><code>if (car[j] + c[i] &lt;= W)</code></td><td id="b345">塞得进第 j 辆车才塞；塞不下就换一辆，都不行就新开。</td></tr><tr><td id="b346"><code>car[j] -= c[i];</code></td><td id="b347">回溯：把猫拿下来，否则下一支会看到被撑满的车，答案偏大。</td></tr><tr><td id="b348"><code>if (car[j] == 0) break;</code></td><td id="b349">剪枝二。放进去之前是空车，说明前面几辆都装不下它；再试别的空车是重复枚举。</td></tr><tr><td id="b350"><code>sort(c + 1, c + n + 1, greater&lt;int&gt;());</code></td><td id="b351">大猫先放。大猫可选的车少，尽早触发剪枝一。</td></tr><tr><td id="b352"><code>ans = n;</code></td><td id="b353">上界：一只猫一辆车一定有解，所以答案不会超过 n。</td></tr></tbody></table><div class="box warn"><div class="t" id="b354">这题最容易错的地方</div><ul><li id="b355">忘记排序（或从小到大排）→ 剪枝一几乎不触发，N = 18 时 TLE。</li><li id="b356">回溯漏写：<code>car[j] -= c[i]</code> 或 <code>car[cnt + 1] = 0</code> 少一句 → 载重越算越大，答案偏大。</li><li id="b357">ans 初始化成 0 或 INT_MAX：0 会让所有分支被剪光（输出 0），INT_MAX 会让剪枝一失效（TLE）。</li><li id="b358">剪枝二的 <code>break</code> 写成 <code>continue</code> → 后面几辆空车被重复枚举，最坏情况退化成指数级。</li></ul></div></div></details></div><div class="challenge"><div class="ct" id="b359">大题 挑战题 5 · 单词接龙</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1019</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P1019" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b360">给定一组单词和一个开头字母，要求接出以该字母开头的最长的「龙」。每个单词最多在龙中出现两次。</p><p id="b361">两个单词相连时，重合部分合并成一部分（例如 <code>beast</code> 和 <code>astonish</code> 可以接成 <code>beastonish</code>）；相邻两部分不能存在包含关系，例如 <code>at</code> 与 <code>atide</code> 之间不能相连。</p><p id="b362">输入格式：第一行一个整数 n（n ≤ 20）表示单词数；接下来 n 行每行一个单词；最后一行为一个单字符，表示龙开头的字母。保证以该字母开头的龙一定存在。</p><p id="b363">输出格式：一行一个整数，表示以此字母开头的最长的龙的长度。</p></div><div class="cap" id="b364">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+5
+at
+touch
+cheat
+choose
+tact
+a
+
+输出：
+23</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b365">两个单词能不能接、接上以后长度增加多少，只跟这两个词有关，可以先把所有配对算好存起来。</p><p id="b366">重叠部分越短，龙就越长——同一个配对有多种合法重叠时，要取最短的那个。</p><p id="b367">「每个单词最多用两次」是全局状态，每用一个要记下来，退出这一支时要还回去。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b368"><b>预处理</b>：<code>ov[i][j]</code> = 单词 i 的后缀与单词 j 的前缀的最短非空重叠长度，0 表示接不上。对每对单词从小到大枚举 k（1 ≤ k &lt; min(len<sub>i</sub>, len<sub>j</sub>)），第一个满足「i 的最后 k 个字符 == j 的前 k 个字符」的 k 就是答案。</p><p id="b369">为什么要最小的 k：接上以后长度增加 <code>len_j - k</code>，k 越小增加越多。</p><p id="b370"><b>状态</b>：<code>dfs(last, len)</code> 表示当前龙以第 last 个单词结尾，总长度是 len。</p><p id="b371">每进入一个状态先 <code>ans = max(ans, len)</code>——龙可以随时停下，最长值不一定出现在最后一步。</p><p id="b372"><b>分支</b>：枚举下一个单词 j，跳过「已用两次」和「接不上」的。</p><p id="b373"><b>回溯</b>：<code>used[j]++</code> 后递归，返回后 <code>used[j]--</code>。</p><p id="b374">起点：枚举所有首字母等于给定字母的单词，把它记为用了一次，从它开始搜。</p><p id="b375">本题是上古 NOIP 题，数据很弱，朴素回溯就能过；它的难度评级只对应「能通过原始数据」的做法。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b376">参考代码</div><pre id="b377"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> n, ans = <span class="n">0</span>;
+<span class="k">string</span> w[<span class="n">25</span>];
+<span class="k">int</span> used[<span class="n">25</span>];              <span class="c">// 每个单词已经用了几次</span>
+<span class="k">int</span> ov[<span class="n">25</span>][<span class="n">25</span>];            <span class="c">// ov[i][j]：i 后面接 j 的最短重叠长度，0 表示接不上</span>
+
+<span class="c">// a 的后缀与 b 的前缀的最短非空重叠长度</span>
+<span class="k">int</span> <span class="f">overlap</span>(<span class="k">const</span> <span class="k">string</span> &amp;a, <span class="k">const</span> <span class="k">string</span> &amp;b) {
+    <span class="k">int</span> la = a.<span class="k">size</span>(), lb = b.<span class="k">size</span>();
+    <span class="k">for</span> (<span class="k">int</span> k = <span class="n">1</span>; k &lt; la &amp;&amp; k &lt; lb; ++k) {     <span class="c">// 重叠必须小于任一整词</span>
+        <span class="k">bool</span> ok = <span class="k">true</span>;
+        <span class="k">for</span> (<span class="k">int</span> t = <span class="n">0</span>; t &lt; k; ++t)
+            <span class="k">if</span> (a[la - k + t] != b[t]) { ok = <span class="k">false</span>; <span class="k">break</span>; }
+        <span class="k">if</span> (ok) <span class="k">return</span> k;                        <span class="c">// 第一个合法的 k 就是最短的</span>
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}
+
+<span class="k">void</span> <span class="f">dfs</span>(<span class="k">int</span> last, <span class="k">int</span> len) {
+    ans = <span class="k">max</span>(ans, len);                         <span class="c">// 每一步都可能是最长</span>
+    <span class="k">for</span> (<span class="k">int</span> j = <span class="n">0</span>; j &lt; n; ++j) {
+        <span class="k">if</span> (used[j] &gt;= <span class="n">2</span> || ov[last][j] == <span class="n">0</span>) <span class="k">continue</span>;   <span class="c">// 用满两次 / 接不上</span>
+        used[j]++;
+        <span class="f">dfs</span>(j, len + (<span class="k">int</span>)w[j].<span class="k">size</span>() - ov[last][j]);     <span class="c">// 重叠部分只算一次</span>
+        used[j]--;                                        <span class="c">// 回溯：还回去</span>
+    }
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">cin</span> &gt;&gt; n;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; n; ++i) <span class="k">cin</span> &gt;&gt; w[i];
+    <span class="k">char</span> st;
+    <span class="k">cin</span> &gt;&gt; st;
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; n; ++i)
+        <span class="k">for</span> (<span class="k">int</span> j = <span class="n">0</span>; j &lt; n; ++j)
+            ov[i][j] = <span class="f">overlap</span>(w[i], w[j]);
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; n; ++i)
+        <span class="k">if</span> (w[i][<span class="n">0</span>] == st) {                     <span class="c">// 只能从这个字母开头的词起头</span>
+            used[i]++;                           <span class="c">// 开头词本身也算用了一次</span>
+            <span class="f">dfs</span>(i, (<span class="k">int</span>)w[i].<span class="k">size</span>());
+            used[i]--;
+        }
+    <span class="k">cout</span> &lt;&lt; ans &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b378">关键片段拆解</div><table class="lines"><thead><tr><th id="b379">片段</th><th id="b380">作用</th></tr></thead><tbody><tr><td id="b381"><code>int ov[25][25];</code></td><td id="b382">预处理表：把「两词怎么接」从每次递归里挪到外面，只算一遍。</td></tr><tr><td id="b383"><code>for (int k = 1; k &lt; la &amp;&amp; k &lt; lb; ++k)</code></td><td id="b384">重叠长度从 1 试到 min(la, lb)-1：等于整词长度是不允许的（那就是包含关系）。</td></tr><tr><td id="b385"><code>if (a[la - k + t] != b[t])</code></td><td id="b386">比较 a 的后 k 个字符与 b 的前 k 个字符。<code>la - k</code> 是这段后缀的起点。</td></tr><tr><td id="b387"><code>if (ok) return k;</code></td><td id="b388">k 从小到大枚举，第一个合法的就是最短重叠，也就是能加得最多的接法。</td></tr><tr><td id="b389"><code>ans = max(ans, len);</code></td><td id="b390">放在函数开头：这条链随时可以停，最长值可能出现在中间某一步。</td></tr><tr><td id="b391"><code>if (used[j] &gt;= 2 || ov[last][j] == 0) continue;</code></td><td id="b392">两个跳过条件：次数用满，或者根本接不上。</td></tr><tr><td id="b393"><code>dfs(j, len + (int)w[j].size() - ov[last][j]);</code></td><td id="b394">增加的长度是新词长度减去重叠部分，重叠只算一次。</td></tr><tr><td id="b395"><code>used[j]--;</code></td><td id="b396">回溯。漏了这一句，每种词用满两次之后搜索树就断了，答案偏小。</td></tr><tr><td id="b397"><code>if (w[i][0] == st)</code></td><td id="b398">起点必须是给定字母开头的单词；这个字母本身不计入长度。</td></tr></tbody></table><div class="box warn"><div class="t" id="b399">这题最容易错的地方</div><ul><li id="b400">重叠长度取错：取最大而不是最小 → 龙变短；允许重叠等于整词长度又违反了「不能包含」的规则。</li><li id="b401"><code>used[j]--</code> 漏写 → 搜索提前被掐断，答案偏小。</li><li id="b402">起点忘了给 <code>used[i]++</code>，第一个词被多用了第三次。</li><li id="b403">只在「接不下新词」时才更新 <code>ans</code>：最长的链如果还能继续接，这个长度就取不到。</li></ul></div></div></details></div><div class="box tip" style="margin:24px 0 -6px"><div class="t" id="b404">附加挑战 2（不计入限时）</div><p id="b405">做完上面的整套题还有余力，再啃这一道。它比本套题的平均难度高一级。</p></div><div class="challenge ch2"><div class="ct" id="b406">挑战 2 · 小木棍</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1120</span><span class="badge diff">提高+</span><a href="https://www.luogu.com.cn/problem/P1120" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b407">有一些长度相同的小木棍，把它们随意砍成若干段，每段长度都不超过 50。现在给出砍完后每一段的长度，求原始木棍的<b>最小可能长度</b>。</p><p id="b408">输入格式：第一行一个整数 n（n ≤ 65）；第二行 n 个用空格隔开的整数，表示每一段的长度（每段 ≤ 50）。</p><p id="b409">输出格式：一行一个整数，表示原始木棍的最小可能长度。</p><p id="b410">样例：9 段分别是 5 2 1 5 2 1 5 2 1，总长 24。拼成 4 根长度 6 的木棍（5+1、5+1、5+1、2+2+2）是可行的，而长度小于 6 都拼不出来，所以答案是 6。</p></div><div class="cap" id="b411">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+9
+5 2 1 5 2 1 5 2 1
+输出：
+6</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b412">原始长度必须是<b>总长的约数</b>，而且不能小于最长的那一段——候选长度只有这么几个，从小到大试。</p><p id="b413">判定“能不能拼成若干根长度 L”要用搜索：一根一根地拼，每根木棍从剩下的段里挑。长度从大到小排序，先放长的，选择更少、失败更早。</p><p id="b414">光枚举会超时，必须加剪枝。想想这三种“注定失败”的情形：同一长度的段刚试过并失败了；一根木棍的第一段就找不到能配的；某一段正好把当前木棍填满、但后面却拼不通。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b415"><b>第一步：把候选长度缩到几个。</b>原始长度 L 必须满足 <code>sum % L == 0</code>，且 <code>L ≥ 最长段</code>（否则最长那段装不进去）。于是从最长段枚举到 sum，只试能整除的 L。</p><p id="b416"><b>第二步：搜索的状态。</b><code>dfs(group, cur, pos)</code>：已经完整拼好了 group 根，当前这一根已经拼了 cur 长，接下来从下标 pos 往后挑段。目标是在 group 达到 <code>sum / L</code> 时成功。</p><p id="b417"><b>第三步：排序。</b>所有段从大到小排序。好处有二：分支更少（大的先放，剩下的空间小、选择少）；失败更早（大段放不下时立刻就能发现）。</p><p id="b418"><b>剪枝一：同长度跳过。</b>本层试过长度 x 且失败了，本层再遇到长度也是 x 的段就跳过——它们在“当前剩余空间”下的作用完全相同，试第二次必然同样失败。</p><p id="b419"><b>剪枝二：第一段就失败，整支无解。</b>若 <code>cur == 0</code>（这是新一根木棍的第一个选择）且放 a[i] 之后无法完成，那么直接返回 false。理由：若 a[i] 不能作为某根木棍的第一段，它就只能出现在别的木棍的中间；那根木棍的第一段与 a[i] 互换一下，仍然是一个合法方案，于是矛盾——所以这种情况一定无解。</p><p id="b420"><b>剪枝三：正好填满却失败，整支无解。</b>若 <code>cur + a[i] == L</code>（这根正好拼满）但后续失败，同样直接返回 false。理由与上一条同源：剩下的段在这个“刚好填满”的选择下都排不通，换成别的组合也只会更零碎。</p><p id="b421"><b>出口。</b><code>group == sum / L</code> 时所有木棍都拼好了，返回 true；当前这一根拼满时递归到下一根：<code>dfs(group + 1, 0, 0)</code>。</p><p id="b422"><b>复杂度。</b>最坏是指数级，但三条剪枝叠加后，n ≤ 65 的标准数据在毫秒级出解。这题是“剪枝价值”的教科书案例：不加剪枝跑不完，加了剪枝连 1 秒都用不到。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b423">参考代码</div><pre id="b424"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> n, a[<span class="n">70</span>], sumLen;
+<span class="k">bool</span> used[<span class="n">70</span>];
+
+<span class="c">// group：已拼好的整根数；cur：当前这根已拼长度；pos：从哪个下标往后挑</span>
+<span class="k">bool</span> <span class="f">dfs</span>(<span class="k">int</span> group, <span class="k">int</span> cur, <span class="k">int</span> pos, <span class="k">int</span> L, <span class="k">int</span> need) {
+    <span class="k">if</span> (group == need) <span class="k">return</span> <span class="k">true</span>;                   <span class="c">// 全部拼好</span>
+    <span class="k">if</span> (cur == L) <span class="k">return</span> <span class="f">dfs</span>(group + <span class="n">1</span>, <span class="n">0</span>, <span class="n">0</span>, L, need);   <span class="c">// 这一根拼满，开始下一根</span>
+    <span class="k">int</span> fail = -<span class="n">1</span>;                                    <span class="c">// 本层失败的段长度，同长度不再试</span>
+    <span class="k">for</span> (<span class="k">int</span> i = pos; i &lt; n; ++i) {
+        <span class="k">if</span> (used[i] || a[i] == fail || cur + a[i] &gt; L) <span class="k">continue</span>;
+        used[i] = <span class="k">true</span>;
+        <span class="k">if</span> (<span class="f">dfs</span>(group, cur + a[i], i + <span class="n">1</span>, L, need)) <span class="k">return</span> <span class="k">true</span>;
+        used[i] = <span class="k">false</span>;
+        fail = a[i];                                  <span class="c">// 剪枝一：同长度跳过</span>
+        <span class="k">if</span> (cur == <span class="n">0</span>) <span class="k">return</span> <span class="k">false</span>;                   <span class="c">// 剪枝二：新一根的第一段都失败了</span>
+        <span class="k">if</span> (cur + a[i] == L) <span class="k">return</span> <span class="k">false</span>;            <span class="c">// 剪枝三：正好拼满却接不下去</span>
+    }
+    <span class="k">return</span> <span class="k">false</span>;
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">cin</span> &gt;&gt; n;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; n; ++i) { <span class="k">cin</span> &gt;&gt; a[i]; sumLen += a[i]; }
+    <span class="k">sort</span>(a, a + n, <span class="k">greater</span>&lt;<span class="k">int</span>&gt;());                   <span class="c">// 从大到小：分支更少、失败更早</span>
+
+    <span class="k">for</span> (<span class="k">int</span> L = a[<span class="n">0</span>]; L &lt;= sumLen; ++L) {            <span class="c">// 候选长度：不小于最长段</span>
+        <span class="k">if</span> (sumLen % L) <span class="k">continue</span>;                     <span class="c">// 必须整除总长</span>
+        <span class="k">memset</span>(used, <span class="n">0</span>, <span class="k">sizeof</span> used);
+        <span class="k">if</span> (<span class="f">dfs</span>(<span class="n">0</span>, <span class="n">0</span>, <span class="n">0</span>, L, sumLen / L)) { <span class="k">cout</span> &lt;&lt; L &lt;&lt; <span class="s">"\n"</span>; <span class="k">return</span> <span class="n">0</span>; }
+    }
+    <span class="k">cout</span> &lt;&lt; sumLen &lt;&lt; <span class="s">"\n"</span>;                           <span class="c">// 兜底：全部拼成一根</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b425">关键片段拆解</div><table class="lines"><thead><tr><th id="b426">片段</th><th id="b427">作用</th></tr></thead><tbody><tr><td id="b428"><code>sort(a, a + n, greater&lt;int&gt;());</code></td><td id="b429">从大到小排序。这是本题最便宜也最有效的一步：大段先放，剩余空间立刻变小，后续分支数跟着变少，失败也能更早暴露。</td></tr><tr><td id="b430"><code>for (int L = a[0]; L &lt;= sumLen; ++L)</code></td><td id="b431">原始长度从“最长段”开始枚举，到总长结束。从大到小排序后 a[0] 就是最长段，它保证任何一根木棍都装得下最长的那一段。</td></tr><tr><td id="b432"><code>if (sumLen % L) continue;</code></td><td id="b433">整除是必要条件：所有木棍等长，总长必然是 L 的整数倍。这一句把候选从 3000 个缩到几十个。</td></tr><tr><td id="b434"><code>dfs(group, cur, pos, L, need)</code></td><td id="b435">五个参数各管一件事：拼到第几根、当前根已多长、从哪往后挑、目标长度、一共要拼几根。把 L 和 need 放进参数只是为了少用全局变量，逻辑上它们全程不变。</td></tr><tr><td id="b436"><code>if (cur == L) return dfs(group + 1, 0, 0, L, need);</code></td><td id="b437">当前这根拼满就开新的一根，注意 pos 要回到 0——剩下的段重新从头挑。</td></tr><tr><td id="b438"><code>if (used[i] || a[i] == fail || cur + a[i] &gt; L) continue;</code></td><td id="b439">三个跳过条件写在一起：用过、与本层刚失败的同长、放进去会超出当前木棍。</td></tr><tr><td id="b440"><code>fail = a[i];</code></td><td id="b441">记录“本层刚刚失败的长度”。因为数组已排序，后面遇到同样长度的段连试都不用试。</td></tr><tr><td id="b442"><code>if (cur == 0) return false;</code></td><td id="b443">剪枝二。新一根木棍的第一段试 a[i] 失败，说明 a[i] 放不进任何一根木棍的开头，整支方案必失败——用交换论证可以严格证明。</td></tr><tr><td id="b444"><code>if (cur + a[i] == L) return false;</code></td><td id="b445">剪枝三。a[i] 正好把当前木棍填满却接不下去，说明这个“刚好”的组合把剩余部分切碎了，换成更小的段只会更碎。</td></tr><tr><td id="b446"><code>memset(used, 0, sizeof used);</code></td><td id="b447">每个候选长度 L 都要重新开一局，used 必须清零。漏了这一句，第二个候选会带着上一局的标记。</td></tr></tbody></table><div class="box warn"><div class="t" id="b448">这题最容易错的地方</div><ul><li id="b449">不加“同长度跳过”：n = 65 且大量重复长度时直接退化成阶乘级，必 TLE。</li><li id="b450">剪枝二、三写成 <code>continue</code> 而不是 <code>return false</code>：答案仍然对，但剪枝几乎失效。</li><li id="b451">候选长度从 1 开始枚举或忘了判 <code>sumLen % L</code>：多跑几十倍无用搜索，还可能输出比最长段还小的 L。</li><li id="b452">忘记 <code>memset(used, 0, ...)</code>：第 2 个候选长度带着第 1 个的残留标记，答案直接错。</li></ul></div></div></details></div><div class="box ok"><div class="t" id="b453">做完之后自问</div><ul><li id="b454">不看资料能写出 P1219 的完整代码，并说清 <code>col</code>、<code>d1</code>、<code>d2</code> 三个下标分别表示什么。</li><li id="b455">能解释为什么按行枚举、列从小到大，输出就一定是字典序。</li><li id="b456">能说出记忆化搜索的两个前提（有重复子问题、状态能用数组下标表示），并写出「算过就取、算完就存」那两行。</li><li id="b457">能说清 P10483 的两条剪枝各自砍掉的是什么：一条靠已知最优答案，一条靠「空车彼此等价」。</li><li id="b458">能手写 4 连通和 8 连通的方向数组，并说清越界判断为什么必须写在访问之前。</li><li id="b459">能说出递归到多少层就可能爆栈，以及哪两种情况下必须放弃递归写法。</li></ul></div><div class="box info"><div class="t" id="b460">延伸阅读</div><ul><li id="b461">《算法竞赛入门笔记》：递归、深度优先搜索与回溯相关章节</li><li id="b462">《算法竞赛进阶指南》第 0x21 节：树与图的遍历（DFS 与递归树）</li><li id="b463">《算法竞赛试炼场：洛谷300题精析》：P1118、P1123、P10483 三题的剪枝对比</li><li id="b464">《算法竞赛黄金法则》：先写出口再写递归；把状态写成一句话</li><li id="b465">洛谷 P1118、P1120 题解区关于权重（杨辉三角）与剪枝顺序的讨论</li></ul></div>
+
+<footer>算竞教程 · 算竞教程 · 生成于自建课程体系，题目版权归洛谷及各命题方所有<br>
+转载请注明出处；模板代码可直接用于比赛</footer>

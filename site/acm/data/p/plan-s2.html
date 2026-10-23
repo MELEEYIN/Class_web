@@ -1,0 +1,215 @@
+<section class="sec" id="s2" data-cat="基本功" fold>
+  
+  <div class="secbody">
+    <div class="callout"><p>这一章不教算法，教的是<b>做算法题的肌肉记忆</b>。很多人卡在入门，不是因为算法难，而是因为：不会估复杂度、不会调试、不知道自己在写什么。先把这五件事做完，后面每一章都会省力。</p></div>
+    <article class="algo" id="pl-23" data-cat="基本功" data-name="2.1 评测机制：你交上去的代码经历了什么 你把代码提交到洛谷，评测机会做这几件事： 1. 编译：用固定的编译选项（通常是 g++ -O2 -std=c++14 或 c++17）编译你的代码。 2. 逐点运行：把每组的输入文件喂给你的程序，拿走它输出的结果。 3. 比对：把输出和标准答案逐字节比对（注意：多一个空格、少一个换行都算错）。 4. 给出结论：下面">
+      <div class="ah"><h4>2.1 评测机制：你交上去的代码经历了什么</h4><span class="lv lv-e">入门</span><span class="st">★★★★</span><span class="tag">打地基</span></div>
+      <p>你把代码提交到洛谷，评测机会做这几件事：</p>
+      <ol class="tight"><li><b>编译</b>：用固定的编译选项（通常是 <code>g++ -O2 -std=c++14</code> 或 <code>c++17</code>）编译你的代码。</li><li><b>逐点运行</b>：把每组的输入文件喂给你的程序，拿走它输出的结果。</li><li><b>比对</b>：把输出和标准答案逐字节比对（<b>注意：多一个空格、少一个换行都算错</b>）。</li><li><b>给出结论</b>：下面是你会遇到的 8 种结果。</li></ol>
+      <table>
+      <tr><th>结果</th><th>全称</th><th>含义</th><th>最常见的 3 个原因</th></tr>
+      <tr><td><b>AC</b></td><td>Accepted</td><td>通过</td><td>—</td></tr>
+      <tr><td><b>WA</b></td><td>Wrong Answer</td><td>答案错</td><td>边界没判、多测没清空、取模漏了</td></tr>
+      <tr><td><b>TLE</b></td><td>Time Limit Exceeded</td><td>超时</td><td>复杂度算错、用了 <code>endl</code>、没关同步</td></tr>
+      <tr><td><b>MLE</b></td><td>Memory Limit Exceeded</td><td>超内存</td><td>数组开太大（二维数组！）</td></tr>
+      <tr><td><b>RE</b></td><td>Runtime Error</td><td>运行时错误</td><td>数组越界、除零、爆栈、<code>sqrt</code> 负数</td></tr>
+      <tr><td><b>CE</b></td><td>Compile Error</td><td>编译错误</td><td>漏分号、变量名错、评测机 C++ 版本低</td></tr>
+      <tr><td><b>OLE</b></td><td>Output Limit Exceeded</td><td>输出太多</td><td>死循环里在输出</td></tr>
+      <tr><td><b>PE</b></td><td>Presentation Error</td><td>格式错误</td><td>行末多了空格（部分评测机归入 WA）</td></tr>
+      </table>
+      <div class="box tip"><span class="t">💡 提示</span><p><b>本机测试 ≠ 评测结果。</b> 你的电脑快、编译器新、栈大；评测机慢、编译器老、栈小。所以「本地过样例」只说明语法没错，不代表能过。</p></div>
+      <div class="box ok"><span class="t">✅ 小结</span><p><b>先看结果类型，再定位问题</b>。WA 查逻辑，TLE 查复杂度，RE 查越界——不同结果对应完全不同的排查方向。</p></div>
+    </article>
+    <article class="algo" id="pl-24" data-cat="基本功" data-name="2.2 复杂度分析：一分钟算出「能不能过」 复杂度分析不是数学，是手感。它要回答的唯一问题是：给我 n 的范围，我能不能在 1 秒内跑完？ 第一步：只数循环和递归，不算具体指令 cpp for (int i = 1; i &lt;= n; ++i) // 第一层，n 次 for (int j = 1; j &lt;= n; ++j) //">
+      <div class="ah"><h4>2.2 复杂度分析：一分钟算出「能不能过」</h4><span class="lv lv-e">入门</span><span class="st">★★★★</span><span class="tag">打地基</span></div>
+      <p>复杂度分析不是数学，是<b>手感</b>。它要回答的唯一问题是：<b>给我 n 的范围，我能不能在 1 秒内跑完？</b></p>
+      <p><b>第一步：只数循环和递归，不算具体指令</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      for (int i = 1; i <= n; ++i)        // 第一层，n 次
+          for (int j = 1; j <= n; ++j)    // 第二层，每次 n 次
+              sum += a[i][j];              // 里面的加减乘除忽略不计
+      </script></div>
+      <p>这里总共跑了 n× n = n^2 次，写作 O(n^2)。里面那句 <code>sum += a[i][j]</code> 是 1 次还是 3 次运算，<b>不重要</b>——因为 n 翻倍时总运算是 4 倍，跟系数无关。</p>
+      <p><b>第二步：只保留最高阶</b></p>
+      <p><span class="tm">O(3n^2 + 100n + 5000) = O(n^2)</span></p>
+      <p>理由：n 足够大时，n^2 会碾压所有低阶项。<b>大 O 记号只看「涨得快不快」，不看具体是几倍。</b></p>
+      <p><b>第三步：跟 1 秒的运算上限对表</b></p>
+      <p>C++ 在 1 秒内大约能做 <b>10^8 次简单运算</b>（加减、比较、数组访问）。所以：</p>
+      <ul class="tight"><li>n = 10^5 时，O(n^2) 是 10^10 次 → <b>必然超时</b>，必须换 O(nlog n)。</li><li>n = 10^5 时，O(nlog n) approx 1.7×10^6 次 → <b>很轻松</b>。</li></ul>
+      <div class="box warn"><span class="t">⚠️ 注意</span><p>这条经验最重要：<b>看到「两重循环跑 10^5」的题面，立刻放弃暴力方向</b>，不要先写着试试。</p></div>
+    </article>
+    <article class="algo" id="pl-25" data-cat="基本功" data-name="2.3 数据规模对照表 n 的范围 允许复杂度 可以放心用的算法 --- --- --- ≤ 10 O(n!) 全排列枚举、暴力搜索 ≤ 20 O(2^n) 子集枚举、状压 DP ≤ 300 O(n^3) Floyd、区间 DP、高斯消元 ≤ 5000">
+      <div class="ah"><h4>2.3 数据规模对照表</h4><span class="lv lv-e">入门</span><span class="st">★★★★</span><span class="tag">打地基</span></div>
+      <table>
+      <tr><th>n 的范围</th><th>允许复杂度</th><th>可以放心用的算法</th></tr>
+      <tr><td>≤ 10</td><td>O(n!)</td><td>全排列枚举、暴力搜索</td></tr>
+      <tr><td>≤ 20</td><td>O(2^n)</td><td>子集枚举、状压 DP</td></tr>
+      <tr><td>≤ 300</td><td>O(n^3)</td><td>Floyd、区间 DP、高斯消元</td></tr>
+      <tr><td>≤ 5000</td><td>O(n^2)</td><td>朴素 DP、朴素最短路、O(n^2) 排序</td></tr>
+      <tr><td>≤ 2×10^5</td><td>O(nlog n)</td><td>排序、二分、树状数组、线段树、堆、Dijkstra</td></tr>
+      <tr><td>≤ 10^7</td><td>O(n)</td><td>前缀和、双指针、单调栈、线性筛</td></tr>
+      <tr><td>≤ 10^9 或 10^18</td><td>O(log n) / O(√ n)</td><td>快速幂、二分答案、数位 DP、整除分块</td></tr>
+      </table>
+      <p><b>六种最常见的循环形状</b></p>
+      <table>
+      <tr><th>形状</th><th>典型代码</th><th>复杂度</th></tr>
+      <tr><td>单层线性</td><td><code>for (i = 1; i &lt;= n; ++i)</code></td><td>O(n)</td></tr>
+      <tr><td>双层嵌套</td><td><code>for (i) for (j)</code></td><td>O(n^2)</td></tr>
+      <tr><td>每层折半</td><td><code>for (i = n; i; i &gt;&gt;= 1)</code></td><td>O(log n)</td></tr>
+      <tr><td>外层 n + 内层 log</td><td><code>for (i) { sort(...) }</code></td><td>O(nlog n)</td></tr>
+      <tr><td>定长窗口</td><td><code>for (i) for (j = i; j &lt; i + k; ++j)</code>（k 常数）</td><td>O(nk) = O(n)</td></tr>
+      <tr><td>指针不回头</td><td>双指针、单调栈、KMP</td><td>O(n) 均摊</td></tr>
+      </table>
+      <div class="box tip"><span class="t">💡 提示</span><p><b>均摊分析</b>：双指针的 <code>while</code> 看似嵌在 <code>for</code> 里像是 O(n^2)，但左指针 <code>l</code> 总共只右移 n 次，所以总步数是 2n——这就是「每个元素最多进出一次」的均摊思想。后面单调栈、单调队列、并查集全都靠它。</p></div>
+      <div class="box ok"><span class="t">✅ 小结</span><p><b>先把 n 除以 10^8 得到预算，再数你的循环层数。</b> 这一步要练到比想解法还快。</p></div>
+    </article>
+    <article class="algo" id="pl-26" data-cat="基本功" data-name="2.4 竞赛代码脚手架 快读（输入 10^6 个数时的救命工具） cpp inline int read() { int x = 0, f = 1; char c = getchar(); while (c &lt; &#x27;0&#x27; c &#x27;9&#x27;) { if (c == &#x27;-&#x27;) f = -1; c = getchar(">
+      <div class="ah"><h4>2.4 竞赛代码脚手架</h4><span class="lv lv-e">入门</span><span class="st">★★★★</span><span class="tag">打地基</span></div>
+      <p><b>快读（输入 10^6 个数时的救命工具）</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      inline int read() {
+          int x = 0, f = 1;
+          char c = getchar();
+          while (c < '0' || c > '9') { if (c == '-') f = -1; c = getchar(); }
+          while (c >= '0' && c <= '9') { x = x * 10 + (c - '0'); c = getchar(); }
+          return x * f;
+      }
+      </script></div>
+      <p><code>getchar</code> 逐字符读比 <code>cin &gt;&gt;</code> 快 3~5 倍。<b>但绝大多数题用不上</b>——先写 <code>ios::sync_with_stdio(false); cin.tie(nullptr);</code>，只有确实 TLE 了再换快读。</p>
+      <p><b>快写</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      inline void write(int x) {
+          if (x < 0) { putchar('-'); x = -x; }
+          if (x > 9) write(x / 10);
+          putchar(x % 10 + '0');
+      }
+      </script></div>
+      <p><b>一份可直接抄的骨架</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      #include <iostream>
+      #include <algorithm>
+      #include <cstdio>
+      #include <cstring>
+      
+      using namespace std;
+      typedef long long ll;
+      const int N = 100005;
+      const int INF = 0x3f3f3f3f;
+      
+      int n, m, a[N];
+      
+      void solve() {
+          // 每组数据的逻辑
+      }
+      
+      int main() {
+          ios::sync_with_stdio(false);
+          cin.tie(nullptr);
+          int T = 1;
+          cin >> T;          // 单组数据就删掉这行
+          while (T--) solve();
+          return 0;
+      }
+      </script></div>
+      <div class="box tip"><span class="t">💡 提示</span><p><b>模板的价值不在省时间，而在省打断思路的次数。</b> 把第 1.2 节的 13 行 include、快读、常量、<code>main</code> 骨架固定成一个文件，比赛时直接复制，注意力就全留给算法本身。</p></div>
+    </article>
+    <article class="algo" id="pl-27" data-cat="基本功" data-name="2.5 对拍：用随机数据证明自己是对的 为什么必须要对拍 「样例过了」什么都说明不了——样例通常只有一两组，而一道题的测试点有 20 组，专挑你没想到的边界。对拍是竞赛中唯一可靠的验证手段。 三份代码 1. std.exe（正解）：你写的算法。 2. brute.exe（暴力）：一个肯定对但很慢的版本（比如 O(n^2) 枚举所有情况）。它必须简单到">
+      <div class="ah"><h4>2.5 对拍：用随机数据证明自己是对的</h4><span class="lv lv-e">入门</span><span class="st">★★★★</span><span class="tag">打地基</span></div>
+      <p><b>为什么必须要对拍</b></p>
+      <p>「样例过了」什么都说明不了——样例通常只有一两组，而一道题的测试点有 20 组，专挑你没想到的边界。<b>对拍是竞赛中唯一可靠的验证手段。</b></p>
+      <p><b>三份代码</b></p>
+      <ol class="tight"><li><b><code>std.exe</code>（正解）</b>：你写的算法。</li><li><b><code>brute.exe</code>（暴力）</b>：一个肯定对但很慢的版本（比如 O(n^2) 枚举所有情况）。<b>它必须简单到你不会写错。</b></li><li><b><code>gen.exe</code>（生成器）</b>：随机造数据。</li></ol>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      // gen.cpp：造一组 n ≤ 10 的随机数据
+      #include <cstdio>
+      #include <cstdlib>
+      #include <ctime>
+      
+      using namespace std;
+      int main() {
+          srand(time(0));
+          int n = rand() % 10 + 1;
+          printf("%d\n", n);
+          for (int i = 1; i <= n; ++i) printf("%d ", rand() % 100);
+          return 0;
+      }
+      </script></div>
+      <div class="box tip"><span class="t">💡 提示</span><p><code>rand()</code> 最大只到 32767！要更大的随机数，写 <code>(rand() &lt;&lt; 15 | rand()) % MOD</code>，或者用 <code>mt19937</code>：</p></div>
+      <div class="callout"><p>``<code>cpp mt19937 rng(time(0)); int x = rng() % 1000000;   // 0 ~ 999999 </code>``</p></div>
+      <p><b>一键循环对拍（Windows）</b></p>
+      <p>新建 <code>check.bat</code>，和三个 exe 放在同一目录：</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-bash">
+      :loop
+      gen.exe > in.txt
+      brute.exe < in.txt > out1.txt
+      std.exe < in.txt > out2.txt
+      fc out1.txt out2.txt
+      if not errorlevel 1 goto loop
+      echo ===== 发现不一致！in.txt 已保存 =====
+      pause
+      </script></div>
+      <p>运行后它会一直跑，一旦两份输出不同就停下来，并把出错的数据留在 <code>in.txt</code> 里——<b>直接拿这份数据单步调试，bug 立刻现形</b>。</p>
+      <p><b>有了 bug 数据之后怎么用</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-bash">
+      a.exe < in.txt        # 手工跑，看输出
+      </script></div>
+      <p>把 <code>in.txt</code> 缩小一点（比如把 n 从 10 改成 3），再分别跑 <code>brute</code> 和 <code>std</code>，用第 1.15 节的「输出中间变量」看哪一步开始分叉。</p>
+      <div class="box ok"><span class="t">✅ 小结</span><p><b>对拍 = 让程序自己告诉你哪里错了。</b> 学会它，你的调试效率会提升一个数量级。</p></div>
+    </article>
+    <article class="algo" id="pl-28" data-cat="基本功" data-name="2.6 常见错误字典：看到结果就知道错在哪 把「玄学错误」变成「查表」。评测机给的结果只有几种，每一种背后的原因都非常固定。 现象 最可能的原因 一行修复 --- --- --- 小数据对，大数据错 数组开小了 上界 +5，线段树开 4n 部分点错，答案偏小 int 溢出 加 1LL *，答案用 l">
+      <div class="ah"><h4>2.6 常见错误字典：看到结果就知道错在哪</h4><span class="lv lv-e">入门</span><span class="st">★★★★</span><span class="tag">打地基</span></div>
+      <p>把「玄学错误」变成「查表」。评测机给的结果只有几种，每一种背后的原因都非常固定。</p>
+      <table>
+      <tr><th>现象</th><th>最可能的原因</th><th>一行修复</th></tr>
+      <tr><td>小数据对，大数据错</td><td>数组开小了</td><td>上界 +5，线段树开 4n</td></tr>
+      <tr><td>部分点错，答案偏小</td><td><code>int</code> 溢出</td><td>加 <code>1LL *</code>，答案用 <code>long long</code></td></tr>
+      <tr><td>答案差 1</td><td>边界含不含写反了</td><td>画数轴，标清开闭区间</td></tr>
+      <tr><td>多测全错，单测对</td><td>没清空全局数组</td><td>每组开头 <code>memset</code> 或重新赋值</td></tr>
+      <tr><td>编译过但 RE</td><td>数组越界 / 除零 / 爆栈</td><td>开 <code>-fsanitize=address</code> 重跑</td></tr>
+      <tr><td>RE 且数据不大</td><td>递归太深爆栈</td><td>改迭代，或加 <code>-Wl,--stack=268435456</code></td></tr>
+      <tr><td>TLE 但算法看着对</td><td>常数太大</td><td>换 <code>'\n'</code>、关同步、少用 STL</td></tr>
+      <tr><td>TLE 且数据小</td><td>死循环</td><td>检查 <code>while</code> 的终止条件是否会变</td></tr>
+      <tr><td>浮点题答案差一点</td><td>判等方式错</td><td>改成 <code>fabs(a-b) &lt; 1e-9</code></td></tr>
+      <tr><td>字符串题莫名 WA</td><td>用了 <code>s.size()-1</code></td><td>转 <code>(int)s.size() - 1</code></td></tr>
+      <tr><td>死循环 / 输出爆炸</td><td>队列里重复入队</td><td>标记访问的时机放对（入队时标记）</td></tr>
+      <tr><td>答案负数</td><td>取模减法溢出</td><td><code>(x % M + M) % M</code></td></tr>
+      </table>
+      <p><b>三个「看起来没问题」的经典坑</b></p>
+      <ol class="tight"><li><b><code>memset(a, 1, sizeof a)</code> 不是把数组填成 1</b>，而是把每个字节填成 <code>0x01</code>，得到 <code>16843009</code>。填 0 用 <code>memset(a, 0, sizeof a)</code>，填 -1 用 <code>memset(a, -1, sizeof a)</code>，其他值老老实实写循环。</li><li><b><code>if (a &amp; 1 == 1)</code></b> 会被解析成 <code>a &amp; (1 == 1)</code>，等于 <code>a &amp; 1</code>——恰好正确，但 <code>if (a &amp; 2 == 2)</code> 就完全错了。<b>位运算一律加括号</b>。</li><li><b><code>while (cin &gt;&gt; n)</code> 在本地手输数据时永远不结束</b>，因为 Ctrl+Z 之前它一直在等输入。这是正常现象，不是 bug。</li></ol>
+      <div class="box ok"><span class="t">✅ 小结</span><p><b>错误是有限的，见一次记一次。</b> 建议建一个自己的「错误字典」，把每次踩的坑记成「现象 → 原因 → 一行修复」。</p></div>
+    </article>
+    <article class="algo" id="pl-29" data-cat="基本功" data-name="2.7 离散化：把「很大的数」压成「很小的下标」 本质 当数值很大（比如到 10^9）但个数很少（比如 10^5）时，我们只关心它们的相对大小，不关心具体是多少。把「排序去重后的排名」当作新下标，值域就从 10^9 缩到 n。 类比 全班 50 个人的月考分数是 623、487、591……这些数字没法当数组下标。但你只关心「谁第几」——把分数换成名次 1、2、">
+      <div class="ah"><h4>2.7 离散化：把「很大的数」压成「很小的下标」</h4><span class="lv lv-e">入门</span><span class="st">★★★★</span><span class="tag">打地基</span></div>
+      <p class="idea"><b>本质</b>：当数值很大（比如到 10^9）但个数很少（比如 10^5）时，我们<b>只关心它们的相对大小</b>，不关心具体是多少。把「排序去重后的排名」当作新下标，值域就从 10^9 缩到 n。</p>
+      <div class="box idea"><span class="t">🎨 生活类比</span><p>全班 50 个人的月考分数是 623、487、591……这些数字没法当数组下标。但你只关心「谁第几」——把分数换成名次 1、2、3，50 个格子就够了。</p></div>
+      <p><b>三步模板</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      // a[1..n] 是原始数据，b[1..m] 存去重排序后的值域
+      int a[N], b[N];
+      int m = 0;
+      for (int i = 1; i <= n; ++i) b[++m] = a[i];
+      sort(b + 1, b + 1 + m);
+      m = unique(b + 1, b + 1 + m) - (b + 1);
+      
+      for (int i = 1; i <= n; ++i)
+          a[i] = lower_bound(b + 1, b + 1 + m, a[i]) - b;   // 换成排名（1-based）
+      </script></div>
+      <p><b>什么时候必须用它</b></p>
+      <ul class="tight"><li><b>树状数组 / 线段树的下标</b>：结构大小取决于值域，10^9 开不下，必须先离散化。</li><li><b>坐标压缩</b>：平面几何里只保留关键坐标（端点、端点 ±1），把空间压到 O(n)。</li><li><b>统计排名、逆序对、区间第 k 小</b>。</li></ul>
+      <div class="box warn"><span class="t">⚠️ 注意</span><p>离散化之后只保留<b>相对大小关系</b>。如果要还原原值，<code>b[a[i]]</code> 就是答案。</p></div>
+    </article>
+    <article class="algo" id="pl-30" data-cat="基本功" data-name="2.8 第 1 周验收题单 题号 题目 练什么 --- --- --- P1001 A+B Problem 体会格式要求（行末不能有多余空格） P1307 数字反转 负数、末尾 0 两个边界 P5710 数的性质 多组数据的边界分类 P1908 逆序对">
+      <div class="ah"><h4>2.8 第 1 周验收题单</h4><span class="lv lv-e">入门</span><span class="st">★★★★</span><span class="tag">打地基</span><a class="prac" href="practice.html#P1001" target="_blank" title="题单里的模板题">P1001</a><a class="prac" href="practice.html#P1307" target="_blank" title="题单里的模板题">P1307</a><a class="prac" href="practice.html#P5710" target="_blank" title="题单里的模板题">P5710</a></div>
+      <table>
+      <tr><th>题号</th><th>题目</th><th>练什么</th></tr>
+      <tr><td>P1001</td><td>A+B Problem</td><td>体会格式要求（行末不能有多余空格）</td></tr>
+      <tr><td>P1307</td><td>数字反转</td><td>负数、末尾 0 两个边界</td></tr>
+      <tr><td>P5710</td><td>数的性质</td><td>多组数据的边界分类</td></tr>
+      <tr><td>P1908</td><td>逆序对</td><td>树状数组 + 离散化（第 4 章再回来看）</td></tr>
+      <tr><td>P1045</td><td>麦森数</td><td>同一道题里「要位数」和「要末 500 位」复杂度可以完全不同</td></tr>
+      </table>
+      <div class="box ok"><span class="t">✅ 小结</span><p>第 1 周的目标不是做难题，而是<b>让「估复杂度 → 写代码 → 对拍 → 过题」变成不需要想的流程</b>。这套流程建立起来了，后面 8 周才跑得动。</p></div>
+    </article>
+  </div>
+</section>
+

@@ -1,0 +1,169 @@
+
+<div class="box info"><div class="t" id="b0">本节出现的新函数 / 新语法（先看懂再用）</div><ul><li id="b1"><a href="#fn-0">priority_queue（优先队列 / 堆）</a> —— O(log n) 插入、O(1) 取最值；动态取最小的标配</li><li id="b2"><a href="#fn-1">greater&lt;T&gt;：把默认大根堆翻成小根堆</a> —— 小根堆的标准写法；三个模板参数缺一不可</li><li id="b3"><a href="#fn-2">结构体重载 operator&lt;（决定谁在堆顶）</a> —— 自定义堆顶；方向与 sort 的 cmp 相反，最容易错</li></ul></div><p id="b4">上一节的贪心按键值排序，一次 sort 就结束。这一节有两个新形状：<b>①贪心的对象是一段区间</b>，排序键从“值”换成“端点”；<b>②贪心要用到“当前最小”，而集合在过程中不断变化</b>，sort 不够了，需要堆。</p><div class="quote" id="b5">区间问题的排序键只有那么几个：左端点、右端点、长度、性价比。选错键的代价是整个算法错，所以要逐个排除。</div><table><thead><tr><th id="b6">问题</th><th id="b7">排序键</th><th id="b8">每一步怎么决定</th><th id="b9">复杂度</th></tr></thead><tbody><tr><td id="b10">区间调度（最多不重叠区间）</td><td id="b11">右端点 r 升序</td><td id="b12">当前 l ≥ 上一个 r 就选它</td><td id="b13">O(n log n)</td></tr><tr><td id="b14">区间选点（最少点打中所有区间）</td><td id="b15">右端点 r 升序</td><td id="b16">当前 l &gt; 最后一个点，就在 r 处补一个点</td><td id="b17">O(n log n)</td></tr><tr><td id="b18">区间覆盖（最少区间盖满 [1, T]）</td><td id="b19">左端点 l 升序</td><td id="b20">在能接上的区间里挑 r 最大的</td><td id="b21">O(n log n)</td></tr><tr><td id="b22">分数背包（可切割）</td><td id="b23">性价比 v/m 降序</td><td id="b24">装得下就整堆拿，装不下就切一块</td><td id="b25">O(n log n)</td></tr><tr><td id="b26">合并果子（哈夫曼）</td><td id="b27">不排序，每次取最小的两个</td><td id="b28">合并后把新堆放回集合</td><td id="b29">O(n log n)</td></tr></tbody></table><p id="b30">前四行还是“排一次序、扫一遍”。最后一行不一样：合并出的新堆要重新参与比较，集合是动态的，排一次序就废了。<b>凡是“每步都要取当前最小/最大”的贪心，就用堆。</b></p><div class="fn"><div class="fh" id="b31">新函数拆解 · priority_queue（优先队列 / 堆）</div><div class="fb"><div class="sig" id="b32">priority_queue&lt;int&gt; q;      // 默认大根堆
+q.push(x);  q.top();  q.pop();  q.size();  q.empty();</div><table class="lines"><thead><tr><th id="b33">组成</th><th id="b34">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b35"><code>priority_queue&lt;T&gt;</code></td><td id="b36">声明一个存放 T 的堆。<b>默认是大根堆：top() 是最大值。</b></td></tr><tr><td id="b37"><code>q.push(x)</code></td><td id="b38">插入一个元素，O(log n)。堆自己维护顺序，不用再 sort。</td></tr><tr><td id="b39"><code>q.top()</code></td><td id="b40">读堆顶（当前最大/最小元素），O(1)。只读不删。</td></tr><tr><td id="b41"><code>q.pop()</code></td><td id="b42">删除堆顶，O(log n)。<b>它不返回被删的值</b>，想取值必须先 top()。</td></tr><tr><td id="b43"><code>q.size() / q.empty()</code></td><td id="b44">元素个数 / 是否为空。调用 top()、pop() 前必须保证非空。</td></tr></tbody></table><div class="cap" id="b45">最小可运行示例</div><div class="cap" id="b46">示例</div><pre id="b47"><code><span class="k">priority_queue</span>&lt;<span class="k">int</span>&gt; q;                 <span class="c">// 大根堆</span>
+<span class="k">for</span> (<span class="k">int</span> x : {<span class="n">3</span>, <span class="n">1</span>, <span class="n">4</span>, <span class="n">1</span>, <span class="n">5</span>}) q.<span class="f">push</span>(x);
+
+<span class="k">while</span> (!q.<span class="k">empty</span>()) {
+    <span class="k">cout</span> &lt;&lt; q.<span class="f">top</span>() &lt;&lt; <span class="s">' '</span>;            <span class="c">// 5 4 3 1 1</span>
+    q.<span class="f">pop</span>();                           <span class="c">// 想取值就先 top() 再 pop()</span>
+}</code></pre><div class="box tip"><div class="t" id="b48">注意</div><p id="b49"><code>cout &lt;&lt; q.pop()</code> 直接编译错误：pop() 的返回类型是 void。</p><p id="b50">堆里元素的类型必须可比较：int、pair 可以，struct 必须重载 operator&lt;。</p></div></div></div><div class="fn"><div class="fh" id="b51">新函数拆解 · greater&lt;T&gt;：把默认大根堆翻成小根堆</div><div class="fb"><div class="sig" id="b52">priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; q;   // 小根堆，top() 是最小值</div><table class="lines"><thead><tr><th id="b53">组成</th><th id="b54">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b55"><code>三个模板参数</code></td><td id="b56">①元素类型 int　②底层容器 vector&lt;int&gt;　③比较器 greater&lt;int&gt;。<b>三个都要写，少一个就编译报错。</b></td></tr><tr><td id="b57"><code>greater&lt;int&gt;</code></td><td id="b58">来自 &lt;functional&gt;（bits 里已包含）。它表示“大的排在后面”，于是小的浮到堆顶。</td></tr><tr><td id="b59"><code>为什么不能只写两个</code></td><td id="b60">第二个参数位置固定是容器，把比较器塞进去会报一大串模板错误，错误信息往往指向 &lt;bits/stl_queue.h&gt;。</td></tr><tr><td id="b61"><code>等价写法</code></td><td id="b62">把 -x 存进大根堆再取负；只适合 long long（int 的 -x 会溢出）。</td></tr></tbody></table><div class="cap" id="b63">最小可运行示例</div><div class="cap" id="b64">示例</div><pre id="b65"><code><span class="k">priority_queue</span>&lt;<span class="k">int</span>, <span class="k">vector</span>&lt;<span class="k">int</span>&gt;, <span class="k">greater</span>&lt;<span class="k">int</span>&gt;&gt; q;   <span class="c">// 小根堆</span>
+<span class="k">for</span> (<span class="k">int</span> x : {<span class="n">3</span>, <span class="n">1</span>, <span class="n">4</span>, <span class="n">1</span>, <span class="n">5</span>}) q.<span class="f">push</span>(x);
+<span class="k">while</span> (!q.<span class="k">empty</span>()) { <span class="k">cout</span> &lt;&lt; q.<span class="f">top</span>() &lt;&lt; <span class="s">' '</span>; q.<span class="f">pop</span>(); }   <span class="c">// 1 1 3 4 5</span></code></pre><div class="box tip"><div class="t" id="b66">注意</div><p id="b67">口诀：<b>默认大根堆，加 greater 变小根堆。</b>自定义优先级时别硬塞 greater，用 operator&lt; 更清楚。</p></div></div></div><div class="fn"><div class="fh" id="b68">新函数拆解 · 结构体重载 operator&lt;（决定谁在堆顶）</div><div class="fb"><div class="sig" id="b69">struct Node { int w; bool operator&lt;(const Node &amp;o) const { return w &gt; o.w; } };</div><table class="lines"><thead><tr><th id="b70">组成</th><th id="b71">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b72"><code>为什么写在结构体里</code></td><td id="b73">priority_queue 用 operator&lt; 比较元素。写在结构体里，堆就能直接拿来用。</td></tr><tr><td id="b74"><code>const Node &amp;o</code></td><td id="b75">按引用传，避免拷贝；必须 const，因为堆内部用常量引用比较。</td></tr><tr><td id="b76"><code>末尾的 const</code></td><td id="b77">表示比较不修改自身。漏写会编译失败，报错位置在模板深处，很难读。</td></tr><tr><td id="b78"><code>return w &gt; o.w</code></td><td id="b79">operator&lt; 返回 true 表示 <b>this 的优先级更低</b>（排在 o 后面）。写 w &gt; o.w，于是 w 小的反而在堆顶。</td></tr><tr><td id="b80"><code>与 sort 的 cmp 方向相反</code></td><td id="b81">cmp 回答“a 是否在前”，operator&lt; 回答“this 是否在后”。<b>同一个不等式，两处要反过来写</b>，这是本节最高频的错误。</td></tr></tbody></table><div class="cap" id="b82">最小可运行示例</div><div class="cap" id="b83">示例</div><pre id="b84"><code><span class="k">struct</span> Task {
+    <span class="k">int</span> w;
+    <span class="c">// 想让 w 小的在堆顶 -&gt; 写 w &gt; o.w（与 sort 的 cmp 反着写）</span>
+    <span class="k">bool</span> <span class="k">operator</span>&lt;(<span class="k">const</span> Task &amp;o) <span class="k">const</span> { <span class="k">return</span> w &gt; o.w; }
+};
+
+<span class="k">priority_queue</span>&lt;Task&gt; q;
+q.<span class="f">push</span>({<span class="n">3</span>}); q.<span class="f">push</span>({<span class="n">1</span>}); q.<span class="f">push</span>({<span class="n">4</span>});
+<span class="k">cout</span> &lt;&lt; q.<span class="f">top</span>().w;                <span class="c">// 1</span></code></pre><div class="box tip"><div class="t" id="b85">注意</div><p id="b86">口诀：<b>cmp 写“谁在前”，operator&lt; 写“谁在后”。</b>堆顶永远是“比较意义下最大”的元素。</p></div></div></div><div class="prob"><div class="ph"><span class="pn" id="b87">例题 · 凌乱的 yyy / 线段覆盖</span><span class="oi">洛谷 P1803</span><span class="badge diff">普及-</span><a href="https://www.luogu.com.cn/problem/P1803" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b88">有 n 场比赛，第 i 场从 a_i 时刻开始、b_i 时刻结束。同一时刻只能参加一场，但一场可以在结束的同一时刻立刻开始另一场。求最多能参加多少场。</p><p id="b89">输入格式：第一行一个整数 n；接下来 n 行，每行两个整数 a_i、b_i。</p><p id="b90">输出格式：一行一个整数，表示最多参加的场数。</p><p id="b91">数据范围：1 ≤ n ≤ 10⁶，0 ≤ a_i &lt; b_i ≤ 10⁶。</p></div><div class="io" id="b92">输入：
+3
+0 2
+2 4
+1 3
+输出：
+2</div></div><div class="step"><div class="sh" id="b93">三个候选排序键，先排除两个错的</div><p id="b94"><b>候选 ①：按开始时间 a_i 升序。</b>反例：三场 [0,100]、[1,2]、[3,4]。先选 [0,100]，剩下两场都被它盖住，只能 1 场；最优是 [1,2] 和 [3,4]，2 场。错因：开始早不代表占得少。</p><p id="b95"><b>候选 ②：按区间长度 b_i − a_i 升序。</b>反例：[0,6]、[6,10]、[0,10]。最短的 [6,10] 先选，另两场都接不上，只能 1 场；最优是 [0,6] + [6,10] 共 2 场。错因：短区间可能卡在中间，把两边都切断。</p><p id="b96"><b>候选 ③：按结束时间 b_i 升序。</b>这个对。设排序后第一个区间是 I₁ = [l₁, r₁]，r₁ 是所有右端点里最小的。任取一个最优解，它的第一场是 J = [l_J, r_J]，必有 r_J ≥ r₁。把 J 换成 I₁：最优解的第二场 K 满足 l_K ≥ r_J ≥ r₁，所以 I₁ 与 K 不冲突，场数不变。于是<b>存在一个最优解，第一场就是 I₁</b>——贪心的第一步是安全的。删掉与 I₁ 冲突的区间，剩下问题同构，归纳即可。</p><p id="b97">落点是一句话：<b>越早结束，剩下的时间越多</b>，所以它不吃未来的资源——命中上一节的“交换不变差”。</p><div class="cap" id="b98">贪心主体的 4 行</div><pre id="b99"><code><span class="k">sort</span>(a + <span class="n">1</span>, a + n + <span class="n">1</span>, cmp);        <span class="c">// cmp：右端点升序</span>
+<span class="k">int</span> ans = <span class="n">0</span>, last = <span class="n">0</span>;
+<span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i)
+    <span class="k">if</span> (a[i].l &gt;= last) { ++ans; last = a[i].r; }   <span class="c">// 接得上就选，选了才更新</span></code></pre></div><p id="b100">n 到 10⁶，数组必须开全局（放静态区），并且关掉 cin 同步。</p><div class="cap" id="b101">完整可编译代码（C++17）</div><pre id="b102"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">1000005</span>;
+<span class="k">int</span> n;
+<span class="k">struct</span> Seg { <span class="k">int</span> l, r; } a[N];
+
+<span class="c">// 唯一的贪心决策：按右端点升序</span>
+<span class="k">bool</span> <span class="f">cmp</span>(<span class="k">const</span> Seg &amp;x, <span class="k">const</span> Seg &amp;y) {
+    <span class="k">if</span> (x.r != y.r) <span class="k">return</span> x.r &lt; y.r;   <span class="c">// 主键：越早结束越优先</span>
+    <span class="k">return</span> x.l &lt; y.l;                   <span class="c">// 次键：保证严格弱序</span>
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">cin</span> &gt;&gt; n;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) <span class="k">cin</span> &gt;&gt; a[i].l &gt;&gt; a[i].r;
+    <span class="k">sort</span>(a + <span class="n">1</span>, a + n + <span class="n">1</span>, cmp);        <span class="c">// O(n log n)，n = 10^6 也能过</span>
+
+    <span class="k">int</span> ans = <span class="n">0</span>, last = <span class="n">0</span>;              <span class="c">// last = 上一场的结束时刻；时刻都 &gt;= 0，初值 0 安全</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        <span class="k">if</span> (a[i].l &gt;= last) {           <span class="c">// 接得上（等号不能少：t 结束、t 开始是允许的）</span>
+            ++ans;
+            last = a[i].r;              <span class="c">// 只有真的选了才更新，这是贪心的"落子"</span>
+        }
+    }
+    <span class="k">cout</span> &lt;&lt; ans &lt;&lt; <span class="s">'\n'</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b103">逐行拆解</div><table class="lines"><thead><tr><th id="b104">代码片段</th><th id="b105">含义与理由</th></tr></thead><tbody><tr><td id="b106"><code>struct Seg { int l, r; } a[N];</code></td><td id="b107">把一场比赛存成区间。n 到 10⁶，数组开全局：局部数组放在栈上会直接爆栈（RE）。</td></tr><tr><td id="b108"><code>if (x.r != y.r) return x.r &lt; y.r;</code></td><td id="b109">整个算法只有这一行在做决策。换成 x.l &lt; y.l，得到的就是候选 ① 的错误算法。</td></tr><tr><td id="b110"><code>int ans = 0, last = 0;</code></td><td id="b111">last 是“已选区间中最晚的结束时刻”，初值 0 因为题目保证时刻非负，等价于“第一场随时能开始”。</td></tr><tr><td id="b112"><code>if (a[i].l &gt;= last)</code></td><td id="b113">能接上就选。等号是关键：t 时刻结束的那场与 t 时刻开始的下一场不冲突。</td></tr><tr><td id="b114"><code>last = a[i].r;</code></td><td id="b115">选了才更新。更新的是 r 而不是 max(last, r)：按 r 升序后 a[i].r 一定 ≥ last。</td></tr><tr><td id="b116"><code>cout &lt;&lt; ans;</code></td><td id="b117">答案是场数，不是总时长、不是总覆盖长度。别把 ++ans 写成 ans += a[i].r - a[i].l。</td></tr></tbody></table></div><div class="step"><div class="sh" id="b118">同一套排序，换一个判断：区间选点</div><p id="b119">经典模型：给定 n 个闭区间，选最少的点，使每个区间至少包含一个点。排序键一模一样——右端点升序。</p><p id="b120">维护最后一个放下的点 last（初值 −∞）。按 r 升序扫描，若 last 没落在当前区间 [l, r] 里就必须再放一个点；放哪里？<b>放右端点 r</b>，它最靠右，能顺带覆盖更多后面的区间。判断条件可以简化成一行 <code>l &gt; last</code>：按 r 升序保证 last ≤ r，所以只要 l ≤ last，就必有 last ∈ [l, r]。</p><div class="cap" id="b121">核心循环（与上一题只差 2 行）</div><pre id="b122"><code><span class="c">// 接在"按右端点排序"之后，替代上一题的判断</span>
+<span class="k">int</span> cnt = <span class="n">0</span>;
+<span class="k">long</span> <span class="k">long</span> last = -<span class="n">1</span>;                <span class="c">// 还没有放点；坐标 &gt;= 0，-1 相当于 -inf</span>
+<span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+    <span class="k">if</span> (a[i].l &gt; last) {            <span class="c">// 上一个点没打中这个区间</span>
+        ++cnt;
+        last = a[i].r;              <span class="c">// 在右端点补一个点，覆盖尽量多的后续区间</span>
+    }
+}
+<span class="c">// cnt 就是最少点数</span></code></pre><p id="b123">两题并排看：<b>调度题问“能不能接上”（l ≥ 上一场的 r），选点题问“有没有被点到”（l &gt; 最后一个点）。</b>“越靠右越不吃未来资源”这一句同时支撑两个算法。</p></div><div class="step"><div class="sh" id="b124">换一个排序键：分数背包按性价比</div><p id="b125">n 堆物品（重量 m_i、价值 v_i）和容量 T，每堆可以只取一部分，价值按比例算，求最大价值。这是“能切割”的背包，贪心成立；0/1 背包不能切，贪心不成立（上一节的反例库）。</p><p id="b126">排序键：<b>性价比 v_i / m_i 降序</b>。容量可看成 T 个 1 单位的格子，每个格子都该填“每单位最贵”的东西，所以贵的先拿满。能整堆拿就整堆拿，装不下就把剩余容量按比例切一块然后结束。</p><div class="cap" id="b127">分数背包：把排序键从端点换成比值</div><pre id="b128"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">105</span>;
+<span class="k">int</span> n;
+<span class="k">long</span> <span class="k">long</span> cap;                          <span class="c">// 剩余容量</span>
+<span class="k">struct</span> Item { <span class="k">long</span> <span class="k">long</span> m, v; } a[N];
+
+<span class="c">// 性价比 v/m 降序：交叉相乘代替除法，避开浮点误差</span>
+<span class="k">bool</span> <span class="f">cmpRatio</span>(<span class="k">const</span> Item &amp;x, <span class="k">const</span> Item &amp;y) {
+    <span class="k">return</span> x.v * y.m &gt; y.v * x.m;       <span class="c">// v, m &lt;= 10^6 时乘积 &lt;= 10^12，long long 安全</span>
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; cap;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) <span class="k">cin</span> &gt;&gt; a[i].m &gt;&gt; a[i].v;
+    <span class="k">sort</span>(a + <span class="n">1</span>, a + n + <span class="n">1</span>, cmpRatio);
+
+    <span class="k">double</span> ans = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n &amp;&amp; cap &gt; <span class="n">0</span>; ++i) {
+        <span class="k">if</span> (a[i].m &lt;= cap) {            <span class="c">// 整堆装得下，全拿</span>
+            cap -= a[i].m;
+            ans += a[i].v;
+        } <span class="k">else</span> {                        <span class="c">// 只剩部分空间，按比例切一块</span>
+            ans += <span class="n">1.0</span> * a[i].v * cap / a[i].m;
+            cap = <span class="n">0</span>;
+        }
+    }
+    <span class="k">cout</span> &lt;&lt; fixed &lt;&lt; <span class="f">setprecision</span>(<span class="n">2</span>) &lt;&lt; ans &lt;&lt; <span class="s">'\n'</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><p id="b129">不要写 <code>x.v / x.m &gt; y.v / y.m</code>：double 比较有误差，可能把相等判成不等，而且 m = 0 时会除零。</p></div><div class="prob"><div class="ph"><span class="pn" id="b130">例题 · 合并果子</span><span class="oi">洛谷 P1090</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P1090" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b131">有 n 堆果子，第 i 堆有 a_i 个。每次可以把两堆合并成一堆，消耗的体力等于两堆果子数之和。经过 n − 1 次合并后只剩一堆，求消耗的体力总和的最小值。</p><p id="b132">输入格式：第一行一个整数 n；第二行 n 个整数 a_1 … a_n。</p><p id="b133">输出格式：一行一个整数，即最小体力消耗。</p><p id="b134">数据范围：1 ≤ n ≤ 10⁴，1 ≤ a_i ≤ 2×10⁴，答案保证小于 2³¹。</p></div><div class="io" id="b135">输入：
+3
+1 2 9
+输出：
+15</div></div><div class="step"><div class="sh" id="b136">为什么要每次取最小的两堆</div><p id="b137">先看清代价的结构：一堆果子被合并 d 次，它的数量就被算进总代价 d 次。所以<b>重的应该少被合并（离根浅），轻的应该多被合并（离根深）</b>。把每次合并画成一棵二叉树，总代价 = Σ a_i × 深度_i。</p><p id="b138">交换论证：最优树里最轻的两堆一定在最深层且互为兄弟。若最轻的叶子不在最深层，把它与最深的叶子交换，小权值下移、大权值上移，WPL 只会变小，与最优性矛盾。所以先合并最轻的两堆不损失最优性，剩下问题同构，归纳即可。</p><p id="b139">实现上有个关键点：<b>合并出的新堆必须重新参与比较</b>。排一次序就固定的做法是错的（1、2、9 合并出 3 之后，3 比 9 小，下一轮该先碰它）。集合动态变化，所以用堆：每次 top 两次、pop 两次、push 一次，n − 1 轮，总 O(n log n)。这是本课程第一次出现“贪心 + 数据结构”。</p></div><div class="cap" id="b140">完整可编译代码（C++17）</div><pre id="b141"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">int</span> n;
+    <span class="k">cin</span> &gt;&gt; n;
+    <span class="c">// 三个模板参数：元素类型、底层容器、比较器。greater 表示小的优先 -&gt; 小根堆</span>
+    <span class="k">priority_queue</span>&lt;<span class="k">int</span>, <span class="k">vector</span>&lt;<span class="k">int</span>&gt;, <span class="k">greater</span>&lt;<span class="k">int</span>&gt;&gt; q;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; n; ++i) {
+        <span class="k">int</span> w;
+        <span class="k">cin</span> &gt;&gt; w;
+        q.<span class="f">push</span>(w);
+    }
+
+    <span class="k">long</span> <span class="k">long</span> cost = <span class="n">0</span>;                 <span class="c">// 本题保证答案 &lt; 2^31，但用 long long 不亏</span>
+    <span class="k">while</span> (q.<span class="k">size</span>() &gt; <span class="n">1</span>) {              <span class="c">// 合并 n-1 次，剩 1 堆时结束</span>
+        <span class="k">int</span> x = q.<span class="f">top</span>(); q.<span class="f">pop</span>();       <span class="c">// 当前最轻的两堆</span>
+        <span class="k">int</span> y = q.<span class="f">top</span>(); q.<span class="f">pop</span>();
+        cost += x + y;                  <span class="c">// 这次合并消耗的体力</span>
+        q.<span class="f">push</span>(x + y);                  <span class="c">// 新堆放回集合，参与后面的合并</span>
+    }
+    <span class="k">cout</span> &lt;&lt; cost &lt;&lt; <span class="s">'\n'</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b142">逐行拆解</div><table class="lines"><thead><tr><th id="b143">代码片段</th><th id="b144">含义与理由</th></tr></thead><tbody><tr><td id="b145"><code>priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; q;</code></td><td id="b146">小根堆：top() 始终是最轻的一堆。用默认大根堆会先合并最大的两堆，答案偏大。</td></tr><tr><td id="b147"><code>while (q.size() &gt; 1)</code></td><td id="b148">合并 n − 1 次，剩 1 堆时停。写成 while (!q.empty()) 会在最后一轮第二次 pop 时取空堆。</td></tr><tr><td id="b149"><code>int x = q.top(); q.pop(); int y = q.top(); q.pop();</code></td><td id="b150">连续取两个最小值。必须先 top 再 pop，两句不能合并（pop 没有返回值）。</td></tr><tr><td id="b151"><code>cost += x + y;</code></td><td id="b152">这次合并的体力消耗就是两堆之和，也是这棵子树的根权值。</td></tr><tr><td id="b153"><code>q.push(x + y);</code></td><td id="b154">新堆必须放回去。漏了这一行，下一轮会比较到已经不存在的旧值，答案偏离。</td></tr></tbody></table></div><div class="box warn"><div class="t" id="b155">这一节的 5 个坑，每个都有具体症状</div><p id="b156">在空堆上 <code>q.top()</code> 或 <code>q.pop()</code>：未定义行为，通常 <b>RE</b>（段错误）。合并果子的循环条件必须是 <code>q.size() &gt; 1</code>。</p><p id="b157">合并果子错用大根堆（漏写 greater）：每轮合并最大的两堆，样例 3 / 1 2 9 会输出 23 而不是 15 → <b>WA</b>。这种错最容易藏在“样例过了”的错觉后面，一定要用这组数据验证。</p><p id="b158">operator&lt; 写成 <code>return w &lt; o.w;</code> 以为是小根堆：堆顶其实是最大值 → <b>WA</b>，而且结构体题通常没有小样例能暴露它。</p><p id="b159">cmp 或 operator&lt; 里用 <code>&lt;=</code>、<code>&gt;=</code>：破坏严格弱序，std::sort 可能越界写内存 → <b>RE</b>；开 -fsanitize 会报 invalid comparator。</p><p id="b160">区间调度按左端点或区间长度排序，用 [0,100]、[1,2]、[3,4] 或 [0,6]、[6,10]、[0,10] 一测就 <b>WA</b>；n = 10⁶ 时不关 cin 同步会 <b>TLE</b>，把 10⁶ 的数组开在 main 里会 <b>RE</b>（爆栈）。</p></div><div class="reproduce"><div class="rt" id="b161">自己动手复现</div><p id="b162">关掉页面，把 P1803 的代码从零敲一遍并提交，确认样例输出 2。</p><p id="b163">改一改①：把 <code>a[i].l &gt;= last</code> 的等号去掉，用数据 <code>2 / 1 2 / 2 3</code> 试。正确答案是 2（第一场 2 时刻结束，第二场 2 时刻开始，可以接着打），改完变成 1。</p><p id="b164">改一改②：合并果子把 <code>greater&lt;int&gt;</code> 删掉变成大根堆，跑 <code>3 / 1 2 9</code>，看答案从 15 变成 23。亲手体会一次“堆的方向决定贪心方向”。</p></div><div class="mathcard"><div class="mt" id="b165">数学补给 · 合并果子的代价 = 哈夫曼树的带权路径长度</div><p id="b166">把每次合并画成一个新结点，两个孩子是参与合并的两堆。n 堆最终合并成一棵树：<b>叶子是原始堆，内部结点是合并出来的新堆</b>，共 n − 1 个内部结点。某堆果子被合并 d 次，它的数量就在 d 个内部结点的权值里各出现一次，所以</p><p id="b167">总代价 = Σ（内部结点权值）= Σ a_i × d_i，d_i 是叶子的深度。这个量叫 <b>带权路径长度 WPL</b>，也就是哈夫曼编码里的平均码长项。例：a = 1, 2, 3, 4，合并 1+2 = 3、再合并 3+3 = 6、最后 6+4 = 10，总代价 19；检验深度：1、2 深度 3，3 深度 2，4 深度 1，1×3 + 2×3 + 3×2 + 4×1 = 19。</p><p id="b168"><b>为什么“取最小的两堆”最优？</b>最轻的两堆在最优树里一定是最深的一对兄弟；否则把它们与最深的叶子交换，小权值下移、大权值上移，WPL 严格变小，与最优性矛盾。</p><p id="b169">规模：n 堆合并 n − 1 次，每次堆操作 O(log n)，总 O(n log n)。树深最坏可到 n − 1，代价不能按 log n 估。P6033（n 到 10⁷）必须用 long long 并换 O(n) 做法。</p></div><div class="think"><div class="tt" id="b170">举一反三 · 想清楚这些再往下走</div><div class="thint">先自己写出答案，再点开核对——方向对不对，比答案本身更重要</div><ol><li id="b171"><div class="tq">如果每个区间带一个价值，要求“选出互不重叠的区间使总价值最大”，按右端点贪心还成立吗？先造一个反例（提示：一个很长但价值极高的区间），再想正确解法要什么工具（第 27、31 节）。</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">不成立。反例：A = [0,100] 价值 100，B = [1,2] 价值 1，C = [3,4] 价值 1。按右端点升序先选 B 再选 C，得 2；最优是只选 A 得 100。错因：带上价值以后“结束得早”不再等于“占用得少”，一个长区间可以一次换到极大收益，正文那条证明靠的是“每个区间收益相同”。正确工具是“按右端点排序 + 二分 + DP”：f[i] = max(f[i−1], f[p(i)] + v_i)，p(i) 用 upper_bound 找最后一个右端点 ≤ l_i 的区间（第 27 节），这就是第 31 节的加权区间调度。常见错路：改成按“价值 / 长度”排序想救回来——反例照样能造，两个中等价值区间就能压死一个比值更高的长区间。</div></details></li><li id="b172"><div class="tq">合并果子如果改成“每次只能合并相邻的两堆”，每次取最小的相邻对还对吗？先手算 4 组数据找反例，再看第 33 节的区间 DP——这是“加一个限制，贪心就退化成 DP”的典型。</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">不对。反例 6 4 4 6：贪心先并中间两个 4（代价 8）得 6 8 6，再并 6+8（14）得 14 6，最后 20，合计 42；最优是先并 6+4 和 4+6（各 10），再 10+10 = 20，合计 40。错因：“相邻”把可交换的范围锁死了——交换两次合并的顺序会改变中间结果的相邻关系，上一节“交换不变差”的前提直接崩了。解法是区间 DP：f[l][r] = min over k of (f[l][k] + f[k+1][r]) + sum(l..r)，O(n³)，第 33 节。常见错路：以为“只在相邻里挑最小的”是原题加了个小限制——它其实把问题从排序贪心换成了另一类算法。</div></details></li><li id="b173"><div class="tq">合并果子如果每次可以合并任意 3 堆，会多出什么麻烦？提示：每次减少 2 堆，要保证最后正好剩 1 堆，可能需要补几个 0 堆。补几个？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">变成 k 叉哈夫曼：每次取最小的 3 堆合并，代价加三者之和，再把新堆放回堆里，O(n log n)。麻烦在于“每次少 2 堆”要求 (n−1) 能被 2 整除，否则最后剩 2 堆、没法按“合 3 堆”的规则收尾；标准做法是先补若干个权值为 0 的堆，补的个数是 (2 − (n−1) mod 2) mod 2，也就是 n 为偶数补 1 个、n 为奇数补 0 个。补 0 不影响最优性（0 最小、只会被最先合并），但让每个内部结点都恰好有 3 个孩子，深度与代价的对应关系才成立。常见错路：忘了补 0，最后硬把 2 堆并成 1 堆——那等于允许一个结点只有 2 个孩子，代价被算小。</div></details></li><li id="b174"><div class="tq">n = 10⁶ 个区间、时刻范围也只有 10⁶，除了 sort 还能怎么排？（提示：第 6 节的桶计数，按右端点扔进桶里，O(n + V)。）</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">可以按右端点扔进桶，用第 6 节的计数排序思想：开 V = 10⁶ 个桶，把区间挂到自己的 r 上，再从时刻 1 扫到 V，每到一个时刻就处理该时刻结束的所有区间，O(n + V) ≈ 2×10⁶。而 sort 是 O(n log n)，10⁶ 个区间约 2×10⁷ 次比较，桶排序快一个量级，代价是要开 10⁶ 大小的桶数组，还要处理“同一时刻多个区间”的挂链（前向星或 vector 数组）。注意桶只按右端点分，左端点完全不用管——两个区间算法的判断只用到 r 和 last。常见错路：把桶开成 int 而不是链表，同一时刻的多个区间互相覆盖只剩一个，答案偏小。</div></details></li><li id="b175"><div class="tq">区间选点如果要求“每个区间至少包含 2 个点”，还能贪心吗？先试 [1,2] 这种短区间，看会不会放不下两个点。</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">还能贪，但要把“维护一个点”改成“维护最近放下的两个点 p1 ≤ p2”：若 p1 ≥ l，两个点都在区间里，跳过；若只有 p2 ≥ l，就在 r 处补一个点；若 p2 &lt; l，就在 r−1 和 r 处各补一个。短区间放得下：[1,2] 的两个整数点 1、2 正好够，按上面的规则补 r−1、r 就能同时打中它。真正无解的是“只有一个整数点却要求两个点”的区间（如 [3,3]），要单独判掉，题面一般不会这么出。常见错路：把“每个区间 2 个点”当成“把单点版本跑两遍”——两遍之间不共享已放的点，第二遍会重新补，点数最多翻倍。</div></details></li></ol></div><div class="box tip"><div class="t" id="b176">自测：能全部回答再进下一节</div><ul><li id="b177">能说出区间调度的三个候选排序键，并各给一个反例或一句证明。</li><li id="b178">能写出小根堆的完整声明，并解释三个模板参数分别是什么。</li><li id="b179">知道 operator&lt; 与 sort 的 cmp 方向相反，能现场写出“w 最小的在堆顶”的版本。</li><li id="b180">能在 O(1) 时间里判断“区间调度”和“区间选点”的判断条件差在哪里（&gt;= 与 &gt;）。</li><li id="b181">能不看书写出合并果子的堆循环，并解释为什么新堆要 push 回去。</li><li id="b182">看到“每步取当前最优 + 集合动态变化”，能立刻想到用堆而不是 sort。</li></ul></div><div class="challenge"><div class="ct" id="b183">挑战题 · 建筑抢修</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P4053</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P4053" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b184">有 N 个受损建筑，只有一个修理工。修第 i 个建筑需要 T1_i 秒，如果它在 T2_i 秒之内还没有修完就会报废。修理工一次只能修一个，求最多能抢修多少个建筑。</p><p id="b185">输入格式：第一行一个整数 N；接下来 N 行，每行两个整数 T1_i、T2_i。</p><p id="b186">输出格式：一行一个整数 S，表示最多能抢修的建筑数。</p><p id="b187">数据范围：1 ≤ N &lt; 150000，1 ≤ T1_i &lt; T2_i &lt; 2³¹。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b188">报废时间早的建筑必须优先处理，否则一定来不及。先按 T2 升序排序，再想“排好序之后怎么决定修不修”。</p><p id="b189">如果某一刻发现总时间已经超过当前建筑的报废时间，说明前面选多了——该从已选的里面去掉一个，去掉哪个最划算？</p><p id="b190">去掉“最费时”的那个能让总时间降得最多，而建筑个数不变。用一个大根堆维护已选建筑的修复时间。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b191"><b>排序。</b>按报废时间 T2 升序。若存在一种方案能修 k 个，把它们按 T2 升序排列也不会违反任何报废时间。</p><p id="b192">依次处理每个建筑，维护：已选集合 S、总修复时间 sum、一个存 S 中所有 T1 的大根堆。</p><p id="b193">若 sum + T1_i ≤ T2_i：直接加入 S。它在 S 里最后修，前面已选建筑的完成时间不变，所以只要它自己赶得上，整个 S 仍然合法。</p><p id="b194">若 sum + T1_i &gt; T2_i：加不进第 |S| + 1 个，最多只能保持 |S| 个。此时如果堆顶（S 里最费时的）&gt; T1_i，就用当前建筑替换它：个数不变、sum 变小；而且当前建筑 T2 最大、排在最后，替换后每个前缀的完成时间都不会变大，合法性保住。若堆顶 ≤ T1_i，替换只会让 sum 更大，什么也不做。</p><p id="b195">最后答案就是堆的大小。复杂度 O(N log N)，N = 1.5×10⁵ 轻松过。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b196">参考代码</div><pre id="b197"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">150005</span>;
+<span class="k">int</span> n;
+<span class="k">struct</span> Build { <span class="k">int</span> t1, t2; } a[N];
+
+<span class="c">// 按报废时间升序：越早报废越先考虑</span>
+<span class="k">bool</span> <span class="f">cmp</span>(<span class="k">const</span> Build &amp;x, <span class="k">const</span> Build &amp;y) {
+    <span class="k">if</span> (x.t2 != y.t2) <span class="k">return</span> x.t2 &lt; y.t2;
+    <span class="k">return</span> x.t1 &lt; y.t1;
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">cin</span> &gt;&gt; n;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) <span class="k">cin</span> &gt;&gt; a[i].t1 &gt;&gt; a[i].t2;
+    <span class="k">sort</span>(a + <span class="n">1</span>, a + n + <span class="n">1</span>, cmp);
+
+    <span class="k">priority_queue</span>&lt;<span class="k">int</span>&gt; q;      <span class="c">// 大根堆：已选建筑的修复时间，堆顶最费时</span>
+    <span class="k">long</span> <span class="k">long</span> sum = <span class="n">0</span>;          <span class="c">// 已选建筑的总耗时，最大约 1.5e5 * 2^31，必须 long long</span>
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        <span class="k">if</span> (sum + a[i].t1 &lt;= a[i].t2) {
+            sum += a[i].t1;             <span class="c">// 赶得上，直接修</span>
+            q.<span class="f">push</span>(a[i].t1);
+        } <span class="k">else</span> <span class="k">if</span> (!q.<span class="k">empty</span>() &amp;&amp; q.<span class="f">top</span>() &gt; a[i].t1) {
+            <span class="c">// 赶不上：用当前建筑换掉已选里最费时的那个，数量不变、总时间变小</span>
+            sum -= (<span class="k">long</span> <span class="k">long</span>)q.<span class="f">top</span>() - a[i].t1;
+            q.<span class="f">pop</span>();
+            q.<span class="f">push</span>(a[i].t1);
+        }
+        <span class="c">// 否则当前建筑直接放弃：换了只会更慢</span>
+    }
+
+    <span class="k">cout</span> &lt;&lt; q.<span class="k">size</span>() &lt;&lt; <span class="s">'\n'</span>;       <span class="c">// 堆里剩几个就是最多能修几个</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b198">关键片段拆解</div><table class="lines"><thead><tr><th id="b199">片段</th><th id="b200">作用</th></tr></thead><tbody><tr><td id="b201"><code>sort(a + 1, a + n + 1, cmp);</code></td><td id="b202">按报废时间排序。这一步定下了“修的顺序就是处理顺序”，后面所有判断都基于这个顺序。</td></tr><tr><td id="b203"><code>priority_queue&lt;int&gt; q;</code></td><td id="b204">这里要的是<b>大根堆</b>：每次想知道“已选里最费时的是谁”，所以用默认的 priority_queue，不要加 greater。</td></tr><tr><td id="b205"><code>if (sum + a[i].t1 &lt;= a[i].t2)</code></td><td id="b206">当前建筑排在这一批的最后修，只要它的完成时刻不超过自己的报废时间，前面已选的完成时刻都没变，整批仍合法。</td></tr><tr><td id="b207"><code>sum -= (long long)q.top() - a[i].t1;</code></td><td id="b208">先减后加写成一句。括号里显式转 long long，避免 int 减法在极端数据下出问题。</td></tr><tr><td id="b209"><code>cout &lt;&lt; q.size();</code></td><td id="b210">答案不是 sum、不是 cnt，而是集合大小。q.size() 的类型是 size_t，直接输出没问题。</td></tr></tbody></table><div class="box warn"><div class="t" id="b211">这题最容易错的地方</div><ul><li id="b212">用 int 存 sum：N = 1.5×10⁵、T1 接近 2³¹ 时总和远超 int → 溢出成负数，判断全乱，WA 一片。</li><li id="b213">把替换条件写成 q.top() &lt; a[i].t1（方向反了）：换成更费时的建筑，sum 变大，答案偏小 → WA。</li><li id="b214">忘了先判空就 q.top()：第一栋建筑赶不上且堆为空时 RE。</li><li id="b215">按 T1 或按 T2/T1 排序：必须按 T2 升序，其他键都能构造反例。</li></ul></div></div></details></div><div class="box info"><div class="t" id="b216">延伸阅读 / 参考</div><ul><li id="b217">《算法竞赛进阶指南》第 0x07 节：贪心（区间问题与哈夫曼树）</li><li id="b218">《算法竞赛试炼场：洛谷 300 题精析》贪心章：线段覆盖与合并果子</li><li id="b219">洛谷 P1803、P1090、P4053 题解区的高赞证明</li></ul></div>
+
+<footer>算竞教程 · 算竞教程 · 生成于自建课程体系，题目版权归洛谷及各命题方所有<br>
+转载请注明出处；模板代码可直接用于比赛</footer>

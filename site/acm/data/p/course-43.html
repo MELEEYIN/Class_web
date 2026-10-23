@@ -1,0 +1,242 @@
+
+<div class="box info"><div class="t" id="b0">本节出现的新函数 / 新语法（先看懂再用）</div><ul><li id="b1"><a href="#fn-0">并查集 find（路径压缩）</a> —— 一行路径压缩：边找根边把沿途的点挂到根上</li><li id="b2"><a href="#fn-1">并查集 merge（按大小合并）</a> —— 先 find 再判同集合，小树挂大树，只改 fa 与 sz 两处</li><li id="b3"><a href="#fn-2">Kruskal 主循环（排序 + 贪心加边）</a> —— 排序 + 逐条尝试 + 并查集判环，五行就是全部</li></ul></div><p id="b4">给定一张 n 个点、m 条带权边的连通图，从中选 n−1 条边把所有点连起来，使边权和最小——这就是最小生成树（MST）。先记住一个事实：<b>n 个点、n−1 条边、连通，这三条同时成立时，图一定是树</b>——任意两点之间路径唯一，没有环。于是“选一棵树”只剩一个自由度：到底选哪 n−1 条边。</p><p id="b5">Kruskal 的正文只有三句话：把边按权值升序排；从小到大逐条看；两端还没连通就要它，已经连通就扔掉。“连通”这个词在图上很难判，但对一张不断合并的图来说，它恰好是并查集的全部工作。</p><div class="quote" id="b6">Kruskal 的正确性只靠一条性质：当前还未处理过的最轻的那条边，只要它跨了两个连通块，要它一定不吃亏。</div><table><thead><tr><th id="b7"></th><th id="b8">Kruskal</th><th id="b9">Prim（堆优化）</th></tr></thead><tbody><tr><td id="b10">套路</td><td id="b11">边按权值升序，能加就加，成环就跳</td><td id="b12">从一点出发，每次把离生成树最近的点拉进来</td></tr><tr><td id="b13">依赖</td><td id="b14">边排序 + 并查集判环</td><td id="b15">邻接表 + 优先队列取最近点</td></tr><tr><td id="b16">复杂度</td><td id="b17">O(m log m)</td><td id="b18">O((n + m) log n)</td></tr><tr><td id="b19">稀疏图 m ≈ n</td><td id="b20">快，只跟边数有关</td><td id="b21">差不多，但堆操作多</td></tr><tr><td id="b22">稠密图 m ≈ n²</td><td id="b23">要排 n² 条边，偏慢</td><td id="b24">更快；n 小时用 O(n²) 的邻接矩阵版</td></tr><tr><td id="b25">附带产物</td><td id="b26">边权从小到大的合并过程，能直接回答瓶颈路</td><td id="b27">每个点被拉进来时的距离，是它到已选点集的最小边</td></tr><tr><td id="b28">本节为什么用 Kruskal</td><td id="b29">★ 判环用并查集，只有 5 行，且不用建邻接表</td><td id="b30">第 42 节已学，思路是 Dijkstra 的孪生兄弟</td></tr></tbody></table><p id="b31">先拆三块骨头：<code>find</code>、<code>merge</code>、Kruskal 主循环。前两个是并查集（判“在不在一块”），第三个是贪心框架。这三块加起来不到 20 行，但每一行都有一个专属的错法。</p><div class="fn"><div class="fh" id="b32">新函数拆解 · 并查集 find（路径压缩）</div><div class="fb"><div class="sig" id="b33">int fa[N];
+int find(int x) {
+    return fa[x] == x ? x : fa[x] = find(fa[x]);
+}</div><table class="lines"><thead><tr><th id="b34">组成</th><th id="b35">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b36"><code>fa[x]</code></td><td id="b37">x 的父指针。fa[x] == x 时 x 就是所在集合的代表（根）。初始化 fa[i] = i，每个点自成一个集合。</td></tr><tr><td id="b38"><code>fa[x] == x ? x :</code></td><td id="b39">递归出口：自己就是根，返回自己。整个函数只有这一个终止条件。</td></tr><tr><td id="b40"><code>fa[x] = find(fa[x])</code></td><td id="b41">先递归找到根，再把 x <b>直接挂到根下面</b>——这就是路径压缩。赋值号不能省，省掉就只剩递归、没有压缩。</td></tr><tr><td id="b42"><code>路径压缩的效果</code></td><td id="b43">链 a→b→c→root：第一次 find(a) 沿链走到底，返回时顺手把 a、b、c 全改成指向 root；之后再问就是 O(1)。</td></tr><tr><td id="b44"><code>返回值</code></td><td id="b45">根节点的编号。它只用来判“是不是同一集合”，不代表任何顺序或大小。</td></tr><tr><td id="b46"><code>为什么递归不会爆栈</code></td><td id="b47">没压缩前树高最多 log₂n（按大小合并保证），n = 5000 时不过 13 层；压缩后更浅。</td></tr><tr><td id="b48"><code>初始化必写</code></td><td id="b49">for (int i = 1; i &lt;= n; ++i) fa[i] = i; 漏写时 fa 全是 0，所有点被认成同一集合 → 一条边都加不进去 → WA。</td></tr><tr><td id="b50"><code>三目写法</code></td><td id="b51">比 if/else 短，能直接写成 return 表达式，编译器容易内联。竞赛里几乎只写这一种。</td></tr></tbody></table><div class="cap" id="b52">最小可运行示例</div><div class="cap" id="b53">示例</div><pre id="b54"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> fa[<span class="n">10</span>];
+
+<span class="k">int</span> <span class="f">find</span>(<span class="k">int</span> x) {                              <span class="c">// 找根 + 顺手压缩</span>
+    <span class="k">return</span> fa[x] == x ? x : fa[x] = <span class="f">find</span>(fa[x]);
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= <span class="n">5</span>; ++i) fa[i] = i;    <span class="c">// 初始化：各自是根</span>
+    fa[<span class="n">3</span>] = <span class="n">2</span>; fa[<span class="n">2</span>] = <span class="n">1</span>;                      <span class="c">// 手工造一条链 3 → 2 → 1</span>
+
+    <span class="k">cout</span> &lt;&lt; <span class="f">find</span>(<span class="n">3</span>) &lt;&lt; <span class="s">"\n"</span>;                   <span class="c">// 1：根是 1</span>
+    <span class="k">cout</span> &lt;&lt; fa[<span class="n">3</span>] &lt;&lt; <span class="s">"\n"</span>;                     <span class="c">// 1：压缩后 3 直接指向 1</span>
+    <span class="k">cout</span> &lt;&lt; fa[<span class="n">2</span>] &lt;&lt; <span class="s">"\n"</span>;                     <span class="c">// 1：2 也被压平了</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="box tip"><div class="t" id="b55">注意</div><p id="b56">压缩发生在<b>返回的路上</b>：先递归到根，再一层层把 fa[x] 改成根。所以第一次调用最慢，之后全是 O(1)。</p><p id="b57">fa 数组是全局的，多组数据时必须重新 <code>for (i) fa[i] = i</code>，不然上一组的关系会被继承下来。</p></div></div></div><div class="fn"><div class="fh" id="b58">新函数拆解 · 并查集 merge（按大小合并）</div><div class="fb"><div class="sig" id="b59">int sz[N];
+void merge(int x, int y) {
+    x = find(x); y = find(y);
+    if (x == y) return;
+    if (sz[x] &lt; sz[y]) swap(x, y);
+    fa[y] = x; sz[x] += sz[y];
+}</div><table class="lines"><thead><tr><th id="b60">组成</th><th id="b61">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b62"><code>x = find(x); y = find(y);</code></td><td id="b63">先把两个点换成各自的根。传进来的是普通点，直接 fa[y] = x 会把一条路径接乱，之后全错。</td></tr><tr><td id="b64"><code>if (x == y) return;</code></td><td id="b65">已在同一集合，合并是空操作。漏写不崩，但 size 会重复累加、判环失效（见易错清单）。</td></tr><tr><td id="b66"><code>if (sz[x] &lt; sz[y]) swap(x, y);</code></td><td id="b67">保证 x 是大的那块。把小树挂到大树底下，树高最多涨 1。这就是按大小合并。</td></tr><tr><td id="b68"><code>fa[y] = x;</code></td><td id="b69">把 y 的根接到 x 的根下面。整个集合的结构只靠这一行改动。</td></tr><tr><td id="b70"><code>sz[x] += sz[y];</code></td><td id="b71">只维护新根 x 的 size。y 已经不是根了，它的 size 再没人读，不用清。</td></tr><tr><td id="b72"><code>返回值</code></td><td id="b73">void。想知道“这次合并是否真的发生”，判 <code>find(u) == find(v)</code> 更好——Kruskal 正是靠它跳过成环的边。</td></tr><tr><td id="b74"><code>按秩还是按大小</code></td><td id="b75">维护 size 比维护 rank（树高）简单，效果一样：都给 O(log n) 上界，配上路径压缩就都是 O(α(n))。本节用 size。</td></tr><tr><td id="b76"><code>复杂度</code></td><td id="b77">单次 merge = 两次 find + 常数。α(n) ≤ 4，见本节数学补给。</td></tr></tbody></table><div class="cap" id="b78">最小可运行示例</div><div class="cap" id="b79">示例</div><pre id="b80"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> fa[<span class="n">10</span>], sz[<span class="n">10</span>];
+
+<span class="k">int</span> <span class="f">find</span>(<span class="k">int</span> x) { <span class="k">return</span> fa[x] == x ? x : fa[x] = <span class="f">find</span>(fa[x]); }
+
+<span class="k">void</span> <span class="f">merge</span>(<span class="k">int</span> x, <span class="k">int</span> y) {
+    x = <span class="f">find</span>(x); y = <span class="f">find</span>(y);
+    <span class="k">if</span> (x == y) <span class="k">return</span>;                     <span class="c">// 已经在一起</span>
+    <span class="k">if</span> (sz[x] &lt; sz[y]) <span class="k">swap</span>(x, y);          <span class="c">// 小的挂到大的下面</span>
+    fa[y] = x;
+    sz[x] += sz[y];
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= <span class="n">5</span>; ++i) { fa[i] = i; sz[i] = <span class="n">1</span>; }
+
+    <span class="f">merge</span>(<span class="n">1</span>, <span class="n">2</span>);                            <span class="c">// {1,2}</span>
+    <span class="f">merge</span>(<span class="n">3</span>, <span class="n">4</span>);                            <span class="c">// {3,4}</span>
+    <span class="f">merge</span>(<span class="n">2</span>, <span class="n">3</span>);                            <span class="c">// 合成 {1,2,3,4}</span>
+
+    <span class="k">cout</span> &lt;&lt; <span class="f">find</span>(<span class="n">4</span>) &lt;&lt; <span class="s">" "</span> &lt;&lt; sz[<span class="f">find</span>(<span class="n">1</span>)] &lt;&lt; <span class="s">"\n"</span>;   <span class="c">// 1 4</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="box tip"><div class="t" id="b81">注意</div><p id="b82">merge 内部一定会重新 find，所以调用时传原始点即可，别在外面再 find 一次（不报错，但容易忘）。</p><p id="b83">按大小合并防的是<b>最坏情况</b>：不加这一步，父指针的深度没有任何上界——数据可以把它串成一条长度为 n 的链，单次 find 从 O(1) 退化成 O(n)。</p></div></div></div><div class="fn"><div class="fh" id="b84">新函数拆解 · Kruskal 主循环（排序 + 贪心加边）</div><div class="fb"><div class="sig" id="b85">struct Edge { int u, v, w; } e[M];
+sort(e + 1, e + m + 1, [](const Edge &amp;a, const Edge &amp;b) { return a.w &lt; b.w; });
+int cnt = 0; long long ans = 0;
+for (int i = 1; i &lt;= m &amp;&amp; cnt &lt; n - 1; ++i) {
+    if (find(e[i].u) == find(e[i].v)) continue;
+    merge(e[i].u, e[i].v);
+    ans += e[i].w; ++cnt;
+}</div><table class="lines"><thead><tr><th id="b86">组成</th><th id="b87">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b88"><code>struct Edge</code></td><td id="b89">一条边存三个 int：u、v 是无向的两个端点，w 是权值。用结构体而不是三个平行数组，排序时整条边一起搬。</td></tr><tr><td id="b90"><code>sort 的第三参数</code></td><td id="b91">lambda，按 w 升序。<b>必须写 &lt; 不能写 &lt;=</b>——cmp 违反严格弱序会让 GCC 的 sort 越界访问，直接 RE。</td></tr><tr><td id="b92"><code>e + 1, e + m + 1</code></td><td id="b93">1-indexed 的数组要用这两根指针。写成 e, e+m 会漏掉第 m 条边（代价是偶尔少一条最重边，答案偏小）。</td></tr><tr><td id="b94"><code>cnt &lt; n − 1</code></td><td id="b95">树只有 n−1 条边，凑够就停。它既是提前退出，也是最后判连通的依据。</td></tr><tr><td id="b96"><code>find(u) == find(v)</code></td><td id="b97">两端已连通 → 加这条边会成环 → 跳过。整个算法唯一做判断的地方。</td></tr><tr><td id="b98"><code>merge(u, v)</code></td><td id="b99">两端不在同一块，这条边把两个连通块缝起来了。并查集记下这次合并，后续判环就靠它。</td></tr><tr><td id="b100"><code>ans += e[i].w</code></td><td id="b101">只有真加进树的边才累加权值。必须写在 continue 之后。</td></tr><tr><td id="b102"><code>结束条件</code></td><td id="b103">cnt == n−1 说明成功；cnt &lt; n−1 说明图不连通，此时 ans 只是“最小生成森林”的权值，不是答案。</td></tr></tbody></table><div class="cap" id="b104">最小可运行示例</div><div class="cap" id="b105">示例</div><pre id="b106"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">10</span>, M = <span class="n">20</span>;
+<span class="k">struct</span> Edge { <span class="k">int</span> u, v, w; } e[M];
+<span class="k">int</span> fa[N], sz[N];
+
+<span class="k">int</span> <span class="f">find</span>(<span class="k">int</span> x) { <span class="k">return</span> fa[x] == x ? x : fa[x] = <span class="f">find</span>(fa[x]); }
+<span class="k">void</span> <span class="f">merge</span>(<span class="k">int</span> x, <span class="k">int</span> y) {
+    x = <span class="f">find</span>(x); y = <span class="f">find</span>(y);
+    <span class="k">if</span> (x == y) <span class="k">return</span>;
+    <span class="k">if</span> (sz[x] &lt; sz[y]) <span class="k">swap</span>(x, y);
+    fa[y] = x; sz[x] += sz[y];
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> n = <span class="n">4</span>, m = <span class="n">5</span>;
+    <span class="k">int</span> raw[<span class="n">6</span>][<span class="n">3</span>] = {{<span class="n">0</span>,<span class="n">0</span>,<span class="n">0</span>}, {<span class="n">1</span>,<span class="n">2</span>,<span class="n">2</span>}, {<span class="n">1</span>,<span class="n">3</span>,<span class="n">2</span>}, {<span class="n">1</span>,<span class="n">4</span>,<span class="n">3</span>}, {<span class="n">2</span>,<span class="n">3</span>,<span class="n">4</span>}, {<span class="n">3</span>,<span class="n">4</span>,<span class="n">3</span>}};
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= m; ++i) { e[i].u = raw[i][<span class="n">0</span>]; e[i].v = raw[i][<span class="n">1</span>]; e[i].w = raw[i][<span class="n">2</span>]; }
+
+    <span class="k">sort</span>(e + <span class="n">1</span>, e + m + <span class="n">1</span>, [](<span class="k">const</span> Edge &amp;a, <span class="k">const</span> Edge &amp;b) { <span class="k">return</span> a.w &lt; b.w; });
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) { fa[i] = i; sz[i] = <span class="n">1</span>; }
+
+    <span class="k">long</span> <span class="k">long</span> ans = <span class="n">0</span>; <span class="k">int</span> cnt = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= m &amp;&amp; cnt &lt; n - <span class="n">1</span>; ++i) {
+        <span class="k">if</span> (<span class="f">find</span>(e[i].u) == <span class="f">find</span>(e[i].v)) <span class="k">continue</span>;   <span class="c">// 成环，扔掉</span>
+        <span class="f">merge</span>(e[i].u, e[i].v);
+        ans += e[i].w; ++cnt;
+    }
+    <span class="k">cout</span> &lt;&lt; cnt &lt;&lt; <span class="s">" "</span> &lt;&lt; ans &lt;&lt; <span class="s">"\n"</span>;   <span class="c">// 3 7：加了 3 条边，权和 7</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="box tip"><div class="t" id="b107">注意</div><p id="b108">排序是最贵的一步：m = 2×10⁵ 时约 3.5×10⁶ 次比较，比并查集那几十万次操作重得多。想优化，先优化排序。</p><p id="b109">cnt 一定要在真加边时才 ++。写在 for 里或写在 continue 之前，会让“边数”算成 m，判连通永远成立 → 输出一个偏小的错答案。</p></div></div></div><div class="prob"><div class="ph"><span class="pn" id="b110">例题 · 【模板】最小生成树</span><span class="oi">洛谷 P3366</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P3366" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b111">给出一个包含 N 个结点的无向图，求它的最小生成树。</p><p id="b112">输入格式：第一行两个整数 N、M，表示 N 个结点、M 条无向边。<br>接下来 M 行，每行三个整数 Xᵢ、Yᵢ、Zᵢ，表示有一条长度为 Zᵢ 的边连接结点 Xᵢ 与 Yᵢ。</p><p id="b113">输出格式：如果图连通，输出一个整数，表示最小生成树各边长度之和；如果图不连通，输出 <code>orz</code>。</p><p id="b114">数据范围：1 ≤ N ≤ 5000，1 ≤ M ≤ 2×10⁵，1 ≤ Zᵢ ≤ 10⁴。</p></div><div class="io" id="b115">输入：
+4 5
+1 2 2
+1 3 2
+1 4 3
+2 3 4
+3 4 3
+输出：
+7</div></div><div class="step"><div class="sh" id="b116">把“选边”拆成三个问题</div><p id="b117"><b>问题一：什么样的边集是树？</b>n 个点、n−1 条边、连通。前两条用计数就能保证，第三条只能靠“加边时不成环”来保证——从 n 个孤立点开始，每加一条两端不在同一块的边，连通块数量恰好减 1。加满 n−1 条，块数变成 1。</p><p id="b118"><b>问题二：怎么保证最小？</b>用贪心：把边按权值升序，能加就加。正确性靠下面的<b>割性质</b>。</p><p id="b119"><b>割性质（cut property）。</b>把点集任意分成两块，取所有“一端在这块、一端在另一块”的边里最轻的一条 e，则存在一棵最小生成树包含 e。<br>证明：设 T 是不含 e 的最小生成树。T 中从 e 的一个端点到另一个端点有唯一路径，这条路径必然在某处跨出该块，设为边 f。则 T − f + e 仍是生成树，且 w(e) ≤ w(f)，权值不增，故它也是最小生成树并含 e。∎</p><p id="b120"><b>问题三：Kruskal 选的那条边，凭什么是“跨割最轻”的？</b>设当前考察 eₖ，它的一端 u 在连通块 C、另一端不在。若有一条更轻的边 f 跨 (C, 外部)，它一定在 eₖ 之前被处理过：f 若被加入，C 早已跨出去；f 若被跳过，说明 f 两端当时已连通，那另一端的点今天也该在 C 里。两种都矛盾。所以 eₖ 就是跨这个割最轻的边，由割性质它可以进 MST。</p><p id="b121"><b>复杂度。</b>排序 O(m log m) = 2×10⁵ × 17.6 ≈ 3.5×10⁶ 次比较；加边部分每条边至多两次 find，共 4×10⁵ 次、每次不超过 4 步。总计 10⁶ 量级，实测 20~40 ms。</p><p id="b122"><b>不连通怎么办。</b>加不满 n−1 条边。此时 ans 是“最小生成森林”的权值，题目要的是 <code>orz</code>，所以最后必须用 cnt 判一次，而不是直接输出 ans。</p></div><div class="cap" id="b123">完整可编译代码（C++17）</div><pre id="b124"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">5005</span>, M = <span class="n">200005</span>;      <span class="c">// 点数与边数差 40 倍，千万别共用一个上界</span>
+
+<span class="k">struct</span> Edge { <span class="k">int</span> u, v, w; } e[M];
+<span class="k">int</span> fa[N], sz[N];
+
+<span class="k">int</span> <span class="f">find</span>(<span class="k">int</span> x) {                    <span class="c">// 路径压缩：找到根，顺便把路上的点挂到根上</span>
+    <span class="k">return</span> fa[x] == x ? x : fa[x] = <span class="f">find</span>(fa[x]);
+}
+
+<span class="k">void</span> <span class="f">merge</span>(<span class="k">int</span> x, <span class="k">int</span> y) {
+    x = <span class="f">find</span>(x); y = <span class="f">find</span>(y);
+    <span class="k">if</span> (x == y) <span class="k">return</span>;              <span class="c">// 已同集合：不需要改任何东西</span>
+    <span class="k">if</span> (sz[x] &lt; sz[y]) <span class="k">swap</span>(x, y);   <span class="c">// 小树挂大树，保证树高只涨 1</span>
+    fa[y] = x;
+    sz[x] += sz[y];
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">int</span> n, m;
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; m;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= m; ++i) <span class="k">cin</span> &gt;&gt; e[i].u &gt;&gt; e[i].v &gt;&gt; e[i].w;
+
+    <span class="k">sort</span>(e + <span class="n">1</span>, e + m + <span class="n">1</span>, [](<span class="k">const</span> Edge &amp;a, <span class="k">const</span> Edge &amp;b) { <span class="k">return</span> a.w &lt; b.w; });
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) { fa[i] = i; sz[i] = <span class="n">1</span>; }   <span class="c">// 并查集初始化</span>
+
+    <span class="k">long</span> <span class="k">long</span> ans = <span class="n">0</span>;
+    <span class="k">int</span> cnt = <span class="n">0</span>;                                   <span class="c">// 已加入树的边数</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= m &amp;&amp; cnt &lt; n - <span class="n">1</span>; ++i) {  <span class="c">// 凑够 n-1 条就停</span>
+        <span class="k">if</span> (<span class="f">find</span>(e[i].u) == <span class="f">find</span>(e[i].v)) <span class="k">continue</span>;  <span class="c">// 两端已连通，加了会成环</span>
+        <span class="f">merge</span>(e[i].u, e[i].v);
+        ans += e[i].w;
+        ++cnt;
+    }
+
+    <span class="k">if</span> (cnt &lt; n - <span class="n">1</span>) <span class="k">cout</span> &lt;&lt; <span class="s">"orz\n"</span>;              <span class="c">// 图不连通</span>
+    <span class="k">else</span> <span class="k">cout</span> &lt;&lt; ans &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b125">逐行拆解</div><table class="lines"><thead><tr><th id="b126">代码片段</th><th id="b127">含义与理由</th></tr></thead><tbody><tr><td id="b128"><code>const int N = 5005, M = 200005;</code></td><td id="b129">两个上界分开写。n ≤ 5000、m ≤ 2×10⁵，共用一个 5005 会读入越界 → RE。</td></tr><tr><td id="b130"><code>struct Edge { int u, v, w; } e[M];</code></td><td id="b131">一条边三个 int。用结构体排序时整条边一起搬；用三个平行数组，sort 就没法直接排。</td></tr><tr><td id="b132"><code>return fa[x] == x ? x : fa[x] = find(fa[x]);</code></td><td id="b133">递归出口是 fa[x] == x；赋值号把压缩写进 return 里。少写等号左边那半，就退化成朴素查找。</td></tr><tr><td id="b134"><code>if (sz[x] &lt; sz[y]) swap(x, y);</code></td><td id="b135">只比 size、不比值。这一行让最坏树高变成 log₂n，是“不压缩也不至于太慢”的保险。</td></tr><tr><td id="b136"><code>sort(e + 1, e + m + 1, ...)</code></td><td id="b137">按权值升序，这是全部贪心内容。cmp 用 &lt; 而不是 &lt;=，否则严格弱序被破坏 → 可能 RE。</td></tr><tr><td id="b138"><code>for (int i = 1; i &lt;= n; ++i) { fa[i] = i; sz[i] = 1; }</code></td><td id="b139">初始化必须放在加边之前。写在读入之前也错——n 还没读进来。</td></tr><tr><td id="b140"><code>long long ans = 0;</code></td><td id="b141">本题 5000 个点、边权 10⁴，上界 5×10⁷，int 够；但求和一律 long long 是习惯，改题面时不用重想。</td></tr><tr><td id="b142"><code>for (int i = 1; i &lt;= m &amp;&amp; cnt &lt; n - 1; ++i)</code></td><td id="b143">循环条件带 cnt：n−1 条边已经构成生成树，再看的边只可能更重。</td></tr><tr><td id="b144"><code>if (find(e[i].u) == find(e[i].v)) continue;</code></td><td id="b145">判环。这是并查集在本算法里唯一的用途，也是 Kruskal 比 Prim 好写的全部原因。</td></tr><tr><td id="b146"><code>ans += e[i].w; ++cnt;</code></td><td id="b147">两条都要在 continue 之后。顺序反了（cnt 先加）会让计数多 1，判连通永远成立。</td></tr><tr><td id="b148"><code>if (cnt &lt; n - 1) cout &lt;&lt; "orz\n";</code></td><td id="b149">不连通时 ans 是森林的权值，直接输出它 → WA。输出 orz 才是题目要求的。</td></tr></tbody></table></div><div class="step"><div class="sh" id="b150">两个必须知道的理论问题</div><p id="b151"><b>一、最小生成树唯一吗？</b>不一定。<b>所有边权互不相同时，MST 唯一</b>；有相等边权时可能有多棵。反例：三个点两两相连、三条边权都是 1，删掉任意一条都是一棵 MST，共 3 棵，但它们的权值和都是 2。</p><p id="b152">所以做题时要分清题目问的是哪一个：<b>问“最小代价”永远有唯一答案</b>（Kruskal 直接输出）；问“方案数 / 是否唯一”才需要额外处理，那属于生成树计数，超出本节范围。</p><p id="b153"><b>为什么边权互不相同时一定唯一？</b>假设有两棵不同的 MST，取它们的对称差，其中必有一条权值最小的边 e 属于 T₁ 不属于 T₂。把 e 加进 T₂ 形成环，环上必有一条不属于 T₁ 的边 f；由最小性 w(f) ≥ w(e)，又因边权全不同只能 w(f) &gt; w(e)，于是 T₂ − f + e 更轻，与 T₂ 最小矛盾。∎</p><p id="b154"><b>二、瓶颈路。</b>定义 d(u,v) = 所有 u→v 路径中“最大边权”的最小值——走这条路，最宽的那道坎最窄。定理：<b>对任意一棵 MST，树上 u→v 路径的最大边权就等于 d(u,v)</b>。</p><p id="b155">这条定理的用途很直接：把“最小化最大值”的连通问题全部交给 MST。比如“用最小的最大边长把所有点连通”，答案就是 Kruskal 最后加进去的那条边的权值，连和都不用求——这正是 P2330 一类的题。</p><p id="b156">单次询问的做法：先求 MST，再从 u 出发 DFS 到 v，沿途记最大边权，O(n)。多组询问就要用倍增在树上跳（第 53 节），或把 Kruskal 的合并过程建成一棵重构树。本节只需记住结论。</p></div><div class="box warn"><div class="t" id="b157">这一节的 6 个坑，按症状记</div><p id="b158">cmp 写成 <code>return a.w &lt;= b.w;</code>：违反严格弱序，GCC 的 <code>sort</code> 在数据稍大时越界访问 → <b>RE</b>，而且报错位置在 sort 里面，看起来跟你的代码无关，最难查。</p><p id="b159">漏写 <code>if (find(u) == find(v)) continue;</code>：每条边都被 merge、都计入 cnt，边数超过 n−1、ans 多加权值 → <b>WA</b>，并且程序不崩、不超时，只是答案偏大。</p><p id="b160">并查集初始化漏写或写错位置：<code>fa</code> 全是 0，所有点被判成同一集合 → 一条边都加不进去，cnt 恒为 0 → <b>WA</b>（输出 orz，或对 n = 1 才偶然正确）。</p><p id="b161">find 里省掉 <code>fa[x] = </code>，同时 merge 又不按大小合并：父指针退化成一条长链，每次 find 走 O(n)，2×10⁵ 条边 × 5000 步 = 10⁹ 次操作 → <b>TLE</b>。两个优化至少要留一个。</p><p id="b162">边数组按 n 开：n ≤ 5000 但 m ≤ 2×10⁵，只开 <code>e[5005]</code> 读入就写穿 → <b>RE</b>；开小了还能跑完时更可怕，表现为随机 <b>WA</b>。</p><p id="b163">不连通时直接输出 ans：题目要 <code>orz</code>，你输出了森林权值 → <b>WA</b>。养成“最后判 cnt == n−1”的习惯。</p></div><div class="reproduce"><div class="rt" id="b164">自己动手复现</div><p id="b165">关掉页面，把 P3366 的 45 行从零敲一遍，用样例验证答案是 7。</p><p id="b166">改一改①：把 cmp 的 <code>&lt;</code> 改成 <code>&lt;=</code>，交一遍。小数据可能过，用 n = 5000、m = 2×10⁵ 的随机数据看 RE。</p><p id="b167">改一改②：删掉 <code>if (find(...) == find(...)) continue;</code>，只用样例跑一遍。正确答案 7，你会得到 11——多出来的是那条成环的边 4。</p><p id="b168">改一改③：把 merge 的两行换成 <code>fa[find(x)] = find(y);</code>（不按大小），同时把 find 里的 <code>fa[x] = </code> 删掉。用链式数据 (1,2)、(2,3)、…、(4999,5000) 再补 19 万条 (1,i) 边，观察 TLE；把两处改回来，同样的数据 0.02 s 跑完。</p></div><div class="mathcard"><div class="mt" id="b169">数学补给 · 并查集为什么可以当成 O(1) 用</div><p id="b170">并查集的均摊复杂度既不是 log 也不是常数，而是一个增长极慢的函数：<b>反阿克曼函数 α(n)</b>。</p><p id="b171">阿克曼函数的前几项：A(1) = 2，A(2) = 4，A(3) = 16，A(4) = 65536，A(5) = 2⁶⁵⁵³⁶ ≈ 10¹⁹⁷²⁹。递推规则是 A(k+1) = 2<sup>A(k)</sup>——每一层把上一层的值整个塞进指数。</p><p id="b172">α(n) 就是“取多少个 A 才盖得住 n”：α(n) = min{ k : A(k) ≥ n }。</p><table><thead><tr><th id="b173">n 的上界</th><th id="b174">α(n)</th><th id="b175">直观</th></tr></thead><tbody><tr><td id="b176">4</td><td id="b177">2</td><td id="b178">课上演示用的规模</td></tr><tr><td id="b179">16</td><td id="b180">3</td><td id="b181">再大一点也只多一步</td></tr><tr><td id="b182">65536</td><td id="b183">4</td><td id="b184">n = 5000 的 Kruskal 落在这一档</td></tr><tr><td id="b185">2⁶⁵⁵³⁶ ≈ 10¹⁹⁷²⁹</td><td id="b186">5</td><td id="b187">宇宙原子数约 10⁸⁰，离这档上界还差得远</td></tr></tbody></table><p id="b188">结论：只要 n 小于 10¹⁹⁷²⁹，单次 find / merge 的均摊代价不超过 5 步，可以直接写成 O(1)。注意前提是<b>路径压缩与按大小合并同时开</b>：只开一个，上界是 O(log n)；两个都不开，是 O(n)。</p><p id="b189"><b>那 Kruskal 的时间花在哪？排序。</b>m = 2×10⁵ 时 log₂m ≈ 17.6，比较次数约 m·log₂m = 3.5×10⁶；并查集部分只有约 2m = 4×10⁵ 次操作。排序占了九成以上。</p><p id="b190">这解释了两条实践结论：① 优化 Kruskal 先看排序，别抠 find 的常数；② 边权范围很小时（0/1，或 ≤ 10⁴ 的整数），把 sort 换成计数排序 / 桶排序，总复杂度压到 O(m + W)，2×10⁵ 条边几乎是线性的。</p></div><div class="think"><div class="tt" id="b191">举一反三 · 想清楚这些再往下走</div><div class="thint">先自己写出答案，再点开核对——方向对不对，比答案本身更重要</div><ol><li id="b192"><div class="tq">把所有权值取负再求“最大生成树”，Kruskal 要改几处？最大生成树能回答“删掉哪些边最省”这类问题吗？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">排序改一处：把 cmp 的 <code>&lt;</code> 换成 <code>&gt;</code>（降序），ans 照常累加就是最大生成树的权和。用“取负”的写法更省心：读入时 <code>w = −w</code>，全段代码一字不改，最后输出 −ans——两者是同一件事。它能回答的是“保留的边权和最大”，也就是“删掉的边权和最小（且剩下的仍连通）”；如果题意是“删掉最少的边让图不连通”，那是最小割，MST 帮不上忙。常见错路：改了排序却忘了最后取反，或者以为最大生成树要换一套判环逻辑——判环与贪心骨架完全不变。</div></details></li><li id="b193"><div class="tq">如果图里有自环和重边，Kruskal 会怎样？自环有可能被加进树里吗？重边会让 cnt 出错吗？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">自环永远进不了树：<code>find(u) == find(v)</code> 在 u == v 时恒成立，第一行就 continue 掉了，树里不可能有自环。重边只会留下第一条能起作用的，其余的在判环时被跳过，cnt 不会出错（它只在真加边时 ++）。重边的实际代价是排序变慢、以及“MST 方案数”会变（那属于生成树计数，不是本节内容）。常见错路：担心自环会把 cnt 撑过 n−1，或者给自环写特判——都不需要。</div></details></li><li id="b194"><div class="tq">如何判断某一条给定的边 e 是否“属于某一棵最小生成树”？又怎么判断它是否“属于所有最小生成树”？提示：想想 e 与 u、v 在 MST 上路径最大边的关系。</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">“属于某一棵”用环性质判：先求一棵 MST T，查出 T 上 u→v 路径的最大边权 mx。若 w(e) ≤ mx，把那条最大边换成 e 就得到另一棵 MST（e 本来在 T 里则更显然）；若 w(e) &gt; mx，加进 e 形成的环上 e 严格最重，任何 MST 都不会要它。“属于所有”要更强的条件，路径最大值这一招不够：正确判据是 <code>e</code> 在“只保留权值 ≤ w(e) 的边”那张子图里是不是桥，或者实用做法——把 w(e) 减 1 重跑一次 Kruskal，总权恰好减 1 就说明每一棵都少不了它。常见错路：拿 <code>w(e) &lt; mx</code> 当“属于所有”的判据，边权相等时会把共享边误判成非共享。</div></details></li><li id="b195"><div class="tq">题目问“最早加入第几条边时整张图连通”，用二分答案 + 并查集怎么做？为什么直接跑一遍 Kruskal、看第 n−1 条边是第几轻的，就更快？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">二分边的序号 k，check(k) 用并查集把排序后的前 k 条边合并，看是否只剩一个连通块——k 越大越容易连通，单调性成立；共 O(m log m · α(m))。而直接跑一遍 Kruskal 就够了：第 n−1 条成功加入的边，正是“连通块数第一次降到 1”的那条，它的位置就是答案，省掉了 log m 次从头合并。两者同阶，但常数差 log m 倍，而且不用写 check。常见错路：check 里忘了把 fa 重置成 <code>fa[i] = i</code>；或者把“第几条”当成输入顺序，而答案其实按排序后的位置。</div></details></li><li id="b196"><div class="tq">除了判环，并查集还能维护集合大小、集合内最大边权。把 Kruskal 的每次合并建成一棵新树（合并点作为父亲），为什么就能 O(log n) 回答任意两点的瓶颈路？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">因为重构树把“合并的时刻”记成了一个点：每次 Kruskal 成功合并两块，就新建一个节点、权值 = 这条边的权，作为两块根的父亲；最后得到 2n−1 个点的二叉树，叶子是原来的点。任意两点 u、v 的 LCA 的权值，正好是“让它们第一次连通”的那条边的权，也就是 MST 上路径的最大边权 = 瓶颈路值——合并是按边权从小到大进行的，LCA 就是那一刻。查询用倍增 LCA 是 O(log n)，预处理 O(n log n)；注意树高最坏是 n−1（链状合并），不能想当然按 log n 估。常见错路：把“并查集按大小合并的树高 ≤ log n”套到重构树上——那是两棵不同的树。</div></details></li><li id="b197"><div class="tq">n = 10⁶ 但 m 只有 10⁵ 时，Kruskal 和 Prim 哪个更合适？这时内存瓶颈在哪？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">Kruskal 更合适，而且要先发现一件事：n = 10⁶、m = 10⁵，连 n−1 = 10⁶−1 条边都不到，图<b>不可能连通</b>，Kruskal 跑完 cnt &lt; n−1，得到的只是最小生成森林——题目多半就是要求森林，或者数据本身如此。Kruskal 只跟边数有关：O(m log m) ≈ 10⁵×17 = 1.7×10⁶，边集数组 10⁵ × 12 B ≈ 1.2 MB，再加 fa/sz 十几 MB。Prim 则必须建邻接表：10⁶ 个 <code>vector</code> 对象本身就 24 MB，堆里还要塞 n 个点，O((n+m)log n) ≈ 10⁶×20 = 2×10⁷，内存和时间都更贵。所以稀疏大点集选 Kruskal，稠密小点集才用 Prim。</div></details></li></ol></div><div class="box tip"><div class="t" id="b198">自测：能全部回答再进下一节</div><ul><li id="b199">能默写 find 的一行路径压缩，并说清 <code>fa[x] = </code> 省掉之后会发生什么。</li><li id="b200">能说清 merge 里“先 find、再判 x == y、最后按大小挂”这三步各防的是哪个 bug。</li><li id="b201">能说出 cnt 的两个用途（提前退出、判连通），以及漏写判环那一行时答案会怎么错。</li><li id="b202">能举出“边权相同导致 MST 不唯一”的例子，并说明为什么权值和仍然唯一。</li><li id="b203">能说清为什么 MST 上 u→v 路径的最大边权就是 u、v 之间的瓶颈值。</li><li id="b204">给定 n ≤ 5000、m ≤ 2×10⁵，能估出 Kruskal 大约是 10⁶ 量级操作，并判断不会 TLE。</li></ul></div><div class="challenge"><div class="ct" id="b205">挑战题 · 无线通讯网</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1991</span><span class="badge diff">提高-</span><a href="https://www.luogu.com.cn/problem/P1991" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b206">国防部计划用无线网络连接若干个边防哨所。每台哨所都配一台无线电收发器，收发器的通信距离为 d：两个哨所之间的距离不超过 d 时才能用无线电直接通信。</p><p id="b207">现在有 S 台哨所可以额外加装卫星电话，卫星电话之间的距离不受任何限制（装了卫星电话的两台哨所永远可以通信）。</p><p id="b208">给出 S、P 和 P 个哨所的坐标，求能连通所有哨所的最小的 d。</p><p id="b209">输入格式：第一行两个整数 S、P（1 ≤ S ≤ 100，S ≤ P ≤ 500）。<br>接下来 P 行，每行两个整数 xᵢ、yᵢ（0 ≤ xᵢ, yᵢ ≤ 10000），表示第 i 个哨所的坐标。</p><p id="b210">输出格式：一行一个实数，表示 d 的最小值，保留两位小数。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b211">卫星电话的作用不是“传得更远”，而是“允许整张网络断成 S 块”——块内必须靠无线电连起来。</p><p id="b212">先假想 d 已经确定：只保留长度 ≤ d 的边，你能算出图被分成几块吗？这个判定和 Kruskal 有什么关系？</p><p id="b213">把边按长度从小到大加，每加一条能连通两块的边，块数就减 1。数一数块数减到 S 时你加到第几条边。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b214"><b>把卫星电话翻译成连通块数。</b>S 台卫星电话各自装在一个连通块里，块与块之间靠卫星通信，块内部必须靠无线电连通。所以最终恰好允许剩下 S 个连通块。分成更少块就浪费了电话，分成更多块则有一块没有电话、无法与外界通信。</p><p id="b215"><b>问题变成：</b>把 P 个点分成 S 块，使每块内部连通所需的无线电距离尽可能小，并对所有块取最大值。这正是“最小化最大边”的瓶颈问题，交给 MST。</p><p id="b216"><b>Kruskal 恰好是一个不断减少连通块的过程。</b>初始 P 块，每加入一条不成环的边，块数减 1。块数从 P 减到 S 需要 P − S 次合并，第 P − S 条被加入的边的长度就是答案——因为它正是“让块数刚好降到 S”的那道坎。</p><p id="b217"><b>为什么不是第 P − S + 1 条？</b>第 P − S 条加入后块数已经是 S，此时可以收手了；再加一条就把块数压到 S − 1，等于浪费了一台卫星电话，而那条边只会更长。</p><p id="b218"><b>边界：</b>S ≥ P 时每台哨所都能装卫星电话，不需要任何无线电，d = 0。不特判会让“凑够 P − S 条”永远不成立，ans 被更新到最大边。</p><p id="b219"><b>复杂度。</b>边数 P(P−1)/2 ≤ 124750，排序约 1.2×10⁵ × 17 ≈ 2×10⁶ 次比较，并查集十余万次操作，几十毫秒。</p><p id="b220"><b>等价写法。</b>也可以二分 d，判定“只用长度 ≤ d 的边能否把图连成 ≤ S 块”，复杂度 O(P² log)，能过但多一个 log，而 Kruskal 一次就做完了。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b221">参考代码</div><pre id="b222"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXP = <span class="n">505</span>, MAXE = MAXP * MAXP;   <span class="c">// 完全图最多 P(P-1)/2 条边</span>
+
+<span class="k">struct</span> Edge { <span class="k">int</span> u, v; <span class="k">double</span> w; } e[MAXE];
+<span class="k">int</span> fa[MAXP], sz[MAXP];
+<span class="k">double</span> x[MAXP], y[MAXP];
+
+<span class="k">int</span> <span class="f">find</span>(<span class="k">int</span> a) { <span class="k">return</span> fa[a] == a ? a : fa[a] = <span class="f">find</span>(fa[a]); }
+
+<span class="k">bool</span> <span class="f">merge</span>(<span class="k">int</span> a, <span class="k">int</span> b) {                  <span class="c">// 返回 true 表示这次真的合并了两块</span>
+    a = <span class="f">find</span>(a); b = <span class="f">find</span>(b);
+    <span class="k">if</span> (a == b) <span class="k">return</span> <span class="k">false</span>;               <span class="c">// 已连通，这条边会成环</span>
+    <span class="k">if</span> (sz[a] &lt; sz[b]) <span class="k">swap</span>(a, b);
+    fa[b] = a; sz[a] += sz[b];
+    <span class="k">return</span> <span class="k">true</span>;
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">int</span> S, P;
+    <span class="k">cin</span> &gt;&gt; S &gt;&gt; P;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= P; ++i) <span class="k">cin</span> &gt;&gt; x[i] &gt;&gt; y[i];
+
+    <span class="k">if</span> (S &gt;= P) {                           <span class="c">// 每台都装卫星电话，不需要无线电</span>
+        <span class="k">cout</span> &lt;&lt; fixed &lt;&lt; <span class="f">setprecision</span>(<span class="n">2</span>) &lt;&lt; <span class="n">0.0</span> &lt;&lt; <span class="s">"\n"</span>;
+        <span class="k">return</span> <span class="n">0</span>;
+    }
+
+    <span class="k">int</span> m = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= P; ++i)            <span class="c">// 建完全图：任意两点都可能用无线电通信</span>
+        <span class="k">for</span> (<span class="k">int</span> j = i + <span class="n">1</span>; j &lt;= P; ++j) {  <span class="c">// 从 i+1 开始，避免自环与重复边</span>
+            <span class="k">double</span> dx = x[i] - x[j], dy = y[i] - y[j];
+            e[++m] = {i, j, <span class="k">sqrt</span>(dx * dx + dy * dy)};
+        }
+
+    <span class="k">sort</span>(e + <span class="n">1</span>, e + m + <span class="n">1</span>, [](<span class="k">const</span> Edge &amp;a, <span class="k">const</span> Edge &amp;b) { <span class="k">return</span> a.w &lt; b.w; });
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= P; ++i) { fa[i] = i; sz[i] = <span class="n">1</span>; }
+
+    <span class="k">int</span> need = P - S;                       <span class="c">// 从 P 块压到 S 块，需要 P-S 次合并</span>
+    <span class="k">int</span> got = <span class="n">0</span>;
+    <span class="k">double</span> ans = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= m; ++i) {
+        <span class="k">if</span> (!<span class="f">merge</span>(e[i].u, e[i].v)) <span class="k">continue</span>;   <span class="c">// 成环，跳过</span>
+        ans = e[i].w;                       <span class="c">// 记下这次合并用的边长</span>
+        <span class="k">if</span> (++got == need) <span class="k">break</span>;           <span class="c">// 凑够 P-S 条就停</span>
+    }
+
+    <span class="k">cout</span> &lt;&lt; fixed &lt;&lt; <span class="f">setprecision</span>(<span class="n">2</span>) &lt;&lt; ans &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b223">关键片段拆解</div><table class="lines"><thead><tr><th id="b224">片段</th><th id="b225">作用</th></tr></thead><tbody><tr><td id="b226"><code>const int MAXE = MAXP * MAXP;</code></td><td id="b227">完全图有 P(P−1)/2 条边，P ≤ 500 时是 124750。开 P² 更宽松，也不用算半天。</td></tr><tr><td id="b228"><code>bool merge(...)</code></td><td id="b229">把 merge 改成返回 bool：返回 true 表示“这次真的合并了两块”，Kruskal 的计数就靠它。返回值比在外面再判一次 find 更省一次查找。</td></tr><tr><td id="b230"><code>S &gt;= P</code></td><td id="b231">每台哨所一台卫星电话，d 可以取 0。不特判的话 need ≤ 0，<code>++got == need</code> 永远不成立，循环会一路加到最后一条边，ans 变成最大边长 → WA。</td></tr><tr><td id="b232"><code>for (int j = i + 1; ...)</code></td><td id="b233">只连 i &lt; j 的点对。写成 j = 1 会多出一倍的重复边和 P 条自环（距离 0，会排在最前面，被 merge 判成同集合跳过，不致命但白排一遍）。</td></tr><tr><td id="b234"><code>sqrt(dx * dx + dy * dy)</code></td><td id="b235">欧氏距离。坐标差最大 10⁴，平方和最大 2×10⁸，double 有 53 位有效位，精度绰绰有余。</td></tr><tr><td id="b236"><code>sort 按 w 升序</code></td><td id="b237">Kruskal 的核心。用 double 排序时 cmp 仍写 &lt;，别写 &lt;=。</td></tr><tr><td id="b238"><code>int need = P - S;</code></td><td id="b239">P 个点最终要剩 S 个连通块，每次成功合并让块数减 1，所以需要 P − S 条边。</td></tr><tr><td id="b240"><code>ans = e[i].w;</code></td><td id="b241">每次真合并都覆盖一次，最后一次覆盖的正是第 need 条边的长度。</td></tr><tr><td id="b242"><code>if (++got == need) break;</code></td><td id="b243">凑够就停。后面的边更长，不可能让答案更小。</td></tr><tr><td id="b244"><code>fixed &lt;&lt; setprecision(2)</code></td><td id="b245">固定两位小数。用 cout 而不是 printf，避免和关闭同步的 cin 混用出问题。</td></tr></tbody></table><div class="box warn"><div class="t" id="b246">这题最容易错的地方</div><ul><li id="b247">忘了 S ≥ P 的特判：need ≤ 0 时 break 永远不触发，ans 变成最大边长 → WA。</li><li id="b248">距离用 int 存或让 sqrt 结果被截断成整数：排序顺序错，答案偏差可达 0.5 以上 → WA。</li><li id="b249">只统计到 P − S − 1 条（下标差一）：答案取到了第二大的那条，比正确答案小 → WA。</li><li id="b250">把 <code>++got == need</code> 写成 <code>got++ == need</code>：先比较后自增，会多加一条边 → 答案偏大。</li><li id="b251">输出不带两位小数，或写成 <code>cout &lt;&lt; ans</code>：评测要求 <code>212.13</code> 这样的格式 → WA。</li><li id="b252">二分答案的写法里把“连通块数 ≤ S”错写成“&lt; S”：答案偏大 → WA。</li></ul></div></div></details></div><div class="box tip" style="margin:22px 0 -6px"><div class="t" id="b253">挑战 2 · 难度高一级，允许组合多个已学算法</div><p id="b254">这题比上面的挑战题更难：它不只用本节一个算法，可能需要把前面几节的工具拼起来。独立做出来说明这一块真的过关了；做完记得在侧边栏勾上 🌟。</p></div><div class="challenge ch2"><div class="ct" id="b255">挑战 2 · 关押罪犯</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1525</span><span class="badge diff">提高-/提高</span><a href="https://www.luogu.com.cn/problem/P1525" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b256">S 城有两座监狱，关着 N 名罪犯，编号 1..N。有 M 对罪犯之间有仇恨，第 i 对的怨气值是 cᵢ。如果两名有仇恨的罪犯被关进同一座监狱，就会发生影响力为 cᵢ 的冲突；一年里所有冲突会按影响力从大到小排成一张表，市长只看最上面那一条。你要安排每名罪犯进哪座监狱，使这张表的第一条影响力最小。</p><p id="b257">输入格式：第一行两个整数 N、M；接下来 M 行，每行三个整数 aⱼ、bⱼ、cⱼ（1 ≤ aⱼ &lt; bⱼ ≤ N，0 &lt; cⱼ ≤ 10⁹），表示 aⱼ 与 bⱼ 之间有怨气值为 cⱼ 的仇恨，每对罪犯组合只出现一次。</p><p id="b258">数据范围：N ≤ 2×10⁴，M ≤ 10⁵。</p><p id="b259">输出格式：一行一个整数，表示市长看到的最小影响力；如果一座监狱里都不发生冲突，输出 0。</p><p id="b260"><b>样例输入</b><br><code>4 6<br>1 4 2534<br>2 3 3512<br>1 2 28351<br>1 3 6618<br>2 4 1805<br>3 4 12884</code><br><b>样例输出</b><br><code>3512</code><br>样例解释：把 1、3 关进一座、2、4 关进另一座，剩下唯一同监狱的一对是 2 和 3，怨气 3512。</p></div><div class="cap" id="b261">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+4 6
+1 4 2534
+2 3 3512
+1 2 28351
+1 3 6618
+2 4 1805
+3 4 12884
+输出：
+3512</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b262">题目要最小化的是「同一监狱内怨气值的最大值」。先想一个更简单的判定：如果允许的上界是 x，能不能把所有冲突都压到 ≤ x？这个判定比原问题好做得多。</p><p id="b263">判定就是：只保留怨气 &gt; x 的那些仇恨对，它们必须被分到两座不同的监狱——这不就是「这张图能不能二分染色」吗？一旦判定是单调的，答案就能二分。</p><p id="b264">还有一条更像 Kruskal 的路：把仇恨按怨气从大到小排序，一条一条处理，每次把两个人拆到两边（用并查集维护「谁和谁同侧」，另开一个 enemy 数组记住每个人第一个敌人）。第一次遇到「这两个人已经被逼到同一侧」时，那条边的怨气值就是答案。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b265"><b>① 换一个问法。</b>答案是「最小的 x，使得把怨气 &gt; x 的仇恨对全部分隔到两座监狱是可行的」。x 越大越容易做到，单调性成立。</p><p id="b266"><b>② 并查集 + 贪心（本节做法，与 Kruskal 同一个骨架）。</b>把边按怨气<b>从大到小</b>排序，依次处理。对边 (u, v, c)：如果 find(u) == find(v)，说明 u、v 已经被前面那些<b>更大的</b>怨气逼到了同一侧，这条 c 无论怎么分都躲不掉，它就是答案；否则把两人拆开——并查集里「u 与 v 的敌人同侧」、「v 与 u 的敌人同侧」。</p><p id="b267"><b>③ 为什么贪心对。</b>处理到 (u,v,c) 时，所有怨气更大的边都已经被成功拆开了，所以存在一种分配把 &gt; c 的冲突全部消掉，答案 ≤ c 是上界；而此刻 find(u) == find(v) 说明「u、v 不同侧」这个要求与前缀里的约束已经矛盾，任何分配都无法避免这条 c 的冲突，答案 ≥ c。两边合起来就是答案 = c。</p><p id="b268"><b>④ 输出 0 的情况。</b>整张图（所有仇恨对）本身能被二分，一次冲突都不会发生。此时循环一次也没 break，ans 保持初值 0。</p><p id="b269"><b>等价做法：二分 + 二分图染色。</b>二分上界 x，只保留 c &gt; x 的边跑染色判定，O((n+m) log 10⁹)。两条路都对，选一条写熟即可；并查集版常数更小，且直接复用了本节 Kruskal 的并查集。</p><p id="b270"><b>复杂度。</b>排序 O(m log m) = 10⁵ × 17 ≈ 1.7×10⁶ 次比较，并查集部分 2m 次 find，几乎不耗时。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b271">参考代码</div><pre id="b272"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">20005</span>, M = <span class="n">100005</span>;
+<span class="k">int</span> n, m;
+<span class="k">struct</span> Edge { <span class="k">int</span> a, b, c; } e[M];
+<span class="k">int</span> fa[N], enemy[N];
+
+<span class="k">int</span> <span class="f">find</span>(<span class="k">int</span> x) { <span class="k">return</span> fa[x] == x ? x : fa[x] = <span class="f">find</span>(fa[x]); }
+
+<span class="k">void</span> <span class="f">merge</span>(<span class="k">int</span> x, <span class="k">int</span> y) {
+    x = <span class="f">find</span>(x); y = <span class="f">find</span>(y);
+    <span class="k">if</span> (x != y) fa[x] = y;
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">scanf</span>(<span class="s">"%d%d"</span>, &amp;n, &amp;m);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; m; ++i) <span class="k">scanf</span>(<span class="s">"%d%d%d"</span>, &amp;e[i].a, &amp;e[i].b, &amp;e[i].c);
+
+    <span class="c">// 怨气大的先处理：先保证更严重的冲突被拆开（与 Kruskal 同一个贪心骨架）</span>
+    <span class="k">sort</span>(e, e + m, [](<span class="k">const</span> Edge &amp;p, <span class="k">const</span> Edge &amp;q) { <span class="k">return</span> p.c &gt; q.c; });
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) fa[i] = i;
+
+    <span class="k">int</span> ans = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; m; ++i) {
+        <span class="k">int</span> u = e[i].a, v = e[i].b;
+        <span class="k">if</span> (<span class="f">find</span>(u) == <span class="f">find</span>(v)) { ans = e[i].c; <span class="k">break</span>; }   <span class="c">// 只能关进同一间：这条就是答案</span>
+        <span class="k">if</span> (enemy[u]) <span class="f">merge</span>(enemy[u], v); <span class="k">else</span> enemy[u] = v;   <span class="c">// u 的敌人和 v 同侧</span>
+        <span class="k">if</span> (enemy[v]) <span class="f">merge</span>(enemy[v], u); <span class="k">else</span> enemy[v] = u;
+    }
+
+    <span class="k">printf</span>(<span class="s">"%d\n"</span>, ans);
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b273">关键片段拆解</div><table class="lines"><thead><tr><th id="b274">片段</th><th id="b275">作用</th></tr></thead><tbody><tr><td id="b276"><code>sort(e, e + m, [](const Edge &amp;p, const Edge &amp;q) { return p.c &gt; q.c; });</code></td><td id="b277">从大到小。和 Kruskal 反着来：先处理最不能容忍的冲突，小的留给后面。</td></tr><tr><td id="b278"><code>if (find(u) == find(v)) { ans = e[i].c; break; }</code></td><td id="b279">两个人已经被更大的怨气逼到同一侧，这条必然同监狱。它是第一条躲不掉的，也就是答案。</td></tr><tr><td id="b280"><code>if (enemy[u]) merge(enemy[u], v); else enemy[u] = v;</code></td><td id="b281">u 的敌人与 v 同侧。第一次遇到敌人时记下来，以后再遇到别的敌人就都并进这一侧——所以 enemy[u] 只需存一个代表。</td></tr><tr><td id="b282"><code>if (enemy[v]) merge(enemy[v], u); else enemy[v] = u;</code></td><td id="b283">对称的另一半，一行都不能省。只写 u 那一边，等于只约束了一半的仇恨。</td></tr><tr><td id="b284"><code>for (int i = 1; i &lt;= n; ++i) fa[i] = i;</code></td><td id="b285">并查集初始化。漏了这行所有 find 都返回 0，第一条边就判成「已经同侧」→ 答案直接是第一大的怨气。</td></tr><tr><td id="b286"><code>int ans = 0;</code></td><td id="b287">一条冲突都躲不掉时才输出 0——注意是 0，不是 −1，也不是「Impossible」。</td></tr></tbody></table><div class="box warn"><div class="t" id="b288">这题最容易错的地方</div><ul><li id="b289">只写 <code>merge(enemy[u], v)</code>，漏掉对称的 <code>merge(enemy[v], u)</code>：约束少一半，答案偏小。</li><li id="b290">把排序写成从小到大：先处理的是最轻的冲突，答案会变成「最小怨气」而不是「最小化最大值」。</li><li id="b291">enemy[u] 每次直接覆盖（写 <code>enemy[u] = v</code> 不判空）：只保留最后一条仇恨，前面的约束全丢 → WA。</li><li id="b292">答案是 0 的情形当成无解输出 −1：题目要求 0（冲突可以不发生）。</li></ul></div></div></details></div><div class="box info"><div class="t" id="b293">延伸阅读 / 参考</div><ul><li id="b294">《算法竞赛进阶指南》最小生成树与并查集两节（割性质、瓶颈路）</li><li id="b295">《算法竞赛入门笔记》图论篇：并查集的两种优化与均摊复杂度</li><li id="b296">洛谷 P3366、P2330、P1991 题解区的高赞实现</li></ul></div>
+
+<footer>算竞教程 · 算竞教程 · 生成于自建课程体系，题目版权归洛谷及各命题方所有<br>
+转载请注明出处；模板代码可直接用于比赛</footer>

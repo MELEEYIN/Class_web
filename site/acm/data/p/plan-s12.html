@@ -1,0 +1,216 @@
+<section class="sec" id="s12" data-cat="速查" fold>
+  
+  <div class="secbody">
+    <div class="callout"><p>这一章不按顺序读，是用来查的。做题卡住时翻 12.1，忘了模板在哪翻 12.2，看不懂题解里的名词翻 12.3。</p></div>
+    <article class="algo" id="pl-113" data-cat="速查" data-name="12.1 算法选择决策表 拿到一道题，按「它问什么」查这张表： 题目在问 首选 次选 --- --- --- 区间和 / 区间积（无修改） 前缀和 — 区间修改、最后统一查询 差分 — 区间修改 + 区间查询 树状数组 线段树 区间最值（无修改） ST">
+      <div class="ah"><h4>12.1 算法选择决策表</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">查阅</span></div>
+      <p>拿到一道题，按「它问什么」查这张表：</p>
+      <table>
+      <tr><th>题目在问</th><th>首选</th><th>次选</th></tr>
+      <tr><td>区间和 / 区间积（无修改）</td><td>前缀和</td><td>—</td></tr>
+      <tr><td>区间修改、最后统一查询</td><td>差分</td><td>—</td></tr>
+      <tr><td>区间修改 + 区间查询</td><td>树状数组</td><td>线段树</td></tr>
+      <tr><td>区间最值（无修改）</td><td>ST 表</td><td>线段树</td></tr>
+      <tr><td>区间最值（有修改）</td><td>线段树</td><td>分块</td></tr>
+      <tr><td>单点查询 + 区间修改</td><td>差分树状数组</td><td>线段树</td></tr>
+      <tr><td>第 k 小（静态）</td><td>主席树 / 整体二分</td><td>平衡树</td></tr>
+      <tr><td>第 k 小（动态、区间）</td><td>树套树</td><td>整体二分（离线）</td></tr>
+      <tr><td>动态有序集合 + 前驱后继</td><td><code>set</code></td><td>FHQ Treap</td></tr>
+      <tr><td>动态取最值</td><td>堆</td><td>平衡树</td></tr>
+      <tr><td>滑动窗口最值</td><td>单调队列</td><td>线段树</td></tr>
+      <tr><td>每个元素最近的更大/更小</td><td>单调栈</td><td>线段树二分</td></tr>
+      <tr><td>等价关系 / 连通性（加边）</td><td>并查集</td><td>DFS</td></tr>
+      <tr><td>树上路径操作</td><td>树链剖分</td><td>倍增 + 差分</td></tr>
+      <tr><td>树上最近公共祖先</td><td>LCA（倍增）</td><td>Tarjan 离线</td></tr>
+      <tr><td>子树统计</td><td>dsu on tree</td><td>线段树合并</td></tr>
+      <tr><td>树上路径计数</td><td>点分治</td><td>树形 DP</td></tr>
+      <tr><td>无向图连通 + 最小代价</td><td>Kruskal</td><td>Prim</td></tr>
+      <tr><td>有向无环图的依赖/最长路</td><td>拓扑排序 + DP</td><td>—</td></tr>
+      <tr><td>单源最短路，非负权</td><td>Dijkstra</td><td>—</td></tr>
+      <tr><td>单源最短路，有负权</td><td>SPFA</td><td>Bellman-Ford</td></tr>
+      <tr><td>全源最短路，n ≤ 500</td><td>Floyd</td><td>跑 n 次 Dijkstra</td></tr>
+      <tr><td>负环判定</td><td>SPFA 计数</td><td>Bellman-Ford</td></tr>
+      <tr><td>不等式组求解</td><td>差分约束</td><td>—</td></tr>
+      <tr><td>分配/匹配/切割</td><td>网络流</td><td>匈牙利（二分图）</td></tr>
+      <tr><td>环上问题</td><td>Tarjan 缩点</td><td>断环成链</td></tr>
+      <tr><td>多模式串匹配</td><td>AC 自动机</td><td>—</td></tr>
+      <tr><td>最长回文</td><td>Manacher</td><td>哈希 + 二分</td></tr>
+      <tr><td>子串判等 / LCP</td><td>字符串哈希</td><td>后缀数组</td></tr>
+      <tr><td>本质不同子串数</td><td>SAM</td><td>后缀数组</td></tr>
+      <tr><td>组合计数（模素数）</td><td>阶乘 + 逆元</td><td>Lucas（大 n 小 p）</td></tr>
+      <tr><td>积性函数前缀和</td><td>杜教筛</td><td>Min_25 筛</td></tr>
+      <tr><td>多项式乘法</td><td>NTT</td><td>FFT</td></tr>
+      <tr><td>异或最值</td><td>线性基 / 01-Trie</td><td>—</td></tr>
+      <tr><td>凸包类几何</td><td>Andrew 凸包</td><td>旋转卡壳</td></tr>
+      <tr><td>取石子博弈</td><td>SG 定理 / 打表找规律</td><td>—</td></tr>
+      </table>
+    </article>
+    <article class="algo" id="pl-114" data-cat="速查" data-name="12.2 模板索引 模板 章节 熟练度要求 --- --- --- 13 行 include 模板 1.2 盲写 快读快写 + 脚手架 2.4 会用 对拍脚本 2.5 会写 离散化 2.7 盲写 子集枚举 3.1 盲写 递">
+      <div class="ah"><h4>12.2 模板索引</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">查阅</span></div>
+      <table>
+      <tr><th>模板</th><th>章节</th><th>熟练度要求</th></tr>
+      <tr><td>13 行 include 模板</td><td>1.2</td><td>盲写</td></tr>
+      <tr><td>快读快写 + 脚手架</td><td>2.4</td><td>会用</td></tr>
+      <tr><td>对拍脚本</td><td>2.5</td><td>会写</td></tr>
+      <tr><td>离散化</td><td>2.7</td><td>盲写</td></tr>
+      <tr><td>子集枚举</td><td>3.1</td><td>盲写</td></tr>
+      <tr><td>递归三要素 + 记忆化</td><td>3.3</td><td>盲写</td></tr>
+      <tr><td>前缀和 / 二维前缀和 / 差分</td><td>3.4</td><td>盲写</td></tr>
+      <tr><td>双指针 / 滑动窗口</td><td>3.5</td><td>盲写</td></tr>
+      <tr><td>二分（写法 A）+ 二分答案</td><td>3.7</td><td>盲写</td></tr>
+      <tr><td>三分</td><td>3.7</td><td>会用</td></tr>
+      <tr><td>归并求逆序对</td><td>3.8</td><td>盲写</td></tr>
+      <tr><td>DFS / BFS</td><td>3.10</td><td>盲写</td></tr>
+      <tr><td>栈 / 队列 / 单调栈 / 单调队列</td><td>4.1、4.2</td><td>盲写</td></tr>
+      <tr><td>静态链表 / 链式前向星</td><td>4.3</td><td>会用</td></tr>
+      <tr><td>堆 / 对顶堆</td><td>4.4</td><td>会用</td></tr>
+      <tr><td>字符串哈希（含双哈希）</td><td>4.5</td><td>盲写</td></tr>
+      <tr><td>二叉树三种遍历</td><td>4.6</td><td>盲写</td></tr>
+      <tr><td>Trie / 01-Trie</td><td>4.7</td><td>盲写</td></tr>
+      <tr><td>并查集（路径压缩 + 按大小）</td><td>4.9</td><td>盲写</td></tr>
+      <tr><td>KMP（<code>pi</code> 数组）</td><td>4.10</td><td>盲写</td></tr>
+      <tr><td>树状数组（三种变体）</td><td>4.11</td><td>盲写</td></tr>
+      <tr><td>线段树（区间加 + 区间和）</td><td>4.12</td><td>盲写</td></tr>
+      <tr><td>背包五种</td><td>5.4</td><td>盲写</td></tr>
+      <tr><td>区间 DP</td><td>5.5</td><td>盲写</td></tr>
+      <tr><td>树形 DP</td><td>5.6</td><td>盲写</td></tr>
+      <tr><td>状压 DP</td><td>5.7</td><td>会用</td></tr>
+      <tr><td>数位 DP</td><td>5.9</td><td>会用</td></tr>
+      <tr><td>图遍历 / 拓扑排序</td><td>6.2、6.3</td><td>盲写</td></tr>
+      <tr><td>Floyd / Dijkstra / SPFA</td><td>6.4–6.6</td><td>盲写</td></tr>
+      <tr><td>Kruskal + 并查集</td><td>6.7</td><td>盲写</td></tr>
+      <tr><td>欧拉路（Hierholzer）</td><td>6.8</td><td>会用</td></tr>
+      <tr><td>差分约束</td><td>6.9</td><td>会用</td></tr>
+      <tr><td>快速幂 / 矩阵快速幂</td><td>7.2、7.10</td><td>盲写</td></tr>
+      <tr><td>线性筛</td><td>7.3</td><td>盲写</td></tr>
+      <tr><td>exgcd / 逆元三种求法</td><td>7.5、7.6</td><td>盲写</td></tr>
+      <tr><td>组合数预处理</td><td>7.7</td><td>盲写</td></tr>
+      <tr><td>高精度加法/乘法</td><td>7.9</td><td>会用</td></tr>
+      <tr><td>Manacher / Z 函数</td><td>8.3、8.4</td><td>会用</td></tr>
+      </table>
+      <div class="callout"><p>「盲写」= 关掉所有资料，10 分钟内从零写对并过模板题。「会用」= 能看着模板改对。</p></div>
+    </article>
+    <article class="algo" id="pl-115" data-cat="速查" data-name="12.3 术语表 术语 英文 / 缩写 一句话解释 --- --- --- 通过 AC（Accepted） 所有测试点都对 答案错误 WA（Wrong Answer） 结果不对 超时 TLE（Time Limit Exceeded） 跑得太慢 超内存">
+      <div class="ah"><h4>12.3 术语表</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">查阅</span></div>
+      <table>
+      <tr><th>术语</th><th>英文 / 缩写</th><th>一句话解释</th></tr>
+      <tr><td>通过</td><td>AC（Accepted）</td><td>所有测试点都对</td></tr>
+      <tr><td>答案错误</td><td>WA（Wrong Answer）</td><td>结果不对</td></tr>
+      <tr><td>超时</td><td>TLE（Time Limit Exceeded）</td><td>跑得太慢</td></tr>
+      <tr><td>超内存</td><td>MLE（Memory Limit Exceeded）</td><td>用得太多的空间</td></tr>
+      <tr><td>运行错误</td><td>RE（Runtime Error）</td><td>越界、除零、爆栈</td></tr>
+      <tr><td>编译错误</td><td>CE（Compile Error）</td><td>语法错</td></tr>
+      <tr><td>大 O 记号</td><td>O(·)</td><td>描述增长率上界，忽略常数与低阶项</td></tr>
+      <tr><td>均摊复杂度</td><td>amortized</td><td>单次最坏很高，但平均到每次很低（如双指针、单调栈）</td></tr>
+      <tr><td>常数因子</td><td>constant factor</td><td>同复杂度下实际快慢的差别（STL 通常常数大）</td></tr>
+      <tr><td>卡常</td><td>constant optimization</td><td>通过写法/编译优化把常数压到极限</td></tr>
+      <tr><td>对拍</td><td>stress test</td><td>用暴力程序验证正解，随机造数据找反例</td></tr>
+      <tr><td>暴力</td><td>brute force</td><td>直接枚举、不优化的正确做法</td></tr>
+      <tr><td>正解</td><td>intended solution</td><td>出题人期望的复杂度算法</td></tr>
+      <tr><td>骗分</td><td>score-grabbing</td><td>用近似/特判/随机化拿部分分</td></tr>
+      <tr><td>特判</td><td>special case</td><td>对某种特殊情况单独处理</td></tr>
+      <tr><td>打表</td><td>table lookup</td><td>把答案预先算好写进程序</td></tr>
+      <tr><td>构造</td><td>constructive</td><td>按规则直接构造出答案</td></tr>
+      <tr><td>离线</td><td>offline</td><td>先把所有询问读进来再统一处理</td></tr>
+      <tr><td>在线</td><td>online</td><td>必须按询问顺序即时回答</td></tr>
+      <tr><td>强制在线</td><td>forced online</td><td>输入加密，迫使你不能离线</td></tr>
+      <tr><td>根号分治</td><td>sqrt decomposition</td><td>按阈值把问题分两类，各用不同复杂度</td></tr>
+      <tr><td>记忆化</td><td>memoization</td><td>把算过的子问题答案存起来</td></tr>
+      <tr><td>滚动数组</td><td>rolling array</td><td>只保留相邻层，压掉 DP 的一维</td></tr>
+      <tr><td>决策单调性</td><td>monotone decision</td><td>最优决策点随阶段单调移动</td></tr>
+      <tr><td>可持久化</td><td>persistent</td><td>保留历史版本，能查询任意版本</td></tr>
+      <tr><td>树套树</td><td>tree of trees</td><td>在树结构里再嵌一层树</td></tr>
+      <tr><td>势能分析</td><td>potential analysis</td><td>把「未来会还回来的代价」提前记账</td></tr>
+      <tr><td>缩点</td><td>condensation</td><td>把强连通分量合并成一个点</td></tr>
+      <tr><td>割点 / 桥</td><td>cut vertex / bridge</td><td>删掉后连通块增加的顶点/边</td></tr>
+      <tr><td>双连通</td><td>biconnected</td><td>没有割点（点双）或没有桥（边双）</td></tr>
+      <tr><td>基环树</td><td>pseudo-tree</td><td>n 点 n 边的连通图（树 + 一条边）</td></tr>
+      <tr><td>逆元</td><td>modular inverse</td><td>模意义下的倒数</td></tr>
+      <tr><td>容斥原理</td><td>inclusion-exclusion</td><td>加减交替去重</td></tr>
+      <tr><td>状态压缩</td><td>bitmask</td><td>用整数二进制存集合</td></tr>
+      <tr><td>凸包</td><td>convex hull</td><td>包住所有点的最小凸多边形</td></tr>
+      <tr><td>换根 DP</td><td>rerooting</td><td>通过「移根」递推所有点为根的答案</td></tr>
+      <tr><td>拆点</td><td>vertex splitting</td><td>把一个点拆成入点/出点</td></tr>
+      <tr><td>分层图</td><td>layered graph</td><td>把「使用次数」做成一维，复制若干层</td></tr>
+      <tr><td>超级源点</td><td>super source</td><td>加一个虚点连向所有起点</td></tr>
+      <tr><td>SG 函数</td><td>Sprague-Grundy</td><td>博弈局面的「异或值」，用于分解子游戏</td></tr>
+      <tr><td>先手必败态</td><td>P-position</td><td>SG 值为 0 的局面</td></tr>
+      <tr><td>整除分块</td><td>floor division blocks</td><td>⌊ n/i⌋ 只有 O(√ n) 种取值</td></tr>
+      <tr><td>狄利克雷卷积</td><td>Dirichlet convolution</td><td>数论函数的乘法，反演的抽象形式</td></tr>
+      <tr><td>中国剩余定理</td><td>CRT</td><td>合并多个模方程</td></tr>
+      <tr><td>扩展欧拉定理</td><td>extended Euler</td><td>指数极大时先对 φ 取模再加</td></tr>
+      <tr><td>高斯消元</td><td>Gaussian elimination</td><td>用行变换解线性方程组</td></tr>
+      <tr><td>生成函数</td><td>generating function</td><td>把序列编码成多项式系数</td></tr>
+      <tr><td>最小生成树</td><td>MST</td><td>边权和最小的连通生成子图</td></tr>
+      <tr><td>单位矩阵</td><td>identity matrix</td><td>矩阵乘法中的「1」</td></tr>
+      <tr><td>记忆化搜索</td><td>memoized DFS</td><td>带记录的 DFS，等价于递推 DP</td></tr>
+      </table>
+    </article>
+    <article class="algo" id="pl-116" data-cat="速查" data-name="12.4 三个月之后怎么继续 1. 保持手感：每周至少 3 道题，不要完全断。 2. 题解输出：每两周写一篇完整题解（不是笔记），发出来。写给别人的题解，才是真的懂了。 3. 按专题突破：选一个方向（图论 / DP / 数据结构）连续刷 30 题，比每天换一个算法有效。 4. 参加比赛：洛谷月赛、Codeforces Div.3/Div.2、牛客">
+      <div class="ah"><h4>12.4 三个月之后怎么继续</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">查阅</span></div>
+      <ol class="tight"><li><b>保持手感</b>：每周至少 3 道题，不要完全断。</li><li><b>题解输出</b>：每两周写一篇完整题解（不是笔记），发出来。<b>写给别人的题解，才是真的懂了。</b></li><li><b>按专题突破</b>：选一个方向（图论 / DP / 数据结构）连续刷 30 题，比每天换一个算法有效。</li><li><b>参加比赛</b>：洛谷月赛、Codeforces Div.3/Div.2、牛客小白月赛。<b>比赛是唯一能同时训练速度、心态、策略的地方。</b></li><li><b>维护模板库</b>：一个 <code>.cpp</code> 文件，收录所有盲写过的模板，每月整理一次。</li></ol>
+    </article>
+  </div>
+</section>
+
+<section class="sec" id="sA" data-cat="自检" fold>
+  <h2 class="clk"><span class="num">A</span>A 一页纸自检清单<span class="tag">打印贴墙</span></h2>
+  <div class="secbody">
+    <p>打印下来贴在桌边，每完成一项打勾：</p>
+    <article class="algo" id="pl-117" data-cat="自检" data-name="语法层（第 1 章） - [ ] 知道 int 上限 2.1×10^9，会算 10^18 级答案必须用 long long - [ ] 知道 1 &lt;&lt; 31 溢出，写 1LL &lt;&lt; 31 - [ ] 知道数组界定过大时是 UB，不是「报错」 - [ ] 会写 for (auto &amp;[x, y] : v) 和 vec.emplace_bac">
+      <div class="ah"><h4>语法层（第 1 章）</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">打印</span></div>
+      <ul class="tight"><li>☐ 知道 <code>int</code> 上限 2.1×10^9，会算 10^18 级答案必须用 <code>long long</code></li><li>☐ 知道 <code>1 &lt;&lt; 31</code> 溢出，写 <code>1LL &lt;&lt; 31</code></li><li>☐ 知道数组界定过大时是 UB，不是「报错」</li><li>☐ 会写 <code>for (auto &amp;[x, y] : v)</code> 和 <code>vec.emplace_back()</code></li><li>☐ 能默写 13 行 include 模板，不写 <code>bits/stdc++.h</code></li><li>☐ 会用 <code>sort</code> + lambda 做多关键字排序</li><li>☐ 知道 <code>unique</code> 前必须先 <code>sort</code></li></ul>
+    </article>
+    <article class="algo" id="pl-118" data-cat="自检" data-name="基本功层（第 2 章） - [ ] 30 秒内由数据范围反推复杂度 - [ ] 会写快读快写和代码脚手架 - [ ] 会写生成器 + 暴力 + 对拍的完整流程 - [ ] 错误字典背下 12 条">
+      <div class="ah"><h4>基本功层（第 2 章）</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">打印</span></div>
+      <ul class="tight"><li>☐ 30 秒内由数据范围反推复杂度</li><li>☐ 会写快读快写和代码脚手架</li><li>☐ 会写生成器 + 暴力 + 对拍的完整流程</li><li>☐ 错误字典背下 12 条</li></ul>
+    </article>
+    <article class="algo" id="pl-119" data-cat="自检" data-name="入门层（第 3 章） - [ ] 十个思维动作能各举一个应用场景 - [ ] 六个模板（前缀和、差分、双指针、二分、DFS、BFS）能盲写 - [ ] 归并求逆序对能解释每一行">
+      <div class="ah"><h4>入门层（第 3 章）</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">打印</span></div>
+      <ul class="tight"><li>☐ 十个思维动作能各举一个应用场景</li><li>☐ 六个模板（前缀和、差分、双指针、二分、DFS、BFS）能盲写</li><li>☐ 归并求逆序对能解释每一行</li></ul>
+    </article>
+    <article class="algo" id="pl-120" data-cat="自检" data-name="数据结构层（第 4 章） - [ ] 单调栈、单调队列、并查集、树状数组、线段树、KMP 能盲写 - [ ] 说得清「树状数组 vs 线段树」的选择依据">
+      <div class="ah"><h4>数据结构层（第 4 章）</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">打印</span></div>
+      <ul class="tight"><li>☐ 单调栈、单调队列、并查集、树状数组、线段树、KMP 能盲写</li><li>☐ 说得清「树状数组 vs 线段树」的选择依据</li></ul>
+    </article>
+    <article class="algo" id="pl-121" data-cat="自检" data-name="DP 层（第 5 章） - [ ] 四步法能套用到任意 DP 题 - [ ] 五种背包能识别并说清枚举顺序 - [ ] 区间 DP 三层循环顺序的理由能讲清">
+      <div class="ah"><h4>DP 层（第 5 章）</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">打印</span></div>
+      <ul class="tight"><li>☐ 四步法能套用到任意 DP 题</li><li>☐ 五种背包能识别并说清枚举顺序</li><li>☐ 区间 DP 三层循环顺序的理由能讲清</li></ul>
+    </article>
+    <article class="algo" id="pl-122" data-cat="自检" data-name="图论层（第 6 章） - [ ] 三种最短路、Kruskal、拓扑排序能盲写 - [ ] 见到题能说出「什么建成点、什么建成边」">
+      <div class="ah"><h4>图论层（第 6 章）</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">打印</span></div>
+      <ul class="tight"><li>☐ 三种最短路、Kruskal、拓扑排序能盲写</li><li>☐ 见到题能说出「什么建成点、什么建成边」</li></ul>
+    </article>
+    <article class="algo" id="pl-123" data-cat="自检" data-name="数学层（第 7 章） - [ ] 快速幂、exgcd、线性筛、组合数、矩阵快速幂能盲写 - [ ] 逆元三种求法的适用场景能讲清">
+      <div class="ah"><h4>数学层（第 7 章）</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">打印</span></div>
+      <ul class="tight"><li>☐ 快速幂、exgcd、线性筛、组合数、矩阵快速幂能盲写</li><li>☐ 逆元三种求法的适用场景能讲清</li></ul>
+    </article>
+    <article class="algo" id="pl-124" data-cat="自检" data-name="字符串层（第 8 章） - [ ] 哈希、KMP、Manacher、Z 函数能盲写 - [ ] 知道单哈希会被卡，以及双哈希为什么更安全">
+      <div class="ah"><h4>字符串层（第 8 章）</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">打印</span></div>
+      <ul class="tight"><li>☐ 哈希、KMP、Manacher、Z 函数能盲写</li><li>☐ 知道单哈希会被卡，以及双哈希为什么更安全</li></ul>
+    </article>
+    <article class="algo" id="pl-125" data-cat="自检" data-name="进阶层（第 9 章） - [ ] 知道 78 项进阶算法各自解决什么问题的一句话 - [ ] 已经养成「被题卡住 → 查地图 → 只学那一项」的节奏 ---">
+      <div class="ah"><h4>进阶层（第 9 章）</h4><span class="lv lv-e">入门</span><span class="st">★★</span><span class="tag">打印</span></div>
+      <ul class="tight"><li>☐ 知道 78 项进阶算法各自解决什么问题的<b>一句话</b></li><li>☐ 已经养成「被题卡住 → 查地图 → 只学那一项」的节奏</li></ul>
+    </article>
+  </div>
+</section>
+
+<div class="callout ok">
+<p>这份计划从头到尾只讲了一件事：</p>
+<p style="font-size:15.5px"><b>在正确的时间，用正确的难度，学到正确的那个知识点。</b></p>
+<p>算法竞赛里没有天才和普通人的区别，只有「有没有按顺序走过一遍」的区别。你会卡住的地方，前面每一个人都卡过；你能写对的那一刻，也是他们写对的那一刻。</p>
+<p><b>三个提醒收尾</b>：</p>
+<ol class="tight"><li><b>不要追求「学完」。</b>200 个算法名词永远学不完，但「看到约束想到算法」这个能力，8 周就能建立。</li><li><b>不要跳过对拍。</b>它是唯一能让你从「我猜我写对了」变成「我确定我写对了」的手段。</li><li><b>不要只做题不复盘。</b>100 道做过就忘的题，不如 30 道写进错题本的题。</li></ol>
+<p>把这一页关掉之后，你只需要做一件事：<b>打开洛谷，从 P1001 开始，写下第一行代码。</b></p>
+<p>祝你在第一个 AC 之后，还记得为什么开始。</p>
+</div>
+<p class="tip">内容说明：本块 125 张卡片由《ACM 算法竞赛学习计划》全文改写，补入复杂度分析、对拍、离散化、错误字典、差分约束、数论函数、矩阵快速幂、Manacher、Z 函数等原站未展开的内容。要按算法查细节，回到第 ① 块「学习手册」。</p>
+
+<div class="daynav" style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:24px 0 8px">
+  <a class="chip go" style="text-decoration:none" href="#mod-hb">← 学习手册（122 张算法卡，查细节）</a>
+  <a class="chip go" style="text-decoration:none" href="./practice.html">题练场 · 按知识点刷题 →</a>
+</div>
+  
+</section>
+

@@ -1,0 +1,171 @@
+<section class="sec" id="s9" data-cat="进阶" fold>
+  
+  <div class="secbody">
+    <div class="callout"><p>这一章<b>不是教学章，是地图</b>。进阶内容有 78 项，全学不可能，也不需要。你需要知道的是：<b>每一项解决什么问题、前置是什么、值不值得现在学</b>。 学进阶的正确姿势：<b>先被一道具体的题卡住，再回来查这一章，然后只学那一项。</b></p></div>
+    <article class="algo" id="pl-93" data-cat="进阶" data-name="9.1 什么时候可以进入进阶 不要用「学完了基础篇」作为标准，用下面三条： - [ ] 能在 20 分钟内，从零写出线段树（区间加 + 区间和）并一次通过。 - [ ] 能独立完成一道「普及+/提高−」难度的 DP 或图论题，不看题解。 - [ ] 洛谷累计 AC 不少于 150 题，且「提高−」以上不少于 50 题。 三条都满足再进。少一条">
+      <div class="ah"><h4>9.1 什么时候可以进入进阶</h4><span class="lv lv-a">进阶</span><span class="st">★★★★★</span><span class="tag">选学</span></div>
+      <p>不要用「学完了基础篇」作为标准，用下面三条：</p>
+      <ul class="tight"><li>☐ 能在 20 分钟内，从零写出线段树（区间加 + 区间和）并一次通过。</li><li>☐ 能独立完成一道「普及+/提高−」难度的 DP 或图论题，不看题解。</li><li>☐ 洛谷累计 AC 不少于 150 题，且「提高−」以上不少于 50 题。</li></ul>
+      <p>三条都满足再进。<b>少一条就回去刷基础题</b>——进阶算法的价值在于「用它替代一个本来就很慢的正确解法」，基础算法写不对的人学进阶只会更乱。</p>
+    </article>
+    <article class="algo" id="pl-94" data-cat="进阶" data-name="9.2 进阶数据结构（20 项） 项 一句话本质 前置 建议周次 --- --- --- --- ST 表 倍增预处理，O(1) 静态区间最值，不支持修改 倍增、位运算 W9 LCA 倍增或 Tarjan 求最近公共祖先，树上路径问题的第一把钥匙 树的遍历、倍增 W9">
+      <div class="ah"><h4>9.2 进阶数据结构（20 项）</h4><span class="lv lv-a">进阶</span><span class="st">★★★★★</span><span class="tag">选学</span></div>
+      <table>
+      <tr><th>项</th><th>一句话本质</th><th>前置</th><th>建议周次</th></tr>
+      <tr><td><b>ST 表</b></td><td>倍增预处理，O(1) 静态区间最值，不支持修改</td><td>倍增、位运算</td><td>W9</td></tr>
+      <tr><td><b>LCA</b></td><td>倍增或 Tarjan 求最近公共祖先，树上路径问题的第一把钥匙</td><td>树的遍历、倍增</td><td>W9</td></tr>
+      <tr><td><b>树链剖分</b></td><td>按重儿子把树切成 log n 条链，使「路径操作」变「区间操作」</td><td>LCA、线段树</td><td>W9</td></tr>
+      <tr><td><b>dsu on tree</b></td><td>保留重儿子的信息、暴力清空轻儿子，子树统计 O(nlog n)</td><td>树的遍历、桶</td><td>W10</td></tr>
+      <tr><td><b>点分治</b></td><td>每次按重心把树拆成规模减半的子树，处理「树上路径计数」O(nlog n)</td><td>树的遍历、容斥</td><td>W10</td></tr>
+      <tr><td><b>哈夫曼树</b></td><td>每次合并最小的两个，得到最优前缀码；k 叉要补零个空节点</td><td>堆</td><td>W10</td></tr>
+      <tr><td><b>分块</b></td><td>把序列切成 √ n 段，段内暴力、段间整块处理，O(√ n) 一次操作</td><td>前缀和、排序</td><td>W10</td></tr>
+      <tr><td><b>莫队</b></td><td>离线按块排序询问，使左右指针移动总量降到 O(n√ n)</td><td>分块、排序</td><td>W11</td></tr>
+      <tr><td><b>带修莫队 / 回滚莫队 / 树上莫队</b></td><td>莫队的三个变体：加修改维、只加不删、树上跑</td><td>莫队</td><td>W12</td></tr>
+      <tr><td><b>主席树</b></td><td>可持久化线段树，处理「区间第 k 小」「历史版本查询」</td><td>线段树、离散化</td><td>W11</td></tr>
+      <tr><td><b>平衡树（FHQ Treap）</b></td><td><code>split</code> + <code>merge</code> 两个操作实现有序序列的增删查改，O(log n)</td><td>递归、随机数</td><td>W11</td></tr>
+      <tr><td><b>AC 自动机</b></td><td>Trie + 失配指针，多模式串匹配 O(text{总长度})；fail 树常配树状数组</td><td>Trie、KMP</td><td>W11</td></tr>
+      <tr><td><b>后缀数组</b></td><td>对所有后缀排序，配合 height 把子串比较变成区间 RMQ</td><td>倍增、基数排序</td><td>W12</td></tr>
+      <tr><td><b>后缀自动机</b></td><td>把全部子串压进 O(n) 个状态，处理本质不同子串计数</td><td>后缀数组或直接学</td><td>W12</td></tr>
+      <tr><td><b>回文树 PAM</b></td><td>每个节点是一个回文子串，O(n) 拿到全部回文信息</td><td>Manacher</td><td>W12</td></tr>
+      <tr><td><b>双向 BFS / meet in the middle</b></td><td>从两端同时搜，把 O(b^d) 降到 O(b^d/2)</td><td>BFS、枚举</td><td>W9</td></tr>
+      <tr><td><b>A* / IDA*</b></td><td>用估价函数 f = g + h 引导搜索，h 可采纳时保证最优</td><td>优先队列、搜索</td><td>W10</td></tr>
+      <tr><td><b>整体二分</b></td><td>离线把所有询问一起二分，比树套树好写十倍</td><td>二分、树状数组</td><td>W12</td></tr>
+      <tr><td><b>树套树</b></td><td>线段树套平衡树，处理带修的区间第 k 小</td><td>线段树、平衡树</td><td>选学</td></tr>
+      <tr><td><b>可持久化并查集</b></td><td>用主席树维护 <code>fa</code> 数组，支持回退到历史版本</td><td>主席树、并查集</td><td>选学</td></tr>
+      </table>
+      <div class="callout"><p>建议顺序：<b>ST 表 → LCA → 树链剖分 → 分块 → 莫队 → 主席树 → FHQ Treap → AC 自动机 → 后缀数组</b>。这条线每一环都是下一环的直接前置，跳着学必卡。</p></div>
+    </article>
+    <article class="algo" id="pl-95" data-cat="进阶" data-name="9.3 进阶动态规划（9 项） 项 一句话本质 前置 --- --- --- DAG 上 DP 按拓扑序递推，天然满足依赖（6.3 节已讲，这里是系统化） 拓扑排序 数位 DP 按位填数 + 记忆化，处理区间内计数（5.9 节已讲） 记忆化搜索 计数 DP 状态值是「方案数」，">
+      <div class="ah"><h4>9.3 进阶动态规划（9 项）</h4><span class="lv lv-a">进阶</span><span class="st">★★★★★</span><span class="tag">选学</span></div>
+      <table>
+      <tr><th>项</th><th>一句话本质</th><th>前置</th></tr>
+      <tr><td><b>DAG 上 DP</b></td><td>按拓扑序递推，天然满足依赖（6.3 节已讲，这里是系统化）</td><td>拓扑排序</td></tr>
+      <tr><td><b>数位 DP</b></td><td>按位填数 + 记忆化，处理区间内计数（5.9 节已讲）</td><td>记忆化搜索</td></tr>
+      <tr><td><b>计数 DP</b></td><td>状态值是「方案数」，转移用加法/乘法，常配组合数与容斥</td><td>组合数</td></tr>
+      <tr><td><b>单调队列优化 DP</b></td><td>转移区间随 i 单调滑动时，用单调队列把内层 O(k) 降到 O(1)</td><td>单调队列</td></tr>
+      <tr><td><b>斜率优化 DP</b></td><td>转移式能化成 y = kx + b 时，用凸包维护最优决策点</td><td>单调队列、凸包</td></tr>
+      <tr><td><b>四边形不等式 / 决策单调性</b></td><td>最优决策点单调时，用分治或指针单调移动优化</td><td>区间 DP</td></tr>
+      <tr><td><b>插头 DP / 轮廓线 DP</b></td><td>逐格推进，用二进制记录「跨轮廓线的连通性」</td><td>状压 DP</td></tr>
+      <tr><td><b>动态 DP</b></td><td>把转移写成矩阵，用树链剖分 + 线段树动态维护</td><td>矩阵快速幂、树链剖分</td></tr>
+      <tr><td><b>树上 DP 进阶</b></td><td>换根 DP、长链剖分、线段树合并，处理「所有点为根」类问题</td><td>树形 DP、线段树</td></tr>
+      </table>
+      <div class="box tip"><span class="t">💡 提示</span><p>进阶 DP 的<b>唯一主线是优化</b>：先把 O(n^2) 写对，再想办法降到 O(nlog n) 或 O(n)。<b>顺序永远是「先暴力 AC，再优化」</b>，反过来一定写不出来。</p></div>
+    </article>
+    <article class="algo" id="pl-96" data-cat="进阶" data-name="9.4 进阶图论（12 项） 项 一句话本质 前置 --- --- --- 强连通分量（Tarjan） 把有向图缩成 DAG，环内点互相可达 DFS、栈 SCC 缩点 缩点后在 DAG 上跑 DP，解决「最大权路径」类问题 Tarjan 2-SAT 每个布尔变量拆成两个点，用">
+      <div class="ah"><h4>9.4 进阶图论（12 项）</h4><span class="lv lv-a">进阶</span><span class="st">★★★★★</span><span class="tag">选学</span></div>
+      <table>
+      <tr><th>项</th><th>一句话本质</th><th>前置</th></tr>
+      <tr><td><b>强连通分量（Tarjan）</b></td><td>把有向图缩成 DAG，环内点互相可达</td><td>DFS、栈</td></tr>
+      <tr><td><b>SCC 缩点</b></td><td>缩点后在 DAG 上跑 DP，解决「最大权路径」类问题</td><td>Tarjan</td></tr>
+      <tr><td><b>2-SAT</b></td><td>每个布尔变量拆成两个点，用 SCC 判可满足性并构造解</td><td>SCC</td></tr>
+      <tr><td><b>割点与桥</b></td><td>删掉后连通块增加的顶点 / 边，Tarjan 顺带求出</td><td>DFS 时间戳</td></tr>
+      <tr><td><b>点双 / 边双连通分量</b></td><td>双连通分量的划分，圆方树的前置</td><td>割点、桥</td></tr>
+      <tr><td><b>圆方树</b></td><td>把点双缩成一个方点，树上问题覆盖原图的必经点</td><td>点双</td></tr>
+      <tr><td><b>二分图匹配（匈牙利）</b></td><td>增广路算法求最大匹配，O(nm) 或 O(n^3)</td><td>DFS</td></tr>
+      <tr><td><b>KM / 带花树</b></td><td>带权最大匹配 / 一般图最大匹配</td><td>匈牙利</td></tr>
+      <tr><td><b>最大流（Dinic）</b></td><td>分层图 + 当前弧优化，O(n^2m) 实际很快</td><td>BFS、DFS</td></tr>
+      <tr><td><b>最小割</b></td><td>最大流最小割定理，把「最小代价切断」建模成割</td><td>最大流</td></tr>
+      <tr><td><b>费用流（MCMF）</b></td><td>在最大流基础上按费用增广，用势能 Dijkstra 处理负权</td><td>最大流、Dijkstra</td></tr>
+      <tr><td><b>基环树</b></td><td>树 + 一条边，断环后树上 DP 再合并环上信息</td><td>树形 DP</td></tr>
+      </table>
+      <div class="callout"><p>网络流是进阶图论的分水岭。<b>判断一道题能不能网络流，看它是否有「分配/匹配/切割」的味道</b>。</p></div>
+    </article>
+    <article class="algo" id="pl-97" data-cat="进阶" data-name="9.5 进阶数学（21 项） 项 一句话本质 前置 --- --- --- 中国剩余定理（CRT / exCRT） 多个模方程合并成一个；exCRT 允许模数不互质 exgcd Lucas / exLucas 大 n 小 p 的组合数，按 p 进制拆位 组合数 二次剩余 / Ci">
+      <div class="ah"><h4>9.5 进阶数学（21 项）</h4><span class="lv lv-a">进阶</span><span class="st">★★★★★</span><span class="tag">选学</span></div>
+      <table>
+      <tr><th>项</th><th>一句话本质</th><th>前置</th></tr>
+      <tr><td><b>中国剩余定理（CRT / exCRT）</b></td><td>多个模方程合并成一个；exCRT 允许模数不互质</td><td>exgcd</td></tr>
+      <tr><td><b>Lucas / exLucas</b></td><td>大 n 小 p 的组合数，按 p 进制拆位</td><td>组合数</td></tr>
+      <tr><td><b>二次剩余 / Cipolla</b></td><td>解 x^2 equiv a，模素数时有解判定与开方算法</td><td>快速幂、勒让德符号</td></tr>
+      <tr><td><b>原根 / 阶 / 离散对数 BSGS</b></td><td>求 a^x equiv b，以 √ m 为步长做「大小步」</td><td>快速幂、逆元</td></tr>
+      <tr><td><b>线性基</b></td><td>异或空间的高斯消元，20 行解决最大/第 k 大异或和</td><td>位运算</td></tr>
+      <tr><td><b>高斯消元 / 矩阵树定理</b></td><td>解线性方程组；矩阵树定理用行列式数生成树</td><td>矩阵、逆元</td></tr>
+      <tr><td><b>莫比乌斯反演</b></td><td>用 μ 把「和式」翻转成「倍数和式」，配数论分块</td><td>数论函数、线性筛</td></tr>
+      <tr><td><b>狄利克雷卷积</b></td><td>(f*g)(n) = Σ_d| n f(d)g(n/d)，反演的抽象形式</td><td>数论函数</td></tr>
+      <tr><td><b>杜教筛</b></td><td>用卷积构造 S(n) = Σ f(i) 的递推，O(n^2/3) 求积性函数前缀和</td><td>莫比乌斯反演</td></tr>
+      <tr><td><b>Min_25 筛</b></td><td>更强的积性函数前缀和，O(n^3/4)</td><td>杜教筛</td></tr>
+      <tr><td><b>FFT</b></td><td>把多项式乘法从 O(n^2) 降到 O(nlog n)，用单位根做点值变换</td><td>复数</td></tr>
+      <tr><td><b>NTT</b></td><td>在模 998244353 下用原根替代单位根，避免浮点误差</td><td>原根</td></tr>
+      <tr><td><b>多项式全家桶</b></td><td>求逆、ln、exp、开方，全部基于牛顿迭代</td><td>NTT</td></tr>
+      <tr><td><b>牛顿迭代</b></td><td>用 x arrow x - f(x)/f'(x) 逼近零点，多项式算法的统一框架</td><td>微积分基础</td></tr>
+      <tr><td><b>拉格朗日插值</b></td><td>由 n+1 个点唯一确定 n 次多项式，O(n^2) 或 O(n)</td><td>多项式</td></tr>
+      <tr><td><b>母函数（OGF / EGF）</b></td><td>把组合问题变成多项式系数问题</td><td>组合数</td></tr>
+      <tr><td><b>群论 / Burnside / Polya</b></td><td>在「旋转/翻转视为相同」时数染色方案</td><td>组合数、群的定义</td></tr>
+      <tr><td><b>数论分块 / 调和级数</b></td><td>⌊ n/i ⌋ 只有 O(√ n) 种取值，可批量处理</td><td>整除</td></tr>
+      <tr><td><b>线性规划 / 单纯形</b></td><td>在约束下最大化线性目标，竞赛里多是模板题</td><td>高斯消元</td></tr>
+      <tr><td><b>构造题</b></td><td>没有固定算法，靠手玩小样本找规律、打表</td><td>耐心</td></tr>
+      <tr><td><b>自适应辛普森积分</b></td><td>数值求定积分，误差可控</td><td>微积分</td></tr>
+      </table>
+      <div class="box idea"><span class="t">📌 重点</span><p><b>优先级建议</b>：线性基、CRT、Lucas、莫比乌斯反演、FFT/NTT 这五项性价比最高，其余按题目需要学。</p></div>
+    </article>
+    <article class="algo" id="pl-98" data-cat="进阶" data-name="9.6 计算几何（10 项） 项 一句话本质 --- --- 叉积 / 点积 叉积判方向与面积，点积判夹角与投影——几何题的原子操作 精度处理 一律用 double + eps 比较，能整数就往整数靠 线段相交判定 跨立实验 + 端点特判 距离 欧式 / 曼哈顿 / 切比雪夫，后">
+      <div class="ah"><h4>9.6 计算几何（10 项）</h4><span class="lv lv-a">进阶</span><span class="st">★★★★★</span><span class="tag">选学</span></div>
+      <table>
+      <tr><th>项</th><th>一句话本质</th></tr>
+      <tr><td><b>叉积 / 点积</b></td><td>叉积判方向与面积，点积判夹角与投影——几何题的原子操作</td></tr>
+      <tr><td><b>精度处理</b></td><td>一律用 <code>double</code> + <code>eps</code> 比较，能整数就往整数靠</td></tr>
+      <tr><td><b>线段相交判定</b></td><td>跨立实验 + 端点特判</td></tr>
+      <tr><td><b>距离</b></td><td>欧式 / 曼哈顿 / 切比雪夫，后者可用坐标变换互换</td></tr>
+      <tr><td><b>皮克定理</b></td><td>格点多边形面积 = I + B/2 - 1</td></tr>
+      <tr><td><b>凸包（Andrew）</b></td><td>极角排序 + 单调栈，O(nlog n)</td></tr>
+      <tr><td><b>扫描线</b></td><td>按一维排序，另一维用线段树维护，求面积并/周长并</td></tr>
+      <tr><td><b>旋转卡壳</b></td><td>在凸包上转一圈求直径/最小外接矩形</td></tr>
+      <tr><td><b>最近点对</b></td><td>分治 O(nlog n)，或 KD-Tree</td></tr>
+      <tr><td><b>多边形基础</b></td><td>面积、重心、点在多边形内判定</td></tr>
+      </table>
+    </article>
+    <article class="algo" id="pl-99" data-cat="进阶" data-name="9.7 博弈论（6 项） 项 一句话本质 判据 --- --- --- 巴什博弈 n 个石子，每次取 1~ m 个 先手必败 ⇔ n mod (m+1) = 0 威佐夫博弈 两堆，可任取一堆或两堆同取 必败态满足 frac{√5+1}{2} 相关的 Beatty 序列 Ni">
+      <div class="ah"><h4>9.7 博弈论（6 项）</h4><span class="lv lv-a">进阶</span><span class="st">★★★★★</span><span class="tag">选学</span></div>
+      <table>
+      <tr><th>项</th><th>一句话本质</th><th>判据</th></tr>
+      <tr><td><b>巴什博弈</b></td><td>n 个石子，每次取 1~ m 个</td><td>先手必败 ⇔ n  mod (m+1) = 0</td></tr>
+      <tr><td><b>威佐夫博弈</b></td><td>两堆，可任取一堆或两堆同取</td><td>必败态满足 frac{√5+1}{2} 相关的 Beatty 序列</td></tr>
+      <tr><td><b>Nim 游戏</b></td><td>多堆石子，每次取一堆任意个</td><td>异或和为 0 则先手必败</td></tr>
+      <tr><td><b>斐波那契博弈</b></td><td>每次取不超过前次两倍</td><td>石子数为斐波那契数则必败</td></tr>
+      <tr><td><b>公平组合博弈（ICG）</b></td><td>有向图游戏，局面可分解</td><td>SG 定理：多个子游戏 SG 值异或</td></tr>
+      <tr><td><b>SG 函数</b></td><td>mathrm{SG}(x) = mathrm{mex}{mathrm{SG}(y) : x→ y}</td><td>SG 为 0 则必败</td></tr>
+      </table>
+      <div class="box tip"><span class="t">💡 提示</span><p>博弈论的关键是<b>先手玩小数据找规律</b>，再看能不能用 SG 定理分解成子游戏。<b>能分解就能赢一半。</b></p></div>
+    </article>
+    <article class="algo" id="pl-100" data-cat="进阶" data-name="9.8 原文遗漏的算法：已经补进基础篇的 原站内容很全，但有几处「提了名字没展开」或者「完全没提」。下面这些已经在前面各章补齐，这里做一份对照，方便你回查： 遗漏项 已补在哪 为什么它必须补 --- --- --- 复杂度分析与均摊分析 2.2、2.3 不会估复杂度等于不会做题 对拍与随机数据生成 2">
+      <div class="ah"><h4>9.8 原文遗漏的算法：已经补进基础篇的</h4><span class="lv lv-a">进阶</span><span class="st">★★★★★</span><span class="tag">选学</span></div>
+      <p>原站内容很全，但有几处「提了名字没展开」或者「完全没提」。下面这些<b>已经在前面各章补齐</b>，这里做一份对照，方便你回查：</p>
+      <table>
+      <tr><th>遗漏项</th><th>已补在哪</th><th>为什么它必须补</th></tr>
+      <tr><td>复杂度分析与均摊分析</td><td>2.2、2.3</td><td>不会估复杂度等于不会做题</td></tr>
+      <tr><td>对拍与随机数据生成</td><td>2.5</td><td>唯一的可靠调试手段</td></tr>
+      <tr><td>离散化</td><td>2.7</td><td>树状数组/线段树的前置</td></tr>
+      <tr><td>快读快写与代码脚手架</td><td>2.4</td><td>决定「能不能过」的最后一公里</td></tr>
+      <tr><td>常见错误字典</td><td>2.6</td><td>把玄学错误变成查表</td></tr>
+      <tr><td>Manacher</td><td>8.3</td><td>原文只提了回文树，没有线性回文算法</td></tr>
+      <tr><td>Z 函数</td><td>8.4</td><td>与 KMP 互为表里，线性匹配的另一半</td></tr>
+      <tr><td>差分约束</td><td>6.9</td><td>图论建模的标配</td></tr>
+      <tr><td>数论函数（φ,μ,d,sigma）与积性</td><td>7.4</td><td>没有这层前置，莫比乌斯反演根本无法入门</td></tr>
+      <tr><td>矩阵快速幂</td><td>7.10</td><td>原文只有矩阵快速幂本身，没说它能优化 DP</td></tr>
+      </table>
+    </article>
+    <article class="algo" id="pl-101" data-cat="进阶" data-name="9.9 仍需自己补的进阶项 # 项 归属 为什么重要 --- --- --- --- 1 线性基 数学 异或空间标准工具，20 行搞定最大异或和 2 分块 数据结构 暴力与树状数组之间的万能结构，也是根号分治的前置 3 CDQ 分治 数据结构/DP">
+      <div class="ah"><h4>9.9 仍需自己补的进阶项</h4><span class="lv lv-a">进阶</span><span class="st">★★★★★</span><span class="tag">选学</span></div>
+      <table>
+      <tr><th>#</th><th>项</th><th>归属</th><th>为什么重要</th></tr>
+      <tr><td>1</td><td><b>线性基</b></td><td>数学</td><td>异或空间标准工具，20 行搞定最大异或和</td></tr>
+      <tr><td>2</td><td><b>分块</b></td><td>数据结构</td><td>暴力与树状数组之间的万能结构，也是根号分治的前置</td></tr>
+      <tr><td>3</td><td><b>CDQ 分治</b></td><td>数据结构/DP</td><td>三维偏序、动态逆序对的通用解法，进阶分水岭</td></tr>
+      <tr><td>4</td><td><b>整体二分</b></td><td>数据结构</td><td>比树套树好写十倍的「第 k 小」解法</td></tr>
+      <tr><td>5</td><td><b>虚树</b></td><td>图论</td><td>把 O(n) 的树上 DP 压到 O(k)</td></tr>
+      <tr><td>6</td><td><b>线段树合并</b></td><td>数据结构</td><td>「树上路径统计」的标准解法体系</td></tr>
+      <tr><td>7</td><td><b>WQS 二分</b></td><td>DP</td><td>「恰好选 k 个」把 k 维去掉，近年高频</td></tr>
+      <tr><td>8</td><td><b>Miller-Rabin + Pollard-Rho</b></td><td>数学</td><td>10^18 级素性判定与质因数分解</td></tr>
+      <tr><td>9</td><td><b>随机化与卡常</b></td><td>工程</td><td>随机哈希、模拟退火、快读优化</td></tr>
+      <tr><td>10</td><td><b>bitset 优化</b></td><td>工程</td><td>状压、可达性、匹配都能提速 64 倍</td></tr>
+      </table>
+    </article>
+    <article class="algo" id="pl-102" data-cat="进阶" data-name="9.10 一个反直觉的建议 不要按目录顺序学进阶。 正确做法是： 1. 找一道「提高+/省选−」的题，先自己硬写，写到卡住。 2. 看题解，发现自己缺的是哪一项（比如「区间第 k 小」→ 主席树）。 3. 回来只学那一项，学完立刻回去把那道题 AC。 4. 记进错题本：「这个场景该用 X」。 这样学一次，胜过按目录刷十章。 ---">
+      <div class="ah"><h4>9.10 一个反直觉的建议</h4><span class="lv lv-a">进阶</span><span class="st">★★★★★</span><span class="tag">选学</span></div>
+      <p><b>不要按目录顺序学进阶。</b> 正确做法是：</p>
+      <ol class="tight"><li>找一道「提高+/省选−」的题，先自己硬写，写到卡住。</li><li>看题解，发现自己缺的是哪一项（比如「区间第 k 小」→ 主席树）。</li><li>回来只学那一项，学完立刻回去把那道题 AC。</li><li>记进错题本：「这个场景该用 X」。</li></ol>
+      <p><b>这样学一次，胜过按目录刷十章。</b></p>
+    </article>
+  </div>
+</section>
+

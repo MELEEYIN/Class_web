@@ -1,0 +1,275 @@
+<section class="sec" id="s7" data-cat="数学" fold>
+  
+  <div class="secbody">
+    <div class="callout"><p>数学章的知识点彼此依赖很强：<b>逆元依赖费马小定理，费马小定理依赖快速幂，快速幂依赖快速乘法</b>。所以这一章必须按顺序学，不能跳。</p></div>
+    <article class="algo" id="pl-76" data-cat="数学" data-name="7.1 位运算进阶 本质 把整数看成 01 向量，用硬件级并行做集合运算。位运算的价值有三：压状态（状压 DP）、压常数（替代取模与除法）、提供数学性质（异或的自反、按位独立）。 异或的四条性质（必背） $a ⊕ a = 0, a ⊕ 0 = a, a ⊕ b = b ⊕ a, (a ⊕ b) ⊕ c = a ⊕ (b ⊕">
+      <div class="ah"><h4>7.1 位运算进阶</h4><span class="lv lv-b">基础</span><span class="st">★★★★</span><span class="tag">常考</span><a class="prac" href="practice.html#P1469" target="_blank" title="题单里的模板题">P1469</a><a class="prac" href="practice.html#P1100" target="_blank" title="题单里的模板题">P1100</a><a class="prac" href="practice.html#P1466" target="_blank" title="题单里的模板题">P1466</a></div>
+      <p class="idea"><b>本质</b>：把整数看成 01 向量，用硬件级并行做集合运算。位运算的价值有三：<b>压状态</b>（状压 DP）、<b>压常数</b>（替代取模与除法）、<b>提供数学性质</b>（异或的自反、按位独立）。</p>
+      <p><b>异或的四条性质（必背）</b></p>
+      <p><span class="tm">a ⊕ a = 0,　 a ⊕ 0 = a,　 a ⊕ b = b ⊕ a,　 (a ⊕ b) ⊕ c = a ⊕ (b ⊕ c)</span></p>
+      <p>推论：<b>一堆数异或起来，出现偶数次的会全部消掉。</b> 这就是「找唯一落单的数」的解法（P1469 找筷子）。</p>
+      <p><b>常用内置函数（GCC，O(1)）</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      __builtin_popcount(x)      // 二进制里 1 的个数
+      __builtin_popcountll(x)    // long long 版本
+      __builtin_ctz(x)           // 末尾 0 的个数（x 不能为 0）
+      __builtin_clz(x)           // 前导 0 的个数
+      __builtin_parity(x)        // 1 的个数的奇偶性
+      </script></div>
+      <p><b>为什么它们快？</b> 编译器直接生成一条 CPU 指令（<code>POPCNT</code>），比循环数位快几十倍。</p>
+      <p><b>按位独立：一个重要的思维方式</b></p>
+      <p>很多位运算题的解法是「<b>对每一位单独算，再合并</b>」。因为位与位之间互不影响，所以可以把一个 O(2^30) 的问题拆成 30 个独立的 O(1) 问题。</p>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P1100" target="_blank">P1100</a> 高低位交换　·　<a href="practice.html#P1466" target="_blank">P1466</a> 集合 Subset Sums　·　<a href="practice.html#P2114" target="_blank">P2114</a> 起床困难综合症　·　<a href="practice.html#P1554" target="_blank">P1554</a> 梦中的统计　·　<a href="practice.html#P1469" target="_blank">P1469</a> 找筷子</p>
+    </article>
+    <article class="algo" id="pl-77" data-cat="数学" data-name="7.2 快速幂 本质 求 a^b mod m 时，把指数折半：a^b = (a^b/2)^2，偶数直接平方，奇数多乘一个 a。O(log b)。 cpp long long qpow(long long a, long long b, long long m) { long long r = 1 % m;">
+      <div class="ah"><h4>7.2 快速幂</h4><span class="lv lv-b">基础</span><span class="st">★★★★</span><span class="tag">常考</span><a class="prac" href="practice.html#P1226" target="_blank" title="题单里的模板题">P1226</a><a class="prac" href="practice.html#P3197" target="_blank" title="题单里的模板题">P3197</a><a class="prac" href="practice.html#P1962" target="_blank" title="题单里的模板题">P1962</a></div>
+      <p class="idea"><b>本质</b>：求 a^b  mod m 时，把指数折半：a^b = (a^b/2)^2，偶数直接平方，奇数多乘一个 a。O(log b)。</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      long long qpow(long long a, long long b, long long m) {
+          long long r = 1 % m;                 // 注意 m = 1 时结果是 0
+          a %= m;
+          for (; b; b >>= 1) {
+              if (b & 1) r = r * a % m;
+              a = a * a % m;                    // 每轮把底数平方
+          }
+          return r;
+      }
+      </script></div>
+      <p><b>三个必须注意的点</b></p>
+      <ol class="tight"><li><b><code>r = 1 % m</code> 而不是 <code>r = 1</code></b>：当 m = 1 时答案应为 0，写 <code>1</code> 会得到 1。</li><li><b><code>a %= m</code> 要写在循环外</b>：<code>a</code> 可能本来就是负数。</li><li><b>乘法可能溢出</b>：m 接近 10^18 时 <code>a * a</code> 会溢出 <code>long long</code>，要用 <code>__int128</code> 或「快速乘（龟速乘）」。</li></ol>
+      <div class="box tip"><span class="t">💡 提示</span><p>快速幂是所有数论算法的地基：逆元、矩阵快速幂、莫比乌斯反演、多项式运算全都建立在它上面。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P1226" target="_blank">P1226</a> 快速幂模板　·　<a href="practice.html#P3197" target="_blank">P3197</a> 越狱　·　<a href="practice.html#P1962" target="_blank">P1962</a> 斐波那契数列（矩阵加速）</p>
+    </article>
+    <article class="algo" id="pl-78" data-cat="数学" data-name="7.3 筛法：一次筛出所有素数 本质 埃氏筛：每个合数被它的质因子筛掉，O(nloglog n)。欧拉筛（线性筛）：让每个合数只被它的最小质因子筛一次，因此 O(n)，并且能顺带求出积性函数。 线性筛模板（背下来） cpp int v[N]; // v[i] = i 的最小质因子 vector&lt;int">
+      <div class="ah"><h4>7.3 筛法：一次筛出所有素数</h4><span class="lv lv-b">基础</span><span class="st">★★★★</span><span class="tag">常考</span><a class="prac" href="practice.html#P3383" target="_blank" title="题单里的模板题">P3383</a><a class="prac" href="practice.html#P1835" target="_blank" title="题单里的模板题">P1835</a><a class="prac" href="practice.html#P5736" target="_blank" title="题单里的模板题">P5736</a></div>
+      <p class="idea"><b>本质</b>：埃氏筛：每个合数被它的质因子筛掉，O(nloglog n)。欧拉筛（线性筛）：让每个合数只被<b>它的最小质因子</b>筛一次，因此 O(n)，并且能顺带求出积性函数。</p>
+      <p><b>线性筛模板（背下来）</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      int v[N];                    // v[i] = i 的最小质因子
+      vector<int> primes;
+      
+      void sieve(int n) {
+          for (int i = 2; i <= n; ++i) {
+              if (!v[i]) { v[i] = i; primes.push_back(i); }       // i 是素数
+              for (int p : primes) {
+                  if (p > v[i] || 1LL * i * p > n) break;         // 保证只被最小质因子筛
+                  v[i * p] = p;
+              }
+          }
+      }
+      </script></div>
+      <p><b><code>p &gt; v[i]</code> 这一句是关键</b>：它保证每个合数只被最小的那个质因子筛到一次，所以总复杂度是 O(n)。</p>
+      <p><b>三个常用推论</b></p>
+      <table>
+      <tr><th>需求</th><th>怎么改</th></tr>
+      <tr><td>判素数</td><td><code>v[i] == i</code> 即为素数</td></tr>
+      <tr><td>分解质因数</td><td>不断取 <code>v[x]</code> 并 <code>x /= v[x]</code>，O(log x)</td></tr>
+      <tr><td>欧拉函数 φ</td><td>在筛的过程中顺手递推（见下节）</td></tr>
+      </table>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P3383" target="_blank">P3383</a> 线性筛素数　·　<a href="practice.html#P1835" target="_blank">P1835</a> 素数密度　·　<a href="practice.html#P5736" target="_blank">P5736</a> 质数筛　·　<a href="practice.html#P1865" target="_blank">P1865</a> A % B Problem　·　<a href="practice.html#P2158" target="_blank">P2158</a> 仪仗队</p>
+    </article>
+    <article class="algo" id="pl-79" data-cat="数学" data-name="7.4 数论函数与积性 这一节是为第 9 章的「莫比乌斯反演 / 杜教筛」铺路。直接跳到反演会一头雾水，所以先在这里把符号认识清楚。 四个基本数论函数 函数 定义 含义 --- --- --- φ(n)（欧拉函数） 1~ n 中与 n 互质的数的个数 容斥或积性递推求 μ(n)（莫">
+      <div class="ah"><h4>7.4 数论函数与积性</h4><span class="lv lv-b">基础</span><span class="st">★★★★</span><span class="tag">常考</span><a class="prac" href="practice.html#P2158" target="_blank" title="题单里的模板题">P2158</a><a class="prac" href="practice.html#P2568" target="_blank" title="题单里的模板题">P2568</a><a class="prac" href="practice.html#P3383" target="_blank" title="题单里的模板题">P3383</a></div>
+      <div class="callout"><p>这一节是为第 9 章的「莫比乌斯反演 / 杜教筛」铺路。直接跳到反演会一头雾水，所以先在这里把符号认识清楚。</p></div>
+      <p><b>四个基本数论函数</b></p>
+      <table>
+      <tr><th>函数</th><th>定义</th><th>含义</th></tr>
+      <tr><td>φ(n)（欧拉函数）</td><td>1~ n 中与 n 互质的数的个数</td><td>容斥或积性递推求</td></tr>
+      <tr><td>μ(n)（莫比乌斯函数）</td><td>n 有平方因子 → 0；否则 (-1)^k，k 为质因子个数</td><td>反演的系数</td></tr>
+      <tr><td>d(n)</td><td>n 的约数个数</td><td>积性，可线性筛</td></tr>
+      <tr><td>sigma(n)</td><td>n 的约数之和</td><td>积性，可线性筛</td></tr>
+      </table>
+      <p><b>积性函数</b></p>
+      <p>若 gcd(a,b)=1 时 f(ab) = f(a)f(b)，则 f 是<b>积性函数</b>。上面四个都是。</p>
+      <p><b>为什么重要</b>：积性函数可以<b>线性筛</b>——因为 n = p^k 时取值容易算，而任何数都能唯一分解为素数幂的乘积。</p>
+      <p><b>线性筛求欧拉函数</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      int phi[N];
+      void sievePhi(int n) {
+          phi[1] = 1;
+          for (int i = 2; i <= n; ++i) {
+              if (!v[i]) { v[i] = i; primes.push_back(i); phi[i] = i - 1; }  // 素数
+              for (int p : primes) {
+                  if (p > v[i] || 1LL * i * p > n) break;
+                  v[i * p] = p;
+                  if (i % p == 0) { phi[i * p] = phi[i] * p; break; }        // p 已出现
+                  else phi[i * p] = phi[i] * (p - 1);                        // p 是新因子
+              }
+          }
+      }
+      </script></div>
+      <p><b>两个恒等式（先记住，第 9 章要用）</b></p>
+      <p><span class="tm">Σ_d | n φ(d) = n, 　　 Σ_d | n μ(d) = [n = 1]</span></p>
+      <div class="box ok"><span class="t">✅ 小结</span><p><b>数论函数看起来抽象，但它们只是"对每个 n 给一个值"的表。</b> 先用线性筛把表算出来，再看题目要什么。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P2158" target="_blank">P2158</a> 仪仗队　·　<a href="practice.html#P2568" target="_blank">P2568</a> GCD　·　<a href="practice.html#P3383" target="_blank">P3383</a> 线性筛素数</p>
+    </article>
+    <article class="algo" id="pl-80" data-cat="数学" data-name="7.5 gcd、exgcd 与裴蜀定理 本质 辗转相除求最大公约数；扩展欧几里得不仅能求 gcd，还顺带求出 ax + by = gcd(a,b) 的一组整数解——这是解线性同余方程、求逆元、解不定方程的万能工具（理论依据是裴蜀定理）。 gcd cpp int gcd(int a, int b) { return b ? gcd(b, a % b)">
+      <div class="ah"><h4>7.5 gcd、exgcd 与裴蜀定理</h4><span class="lv lv-b">基础</span><span class="st">★★★★</span><span class="tag">常考</span><a class="prac" href="practice.html#P1082" target="_blank" title="题单里的模板题">P1082</a><a class="prac" href="practice.html#P4549" target="_blank" title="题单里的模板题">P4549</a><a class="prac" href="practice.html#P5656" target="_blank" title="题单里的模板题">P5656</a></div>
+      <p class="idea"><b>本质</b>：辗转相除求最大公约数；<b>扩展欧几里得</b>不仅能求 gcd，还顺带求出 ax + by = gcd(a,b) 的一组整数解——这是解线性同余方程、求逆元、解不定方程的万能工具（理论依据是<b>裴蜀定理</b>）。</p>
+      <p><b>gcd</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      int gcd(int a, int b) { return b ? gcd(b, a % b) : a; }
+      // 或用内置：__gcd(a, b)     // C++17 起为 std::gcd
+      long long lcm(long long a, long long b) { return a / gcd(a, b) * b; }  // 先除后乘防溢出
+      </script></div>
+      <p><b>exgcd 模板（背下来）</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      long long exgcd(long long a, long long b, long long &x, long long &y) {
+          if (b == 0) { x = 1; y = 0; return a; }
+          long long g = exgcd(b, a % b, y, x);
+          y -= a / b * x;
+          return g;
+      }
+      </script></div>
+      <p>调用后 <code>g</code> 是 gcd(a,b)，<code>x, y</code> 满足 ax + by = g。</p>
+      <p><b>裴蜀定理</b></p>
+      <p>ax + by = c 有整数解 <b>当且仅当</b> gcd(a,b) | c。</p>
+      <p><b>推论</b>：a 在模 m 下有逆元 ⇔ gcd(a,m) = 1。</p>
+      <p><b>解同余方程 ax equiv b ±od m</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      long long x, y;
+      long long g = exgcd(a, m, x, y);        // ax + my = g
+      if (b % g) { /* 无解 */ }
+      x = x * (b / g) % (m / g);
+      x = (x % (m / g) + (m / g)) % (m / g);  // 最小非负解
+      </script></div>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p><code>m/g</code> 是模数（不是 <code>m</code>）；最后一步必须转成非负。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P1082" target="_blank">P1082</a> 同余方程　·　<a href="practice.html#P4549" target="_blank">P4549</a> 裴蜀定理　·　<a href="practice.html#P5656" target="_blank">P5656</a> 二元一次不定方程　·　<a href="practice.html#P1516" target="_blank">P1516</a> 青蛙的约会</p>
+    </article>
+    <article class="algo" id="pl-81" data-cat="数学" data-name="7.6 费马小定理、欧拉定理与逆元 三个定理 定理 内容 条件 --- --- --- 费马小定理 a^p-1 equiv 1 ±od p p 是素数，gcd(a,p)=1 欧拉定理 a^φ(m) equiv 1 ±od m gcd(a,m)=1 扩展欧拉定理 a^b equiv">
+      <div class="ah"><h4>7.6 费马小定理、欧拉定理与逆元</h4><span class="lv lv-b">基础</span><span class="st">★★★★</span><span class="tag">常考</span><a class="prac" href="practice.html#P3811" target="_blank" title="题单里的模板题">P3811</a><a class="prac" href="practice.html#P2613" target="_blank" title="题单里的模板题">P2613</a><a class="prac" href="practice.html#P5431" target="_blank" title="题单里的模板题">P5431</a></div>
+      <p><b>三个定理</b></p>
+      <table>
+      <tr><th>定理</th><th>内容</th><th>条件</th></tr>
+      <tr><td>费马小定理</td><td>a^p-1 equiv 1 ±od p</td><td>p 是素数，gcd(a,p)=1</td></tr>
+      <tr><td>欧拉定理</td><td>a^φ(m) equiv 1 ±od m</td><td>gcd(a,m)=1</td></tr>
+      <tr><td>扩展欧拉定理</td><td>a^b equiv a^b  mod φ(m) + φ(m) ±od m</td><td>b ≥ φ(m)</td></tr>
+      </table>
+      <p><b>逆元：模意义下的「除法」</b></p>
+      <p><b>为什么需要它</b>：模意义下没有除法。要把「除以 a」变成「乘以 a 的逆元」。逆元 x 满足 ax equiv 1 ±od p。</p>
+      <p><b>三种求法（对应三种场景）</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      // ① exgcd：p 任意（只要 gcd(a,p)=1）
+      long long inv1(long long a, long long p) {
+          long long x, y; exgcd(a, p, x, y);
+          return (x % p + p) % p;
+      }
+      
+      // ② 费马小定理：p 必须是素数
+      long long inv2(long long a, long long p) { return qpow(a, p - 2, p); }
+      
+      // ③ 线性递推：批量求 1..n 的逆元，O(n)
+      inv[1] = 1;
+      for (int i = 2; i <= n; ++i)
+          inv[i] = (p - p / i) * inv[p % i] % p;
+      </script></div>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p>用费马小定理却传了个非素数的模（比如 10^9+9 是素数，但 10^8 不是）；线性递推只对素数模成立。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P3811" target="_blank">P3811</a> 乘法逆元　·　<a href="practice.html#P2613" target="_blank">P2613</a> 有理数取余　·　<a href="practice.html#P5431" target="_blank">P5431</a> 乘法逆元 2　·　<a href="practice.html#P5091" target="_blank">P5091</a> 扩展欧拉定理</p>
+    </article>
+    <article class="algo" id="pl-82" data-cat="数学" data-name="7.7 组合数 本质 C(n,m) = dfrac{n!}{m!(n-m)!}，模意义下要用阶乘 + 阶乘逆元来算，这样单次 O(1)。 cpp const int MOD = 1e9 + 7; long long fac[N], ifac[N]; void init(int n) { fac[0] = 1;">
+      <div class="ah"><h4>7.7 组合数</h4><span class="lv lv-b">基础</span><span class="st">★★★★</span><span class="tag">常考</span><a class="prac" href="practice.html#P3414" target="_blank" title="题单里的模板题">P3414</a><a class="prac" href="practice.html#P3807" target="_blank" title="题单里的模板题">P3807</a><a class="prac" href="practice.html#P1044" target="_blank" title="题单里的模板题">P1044</a></div>
+      <p class="idea"><b>本质</b>：C(n,m) = dfrac{n!}{m!(n-m)!}，模意义下要用<b>阶乘 + 阶乘逆元</b>来算，这样单次 O(1)。</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      const int MOD = 1e9 + 7;
+      long long fac[N], ifac[N];
+      
+      void init(int n) {
+          fac[0] = 1;
+          for (int i = 1; i <= n; ++i) fac[i] = fac[i-1] * i % MOD;
+          ifac[n] = qpow(fac[n], MOD - 2, MOD);           // 费马小定理求逆元
+          for (int i = n - 1; i >= 0; --i) ifac[i] = ifac[i+1] * (i + 1) % MOD;
+      }
+      
+      long long C(int n, int m) {
+          if (m < 0 || m > n) return 0;
+          return fac[n] * ifac[m] % MOD * ifac[n-m] % MOD;
+      }
+      </script></div>
+      <p><b>什么时候 O(n) 预处理不够用</b></p>
+      <table>
+      <tr><th>情形</th><th>用什么</th></tr>
+      <tr><td>n ≤ 10^7，p 是素数</td><td>上面这套（预处理 O(n)）</td></tr>
+      <tr><td>n 很大（10^18），p 很小（10^5）</td><td><b>Lucas 定理</b>：按 p 进制拆位</td></tr>
+      <tr><td>p 不是素数</td><td>exLucas（第 9 章）</td></tr>
+      <tr><td>只要 C(n,0) 到 C(n,n) 一行</td><td>递推 C(n,k) = C(n,k-1)·frac{n-k+1}{k}</td></tr>
+      </table>
+      <p><b>四个必背的组合恒等式</b></p>
+      <p><span class="tm">C(n,m) = C(n-1,m) + C(n-1,m-1), 　　 Σ_k=0^n C(n,k) = 2^n</span></p>
+      <p><span class="tm">C(n,m) = C(n, n-m), 　　 Σ_k=0^n (-1)^k C(n,k) = 0 (n ≥ 1)</span></p>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P3414" target="_blank">P3414</a> SAC#1 组合数　·　<a href="practice.html#P3807" target="_blank">P3807</a> 卢卡斯定理　·　<a href="practice.html#P1044" target="_blank">P1044</a> 栈（卡特兰）　·　<a href="practice.html#P4071" target="_blank">P4071</a> 排列计数（错排）</p>
+    </article>
+    <article class="algo" id="pl-83" data-cat="数学" data-name="7.8 容斥原理 本质 求「至少满足一个条件」的个数时，加单数、减双数、加三数……。更常用的表述是「总数 − 一个都不满足」。 $ A ∪ B ∪ C = A + B + C - A∩ B - A∩ C - B∩ C + A∩ B∩ C $ 两种实现 cpp // ① 位运算枚举子集（n ≤ 20">
+      <div class="ah"><h4>7.8 容斥原理</h4><span class="lv lv-b">基础</span><span class="st">★★★★</span><span class="tag">常考</span><a class="prac" href="practice.html#P1450" target="_blank" title="题单里的模板题">P1450</a><a class="prac" href="practice.html#P3172" target="_blank" title="题单里的模板题">P3172</a><a class="prac" href="practice.html#P4707" target="_blank" title="题单里的模板题">P4707</a></div>
+      <p class="idea"><b>本质</b>：求「至少满足一个条件」的个数时，<b>加单数、减双数、加三数……</b>。更常用的表述是「总数 − 一个都不满足」。</p>
+      <p><span class="tm">|A ∪ B ∪ C| = |A| + |B| + |C| - |A∩ B| - |A∩ C| - |B∩ C| + |A∩ B∩ C|</span></p>
+      <p><b>两种实现</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      // ① 位运算枚举子集（n ≤ 20）
+      for (int mask = 1; mask < (1 << k); ++mask) {
+          int bits = __builtin_popcount(mask);
+          long long cnt = 计算该子集的交集;
+          ans += (bits & 1) ? cnt : -cnt;
+      }
+      
+      // ② 总数 − 一个都不满足
+      ans = total - bad;
+      </script></div>
+      <p><b>经典模型：硬币购物（P1450）</b></p>
+      <p>4 种硬币，每次问「用 d_i 枚以内凑出 s 的方案数」。做法：先做完全背包求「无限量」的方案数，再用容斥减去「某种硬币超量」的情况。2^4 = 16 个状态枚举，<b>正负号按超量种数的奇偶决定</b>。</p>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p>容斥项数多时，符号和「一个都不满足」的反向容易搞反；写之前先在小数据上把公式验一遍。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P1450" target="_blank">P1450</a> 硬币购物　·　<a href="practice.html#P3172" target="_blank">P3172</a> 选数　·　<a href="practice.html#P4707" target="_blank">P4707</a> 重返现世（min-max 容斥）</p>
+    </article>
+    <article class="algo" id="pl-84" data-cat="数学" data-name="7.9 高精度 本质 手写十进制大整数。竞赛里通常用 vector&lt;int 倒序存（低位在前便于进位），或用压位（每 9 位存一个 int）提速。C++ 没有现成大整数，必须会写。 cpp // 加法（a, b 均倒序存储，返回倒序结果） vector&lt;int add(vector&lt;int a, vector&lt;int">
+      <div class="ah"><h4>7.9 高精度</h4><span class="lv lv-b">基础</span><span class="st">★★★★</span><span class="tag">常考</span><a class="prac" href="practice.html#P1601" target="_blank" title="题单里的模板题">P1601</a><a class="prac" href="practice.html#P2142" target="_blank" title="题单里的模板题">P2142</a><a class="prac" href="practice.html#P1303" target="_blank" title="题单里的模板题">P1303</a></div>
+      <p class="idea"><b>本质</b>：手写十进制大整数。竞赛里通常用 <code>vector&lt;int&gt;</code> <b>倒序</b>存（低位在前便于进位），或用<b>压位</b>（每 9 位存一个 int）提速。C++ 没有现成大整数，必须会写。</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      // 加法（a, b 均倒序存储，返回倒序结果）
+      vector<int> add(vector<int> a, vector<int> b) {
+          vector<int> c;
+          int t = 0;
+          for (int i = 0; i < max(a.size(), b.size()) || t; ++i) {
+              if (i < a.size()) t += a[i];
+              if (i < b.size()) t += b[i];
+              c.push_back(t % 10);
+              t /= 10;
+          }
+          return c;
+      }
+      
+      // 乘法（单位数乘法同理，逐位乘并把进位加到下一位）
+      </script></div>
+      <p><b>判断要不要写高精度</b></p>
+      <p>只有一种信号：<b>答案的绝对值超过 9.2× 10^18</b>（即 <code>long long</code> 装不下）。典型场景：n!、大斐波那契、2^k、超长整数乘法。</p>
+      <div class="box tip"><span class="t">💡 提示</span><p>能用<b>取模</b>的题一律取模，不要写高精度。题目问「答案对 10^9+7 取模」就是在告诉你「别写高精」。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P1601" target="_blank">P1601</a> A+B Problem（高精）　·　<a href="practice.html#P2142" target="_blank">P2142</a> 高精度减法　·　<a href="practice.html#P1303" target="_blank">P1303</a> A*B Problem　·　<a href="practice.html#P1480" target="_blank">P1480</a> A/B Problem　·　<a href="practice.html#P1045" target="_blank">P1045</a> 麦森数</p>
+    </article>
+    <article class="algo" id="pl-85" data-cat="数学" data-name="7.10 矩阵快速幂 本质 把线性递推写成「向量 × 矩阵」的形式，然后用快速幂把 O(n) 次递推压到 O(k^3log n)（k 是转移矩阵阶数）。凡是「第 n 项 + n 巨大 + 转移只线性依赖前几项」都可以套。 cpp // 斐波那契：f[n] = f[n-1] + f[n-2] // [f[n], f[n-1]]^T =">
+      <div class="ah"><h4>7.10 矩阵快速幂</h4><span class="lv lv-b">基础</span><span class="st">★★★★</span><span class="tag">常考</span><a class="prac" href="practice.html#P3390" target="_blank" title="题单里的模板题">P3390</a><a class="prac" href="practice.html#P1962" target="_blank" title="题单里的模板题">P1962</a><a class="prac" href="practice.html#P1939" target="_blank" title="题单里的模板题">P1939</a></div>
+      <p class="idea"><b>本质</b>：把线性递推写成「向量 × 矩阵」的形式，然后用快速幂把 O(n) 次递推压到 O(k^3log n)（k 是转移矩阵阶数）。凡是「<b>第 n 项 + n 巨大 + 转移只线性依赖前几项</b>」都可以套。</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      // 斐波那契：f[n] = f[n-1] + f[n-2]
+      // [f[n], f[n-1]]^T = M * [f[n-1], f[n-2]]^T,  M = [[1,1],[1,0]]
+      struct Mat {
+          long long a[2][2];
+          Mat operator*(const Mat &o) const {
+              Mat r{};
+              for (int i = 0; i < 2; ++i)
+                  for (int k = 0; k < 2; ++k) if (a[i][k])
+                      for (int j = 0; j < 2; ++j)
+                          r.a[i][j] = (r.a[i][j] + a[i][k] * o.a[k][j]) % MOD;
+              return r;
+          }
+      };
+      Mat qpow(Mat a, long long b) { /* 单位矩阵当 1 */ }
+      </script></div>
+      <p><b>构造转移矩阵的诀窍</b></p>
+      <ol class="tight"><li>写出递推式，确认它依赖前面的<b>几项</b>（几项 → 矩阵几阶）。</li><li>把「状态向量」定好顺序，逐行写「新值 = 哪些旧值的线性组合」。</li><li>常数项也要放进状态（比如 f(n) = f(n-1) + c 需要第三维常数 1）。</li></ol>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P3390" target="_blank">P3390</a> 矩阵快速幂模板　·　<a href="practice.html#P1962" target="_blank">P1962</a> 斐波那契数列　·　<a href="practice.html#P1939" target="_blank">P1939</a> 矩阵加速　·　<a href="practice.html#P4159" target="_blank">P4159</a> 迷路</p>
+    </article>
+    <article class="algo" id="pl-86" data-cat="数学" data-name="7.11 第 7 章验收标准 - [ ] 快速幂、exgcd、线性筛、组合数预处理、矩阵快速幂五套模板能盲写。 - [ ] 能说清「逆元三种求法各适合什么场景」。 - [ ] 知道 φ、μ、d、sigma 的定义，以及「积性函数可以用线性筛」的理由。 - [ ] 累计 AC 洛谷「普及+/提高−」数学题不少于 15 道。 ---">
+      <div class="ah"><h4>7.11 第 7 章验收标准</h4><span class="lv lv-b">基础</span><span class="st">★★★★</span><span class="tag">常考</span></div>
+      <ul class="tight"><li>☐ 快速幂、exgcd、线性筛、组合数预处理、矩阵快速幂五套模板能盲写。</li><li>☐ 能说清「逆元三种求法各适合什么场景」。</li><li>☐ 知道 φ、μ、d、sigma 的定义，以及「积性函数可以用线性筛」的理由。</li><li>☐ 累计 AC 洛谷「普及+/提高−」数学题不少于 15 道。</li></ul>
+    </article>
+  </div>
+</section>
+

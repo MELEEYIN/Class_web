@@ -1,0 +1,386 @@
+
+<div class="box info"><div class="t" id="b0">本节出现的新函数 / 新语法（先看懂再用）</div><ul><li id="b1"><a href="#fn-0">unsigned long long（无符号 64 位整数）</a> —— 64 位无符号整数，模 2^64 的取模由硬件免费完成</li><li id="b2"><a href="#fn-1">双哈希（两套模数各算一遍）</a> —— 两套模数 + 两套基数，把冲突概率压到可以忽略</li><li id="b3"><a href="#fn-2">Trie（字典树）的数组实现</a> —— 插入与查询各走 len 步，公共前缀只存一份</li><li id="b4"><a href="#fn-3">01-Trie（二进制 Trie）</a> —— 把整数按二进制位存成树，31 步求出最大异或</li></ul></div><p id="b5">字符串题只有两个基本动作：<b>比较</b>和<b>查找</b>。直接比较两个长 L 的串要 L 次字符比较；一万个长 1000 的串两两比较是 5×10<sup>10</sup> 次，必然超时。这一节给两种把动作变便宜的工具：<b>哈希</b>把整个串压成一个整数，比较退化成一次整数比较；<b>Trie</b> 把公共前缀折叠成一条路径，插入和查询都只走 L 步。Trie 的一个变体把整数按二进制位建树，就能回答“和 x 异或最大的数是谁”。</p><div class="quote" id="b6">哈希回答“这两个串一样吗”，Trie 回答“这个前缀出现过几次”，01-Trie 回答“和 x 异或最大的数是谁”。三个问题，一条共同的思路：把串或数变成可以随手比较、随手走几步的东西。</div><table><thead><tr><th id="b7">任务</th><th id="b8">规模</th><th id="b9">工具</th><th id="b10">单次操作</th><th id="b11">主要风险</th></tr></thead><tbody><tr><td id="b12">判断两个串是否相等</td><td id="b13">长 10<sup>6</sup>，比较 10<sup>5</sup> 次</td><td id="b14">多项式哈希</td><td id="b15">O(1)</td><td id="b16">哈希冲突 → 判成相等</td></tr><tr><td id="b17">求子串 [l, r] 的指纹</td><td id="b18">长 10<sup>6</sup>，询问 10<sup>5</sup> 次</td><td id="b19">前缀哈希 + 幂表</td><td id="b20">O(1)</td><td id="b21">同上</td></tr><tr><td id="b22">插入 / 查询一个串</td><td id="b23">总长 10<sup>6</sup></td><td id="b24">Trie</td><td id="b25">O(len)</td><td id="b26">数组开小 → RE</td></tr><tr><td id="b27">和 x 异或最大的数</td><td id="b28">n ≤ 10<sup>5</sup>，值 &lt; 2<sup>31</sup></td><td id="b29">01-Trie</td><td id="b30">O(31)</td><td id="b31">位宽取错 → WA</td></tr></tbody></table><p id="b32">先把这一节会出现的 4 样东西拆开。它们都很短，但每一件都有一个“不这么写就错”的细节，这四处细节才是真正的考点。</p><div class="fn"><div class="fh" id="b33">新函数拆解 · unsigned long long（无符号 64 位整数）</div><div class="fb"><div class="sig" id="b34">typedef unsigned long long ull;
+
+ull h = 0;
+for (char c : s) h = h * B + (ull)c;   // 溢出即取模</div><table class="lines"><thead><tr><th id="b35">组成</th><th id="b36">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b37"><code>取值范围</code></td><td id="b38">0 ~ 2<sup>64</sup>−1 = 18446744073709551615，20 位十进制。</td></tr><tr><td id="b39"><code>自然溢出</code></td><td id="b40">无符号整数的运算按 2<sup>64</sup> 取模：溢出的高位被硬件直接丢弃，不用写 %。</td></tr><tr><td id="b41"><code>为什么快</code></td><td id="b42">取模 % 是一条除法指令，10~40 个时钟周期；乘法和丢弃高位只要 1 个。10<sup>6</sup> 次哈希能差 3 倍时间。</td></tr><tr><td id="b43"><code>换成 long long 会怎样</code></td><td id="b44">有符号整数溢出是未定义行为（UB）。编译器可以假设它不会发生，在 -O2 下把比较优化掉，同一份代码本地对、交上去错。</td></tr><tr><td id="b45"><code>写法</code></td><td id="b46">h = h * B + (ull)c；先把 char 转成无符号再加，字符值 ≥ 128 时才不会被符号扩展成负数。</td></tr><tr><td id="b47"><code>怎么观察它</code></td><td id="b48">cout 直接输出十进制；<code>ull x = 0; --x;</code> 得到 18446744073709551615。</td></tr></tbody></table><div class="cap" id="b49">最小可运行示例</div><div class="cap" id="b50">示例</div><pre id="b51"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+<span class="k">typedef</span> <span class="k">unsigned</span> <span class="k">long</span> <span class="k">long</span> ull;
+
+<span class="k">int</span> <span class="f">main</span>() {
+    ull x = <span class="n">0</span>;
+    --x;                              <span class="c">// 0 - 1 回绕到 2^64 - 1</span>
+    <span class="k">cout</span> &lt;&lt; x &lt;&lt; <span class="s">"\n"</span>;                <span class="c">// 18446744073709551615</span>
+
+    <span class="k">string</span> s = <span class="s">"abc"</span>;
+    ull h = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">char</span> c : s) h = h * <span class="n">131</span> + (ull)c;   <span class="c">// 等价于 (h * 131 + c) % 2^64</span>
+    <span class="k">cout</span> &lt;&lt; h &lt;&lt; <span class="s">"\n"</span>;
+
+    <span class="c">// 同一个函数对 "abc" 永远给出同一个数，这就是“指纹”</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="box tip"><div class="t" id="b52">注意</div><p id="b53">减法也回绕：<code>ull a = 1, b = 2; a - b</code> 得到 1.8×10<sup>19</sup>，不是 −1。哈希里大量用到“减法回绕”，这正是子串哈希公式能成立的原因。</p><p id="b54">把 ull 换成 long long，h * 131 一旦超过 9.2×10<sup>18</sup> 就是 UB，g++ 可能直接按“不溢出”优化，结果无法预测。</p></div></div></div><div class="fn"><div class="fh" id="b55">新函数拆解 · 双哈希（两套模数各算一遍）</div><div class="fb"><div class="sig" id="b56">pair&lt;long long, long long&gt; H(const string&amp; s);</div><table class="lines"><thead><tr><th id="b57">组成</th><th id="b58">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b59"><code>为什么一个不够</code></td><td id="b60">模 2<sup>64</sup> 且基数固定时，存在确定的构造性攻击（Thue–Morse 串）。洛谷 P3370 的“拓展阅读”里整排 Hash Killer 就是干这个的。</td></tr><tr><td id="b61"><code>做法</code></td><td id="b62">对同一个串，用两组 (模数, 基数) 各算一个值，组成 pair 一起比较。</td></tr><tr><td id="b63"><code>模数怎么选</code></td><td id="b64">两个互不相同的大质数：10<sup>9</sup>+7 与 10<sup>9</sup>+9，或 998244353 与 10<sup>9</sup>+7。</td></tr><tr><td id="b65"><code>基数怎么选</code></td><td id="b66">大于字符集（62），常用质数 131、13331。两套的基数也要不同，否则等于一个哈希算两遍。</td></tr><tr><td id="b67"><code>比较方式</code></td><td id="b68">pair 自带 operator&lt; 和 operator==（先比 first，再比 second），可以直接 sort、unique、放 set。</td></tr><tr><td id="b69"><code>代价</code></td><td id="b70">常数 ×2，代码多三行。字符串题里这是最便宜的保险。</td></tr></tbody></table><div class="cap" id="b71">最小可运行示例</div><div class="cap" id="b72">示例</div><pre id="b73"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+<span class="k">typedef</span> <span class="k">long</span> <span class="k">long</span> ll;
+
+<span class="k">const</span> ll M1 = <span class="n">1000000007</span>, M2 = <span class="n">1000000009</span>;    <span class="c">// 两个不同的大质数</span>
+<span class="k">const</span> ll B1 = <span class="n">131</span>,        B2 = <span class="n">13331</span>;        <span class="c">// 两套基数也要不同</span>
+
+<span class="k">pair</span>&lt;ll, ll&gt; <span class="f">H</span>(<span class="k">const</span> <span class="k">string</span>&amp; s) {
+    ll h1 = <span class="n">0</span>, h2 = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">unsigned</span> <span class="k">char</span> c : s) {              <span class="c">// 转无符号，防止负字符</span>
+        h1 = (h1 * B1 + c) % M1;
+        h2 = (h2 * B2 + c) % M2;
+    }
+    <span class="k">return</span> {h1, h2};
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">vector</span>&lt;<span class="k">pair</span>&lt;ll, ll&gt;&gt; v = {<span class="f">H</span>(<span class="s">"abc"</span>), <span class="f">H</span>(<span class="s">"abc"</span>), <span class="f">H</span>(<span class="s">"abd"</span>)};
+    <span class="k">sort</span>(v.<span class="k">begin</span>(), v.<span class="k">end</span>());
+    <span class="k">cout</span> &lt;&lt; <span class="k">unique</span>(v.<span class="k">begin</span>(), v.<span class="k">end</span>()) - v.<span class="k">begin</span>() &lt;&lt; <span class="s">"\n"</span>;   <span class="c">// 2</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="box tip"><div class="t" id="b74">注意</div><p id="b75">两个模数都取 10<sup>9</sup> 量级，乘积约 10<sup>18</sup>；随机数据下 n = 10<sup>5</sup> 个串的期望冲突数约 5×10<sup>−9</sup>。</p><p id="b76">别用 998244353 与 10<sup>9</sup>+7 配同一个基数——基数相同会让两个哈希产生关联，安全性下降。</p><p id="b77">更狠的一招是运行时随机基数：<code>B = chrono::steady_clock::now().time_since_epoch().count() | 1</code>，出题人无法预先构造。</p></div></div></div><div class="fn"><div class="fh" id="b78">新函数拆解 · Trie（字典树）的数组实现</div><div class="fb"><div class="sig" id="b79">int ch[MAXN][26];
+int pass[MAXN], ended[MAXN], tot = 0;</div><table class="lines"><thead><tr><th id="b80">组成</th><th id="b81">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b82"><code>ch[u][c]</code></td><td id="b83">节点 u 沿字符 c 这条边走到的节点编号。0 表示这条边不存在；根固定是 0，所以节点编号从 1 开始分配。</td></tr><tr><td id="b84"><code>tot</code></td><td id="b85">已分配的节点数，也是最新节点的编号。新建节点就是 <code>ch[u][x] = ++tot</code>。</td></tr><tr><td id="b86"><code>pass[u]</code></td><td id="b87">有多少个串经过节点 u，也就是“以该节点对应的字符串为前缀的串数”。</td></tr><tr><td id="b88"><code>ended[u]</code></td><td id="b89">有多少个串恰好结束在 u。用来区分“是某个串的前缀”和“自己就是一个串”。</td></tr><tr><td id="b90"><code>空间怎么估</code></td><td id="b91">节点数 = 所有串的总长度 + 1。ch 占 MAXN×26×4 字节：总长 10<sup>5</sup> 约 10 MB，总长 10<sup>6</sup> 约 104 MB。</td></tr><tr><td id="b92"><code>为什么不用指针</code></td><td id="b93">new 一次约 100 字节开销还慢。数组连续分配，缓存友好，清空只要 memset(ch, 0, sizeof ch)，多测方便。</td></tr></tbody></table><div class="cap" id="b94">最小可运行示例</div><div class="cap" id="b95">示例</div><pre id="b96"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">100005</span>;                 <span class="c">// 节点上限 = 总字符数 + 1</span>
+<span class="k">int</span> ch[MAXN][<span class="n">26</span>], pass[MAXN], ended[MAXN], tot = <span class="n">0</span>;
+
+<span class="k">void</span> <span class="f">insert</span>(<span class="k">const</span> <span class="k">string</span>&amp; s) {
+    <span class="k">int</span> u = <span class="n">0</span>;                           <span class="c">// 从根出发</span>
+    <span class="k">for</span> (<span class="k">char</span> c : s) {
+        <span class="k">int</span> x = c - <span class="s">'a'</span>;
+        <span class="k">if</span> (!ch[u][x]) ch[u][x] = ++tot; <span class="c">// 边不存在才新建，这是“共享前缀”的全部秘密</span>
+        u = ch[u][x];
+        ++pass[u];
+    }
+    ++ended[u];                          <span class="c">// 有一个串在这里结束</span>
+}
+
+<span class="k">int</span> <span class="f">node</span>(<span class="k">const</span> <span class="k">string</span>&amp; s) {              <span class="c">// 返回路径终点；-1 表示走不通</span>
+    <span class="k">int</span> u = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">char</span> c : s) {
+        <span class="k">int</span> x = c - <span class="s">'a'</span>;
+        <span class="k">if</span> (!ch[u][x]) <span class="k">return</span> -<span class="n">1</span>;
+        u = ch[u][x];
+    }
+    <span class="k">return</span> u;
+}
+<span class="c">// node(s) != -1 → 以 s 为前缀的串有 pass[node(s)] 个</span>
+<span class="c">// ended[node(s)] &gt; 0 → s 本身是一个插入过的串</span></code></pre><div class="box tip"><div class="t" id="b97">注意</div><p id="b98">0 号既当根又当“不存在的边”，所以判定必须是 <code>if (!ch[u][x])</code>，而不是 <code>== -1</code>（全局数组默认 0，拿 -1 判永远不成立，会把 0 当合法子节点原地打转）。</p><p id="b99">节点总数只与总字符数有关，与字符集大小无关——这正是 Trie 比“把所有前缀塞进 set”省的地方。</p></div></div></div><div class="fn"><div class="fh" id="b100">新函数拆解 · 01-Trie（二进制 Trie）</div><div class="fb"><div class="sig" id="b101">void insert(int x);
+int query(int x);      // 返回与 x 异或能取到的最大值</div><table class="lines"><thead><tr><th id="b102">组成</th><th id="b103">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b104"><code>节点含义</code></td><td id="b105">从根往下第 b 层存的是 x 的第 b 位（b 从 30 降到 0）。一条根到叶的路径就是一个 31 位二进制数。</td></tr><tr><td id="b106"><code>ch[u][2]</code></td><td id="b107">只有 0、1 两条边。节点数上限 = 数值个数 × 31。</td></tr><tr><td id="b108"><code>query 的贪心</code></td><td id="b109">从高位到低位，尽量走与当前位<b>相反</b>的边；走不通才走相同的边。</td></tr><tr><td id="b110"><code>为什么贪心对</code></td><td id="b111">第 b 位是 1 贡献 2<sup>b</sup>，而低 b 位全取 1 也只有 2<sup>b</sup>−1。高位赢一次就赢过所有低位，所以从高到低逐位定。</td></tr><tr><td id="b112"><code>位宽</code></td><td id="b113">值 &lt; 2<sup>31</sup> 时从第 30 位开始；值 &lt; 10<sup>9</sup> &lt; 2<sup>30</sup> 时从第 29 位开始也够。多枚举一位不会错，只多一层。</td></tr></tbody></table><div class="cap" id="b114">最小可运行示例</div><div class="cap" id="b115">示例</div><pre id="b116"><code><span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">100005</span>;
+<span class="k">int</span> ch[MAXN * <span class="n">31</span>][<span class="n">2</span>], tot = <span class="n">0</span>;
+
+<span class="k">void</span> <span class="f">insert</span>(<span class="k">int</span> x) {
+    <span class="k">int</span> u = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> b = <span class="n">30</span>; b &gt;= <span class="n">0</span>; --b) {
+        <span class="k">int</span> c = (x &gt;&gt; b) &amp; <span class="n">1</span>;
+        <span class="k">if</span> (!ch[u][c]) ch[u][c] = ++tot;
+        u = ch[u][c];
+    }
+}
+
+<span class="k">int</span> <span class="f">query</span>(<span class="k">int</span> x) {                       <span class="c">// 与 x 异或的最大值</span>
+    <span class="k">int</span> u = <span class="n">0</span>, r = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> b = <span class="n">30</span>; b &gt;= <span class="n">0</span>; --b) {
+        <span class="k">int</span> c = (x &gt;&gt; b) &amp; <span class="n">1</span>;
+        <span class="k">if</span> (ch[u][c ^ <span class="n">1</span>]) {              <span class="c">// 反边存在：这一位异或出 1</span>
+            r |= <span class="n">1</span> &lt;&lt; b;
+            u = ch[u][c ^ <span class="n">1</span>];
+        } <span class="k">else</span> {                         <span class="c">// 只能将就，这一位异或出 0</span>
+            u = ch[u][c];
+        }
+    }
+    <span class="k">return</span> r;
+}</code></pre><div class="box tip"><div class="t" id="b117">注意</div><p id="b118">插入和查询都是 31 步固定开销，与数值大小无关。</p><p id="b119">ch 占 3.1×10<sup>6</sup>×2×4 ≈ 25 MB，n = 10<sup>5</sup> 时刚好；n 再大就要算清楚内存。</p></div></div></div><div class="prob"><div class="ph"><span class="pn" id="b120">例题 · 【模板】字符串哈希</span><span class="oi">洛谷 P3370</span><span class="badge diff">普及-</span><a href="https://www.luogu.com.cn/problem/P3370" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b121">给定 N 个字符串（第 i 个长度为 M<sub>i</sub>），字符串内只含数字与大小写字母，<b>大小写敏感</b>。请求出这 N 个字符串中共有多少个<b>不同</b>的字符串。</p><p id="b122">输入：第一行一个整数 N；接下来 N 行，每行一个字符串。</p><p id="b123">输出：一行一个整数，表示不同字符串的个数。</p><p id="b124">数据范围：N ≤ 10000，M<sub>max</sub> ≤ 1500（总字符数可达 1.5×10<sup>7</sup>）。</p></div><div class="io" id="b125">输入：
+5
+abc
+aaaa
+abc
+abcc
+12345
+输出：
+4</div></div><div class="step"><div class="sh" id="b126">例题怎么想：先把串变成整数，再去重</div><p id="b127">朴素做法：读进 N 个串，两两比较是否相同。N = 10<sup>4</sup> 时约 5×10<sup>7</sup> 对，每对最多比 1500 个字符，最坏 7×10<sup>10</sup> 次字符比较，TLE。</p><p id="b128">换目标：题目只问“有几个不同的串”，不问“谁和谁相同”。于是可以给每个串算一个整数指纹，把“字符串去重”降级成“整数去重”。</p><p id="b129">指纹怎么算：把串看成一个 B 进制数。<code>h = 0; for (c : s) h = h * B + c;</code>。长度 3 的 <code>abc</code> 展开是 a·B<sup>2</sup> + b·B + c，与按位权展开一致。只要 B 大于字符集（62），不同串在<b>不取模</b>时必然得到不同的整数——这就是“指纹”能表示串的原因。</p><p id="b130">取模是为了把整数压进 64 位。取模会丢信息，于是不同串可能落到同一个余数上，这叫哈希冲突。模 2<sup>64</sup>、随机数据、N = 10<sup>4</sup> 时，期望冲突对数约 N<sup>2</sup>/(2·2<sup>64</sup>) ≈ 3×10<sup>−12</sup>，可以忽略。</p><p id="b131">去重：N 个整数排序，再 unique 一遍。unique 把不重复的元素挪到前面并返回新的逻辑结尾，减去 begin 就是不同元素个数。总复杂度 O(N log N)，与串长无关。</p><div class="cap" id="b132">四步</div><pre id="b133"><code>读入 n
+<span class="k">for</span> 每个串 s:
+    h = <span class="n">0</span>
+    <span class="k">for</span> c in s: h = h * <span class="n">131</span> + c      # 溢出即 mod <span class="n">2</span>^<span class="n">64</span>
+    把 h 存进数组
+排序、<span class="k">unique</span>
+输出 <span class="k">unique</span> 之后的元素个数</code></pre><p id="b134">两处细节：<b>h 必须无符号</b>（有符号溢出是 UB）；<b>unique 之前必须排序</b>（它只消除相邻重复）。</p></div><div class="cap" id="b135">完整代码</div><pre id="b136"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+<span class="k">typedef</span> <span class="k">unsigned</span> <span class="k">long</span> <span class="k">long</span> ull;
+
+<span class="k">const</span> ull B = <span class="n">131</span>;          <span class="c">// 基数：大于字符集(62)，且是质数</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">int</span> n;
+    <span class="k">cin</span> &gt;&gt; n;
+    <span class="k">vector</span>&lt;ull&gt; h;
+    h.<span class="f">reserve</span>(n);
+
+    <span class="k">string</span> s;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; n; ++i) {
+        <span class="k">cin</span> &gt;&gt; s;
+        ull x = <span class="n">0</span>;
+        <span class="c">// 每个串独立从 0 开始累；乘 131 后的溢出位被丢弃，正是 mod 2^64</span>
+        <span class="k">for</span> (<span class="k">char</span> c : s) x = x * B + (ull)c;
+        h.<span class="k">push_back</span>(x);
+    }
+
+    <span class="k">sort</span>(h.<span class="k">begin</span>(), h.<span class="k">end</span>());              <span class="c">// 整数排序，比字符串比较便宜得多</span>
+    <span class="c">// unique 把不重复的元素挪到前面，返回新结尾；减去 begin 即个数</span>
+    <span class="k">cout</span> &lt;&lt; (<span class="k">int</span>)(<span class="k">unique</span>(h.<span class="k">begin</span>(), h.<span class="k">end</span>()) - h.<span class="k">begin</span>()) &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b137">逐行拆解</div><table class="lines"><thead><tr><th id="b138">代码片段</th><th id="b139">含义与理由</th></tr></thead><tbody><tr><td id="b140"><code>typedef unsigned long long ull;</code></td><td id="b141">64 位无符号。哈希的取模靠它自然溢出，一次 % 都不写。</td></tr><tr><td id="b142"><code>const ull B = 131;</code></td><td id="b143">基数必须大于字符集大小。取 B = 1 时 <code>ab</code> 与 <code>ba</code> 哈希都是 a+b，取 B = 2 时重排也会撞。质数让各次幂分布更散。</td></tr><tr><td id="b144"><code>ios::sync_with_stdio(false);</code></td><td id="b145">总输入 1.5×10<sup>7</sup> 个字符，读入本身是瓶颈之一，关同步省一半时间。</td></tr><tr><td id="b146"><code>ull x = 0;</code></td><td id="b147">写在读串的循环内，保证每个串的累加器是干净的。写在循环外会让所有串首尾相连。</td></tr><tr><td id="b148"><code>for (char c : s) x = x * B + (ull)c;</code></td><td id="b149">核心一行：先乘再加，等价于把串看成 B 进制数。(ull) 转换保证字符值 ≥ 128 时不做符号扩展。</td></tr><tr><td id="b150"><code>x * B 溢出为什么不算错</code></td><td id="b151">无符号溢出是“按 2<sup>64</sup> 取模”，C++ 标准明确规定；换 long long 就是 UB。同一个式子，类型决定它是算法还是未定义行为。</td></tr><tr><td id="b152"><code>h.push_back(x);</code></td><td id="b153">N 个指纹存进 vector，长度只有 N，与串长无关。</td></tr><tr><td id="b154"><code>sort(h.begin(), h.end());</code></td><td id="b155">O(N log N)，比较的是 8 字节整数。若直接 sort 字符串，比较代价是 O(串长)。</td></tr><tr><td id="b156"><code>unique(h.begin(), h.end()) - h.begin()</code></td><td id="b157">unique 返回去重后区间的新结尾。前提是已经有序，否则只消除相邻重复，答案偏大。</td></tr><tr><td id="b158"><code>(int)(...)</code></td><td id="b159">迭代器相减得到 ptrdiff_t，转 int 后输出，避免某些环境下按长整型打印。</td></tr></tbody></table></div><p id="b160">哈希真正的威力不在“整串比较”，而在<b>任意子串比较</b>。要做到这一点，先算前缀哈希，再用一次减法把任意一段“抠”出来。</p><p id="b161">设 h[i] 是前 i 个字符的哈希，则 h[r] = h[l−1]·B<sup>r−l+1</sup> + H(l..r)：前 r 个字符 = 前 l−1 个字符整体左移 r−l+1 位，再接上第 l..r 个字符。移项得到子串哈希公式。</p><div class="quote" id="b162">H(l..r) = h[r] − h[l−1] · B<sup>r−l+1</sup>。两段子串相同，这个值一定相同；值相同，则以极大概率两段相同——剩余的小概率就是“哈希冲突”。</div><div class="cap" id="b163">子串哈希：O(1) 判断两段是否相同</div><pre id="b164"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+<span class="k">typedef</span> <span class="k">unsigned</span> <span class="k">long</span> <span class="k">long</span> ull;
+
+<span class="k">const</span> ull B = <span class="n">131</span>;
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">1000005</span>;
+<span class="k">char</span> s[MAXN];
+ull h[MAXN], pw[MAXN];          <span class="c">// h：前缀哈希；pw：B 的幂</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">cin</span> &gt;&gt; (s + <span class="n">1</span>);             <span class="c">// 1 基下标，s[1] 是第一个字符</span>
+    <span class="k">int</span> n = <span class="f">strlen</span>(s + <span class="n">1</span>);
+
+    pw[<span class="n">0</span>] = <span class="n">1</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        h[i]  = h[i - <span class="n">1</span>] * B + (ull)s[i];   <span class="c">// 前 i 个字符的指纹</span>
+        pw[i] = pw[i - <span class="n">1</span>] * B;              <span class="c">// B^i</span>
+    }
+
+    <span class="c">// 子串 [l, r]（1 ≤ l ≤ r ≤ n）的指纹</span>
+    <span class="k">auto</span> sub = [&amp;](<span class="k">int</span> l, <span class="k">int</span> r) -&gt; ull {
+        <span class="k">return</span> h[r] - h[l - <span class="n">1</span>] * pw[r - l + <span class="n">1</span>];
+    };
+
+    <span class="k">int</span> q;
+    <span class="k">cin</span> &gt;&gt; q;
+    <span class="k">while</span> (q--) {
+        <span class="k">int</span> l1, r1, l2, r2;
+        <span class="k">cin</span> &gt;&gt; l1 &gt;&gt; r1 &gt;&gt; l2 &gt;&gt; r2;
+        <span class="k">cout</span> &lt;&lt; (<span class="f">sub</span>(l1, r1) == <span class="f">sub</span>(l2, r2) ? <span class="s">"Yes\n"</span> : <span class="s">"No\n"</span>);
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b165">公式里的每一项在做什么</div><table class="lines"><thead><tr><th id="b166">代码片段</th><th id="b167">含义与理由</th></tr></thead><tbody><tr><td id="b168"><code>cin &gt;&gt; (s + 1);</code></td><td id="b169">把字符串读到 s[1] 起始的位置，这样下标 1 就是第一个字符。括号不能省：<code>cin &gt;&gt; s + 1</code> 会被解析成 <code>(cin &gt;&gt; s) + 1</code>。</td></tr><tr><td id="b170"><code>h[i] = h[i - 1] * B + (ull)s[i];</code></td><td id="b171">递推：把前 i−1 个字符整体“左移一位”，再在末位接上 s[i]。</td></tr><tr><td id="b172"><code>pw[i] = pw[i - 1] * B;</code></td><td id="b173">幂表。子串公式里要乘 B<sup>r−l+1</sup>，现算会多一次 O(log n)，查表是 O(1)。</td></tr><tr><td id="b174"><code>h[r]</code></td><td id="b175">前 r 个字符的指纹，等于 H(1..l−1) 左移 r−l+1 位后加上 H(l..r)。</td></tr><tr><td id="b176"><code>h[l - 1] * pw[r - l + 1]</code></td><td id="b177">把前缀 1..l−1 移到与 h[r] 相同的位权上，才能相减。少了这一项，减出来的是“两个不同长度的前缀”之差，毫无意义。</td></tr><tr><td id="b178"><code>h[r] - h[l - 1] * pw[...]</code></td><td id="b179">减法在 ull 里回绕，正好等价于模 2<sup>64</sup> 的减法，不需要 +M 再取模。</td></tr><tr><td id="b180"><code>auto sub = [&amp;](int l, int r) -&gt; ull</code></td><td id="b181">lambda 捕获外部数组的引用，调用处像函数一样短。C++17 支持显式返回类型写法。</td></tr></tbody></table></div><p id="b182">这个公式是后面所有子串题的地基：找模式串出现位置（逐个起点比指纹）、最长公共前缀（二分长度 + 判等，O(log n)）、回文判断（正串和反串各一套哈希）。代价都是“预处理 O(n) + 每次询问 O(1) 或 O(log n)”。</p><p id="b183">哈希能判相等，却回答不了“有多少个串以某个前缀开头”——那是集合问题，不是相等问题。Trie 把公共前缀压成一条公共路径，走到某个节点，<b>子树里有多少个词</b>就是这个前缀的出现次数。</p><div class="cap" id="b184">Trie：插入、前缀计数、是否存在</div><pre id="b185"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">100005</span>;               <span class="c">// 节点上限 = 所有串总长 + 1</span>
+<span class="k">int</span> ch[MAXN][<span class="n">26</span>], pass[MAXN], ended[MAXN], tot = <span class="n">0</span>;
+
+<span class="k">void</span> <span class="f">insert</span>(<span class="k">const</span> <span class="k">string</span>&amp; s) {
+    <span class="k">int</span> u = <span class="n">0</span>;                         <span class="c">// 根</span>
+    <span class="k">for</span> (<span class="k">char</span> c : s) {
+        <span class="k">int</span> x = c - <span class="s">'a'</span>;
+        <span class="k">if</span> (!ch[u][x]) ch[u][x] = ++tot;   <span class="c">// 没有这条边才新建：前缀只存一份</span>
+        u = ch[u][x];
+        ++pass[u];                     <span class="c">// 经过 u 的串多了一个</span>
+    }
+    ++ended[u];                        <span class="c">// 有一个串在这里结束</span>
+}
+
+<span class="k">int</span> <span class="f">node</span>(<span class="k">const</span> <span class="k">string</span>&amp; s) {            <span class="c">// 返回路径终点；-1 表示路断了</span>
+    <span class="k">int</span> u = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">char</span> c : s) {
+        <span class="k">int</span> x = c - <span class="s">'a'</span>;
+        <span class="k">if</span> (!ch[u][x]) <span class="k">return</span> -<span class="n">1</span>;
+        u = ch[u][x];
+    }
+    <span class="k">return</span> u;
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">int</span> n, q;
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; q;
+    <span class="k">string</span> s;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; n; ++i) { <span class="k">cin</span> &gt;&gt; s; <span class="f">insert</span>(s); }
+
+    <span class="k">while</span> (q--) {
+        <span class="k">cin</span> &gt;&gt; s;
+        <span class="k">int</span> u = <span class="f">node</span>(s);
+        <span class="k">if</span> (u == -<span class="n">1</span>) { <span class="k">cout</span> &lt;&lt; <span class="s">"0 0\n"</span>; <span class="k">continue</span>; }
+        <span class="k">cout</span> &lt;&lt; pass[u] &lt;&lt; <span class="s">" "</span> &lt;&lt; (ended[u] &gt; <span class="n">0</span> ? <span class="n">1</span> : <span class="n">0</span>) &lt;&lt; <span class="s">"\n"</span>;
+        <span class="c">// 第一个数：以 s 为前缀的串数；第二个数：s 自己是不是一个插入过的串</span>
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b186">Trie 的三处关键</div><table class="lines"><thead><tr><th id="b187">代码片段</th><th id="b188">含义与理由</th></tr></thead><tbody><tr><td id="b189"><code>if (!ch[u][x]) ch[u][x] = ++tot;</code></td><td id="b190">共享前缀的全部秘密。边已存在就直接复用，不新建节点——所以 <code>abc</code> 和 <code>abd</code> 只多花 1 个节点，不是 3 个。</td></tr><tr><td id="b191"><code>u = ch[u][x];</code></td><td id="b192">沿着边走一步。循环结束时 u 就是整个串对应的节点。</td></tr><tr><td id="b193"><code>++pass[u];</code></td><td id="b194">放在“走完这一步”之后，统计的是“经过该节点的串数”。若放在走之前，统计的就变成了父节点的信息。</td></tr><tr><td id="b195"><code>++ended[u];</code></td><td id="b196">区分“是前缀”和“是单词”。<code>ab</code> 是 <code>abc</code> 的前缀，但 <code>ab</code> 自己可能没被插入——这时 ended[ab] = 0。</td></tr><tr><td id="b197"><code>if (u == -1)</code></td><td id="b198">走不通说明这条路径从没被插入过，前缀数一定是 0。提前返回省掉后面的遍历。</td></tr><tr><td id="b199"><code>复杂度</code></td><td id="b200">单次插入/查询 O(len)，与集合里有多少串无关。这是 Trie 相对“线性扫描所有串”的本质优势。</td></tr></tbody></table></div><p id="b201">把 Trie 的边从 26 条换成 2 条、从字符换成二进制位，就得到 01-Trie。它解决一类问题：给定一堆数，问“与 x 异或最大的数是谁”。</p><div class="cap" id="b202">01-Trie：求最大异或对（n ≤ 10⁵，值 &lt; 2³¹）</div><pre id="b203"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">100005</span>;
+<span class="k">int</span> ch[MAXN * <span class="n">31</span>][<span class="n">2</span>], tot = <span class="n">0</span>;         <span class="c">// 每个数最多占 31 个节点</span>
+
+<span class="k">void</span> <span class="f">insert</span>(<span class="k">int</span> x) {
+    <span class="k">int</span> u = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> b = <span class="n">30</span>; b &gt;= <span class="n">0</span>; --b) {    <span class="c">// 从最高位开始，高位决定大小</span>
+        <span class="k">int</span> c = (x &gt;&gt; b) &amp; <span class="n">1</span>;
+        <span class="k">if</span> (!ch[u][c]) ch[u][c] = ++tot;
+        u = ch[u][c];
+    }
+}
+
+<span class="k">int</span> <span class="f">query</span>(<span class="k">int</span> x) {                     <span class="c">// 返回与 x 异或能得到的最大值</span>
+    <span class="k">int</span> u = <span class="n">0</span>, r = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> b = <span class="n">30</span>; b &gt;= <span class="n">0</span>; --b) {
+        <span class="k">int</span> c = (x &gt;&gt; b) &amp; <span class="n">1</span>;
+        <span class="k">if</span> (ch[u][c ^ <span class="n">1</span>]) {            <span class="c">// 反边存在 → 这一位异或出 1，必选</span>
+            r |= <span class="n">1</span> &lt;&lt; b;
+            u = ch[u][c ^ <span class="n">1</span>];
+        } <span class="k">else</span> {
+            u = ch[u][c];              <span class="c">// 没得选，这一位异或出 0</span>
+        }
+    }
+    <span class="k">return</span> r;
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">int</span> n;
+    <span class="k">cin</span> &gt;&gt; n;
+    <span class="k">int</span> ans = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        <span class="k">int</span> x;
+        <span class="k">cin</span> &gt;&gt; x;
+        <span class="k">if</span> (i &gt; <span class="n">1</span>) ans = <span class="k">max</span>(ans, <span class="f">query</span>(x));   <span class="c">// 先问已有的数，答案一定来自两个不同的数</span>
+        <span class="f">insert</span>(x);
+    }
+    <span class="k">cout</span> &lt;&lt; ans &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b204">为什么可以一位一位贪</div><table class="lines"><thead><tr><th id="b205">代码片段</th><th id="b206">含义与理由</th></tr></thead><tbody><tr><td id="b207"><code>for (int b = 30; b &gt;= 0; --b)</code></td><td id="b208">从最高位往下。值 &lt; 2<sup>31</sup>，第 30 位是最高可能出现的位。</td></tr><tr><td id="b209"><code>if (ch[u][c ^ 1])</code></td><td id="b210">c 是 x 当前位，c^1 是相反的位。走反边意味着这一位异或结果是 1。</td></tr><tr><td id="b211"><code>r |= 1 &lt;&lt; b;</code></td><td id="b212">这一位确定为 1，把 2<sup>b</sup> 记进答案。b ≤ 30，1 &lt;&lt; b 不会溢出 int。</td></tr><tr><td id="b213"><code>为什么高位优先</code></td><td id="b214">第 b 位贡献 2<sup>b</sup>，低 b 位全取 1 也只有 2<sup>b</sup>−1 &lt; 2<sup>b</sup>。高位多赢一位就大于所有低位之和，所以逐位贪心与全局最优一致。</td></tr><tr><td id="b215"><code>先 query 再 insert</code></td><td id="b216">若先插后问，可能问到自己（x xor x = 0）；虽然不影响最大值，但“重复元素”的题会算错计数。顺序写对一次，以后不用想。</td></tr><tr><td id="b217"><code>ans 用 int 就够</code></td><td id="b218">两个 &lt; 2<sup>31</sup> 的数异或仍 &lt; 2<sup>31</sup>，不会超 int。若把值域改到 10<sup>18</sup>，位宽要改成 62，r 必须换 long long。</td></tr></tbody></table></div><div class="box warn"><div class="t" id="b219">这一节的 7 种错法（都带症状）</div><p id="b220"><b>RE / 段错误</b>。—— Trie 的 MAXN 按“串的个数”开成 10<sup>4</sup>。节点数等于<b>总字符数</b>，1 万个长 1500 的串要 1.5×10<sup>7</sup> 个节点，insert 时写 ch[u][x] 越界。</p><p id="b221"><b>WA，形如 ab 和 ba 被判成同一个串</b>。—— 基数取了 B = 1 或 2，哈希退化成字符求和，任何重排都同值。B 必须大于字符集大小。</p><p id="b222"><b>WA，本地全对、-O2 下答案诡异</b>。—— 用 <code>long long</code> 做自然溢出。有符号溢出是 UB，编译器可以按“不会溢出”优化。必须 <code>unsigned long long</code>。</p><p id="b223"><b>TLE</b>。—— 用 <code>set&lt;string&gt;</code> 或 <code>map&lt;string,int&gt;</code> 存 10<sup>5</sup> 个长 10<sup>3</sup> 的串：每次比较 O(L)，总代价 O(N·L·log N)。哈希后排序整数是 O(N log N)。</p><p id="b224"><b>WA，只有个别测试点错</b>。—— 单哈希被卡。长串 + 固定基数 + 模 2<sup>64</sup> 有确定的 Thue–Morse 反例，换双哈希或随机基数。</p><p id="b225"><b>RE / 死循环</b>。—— 用 -1 表示“边不存在”，但全局数组默认 0。判定写成 <code>if (ch[u][x] == -1)</code> 永远不成立，于是把 0 当成合法子节点原地打转。约定：0 表示不存在，编号从 1 开始。</p><p id="b226"><b>WA，01-Trie 答案偏小</b>。—— 位宽只写到第 20 位而数据里有 10<sup>6</sup> 以上的数；或者值域到 2<sup>31</sup> 还写 <code>1 &lt;&lt; 31</code>（有符号移位溢出），应写 <code>1LL &lt;&lt; b</code>。</p></div><div class="reproduce"><div class="rt" id="b227">自己动手复现</div><p id="b228">关掉页面，把 P3370 从空文件敲一遍并 AC。</p><p id="b229">改一改 ①：把 B 改成 1，输入 <code>5 / ab / ba / abc / cba / aabb</code>，不同字符串数会从 5 变成 3。想清楚哪几对撞了。</p><p id="b230">改一改 ②：把 <code>ull</code> 全换成 <code>long long</code>，加 <code>-O2</code> 编译，输入 10<sup>5</sup> 个随机串，对比两种写法的答案是否一致。</p><p id="b231">改一改 ③：把 sort + unique 换成 <code>set&lt;ull&gt;</code>，用 time 命令比较 10<sup>5</sup> 个串的耗时差。</p><p id="b232">改一改 ④：在 01-Trie 里把位宽从 30 改成 20，输入 10<sup>6</sup> 以内的数，看答案错在哪一位。</p><p id="b233">改一改 ⑤：给子串哈希那题加一组询问，让 l1、r1、l2、r2 长度不同，验证“长度不同必然不等”是否由公式自动保证。</p></div><div class="mathcard"><div class="mt" id="b234">数学补给 · 哈希为什么会有冲突：生日问题与 2^64</div><p id="b235">多项式哈希把长 L 的串映射到 <b>H(s) = Σ s<sub>i</sub>·B<sup>L−i</sup> mod M</b>。不取模时这是 B 进制表示，B 大于字符集时不同串必得不同整数；取模把 M 以外的信息丢掉了，不同的串就可能落到同一个余数上，这就是冲突。</p><p id="b236"><b>生日问题</b>：把 n 个串丢进 M 个桶，期望冲突对数 ≈ n(n−1)/(2M)。要让冲突概率低于 10<sup>−6</sup>，需要 M ≳ 5×10<sup>11</sup>·n<sup>2</sup>。</p><table><thead><tr><th id="b237">模数</th><th id="b238">大小</th><th id="b239">n = 10⁵ 时的期望冲突数</th><th id="b240">能否被构造攻击</th></tr></thead><tbody><tr><td id="b241">2<sup>32</sup></td><td id="b242">4.3×10<sup>9</sup></td><td id="b243">≈ 1.2</td><td id="b244">能</td></tr><tr><td id="b245">2<sup>64</sup></td><td id="b246">1.8×10<sup>19</sup></td><td id="b247">≈ 2.7×10<sup>−10</sup></td><td id="b248">能（Thue–Morse）</td></tr><tr><td id="b249">10<sup>9</sup>+7 单哈希</td><td id="b250">10<sup>9</sup></td><td id="b251">≈ 5</td><td id="b252">能</td></tr><tr><td id="b253">双哈希 10<sup>9</sup>+7 × 10<sup>9</sup>+9</td><td id="b254">10<sup>18</sup></td><td id="b255">≈ 5×10<sup>−9</sup></td><td id="b256">极难</td></tr></tbody></table><p id="b257"><b>为什么模 2<sup>64</sup> 特别脆</b>：2<sup>64</sup> 不是质数，奇数基数 B 的高次幂在模 2<sup>64</sup> 下很快退化，于是可以用“差分”构造出等长且哈希相同的两个串。已知的构造按 Thue–Morse 串取位（第 i 位由 popcount(i) 的奇偶决定），在模 2<sup>64</sup>、基数为奇数时两个串哈希完全相同。这就是 anti-hash 数据的来源——它不是运气，是构造。</p><p id="b258"><b>双哈希为什么够</b>：两套哈希同时撞上的概率近似为两个概率之积。两个 10<sup>9</sup> 量级的模数给到 10<sup>18</sup> 的组合空间，且出题人要同时对两个不同模数构造反例，难度远超对 2<sup>64</sup>。代价只是常数 ×2。</p><p id="b259"><b>子串哈希的恒等式</b>：h[r] = h[l−1]·B<sup>r−l+1</sup> + H(l..r)，移项即 <b>H(l..r) = h[r] − h[l−1]·B<sup>r−l+1</sup></b>。这一步把任意子串的指纹变成两次查表加一次乘法，是所有“子串比较”类题目的地基。</p><p id="b260"><b>基数怎么选</b>：B 要大于字符集（否则不同字符会进位混叠），且最好与模数互质（取质数最省事）。131、13331 是习惯用法；更稳的是运行时随机取一个 10<sup>8</sup> 附近的质数，让反例无法预先构造。</p></div><div class="think"><div class="tt" id="b261">举一反三 · 想清楚这些再往下走</div><div class="thint">先自己写出答案，再点开核对——方向对不对，比答案本身更重要</div><ol><li id="b262"><div class="tq">判断“一个串是否在另一个串中出现”，哈希和下一节的 KMP 都能做，都是 O(n+m)。什么情况下哈希会退化成 O(nm)，什么情况下必须用 KMP？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">标准写法不会退化成 O(nm)：主串预处理 O(n)、幂表 O(n)，枚举 n−m+1 个起点各 O(1)，合计 O(n+m)。退化只发生在三种写法上：① 不用前缀哈希，每个起点重新扫 m 个字符算一份哈希，正好 O(nm)；② 哈希相等后再逐字符 verify 防冲突，遇到全 <code>a</code> 这类数据每次都要比 m 个字符，最坏 O(nm)；③ 求“最长公共前缀”时对每个起点线性往后比。必须用 KMP 的场合有两类：<b>要 next 数组本身</b>（最小循环节、所有 border、前缀出现次数、AC 自动机），哈希给不出失配位置，只能对每个长度二分或枚举，退成 O(n log n) 甚至 O(n²)；<b>要求确定性正确</b>，题目专门放了 anti-hash 数据（固定基数 + 模 2<sup>64</sup> 的 Thue–Morse 构造），这时哈希不是慢，是错。</div></details></li><li id="b263"><div class="tq">如果题目要求“把 s 的某个位置改成另一个字符，然后判断两个子串是否相等”，前缀哈希要怎么改？提示：h[i] 是一个和，能不能用树状数组维护？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">关键认识：改一个字符会让后面所有 h[i] 都变，所以不能直接在 h 上做单点改。换成<b>固定指数</b>写法：令 <code>t[j] = c<sub>j</sub>·B<sup>n−j</sup></code>，那么 <code>Σ(j=l..r) t[j] = B<sup>n−r</sup>·H(l..r)</code>，区间哈希 = 两次前缀和相减再乘 <code>B<sup>n−r</sup></code> 的逆元。于是单点改字符只改 t[p] 一项，正好落在树状数组上：改一次 O(log n)，查一段 O(log n)（模意义下要预存逆元表，或者用线段树合并哈希，免掉逆元）。常见错路是“在 h[i] 上做单点修改”——修改的真实效果是给后缀每个 h[i] 加上 Δ·B<sup>i−p</sup>，这个增量随下标指数变化，普通树状数组的区间加根本表达不了，硬做出来的区间和全是错的。</div></details></li><li id="b264"><div class="tq">Trie 的空间是 O(总字符数)。那它比“把所有串塞进 set”省在哪？如果字符集是 10<sup>5</sup> 个汉字，<code>ch[u][c]</code> 还能这么开吗？替代方案是什么？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">省的是<b>公共前缀</b>，不是字符：Trie 的节点数 = 不同前缀的个数 + 1，所有串共享同一段前缀时那一段只存一份；set 里每个串的每个字符都各存一份，外加红黑树每节点约 40 字节。但 Trie 的节点很贵——<code>ch[u][26]</code> 是 104 字节/节点，所以字符串几乎没公共前缀时 Trie 反而更费：总长 1.5×10<sup>7</sup> 时就是 1.5×10<sup>7</sup>×104 ≈ 1.5 GB，必然 MLE。字符集到 10<sup>5</sup> 个汉字时 <code>ch[u][c]</code> 绝对不能这样开（每节点 400 KB）：换成邻接表（<code>vector&lt;pair&lt;int,int&gt;&gt;</code> 或 <code>map</code> 存“字符 → 子节点”），或者把用到的字符离散化后压成小整数，再或者用“左儿子右兄弟”的链表表示。常见错路是以为“Trie 一定比 set 省”，于是照着 26 叉模板开到总长上限，评测机上直接开不出内存。</div></details></li><li id="b265"><div class="tq">01-Trie 求“最大异或对”是 O(31n)。如果改问“异或值 ≥ k 的数对有多少个”，怎么在树上做？提示：走边时同时统计子树里的数值个数。</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">在 01-Trie 上边统计：每个节点记 <code>cnt[u]</code> = 子树里的数值个数（插入时沿路 ++）。对每个 x 从第 30 位往下走，同时看 k 的当前位：k 这一位是 0，就往“异或出 1”的反边走，并把那条边整棵子树的 <code>cnt</code> 一次性加进答案（这一位已经比 k 大，低位随便），然后自己走“异或出 0”的边继续；k 这一位是 1，就只能走反边（走同边立刻小于 k，整枝舍弃），继续往下。走到 b &lt; 0 说明正好等于 k，也算一对。每个 x 走 31 步、每步 O(1)，总 O(31n)；这样每个数对会被数两遍，最后除以 2（或者先插入全部、再统一查询）。常见错路是只在“等于 k”时判一次，把“高位已经严格大于”的整片子树漏掉，答案偏小；另一条是对每个 x 遍历整棵子树，直接退化成 O(n²)。</div></details></li><li id="b266"><div class="tq">双哈希一定安全吗？要构造同时卡住两个模数的数据，串至少要多长？提示：两个模数乘积约 10<sup>18</sup>，而长度 L 的串有 62<sup>L</sup> 种。</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">不绝对安全，但构造代价很高。用鸽巢算一下：长度 L 的串有 62<sup>L</sup> 种，双哈希的桶数约 10<sup>18</sup>，而 62<sup>11</sup> ≈ 5.2×10<sup>19</sup> 已经超过它，所以<b>长度 11 起就保证存在</b>同哈希的两个串。但“存在”不等于“找得到”：实际要造出来，得做生日攻击量级的搜索（约 10<sup>9</sup> 次枚举才有 50% 命中），还要同时满足两个模数，比卡 2<sup>64</sup> 难得多——所以双哈希在赛场上够用，被专门针对时仍然会崩。常见错路是以为“双哈希绝对安全所以基数可以固定”，其实基数一旦固定，攻击者就能离线搜；另一条是以为“串越长越安全”，桶数不变、可用串更多，只会更容易撞。</div></details></li><li id="b267"><div class="tq">把 ull 换成 uint32_t（模 2<sup>32</sup> 自然溢出），n = 10<sup>5</sup> 时期望冲突数约 1.2。这个数字说明什么？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">这个数字说明“撞车是必然，不是运气”：期望冲突对数 = n(n−1)/(2M) = 10<sup>10</sup>/(2×4.3×10<sup>9</sup>) ≈ 1.16，标准差也是 1 的量级，意味着大约一半以上的概率至少撞一次。换成单模 10<sup>9</sup>+7 更糟：10<sup>10</sup>/(2×10<sup>9</sup>) = 5 次，几乎必错。所以 32 位哈希只适合 n ≤ 10<sup>4</sup> 量级（那时期望 ≈ 1.2×10<sup>−2</sup>），n = 10<sup>5</sup> 必须上 64 位或双哈希。常见错路是把 2<sup>32</sup> ≈ 4×10<sup>9</sup> 当成“够大”，或者觉得“冲突是概率，交上去也许能过”——期望 1 次以上就不叫概率了。</div></details></li><li id="b268"><div class="tq">为什么哈希替代不了 Trie 的“前缀计数”？前缀哈希能算出“某个前缀的指纹”，但它答不了哪个问题？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">哈希答不出“有多少个串以 s 为前缀”。它能 O(1) 判出“某一个串是不是以 s 开头”（比该串的前缀哈希），但要数个数就得把 N 个串全扫一遍，代价 O(N) 次比较——Trie 是 O(|s|)，与 N 完全无关。根子在于哈希把每个串<b>独立</b>压成一个数：共享 999 个字符前缀的两个串，那 999 个字符的贡献混在同一个 64 位数里，取不出结构；Trie 的 <code>pass[u]</code> 天生就是“经过这个节点的串数”，因为公共前缀在树上是同一批节点。常见错路是“把所有前缀都哈希一遍存进哈希表”——那确实能数，但每个串的每个前缀都要算一次，总共 ΣM<sub>i</sub> 个条目，空间和 Trie 同量级而常数大得多，还丢掉了字典序，等于用哈希表把 Trie 重写了一遍。</div></details></li></ol></div><div class="box tip"><div class="t" id="b269">自测：能全部回答再进下一节</div><ul><li id="b270">能默写多项式哈希的那一行，并说清为什么必须用 unsigned long long 而不是 long long。</li><li id="b271">能写出子串哈希公式，并解释 h[l−1]·B<sup>r−l+1</sup> 这一项在做什么、去掉会错成什么样。</li><li id="b272">能说出单哈希、双哈希在 n = 10<sup>5</sup> 时的冲突期望值数量级，并知道 Hash Killer 的存在。</li><li id="b273">能默写 Trie 的 insert 与 node 查询，说清 0 号为什么既是根又是“不存在的边”。</li><li id="b274">能默写 01-Trie 的插入与查询，并用“高位大于所有低位之和”解释贪心的正确性。</li><li id="b275">拿到一道字符串题，能判断该用哈希、Trie，还是该等下一节的 KMP。</li></ul></div><div class="challenge"><div class="ct" id="b276">挑战题 · 于是他错误的点名开始了</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P2580</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P2580" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b277">化学竞赛组有 n 名学生，教练手里有名单。教练会依次报出 m 个名字，你要对每个名字给出判断：</p><p id="b278">若这个名字在名单里且是<b>第一次</b>被点到，输出 <code>OK</code>；若在名单里但<b>之前已经被点过</b>，输出 <code>REPEAT</code>；若<b>不在</b>名单里，输出 <code>WRONG</code>。</p><p id="b279">输入：第一行一个整数 n；接下来 n 行每行一个名字（互不相同，只含小写字母，长度 ≤ 50）；第 n+2 行一个整数 m；接下来 m 行每行一个教练报的名字（只含小写字母，长度 ≤ 50）。数据范围 n ≤ 10<sup>4</sup>，m ≤ 10<sup>5</sup>。</p><p id="b280">输出：对教练报的每个名字输出一行，为 <code>OK</code>、<code>REPEAT</code> 或 <code>WRONG</code>。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b281">名字总数 10<sup>4</sup>、长度 ≤ 50，总字符数不超过 5×10<sup>5</sup>。这个数字提示你：可以按字符建结构，不必按名字建。</p><p id="b282">查询要区分三件事：这条路径存在吗？路径的终点真的有名字结束吗？这个名字之前被点过吗？三件事需要三种不同的信息。</p><p id="b283">“前缀”和“单词”要分开：名单里只有 ab，教练报 abc，这条路径走不通；名单里只有 abc，教练报 ab，路径走得通但 ab 不结束。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b284">把名单建成 Trie：每个名字从根出发逐字符走，没有边就新建节点。走完整个名字时，把该节点的“结束计数”加一。</p><p id="b285">查询一个名字也是逐字符走：中途某条边不存在，说明名单里没有以它为前缀的名字，直接 WRONG。</p><p id="b286">走完整条路径后，还要看终点节点的结束计数是否为 0。为 0 说明它只是某个更长名字的前缀，自己不是名单里的名字——也是 WRONG。</p><p id="b287">为了区分 OK 和 REPEAT，再给每个节点一个 vis 标记：第一次走到这里输出 OK 并置 true，之后再走到就输出 REPEAT。</p><p id="b288">为什么用 Trie 而不是 set：set 查一次是 O(len·log n) 次字符串比较，Trie 是 O(len) 次下标访问，而且 m 到 10<sup>5</sup>，差距会放大。</p><p id="b289">复杂度：插入 O(总字符数) ≤ 5×10<sup>5</sup>，查询 O(m×50) ≤ 5×10<sup>6</sup>，空间 O(总字符数)。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b290">参考代码</div><pre id="b291"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">500005</span>;               <span class="c">// 节点上限 = n × 50</span>
+<span class="k">int</span> ch[MAXN][<span class="n">26</span>], ended[MAXN], tot = <span class="n">0</span>;
+<span class="k">bool</span> vis[MAXN];                        <span class="c">// 这个节点被点过名没有</span>
+
+<span class="k">void</span> <span class="f">insert</span>(<span class="k">const</span> <span class="k">string</span>&amp; s) {
+    <span class="k">int</span> u = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">char</span> c : s) {
+        <span class="k">int</span> x = c - <span class="s">'a'</span>;
+        <span class="k">if</span> (!ch[u][x]) ch[u][x] = ++tot;   <span class="c">// 前缀只有一份</span>
+        u = ch[u][x];
+    }
+    ++ended[u];                        <span class="c">// 这个名字真的在名单里</span>
+}
+
+<span class="k">int</span> <span class="f">node</span>(<span class="k">const</span> <span class="k">string</span>&amp; s) {            <span class="c">// 返回终点编号；-1 表示路径不存在</span>
+    <span class="k">int</span> u = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">char</span> c : s) {
+        <span class="k">int</span> x = c - <span class="s">'a'</span>;
+        <span class="k">if</span> (!ch[u][x]) <span class="k">return</span> -<span class="n">1</span>;
+        u = ch[u][x];
+    }
+    <span class="k">return</span> u;
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">int</span> n;
+    <span class="k">cin</span> &gt;&gt; n;
+    <span class="k">string</span> s;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; n; ++i) { <span class="k">cin</span> &gt;&gt; s; <span class="f">insert</span>(s); }
+
+    <span class="k">int</span> m;
+    <span class="k">cin</span> &gt;&gt; m;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; m; ++i) {
+        <span class="k">cin</span> &gt;&gt; s;
+        <span class="k">int</span> u = <span class="f">node</span>(s);
+        <span class="c">// 路走不通，或者走通了但这里没有名字结束：都不是名单里的名字</span>
+        <span class="k">if</span> (u == -<span class="n">1</span> || ended[u] == <span class="n">0</span>) { <span class="k">cout</span> &lt;&lt; <span class="s">"WRONG\n"</span>; <span class="k">continue</span>; }
+        <span class="k">if</span> (vis[u]) { <span class="k">cout</span> &lt;&lt; <span class="s">"REPEAT\n"</span>; <span class="k">continue</span>; }
+        vis[u] = <span class="k">true</span>;
+        <span class="k">cout</span> &lt;&lt; <span class="s">"OK\n"</span>;
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b292">关键片段拆解</div><table class="lines"><thead><tr><th id="b293">片段</th><th id="b294">作用</th></tr></thead><tbody><tr><td id="b295"><code>const int MAXN = 500005;</code></td><td id="b296">n ≤ 10<sup>4</sup>、每个名字长 ≤ 50，总字符数 ≤ 5×10<sup>5</sup>，节点数不会超过总长 + 1。按“名字个数”开数组是这题最常见的 RE。</td></tr><tr><td id="b297"><code>if (!ch[u][x]) ch[u][x] = ++tot;</code></td><td id="b298">共享前缀。名字 abc 与 abd 只多花一个节点，不是三个。</td></tr><tr><td id="b299"><code>++ended[u];</code></td><td id="b300">★ 结束标记。没有它，“abc 在名单里，报 ab”会被判 OK，而正确答案是 WRONG。</td></tr><tr><td id="b301"><code>if (!ch[u][x]) return -1;</code></td><td id="b302">边走边判。路径断了就没有必要走下去，也顺便区分了“不存在”和“存在但不是名字”。</td></tr><tr><td id="b303"><code>if (u == -1 || ended[u] == 0)</code></td><td id="b304">两个条件缺一不可。u == -1 是路径断了；ended[u] == 0 是路径存在但只是别人的前缀。</td></tr><tr><td id="b305"><code>if (vis[u])</code></td><td id="b306">★ 用节点编号当访问标记，而不是再存一份字符串。同一个名字必然落在同一个节点上，所以节点编号就是名字的唯一 ID。</td></tr><tr><td id="b307"><code>vis[u] = true;</code></td><td id="b308">只在这一步置真：确保“第一次报”输出 OK，“第二次及以后”输出 REPEAT。</td></tr></tbody></table><div class="box warn"><div class="t" id="b309">这题最容易错的地方</div><ul><li id="b310">把 MAXN 按名字个数开成 10<sup>4</sup>：节点数是总字符数，直接 RE。</li><li id="b311">忘了判 <code>ended[u] == 0</code>：名单里只有 abc 时报 ab，会错判成 OK。</li><li id="b312">用 <code>map&lt;string,int&gt;</code> 记是否点过名：能过，但多了一次哈希，且意图不如“节点编号当 ID”清晰；n、m 更大时会被卡。</li><li id="b313">用 <code>ended[u]--</code> 表示“点过”：同一个名字第二次来时 ended[u] 已变成 0，会被判成 WRONG 而不是 REPEAT。</li><li id="b314">多测不清空：本题只有一组，但换到多测题时必须把 tot、ch、ended、vis 一起清。</li></ul></div></div></details></div><div class="box tip" style="margin:22px 0 -6px"><div class="t" id="b315">挑战 2 · 难度高一级，允许组合多个已学算法</div><p id="b316">这题比上面的挑战题更难：它不只用本节一个算法，可能需要把前面几节的工具拼起来。独立做出来说明这一块真的过关了；做完记得在侧边栏勾上 🌟。</p></div><div class="challenge ch2"><div class="ct" id="b317">挑战 2 · 最长异或路径</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P4551</span><span class="badge diff">提高-/提高</span><a href="https://www.luogu.com.cn/problem/P4551" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b318">给定一棵 n 个点的带权树，点编号 1..n。一条“异或路径”指树上 u、v 两点之间唯一路径上所有边权的异或值。求所有点对之间异或路径的最大值。</p><p id="b319">输入：第一行一个整数 n（1 ≤ n ≤ 10<sup>5</sup>）；接下来 n−1 行，每行三个整数 u、v、w，表示 u 与 v 之间有一条权值为 w 的边（0 ≤ w &lt; 2<sup>31</sup>）。</p><p id="b320">输出：一行一个整数，最大的异或路径值。</p><p id="b321">样例：4 个点，边是 (1,2,3)、(2,3,4)、(2,4,6)。1 到 3 要经过权值 3 和 4 两条边，3 ⊕ 4 = 7，这一对是所有点对里最大的。</p></div><div class="cap" id="b322">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+4
+1 2 3
+2 3 4
+2 4 6
+输出：
+7</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b323">先把问题从树上搬下来：记 d[u] 为“根走到 u”这一路的边权异或值。一条 u→v 的路径，和 d[u]、d[v] 之间差了什么？注意异或的逆运算是它自己，两个相同的数异或起来是多少？</p><p id="b324">树上 n 个 d 值两两异或要 5×10<sup>9</sup> 次。本节正课里有个结构能把“和 x 异或最大”压到 31 步，它要求的输入是“一堆整数”还是“一棵树”？</p><p id="b325">别按点数开数组：一个数要 31 个二进制位，10<sup>5</sup> 个数最多需要 3.1×10<sup>6</sup> 个 Trie 节点。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b326">记 d[u] 为根到 u 路径上的边权异或值。u→v 的路径 = u→lca→v，而 d[u] ⊕ d[v] 里“根→lca”那一段出现了两次，异或后归零，剩下的正好是 u→v 这一段的异或值。所以答案 = max{d[u] ⊕ d[v]}，与树的形状无关，只跟这 n 个数有关。</p><p id="b327">题目于是变成：给 n 个不超过 2<sup>31</sup> 的整数，求两两异或的最大值。暴力 C(n,2) = 5×10<sup>9</sup> 次，超时。</p><p id="b328">把这 n 个数从第 30 位到第 0 位插进 01-Trie，查询 x 时从高位往下走：只要 x 这一位的反向儿子存在，就一定走它。因为第 k 位贡献 2<sup>k</sup>，而 2<sup>k</sup> 大于所有更低位之和 2<sup>k</sup>−1，所以“先保高位”的贪心不会错。</p><p id="b329">对每个 d[i] 查一次，答案取最大。单次 31 步，总计 O(31n)；Trie 节点数上限 31n+1。</p><p id="b330">边界：n = 1 时没有边，只有 d[1] = 0，答案为 0（自己和自己异或）；w 可以取 0；d 用 int 就够，因为异或不会超过 2<sup>31</sup>−1。</p><p id="b331">复杂度：时间 O(31n)，空间 O(31n)，n = 10<sup>5</sup> 时约 3.1×10<sup>6</sup> 个节点、25 MB。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b332">参考代码</div><pre id="b333"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">100005</span>;
+<span class="k">int</span> head[MAXN], nxt[MAXN &lt;&lt; <span class="n">1</span>], to[MAXN &lt;&lt; <span class="n">1</span>], wt[MAXN &lt;&lt; <span class="n">1</span>], ecnt = <span class="n">0</span>;
+<span class="k">int</span> d[MAXN];                 <span class="c">// d[u] = 根到 u 的边权异或值</span>
+<span class="k">bool</span> vis[MAXN];
+
+<span class="k">void</span> <span class="f">addEdge</span>(<span class="k">int</span> u, <span class="k">int</span> v, <span class="k">int</span> w) {
+    to[++ecnt] = v; wt[ecnt] = w; nxt[ecnt] = head[u]; head[u] = ecnt;
+}
+
+<span class="c">// 01-Trie：每个数从第 30 位插到第 0 位，节点数 &lt;= 31n + 1</span>
+<span class="k">const</span> <span class="k">int</span> MAXT = <span class="n">3200005</span>;
+<span class="k">int</span> ch[MAXT][<span class="n">2</span>], tot = <span class="n">0</span>;
+
+<span class="k">void</span> <span class="f">insert</span>(<span class="k">int</span> x) {
+    <span class="k">int</span> u = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">30</span>; i &gt;= <span class="n">0</span>; --i) {
+        <span class="k">int</span> b = (x &gt;&gt; i) &amp; <span class="n">1</span>;
+        <span class="k">if</span> (!ch[u][b]) ch[u][b] = ++tot;      <span class="c">// 走不通才建新点，前缀靠共享</span>
+        u = ch[u][b];
+    }
+}
+
+<span class="k">int</span> <span class="f">query</span>(<span class="k">int</span> x) {
+    <span class="k">int</span> u = <span class="n">0</span>, res = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">30</span>; i &gt;= <span class="n">0</span>; --i) {
+        <span class="k">int</span> b = (x &gt;&gt; i) &amp; <span class="n">1</span>;
+        <span class="k">if</span> (ch[u][b ^ <span class="n">1</span>]) {                    <span class="c">// 反向位存在就先走，这一位能拿到 1</span>
+            res |= <span class="n">1</span> &lt;&lt; i;
+            u = ch[u][b ^ <span class="n">1</span>];
+        } <span class="k">else</span> {
+            u = ch[u][b];
+        }
+    }
+    <span class="k">return</span> res;
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+    <span class="k">int</span> n;
+    <span class="k">cin</span> &gt;&gt; n;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt; n; ++i) {
+        <span class="k">int</span> u, v, w;
+        <span class="k">cin</span> &gt;&gt; u &gt;&gt; v &gt;&gt; w;
+        <span class="f">addEdge</span>(u, v, w);
+        <span class="f">addEdge</span>(v, u, w);
+    }
+    <span class="c">// 迭代 BFS 求前缀异或：链状树深度 10^5，递归 DFS 有爆栈风险</span>
+    <span class="k">queue</span>&lt;<span class="k">int</span>&gt; q;
+    q.<span class="f">push</span>(<span class="n">1</span>);
+    vis[<span class="n">1</span>] = <span class="k">true</span>;
+    <span class="k">while</span> (!q.<span class="k">empty</span>()) {
+        <span class="k">int</span> u = q.<span class="f">front</span>(); q.<span class="f">pop</span>();
+        <span class="f">insert</span>(d[u]);
+        <span class="k">for</span> (<span class="k">int</span> e = head[u]; e; e = nxt[e]) {
+            <span class="k">int</span> v = to[e];
+            <span class="k">if</span> (vis[v]) <span class="k">continue</span>;
+            vis[v] = <span class="k">true</span>;
+            d[v] = d[u] ^ wt[e];               <span class="c">// 异或是自己的逆运算，可沿路径累积</span>
+            q.<span class="f">push</span>(v);
+        }
+    }
+    <span class="k">int</span> ans = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) ans = <span class="k">max</span>(ans, <span class="f">query</span>(d[i]));
+    <span class="k">cout</span> &lt;&lt; ans &lt;&lt; <span class="s">'\n'</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b334">关键片段拆解</div><table class="lines"><thead><tr><th id="b335">片段</th><th id="b336">作用</th></tr></thead><tbody><tr><td id="b337"><code>d[v] = d[u] ^ wt[e];</code></td><td id="b338">地基：异或是自己的逆运算，所以 d[u] ⊕ d[v] 里“根→lca”那一段自动消掉，剩下正是 u→v 的路径异或值。</td></tr><tr><td id="b339"><code>for (int i = 30; i &gt;= 0; --i)</code></td><td id="b340">位宽。w &lt; 2<sup>31</sup>，最高位是第 30 位；写成从 29 起循环会把 2<sup>30</sup> 那一档算漏。</td></tr><tr><td id="b341"><code>if (ch[u][b ^ 1]) { res |= 1 &lt;&lt; i; ... }</code></td><td id="b342">★ 贪心核心：反向位存在就选它。第 k 位的一个 1 抵得过后面所有位之和。</td></tr><tr><td id="b343"><code>const int MAXT = 3200005;</code></td><td id="b344">节点上限 31n+1 ≈ 3.1×10<sup>6</sup>。按点数 n 开数组必 RE。</td></tr><tr><td id="b345"><code>queue&lt;int&gt; q; ... vis[v] = true;</code></td><td id="b346">链状树深 10<sup>5</sup>，递归 DFS 会爆栈；BFS 里顺手算 d 并插入，一个循环干完两件事。</td></tr><tr><td id="b347"><code>for (int i = 1; i &lt;= n; ++i) ans = max(ans, query(d[i]));</code></td><td id="b348">每个 d 查一次。n = 1 时循环仍执行，答案是 0，正确。</td></tr></tbody></table><div class="box warn"><div class="t" id="b349">这题最容易错的地方</div><ul><li id="b350">Trie 数组按点数 n 开：节点数是 31n+1（每个节点 2 个儿子），10<sup>5</sup> 时直接越界 RE。</li><li id="b351">位宽取错：w &lt; 2<sup>31</sup> 意味着第 30 位也要建，从 29 或从 20 起循环都会答案偏小。</li><li id="b352">忘了每条无向边要建两条：只 addEdge(u, v, w) 时树是断的，一半的点 d 值永远是 0。</li><li id="b353">n = 1 时特判成“无解”或直接输出 −1：此时答案是 0（自己到自己），不该特殊处理掉。</li></ul></div></div></details></div><div class="box info"><div class="t" id="b354">延伸阅读 / 参考</div><ul><li id="b355">《算法竞赛进阶指南》0x14 哈希与 0x31 字典树</li><li id="b356">《算法竞赛入门笔记》字符串章节：哈希与 Trie</li><li id="b357">《算法竞赛试炼场：洛谷300题精析》P3370、P2580 两题的精析</li><li id="b358">《算法竞赛黄金法则：提高算法和思考力的77项技巧》中“把比较换成指纹”的思路</li><li id="b359">洛谷 P3370 题目的“拓展阅读”：Hash Killer I~Extra 系列</li></ul></div>
+
+<footer>算竞教程 · 算竞教程 · 生成于自建课程体系，题目版权归洛谷及各命题方所有<br>
+转载请注明出处；模板代码可直接用于比赛</footer>

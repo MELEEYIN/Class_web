@@ -1,0 +1,315 @@
+
+<p id="b0">这一节不讲新知识。5 道题、150 分钟，考第 1~49 节里复用率最高的五件事：<b>单调队列</b>（第 48 节）、<b>正反两遍 LIS</b>（第 31 节）、<b>二分答案加贪心判定</b>（第 27、16 节）、<b>树状数组加离散化</b>（第 46、13 节）、<b>断环成链的区间 DP</b>（第 33、18 节）。五道题都是洛谷真题，代码只用你已经学过的东西写。满分 500 分，每题 100 分。</p><div class="quote" id="b1">模拟赛一考的是“会不会”，模拟赛二考的是“取舍”：五道题里一定有一道你写不完，先决定放弃哪道，比先决定做哪道更值钱。</div><p id="b2">先看清单。卡住时不要顺着题号往下问，直接翻回对应的节重看那一段。</p><table><thead><tr><th id="b3">题号</th><th id="b4">题目</th><th id="b5">对应节</th><th id="b6">一句话考点</th><th id="b7">建议用时</th></tr></thead><tbody><tr><td id="b8">A</td><td id="b9">P1886 滑动窗口</td><td id="b10">第 28、48 节</td><td id="b11">队尾弹逆序、队头出窗口</td><td id="b12">22 分钟</td></tr><tr><td id="b13">B</td><td id="b14">P1091 合唱队形</td><td id="b15">第 31 节</td><td id="b16">正反两遍 LIS 再合并</td><td id="b17">23 分钟</td></tr><tr><td id="b18">C</td><td id="b19">P2678 跳石头</td><td id="b20">第 27、16 节</td><td id="b21">二分最短距离 + 贪心数移走几块</td><td id="b22">28 分钟</td></tr><tr><td id="b23">D</td><td id="b24">P1908 逆序对</td><td id="b25">第 46、13 节</td><td id="b26">离散化后上树状数组</td><td id="b27">30 分钟</td></tr><tr><td id="b28">E</td><td id="b29">P1880 石子合并</td><td id="b30">第 33、18 节</td><td id="b31">断环成链 + 区间 DP</td><td id="b32">32 分钟</td></tr></tbody></table><p id="b33">难度上 A~D 是<b>普及/提高-</b>，E 是<b>提高</b>。本场的分水岭在 C 和 E：C 卡在“check 怎么写”，E 卡在“环怎么处理”。这两处都是<u>想通就五分钟、想不通就零分</u>的地方，所以下面每道题的提示都从“先想暴力”开始，而不是从“先想正解”开始。</p><div class="step"><div class="sh" id="b34">150 分钟怎么切</div><p id="b35">总原则：<b>前 55 分钟只做 A、B，并且必须一次过</b>。这两题都是“想到就能写对”的题，一旦返工，后面三道题的时间就是借来的。</p><table><thead><tr><th id="b36">时间段</th><th id="b37">做什么</th><th id="b38">关键动作</th></tr></thead><tbody><tr><td id="b39">0 ~ 8</td><td id="b40">通读 5 题</td><td id="b41">在纸上给每题标：会做 / 有思路 / 完全不会。这 8 分钟不写一行代码。</td></tr><tr><td id="b42">8 ~ 30</td><td id="b43">A 滑动窗口（22）</td><td id="b44">先写最小值那一遍，测完样例，再复制一份把比较方向反一下。</td></tr><tr><td id="b45">30 ~ 53</td><td id="b46">B 合唱队形（23）</td><td id="b47">两遍 LIS 都不难，难在最后的 n − max(f+g−1) 别算成 max。</td></tr><tr><td id="b48">53 ~ 81</td><td id="b49">C 跳石头（28）</td><td id="b50">先写 check，再套二分。check 写完用小数据手算两遍再编译。</td></tr><tr><td id="b51">81 ~ 111</td><td id="b52">D 逆序对（30）</td><td id="b53">离散化那三行写完先输出 sz 验一遍，再写树状数组。</td></tr><tr><td id="b54">111 ~ 143</td><td id="b55">E 石子合并（32）</td><td id="b56">断环成链 + 长度递增。到点没 AC 就交线性版本保分。</td></tr><tr><td id="b57">143 ~ 150</td><td id="b58">检查</td><td id="b59">只查数组大小、long long、输出格式，<b>不改算法</b>。</td></tr></tbody></table><ul><li id="b60">单题硬上限 = 建议用时 × 1.5。C 题 42 分钟还没 AC 就换题，否则 D、E 连读题的时间都没有。</li><li id="b61">每题先交“能过样例 + 手造边界”的版本，再想优化。有分才谈满分。</li><li id="b62">A 题写不完是致命的：它只有十几行。写不完说明没热身，立刻停手重读一遍题面。</li><li id="b63">最后 7 分钟只做检查。赛场上最后 15 分钟改崩的次数，远多于改对的次数。</li></ul></div><p id="b64">每题内部再切一刀：<b>想 5 分钟、写 15 分钟、测 5 分钟</b>。想的那 5 分钟不许碰键盘，纸上必须出现 4 行东西：</p><ol><li id="b65"><b>数组开多大</b>：从数据范围推，上限 + 5。A 题 n ≤ 10⁶ 开 1000005；D 题 n ≤ 5×10⁵ 开 500005；E 题 2n ≤ 200 开 205。</li><li id="b66"><b>要不要 long long</b>：D 题 n = 5×10⁵ 且完全逆序时答案 ≈ n²/2 = 1.25×10¹¹，早已越过 int；E 题的得分要累加 n 次。</li><li id="b67"><b>边界</b>：A 题窗口是 [i−k+1, i] 而不是 [i−k, i]；C 题二分的区间是 [1, L] 且中点要上取整；E 题区间长度只枚举到 n，不到 2n。</li><li id="b68"><b>输出格式</b>：A 题两行、行末只有换行；E 题先最小后最大，各占一行。</li></ol><div class="box tip"><div class="t" id="b69">为什么这 4 行比代码重要</div><p id="b70">键盘会骗你：能编译通过的代码看起来总是对的。而这 4 行一旦写错，编译器一声不响。</p><p id="b71">本场五道题的丢分点几乎全在这 4 行里：A 的窗口左端点、B 的 n−best、C 的上取整、D 的 long long、E 的 2n 上界。</p><p id="b72">熟练之后这 5 分钟会压缩到 60 秒，但绝不能省。</p></div><p id="b73">开赛前 10 分钟做一道不计分的热身题，把“读题 → 算目标值 → 从左到右扫一遍 → 输出”这条最常用的链路跑热。它顺手预习了本场 C 题 check 函数要用的那一种贪心：<b>从左往右走，缺了就向右边借，绝不留到下一步</b>。</p><div class="prob"><div class="ph"><span class="pn" id="b74">例题 · 均分纸牌</span><span class="oi">洛谷 P1031</span><span class="badge diff">普及-</span><a href="https://www.luogu.com.cn/problem/P1031" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b75">有 N 堆纸牌排成一行，编号 1..N，第 i 堆有 Aᵢ 张，纸牌总数一定是 N 的倍数。</p><p id="b76">每次操作可以「从某一堆取若干张牌，放到与它相邻的堆上」，取几张都一样，只记 1 次操作。其中 1 号堆只能往 2 号堆放，N 号堆只能往 N−1 号堆放，中间各堆可以往左邻或右邻放。</p><p id="b77">求最少的操作次数，使每堆纸牌数都相等。</p><p id="b78">输入格式：第一行一个整数 N（1 ≤ N ≤ 100）；第二行 N 个整数 A₁..A_N（1 ≤ Aᵢ ≤ 10000）。</p><p id="b79">输出格式：一行一个整数，表示最少操作次数。</p></div><div class="io" id="b80">输入：
+4
+9 8 17 6
+输出：
+3
+样例解释：4 堆最终都是 10 张。先从第 3 堆给第 4 堆 4 张，再从第 3 堆给第 2 堆 3 张，最后从第 2 堆给第 1 堆 1 张，共 3 次。</div></div><div class="step"><div class="sh" id="b81">热身题的 5 分钟怎么想</div><p id="b82">最终每堆都是 avg = 总数 / N 张。总数是 N 的倍数，所以一定整除，不用考虑除不尽。</p><p id="b83">盯住第 1 堆：它只和第 2 堆相邻，能打交道的只有第 2 堆。它比 avg 少 1 张，那就只能从第 2 堆拿 1 张过来；比 avg 多，就把多的部分整个推给第 2 堆。无论哪种，<b>一次操作就能把第 1 堆永久修好</b>，之后再也不用管它。</p><ol><li id="b84">算出 avg。</li><li id="b85">从左往右看第 i 堆：只要 a[i] ≠ avg，就把差额 a[i] − avg 加到 a[i+1] 上，答案 +1。</li><li id="b86">处理完第 i 堆，它一定等于 avg，从此不再参与。</li><li id="b87">扫到第 N−1 堆就停：前面的差额全推到最后一堆，它必然已经等于 avg。</li></ol><p id="b88">复杂度 O(N)，N ≤ 100 时只有 100 次加法。这题的真正成本在读题那 5 分钟：想清楚「为什么从左往右一次扫描就一定最优」，比写出这 8 行更重要。</p></div><div class="cap" id="b89">热身题完整代码</div><pre id="b90"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> n, a[<span class="n">10005</span>];
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;n);
+    <span class="k">long</span> <span class="k">long</span> sum = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) { <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;a[i]); sum += a[i]; }
+    <span class="k">int</span> avg = (<span class="k">int</span>)(sum / n);
+
+    <span class="k">int</span> ans = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n - <span class="n">1</span>; ++i) {
+        <span class="k">if</span> (a[i] != avg) {
+            a[i + <span class="n">1</span>] += a[i] - avg;     <span class="c">// 多退少补，全甩给右边那一堆</span>
+            ++ans;
+        }
+    }
+    <span class="k">printf</span>(<span class="s">"%d\n"</span>, ans);
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b91">逐行拆解</div><table class="lines"><thead><tr><th id="b92">代码片段</th><th id="b93">含义与理由</th></tr></thead><tbody><tr><td id="b94"><code>int avg = (int)(sum / n);</code></td><td id="b95">目标值。总数一定是 N 的倍数，整除没有余数，不需要处理除不尽的情况。</td></tr><tr><td id="b96"><code>for (int i = 1; i &lt;= n - 1; ++i)</code></td><td id="b97">只扫到 N−1。最后一堆不用处理：前面的差额全推到它这里，它必然已经等于 avg。写成 i &lt;= n 会去访问 a[N+1]，越界。</td></tr><tr><td id="b98"><code>if (a[i] != avg)</code></td><td id="b99">已经相等就一次都不动，这是「最少次数」的来源——能不搬就不搬。</td></tr><tr><td id="b100"><code>a[i + 1] += a[i] - avg;</code></td><td id="b101">第 i 堆多了正数、少了负数，差额整个甩给第 i+1 堆。一次操作可以搬任意多张，所以只花 1 次。</td></tr><tr><td id="b102"><code>++ans;</code></td><td id="b103">每修好一堆记一次。题目数的是操作次数，不是搬了多少张牌。</td></tr><tr><td id="b104"><code>printf("%d\n", ans);</code></td><td id="b105">只输出一个整数加换行，不要任何提示语。</td></tr></tbody></table></div><p id="b106">热身完，看四张模板卡。它们不是新知识，是把本场五道题各自要用的骨架再默写一遍——<b>赛场上默写不出来的模板，等于没学过</b>。先能一次默写正确，再开始计时。</p><div class="fn"><div class="fh" id="b107">新函数拆解 · 单调队列：队尾弹逆序、队头出窗口</div><div class="fb"><div class="sig" id="b108">int h = 1, t = 0;                          // 手写双端队列，h &gt; t 表示空
+for (int i = 1; i &lt;= n; ++i) {
+    while (h &lt;= t &amp;&amp; a[q[t]] &gt;= a[i]) --t; // ① 队尾活不下来
+    q[++t] = i;                            // ② 新下标入队
+    if (q[h] &lt; i - k + 1) ++h;             // ③ 队头滑出窗口 [i-k+1, i]
+    if (i &gt;= k) ans = a[q[h]];             // ④ 此时队头就是答案
+}</div><table class="lines"><thead><tr><th id="b109">组成</th><th id="b110">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b111"><code>q[++t] = i</code></td><td id="b112">队列里存<b>下标</b>，不存值。存下标才能判断“是否滑出窗口”，也能反查 a[q[h]]。</td></tr><tr><td id="b113"><code>while (h &lt;= t &amp;&amp; a[q[t]] &gt;= a[i]) --t</code></td><td id="b114">求最小值用 &gt;=；求最大值把 &gt;= 换成 &lt;=，其余不动。方向写反，队头就不是最值。</td></tr><tr><td id="b115"><code>h &lt;= t</code></td><td id="b116">空队列判据：h = t + 1 即空。写成 h &lt; t 会把“只剩一个元素”误判成空队列。</td></tr><tr><td id="b117"><code>if (q[h] &lt; i - k + 1) ++h</code></td><td id="b118">窗口左端点是 i − k + 1。每步最多过期一个下标，所以用 if 就够，不必 while。</td></tr><tr><td id="b119"><code>if (i &gt;= k)</code></td><td id="b120">前 k − 1 步窗口还没填满，不能输出。</td></tr><tr><td id="b121"><code>总复杂度 O(n)</code></td><td id="b122">每个下标进队一次、出队一次，while 的总执行次数不超过 n。暴力是 O(nk)，最坏 10¹²。</td></tr></tbody></table><div class="cap" id="b123">最小可运行示例</div><div class="cap" id="b124">示例</div><pre id="b125"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> a[<span class="n">6</span>] = {<span class="n">0</span>, <span class="n">5</span>, <span class="n">3</span>, <span class="n">8</span>, <span class="n">1</span>, <span class="n">9</span>};   <span class="c">// 1 开始存，n = 5</span>
+<span class="k">int</span> q[<span class="n">10</span>];
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> n = <span class="n">5</span>, k = <span class="n">3</span>, h = <span class="n">1</span>, t = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        <span class="k">while</span> (h &lt;= t &amp;&amp; a[q[t]] &gt;= a[i]) --t;
+        q[++t] = i;
+        <span class="k">if</span> (q[h] &lt; i - k + <span class="n">1</span>) ++h;
+        <span class="k">if</span> (i &gt;= k) <span class="k">cout</span> &lt;&lt; a[q[h]] &lt;&lt; <span class="s">" "</span>;   <span class="c">// 输出 3 1 1</span>
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="box tip"><div class="t" id="b126">注意</div><p id="b127">队列里存下标、不存值——这是这一节唯一需要背死的一句话。</p><p id="b128">求最大值时，队尾弹出条件和答案取值都要反过来；只改一半是这类题最常见的错法。</p></div></div></div><div class="fn"><div class="fh" id="b129">新函数拆解 · 树状数组：单点加、前缀和查询</div><div class="fb"><div class="sig" id="b130">int lowbit(int x) { return x &amp; -x; }
+void add(int i, int v) { for (; i &lt;= sz; i += lowbit(i)) t[i] += v; }
+int sum(int i) { int s = 0; for (; i &gt; 0; i -= lowbit(i)) s += t[i]; return s; }</div><table class="lines"><thead><tr><th id="b131">组成</th><th id="b132">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b133"><code>lowbit(x) = x &amp; -x</code></td><td id="b134">取 x 最低位的 1 所代表的权值：lowbit(6) = 2，lowbit(8) = 8，lowbit(0) = 0。</td></tr><tr><td id="b135"><code>add(i, v)</code></td><td id="b136">把 i 这条链上的结点都加 v：i, i+lowbit(i), i+lowbit(i+lowbit(i)) …，直到超过 sz。O(log n)。</td></tr><tr><td id="b137"><code>sum(i)</code></td><td id="b138">前缀和：t[i] + t[i−lowbit(i)] + … 直到下标 0。O(log n)。区间和 = sum(r) − sum(l−1)。</td></tr><tr><td id="b139"><code>下标必须 ≥ 1</code></td><td id="b140">lowbit(0) = 0 会让 add 的循环变量原地不动，死循环 → TLE。</td></tr><tr><td id="b141"><code>sz</code></td><td id="b142">值的上界（本题是离散化后不同值的个数）。add 的终止条件是 i &lt;= sz，不是 i &lt;= n。</td></tr></tbody></table><div class="cap" id="b143">最小可运行示例</div><div class="cap" id="b144">示例</div><pre id="b145"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> t[<span class="n">20</span>], sz = <span class="n">8</span>;
+<span class="k">int</span> <span class="f">lowbit</span>(<span class="k">int</span> x) { <span class="k">return</span> x &amp; -x; }
+<span class="k">void</span> <span class="f">add</span>(<span class="k">int</span> i, <span class="k">int</span> v) { <span class="k">for</span> (; i &lt;= sz; i += <span class="f">lowbit</span>(i)) t[i] += v; }
+<span class="k">int</span> <span class="f">sum</span>(<span class="k">int</span> i) { <span class="k">int</span> s = <span class="n">0</span>; <span class="k">for</span> (; i &gt; <span class="n">0</span>; i -= <span class="f">lowbit</span>(i)) s += t[i]; <span class="k">return</span> s; }
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="f">add</span>(<span class="n">3</span>, <span class="n">1</span>); <span class="f">add</span>(<span class="n">3</span>, <span class="n">1</span>); <span class="f">add</span>(<span class="n">6</span>, <span class="n">1</span>);   <span class="c">// 排名 3 出现两次，排名 6 出现一次</span>
+    <span class="k">cout</span> &lt;&lt; <span class="f">sum</span>(<span class="n">2</span>) &lt;&lt; <span class="s">"\n"</span>;            <span class="c">// 0：排名 ≤ 2 的没有</span>
+    <span class="k">cout</span> &lt;&lt; <span class="f">sum</span>(<span class="n">3</span>) - <span class="f">sum</span>(<span class="n">2</span>) &lt;&lt; <span class="s">"\n"</span>;   <span class="c">// 2：排名恰为 3 的个数</span>
+    <span class="k">cout</span> &lt;&lt; <span class="f">sum</span>(<span class="n">6</span>) &lt;&lt; <span class="s">"\n"</span>;            <span class="c">// 3：排名 ≤ 6 的总个数</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="box tip"><div class="t" id="b146">注意</div><p id="b147">sum 与 add 的循环方向相反：一个 i -= lowbit(i)，一个 i += lowbit(i)。写反就是死循环或答案偏小。</p><p id="b148">求逆序对时查 sum(r−1) 而不是 sum(r)，否则相等元素会被算成逆序对。</p><p id="b149">本题每次只“加 1”，所以 D 题代码里把 add 简化成 void add(int i) { ++t[i]; }，省掉了加数参数。</p></div></div></div><div class="fn"><div class="fh" id="b150">新函数拆解 · 离散化：把 10⁹ 的值压成 5×10⁵ 的排名</div><div class="fb"><div class="sig" id="b151">sort(b + 1, b + n + 1);
+sz = unique(b + 1, b + n + 1) - (b + 1);
+int r = lower_bound(b + 1, b + sz + 1, a[i]) - b;</div><table class="lines"><thead><tr><th id="b152">组成</th><th id="b153">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b154"><code>sort(b + 1, b + n + 1)</code></td><td id="b155">先把原数组复制一份到 b，排序。a 本身不动，后面还要按下标扫。</td></tr><tr><td id="b156"><code>unique(b+1, b+n+1)</code></td><td id="b157">把相邻的重复元素搬到末尾，返回“去重后区间的尾后指针”。它不删除元素，只是搬家。</td></tr><tr><td id="b158"><code>- (b + 1)</code></td><td id="b159">去重后的元素个数 sz。写成 - b 会多 1，是所有离散化 bug 里最常见的一个。</td></tr><tr><td id="b160"><code>lower_bound(b+1, b+sz+1, x) - b</code></td><td id="b161">第一个 ≥ x 的位置，即 x 的排名（从 1 开始）。右端点是 sz+1，不是 n+1。</td></tr><tr><td id="b162"><code>相等元素拿到同一个排名</code></td><td id="b163">这正是需要的：逆序对要求严格大于，用 r−1 查询天然排除相等的情况。</td></tr></tbody></table><div class="cap" id="b164">最小可运行示例</div><div class="cap" id="b165">示例</div><pre id="b166"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> a[<span class="n">6</span>] = {<span class="n">0</span>, <span class="n">1000000000</span>, -<span class="n">5</span>, <span class="n">7</span>, <span class="n">7</span>, <span class="n">233</span>};
+<span class="k">int</span> b[<span class="n">6</span>];
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> n = <span class="n">5</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) b[i] = a[i];
+    <span class="k">sort</span>(b + <span class="n">1</span>, b + n + <span class="n">1</span>);
+    <span class="k">int</span> sz = <span class="k">unique</span>(b + <span class="n">1</span>, b + n + <span class="n">1</span>) - (b + <span class="n">1</span>);   <span class="c">// 4 个不同值</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i)
+        <span class="k">cout</span> &lt;&lt; <span class="k">lower_bound</span>(b + <span class="n">1</span>, b + sz + <span class="n">1</span>, a[i]) - b &lt;&lt; <span class="s">" "</span>;
+    <span class="c">// 输出 4 1 2 2 3</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="box tip"><div class="t" id="b167">注意</div><p id="b168">if (x &lt; 1 || x &gt; sz) 说明离散化写错了：出现这种情况几乎都是 sz 的表达式少减了一次。</p><p id="b169">离散化不改变答案的正确性，它只是把“值域”换成“排名”，让桶和树状数组开得下。</p></div></div></div><div class="fn"><div class="fh" id="b170">新函数拆解 · 断环成链：把环拆成 2n 的链再区间 DP</div><div class="fb"><div class="sig" id="b171">for (int i = 1; i &lt;= n; ++i) { cin &gt;&gt; a[i]; a[i + n] = a[i]; }
+for (int len = 2; len &lt;= n; ++len)
+    for (int i = 1; i + len - 1 &lt;= 2 * n; ++i) {
+        int j = i + len - 1;
+        for (int k = i; k &lt; j; ++k)
+            f[i][j] = min(f[i][j], f[i][k] + f[k + 1][j] + pre[j] - pre[i - 1]);
+    }
+// 答案 = 对 i ∈ [1, n] 取 f[i][i + n - 1] 的最优值</div><table class="lines"><thead><tr><th id="b172">组成</th><th id="b173">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b174"><code>a[i + n] = a[i]</code></td><td id="b175">把数组复制一份接在后面。环上任意一种“从哪断开”的走法，都对应 2n 链上一个长度为 n 的连续区间。</td></tr><tr><td id="b176"><code>for (len = 2; len &lt;= n; ++len)</code></td><td id="b177">按区间长度从小到大算。区间 DP 的方向是“先短后长”，长度 1 的区间是初值。</td></tr><tr><td id="b178"><code>i + len - 1 &lt;= 2 * n</code></td><td id="b179">右端点不能越过 2n。只写 i &lt;= n 是不够的：短区间的右端点完全可以超过 n。</td></tr><tr><td id="b180"><code>for (k = i; k &lt; j; ++k)</code></td><td id="b181">枚举最后一次合并的分界：左半 a[i..k]、右半 a[k+1..j]。k 不能取到 j，否则右半为空。</td></tr><tr><td id="b182"><code>+ pre[j] - pre[i - 1]</code></td><td id="b183">本次得分 = 这一段的总和，用前缀和一次算出。写两层求和会把 O(n³) 变成 O(n⁴)。</td></tr><tr><td id="b184"><code>答案取 n 个区间</code></td><td id="b185">环有 n 种断法，对应 n 个长度为 n 的区间，答案在这 n 个里取最优。</td></tr></tbody></table><div class="cap" id="b186">最小可运行示例</div><div class="cap" id="b187">示例</div><pre id="b188"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">long</span> <span class="k">long</span> pre[<span class="n">10</span>], f[<span class="n">10</span>][<span class="n">10</span>];
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> a[<span class="n">4</span>] = {<span class="n">0</span>, <span class="n">4</span>, <span class="n">5</span>, <span class="n">9</span>};                 <span class="c">// 三堆：4 5 9</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= <span class="n">3</span>; ++i) pre[i] = pre[i - <span class="n">1</span>] + a[i];
+    <span class="k">for</span> (<span class="k">int</span> len = <span class="n">2</span>; len &lt;= <span class="n">3</span>; ++len)
+        <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i + len - <span class="n">1</span> &lt;= <span class="n">3</span>; ++i) {
+            <span class="k">int</span> j = i + len - <span class="n">1</span>;
+            f[i][j] = <span class="k">LLONG_MAX</span>;
+            <span class="k">for</span> (<span class="k">int</span> k = i; k &lt; j; ++k)
+                f[i][j] = <span class="k">min</span>(f[i][j], f[i][k] + f[k + <span class="n">1</span>][j] + pre[j] - pre[i - <span class="n">1</span>]);
+        }
+    <span class="k">cout</span> &lt;&lt; f[<span class="n">1</span>][<span class="n">3</span>] &lt;&lt; <span class="s">"\n"</span>;                 <span class="c">// 27：先 4+5=9，再 9+9=18</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="box tip"><div class="t" id="b189">注意</div><p id="b190">长度只枚举到 n，不要到 2n：长度大于 n 的区间在环上没有意义，还会把数组写越界。</p><p id="b191">求最小值的那张表初值要是 INF（memset 0x3f），求最大值的要是 0。两张表不能共用初值。</p></div></div></div><p id="b192">五道题写完，把下面这张单子对着自己的提交记录看一遍。每一条都写清了症状，症状能对上，就不用再猜了。</p><div class="box warn"><div class="t" id="b193">本场最容易丢的分，每条都写明症状</div><p id="b194"><b>单调队列存值不存下标 → WA</b>。A 题 q[] 里存 a[i] 的值，就没法判断队头是否滑出窗口，只能靠“值相等”猜，一遇到重复数字全错。</p><p id="b195"><b>h &lt;= t 写成 h &lt; t → WA 或 RE</b>。只剩一个元素时被判成空队列，q[h] 读到的是过期下标，输出一个根本不在窗口里的数。</p><p id="b196"><b>窗口左端点写成 i−k → WA</b>。窗口是 [i−k+1, i]，差这一格会让每个窗口多留一个过期元素，最小值普遍偏小、最大值普遍偏大。</p><p id="b197"><b>LIS 的比较写成 ≤ → WA</b>。B 题要求严格递增，写 a[j] &lt;= a[i] 时，两个同身高的同学会被串进同一条上升链。样例前两个人身高都是 186，答案会小 1。</p><p id="b198"><b>B 题把 n − best 写成 best → WA</b>。题目问的是“出列几人”，best 却是“留下几人”。样例里 n = 8、best = 4，两种写法都能过样例——这就是为什么必须自己再造一组数据：n = 5、身高 1 2 1 2 1 时 best = 3 而答案是 2，一眼就露。</p><p id="b199"><b>二分中点用了下取整 → TLE</b>。C 题求“最大可行值”，mid 必须上取整；写成 (lo+hi)/2 配 lo = mid，当 hi = lo+1 时 mid 恒等于 lo，区间不再缩小，程序空转到超时。</p><p id="b200"><b>check 漏了最后一跳 → WA</b>。C 题只判石头与石头之间、忘了 L − last，样例能过，错在“最后一段太短”的数据上。</p><p id="b201"><b>逆序对答案用 int → WA 成负数</b>。D 题 n = 5×10⁵ 全逆序时答案 ≈ 1.25×10¹¹，int 上限才 2.1×10⁹，溢出后输出一个负数。</p><p id="b202"><b>树状数组下标从 0 开始 → TLE</b>。lowbit(0) = 0，add(0) 里 i += 0 原地踏步，死循环。</p><p id="b203"><b>E 题 f 初值设成 0 → WA</b>。求最小值的表如果不 memset 成 INF，min 永远取到 0，输出 0；而求最大值的表初值又必须是 0，两张表的初值不能共用。</p><p id="b204"><b>E 题 i + len − 1 越界 → RE</b>。数组只开到 205 而循环边界写错，越界写的可能是另一个数组，表现为“样例全过、一交就崩”。</p></div><div class="reproduce"><div class="rt" id="b205">自己动手复现</div><p id="b206">关掉页面，开一个空文件，从 <code>#include &lt;bits/stdc++.h&gt;</code> 开始，给 A 题（滑动窗口）掐 22 分钟写完并提交。</p><p id="b207">计时前先在纸上写三行：队列里存什么、队尾弹出的条件、队头过期的条件。三行写对再动手。</p><p id="b208">改一改：把窗口长度改成“每一步都不同”（第 i 步的窗口是 [i − kᵢ + 1, i]），单调队列还成立吗？成立，只是过期判断要跟着 kᵢ 走。</p><p id="b209">再改一改：如果要求每个窗口的<b>中位数</b>，单调队列还够用吗？把答案写下来，第 49 节的对顶堆会回答这道题。</p></div><div class="box tip"><div class="t" id="b210">思路卡住时的三级降级</div><p id="b211"><b>一级：写暴力</b>。A 题每个窗口重扫一遍是 O(nk)，小数据点能拿分；C 题从小到大枚举答案 d，每个 d 用 O(n) 判断，也是能过的暴力。有分的代码才叫代码。</p><p id="b212"><b>二级：换实现</b>。D 题想不出树状数组，就用归并排序统计逆序对——O(n log n) 一样能过，第 46 节的思路本来就是从归并里长出来的。</p><p id="b213"><b>三级：只写输入输出</b>。哪怕答案是猜的，也要把格式写对，保留“万一”的分数。</p><p id="b214"><b>绝不做的事</b>：在一道题上耗超过 45 分钟。本场五题分值相同，耗死一题等于放弃四题。</p></div><p id="b215">下面是正式的五道题。<b>先掐表自己做，卡满单题用时再看提示</b>；提示看完还没思路，再点开思路；五题全做完之后再点开代码对照——顺序反了，这场模拟赛就白考了。</p><h2 id="b216">题目 · 共 5 题</h2><table><thead><tr><th id="b217">题号</th><th id="b218">题目</th><th id="b219">难度</th><th id="b220">建议用时</th></tr></thead><tbody><tr><td id="b221">A</td><td id="b222">滑动窗口 /【模板】单调队列</td><td id="b223">普及/提高-</td><td id="b224">22 分钟</td></tr><tr><td id="b225">B</td><td id="b226">合唱队形</td><td id="b227">普及/提高-</td><td id="b228">23 分钟</td></tr><tr><td id="b229">C</td><td id="b230">跳石头</td><td id="b231">普及/提高-</td><td id="b232">28 分钟</td></tr><tr><td id="b233">D</td><td id="b234">逆序对</td><td id="b235">普及/提高-</td><td id="b236">30 分钟</td></tr><tr><td id="b237">E</td><td id="b238">石子合并</td><td id="b239">普及/提高-</td><td id="b240">32 分钟</td></tr></tbody></table><div class="box warn"><div class="t" id="b241">比赛规则（自己执行）</div><ul><li id="b242">先花 8 分钟通读全部题目，按“会做 → 有思路 → 完全不会”排序。</li><li id="b243">单题最多投入 35 分钟，超过就换题。</li><li id="b244">每题先写暴力拿部分分，再想正解。</li><li id="b245">最后 15 分钟不再改算法，只按清单检查数组大小、long long、多测清空、输出格式。</li></ul></div><div class="challenge"><div class="ct" id="b246">大题 挑战题 · 滑动窗口 /【模板】单调队列</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1886</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P1886" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b247">有一个长为 n 的序列 a，以及一个大小为 k 的窗口。窗口从序列最左端开始，每次向右滑动一个单位，直到右端到达序列末尾。对每一个位置上的窗口，求出窗口内元素的最小值和最大值。</p><p id="b248">输入格式：第一行两个正整数 n、k（1 ≤ k ≤ n ≤ 10⁶）。第二行 n 个整数，表示序列 a（绝对值不超过 10⁹）。</p><p id="b249">输出格式：共两行。第一行为每个窗口的最小值，第二行为每个窗口的最大值，同一行的数字之间用一个空格隔开。</p><p id="b250"><b>样例输入</b><br><code>8 3<br>1 3 -1 -3 5 3 6 7</code><br><b>样例输出</b><br><code>-1 -3 -3 -3 3 3<br>3 3 5 5 6 7</code></p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b251">先估一下暴力：n 和 k 都可能到 10⁶，每个窗口重扫一遍是 O(nk)，最坏 10¹²，稳 TLE。</p><p id="b252">换角度看：窗口右移一格，只进来一个新数、只出去一个旧数。哪些数从此再也不可能成为最小值？</p><p id="b253">如果新来的数比当前候选里最后一个还小，那个候选在过期之前都不可能成为答案——因为新数既更小、又活得更久。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b254">维护一个下标队列 q，保证 q 里的下标递增、对应的 a 值也递增。此时队头 a[q[h]] 就是当前窗口的最小值。</p><p id="b255">每步三件事：① 新元素入队前，把队尾所有“值 ≥ 新元素”的下标弹掉——它们既不如新元素小、又比新元素先过期，永远没机会了；② 把 i 放进队尾；③ 检查队头是否还在窗口 [i−k+1, i] 里，不在就弹掉。</p><p id="b256">正确性：队列里值单调递增，所以队头是整个队列的最小值；队头一定在窗口内（过期就弹了）。被弹掉的下标要么值更大且更靠左，要么已经过期，都不可能成为任何后续窗口的答案。</p><p id="b257">复杂度：每个下标最多进队一次、出队一次，while 的总执行次数不超过 n，整体 O(n)。</p><p id="b258">最大值完全同构：把队尾弹出条件从 a[q[t]] ≥ a[i] 改成 a[q[t]] ≤ a[i]，别的一个字都不改。</p><p id="b259">输出细节：前 k−1 步窗口没填满，不输出；行末只换行，不加多余空格。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b260">参考代码</div><pre id="b261"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> n, k;
+<span class="k">int</span> a[<span class="n">1000005</span>];
+<span class="k">int</span> q[<span class="n">1000005</span>];                  <span class="c">// 手写双端队列，存的是下标</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; k;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) <span class="k">cin</span> &gt;&gt; a[i];
+
+    <span class="c">// ---- 最小值：队列里的下标对应的 a 值严格递增，队头即窗口最小值 ----</span>
+    <span class="k">int</span> h = <span class="n">1</span>, t = <span class="n">0</span>;                        <span class="c">// h &gt; t 表示队列为空</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        <span class="k">while</span> (h &lt;= t &amp;&amp; a[q[t]] &gt;= a[i]) --t;   <span class="c">// 队尾比新来的大：它这辈子都比不过新来的</span>
+        q[++t] = i;
+        <span class="k">if</span> (q[h] &lt; i - k + <span class="n">1</span>) ++h;               <span class="c">// 队头已经滑出窗口左端</span>
+        <span class="k">if</span> (i &gt;= k) <span class="k">cout</span> &lt;&lt; a[q[h]] &lt;&lt; (i == n ? <span class="s">'\n'</span> : <span class="s">' '</span>);
+    }
+
+    <span class="c">// ---- 最大值：同一个骨架，只把比较方向反过来 ----</span>
+    h = <span class="n">1</span>; t = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        <span class="k">while</span> (h &lt;= t &amp;&amp; a[q[t]] &lt;= a[i]) --t;
+        q[++t] = i;
+        <span class="k">if</span> (q[h] &lt; i - k + <span class="n">1</span>) ++h;
+        <span class="k">if</span> (i &gt;= k) <span class="k">cout</span> &lt;&lt; a[q[h]] &lt;&lt; (i == n ? <span class="s">'\n'</span> : <span class="s">' '</span>);
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b262">关键片段拆解</div><table class="lines"><thead><tr><th id="b263">片段</th><th id="b264">作用</th></tr></thead><tbody><tr><td id="b265"><code>int q[1000005];</code></td><td id="b266">手写队列，不比 STL 的 deque 慢，还省掉了迭代器和内存分配。n ≤ 10⁶，开 1000005。</td></tr><tr><td id="b267"><code>int h = 1, t = 0;</code></td><td id="b268">队头指针 h、队尾指针 t，初始 h > t 表示空队列。用 1 开始，方便和 a 的下标对齐。</td></tr><tr><td id="b269"><code>while (h &lt;= t &amp;&amp; a[q[t]] &gt;= a[i]) --t;</code></td><td id="b270">弹掉队尾所有“值比新元素大”的下标。它们更靠左（先过期）、又更大（更差），被新元素彻底支配。求最大值时把 &gt;= 改成 &lt;=。</td></tr><tr><td id="b271"><code>q[++t] = i;</code></td><td id="b272">存下标，不存值。存了值就无法判断队头有没有滑出窗口。</td></tr><tr><td id="b273"><code>if (q[h] &lt; i - k + 1) ++h;</code></td><td id="b274">窗口是 [i−k+1, i]。每步只可能有一个下标过期，所以用 if 就够。</td></tr><tr><td id="b275"><code>if (i &gt;= k)</code></td><td id="b276">前 k−1 步窗口还没填满，此时输出的是“不足 k 个元素”的答案，必须跳过。</td></tr><tr><td id="b277"><code>cout &lt;&lt; a[q[h]] &lt;&lt; (i == n ? '\n' : ' ');</code></td><td id="b278">数字之间一个空格；最后一个窗口后面直接换行，不多输出行末空格。两行的写法完全一样。</td></tr><tr><td id="b279"><code>h = 1; t = 0; 第二遍重开</code></td><td id="b280">两个方向必须各自清空队列。不清空的话，最大值那一遍会读到最小值遗留的下标，结果全错。</td></tr></tbody></table><div class="box warn"><div class="t" id="b281">这题最容易错的地方</div><ul><li id="b282">队列里存值而不是下标：无法判断过期，一遇到重复数字就 WA。</li><li id="b283">空队列判据写成 h &lt; t：只剩一个元素时被判空，q[h] 读到过期下标，输出窗口外的数。</li><li id="b284">窗口左端点写成 i−k：每个窗口多留一个过期元素，最小值偏小、最大值偏大。</li><li id="b285">两遍共用一个没清空的队列：第二遍的队头是上一遍的残留下标，整行答案错位。</li><li id="b286">n = k 时只输出一个数，却忘了换行——末尾那个字符写错，两行变一行。</li><li id="b287">求最大值时只把答案取值改了、忘了改队尾弹出方向，队列失去了单调性，答案随机错。</li></ul></div></div></details></div><div style="margin:-14px 0 26px;color:#5b6577;font-size:13.5px">↑ 第 A 题 · 滑动窗口 /【模板】单调队列</div><div class="challenge"><div class="ct" id="b288">大题 挑战题 · 合唱队形</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1091</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P1091" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b289">n 位同学站成一排，音乐老师要请其中的 n−k 位同学出列，使剩下的 k 位同学排成“合唱队形”。合唱队形指存在一个“顶峰”位置 i，使身高满足 t₁ &lt; t₂ &lt; … &lt; tᵢ &gt; tᵢ₊₁ &gt; … &gt; t_k。求最少需要几位同学出列。</p><p id="b290">输入格式：第一行一个整数 n（2 ≤ n ≤ 100）。第二行 n 个整数，第 i 个表示第 i 位同学的身高 tᵢ（130 ≤ tᵢ ≤ 230）。</p><p id="b291">输出格式：一个整数，即最少需要出列的人数。</p><p id="b292"><b>样例输入</b><br><code>8<br>186 186 150 200 160 130 197 220</code><br><b>样例输出</b><br><code>4</code><br>样例解释：留下 186、200、160、130 这 4 位同学即可排成合唱队形，其余 4 人出列。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b293">“留下的人”必须是先升后降的。形状只由一件事决定：谁是那个最高的人。</p><p id="b294">枚举顶峰 i 之后，左右两段互相独立：左边是“以 i 结尾的最长上升子序列”，右边是“以 i 开头的最长下降子序列”。</p><p id="b295">n ≤ 100，所以 O(n²) 的朴素 LIS 完全够用，不要上 O(n log n)，那样只是给自己增加写错的机会。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b296">答案 = n − （能留下的最多人数）。所以问题变成“最多能留下几人”。</p><p id="b297">枚举顶峰 i。左边必须以 i 结尾且严格递增，长度就是 f[i] = 以 i 结尾的最长上升子序列；右边必须以 i 开头且严格递减，长度是 g[i] = 以 i 开头的最长下降子序列。</p><p id="b298">以 i 为顶峰时的最大保留人数 = f[i] + g[i] − 1，减 1 是因为顶峰自己被两段都算了一次。</p><p id="b299">f 从左往右推：f[i] = 1 + max{ f[j] : j &lt; i 且 a[j] &lt; a[i] }，没有合法的 j 时 f[i] = 1。</p><p id="b300">g 从右往左推，转移条件同样是 a[j] &lt; a[i]：g[i] = 1 + max{ g[j] : j &gt; i 且 a[j] &lt; a[i] }。</p><p id="b301">两遍都是 O(n²)，总 O(n²) = 10⁴ 次操作。最后输出 n − max(f[i]+g[i]−1)。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b302">参考代码</div><pre id="b303"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> n, a[<span class="n">105</span>];
+<span class="k">int</span> f[<span class="n">105</span>], g[<span class="n">105</span>];              <span class="c">// f：以 i 结尾的最长上升长度；g：以 i 开头的最长下降长度</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">cin</span> &gt;&gt; n;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) <span class="k">cin</span> &gt;&gt; a[i];
+
+    <span class="c">// 左半边：以 i 结尾的最长上升子序列</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        f[i] = <span class="n">1</span>;                            <span class="c">// 至少包含自己</span>
+        <span class="k">for</span> (<span class="k">int</span> j = <span class="n">1</span>; j &lt; i; ++j)
+            <span class="k">if</span> (a[j] &lt; a[i]) f[i] = <span class="k">max</span>(f[i], f[j] + <span class="n">1</span>);   <span class="c">// 严格递增：不能取等</span>
+    }
+
+    <span class="c">// 右半边：以 i 开头的最长下降子序列，从右往左推</span>
+    <span class="k">for</span> (<span class="k">int</span> i = n; i &gt;= <span class="n">1</span>; --i) {
+        g[i] = <span class="n">1</span>;
+        <span class="k">for</span> (<span class="k">int</span> j = i + <span class="n">1</span>; j &lt;= n; ++j)
+            <span class="k">if</span> (a[j] &lt; a[i]) g[i] = <span class="k">max</span>(g[i], g[j] + <span class="n">1</span>);
+    }
+
+    <span class="k">int</span> best = <span class="n">0</span>;                            <span class="c">// 能留下的最多人数</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i)
+        best = <span class="k">max</span>(best, f[i] + g[i] - <span class="n">1</span>);   <span class="c">// 顶峰被算两次，减 1</span>
+
+    <span class="k">cout</span> &lt;&lt; n - best &lt;&lt; <span class="s">"\n"</span>;                <span class="c">// 问的是出列人数，不是留下人数</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b304">关键片段拆解</div><table class="lines"><thead><tr><th id="b305">片段</th><th id="b306">作用</th></tr></thead><tbody><tr><td id="b307"><code>f[i] = 1;</code></td><td id="b308">初始化为 1：即使前面没有比自己矮的人，自己也能单独构成长度 1 的上升段。</td></tr><tr><td id="b309"><code>if (a[j] &lt; a[i])</code></td><td id="b310">严格小于。写成 &lt;= 时，两个同身高的同学会被接进同一条上升链，样例前两人身高都是 186，答案会偏小。</td></tr><tr><td id="b311"><code>f[i] = max(f[i], f[j] + 1);</code></td><td id="b312">枚举 i 前面所有更矮的人，取最长的那个再接上自己。这就是 LIS 的 O(n²) 转移。</td></tr><tr><td id="b313"><code>for (int i = n; i &gt;= 1; --i)</code></td><td id="b314">求“以 i 开头”的下降段要从右往左推：算 g[i] 时，它右边所有 g[j] 必须已经算好。</td></tr><tr><td id="b315"><code>if (a[j] &lt; a[i]) g[i] = ...</code></td><td id="b316">“往右走必须更矮”等价于“右边的 a[j] &lt; a[i]”，条件和左边一模一样，只是方向相反。</td></tr><tr><td id="b317"><code>f[i] + g[i] - 1</code></td><td id="b318">两段在顶峰 i 处相交，i 被算了两次，必须减 1。忘了减，答案会少 1，样例输出变成 3。</td></tr><tr><td id="b319"><code>n - best</code></td><td id="b320">题目问的是“出列几人”。这一步最容易漏，而样例里 n−best = 4 恰好等于 best，所以漏了也能过样例——必须自己造数据验。</td></tr><tr><td id="b321"><code>cout &lt;&lt; n - best &lt;&lt; "\n";</code></td><td id="b322">只输出一个整数加换行。</td></tr></tbody></table><div class="box warn"><div class="t" id="b323">这题最容易错的地方</div><ul><li id="b324">把 f[i]+g[i]−1 写成 f[i]+g[i]：顶峰算两遍，答案少 1，样例输出 3 而不是 4。</li><li id="b325">把 n − best 写成 best：样例恰好都是 4，本地完全看不出来，交上去全 WA。</li><li id="b326">LIS 比较写成 a[j] &lt;= a[i]：同身高被串成一条链，只要数据里有重复身高就错。</li><li id="b327">g 也从左往右推：算 g[i] 时右边的 g 还是初值 0，右边段长度全变成 1。</li><li id="b328">数组只开 100：n = 100 时 a[100] 越界，RE 或答案错乱。开 105。</li><li id="b329">输出的是“留下人数”而不是“出列人数”，或反过来，两种都有人写错，看清题目问哪个。</li></ul></div></div></details></div><div style="margin:-14px 0 26px;color:#5b6577;font-size:13.5px">↑ 第 B 题 · 合唱队形</div><div class="challenge"><div class="ct" id="b330">大题 挑战题 · 跳石头</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P2678</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P2678" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b331">比赛在一条笔直的河道中进行，河道中有 N 块岩石（不含起点与终点）。选手从起点出发，每一步跳到相邻的岩石上，直到到达终点。组委会至多可以移走 M 块岩石（起点和终点不能移走），要求移走之后，选手所有跳跃距离中的最小值尽可能大。求这个最大可能的最短跳跃距离。</p><p id="b332">输入格式：第一行三个整数 L、N、M，分别表示起点到终点的距离、岩石数、至多移走的岩石数；接下来 N 行，每行一个整数 Dᵢ，表示第 i 块岩石到起点的距离，按从小到大给出。（0 ≤ M ≤ N ≤ 50000，0 &lt; L ≤ 10⁹）</p><p id="b333">输出格式：一个整数，即最短跳跃距离的最大值。</p><p id="b334"><b>样例输入</b><br><code>25 5 2<br>2<br>11<br>14<br>17<br>21</code><br><b>样例输出</b><br><code>4</code></p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b335">“最大值最小 / 最小值最大”这类字眼一出现，先想二分答案。这里问的是“最短跳跃距离的最大值”。</p><p id="b336">固定一个 d，问：能不能只移走不超过 M 块石头，让每一跳都 ≥ d？这个判断比原问题好想得多。</p><p id="b337">判断的时候从左往右贪心：能跳到就跳，跳不到就把中间那块石头搬走。搬走一块之后，跨度会变大还是变小？</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b338">二分答案 d：判定“最短跳跃距离 ≥ d”是否可行。d 越大越难满足，单调性成立。</p><p id="b339">check(d)：last 记录上一块“保留下来的落脚点”坐标（起点是 0），从左往右扫岩石。若 a[i] − last &lt; d，这跳太短，只能把第 i 块搬走（cnt++），last 不变；否则保留它，last = a[i]。</p><p id="b340">扫完还要检查最后一跳 L − last：若它 &lt; d，就把最后保留的那块石头搬走（不是搬终点），这样“上一落脚点 → L”的距离只会更大，一定也 ≥ d。</p><p id="b341">为什么贪心最优：能保留就保留，保留只会让后续的距离更容易够（last 更靠右）。提前搬走一块只会让跨度更大、消耗更多次数，不可能更优。</p><p id="b342">判定条件是 cnt ≤ M：不超过 M 块就合法，题目说的是“至多移走 M 块”。</p><p id="b343">二分区间 [1, L]：答案至少 1，至多 L（一块石头都不留时就是 L）。求最大可行值，中点要上取整。</p><p id="b344">复杂度 O(N log L) ≈ 5×10⁴ × 30 = 1.5×10⁶，稳过。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b345">参考代码</div><pre id="b346"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> L, n, m;
+<span class="k">int</span> a[<span class="n">50005</span>];                    <span class="c">// a[1..n] 是岩石坐标；起点 0 由 last 的初值表示</span>
+
+<span class="c">// 判定：能不能只移走 ≤ m 块石头，使每一跳都 ≥ d</span>
+<span class="k">bool</span> <span class="f">check</span>(<span class="k">int</span> d) {
+    <span class="k">int</span> cnt = <span class="n">0</span>, last = <span class="n">0</span>;               <span class="c">// last：上一个保留的落脚点</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        <span class="k">if</span> (a[i] - last &lt; d) ++cnt;      <span class="c">// 这跳太短，只能搬走第 i 块</span>
+        <span class="k">else</span> last = a[i];                <span class="c">// 跳得到，保留它</span>
+    }
+    <span class="k">if</span> (L - last &lt; d) ++cnt;             <span class="c">// 最后一跳不够长：搬走 last 这块（不是终点）</span>
+    <span class="k">return</span> cnt &lt;= m;                     <span class="c">// “至多 m 块”，不是“恰好 m 块”</span>
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">cin</span> &gt;&gt; L &gt;&gt; n &gt;&gt; m;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) <span class="k">cin</span> &gt;&gt; a[i];
+
+    <span class="k">int</span> lo = <span class="n">1</span>, hi = L;                  <span class="c">// 答案至少 1，至多 L</span>
+    <span class="k">while</span> (lo &lt; hi) {
+        <span class="k">int</span> mid = lo + (hi - lo + <span class="n">1</span>) / <span class="n">2</span>;    <span class="c">// 上取整：求最大可行值必须这么写</span>
+        <span class="k">if</span> (<span class="f">check</span>(mid)) lo = mid;            <span class="c">// 可行，试着更大</span>
+        <span class="k">else</span> hi = mid - <span class="n">1</span>;                   <span class="c">// 不可行，必须更小</span>
+    }
+    <span class="k">cout</span> &lt;&lt; lo &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b347">关键片段拆解</div><table class="lines"><thead><tr><th id="b348">片段</th><th id="b349">作用</th></tr></thead><tbody><tr><td id="b350"><code>if (a[i] - last &lt; d) ++cnt;</code></td><td id="b351">这一跳到上一落脚点不足 d，唯一办法是把第 i 块搬走。用 &lt; 不用 &lt;=：距离恰好等于 d 是合法的。</td></tr><tr><td id="b352"><code>else last = a[i];</code></td><td id="b353">跳得到就落脚。贪心的全部内容就这一行：保留永远不比搬走差。</td></tr><tr><td id="b354"><code>if (L - last &lt; d) ++cnt;</code></td><td id="b355">最后一跳也要判。这里搬走的是 last（上一块保留的石头），搬走之后“更早的落脚点 → L”只会更远，一定也 ≥ d。</td></tr><tr><td id="b356"><code>return cnt &lt;= m;</code></td><td id="b357">题目说“至多移走 M 块”。写成 == m 会在“不用搬那么多”的数据上判不可行。</td></tr><tr><td id="b358"><code>int lo = 1, hi = L;</code></td><td id="b359">下界 1：任意两块石头位置不同，最短跳至少 1。上界 L：一块石头都不留就是 L。写 hi = 1e9 也能过，但 hi = L 更贴题意。</td></tr><tr><td id="b360"><code>mid = lo + (hi - lo + 1) / 2</code></td><td id="b361">上取整。求最大可行值时，区间只剩两个元素时 mid 必须取右边那个，否则 lo = mid 会让区间卡死 → TLE。</td></tr><tr><td id="b362"><code>if (check(mid)) lo = mid;</code></td><td id="b363">可行就把下界提到 mid（mid 本身可能正是答案，不能写 mid+1）。</td></tr><tr><td id="b364"><code>else hi = mid - 1;</code></td><td id="b365">不可行就砍掉 mid 及其右边。</td></tr></tbody></table><div class="box warn"><div class="t" id="b366">这题最容易错的地方</div><ul><li id="b367">中点写成下取整 (lo+hi)/2，又配 lo = mid：hi = lo+1 时 mid 恒等于 lo，死循环 TLE。</li><li id="b368">check 里漏了 L − last：样例恰好不需要判最后一跳，本地全过，交上去错在“最后一段太短”的点。</li><li id="b369">判定条件写成 cnt == m：题目是“至多”，能少搬的时候反而被判不可行，答案偏小。</li><li id="b370">贪心写成“一跳不够 d 就搬走上一块”：last 回退会让后面的判断全乱，算出的 cnt 偏大。</li><li id="b371">只测了样例就交：M = 0 时答案应是最小相邻间距（样例数据是 2），M = N 时应是 L（样例数据是 25），这两个边界各写一行测一下，30 秒的事。</li><li id="b372">数组只开 50000：n = 50000 时 a[50000] 用到最后一个下标，必须开 50005。</li></ul></div></div></details></div><div style="margin:-14px 0 26px;color:#5b6577;font-size:13.5px">↑ 第 C 题 · 跳石头</div><div class="challenge"><div class="ct" id="b373">大题 挑战题 · 逆序对</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1908</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P1908" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b374">对于给定的一段正整数序列，逆序对就是序列中满足 aᵢ &gt; aⱼ 且 i &lt; j 的有序对 (i, j)。给定一个长度为 n 的序列，求它的逆序对数目。注意序列中可能有重复数字。</p><p id="b375">输入格式：第一行一个整数 n（n ≤ 5×10⁵）。第二行 n 个整数，表示给定的序列，每个数字不超过 10⁹。</p><p id="b376">输出格式：一个整数，即逆序对的数目。</p><p id="b377"><b>样例输入</b><br><code>6<br>5 4 2 6 3 1</code><br><b>样例输出</b><br><code>11</code></p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b378">n = 5×10⁵，枚举 (i, j) 是 1.25×10¹¹ 对，稳 TLE。目标复杂度 O(n log n)。</p><p id="b379">换个计数角度：对每个 j，数一数它左边有多少个数比 aⱼ 大，全部加起来就是答案。</p><p id="b380">“左边有多少个数比它小”这种前缀计数，值域又只有 5×10⁵ 个不同值——把 10⁹ 压成排名，就能用树状数组一次 log 查出来。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b381">逆序对总数 = 对每个位置 i，统计“右边比 aᵢ 小的元素个数”，全部累加。</p><p id="b382">值域到 10⁹，桶开不下。先离散化：把 a 复制成 b，排序去重，用 lower_bound 把每个 aᵢ 换成排名，排名范围 1..sz，sz ≤ n ≤ 5×10⁵。</p><p id="b383">从右往左扫。树状数组 t 里记的是“某个排名已经出现过几次”。扫到 aᵢ 时，排名是 r，则 sum(r−1) 就是右边比它小的个数，直接加进答案；然后把 r 加进树状数组。</p><p id="b384">为什么用 r−1 而不是 r：逆序对要求严格大于，相等元素不能算。排名相同意味着值相等，必须排除。</p><p id="b385">正确性：每个逆序对 (i, j) 在扫描到 i 时被恰好数到一次——那时 j 已经进树状数组，且排名更小。</p><p id="b386">复杂度 O(n log n)：离散化 O(n log n)，每次查询和修改 O(log n)，总计约 5×10⁵ × 19 × 2 次操作。</p><p id="b387">答案上界：n(n−1)/2 ≈ 1.25×10¹¹，必须 long long。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b388">参考代码</div><pre id="b389"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> n;
+<span class="k">int</span> a[<span class="n">500005</span>], b[<span class="n">500005</span>];        <span class="c">// b 是排序去重用的副本</span>
+<span class="k">int</span> t[<span class="n">500005</span>];                   <span class="c">// 树状数组：t[i] 记录“排名 i 出现了几次”</span>
+<span class="k">int</span> sz;                          <span class="c">// 排名上界 = 不同值的个数</span>
+
+<span class="k">int</span> <span class="f">lowbit</span>(<span class="k">int</span> x) { <span class="k">return</span> x &amp; -x; }
+
+<span class="k">void</span> <span class="f">add</span>(<span class="k">int</span> i) {
+    <span class="k">for</span> (; i &lt;= sz; i += <span class="f">lowbit</span>(i)) ++t[i];
+}
+
+<span class="k">int</span> <span class="f">sum</span>(<span class="k">int</span> i) {                 <span class="c">// 排名 ≤ i 的元素个数</span>
+    <span class="k">int</span> s = <span class="n">0</span>;
+    <span class="k">for</span> (; i &gt; <span class="n">0</span>; i -= <span class="f">lowbit</span>(i)) s += t[i];
+    <span class="k">return</span> s;
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">cin</span> &gt;&gt; n;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) { <span class="k">cin</span> &gt;&gt; a[i]; b[i] = a[i]; }
+
+    <span class="c">// 离散化：排序 + 去重，把值换成排名</span>
+    <span class="k">sort</span>(b + <span class="n">1</span>, b + n + <span class="n">1</span>);
+    sz = <span class="k">unique</span>(b + <span class="n">1</span>, b + n + <span class="n">1</span>) - (b + <span class="n">1</span>);
+
+    <span class="k">long</span> <span class="k">long</span> ans = <span class="n">0</span>;                       <span class="c">// 逆序对最多 1.25×10¹¹，int 装不下</span>
+    <span class="k">for</span> (<span class="k">int</span> i = n; i &gt;= <span class="n">1</span>; --i) {           <span class="c">// 从右往左，保证树状数组里只有 i 右边的数</span>
+        <span class="k">int</span> r = <span class="k">lower_bound</span>(b + <span class="n">1</span>, b + sz + <span class="n">1</span>, a[i]) - b;   <span class="c">// a[i] 的排名</span>
+        ans += <span class="f">sum</span>(r - <span class="n">1</span>);                   <span class="c">// 右边严格小于 a[i] 的个数</span>
+        <span class="f">add</span>(r);
+    }
+
+    <span class="k">cout</span> &lt;&lt; ans &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b390">关键片段拆解</div><table class="lines"><thead><tr><th id="b391">片段</th><th id="b392">作用</th></tr></thead><tbody><tr><td id="b393"><code>b[i] = a[i];</code></td><td id="b394">复制一份再排序，a 本身不能动：后面扫的时候还要按原下标取值。</td></tr><tr><td id="b395"><code>unique(b + 1, b + n + 1) - (b + 1)</code></td><td id="b396">去重后不同值的个数。它不删除元素，只是把重复的搬到末尾，返回值是去重区间的尾后指针。</td></tr><tr><td id="b397"><code>lower_bound(b + 1, b + sz + 1, a[i]) - b</code></td><td id="b398">第一个 ≥ a[i] 的位置，就是从 1 开始的排名。右端点是 sz+1，不是 n+1。</td></tr><tr><td id="b399"><code>for (int i = n; i &gt;= 1; --i)</code></td><td id="b400">倒着扫：扫到 i 时，树状数组里装的正是 a[i+1..n]，所以 sum(r−1) 天然就是“右边比它小的个数”。</td></tr><tr><td id="b401"><code>ans += sum(r - 1);</code></td><td id="b402">用 r−1 排除相等元素。写成 sum(r) 会把值相同的一对也当成逆序对。</td></tr><tr><td id="b403"><code>add(r);</code></td><td id="b404">把这个排名计入树状数组，供更左边更小的下标查询。别忘了这一句，否则答案恒为 0。</td></tr><tr><td id="b405"><code>long long ans</code></td><td id="b406">n = 5×10⁵ 且完全逆序时答案 = n(n−1)/2 ≈ 1.25×10¹¹，int 上限 2.1×10⁹，溢出后是负数。</td></tr><tr><td id="b407"><code>int lowbit(int x) { return x &amp; -x; }</code></td><td id="b408">x 与它的相反数按位与，留下最低位的 1。下标必须 ≥ 1，否则 lowbit(0)=0 造成死循环。</td></tr></tbody></table><div class="box warn"><div class="t" id="b409">这题最容易错的地方</div><ul><li id="b410">ans 用 int：溢出成负数，WA 且极难自查（样例只有 11，本地完全看不出来）。</li><li id="b411">相等元素也被算成逆序对：查 sum(r) 而不是 sum(r−1)，遇到重复数字就错。</li><li id="b412">离散化时 sz 写成 unique(...) - b：多算 1，lower_bound 到 sz+1 时越界，RE 或排名错位。</li><li id="b413">开了树状数组却忘了 add(r)，答案恒为 0。</li><li id="b414">从左往右扫却仍写 sum(r−1)：数到的是“左边比它小的”，方向完全反了。</li><li id="b415">数组只开 100005（只够 10⁵）：n = 5×10⁵ 的数据直接越界，RE 或答案错乱。开 500005。</li><li id="b416">a 数组被 sort 之后才拿来遍历：顺序全乱，逆序对数目无意义。所以必须复制到 b 再排序。</li></ul></div></div></details></div><div style="margin:-14px 0 26px;color:#5b6577;font-size:13.5px">↑ 第 D 题 · 逆序对</div><div class="challenge"><div class="ct" id="b417">大题 挑战题 · 石子合并</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1880</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P1880" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b418">在一个圆形操场的四周摆放 N 堆石子，现要将石子有次序地合并成一堆。规定每次只能选<b>相邻</b>的 2 堆合并成新的一堆，并把新堆的石子数记为本次合并的得分。求把 N 堆合并成一堆的最小总得分和最大总得分。</p><p id="b419">输入格式：第一行一个整数 N（N ≤ 100）；第二行 N 个整数，依次表示每堆石子的个数（正整数）。</p><p id="b420">输出格式：共两行，第一行为最小得分，第二行为最大得分。</p><p id="b421"><b>样例输入</b><br><code>4<br>4 5 9 4</code><br><b>样例输出</b><br><code>43<br>54</code><br>样例解释：最小方案先合并 4+4=8（得 8 分），再 8+5=13（13 分），再 13+9=22（22 分），共 43。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b422">先做一条链上的版本：n 堆排成一行，每次合并相邻两堆。把“最后一步”想清楚——它一定是把某个前缀段和某个后缀段合并。</p><p id="b423">于是需要知道“把 a[i..j] 合并成一堆”的最优得分。这就是区间 DP：先算小区间，再用小区间拼出大区间。</p><p id="b424">环怎么处理？一种断法对应一种走法，有 n 种断法。有没有办法不写 n 遍，一遍扫完？</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b425">断环成链：把数组复制一份接在后面，得到 a[1..2n]。环上任意一种“从哪断开”的合并方案，都对应 2n 链上一个长度为 n 的连续区间。答案在这 n 个区间里取最优。</p><p id="b426">状态：f[i][j] = 把 a[i..j] 合并成一堆的最小得分；g[i][j] 同理求最大。</p><p id="b427">转移：最后一次合并必然把 a[i..k] 与 a[k+1..j] 两堆合成一堆，本次得分 = 这一段总和。f[i][j] = min over k∈[i, j−1] of f[i][k] + f[k+1][j] + (pre[j] − pre[i−1])。</p><p id="b428">顺序：按区间长度 len 从小到大枚举。长度 1 的区间不需要合并，得分 0。不能用“从 i 推到 j”的方式，因为 f[i][j] 依赖的所有子区间长度都比它短。</p><p id="b429">边界：f[i][i] = 0，其余 f 初值设成 INF；g 全部初值 0（最大值的下界就是 0）。</p><p id="b430">答案：对 i = 1..n 取 f[i][i+n−1] 的最小值、g[i][i+n−1] 的最大值。</p><p id="b431">复杂度 O(n³)：区间 O(n²) 个（实际是 2n 个起点 × n 种长度），每个枚举 O(n) 个分界点，n = 100 时约 2×10⁶ 次。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b432">参考代码</div><pre id="b433"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> n;
+<span class="k">long</span> <span class="k">long</span> a[<span class="n">205</span>], pre[<span class="n">205</span>];
+<span class="k">long</span> <span class="k">long</span> f[<span class="n">205</span>][<span class="n">205</span>], g[<span class="n">205</span>][<span class="n">205</span>];      <span class="c">// f：最小得分，g：最大得分</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">cin</span> &gt;&gt; n;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) { <span class="k">cin</span> &gt;&gt; a[i]; a[i + n] = a[i]; }   <span class="c">// 断环成链</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= <span class="n">2</span> * n; ++i) pre[i] = pre[i - <span class="n">1</span>] + a[i];     <span class="c">// 前缀和，O(1) 取段和</span>
+
+    <span class="k">memset</span>(f, <span class="n">0x3f</span>, <span class="k">sizeof</span>(f));              <span class="c">// 求最小值：初值设成极大</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= <span class="n">2</span> * n; ++i) f[i][i] = <span class="n">0</span>;   <span class="c">// 一堆不用合并，得分 0</span>
+
+    <span class="k">for</span> (<span class="k">int</span> len = <span class="n">2</span>; len &lt;= n; ++len)                    <span class="c">// 区间长度，先短后长</span>
+        <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i + len - <span class="n">1</span> &lt;= <span class="n">2</span> * n; ++i) {      <span class="c">// 左端点</span>
+            <span class="k">int</span> j = i + len - <span class="n">1</span>;
+            <span class="k">long</span> <span class="k">long</span> s = pre[j] - pre[i - <span class="n">1</span>];            <span class="c">// 本次合并的得分</span>
+            <span class="k">for</span> (<span class="k">int</span> k = i; k &lt; j; ++k) {                 <span class="c">// 最后一次合并的分界</span>
+                f[i][j] = <span class="k">min</span>(f[i][j], f[i][k] + f[k + <span class="n">1</span>][j] + s);
+                g[i][j] = <span class="k">max</span>(g[i][j], g[i][k] + g[k + <span class="n">1</span>][j] + s);
+            }
+        }
+
+    <span class="k">long</span> <span class="k">long</span> mn = <span class="k">LLONG_MAX</span>, mx = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {                        <span class="c">// n 种断法</span>
+        mn = <span class="k">min</span>(mn, f[i][i + n - <span class="n">1</span>]);
+        mx = <span class="k">max</span>(mx, g[i][i + n - <span class="n">1</span>]);
+    }
+    <span class="k">cout</span> &lt;&lt; mn &lt;&lt; <span class="s">"\n"</span> &lt;&lt; mx &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b434">关键片段拆解</div><table class="lines"><thead><tr><th id="b435">片段</th><th id="b436">作用</th></tr></thead><tbody><tr><td id="b437"><code>a[i + n] = a[i];</code></td><td id="b438">把数组复制一份接在后面。环上每一种断法，对应链上一个长度为 n 的连续区间。</td></tr><tr><td id="b439"><code>pre[i] = pre[i - 1] + a[i];</code></td><td id="b440">前缀和。段和 pre[j]−pre[i−1] 是 O(1)，这一步把 O(n⁴) 的朴素写法压到 O(n³)。</td></tr><tr><td id="b441"><code>memset(f, 0x3f, sizeof(f));</code></td><td id="b442">把 f 的每个字节设成 0x3f，得到一个约 4.5×10¹⁸ 的大数，代表“还没算 / 不可达”。</td></tr><tr><td id="b443"><code>for (int i = 1; i &lt;= 2 * n; ++i) f[i][i] = 0;</code></td><td id="b444">长度为 1 的区间是递归的底：一堆石子不用合并，得分 0。漏了这一行，所有答案都会带上 INF。</td></tr><tr><td id="b445"><code>for (int len = 2; len &lt;= n; ++len)</code></td><td id="b446">区间 DP 的方向：长度从小到大。长度超过 n 的区间在环上没有意义。</td></tr><tr><td id="b447"><code>i + len - 1 &lt;= 2 * n</code></td><td id="b448">右端点不能越过 2n。写成 i &lt;= n 会让短区间的右端点越过边界，越界写数组。</td></tr><tr><td id="b449"><code>for (int k = i; k &lt; j; ++k)</code></td><td id="b450">枚举最后一次合并的分界点。k 从 i 到 j−1，保证左右两段都非空。</td></tr><tr><td id="b451"><code>+ s</code></td><td id="b452">本次合并的得分 = 合并后这一堆的石子数 = 这一段的总和。三项缺一不可。</td></tr><tr><td id="b453"><code>mn = min(mn, f[i][i + n - 1]);</code></td><td id="b454">n 种断法里取最优。注意区间长度是 n，右端点是 i+n−1。</td></tr></tbody></table><div class="box warn"><div class="t" id="b455">这题最容易错的地方</div><ul><li id="b456">f 没有 memset 成 INF：min 永远取到初值 0，输出 0；而 g 的初值又必须是 0，两张表不能共用初值。</li><li id="b457">忘了 f[i][i] = 0：长度为 1 的区间保留 INF，所有转移都得到天文数字，输出一个十几位的怪数。</li><li id="b458">区间长度枚举到 2n：长度 &gt; n 的区间在环上无意义，且 i+len−1 会超过 2n 越界。</li><li id="b459">循环顺序写成“先枚举左端点再枚举长度”：算 f[i][j] 时子区间还没算好，结果全错（有时代码还能跑，最难查）。</li><li id="b460">k 从 i 枚举到 j（含 j）：右半段为空，f[j+1][j] 是无效状态，越界读。</li><li id="b461">用 int 存得分：n = 100、每堆 10⁴ 时最大得分可达 10⁸ 量级，勉强够，但数据一放大就溢出，统一 long long。</li><li id="b462">输出顺序写反（先最大后最小）：样例一眼能看出，但赛场上经常看漏。</li></ul></div></div></details></div><div style="margin:-14px 0 26px;color:#5b6577;font-size:13.5px">↑ 第 E 题 · 石子合并</div><div class="box tip" style="margin:28px 0 -6px"><div class="t" id="b463">附加挑战 2（不计入限时，难度高一级）</div><p id="b464">整套题做完还有余力再啃这一道。它不在本场的考点范围内，但只用已经学过的算法，需要把前面的工具自己拼起来。</p></div><div class="challenge ch2"><div class="ct" id="b465">挑战 2 · Mowing the Lawn G</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P2627</span><span class="badge diff">提高-/提高</span><a href="https://www.luogu.com.cn/problem/P2627" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b466">Farmer John 有 N 只排成一排的奶牛，编号 1..N，第 i 只奶牛的效率是 Eᵢ（0 ≤ Eᵢ ≤ 10⁹）。他要选一些奶牛来剪草坪，把这些奶牛的效率加起来就是总效率。</p><p id="b467">麻烦在于：如果 FJ 安排了<b>超过 K 只连续</b>的奶牛，它们就会罢工。也就是说，选中的奶牛里不能出现长度超过 K 的连续段。</p><p id="b468">求能获得的最大总效率。</p><p id="b469">输入格式：第一行两个整数 N、K（1 ≤ N ≤ 10⁵，1 ≤ K ≤ N）；第 2 到 N+1 行，每行一个整数 Eᵢ。</p><p id="b470">输出格式：一行一个整数，表示最大效率值。</p><p id="b471"><b>样例输入</b><br><code>5 2<br>1<br>2<br>3<br>4<br>5</code><br><b>样例输出</b><br><code>12</code><br>样例解释：选 1、2、4、5 号奶牛，总效率 1+2+4+5 = 12，两段连续长度都是 2，不超过 K = 2；换成别的选法都不会更大。</p></div><div class="cap" id="b472">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+5 2
+1
+2
+3
+4
+5
+输出：
+12</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b473">直接写「前 i 只奶牛的最大效率」很难转移——你不知道当前已经连续选了几只。换一个角度：把<b>没选的位置</b>当成隔板，两片隔板之间夹着的就是一段被选中的连续奶牛。</p><p id="b474">设 h[i] 表示「第 i 个位置不选」时前 i 只奶牛的最大效率。若上一个不选的位置是 p，那么 p+1..i−1 全是选中的，长度 i−1−p 不能超过 K，也就是 p ≥ i−1−K。把转移写出来，你会发现它是一个<b>滑动窗口最大值</b>。</p><p id="b475">窗口里的量是 h[p] − s[p]（s 是效率的前缀和）。用单调队列在 O(1) 内取窗口最大，和本节 P1886 求窗口最大值完全同构，只是把「数组值」换成了「h[p] − s[p]」。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b476"><b>① 状态怎么定。</b>令 s[i] = E₁ + … + E_i，h[i] = 第 i 个位置<b>不选</b>时前 i 只奶牛的最大效率。把「不选」当成隔板：两片隔板 p 与 i 之间（p &lt; i）的 p+1..i−1 全是选中的连续段，它的长度 i−1−p 必须 ≤ K。</p><p id="b477"><b>② 转移。</b>h[i] = s[i−1] + max{ h[p] − s[p] : i−1−K ≤ p ≤ i−1 }。含义：p+1..i−1 这一整段全选（贡献 s[i−1] − s[p]），前面到 p 为止的最优值是 h[p]，两部分相加。</p><p id="b478"><b>③ 答案在哪。</b>在末尾补一个虚拟位置 n+1（不选），答案就是 h[n+1]——这样最后一段连续奶牛也被「隔板」截住了，长度同样受限。</p><p id="b479"><b>④ 为什么能用单调队列。</b>窗口的左右端点都随 i 单调右移，窗口里要的是最大值，这正是本节滑动窗口的标准场景：队尾弹掉「更小且更早过期」的，队头弹掉「已经滑出窗口」的。每个下标进出队各一次，均摊 O(1)。</p><p id="b480"><b>⑤ 初值。</b>h[0] = 0、s[0] = 0，把 p = 0 当成第 0 个隔板先放进队列；转移时 q[head] 对应的 h[q[head]] − s[q[head]] 就是窗口最大。</p><p id="b481"><b>⑥ 数值与复杂度。</b>Eᵢ ≤ 10⁹、N ≤ 10⁵，总和能到 10¹⁴，h、s、差值全部用 long long。总复杂度 O(N)，N = 10⁵ 时不到 3×10⁵ 次操作。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b482">参考代码</div><pre id="b483"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">100005</span>;
+<span class="k">int</span> n, K;
+<span class="k">long</span> <span class="k">long</span> s[N], h[N];    <span class="c">// s：效率前缀和；h[i]：第 i 个位置不选时，前 i 只奶牛的最大效率</span>
+<span class="k">int</span> q[N];                <span class="c">// 单调队列，存下标 p，维护 h[p]-s[p] 递减</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">scanf</span>(<span class="s">"%d%d"</span>, &amp;n, &amp;K);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        <span class="k">long</span> <span class="k">long</span> e;
+        <span class="k">scanf</span>(<span class="s">"%lld"</span>, &amp;e);
+        s[i] = s[i - <span class="n">1</span>] + e;
+    }
+
+    <span class="k">int</span> head = <span class="n">1</span>, tail = <span class="n">0</span>;
+    q[++tail] = <span class="n">0</span>;                       <span class="c">// p = 0 表示哨兵：第 0 个位置不选</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n + <span class="n">1</span>; ++i) {   <span class="c">// i = n+1 是末尾的虚拟位置</span>
+        <span class="k">while</span> (head &lt;= tail &amp;&amp; q[head] &lt; i - <span class="n">1</span> - K) ++head;     <span class="c">// 窗口 [i-1-K, i-1]</span>
+        h[i] = s[i - <span class="n">1</span>] + h[q[head]] - s[q[head]];
+        <span class="k">while</span> (head &lt;= tail &amp;&amp; h[q[tail]] - s[q[tail]] &lt;= h[i] - s[i]) --tail;
+        q[++tail] = i;
+    }
+
+    <span class="k">printf</span>(<span class="s">"%lld\n"</span>, h[n + <span class="n">1</span>]);
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b484">关键片段拆解</div><table class="lines"><thead><tr><th id="b485">片段</th><th id="b486">作用</th></tr></thead><tbody><tr><td id="b487"><code>h[i] = s[i - 1] + h[q[head]] - s[q[head]];</code></td><td id="b488">转移的直接实现：p+1..i−1 全选的贡献是 s[i−1] − s[p]，加上前面到 p 为止的 h[p]。队列的队头就是让这个值最大的 p。</td></tr><tr><td id="b489"><code>while (head &lt;= tail &amp;&amp; q[head] &lt; i - 1 - K) ++head;</code></td><td id="b490">窗口是 [i−1−K, i−1]。窗口左端随 i 单调右移，所以每步最多弹一个，用 if 也行，写成 while 更稳。</td></tr><tr><td id="b491"><code>while (head &lt;= tail &amp;&amp; h[q[tail]] - s[q[tail]] &lt;= h[i] - s[i]) --tail;</code></td><td id="b492">队尾弹掉「值更小且过期更早」的下标。用的是 ≤：相等时留着旧的没有意义，直接弹掉更省时间。</td></tr><tr><td id="b493"><code>q[++tail] = 0;</code></td><td id="b494">哨兵入队。h[0] − s[0] = 0，它代表「第 0 个位置不选」，也就是「第一只从第 1 位开始选」的情形。</td></tr><tr><td id="b495"><code>for (int i = 1; i &lt;= n + 1; ++i)</code></td><td id="b496">多跑一位 i = n+1。它是末尾的虚拟隔板，答案就取 h[n+1]。</td></tr><tr><td id="b497"><code>long long s[N], h[N];</code></td><td id="b498">Eᵢ ≤ 10⁹、N ≤ 10⁵，前缀和到 10¹⁴；h 与差值同样量级，一律 long long。</td></tr></tbody></table><div class="box warn"><div class="t" id="b499">这题最容易错的地方</div><ul><li id="b500">下标只算到 n，不补虚拟位置 n+1：最后一段连续奶牛失去约束，答案偏大 → WA。</li><li id="b501">窗口范围写成 p ∈ [i−K, i−1]：多放了一个位置进去，等于允许 p 与 i 之间夹 K+1 只 → WA。</li><li id="b502">h[p] − s[p] 用 int 存：差值能到 −10¹⁴，溢出后单调性全乱。</li><li id="b503">单调队列里存值而不是存下标：没法判断队头是否滑出窗口，一遇到重复值就错。</li></ul></div></div></details></div><div class="box ok"><div class="t" id="b504">赛后必做</div><ul><li id="b505">能在 8 分钟内读完五道题并排出顺序，明确说出“这题我先放弃”的是哪一道，而不是从 A 顺着硬做。</li><li id="b506">A 题 22 分钟内一次提交通过，能说清为什么队列里必须存下标而不是值。</li><li id="b507">B 题能解释 f[i]+g[i]−1 的 −1 从哪来，并说明为什么样例里“n−best”和“best”都是 4，所以必须自己造第二组数据自测。</li><li id="b508">C 题能默写二分答案的四行框架，并说清为什么求最大可行值时必须上取整、check 为什么要单独判最后一跳。</li><li id="b509">D 题能说清离散化三步里每一步的返回值含义，以及为什么查 sum(r−1) 而不是 sum(r)。</li><li id="b510">E 题能说清“断环成链”为什么等价于枚举 n 个长度为 n 的区间，以及区间 DP 为什么必须按长度递增枚举。</li><li id="b511">交卷前会按顺序检查：数组大小、long long、循环边界、行末是否多空格。</li><li id="b512">赛后当天把没做出来的题重写一遍并限时 40 分钟——不重写等于没考。</li></ul></div>
+
+<footer>算竞教程 · 算竞教程 · 生成于自建课程体系，题目版权归洛谷及各命题方所有<br>
+转载请注明出处；模板代码可直接用于比赛</footer>

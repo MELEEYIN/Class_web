@@ -1,0 +1,258 @@
+
+<div class="box info"><div class="t" id="b0">本节出现的新函数 / 新语法（先看懂再用）</div><ul><li id="b1"><a href="#fn-0">col 数组与 BFS 染色</a> —— BFS 交替染色，O(n+m) 判定二分图</li><li id="b2"><a href="#fn-1">match 数组</a> —— 右侧点 → 左侧点的配对表，0 表示空</li><li id="b3"><a href="#fn-2">dfs 增广（匈牙利算法的核心）</a> —— 一条交替路翻转一条边，找到就返回 true</li></ul></div><p id="b4">二分图是图论里结构最干净的一类：<b>点能分成左右两堆，每条边都从左边连到右边，堆内没有边。</b>结构干净，问题就好算——“把 n 个任务分给 m 个人，每人最多一个、每人只会其中几项”，这类分配问题一旦建成二分图，就变成了求<b>最大匹配</b>。</p><div class="quote" id="b5">二分图 ⟺ 可以二染色使每条边两端异色 ⟺ 不含奇环。这三个说法完全等价，第一个用来建图，第二个用来写代码，第三个用来出反例。</div><table><thead><tr><th id="b6">要做的事</th><th id="b7">做法</th><th id="b8">复杂度</th><th id="b9">本节位置</th></tr></thead><tbody><tr><td id="b10">判断一个图是不是二分图</td><td id="b11">BFS 染色，遇同色相邻就否定</td><td id="b12">O(n + m)</td><td id="b13">本节第一部分</td></tr><tr><td id="b14">二分图最大匹配</td><td id="b15">匈牙利算法，逐个左侧点找增广路</td><td id="b16">O(n·E)，n = 500、E = 5×10<sup>4</sup> 时 2.5×10<sup>7</sup></td><td id="b17">本节第二部分</td></tr><tr><td id="b18">最小点覆盖（二分图）</td><td id="b19">König 定理：等于最大匹配</td><td id="b20">与匹配同阶</td><td id="b21">本节末尾</td></tr><tr><td id="b22">最大独立集（二分图）</td><td id="b23">总点数 − 最大匹配</td><td id="b24">与匹配同阶</td><td id="b25">本节末尾</td></tr></tbody></table><p id="b26">先解决“怎么知道它是不是二分图”。做法就是把二分图的定义直接翻译成代码：任选一个点染成 0，它的邻居全染成 1，邻居的邻居再染回 0……如果某条边的两端被迫同色，这个图就不是二分图。</p><div class="fn"><div class="fh" id="b27">新函数拆解 · col 数组与 BFS 染色</div><div class="fb"><div class="sig" id="b28">int col[N];                    // -1 未染色，0 / 1 两种颜色
+col[v] = col[u] ^ 1;           // 邻居染成相反色
+if (col[v] == col[u]) 不是二分图;</div><table class="lines"><thead><tr><th id="b29">组成</th><th id="b30">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b31"><code>col[v] 的取值</code></td><td id="b32">−1 表示未染色，0 与 1 表示两种颜色。<b>不要用 0 表示“未染色”</b>：第一个连通块的点会被染成 0，于是它永远看起来像没染过，BFS 会反复入队。</td></tr><tr><td id="b33"><code>col[u] ^ 1</code></td><td id="b34">按位异或 1 就是 0↔1 互换。比写 <code>1 - col[u]</code> 少一次减法，语义也更像“取反”。</td></tr><tr><td id="b35"><code>冲突判据</code></td><td id="b36"><code>col[v] == col[u]</code> 且 v 已染色，说明同一条边的两端同色，绕出来的环长度是奇数，图不是二分图，立刻返回 false。</td></tr><tr><td id="b37"><code>遍历所有点</code></td><td id="b38">图不一定连通。只从 1 号点染色，其余连通块全是 −1，判定结果随机。外层必须 <code>for (int i = 1; i &lt;= n; ++i) if (col[i] == -1) 开一次 BFS</code>。</td></tr><tr><td id="b39"><code>初始化</code></td><td id="b40"><code>memset(col, -1, sizeof col)</code>。全局数组默认是 0，不 memset 就全部“已染成 0 色”，第一次判断就全错。</td></tr><tr><td id="b41"><code>复杂度</code></td><td id="b42">每个点入队一次，每条边正反各看一次，O(n + m)。这一步比匹配本身便宜一个数量级。</td></tr></tbody></table><div class="cap" id="b43">最小可运行示例</div><div class="cap" id="b44">示例</div><pre id="b45"><code><span class="k">int</span> col[<span class="n">10005</span>];
+
+<span class="c">// 对 s 所在的连通块染色，冲突返回 false</span>
+<span class="k">bool</span> <span class="f">paint</span>(<span class="k">int</span> s) {
+    <span class="k">queue</span>&lt;<span class="k">int</span>&gt; q;
+    q.<span class="f">push</span>(s);
+    col[s] = <span class="n">0</span>;
+    <span class="k">while</span> (!q.<span class="k">empty</span>()) {
+        <span class="k">int</span> u = q.<span class="f">front</span>(); q.<span class="f">pop</span>();
+        <span class="k">for</span> (<span class="k">int</span> e = head[u]; e; e = nxt[e]) {
+            <span class="k">int</span> v = to[e];
+            <span class="k">if</span> (col[v] == -<span class="n">1</span>) { col[v] = col[u] ^ <span class="n">1</span>; q.<span class="f">push</span>(v); }
+            <span class="k">else</span> <span class="k">if</span> (col[v] == col[u]) <span class="k">return</span> <span class="k">false</span>;   <span class="c">// 同色相邻</span>
+        }
+    }
+    <span class="k">return</span> <span class="k">true</span>;
+}</code></pre><div class="box tip"><div class="t" id="b46">注意</div><p id="b47">判断顺序不能反：先看“未染色”再染色，否则新染的点会被自己判成冲突。</p><p id="b48">自环（u 连 u）一定让图为非二分图——同一个点与自己相邻，两端必然同色，代码天然能判出来。</p></div></div></div><div class="cap" id="b49">染色判定完整代码（输入 n、m 与 m 条无向边，输出 Yes / No）</div><pre id="b50"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">10005</span>;
+<span class="k">const</span> <span class="k">int</span> M = <span class="n">100005</span>;
+
+<span class="k">int</span> head[N], nxt[M &lt;&lt; <span class="n">1</span>], to[M &lt;&lt; <span class="n">1</span>], ecnt;
+<span class="k">int</span> col[N];                             <span class="c">// -1 未染色，0 / 1 两种颜色</span>
+
+<span class="k">void</span> <span class="f">addEdge</span>(<span class="k">int</span> u, <span class="k">int</span> v) {
+    to[++ecnt] = v; nxt[ecnt] = head[u]; head[u] = ecnt;
+}
+
+<span class="c">// 对 s 所在连通块染色；能二染色返回 true</span>
+<span class="k">bool</span> <span class="f">paint</span>(<span class="k">int</span> s) {
+    <span class="k">queue</span>&lt;<span class="k">int</span>&gt; q;
+    q.<span class="f">push</span>(s);
+    col[s] = <span class="n">0</span>;
+    <span class="k">while</span> (!q.<span class="k">empty</span>()) {
+        <span class="k">int</span> u = q.<span class="f">front</span>(); q.<span class="f">pop</span>();
+        <span class="k">for</span> (<span class="k">int</span> e = head[u]; e; e = nxt[e]) {
+            <span class="k">int</span> v = to[e];
+            <span class="k">if</span> (col[v] == -<span class="n">1</span>) {                  <span class="c">// 没染过：染成相反色</span>
+                col[v] = col[u] ^ <span class="n">1</span>;
+                q.<span class="f">push</span>(v);
+            } <span class="k">else</span> <span class="k">if</span> (col[v] == col[u]) {       <span class="c">// 同一条边两端同色 → 存在奇环</span>
+                <span class="k">return</span> <span class="k">false</span>;
+            }
+        }
+    }
+    <span class="k">return</span> <span class="k">true</span>;
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> n, m;
+    <span class="k">scanf</span>(<span class="s">"%d %d"</span>, &amp;n, &amp;m);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= m; ++i) {
+        <span class="k">int</span> u, v; <span class="k">scanf</span>(<span class="s">"%d %d"</span>, &amp;u, &amp;v);
+        <span class="f">addEdge</span>(u, v); <span class="f">addEdge</span>(v, u);            <span class="c">// 无向边，存两份</span>
+    }
+
+    <span class="k">memset</span>(col, -<span class="n">1</span>, <span class="k">sizeof</span> col);                 <span class="c">// ★ 必须先置 -1</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {               <span class="c">// 图可能不连通，每块各开一次</span>
+        <span class="k">if</span> (col[i] != -<span class="n">1</span>) <span class="k">continue</span>;
+        <span class="k">if</span> (!<span class="f">paint</span>(i)) { <span class="k">printf</span>(<span class="s">"No\n"</span>); <span class="k">return</span> <span class="n">0</span>; }
+    }
+    <span class="k">printf</span>(<span class="s">"Yes\n"</span>);
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b51">染色代码的三处关键</div><table class="lines"><thead><tr><th id="b52">代码片段</th><th id="b53">含义与理由</th></tr></thead><tbody><tr><td id="b54"><code>memset(col, -1, sizeof col);</code></td><td id="b55">★ 全局数组的默认值是 0，而 0 是一种合法颜色。不清成 −1，整个图会被当成“已染成 0 色”，第一条边就报冲突。</td></tr><tr><td id="b56"><code>for (int i = 1; i &lt;= n; ++i)</code></td><td id="b57">外层循环负责所有连通块。二分图可以是“一片森林”，只从 1 号点出发会漏掉其它块。</td></tr><tr><td id="b58"><code>if (col[v] == -1)</code></td><td id="b59">先判未染色。若先判“同色”再判“未染色”，新点会被当成冲突。</td></tr><tr><td id="b60"><code>col[v] = col[u] ^ 1;</code></td><td id="b61">异或 1 取反。整张图一旦起点颜色定了，其余所有点的颜色都被唯一确定。</td></tr><tr><td id="b62"><code>else if (col[v] == col[u])</code></td><td id="b63">已染色且相同 = 冲突。此时 u、v 到 BFS 根的路径长度奇偶相同，加上边 (u,v) 正好构成奇环。</td></tr><tr><td id="b64"><code>nxt[M &lt;&lt; 1], to[M &lt;&lt; 1]</code></td><td id="b65">链式前向星每条无向边存两份，这两个数组要开 2m。开成 m 会在存反向边时越界。</td></tr></tbody></table></div><p id="b66">判定解决“结构对不对”，匹配解决“怎么配最多”。下面这道模板题把问题剥到最干净：给一个二分图和若干条允许的配对，问最多能配出几对。</p><div class="prob"><div class="ph"><span class="pn" id="b67">例题 · 【模板】二分图最大匹配</span><span class="oi">洛谷 P3386</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P3386" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b68">给定一个二分图，左部有 n 个点、右部有 m 个点，共 e 条边（每条边从左侧某点连到右侧某点）。求这个二分图的最大匹配数。</p><p id="b69">输入：第一行三个整数 n、m、e（1 ≤ n, m ≤ 500，1 ≤ e ≤ 5×10<sup>4</sup>）。接下来 e 行，每行两个整数 u、v，表示左侧点 u 与右侧点 v 之间有一条边。</p><p id="b70">输出：一行一个整数，为最大匹配数。</p></div><div class="io" id="b71">输入：
+3 3 5
+1 1
+1 2
+2 1
+3 2
+3 3
+输出：
+3</div></div><div class="step"><div class="sh" id="b72">例题怎么想：为什么不能贪心，增广路是什么</div><p id="b73">先证明贪心不行。还是上面这 5 条边，按左侧点 1、2、3 的顺序，每人都抢第一个还空着的右点：L1 拿到 R1；L2 只剩 R1 可选，被占，放弃；L3 拿到 R2。结果只能配 2 对。</p><p id="b74">但最优是 3 对：L1–R2、L2–R1、L3–R3。贪心在 L2 这一步锁死了自己——<b>它不知道“让 L1 换个位置”这件事是可行的。</b></p><p id="b75">让位就是增广。L2 想抢 R1 时，先看 R1 的主人 L1 能不能腾地方：L1 除了 R1 还能连 R2，而 R2 空着。于是走出一条路 <code>L2 — R1 — L1 — R2</code>，它的边依次是“未匹配、匹配、未匹配”，两端都是未匹配点。把这条路上匹配与未匹配全部翻转，得到 {L2–R1, L1–R2}，匹配数从 1 变成 2，一个也没丢。</p><p id="b76">这就是 <b>增广路</b>：起点和终点都是未匹配点、边一未匹配一匹配交替的路。翻转一条长度为 2k+1 的增广路，匹配数恰好 +1。Berge 定理说：<b>匹配是最大的 ⟺ 不存在增广路。</b>所以只要对每个左侧点都尝试找一次增广路，找不到就说明它配不上，全部试完就是最大匹配。</p><div class="cap" id="b77">增广 dfs 的骨架</div><pre id="b78"><code>对每个左侧点 u：
+    vis[<span class="n">1..m</span>] = <span class="k">false</span>                    <span class="c">// 本轮尝试重新开始</span>
+    <span class="f">dfs</span>(u)：
+        <span class="k">for</span> u 的每个邻点 v：
+            <span class="k">if</span> vis[v]: <span class="k">continue</span>          <span class="c">// 本轮试过了，跳过（否则绕圈）</span>
+            vis[v] = <span class="k">true</span>
+            <span class="k">if</span> match[v] == <span class="n">0</span>             <span class="c">// v 空着：直接配</span>
+               或 <span class="f">dfs</span>(match[v])          <span class="c">// v 有主人：让主人另找出路</span>
+                match[v] = u; <span class="k">return</span> <span class="k">true</span>
+        <span class="k">return</span> <span class="k">false</span>                     <span class="c">// 所有出路都被堵死</span></code></pre><p id="b79">复杂度：每个左侧点做一次 dfs，单次最多把所有边扫一遍，总 O(n·E)。n = 500、E = 5×10<sup>4</sup> 时是 2.5×10<sup>7</sup> 次，实测远不到 0.1 秒。</p></div><div class="fn"><div class="fh" id="b80">新函数拆解 · match 数组</div><div class="fb"><div class="sig" id="b81">int match[NR];      // match[v] = 右侧点 v 配给了谁，0 表示没人</div><table class="lines"><thead><tr><th id="b82">组成</th><th id="b83">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b84"><code>下标含义</code></td><td id="b85">match 用<b>右侧点</b>编号当下标。因为匈牙利算法的核心是“右侧点被谁占着”，左侧点只是发起方，不需要单独记录。</td></tr><tr><td id="b86"><code>值 0 的含义</code></td><td id="b87">0 号点保留作“空”。点的编号从 1 开始，于是 <code>match[v] == 0</code> 就能直接当判空用，省掉一次“是否已匹配”的额外数组。</td></tr><tr><td id="b88"><code>初值</code></td><td id="b89">全局数组默认全 0，天然就是“全部未匹配”，不用手动清空。但多测题目里必须 <code>memset(match, 0, sizeof match)</code>，否则上一组数据的匹配会带进下一组。</td></tr><tr><td id="b90"><code>不对称</code></td><td id="b91">左侧点没有对应的数组。要输出方案（例如问“哪两个人一组”）时，遍历 v 输出 <code>match[v] v</code> 即可，反过来查“左侧 u 配给谁”才需要再造一个数组。</td></tr><tr><td id="b92"><code>何时更新</code></td><td id="b93">只在 dfs 成功的那一层写 <code>match[v] = u</code>。递归返回时每一层都会写一次，整条增广路上的配对关系因此被一次性翻转。</td></tr><tr><td id="b94"><code>大小</code></td><td id="b95">按右侧点数开，与左侧点数无关。把左右点数搞混是最常见的数组越界来源。</td></tr></tbody></table><div class="cap" id="b96">最小可运行示例</div><div class="cap" id="b97">示例</div><pre id="b98"><code><span class="k">int</span> match[<span class="n">505</span>];                        <span class="c">// 右侧最多 500 个点</span>
+
+<span class="c">// 匹配成功后：</span>
+<span class="c">//   match[R1] = L2   R1 现在归 L2</span>
+<span class="c">//   match[R2] = L1   R2 现在归 L1</span>
+<span class="c">// 未匹配的右侧点：match[R3] == 0</span>
+
+<span class="c">// 输出方案（左侧 u 与右侧 v 配对，v 从 1 到 m）</span>
+<span class="k">for</span> (<span class="k">int</span> v = <span class="n">1</span>; v &lt;= m; ++v)
+    <span class="k">if</span> (match[v]) <span class="k">printf</span>(<span class="s">"%d %d\n"</span>, match[v], v);</code></pre><div class="box tip"><div class="t" id="b99">注意</div><p id="b100"><code>match[v]</code> 存的是“左侧点编号”，不是布尔值。写成 <code>bool match[]</code> 就无法还原配对关系。</p><p id="b101">每次递归只在成功时写 <code>match[v] = u</code>，写完立刻 return true。所以失败的 dfs 不会留下任何改动——不需要回滚，代码里也没有回滚的语句。</p></div></div></div><div class="fn"><div class="fh" id="b102">新函数拆解 · dfs 增广（匈牙利算法的核心）</div><div class="fb"><div class="sig" id="b103">bool dfs(int u);        // u 是左侧点，返回能否为 u 找到增广路</div><table class="lines"><thead><tr><th id="b104">组成</th><th id="b105">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b106"><code>参数 u</code></td><td id="b107">当前发起请求的左侧点。它可能是一个还没配上的新点，也可能是被“要地”的原配。</td></tr><tr><td id="b108"><code>for 每个邻点 v</code></td><td id="b109">按邻接表遍历 u 的所有候选右侧点。顺序不影响正确性，只影响找到的是哪一组最大匹配。</td></tr><tr><td id="b110"><code>if (vis[v]) continue;</code></td><td id="b111">本轮已经试过 v 就跳过。<b>没有这一行，两个左侧点互相让位时会无限递归</b>（RE：stack overflow）。</td></tr><tr><td id="b112"><code>vis[v] = true;</code></td><td id="b113">标记要放在判断之前。无论这次成功还是失败，v 在本轮都不必再试。</td></tr><tr><td id="b114"><code>match[v] == 0</code></td><td id="b115">v 空着，增广路在这里终结，直接配上。</td></tr><tr><td id="b116"><code>dfs(match[v])</code></td><td id="b117">v 被 match[v] 占着，递归去问它“你能不能让出 v”。这句是整个算法的灵魂：<b>不是抢，而是先安排对方</b>。</td></tr><tr><td id="b118"><code>match[v] = u; return true;</code></td><td id="b119">对方让位成功（或 v 本来就空），u 接手 v，返回 true。</td></tr><tr><td id="b120"><code>return false;</code></td><td id="b121">所有邻点都试完仍失败。此时以 u 为起点没有增广路，调用方换下一个 v。</td></tr><tr><td id="b122"><code>为什么 vis 只在右侧</code></td><td id="b123">每次进入 dfs(u) 都只可能由“u 当前配对的右侧点”触发，而 u 只配了一个右点，所以左侧点不可能重复进入。右侧点却可能被多个左侧点争抢，必须挡。</td></tr></tbody></table><div class="cap" id="b124">最小可运行示例</div><div class="cap" id="b125">示例</div><pre id="b126"><code><span class="k">bool</span> <span class="f">dfs</span>(<span class="k">int</span> u) {
+    <span class="k">for</span> (<span class="k">int</span> e = head[u]; e; e = nxt[e]) {     <span class="c">// 遍历 u 的所有候选</span>
+        <span class="k">int</span> v = to[e];
+        <span class="k">if</span> (vis[v]) <span class="k">continue</span>;                  <span class="c">// 本轮试过了</span>
+        vis[v] = <span class="k">true</span>;
+        <span class="k">if</span> (match[v] == <span class="n">0</span> || <span class="f">dfs</span>(match[v])) {  <span class="c">// v 空着，或原配能让位</span>
+            match[v] = u;                      <span class="c">// 翻转这条路上的最后一条边</span>
+            <span class="k">return</span> <span class="k">true</span>;
+        }
+    }
+    <span class="k">return</span> <span class="k">false</span>;
+}</code></pre><div class="box tip"><div class="t" id="b127">注意</div><p id="b128"><code>||</code> 是短路求值：<code>match[v] == 0</code> 成立时不会进递归，所以空点那一支是 O(1)。</p><p id="b129">把 <code>|| dfs(match[v])</code> 删掉，算法立刻退化成贪心，答案偏小（本节样例会输出 2 而不是 3）。</p></div></div></div><div class="cap" id="b130">完整代码</div><pre id="b131"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> NL = <span class="n">505</span>;                     <span class="c">// 左侧点数上限</span>
+<span class="k">const</span> <span class="k">int</span> NR = <span class="n">505</span>;                     <span class="c">// 右侧点数上限</span>
+<span class="k">const</span> <span class="k">int</span> ME = <span class="n">100005</span>;                  <span class="c">// 边数上限（题给 5×10^4，留一倍余量）</span>
+
+<span class="k">int</span> head[NL], nxt[ME], to[ME], ecnt;
+<span class="k">int</span> match[NR];                          <span class="c">// match[v]：右侧点 v 配给的左侧点，0 表示空</span>
+<span class="k">bool</span> vis[NR];                           <span class="c">// 本轮 dfs 中右侧点是否试过</span>
+
+<span class="k">void</span> <span class="f">addEdge</span>(<span class="k">int</span> u, <span class="k">int</span> v) {
+    to[++ecnt] = v; nxt[ecnt] = head[u]; head[u] = ecnt;
+}
+
+<span class="k">bool</span> <span class="f">dfs</span>(<span class="k">int</span> u) {
+    <span class="k">for</span> (<span class="k">int</span> e = head[u]; e; e = nxt[e]) {
+        <span class="k">int</span> v = to[e];
+        <span class="k">if</span> (vis[v]) <span class="k">continue</span>;                    <span class="c">// 本轮试过，跳过（防绕圈）</span>
+        vis[v] = <span class="k">true</span>;                           <span class="c">// 先标记，成功失败都不再试</span>
+        <span class="k">if</span> (match[v] == <span class="n">0</span> || <span class="f">dfs</span>(match[v])) {    <span class="c">// v 空着，或原配能另找出路</span>
+            match[v] = u;                        <span class="c">// 接手 v</span>
+            <span class="k">return</span> <span class="k">true</span>;
+        }
+    }
+    <span class="k">return</span> <span class="k">false</span>;                                <span class="c">// 所有候选都被堵死</span>
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> n, m, e;
+    <span class="k">scanf</span>(<span class="s">"%d %d %d"</span>, &amp;n, &amp;m, &amp;e);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= e; ++i) {
+        <span class="k">int</span> u, v; <span class="k">scanf</span>(<span class="s">"%d %d"</span>, &amp;u, &amp;v);
+        <span class="f">addEdge</span>(u, v);                           <span class="c">// 只存左侧 -&gt; 右侧的单向边</span>
+    }
+
+    <span class="k">int</span> ans = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> u = <span class="n">1</span>; u &lt;= n; ++u) {               <span class="c">// 每个左侧点各发起一次尝试</span>
+        <span class="k">memset</span>(vis, <span class="n">0</span>, <span class="k">sizeof</span> vis);              <span class="c">// ★ 新一轮必须重新清空</span>
+        <span class="k">if</span> (<span class="f">dfs</span>(u)) ++ans;                       <span class="c">// 找到增广路，匹配数恰好 +1</span>
+    }
+    <span class="k">printf</span>(<span class="s">"%d\n"</span>, ans);
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b132">逐行拆解</div><table class="lines"><thead><tr><th id="b133">代码片段</th><th id="b134">含义与理由</th></tr></thead><tbody><tr><td id="b135"><code>int head[NL], nxt[ME], to[ME];</code></td><td id="b136">三个数组按各自的上限开：head 按左侧点数，nxt/to 按边数。边只存单向，所以 nxt/to 开 e 就够，不用 &lt;&lt;1。</td></tr><tr><td id="b137"><code>if (vis[v]) continue;</code></td><td id="b138">★ 本轮已试过 v。缺这一行的症状是 RE（栈溢出）或 TLE，因为两个左侧点会互相“让位”给对方，永不终止。</td></tr><tr><td id="b139"><code>vis[v] = true;</code></td><td id="b140">先标记再看能不能配。放在 if 里面会漏标，同一个 v 被反复尝试。</td></tr><tr><td id="b141"><code>match[v] == 0</code></td><td id="b142">右侧点 v 还没有主人，u 直接接上——增广路长度为 1，匹配数 +1。</td></tr><tr><td id="b143"><code>|| dfs(match[v])</code></td><td id="b144">短路：上一句为真就不进来。这句让 v 的原配去别处找位置，是“贪心”与“增广”的唯一区别。</td></tr><tr><td id="b145"><code>match[v] = u;</code></td><td id="b146">接手。递归逐层返回时，这条交替路上的每条匹配边都被改写成新的配对，整体相当于一次翻转。</td></tr><tr><td id="b147"><code>return false;</code></td><td id="b148">以 u 为起点没有增广路。按 Berge 定理，这不影响全局最优，跳过即可。</td></tr><tr><td id="b149"><code>memset(vis, 0, sizeof vis);</code></td><td id="b150">★ 每个左侧点前清空。放在外层循环之外会漏掉大量增广路（答案偏小）；放进 dfs 内部会每次递归都清空（指数级变慢）。</td></tr><tr><td id="b151"><code>if (dfs(u)) ++ans;</code></td><td id="b152">每成功一次匹配数恰好 +1，所以 ans 就是最终匹配数，不用最后再统计。</td></tr><tr><td id="b153"><code>addEdge(u, v) 只加一次</code></td><td id="b154">匈牙利只需要从左侧出发找路，反向边用 match 数组代替。加双向边会让 dfs 反复横跳，复杂度爆掉。</td></tr></tbody></table></div><p id="b155">匹配算完之后，二分图上还有两个量和它死死绑定。它们不需要额外算法，只要知道定理，就是一次加减法。</p><table><thead><tr><th id="b156">量</th><th id="b157">公式</th><th id="b158">直觉</th></tr></thead><tbody><tr><td id="b159">最大匹配 M</td><td id="b160">匈牙利算法求出</td><td id="b161">最多能配成多少对</td></tr><tr><td id="b162">最小点覆盖</td><td id="b163">= M</td><td id="b164">用最少的点，盖住所有边</td></tr><tr><td id="b165">最大独立集</td><td id="b166">= 总点数 − M</td><td id="b167">选最多的点，使任意两点之间没有边</td></tr><tr><td id="b168">最大团（二分图内）</td><td id="b169">= 2（除非图没有边）</td><td id="b170">二分图里堆内无边，团最多一个左点加一个右点</td></tr></tbody></table><div class="step"><div class="sh" id="b171">König 定理：最小点覆盖 = 最大匹配</div><p id="b172">点覆盖是“选一批点，使每条边至少有一个端点在选中的集合里”；最小点覆盖是其中点数最少的那个。一般图求最小点覆盖是 NP 难的，但<b>二分图上它恰好等于最大匹配</b>，这就是 König 定理。</p><p id="b173">构造方法（顺带说明为什么相等）：从所有未匹配的左侧点出发做交替 BFS，只走“未匹配边向左→右、匹配边向右→左”，把能到达的点全标记。取“标记过的右点”加“未标记的左点”，就是一个大小等于匹配数的点覆盖。</p><p id="b174">独立集和点覆盖是互补的：删掉一个点覆盖，剩下的点两两之间不可能有边，否则那条边没被盖住。所以<b>最大独立集 = 总点数 − 最小点覆盖 = n + m − 最大匹配</b>。</p><p id="b175">做题时的用法：题目问“至少删几个点能让所有边消失” → 最小点覆盖 → 答案就是最大匹配；问“最多能选几个点使它们互不相邻” → 最大独立集 → 答案就是 n + m − 最大匹配。两句话都不用写新代码，只要把匹配数拿来算。</p></div><div class="box warn"><div class="t" id="b176">这一节的 7 种典型错法（附症状）</div><p id="b177"><b>WA，答案偏小 1~2</b>。—— <code>memset(vis, 0, sizeof vis)</code> 写在了外层循环外面，只有第一个左侧点享受到了干净的状态。vis 必须每个 u 清一次。</p><p id="b178"><b>RE（栈溢出）或 TLE 死循环</b>。—— dfs 里少了 <code>if (vis[v]) continue;</code>。输入 <code>2 2 2 / 1 1 / 2 1</code> 就能一秒复现：两个左侧点互相让位，永不返回。</p><p id="b179"><b>WA，判定全错</b>。—— 染色时用 0 表示“未染色”。第一个连通块被染成 0 之后永远像没访问过，BFS 反复入队（TLE），或者干脆把整片判成冲突。必须用 −1。</p><p id="b180"><b>WA，只判了一个连通块</b>。—— 外层少了 <code>for (i = 1..n)</code>，图不连通时后面的块根本没检查，非二分图被误判成二分图。</p><p id="b181"><b>RE，段错误</b>。—— <code>vis</code>、<code>match</code> 误按左侧点数开：右侧点比左侧多时立刻越界。分工是 <code>head</code> 按左侧点数开、<code>match</code> 与 <code>vis</code> 按右侧点数开、<code>nxt</code> 与 <code>to</code> 按边数开，n ≠ m 时混用会立刻暴露。</p><p id="b182"><b>WA，多测全错</b>。—— 多组数据只清了图没清 <code>match</code>，上一组的配对残留进来，表现为第一组对、后面全错。</p><p id="b183"><b>TLE</b>。—— 建图时双向加边。匈牙利只从左侧出发，反向边会让 dfs 在两侧之间反复横跳，单次 dfs 从 O(E) 变成指数级。</p></div><div class="reproduce"><div class="rt" id="b184">自己动手复现</div><p id="b185">关掉页面，把 P3386 从空文件敲一遍并提交。</p><p id="b186">改一改 ①：把 <code>match[v] == 0 || dfs(match[v])</code> 改成只剩 <code>match[v] == 0</code>，用本节的样例输入，输出从 3 变成 2——这就是纯贪心的极限。</p><p id="b187">改一改 ②：删掉 <code>if (vis[v]) continue;</code>，输入 <code>2 2 2 / 1 1 / 2 1</code>，观察程序直接崩溃（栈溢出）。恢复这一行，答案立刻变回 2。</p><p id="b188">改一改 ③：染色代码里把 <code>col</code> 初始化为 0、用 0 表示未染色，喂一个 4 个点 2 条边的二分图，看它是不是卡在 BFS 里出不来。</p><p id="b189">改一改 ④：在匈牙利代码末尾加一句 <code>printf("%d\n", n + m - ans);</code>，用样例验证最大独立集 = 6 − 3 = 3，再自己构造一个 5 个点 2 条边的图验证一遍。</p></div><div class="mathcard"><div class="mt" id="b190">数学补给 · 奇环、增广路与 König 定理</div><p id="b191"><b>等价刻画一：能二染色 ⟺ 不含奇环。</b>若图能二染色，任取一个环，颜色必须沿环交替，转一圈回到起点要同色，所以环长必为偶数。反过来，若图无奇环，从任一点出发 BFS，把距离为偶数的点染 0、奇数的染 1：同层的两点之间若有边，它们到根的路径长度奇偶相同，加上这条边就构成奇环，矛盾；相邻两层的点颜色本就不同。所以染色一定能完成。</p><p id="b192"><b>等价刻画二：二分图的两个点集就是染色的两个颜色类。</b>连通块内一旦确定一个点的颜色，其余所有点的颜色都被唯一确定，所以每个连通块<b>恰好有两种</b>合法染色（整体取反），这就是“取 min(黑点数, 白点数)”只需要比较两次的原因。</p><p id="b193"><b>Berge 增广路定理</b>：匹配 M 是最大的 ⟺ 不存在 M 增广路。一个方向容易：有增广路就翻转它，|M| 增大，M 不最大。另一个方向：若 M 不最大，取更大的 M′，则对称差 M ⊕ M′ 是一堆交替路和交替环，其中必有一条以 M′ 的边开头和结尾的路，即 M 的增广路。</p><p id="b194"><b>复杂度账</b>：外层至多 n 次，每次 dfs 里每个右侧点最多被标记一次，标记之后最多再扫一遍它的邻边，所以单次 O(E)。总计 O(nE)。n = 500、E = 5×10<sup>4</sup>：2.5×10<sup>7</sup> 次基本操作，按 10<sup>8</sup>/s 估算约 0.25 秒，实测通常 0.02 秒以内——因为绝大多数 dfs 在第一两个邻点就成功返回了。</p><p id="b195"><b>König 定理与它的推论</b>：二分图中 最大匹配 = 最小点覆盖（记作 ν = τ）。又因为“点覆盖的补集是独立集”且两者一一对应，所以 最大独立集 = |V| − 最小点覆盖 = |V| − ν。这三个量在二分图上全部可以多项式时间求出，而在一般图上最小点覆盖是 NP 难的——<b>二分图这个限制值钱的地方就在这里</b>。</p><p id="b196"><b>上界感受</b>：匹配数永远不会超过 min(n, m)，因为每个匹配边要占用一个左点和一个右点。所以样例里 3 个点最多配 3 对，答案是 3 时已经达到理论最大值，可以直接判定为最优，不必再验证。</p></div><div class="think"><div class="tt" id="b197">举一反三 · 想清楚这些再往下走</div><div class="thint">先自己写出答案，再点开核对——方向对不对，比答案本身更重要</div><ol><li id="b198"><div class="tq">棋盘上相邻的两个格子必然异色，所以“用 1×2 骨牌铺满棋盘”“骑士互相攻击”这类题都能建成二分图。请举一个你见过的题，说清左部、右部各自是什么，边代表什么。</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">本节的挑战 2（P1129 矩阵游戏）就是标准例子：左部是 n 个<b>行</b>，右部是 n 个<b>列</b>，格子 (i, j) 为 1 就在第 i 行与第 j 列之间连一条边。交换行、交换列只改变“第几行放在第几个行位”，所以“主对角线全 1”等价于“存在一个行→列的完美匹配”，匹配数等于 n 就是 Yes。棋盘类题更直白：按 (i+j) 的奇偶把格子染成两色，左部放偶数格、右部放奇数格，边表示“这两格相邻、可以放一块 1×2 骨牌”，能铺满 ⟺ 完美匹配存在（如骑士题：边表示互相攻击，答案 = 总格数 − 最大匹配）。常见错路是左右部随便分（比如按行号分），那样边就全落在同一侧，根本不是二分图；另一条是忘了“每条边只能表示一个允许的配对”，把“两格都在棋盘上”这种无信息的关系也连成边。</div></details></li><li id="b199"><div class="tq">如果图不是二分图（比如一个三角形），最大匹配还能用匈牙利算吗？它会错在哪里？这类问题叫什么名字？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">能跑，但结果不保证最优，甚至可能给出根本不合法的答案。匈牙利不检查二分性，它假设“每条匹配边连接左部与右部”，这个假设在一般图上崩溃：会出现<b>奇长度的交替环</b>，普通 dfs 沿着环走一圈后会把同一个点算进两条匹配边，匹配数虚高；或者反过来卡在某个局部结构上再也找不到真正的增广路。三角形就是最小反例：3 个点、3 条边，真实最大匹配是 1，而把点同时当左部和右部去跑，很容易算出 2 甚至 3。这类问题叫<b>一般图最大匹配</b>，正解是带花树（Edmonds blossom），把奇数长度的“花”缩成一个点再继续找增广路，O(V³)，模板题是洛谷 P6113。常见错路是以为“不是二分图就没有匹配”（匹配总是存在的，只是算法要换）；另一条是把每个点复制成左右两份就当成二分图跑——那正是错得最彻底的做法。</div></details></li><li id="b200"><div class="tq">怎样从 match 数组出发，真的把最小点覆盖的那批点构造出来？请描述交替 BFS 的起点、能走的边、最后的取法。</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">起点：<b>所有未匹配的左侧点</b>（<code>match[v] == 0</code> 的那些 v 之外，左侧没被任何人配上的点）。只走交替边：从左侧点出发走<b>未匹配边</b>到右侧点；从右侧点出发只能走<b>匹配边</b>回到 <code>match[v]</code>，其余边一律不走。把所有能到达的点标记成“已访问”。取法：<b>未标记的左点</b> ∪ <b>标记的右点</b>，这个集合的大小恰好等于最大匹配数，而且盖住每一条边——若某条边两端都没被选中（左端已标记、右端未标记），那它就是从已标记左点走出去的一条未匹配边，右端早该被标记，矛盾。常见错路是方向走反（从右往左走未匹配边、从左往右走匹配边），标记集完全变成另一个样子，取出来的点盖不住边；另一条是起点取成“未匹配的右点”，那构造出来的是另一个集合，大小对不上匹配数。</div></details></li><li id="b201"><div class="tq">如果题目同时要求“每条边至少选一个端点”和“同一条边不能两个端点都选”，那么合法的选法实际上被限制成了什么形状？它和最小点覆盖、最大独立集分别差在哪？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">两条规则合起来，每条边<b>恰好一个</b>端点被选中——也就是说选中的点集与它的补集之间没有边，且每条边都跨两边。这正是<b>二染色</b>：合法选法恰好是每个连通块的一种染色方案，而连通块内起始颜色一旦定了，其余全被唯一确定，所以每个连通块<b>恰好两种</b>合法方案（整体取反），图不是二分图就无解（输出 Impossible）。它和最小点覆盖差在“至少”和“恰好”：点覆盖允许一条边两端都选，所以是覆盖问题；二分图上它等于最大匹配，一般图上是 NP 难的。它和最大独立集差在“至多”和“恰好”：独立集只要求两端不能都被选，允许某条边一个端点都没选；恰好一个则强制每条边都被跨。本节挑战题 P1330 就是这个模型，答案是每个连通块 <code>min(黑点数, 白点数)</code> 之和。常见错路是看到“至少一个”就套 König 去求最小点覆盖，把“不能都选”这条丢掉了，答案偏大。</div></details></li><li id="b202"><div class="tq">匈牙利算法是 O(VE)。n 到 10<sup>5</sup> 时该怎么办？Hopcroft–Karp 与 Dinic 分别快在哪一步？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">n = 10<sup>5</sup> 时 O(VE) 就是 10<sup>10</sup>，匈牙利必须换掉。Hopcroft–Karp 做到 O(E√V)：每轮先用 BFS 把图按“到未匹配左点的距离”分层，找出<b>最短</b>的增广路长度，再沿分层图一次 DFS 把所有互不相交的最短增广路一起增广；每轮增广路的长度严格变长，所以最多 √V 轮。Dinic 做的是同一件事的网络流表述：源点→左部、左部→右部、右部→汇点，容量全为 1，单位容量网络的总流量 ≤ √E 轮分层就结束，复杂度同为 O(E√V)。两者的区别在常数：Dinic 要建 2E+n+m 条边、每轮还要 BFS 一遍，n = 500 这种小数据上比匈牙利慢好几倍，真正体现优势要到 10<sup>5</sup> 量级。常见错路是“给匈牙利加个时间戳 vis 就能过 10<sup>5</sup>”——那只是省掉 memset 的常数，复杂度还是 O(VE)；另一条是无脑上 Dinic，在小数据上被匈牙利反超。</div></details></li><li id="b203"><div class="tq">二分图判定能不能用来检测“一个图里有没有奇环”？如果只想知道某条边是否属于某个奇环，该怎么改？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">能，而且是最省事的判法：整张图<b>是二分图 ⟺ 没有奇环</b>，所以 BFS 染色一旦冲突，就说明奇环存在。但染色只能回答“有没有”，说不出“哪条边在奇环上”——冲突边确实属于某条奇环，可同一条奇环上的其它边它也判不出来。要判“某条边 e = (u,v) 是否属于某个奇环”，就用一个等价条件：<b>删掉 e 之后，u 到 v 存在一条偶数长度的路径</b>（偶路径 + e 正好是奇环）。实现上把每个点拆成 (v, 0/1) 两个状态表示“走到 v 时路径长度的奇偶”，在状态图上 BFS 即可，单次 O(n+m)。要一次判出所有边，就得先建 DFS 生成树、给每个点记深度奇偶，用非树边的奇偶性做树上差分——那是更后面的话题。常见错路是以为“染色时冲突的那条边就是唯一属于奇环的边”（一个奇环上每条边都属于它）；另一条是把所有非树边都当成“属于奇环”，其实非树边也可能只构成偶环。</div></details></li><li id="b204"><div class="tq">如果把“一人最多一个任务”改成“一人最多 k 个任务”，图还是二分图，但匹配的定义变了。这时该用什么算法？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">这时要用<b>带容量的匹配</b>（b-matching），标准做法是最大流：源点 S → 每个左侧点连容量 k 的边，左侧点 → 右侧点连容量 1 的边（有允许关系才连），右侧点 → 汇点 T 连容量 1 的边，跑 Dinic 得到的最大流就是最大匹配数。k = 1 时它退化成匈牙利，所以最大流是更一般的框架；右侧若也允许 k′，把右边那条容量也改成 k′ 即可。数据很小时也可以把每个左侧点拆成 k 个副本、跑普通匈牙利，但那等于把点数乘 k、边数乘 k，复杂度涨到 O(nk·kE)，n = 10<sup>5</sup>、k = 10 时直接爆。常见错路是把 <code>match[v]</code> 改成存一个列表就以为支持多容量——增广路的“翻转”需要能撤回，普通 dfs 在多容量下会把别人的名额覆盖掉；另一条是忘了源点到左部的容量限制，答案变成 E。</div></details></li></ol></div><div class="box tip"><div class="t" id="b205">自测：能全部回答再进下一节</div><ul><li id="b206">能说出二分图的三个等价刻画，并各举一个用途（建图 / 写代码 / 出反例）。</li><li id="b207">能默写染色判定，并解释为什么 col 必须初始化为 −1、为什么外层要遍历所有点。</li><li id="b208">能默写匈牙利 dfs，说清 vis 的作用域是“每个左侧点一次”，以及它为什么只开在右侧。</li><li id="b209">能用自己的话讲清“让原配另找出路”为什么能让匹配数 +1。</li><li id="b210">能手算本节样例的贪心结果（2）和最优结果（3），并写出那条增广路。</li><li id="b211">能说出 König 定理，并用最大匹配算出最小点覆盖与最大独立集。</li><li id="b212">能估计 n = 500、e = 5×10<sup>4</sup> 时匈牙利算法的运算量，判断会不会 TLE。</li></ul></div><div class="challenge"><div class="ct" id="b213">挑战题 · 封锁阳光大学</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1330</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P1330" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b214">阳光大学有 n 个路口和 m 条双向道路。曹冲要在一些路口放置河蟹来封锁所有道路，规则有两条：每条道路的两个端点<b>至少</b>有一个放了河蟹；同一条道路的两个端点<b>不能都</b>放河蟹（两只河蟹会打架）。</p><p id="b215">求最少需要多少只河蟹。如果无论如何都无法满足，输出 <code>Impossible</code>。</p><p id="b216">输入：第一行两个整数 n、m（1 ≤ n ≤ 10<sup>4</sup>，1 ≤ m ≤ 10<sup>5</sup>）。接下来 m 行，每行两个整数 u、v，表示路口 u 与 v 之间有一条道路（可能有重边）。</p><p id="b217">输出：一行。最少河蟹数，或 <code>Impossible</code>。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b218">把“放”记作 1、“不放”记作 0，那么两条规则合起来，对每条边 (u, v) 意味着什么？（“至少一个 1”加“不能都是 1”等于恰好几个 1？）</p><p id="b219">于是每条边两端的标记必须不同——这个条件你有现成的算法可以检查。</p><p id="b220">连通块之间没有边，可以分开算再相加。对每个能二染色的连通块，选黑点还是选白点更省？</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b221">对每条边 (u, v)，规则要求标记恰好一个是 1、一个是 0。这就是“两端标记不同”，也就是二染色的要求。所以：图必须是二分图，否则输出 <code>Impossible</code>。</p><p id="b222">对每个连通块做 BFS 染色。连通块内只要起点的颜色定了，其余全被唯一确定，所以合法方案只有两种：选全部黑点，或选全部白点。</p><p id="b223">设这个连通块黑点 b 个、白点 w 个。选黑点意味着放 b 只河蟹，选白点放 w 只，取 min(b, w) 即可。为什么两种都合法？因为所有边都跨黑白色，每条边恰好被选中一个端点。</p><p id="b224">各连通块互不影响，答案相加。孤立点没有边要盖，min(1, 0) = 0，自动贡献 0，不用特判。</p><p id="b225">复杂度 O(n + m)。染色时顺便统计两种颜色的点数，一次 BFS 同时完成判定与计数。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b226">参考代码</div><pre id="b227"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">10005</span>;
+<span class="k">const</span> <span class="k">int</span> M = <span class="n">100005</span>;
+
+<span class="k">int</span> head[N], nxt[M &lt;&lt; <span class="n">1</span>], to[M &lt;&lt; <span class="n">1</span>], ecnt;
+<span class="k">int</span> col[N];                             <span class="c">// -1 未染色，0 / 1 两种颜色</span>
+<span class="k">int</span> cnt[<span class="n">2</span>];                             <span class="c">// 当前连通块里两种颜色的点数</span>
+
+<span class="k">void</span> <span class="f">addEdge</span>(<span class="k">int</span> u, <span class="k">int</span> v) {
+    to[++ecnt] = v; nxt[ecnt] = head[u]; head[u] = ecnt;
+}
+
+<span class="c">// 对 s 所在连通块染色，同时统计两种颜色各多少个；出现奇环返回 false</span>
+<span class="k">bool</span> <span class="f">paint</span>(<span class="k">int</span> s) {
+    <span class="k">queue</span>&lt;<span class="k">int</span>&gt; q;
+    q.<span class="f">push</span>(s);
+    col[s] = <span class="n">0</span>;
+    cnt[<span class="n">0</span>] = cnt[<span class="n">1</span>] = <span class="n">0</span>;
+    <span class="k">while</span> (!q.<span class="k">empty</span>()) {
+        <span class="k">int</span> u = q.<span class="f">front</span>(); q.<span class="f">pop</span>();
+        ++cnt[col[u]];                       <span class="c">// 出队时统计，每个点只算一次</span>
+        <span class="k">for</span> (<span class="k">int</span> e = head[u]; e; e = nxt[e]) {
+            <span class="k">int</span> v = to[e];
+            <span class="k">if</span> (col[v] == -<span class="n">1</span>) { col[v] = col[u] ^ <span class="n">1</span>; q.<span class="f">push</span>(v); }
+            <span class="k">else</span> <span class="k">if</span> (col[v] == col[u]) <span class="k">return</span> <span class="k">false</span>;   <span class="c">// 同色相邻 → 奇环</span>
+        }
+    }
+    <span class="k">return</span> <span class="k">true</span>;
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> n, m;
+    <span class="k">scanf</span>(<span class="s">"%d %d"</span>, &amp;n, &amp;m);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= m; ++i) {
+        <span class="k">int</span> u, v; <span class="k">scanf</span>(<span class="s">"%d %d"</span>, &amp;u, &amp;v);
+        <span class="f">addEdge</span>(u, v); <span class="f">addEdge</span>(v, u);         <span class="c">// 双向道路，存两份</span>
+    }
+
+    <span class="k">memset</span>(col, -<span class="n">1</span>, <span class="k">sizeof</span> col);              <span class="c">// ★ 未染色必须是 -1</span>
+    <span class="k">int</span> ans = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        <span class="k">if</span> (col[i] != -<span class="n">1</span>) <span class="k">continue</span>;            <span class="c">// 已在别的连通块里染过</span>
+        <span class="k">if</span> (!<span class="f">paint</span>(i)) { <span class="k">printf</span>(<span class="s">"Impossible\n"</span>); <span class="k">return</span> <span class="n">0</span>; }
+        ans += <span class="k">min</span>(cnt[<span class="n">0</span>], cnt[<span class="n">1</span>]);            <span class="c">// 两种染色方案，取更省的那个</span>
+    }
+    <span class="k">printf</span>(<span class="s">"%d\n"</span>, ans);
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b228">关键片段拆解</div><table class="lines"><thead><tr><th id="b229">片段</th><th id="b230">作用</th></tr></thead><tbody><tr><td id="b231"><code>int cnt[2];</code></td><td id="b232">只开两个桶。颜色的取值恰好是 0/1，直接用 <code>cnt[col[u]]</code> 当下标，省掉 if-else 两分支。</td></tr><tr><td id="b233"><code>cnt[0] = cnt[1] = 0;</code></td><td id="b234">★ 每个连通块开始前清零。忘了清就把上一块的点数累加进来，答案偏大。</td></tr><tr><td id="b235"><code>++cnt[col[u]];</code></td><td id="b236">出队时统计。每个点在入队时就已染好色、且只会入队一次，所以出队计数也是恰好一次；写成入队时统计同样正确，放在出队处只是更不容易漏。</td></tr><tr><td id="b237"><code>col[v] = col[u] ^ 1;</code></td><td id="b238">邻居染相反色。这条边一旦确定，v 的颜色就没有第二种可能。</td></tr><tr><td id="b239"><code>else if (col[v] == col[u]) return false;</code></td><td id="b240">同色相邻只能来自奇环。此时两条规则无法同时满足，直接输出 Impossible 并退出。</td></tr><tr><td id="b241"><code>ans += min(cnt[0], cnt[1]);</code></td><td id="b242">选黑点还是选白点：两者都满足“每条边恰好一个端点被选”，所以取点数少的那个。</td></tr><tr><td id="b243"><code>if (col[i] != -1) continue;</code></td><td id="b244">图不连通。不跳过的话会把同一个连通块重复算两次，答案翻倍。</td></tr><tr><td id="b245"><code>memset(col, -1, sizeof col);</code></td><td id="b246">全局数组默认 0，与颜色 0 冲突。不清成 −1，从 1 号点开始的 BFS 会把自己判成已染色。</td></tr></tbody></table><div class="box warn"><div class="t" id="b247">这题最容易错的地方</div><ul><li id="b248">输出写成 <code>impossible</code> 或 <code>IMPOSSIBLE</code>：字符串严格比对，大小写不同直接 WA。</li><li id="b249">选颜色时用 max 或一律累加 cnt[0]：两种方案都能满足规则，但只有取小的那个是最优。</li><li id="b250">只从一个点开始染色、或染色成功就中途 return：其余连通块漏掉，答案偏小甚至误判成有解。</li><li id="b251">cnt 忘了按连通块清零：第二个块的点数从第一个块的数字上继续加，答案偏大。</li></ul></div></div></details></div><div class="box tip" style="margin:22px 0 -6px"><div class="t" id="b252">挑战 2 · 难度高一级，允许组合多个已学算法</div><p id="b253">这题比上面的挑战题更难：它不只用本节一个算法，可能需要把前面几节的工具拼起来。独立做出来说明这一块真的过关了；做完记得在侧边栏勾上 🌟。</p></div><div class="challenge ch2"><div class="ct" id="b254">挑战 2 · 矩阵游戏</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1129</span><span class="badge diff">提高-/提高</span><a href="https://www.luogu.com.cn/problem/P1129" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b255">一个 n×n 的黑白方阵，每次可以选任意两行交换，或选任意两列交换，次数不限。问能否通过若干次操作，让方阵的<b>主对角线</b>（左上到右下）上的格子全为黑色（值为 1）。多组测试数据。</p><p id="b256">输入：第一行一个整数 T，表示数据组数。每组数据第一行一个整数 n；接下来 n 行，每行 n 个 0 或 1，描述这个方阵（0 白色、1 黑色）。1 ≤ n ≤ 200，1 ≤ T ≤ 20。</p><p id="b257">输出：每组数据输出一行，<code>Yes</code> 表示有解，<code>No</code> 表示无解。</p><p id="b258">样例：第一组 n = 2、方阵 [[0,0],[0,1]]：第一行一个 1 都没有，无解，输出 No；第二组 n = 3 全是 1，显然有解，输出 Yes。</p></div><div class="cap" id="b259">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+2
+2
+0 0
+0 1
+3
+1 1 1
+1 1 1
+1 1 1
+输出：
+No
+Yes</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b260">交换行只能改变「哪一行被放到第几个行位」，交换列同理——它不改变任何格子的行列关系。所以问题等价于：能不能选出 n 个格子，两两不同行、不同列，并且全是 1？</p><p id="b261">把「行」和「列」各看成一堆点，格子 (i,j) 是 1 就在第 i 行与第 j 列之间连一条边。上一问在这个图上对应什么？</p><p id="b262">「每行都要占住一个自己的列，且没有两行抢同一列」——这正是第 54 节刚学的那个东西，只不过要求把左边 n 个点全部配上。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b263">交换行、交换列能做的只有重新排列行的位置和列的位置。因此目标「主对角线全 1」等价于：存在一个 1..n 的排列 p，使得第 i 行第 p(i) 列的格子是 1（第 i 行被换到第 i 个行位后，它原来在第 p(i) 列的那个 1 会被换到第 i 列）。</p><p id="b264">建二分图：左部 n 个点代表行，右部 n 个点代表列；(i, j) 为 1 时连边 i—j。上面的排列就是一个完美匹配。</p><p id="b265">充分性也成立：若存在完美匹配，按匹配把第 i 行换到第 i 行位、把它匹配的列换到第 i 列位，那个 1 就落在 (i, i)，主对角线全 1。所以「有解」⟺「二分图存在完美匹配」。</p><p id="b266">匈牙利：对每一行找增广路，找到就匹配数 +1。因为左右各 n 个点，匹配数达到 n 就是完美匹配。</p><p id="b267">中途某一行找不到增广路就可以直接判 No——剩下的行只会更没得选。</p><p id="b268">复杂度：单组 O(n·E) ≤ O(n<sup>3</sup>) = 8×10<sup>6</sup>，T = 20 时约 1.6×10<sup>8</sup> 次简单操作；用时间戳代替 memset(vis) 省掉常数。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b269">参考代码</div><pre id="b270"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">205</span>;
+<span class="k">vector</span>&lt;<span class="k">int</span>&gt; g[MAXN];
+<span class="k">int</span> matchR[MAXN], vis[MAXN], stamp = <span class="n">0</span>;
+
+<span class="k">bool</span> <span class="f">dfs</span>(<span class="k">int</span> u) {
+    <span class="k">for</span> (<span class="k">int</span> v : g[u]) {
+        <span class="k">if</span> (vis[v] == stamp) <span class="k">continue</span>;        <span class="c">// 本轮增广中已经试过的右点</span>
+        vis[v] = stamp;
+        <span class="k">if</span> (!matchR[v] || <span class="f">dfs</span>(matchR[v])) {   <span class="c">// 空着，或者它的主人愿意让位</span>
+            matchR[v] = u;
+            <span class="k">return</span> <span class="k">true</span>;
+        }
+    }
+    <span class="k">return</span> <span class="k">false</span>;
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+    <span class="k">int</span> T;
+    <span class="k">cin</span> &gt;&gt; T;
+    <span class="k">while</span> (T--) {
+        <span class="k">int</span> n;
+        <span class="k">cin</span> &gt;&gt; n;
+        <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+            g[i].<span class="f">clear</span>();
+            <span class="k">for</span> (<span class="k">int</span> j = <span class="n">1</span>; j &lt;= n; ++j) {
+                <span class="k">int</span> x;
+                <span class="k">cin</span> &gt;&gt; x;
+                <span class="k">if</span> (x == <span class="n">1</span>) g[i].<span class="k">push_back</span>(j);   <span class="c">// 第 i 行可以在第 j 列放一个 1</span>
+            }
+        }
+        <span class="k">memset</span>(matchR, <span class="n">0</span>, <span class="k">sizeof</span>(matchR));
+        <span class="k">memset</span>(vis, <span class="n">0</span>, <span class="k">sizeof</span>(vis));
+        stamp = <span class="n">0</span>;
+        <span class="k">int</span> cnt = <span class="n">0</span>;
+        <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+            ++stamp;                             <span class="c">// 时间戳代替每次 memset(vis)</span>
+            <span class="k">if</span> (<span class="f">dfs</span>(i)) ++cnt;
+            <span class="k">else</span> <span class="k">break</span>;                          <span class="c">// 某一行配不上，满匹配一定不存在</span>
+        }
+        <span class="k">cout</span> &lt;&lt; (cnt == n ? <span class="s">"Yes"</span> : <span class="s">"No"</span>) &lt;&lt; <span class="s">'\n'</span>;
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b271">关键片段拆解</div><table class="lines"><thead><tr><th id="b272">片段</th><th id="b273">作用</th></tr></thead><tbody><tr><td id="b274"><code>for (int j = 1; j &lt;= n; ++j) if (x == 1) g[i].push_back(j);</code></td><td id="b275">建图：一行能占的列，就是这一行上为 1 的位置。</td></tr><tr><td id="b276"><code>if (vis[v] == stamp) continue;</code></td><td id="b277">★ 时间戳代替 memset(vis)：T 组、每组 n = 200，若每轮都 memset 一次，光清空就要 4×10<sup>4</sup>×200 次。</td></tr><tr><td id="b278"><code>if (!matchR[v] || dfs(matchR[v]))</code></td><td id="b279">增广的两种成功方式：右点还空着，或它的主人能换一个位置。</td></tr><tr><td id="b280"><code>if (dfs(i)) ++cnt; else break;</code></td><td id="b281">任何一行配不上，完美匹配就不存在，后面的行不用再试。</td></tr><tr><td id="b282"><code>cnt == n ? "Yes" : "No"</code></td><td id="b283">左部点数就是 n，配满 n 个等于完美匹配。</td></tr><tr><td id="b284"><code>memset(matchR, 0, sizeof(matchR));</code></td><td id="b285">matchR 必须每组清空；vis 用时间戳，不需要清。</td></tr></tbody></table><div class="box warn"><div class="t" id="b286">这题最容易错的地方</div><ul><li id="b287">建图时把行和列当成同一种点连无向边：那样是一般图匹配，匈牙利的前提直接不成立。</li><li id="b288">只判「每行至少有一个 1」就输出 Yes：反例 n = 2、方阵 [[1,0],[1,0]]，两行只能抢同一列，无解。</li><li id="b289">matchR 忘记每组清空：上一组数据的匹配残留下来，会把 No 判成 Yes。</li><li id="b290">把 vis 也写成每组 memset 且忘了把 stamp 递增：时间戳不递增时 vis 全等于 0，第一次 dfs 就把所有点当成「已访问」，匹配数恒为 0。</li></ul></div></div></details></div><div class="box info"><div class="t" id="b291">延伸阅读 / 参考</div><ul><li id="b292">《算法竞赛入门笔记》二分图与匹配章节</li><li id="b293">《算法竞赛进阶指南》0x68 二分图匹配：匈牙利算法与 König 定理</li><li id="b294">《算法竞赛试炼场：洛谷300题精析》P3386、P1330 两题的精析</li><li id="b295">《算法竞赛黄金法则：提高算法和思考力的77项技巧》第 52 条：先找结构，再找算法</li></ul></div>
+
+<footer>算竞教程 · 算竞教程 · 生成于自建课程体系，题目版权归洛谷及各命题方所有<br>
+转载请注明出处；模板代码可直接用于比赛</footer>

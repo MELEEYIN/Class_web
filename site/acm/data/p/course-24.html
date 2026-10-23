@@ -1,0 +1,288 @@
+
+<div class="box info"><div class="t" id="b0">本节出现的新函数 / 新语法（先看懂再用）</div><ul><li id="b1"><a href="#fn-0">方向数组 dx[] / dy[]</a> —— 一层循环走遍四个方向；先判越界再取用</li><li id="b2"><a href="#fn-1">对角线编号 i + j 与 i − j + n</a> —— 把一整条斜线压成一个整数下标，冲突检测降到 O(1)</li></ul></div><p id="b3">上一节在“1..n 的数字”上做决策，候选集是下标。这一节把决策搬到网格上：每层的候选集变成<b>上下左右四格</b>。网格搜索会逼出一个上一节没遇到过的问题——<b>同一个格子允不允许被两条路径共用</b>。这一个问题的答案决定了标记要不要撤销，而它是一行代码的差别、两种完全不同的算法。</p><div class="quote" id="b4">网格 DFS 的错几乎都出在“标记”上：标不标、什么时候标、撤不撤销。三个问题答错一个，40 行里就有 1 行是错的。</div><div class="fn"><div class="fh" id="b5">新函数拆解 · 方向数组 dx[] / dy[]</div><div class="fb"><div class="sig" id="b6">int dx[4] = {-1, 1, 0, 0};
+int dy[4] = {0, 0, -1, 1};</div><table class="lines"><thead><tr><th id="b7">组成</th><th id="b8">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b9"><code>(dx[k], dy[k])</code></td><td id="b10">第 k 个方向的行增量与列增量。四个方向捆成一组，用一层 for 代替四段重复的 if。</td></tr><tr><td id="b11"><code>为什么这么配</code></td><td id="b12">上 (−1, 0)、下 (1, 0)、左 (0, −1)、右 (0, 1)。行号 i 变大是往下走，列号 j 变大是往右走。</td></tr><tr><td id="b13"><code>八方向</code></td><td id="b14">把对角也加进来共 8 组：<code>dx[8]={-1,-1,-1,0,0,1,1,1}</code>，<code>dy[8]={-1,0,1,-1,1,-1,0,1}</code>。dx 和 dy 必须一一对应，漏配一组不会报错，只会少算格子。</td></tr><tr><td id="b15"><code>nx、ny 必须是新变量</code></td><td id="b16"><code>int nx = x + dx[k]</code> 每次都现算。直接改 x 本身，下一次循环的起点就错了，症状是走出一条斜线或者原地打转。</td></tr><tr><td id="b17"><code>边界先判</code></td><td id="b18"><code>if (nx &lt; 1 || nx &gt; n || ny &lt; 1 || ny &gt; m) continue;</code> 四个条件缺一不可。必须先判越界再访问 <code>g[nx][ny]</code>，顺序反了就是下标 −1，直接 RE。</td></tr><tr><td id="b19"><code>下标从几开始</code></td><td id="b20">从 1 开始，边界就是 1 和 n；从 0 开始，边界就是 0 和 n−1。两种风格不能混，混了必然越界。</td></tr></tbody></table><div class="cap" id="b21">最小可运行示例</div><div class="cap" id="b22">示例</div><pre id="b23"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> n = <span class="n">3</span>, m = <span class="n">4</span>;                          <span class="c">// 3 行 4 列</span>
+<span class="k">int</span> dx[<span class="n">4</span>] = {-<span class="n">1</span>, <span class="n">1</span>, <span class="n">0</span>, <span class="n">0</span>};                 <span class="c">// 上 下 左 右</span>
+<span class="k">int</span> dy[<span class="n">4</span>] = {<span class="n">0</span>, <span class="n">0</span>, -<span class="n">1</span>, <span class="n">1</span>};
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> x = <span class="n">1</span>, y = <span class="n">1</span>;                      <span class="c">// 站在左上角</span>
+    <span class="k">for</span> (<span class="k">int</span> k = <span class="n">0</span>; k &lt; <span class="n">4</span>; ++k) {
+        <span class="k">int</span> nx = x + dx[k], ny = y + dy[k];
+        <span class="k">if</span> (nx &lt; <span class="n">1</span> || nx &gt; n || ny &lt; <span class="n">1</span> || ny &gt; m) <span class="k">continue</span>;   <span class="c">// 越界的两个方向被跳过</span>
+        <span class="k">printf</span>(<span class="s">"(%d,%d) "</span>, nx, ny);        <span class="c">// 输出 (2,1) (1,2)</span>
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="box tip"><div class="t" id="b24">注意</div><p id="b25">方向数组的顺序只在“按字典序输出路径”时才要紧；只计数的话随便排。</p><p id="b26">先把四个方向抄在草稿纸上再写代码，比写完对着 WA 猜方向快得多。</p></div></div></div><div class="fn"><div class="fh" id="b27">新函数拆解 · 对角线编号 i + j 与 i − j + n</div><div class="fb"><div class="sig" id="b28">d1[i + j]      // 左下—右上这一族
+d2[i - j + n]  // 左上—右下这一族</div><table class="lines"><thead><tr><th id="b29">组成</th><th id="b30">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b31"><code>i + j</code></td><td id="b32">同一条“左下—右上”斜线上，所有格子的 i + j 相同，取值范围 2..2n。</td></tr><tr><td id="b33"><code>i − j</code></td><td id="b34">同一条“左上—右下”斜线上，所有格子的 i − j 相同，取值范围 −(n−1)..(n−1)。是负数，不能直接当下标。</td></tr><tr><td id="b35"><code>+ n</code></td><td id="b36">把 i − j 整体右移 n，落到 1..2n−1，全部合法。数组开 2n+1 格就够（n ≤ 13 时 27 格）。</td></tr><tr><td id="b37"><code>为什么是 O(1)</code></td><td id="b38">两个 bool 数组记住“这条斜线上有没有棋子”。判冲突从“扫一遍棋盘”变成两次内存访问，整整省掉一个 n 的因子。</td></tr><tr><td id="b39"><code>标记与撤销必须用同一个下标</code></td><td id="b40">一处写 <code>d2[i-j]</code>、另一处写 <code>d2[i-j+n]</code>，标记和还原对不上，棋子会凭空消失或凭空冲突，症状是答案偏大且不稳定。</td></tr><tr><td id="b41"><code>行不用管</code></td><td id="b42">dfs 每层固定一行、一行只放一个，行冲突天生不存在。</td></tr></tbody></table><div class="cap" id="b43">最小可运行示例</div><div class="cap" id="b44">示例</div><pre id="b45"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> n = <span class="n">4</span>;
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {          <span class="c">// 主对角线编号 i - j + n</span>
+        <span class="k">for</span> (<span class="k">int</span> j = <span class="n">1</span>; j &lt;= n; ++j) <span class="k">printf</span>(<span class="s">"%2d"</span>, i - j + n);
+        <span class="k">printf</span>(<span class="s">"\n"</span>);
+    }
+    <span class="k">printf</span>(<span class="s">"\n"</span>);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {          <span class="c">// 副对角线编号 i + j</span>
+        <span class="k">for</span> (<span class="k">int</span> j = <span class="n">1</span>; j &lt;= n; ++j) <span class="k">printf</span>(<span class="s">"%2d"</span>, i + j);
+        <span class="k">printf</span>(<span class="s">"\n"</span>);
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}
+<span class="c">/* 第一张：4 3 2 1 / 5 4 3 2 / 6 5 4 3 / 7 6 5 4
+   第二张：2 3 4 5 / 3 4 5 6 / 4 5 6 7 / 5 6 7 8
+   每一条斜线上的数字都相同 —— 这就是“一条斜线一个下标” */</span></code></pre><div class="box tip"><div class="t" id="b46">注意</div><p id="b47">两族斜线用两个不同的数组，编号区间重叠不会冲突。</p><p id="b48">n 变大时数组要跟着变大：n = 13 时 i + j 最大 26、i − j + n 最大 25，开 30 格稳。</p></div></div></div><p id="b49">网格上的 DFS 只有两种命运，先分清它们，再动手写。下面这张表是全节最该记住的东西。</p><table><thead><tr><th id="b50">对比项</th><th id="b51">连通块：问“有几块区域”</th><th id="b52">路径计数：问“有几条路”</th></tr></thead><tbody><tr><td id="b53">格子的身份</td><td id="b54">只属于它所在的那一块，是唯一的</td><td id="b55">在一条路径上最多出现一次，但可以属于很多条路</td></tr><tr><td id="b56">标记之后撤销吗</td><td id="b57"><b>不撤销</b>：标上就是“已归档”</td><td id="b58"><b>必须撤销</b>：下一条路还要踩这一格</td></tr><tr><td id="b59">漏写撤销的后果</td><td id="b60">本来就不该写，写了反而错</td><td id="b61">方案数偏小，常常只剩 1</td></tr><tr><td id="b62">多写撤销的后果</td><td id="b63">整块被反复重算，方案数虚高、指数爆炸 → TLE</td><td id="b64">本来就要写，没有副作用</td></tr><tr><td id="b65">典型题</td><td id="b66">数水洼、求细胞数量</td><td id="b67">走迷宫、数独</td></tr></tbody></table><p id="b68">差别只有一行，但判断依据很清楚：<b>问“块”就把标记留在原地，问“路”就必须把标记还回去。</b>因为块一旦确定就不再改变，路则是一条一条试出来的。</p><div class="cap" id="b69">连通块版：只标记，绝不还原（4 连通；改成 8 连通只需换方向数组）</div><pre id="b70"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> n, m, ans;
+<span class="k">int</span> g[<span class="n">105</span>][<span class="n">105</span>];                          <span class="c">// 0 空格，1 未访问的格子，2 已归入某块</span>
+<span class="k">int</span> dx[<span class="n">4</span>] = {-<span class="n">1</span>, <span class="n">1</span>, <span class="n">0</span>, <span class="n">0</span>};
+<span class="k">int</span> dy[<span class="n">4</span>] = {<span class="n">0</span>, <span class="n">0</span>, -<span class="n">1</span>, <span class="n">1</span>};
+
+<span class="k">void</span> <span class="f">dfs</span>(<span class="k">int</span> x, <span class="k">int</span> y) {
+    g[x][y] = <span class="n">2</span>;                          <span class="c">// 标记“已访问”：直接改原图，省一个 vis 数组</span>
+    <span class="k">for</span> (<span class="k">int</span> k = <span class="n">0</span>; k &lt; <span class="n">4</span>; ++k) {
+        <span class="k">int</span> nx = x + dx[k], ny = y + dy[k];
+        <span class="k">if</span> (nx &lt; <span class="n">1</span> || nx &gt; n || ny &lt; <span class="n">1</span> || ny &gt; m) <span class="k">continue</span>;
+        <span class="k">if</span> (g[nx][ny] != <span class="n">1</span>) <span class="k">continue</span>;     <span class="c">// 不是未访问的格子就不走</span>
+        <span class="f">dfs</span>(nx, ny);
+    }
+    <span class="c">/* 这里没有 g[x][y] = 1 —— 连通块不撤销 */</span>
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; m;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i)
+        <span class="k">for</span> (<span class="k">int</span> j = <span class="n">1</span>; j &lt;= m; ++j) <span class="k">cin</span> &gt;&gt; g[i][j];
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i)
+        <span class="k">for</span> (<span class="k">int</span> j = <span class="n">1</span>; j &lt;= m; ++j)
+            <span class="k">if</span> (g[i][j] == <span class="n">1</span>) { ++ans; <span class="f">dfs</span>(i, j); }   <span class="c">// 每从一个没访问过的格子出发，就多一块</span>
+    <span class="k">cout</span> &lt;&lt; ans &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="prob"><div class="ph"><span class="pn" id="b71">例题 · 走迷宫</span><span class="oi">洛谷 P1238</span><span class="badge diff">普及-</span><a href="https://www.luogu.com.cn/problem/P1238" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b72">有一个 m×n 格的迷宫（m 行 n 列），1 表示可以走，0 表示不可以走。给定起点与终点坐标，要求找出所有从起点到终点的可行道路：路上不能重复经过同一个点，每步只能上下左右走一格。</p><p id="b73">输入格式：第一行 m、n（1 &lt; m, n &lt; 15）；接下来 m 行，每行 n 个 0/1；最后两行各两个整数，分别是起点和终点的坐标。</p><p id="b74">输出格式：每行一条路径，格式为 <code>(x,y)-&gt;(x,y)-&gt;…</code>，起点不重复描述。扩展顺序固定为<b>左、上、右、下</b>。若一条可行道路都没有，输出 -1。</p></div><div class="io" id="b75">输入：
+5 6
+1 0 0 1 0 1
+1 1 1 1 1 1
+0 0 1 1 1 0
+1 1 1 1 1 0
+1 1 1 0 1 1
+1 1
+5 6
+输出：
+(1,1)-&gt;(2,1)-&gt;(2,2)-&gt;(2,3)-&gt;(2,4)-&gt;(2,5)-&gt;(3,5)-&gt;(3,4)-&gt;(3,3)-&gt;(4,3)-&gt;(4,4)-&gt;(4,5)-&gt;(5,5)-&gt;(5,6)
+(1,1)-&gt;(2,1)-&gt;(2,2)-&gt;(2,3)-&gt;(2,4)-&gt;(2,5)-&gt;(3,5)-&gt;(3,4)-&gt;(4,4)-&gt;(4,5)-&gt;(5,5)-&gt;(5,6)
+……（样例共输出 12 行）</div></div><div class="step"><div class="sh" id="b76">一条方案 = 一条不重复的路径，走到终点就打印</div><p id="b77"><b>模型。</b>“所有可行道路”没法算，只能一条一条搜出来。一条路就是一串不重复的格子，所以搜索状态 = 当前站在哪 + 这一路上踩过哪些格子。</p><p id="b78"><b>状态怎么存。</b>踩过的格子直接写进 <code>vis</code> 数组：进入时置 1，离开时置 0。于是“这一格还能不能走”和“这一格是否已在当前路径上”合并成同一个判断，逻辑最省。</p><p id="b79"><b>出口。</b>走到终点就说明攒出了一条完整路径：把 <code>path[0..d-1]</code> 按格式打出来，然后 <b>return</b>。必须 return：到了终点还继续走，绕一圈再回来就会把同一条前缀数成多条路径。</p><p id="b80"><b>回溯三行。</b><code>vis[nx][ny] = 1; dfs(nx, ny, d+1); vis[nx][ny] = 0;</code>。第三行是“撤销”，没有它，第一条路径会把沿途格子全占住，后面的路一条也走不出来。</p><p id="b81"><b>输出顺序由方向数组的顺序决定。</b>题目要求“左上右下”，所以方向数组按 <code>(0,−1), (−1,0), (0,1), (1,0)</code> 排。顺序错了方案一个不少，但逐字比对必然不对——这就是“搜索题的输出顺序也是题目的一部分”。</p><p id="b82"><b>两个容易漏的细节。</b>① 起点也要先标记，否则路径可能“绕回起点”；② 起点和终点重合时题目要求输出 -1，要在进入 dfs 之前判掉。</p><p id="b83"><b>复杂度为什么不能按 4^(mn) 估。</b>4⁸⁴ 是天文数字，照这个上界早该放弃。但“不重复经过”把分支死死压住：越走可选方向越少，多数分支几步就撞墙。搜索题的复杂度要按<b>实际能走通的路径条数</b>估，题面也特别说明“数据保证随机生成”。</p></div><div class="cap" id="b84">完整可编译代码（C++17）</div><pre id="b85"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> m, n, sx, sy, tx, ty;
+<span class="k">int</span> g[<span class="n">20</span>][<span class="n">20</span>];              <span class="c">// 1 可走，0 不可走</span>
+<span class="k">int</span> vis[<span class="n">20</span>][<span class="n">20</span>];            <span class="c">// 是否在当前路径上</span>
+<span class="k">int</span> px[<span class="n">500</span>], py[<span class="n">500</span>];       <span class="c">// 当前路径，最多 m*n 个点</span>
+<span class="k">bool</span> found = <span class="k">false</span>;
+<span class="k">int</span> dx[<span class="n">4</span>] = {<span class="n">0</span>, -<span class="n">1</span>, <span class="n">0</span>, <span class="n">1</span>};  <span class="c">// 左、上、右、下：题目规定的扩展顺序</span>
+<span class="k">int</span> dy[<span class="n">4</span>] = {-<span class="n">1</span>, <span class="n">0</span>, <span class="n">1</span>, <span class="n">0</span>};
+
+<span class="k">void</span> <span class="f">dfs</span>(<span class="k">int</span> x, <span class="k">int</span> y, <span class="k">int</span> d) {          <span class="c">// d：路径上已有 d 个点，当前点是第 d 个</span>
+    <span class="k">if</span> (x == tx &amp;&amp; y == ty) {            <span class="c">// 到终点：打印这条路径</span>
+        <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; d; ++i) {
+            <span class="k">if</span> (i) <span class="k">printf</span>(<span class="s">"-&gt;"</span>);
+            <span class="k">printf</span>(<span class="s">"(%d,%d)"</span>, px[i], py[i]);
+        }
+        <span class="k">printf</span>(<span class="s">"\n"</span>);
+        found = <span class="k">true</span>;
+        <span class="k">return</span>;                          <span class="c">// 到终点必须停，否则同一条路径会被重复计数</span>
+    }
+    <span class="k">for</span> (<span class="k">int</span> k = <span class="n">0</span>; k &lt; <span class="n">4</span>; ++k) {
+        <span class="k">int</span> nx = x + dx[k], ny = y + dy[k];
+        <span class="k">if</span> (nx &lt; <span class="n">1</span> || nx &gt; m || ny &lt; <span class="n">1</span> || ny &gt; n) <span class="k">continue</span>;   <span class="c">// 先判越界</span>
+        <span class="k">if</span> (!g[nx][ny] || vis[nx][ny]) <span class="k">continue</span>;              <span class="c">// 墙，或本路径已走过</span>
+        vis[nx][ny] = <span class="n">1</span>;                 <span class="c">// ① 占位</span>
+        px[d] = nx; py[d] = ny;          <span class="c">// 记进路径</span>
+        <span class="f">dfs</span>(nx, ny, d + <span class="n">1</span>);              <span class="c">// ② 递进</span>
+        vis[nx][ny] = <span class="n">0</span>;                 <span class="c">// ③ 撤销：别的路径还要用这一格</span>
+    }
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">cin</span> &gt;&gt; m &gt;&gt; n;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= m; ++i)
+        <span class="k">for</span> (<span class="k">int</span> j = <span class="n">1</span>; j &lt;= n; ++j) <span class="k">cin</span> &gt;&gt; g[i][j];
+    <span class="k">cin</span> &gt;&gt; sx &gt;&gt; sy &gt;&gt; tx &gt;&gt; ty;
+
+    <span class="k">if</span> (sx == tx &amp;&amp; sy == ty) {          <span class="c">// 起点即终点：题目约定输出 -1</span>
+        <span class="k">cout</span> &lt;&lt; -<span class="n">1</span> &lt;&lt; <span class="s">"\n"</span>;
+        <span class="k">return</span> <span class="n">0</span>;
+    }
+    px[<span class="n">0</span>] = sx; py[<span class="n">0</span>] = sy;
+    vis[sx][sy] = <span class="n">1</span>;                     <span class="c">// 起点算走过，防止路径绕回起点</span>
+    <span class="f">dfs</span>(sx, sy, <span class="n">1</span>);
+    <span class="k">if</span> (!found) <span class="k">cout</span> &lt;&lt; -<span class="n">1</span> &lt;&lt; <span class="s">"\n"</span>;      <span class="c">// 一条路都没有</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b86">逐行拆解</div><table class="lines"><thead><tr><th id="b87">代码片段</th><th id="b88">含义与理由</th></tr></thead><tbody><tr><td id="b89"><code>int px[500], py[500];</code></td><td id="b90">路径最多 m×n ≤ 169 个点，开 500 富余。dfs 只往下传 (x, y)，路径靠这两个数组“沿途记下来”，不需要传 vector。</td></tr><tr><td id="b91"><code>int dx[4] = {0, -1, 0, 1};</code></td><td id="b92">左、上、右、下。题目规定了扩展顺序，所以这个顺序就是答案的一部分；dx 与 dy 必须一一对应，写乱一组会走出“斜线”这种非法移动。</td></tr><tr><td id="b93"><code>if (x == tx &amp;&amp; y == ty)</code></td><td id="b94">出口放在函数最前面：一进函数就判。放在循环后面也能过，但会多走一批无效分支。</td></tr><tr><td id="b95"><code>for (int i = 0; i &lt; d; ++i) { if (i) printf("-&gt;"); ... }</code></td><td id="b96">先判断“是不是第一个点”再打箭头，这样开头不会多一个、末尾不会少一个。</td></tr><tr><td id="b97"><code>return;</code></td><td id="b98">打印完必须立刻返回。少了它，程序会从终点继续往外走，同一条路径的不同前缀会被反复打印。</td></tr><tr><td id="b99"><code>if (!g[nx][ny] || vis[nx][ny]) continue;</code></td><td id="b100">一个 if 同时挡掉墙和已走过的格子。越界判断必须写在它前面，否则会读到 g[0][...]。</td></tr><tr><td id="b101"><code>vis[nx][ny] = 1; dfs(nx, ny, d + 1); vis[nx][ny] = 0;</code></td><td id="b102">回溯三行。本题必须要第三行：路径计数/路径枚举的本质就是“下一条路还要用这些格子”。</td></tr><tr><td id="b103"><code>vis[sx][sy] = 1;</code></td><td id="b104">起点也算走过。不写这一句时会出现“走到邻居再走回起点”的路径，答案偏多。</td></tr><tr><td id="b105"><code>if (!found) cout &lt;&lt; -1;</code></td><td id="b106">用 found 标记是否至少打印过一条路径，而不是用计数器——本题不要求输出总数。</td></tr></tbody></table></div><p id="b107">搜索慢，唯一的原因是分支太多。剪枝就是在“往下走之前”判一句，把整棵子树砍掉——价码是 O(1)，收益可能是指数级。三类剪枝必须能一眼分清。</p><table><thead><tr><th id="b108">类型</th><th id="b109">砍的条件</th><th id="b110">典型写法</th><th id="b111">砍掉了什么</th></tr></thead><tbody><tr><td id="b112">可行性剪枝</td><td id="b113">当前状态已经不可能走到任何合法解</td><td id="b114"><code>if (越界 || 已走过 || 是障碍) continue;</code></td><td id="b115">整棵子树</td></tr><tr><td id="b116">最优性剪枝</td><td id="b117">求最优值时，当前代价已不可能优于已知最优</td><td id="b118"><code>if (step &gt;= best) return;</code></td><td id="b119">剩下的所有分支</td></tr><tr><td id="b120">顺序剪枝</td><td id="b121">先试更可能出解的分支，让 best 尽早变小</td><td id="b122">把候选排序，从收益大的开始试</td><td id="b123">间接砍掉大量分支</td></tr></tbody></table><p id="b124">三类的共同点：判断都在<b>进入下一层之前</b>，代价 O(1)，省下的是一整棵子树。所以剪枝永远比在叶子上优化常数划算——叶子数量本来就是指数的。</p><p id="b125">第二个例题换到另一个经典场景：不是找“所有路”，而是在一堆约束下找“一个合法解”。思路仍是“一格一格决定 + 三类冲突各用一个 bool 数组记”，只是这次的棋盘是 9×9 的数独。</p><div class="prob"><div class="ph"><span class="pn" id="b126">例题 · 数独</span><span class="oi">洛谷 P1784</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P1784" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b127">一个 9×9 的数独盘面，已填好一部分数字。要求把它补全，使得每一行、每一列、每个 3×3 的粗线宫（把 9×9 切成 9 块）内都恰好含 1~9 各一次。</p><p id="b128">输入格式：9 行，每行 9 个整数，0 表示空格。保证给出的盘面有且仅有唯一解。</p><p id="b129">输出格式：9 行，每行 9 个整数，即填好的数独，数字之间一个空格、行末换行。</p><p id="b130">数据范围：盘面固定是 9×9，空格数不超过 81。</p></div><div class="io" id="b131">输入：
+8 0 0 0 0 0 0 0 0
+0 0 3 6 0 0 0 0 0
+0 7 0 0 9 0 2 0 0
+0 5 0 0 0 7 0 0 0
+0 0 0 0 4 5 7 0 0
+0 0 0 1 0 0 0 3 0
+0 0 1 0 0 0 0 6 8
+0 0 8 5 0 0 0 1 0
+0 9 0 0 0 0 4 0 0
+输出：
+8 1 2 7 5 3 6 4 9
+9 4 3 6 8 2 1 7 5
+6 7 5 4 9 1 2 8 3
+1 5 4 2 3 7 8 9 6
+3 6 9 8 4 5 7 2 1
+2 8 7 1 6 9 5 3 4
+5 2 1 9 7 4 3 6 8
+4 3 8 5 2 6 9 1 7
+7 9 6 3 1 8 4 5 2</div></div><div class="step"><div class="sh" id="b132">按格子顺序填 + 三类冲突各一个 bool 数组</div><p id="b133"><b>决策顺序。</b>把 81 个格子按行优先排成一条线（第 0 个是 (1,1)，第 80 个是 (9,9)），dfs 每层负责一个格子。已经给了数字的格子直接跳到下一格——这样“层数”是固定的 81，不用动态判断。</p><p id="b134"><b>三种冲突。</b>同一个数字不能在同一行、同一列、同一个 3×3 宫里出现两次。前两个用 <code>row[r][v]</code>、<code>col[c][v]</code> 记；第三个要先给宫编号。</p><p id="b135"><b>宫怎么编号。</b><code>b = (r-1)/3*3 + (c-1)/3</code>，取值 0~8。道理是先把 9 行切成 3 条横带，<code>(r-1)/3</code> 是横带号；再在横带里数第几块，<code>(c-1)/3</code> 是竖带号。二者拼起来就是宫号——这就是“把一个二维格子压成一个整数”的又一次应用。</p><p id="b136"><b>冲突检测 O(1)。</b><code>row[r][v] || col[c][v] || box[b][v]</code> 三个下标访问就判完了。这个判断本身就是可行性剪枝：只要有一个冲突，整棵子树都不必进。</p><p id="b137"><b>出口与回溯。</b><code>pos == 81</code> 说明 81 格全部填好且处处合法，返回 true。每格尝试成功就 <code>dfs(pos+1)</code>，失败就撤销三处标记再试下一个数字。本题保证唯一解，所以找到一条就能一路 return true 上去。</p><p id="b138"><b>为什么一定要撤销。</b>撤销的是“这一格用掉了数字 v”这件事。它是所有分支共享的状态，不撤的话下一个候选数字会被误判成冲突，程序会提前返回无解。</p><p id="b139"><b>规模。</b>朴素上界是 81 个格子各 9 个候选 = 9⁸¹，天文数字。但三类冲突把每格候选压到平均 2~3 个，再加上“已填的格子直接跳过”，解出题面这盘数独实测只用 <b>72097</b> 次递归调用。第 24 节末尾的挑战 2 会给出更狠的剪枝版本。</p></div><div class="cap" id="b140">完整可编译代码（C++17）</div><pre id="b141"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> a[<span class="n">10</span>][<span class="n">10</span>];                          <span class="c">// 1..9 下标，0 表示空格</span>
+<span class="k">bool</span> row[<span class="n">10</span>][<span class="n">10</span>], col[<span class="n">10</span>][<span class="n">10</span>], box[<span class="n">10</span>][<span class="n">10</span>];   <span class="c">// row[r][v]：第 r 行已用数字 v</span>
+
+<span class="k">int</span> <span class="f">getBox</span>(<span class="k">int</span> r, <span class="k">int</span> c) { <span class="k">return</span> (r - <span class="n">1</span>) / <span class="n">3</span> * <span class="n">3</span> + (c - <span class="n">1</span>) / <span class="n">3</span>; }
+
+<span class="k">bool</span> <span class="f">dfs</span>(<span class="k">int</span> pos) {                     <span class="c">// pos：正在填第 pos 个格子（0..80，行优先）</span>
+    <span class="k">if</span> (pos == <span class="n">81</span>) <span class="k">return</span> <span class="k">true</span>;         <span class="c">// 81 格全部填完，且处处合法</span>
+    <span class="k">int</span> r = pos / <span class="n">9</span> + <span class="n">1</span>, c = pos % <span class="n">9</span> + <span class="n">1</span>;
+    <span class="k">if</span> (a[r][c]) <span class="k">return</span> <span class="f">dfs</span>(pos + <span class="n">1</span>);   <span class="c">// 题目给的数字，直接跳过</span>
+
+    <span class="k">int</span> b = <span class="f">getBox</span>(r, c);
+    <span class="k">for</span> (<span class="k">int</span> v = <span class="n">1</span>; v &lt;= <span class="n">9</span>; ++v) {
+        <span class="k">if</span> (row[r][v] || col[c][v] || box[b][v]) <span class="k">continue</span>;   <span class="c">// 可行性剪枝</span>
+        a[r][c] = v;
+        row[r][v] = col[c][v] = box[b][v] = <span class="k">true</span>;            <span class="c">// ① 占三处</span>
+        <span class="k">if</span> (<span class="f">dfs</span>(pos + <span class="n">1</span>)) <span class="k">return</span> <span class="k">true</span>;                       <span class="c">// ② 递进：找到解就一路返回</span>
+        a[r][c] = <span class="n">0</span>;
+        row[r][v] = col[c][v] = box[b][v] = <span class="k">false</span>;           <span class="c">// ③ 撤这三处</span>
+    }
+    <span class="k">return</span> <span class="k">false</span>;                       <span class="c">// 这一格 1~9 都试过了，说明前面的选择有问题</span>
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">for</span> (<span class="k">int</span> r = <span class="n">1</span>; r &lt;= <span class="n">9</span>; ++r)
+        <span class="k">for</span> (<span class="k">int</span> c = <span class="n">1</span>; c &lt;= <span class="n">9</span>; ++c) {
+            <span class="k">cin</span> &gt;&gt; a[r][c];
+            <span class="k">if</span> (a[r][c]) {              <span class="c">// 先把题目给的数字记进冲突数组</span>
+                <span class="k">int</span> v = a[r][c], b = <span class="f">getBox</span>(r, c);
+                row[r][v] = col[c][v] = box[b][v] = <span class="k">true</span>;
+            }
+        }
+    <span class="f">dfs</span>(<span class="n">0</span>);
+
+    <span class="k">for</span> (<span class="k">int</span> r = <span class="n">1</span>; r &lt;= <span class="n">9</span>; ++r)
+        <span class="k">for</span> (<span class="k">int</span> c = <span class="n">1</span>; c &lt;= <span class="n">9</span>; ++c)
+            <span class="k">printf</span>(<span class="s">"%d%c"</span>, a[r][c], c == <span class="n">9</span> ? <span class="s">'\n'</span> : <span class="s">' '</span>);
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b142">逐行拆解</div><table class="lines"><thead><tr><th id="b143">代码片段</th><th id="b144">含义与理由</th></tr></thead><tbody><tr><td id="b145"><code>int a[10][10];</code></td><td id="b146">下标用 1..9，和题面坐标一致，少一次减一。开 10 格是因为要用到 a[9][9]。</td></tr><tr><td id="b147"><code>bool row[10][10], col[10][10], box[10][10];</code></td><td id="b148">三个二维 bool 数组，第一维是“第几行/列/宫”，第二维是“数字几”。共 3×10×10 = 300 字节，比任何别的记法都省。</td></tr><tr><td id="b149"><code>(r - 1) / 3 * 3 + (c - 1) / 3</code></td><td id="b150">宫编号 0~8。(r−1)/3 是横带号（0/1/2），(c−1)/3 是横带内的第几块。写成 <code>(r/3)*3 + c/3</code> 在 r = 9 时会得到 9，越界。</td></tr><tr><td id="b151"><code>if (a[r][c]) return dfs(pos + 1);</code></td><td id="b152">题目给定的数字不能改，直接跳到下一格。跳过时<b>不要</b>撤销任何标记——它们本来就该一直在。</td></tr><tr><td id="b153"><code>if (row[r][v] || col[c][v] || box[b][v]) continue;</code></td><td id="b154">三类冲突一个 if 判完，这就是本题的全部剪枝。三个条件用 || 短路，最常冲突的放最前面。</td></tr><tr><td id="b155"><code>if (dfs(pos + 1)) return true;</code></td><td id="b156">找到解就立刻沿调用链返回，不再尝试别的数字。题目保证唯一解，所以这样最快。</td></tr><tr><td id="b157"><code>a[r][c] = 0; row[r][v] = col[c][v] = box[b][v] = false;</code></td><td id="b158">回溯四行：答案位清 0，三处标记撤掉。标记撤不干净，后面的分支就会误判冲突。</td></tr><tr><td id="b159"><code>printf("%d%c", a[r][c], c == 9 ? '\n' : ' ');</code></td><td id="b160">行内空格、行末换行。数独输出有 81 个数，格式错一个就是整片 WA。</td></tr></tbody></table></div><div class="box warn"><div class="t" id="b161">这一节的 6 个坑，每个都有具体症状</div><p id="b162">走迷宫忘记 <code>vis[nx][ny] = 0</code>：第一条路把格子全占了，后面的路一条也走不出来，答案常常只有 1 行甚至直接 <code>-1</code> → <b>WA</b>。</p><p id="b163">走迷宫没标记起点：某些数据会出现“走到邻居再走回起点”的路径，输出的路径条数偏多 → <b>WA</b>，而且很难复现。</p><p id="b164">方向数组顺序写错（比如按“上下左右”排）：方案一个不少，但输出顺序和标准答案不一致 → <b>WA</b>。题面写了“优先顺序：左上右下”，就要按左、上、右、下的顺序排 dx/dy。</p><p id="b165">数独读入时忘了把题目已给的数字记进 <code>row/col/box</code>：程序会把一个与题面冲突的数字当成合法填法，输出一盘错解 → <b>WA</b>。</p><p id="b166">数独宫编号写成 <code>(r/3)*3 + c/3</code>：r = 9 时得到 9，<code>box[9][...]</code> 越界；正确写法是 <code>(r-1)/3*3 + (c-1)/3</code>。</p><p id="b167">数独回溯只撤了 <code>a[r][c]</code> 却忘了撤三个标记：下一轮把合法数字误判成冲突，程序提前返回 false → <b>WA</b>。</p></div><div class="reproduce"><div class="rt" id="b168">自己动手复现</div><p id="b169">关掉页面，把走迷宫那 40 行从零敲一遍并提交，样例必须输出 12 行路径。</p><p id="b170">改一改①：把 <code>vis[nx][ny] = 0;</code> 注释掉再跑同一组样例，先预测会输出几行再执行——答案是 1 行。这就是“撤销是路径枚举的命根子”的直接证据。</p><p id="b171">改一改②：把方向数组改成“上、下、左、右”，路径条数不变、顺序全变。再用 <code>sort</code> 之前的样子对比一下——搜索题的输出顺序必须按题面来。</p><p id="b172">改一改③：把数独那段的 <code>row[r][v] = col[c][v] = box[b][v] = false;</code> 注释掉，输入样例，看程序输出什么（通常是原样的盘面或提前退出）。</p><p id="b173">改一改④：在数独的 <code>dfs</code> 开头加一个全局计数器，输入样例，统计递归次数——实测 72097 次。再想想：如果不做冲突剪枝，81 个格子各 9 个候选，上界是 9⁸¹。</p></div><div class="mathcard"><div class="mt" id="b174">数学补给 · 冲突的整数编码与搜索树规模</div><p id="b175"><b>为什么能把“宫”变成一个整数。</b>把 9 行先切成 3 条横带：<code>(r−1)/3</code> 取整就是横带号 0/1/2；每条横带里再按列切成 3 块：<code>(c−1)/3</code>。把横带号乘 3 再加上块号，就得到 0~8 的宫号。于是“两个格子是否同宫”变成“两个整数是否相等”，三次数组访问就能判完行、列、宫三类冲突。</p><p id="b176">同样的手段在八皇后里用的是 <code>i−j</code> 与 <code>i+j</code>：沿 (1,1) 方向走一步 i、j 同时加 1，所以差不变；沿 (1,−1) 方向走一步和不变。<b>只要一个量在“同一条线上”保持不变，它就能当这条线的编号。</b>这是网格搜索里最通用的一招。</p><p id="b177"><b>搜索树到底多大。</b>数独的朴素上界是“81 个格子、每格 9 个候选”，即 9⁸¹ ≈ 2×10⁷⁷，这个数字毫无意义——真正的规模由剪枝后的分支数决定。用本节例题的程序（行优先 + 三类冲突）解题面那盘数独，实测递归调用 <b>72097</b> 次。</p><table><thead><tr><th id="b178">量</th><th id="b179">数独例题</th><th id="b180">八皇后（n = 8）</th></tr></thead><tbody><tr><td id="b181">决策层数</td><td id="b182">81 个格子</td><td id="b183">8 行</td></tr><tr><td id="b184">每层候选</td><td id="b185">最多 9 个数字</td><td id="b186">8 列</td></tr><tr><td id="b187">朴素上界</td><td id="b188">9⁸¹</td><td id="b189">8⁸ = 16777216</td></tr><tr><td id="b190">剪枝后节点数</td><td id="b191">72097</td><td id="b192">2057</td></tr></tbody></table><p id="b193">八皇后按行放子、带列与斜线剪枝时，每层还能站住的节点数是 1, 8, 42, 140, 344, 568, 550, 312, 92，合计 2057。剪枝把节点数压掉约 8000 倍，靠的不是“更快地排除”，而是<b>整棵子树根本不进去</b>。</p><p id="b194">更一般地：若每层平均能站住的分支数是 b、深度是 n，节点数约 bⁿ。八皇后那一列的平均 b 约 2.5，2.5⁸ ≈ 1526，与 2057 同一量级；数独的空格平均候选 2~3 个，81 层里大部分层很快就收敛到 1 个候选。<b>剪枝的本质就是把 b 变小，而 b 在指数上。</b></p><p id="b195">最后一条工程经验：能算的别搜。数独的“已填格子”在读入时就该把冲突标好，而不是等到搜索时再判——同样是 O(1) 的判断，放在前面能省掉整整一层递归。</p></div><div class="think"><div class="tt" id="b196">举一反三 · 想清楚这些再往下走</div><div class="thint">先自己写出答案，再点开核对——方向对不对，比答案本身更重要</div><ol><li id="b197"><div class="tq">走迷宫如果要求“按路径长度从小到大输出”，改一行代码能做到吗？还是必须换算法？为什么？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">改一行做不到，本质要换算法。DFS 的输出顺序由方向数组决定，是“按扩展顺序的字典序”，与路径长度毫无单调关系；要按长度从小到大输出，只能用 BFS（按步数分层，逐层输出该层的全部路径），或者迭代加深 IDDFS（限制最大深度 L 做 DFS，L 从 1 加到找到为止，输出的恰好是长度递增的路径）。另一种思路是先把所有路径存下来再按长度排序，但路径条数可能上万，内存和常数都不划算。常见错路：以为“把方向数组排一下”或“输出前 sort 一下”就能控制顺序——sort 的前提是你已经拿到每条路径，而 DFS 是一条一条流式打印的。</div></details></li><li id="b198"><div class="tq">连通块题若改成“最大的一块有多少格”，代码要加哪两个变量？为什么这时候“不撤销”反而让复杂度更低？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">加两个变量：<code>cnt</code>（当前这一块已经标记了几格，dfs 每标记一格 ++cnt）和 <code>best</code>（外层扫描里 <code>best = max(best, cnt)</code>，每块开始前 cnt 清零）。不撤销让复杂度更低的原因：每个格子一辈子只被标记一次，全图总共 O(nm) 次访问；若撤销，外层每遇到一个非零格子就会把整块重跑一遍，最坏 O((nm)²)，正文表格里写的“整块被反复重算，方案数虚高、指数爆炸 → TLE”就是这个。常见错路：把 cnt 当参数往下传（每层一份副本，回到上层就丢了），或者忘了每块开始前清零，答案一路累加。</div></details></li><li id="b199"><div class="tq">八皇后只要求输出一个解时（n = 13），还能加什么顺序剪枝或对称性剪枝？提示：棋盘左右对称，第一个解的第一行棋子可以限定在左半边。</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">最直接的一条是左右对称：只让第 1 行的皇后试左半边（列 1..⌈n/2⌉），找到解后镜像输出即可——棋盘左右对称保证镜像也是解，所以“只要求一个解”时限定左半边一定不丢解。还有一条更通用的顺序剪枝：把候选列按“当前冲突最少”排序（最少剩余值启发式），先试约束最紧的位置，让失败尽早暴露。n = 13 带三类冲突剪枝其实只有几十万节点，这些技巧真正值钱的是 n ≥ 15。常见错路：限定左半边后忘了“要输出全部解时右半边也得补回来”——那会漏掉一半解；以及把对称性用在求方案数的题上，数出来的只是总数的一半。</div></details></li><li id="b200"><div class="tq">数独如果改成“求所有解的个数”，例题里那句 <code>if (dfs(pos+1)) return true;</code> 要怎么改？改完之后最坏情况会慢多少？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">把那句改成“不提前返回、把所有候选试完”：循环里写 <code>if (dfs(pos+1)) ans++;</code>（或直接 <code>dfs(pos+1)</code>，在出口 <code>++ans</code>），最后 <code>return false</code>，答案用全局 <code>ans</code> 累加。变慢多少取决于解的个数：本题那盘数独只有唯一解、实测 72097 次调用，改成计数后基本持平；真正的坏情况是“解很多”的数据，比如只填了少数几格的盘面，解数可能上万、搜索树接近未剪枝的规模，最坏会从毫秒级变成秒级以上。常见错路：只删掉 <code>return true</code> 却忘了出口也要改成计数（那样永远只记到 1 个解）；以及顺手把 <code>a[r][c] = 0</code> 和三个标记的撤销一起删了。</div></details></li><li id="b201"><div class="tq">最优性剪枝里的 best 初值设成 0 还是设成一个足够大的数？两种分别在求最小值和求最大值时出什么错？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">两个方向的初值要分开记：求最小时 best 必须初始化成“比任何可能答案都大”（<code>INT_MAX</code> 或 0x3f3f3f3f），写成 0 会让 <code>sum &gt;= best</code> 恒成立，第一层就 return，输出 0；求最大时反过来初始化为“比任何可能答案都小”（答案非负就写 0），写成 <code>INT_MAX</code> 会让“上界 ≤ best”恒成立，一个分支都走不进去，最后输出 <code>INT_MAX</code>。一句话：best 的初值必须站在“还没有任何解”的那一侧。常见错路：两种方向记混；或者用 0 当求最大的初值却遇到全负数据（答案 −5 时输出 0），这和最大子段和的坑是同一个。</div></details></li><li id="b202"><div class="tq">网格 DFS 深度等于格子数：10⁴ 还能扛，10⁶ 呢？为什么这种时候必须换成第 26 节的 BFS？（提示：dfs 的栈帧要一直留着，而 BFS 的队列里只放“当前层”。）</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">10⁶ 必炸：深度 10⁶、每帧约 48 字节 ≈ 48MB，Linux 栈一般 8MB、Windows 默认 1MB，一定 RE。DFS 的栈帧要一直留到回溯，深度等于“一条路径的长度”，网格里最坏就是整片格子；BFS 的队列里只放“已发现但还没扩展”的点，同一时刻最多 O(宽度) 个，而且全在堆上，开几百万都没问题。所以深度到 10⁵ 就该换成 BFS 或显式栈（第 29 节）。常见错路：以为“把数组开大”能救——爆的是调用栈不是数组；或者用 Windows 的 /STACK 调大栈就以为万事大吉，那只是把上限往后推，而且洛谷不认 Windows 的栈选项。</div></details></li></ol></div><div class="box tip"><div class="t" id="b203">自测：能全部回答再进下一节</div><ul><li id="b204">能说清连通块与路径枚举在“撤销”上的区别，并各写一段 20 行以内的代码。</li><li id="b205">能默写 4 方向与 8 方向的方向数组，并说出 dx 与 dy 必须一一对应的原因。</li><li id="b206">能推出宫的编号 <code>(r−1)/3*3 + (c−1)/3</code>，并解释它为什么不会越界。</li><li id="b207">能背出三类剪枝的名字、条件和典型写法，并指出数独用的是哪一类。</li><li id="b208">知道为什么数独要“按格子顺序填、已填的直接跳过”，以及这样省掉了哪一维判断。</li><li id="b209">能手算 8 皇后的搜索节点数 2057，并解释它为什么远小于 8⁸。</li></ul></div><div class="challenge"><div class="ct" id="b210">挑战题 · 求细胞数量</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1451</span><span class="badge diff">普及-</span><a href="https://www.luogu.com.cn/problem/P1451" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b211">一个矩形阵列由数字 0~9 组成，数字 1~9 表示细胞，0 表示空地。</p><p id="b212">细胞的定义：如果两个细胞数字在上下左右四个方向上相邻，它们就属于同一个细胞；同一个细胞可以是一大片连通的数字。求给定阵列中共有多少个细胞。</p><p id="b213">输入格式：第一行两个整数 m、n（1 ≤ m, n ≤ 100）；接下来 m 行，每行 n 个字符，字符为 0~9，中间没有空格。</p><p id="b214">输出格式：一行一个整数，表示细胞个数。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b215">从左上角开始扫，一遇到还没被数过的“细胞数字”，就说明发现了一个新细胞。</p><p id="b216">发现新细胞后，把它和它四方向连通的所有细胞数字都标记掉，免得后面重复计数。</p><p id="b217">这里<b>不需要撤销</b>：一个格子只属于一个细胞，标掉之后它永远不该再作为入口。想清楚这一点，代码会比上一题还短。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b218"><b>模型。</b>把每个非 0 格子看成一个点，四方向相邻的两点之间连一条边，题目问的就是这张图里有几个连通块。</p><p id="b219"><b>做法。</b>扫整个阵列，遇到一个没访问过的非 0 格子，就把答案加 1，然后从它出发 dfs，把四方向连通的非 0 格子全部改成 0（标记 = 直接改图，省掉一个 vis 数组）。</p><p id="b220"><b>为什么不撤销。</b>外层扫描只关心“这一格是不是新的入口”。dfs 把它改成 0 之后，外层不会再把它当成新入口，于是同一片细胞只被数一次。若撤销，同一片会被反复数，答案虚高，而且规模指数级膨胀。</p><p id="b221"><b>与上一题的分界线。</b>上一题要输出<b>所有</b>路径，所以每个格子必须能回到原状供别的路径使用；本题只问“有几块”，每个格子只该被算一次。判断标准只有一句话：<b>这个标记是“共享资源”还是“一次性事实”？</b></p><p id="b222"><b>复杂度。</b>每个格子最多被访问一次，每次查 4 个方向，总时间 O(4mn) ≤ 4×10⁴。递归深度最坏 10⁴（整片都是细胞），每帧几十字节，栈完全够用。</p><p id="b223"><b>读入的坑。</b>每行是一串字符、没有空格，用 <code>cin &gt;&gt; g[i][j]</code>（char）逐字符读，它会自动跳过空白；用 <code>scanf("%c")</code> 则会把行末换行也读进来，整张图错位。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b224">参考代码</div><pre id="b225"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> m, n, ans = <span class="n">0</span>;
+<span class="k">char</span> g[<span class="n">105</span>][<span class="n">105</span>];
+<span class="k">int</span> dx[<span class="n">4</span>] = {-<span class="n">1</span>, <span class="n">1</span>, <span class="n">0</span>, <span class="n">0</span>};       <span class="c">// 四方向：上、下、左、右</span>
+<span class="k">int</span> dy[<span class="n">4</span>] = {<span class="n">0</span>, <span class="n">0</span>, -<span class="n">1</span>, <span class="n">1</span>};
+
+<span class="k">void</span> <span class="f">dfs</span>(<span class="k">int</span> x, <span class="k">int</span> y) {
+    g[x][y] = <span class="s">'0'</span>;              <span class="c">// 标记：直接改图，这一格以后不会再当入口</span>
+    <span class="k">for</span> (<span class="k">int</span> k = <span class="n">0</span>; k &lt; <span class="n">4</span>; ++k) {
+        <span class="k">int</span> nx = x + dx[k], ny = y + dy[k];
+        <span class="k">if</span> (nx &lt; <span class="n">1</span> || nx &gt; m || ny &lt; <span class="n">1</span> || ny &gt; n) <span class="k">continue</span>;   <span class="c">// 先判越界</span>
+        <span class="k">if</span> (g[nx][ny] == <span class="s">'0'</span>) <span class="k">continue</span>;                       <span class="c">// 空地或已经数过</span>
+        <span class="f">dfs</span>(nx, ny);
+    }
+    <span class="c">// 这里没有 g[x][y] 的还原 —— 连通块不撤销</span>
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">cin</span> &gt;&gt; m &gt;&gt; n;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= m; ++i)
+        <span class="k">for</span> (<span class="k">int</span> j = <span class="n">1</span>; j &lt;= n; ++j) <span class="k">cin</span> &gt;&gt; g[i][j];
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= m; ++i)
+        <span class="k">for</span> (<span class="k">int</span> j = <span class="n">1</span>; j &lt;= n; ++j)
+            <span class="k">if</span> (g[i][j] != <span class="s">'0'</span>) { ++ans; <span class="f">dfs</span>(i, j); }   <span class="c">// 每发现一个新入口，就多一个细胞</span>
+
+    <span class="k">cout</span> &lt;&lt; ans &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b226">关键片段拆解</div><table class="lines"><thead><tr><th id="b227">片段</th><th id="b228">作用</th></tr></thead><tbody><tr><td id="b229"><code>char g[105][105];</code></td><td id="b230">m, n ≤ 100，开 105 留余量。用 char 存，'0' 与其它字符直接可比，不需要额外的 vis 数组。</td></tr><tr><td id="b231"><code>cin &gt;&gt; g[i][j];</code></td><td id="b232"><code>cin &gt;&gt; char</code> 会自动跳过空格与换行，所以逐字符读入是安全的；换成 <code>scanf("%c")</code> 会把行末换行也读进来，整张图错位。</td></tr><tr><td id="b233"><code>if (g[i][j] != '0') { ++ans; dfs(i, j); }</code></td><td id="b234">外层扫描每遇到一个还是细胞数字的格子，就说明发现了一片新细胞：先计数，再让 dfs 把整片吃掉。</td></tr><tr><td id="b235"><code>g[x][y] = '0';</code></td><td id="b236">标记和“删除”是同一个动作。放在函数开头而不是循环里，是为了让入口格子立刻也被标记。</td></tr><tr><td id="b237"><code>if (g[nx][ny] == '0') continue;</code></td><td id="b238">一个判断同时挡掉空地和已访问过的细胞（它们都已经被改成 '0' 了）。</td></tr><tr><td id="b239"><code>// 没有还原</code></td><td id="b240">整段代码唯一省略的那一行，正是连通块与路径枚举的分界线。</td></tr></tbody></table><div class="box warn"><div class="t" id="b241">这题最容易错的地方</div><ul><li id="b242">把标记写在 for 循环之后（先遍历再标记）：同一格被反复进入，递归互相调用 → RE（爆栈）。</li><li id="b243">多写了还原：一片细胞被反复重算，小数据答案偏大、大数据直接 TLE。</li><li id="b244">用 <code>scanf("%c")</code> 读图且不处理换行：整张图整体错位，答案离谱。</li><li id="b245">把四方向写成八方向：斜着相连的不同细胞被并成一个，答案偏小。</li></ul></div></div></details></div><div class="box tip" style="margin:22px 0 -6px"><div class="t" id="b246">挑战 2 · 难度高一级，允许组合多个已学算法</div><p id="b247">这题比上面的挑战题更难：它不只用本节一个算法，可能需要把前面几节的工具拼起来。独立做出来说明这一块真的过关了；做完记得在侧边栏勾上 🌟。</p></div><div class="challenge ch2"><div class="ct" id="b248">挑战 2 · 靶形数独</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1074</span><span class="badge diff">提高+</span><a href="https://www.luogu.com.cn/problem/P1074" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b249">标准数独的规则不变：9×9 盘面，每行、每列、每个 3×3 宫都要恰好含 1~9 各一次。</p><p id="b250">在这个基础上，每个格子还有一个<b>权值</b>：把盘面看成靶子，最外圈权值 6、第二圈 7、第三圈 8、第四圈 9、正中心那格 10。第 (r,c) 格的权值就是 <code>10 − max(|r−5|, |c−5|)</code>。</p><p id="b251">一个解的总分 = 每个格子的权值 × 该格填入的数字，全部加起来。求所有合法解中总分的最大值。</p><p id="b252">输入格式：9 行，每行 9 个整数，0 表示空格。输出格式：一行一个整数，表示最大总分；若无解输出 -1。</p></div><div class="cap" id="b253">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+8 1 2 7 5 3 6 4 9
+9 4 3 6 8 2 1 0 5
+6 7 5 4 9 1 2 8 3
+1 5 4 2 3 7 8 9 6
+3 6 9 8 4 5 7 2 1
+2 8 7 1 6 9 5 3 4
+5 2 1 9 7 4 3 6 8
+4 3 8 5 2 6 9 1 7
+7 9 6 3 1 8 4 5 2
+输出：2860</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b254">先别想搜索，先把“权值”算出来：它只跟格子离中心的距离有关，与搜索无关。</p><p id="b255">上一例题的数独代码几乎能直接拿过来用，只是出口从“找到一个解就返回”变成“把所有解都走一遍、取最大分”。</p><p id="b256">如果只是照搬上一题的行优先顺序，最坏情况会超时。想想：每次应该先填哪个空格？候选数字最少的那个格子，是不是应该最先决定？</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b257"><b>第一步：权值。</b><code>w[r][c] = 10 − max(|r−5|, |c−5|)</code>。中心 (5,5) 得 10，四个角 (1,1) 得 6，外圈边中 (1,5) 也得 6——正好符合“靶形”。这一层预处理和搜索完全解耦。</p><p id="b258"><b>第二步：照搬数独骨架。</b>三类冲突 <code>row/col/box</code> 与上一例题完全一样；区别只有两处：出口不再 return true，而是 <code>ans = max(ans, score)</code>；空格的顺序不再是行优先，而是动态选出来的。</p><p id="b259"><b>第三步：动态选格子（最关键的一步）。</b>每次进入 dfs，扫一遍所有空格，数出每个空格在当前盘面下还剩几个候选数字，挑<b>候选最少</b>的那个先填。候选为 0 就说明这条分支已死，直接返回。这一步叫“最受约束优先”，它让搜索树的分支数从“平均 5~6”降到“平均 1~2”。</p><p id="b260"><b>第四步：上界剪枝。</b>维护 <code>restW</code> = 还没填的格子的权值之和。这些格子最多都填 9，所以 <code>score + 9·restW</code> 是这条分支可能达到的上界。上界 ≤ 已知最优 ans 时，整棵子树都不必再走。</p><p id="b261"><b>为什么这些剪枝都是安全的。</b>上界是“乐观估计”，只会高估不会低估，所以砍掉的分支一定不可能更优；“最受约束优先”只改变尝试顺序、不改变解集，所以不影响正确性。</p><p id="b262"><b>复杂度。</b>最坏仍是指数级，但两个剪枝叠加后，标准数据在 1 秒内能跑完。这也说明：搜索题的时间几乎完全由剪枝质量决定，而不是由语言或常数决定。</p><p id="b263"><b>和八皇后的联系。</b>八皇后是“每行一个子 + 三类冲突”，数独是“每格一个数 + 三类冲突”，靶形数独再叠一层“带权最优”。同一个骨架，改的是状态和剪枝。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b264">参考代码</div><pre id="b265"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> a[<span class="n">10</span>][<span class="n">10</span>], w[<span class="n">10</span>][<span class="n">10</span>];
+<span class="k">bool</span> row[<span class="n">10</span>][<span class="n">10</span>], col[<span class="n">10</span>][<span class="n">10</span>], box[<span class="n">10</span>][<span class="n">10</span>];
+<span class="k">int</span> restW = <span class="n">0</span>;          <span class="c">// 还没填的格子的权值之和</span>
+<span class="k">int</span> ans = -<span class="n">1</span>;           <span class="c">// 无解时保持 -1</span>
+
+<span class="k">int</span> <span class="f">getBox</span>(<span class="k">int</span> r, <span class="k">int</span> c) { <span class="k">return</span> (r - <span class="n">1</span>) / <span class="n">3</span> * <span class="n">3</span> + (c - <span class="n">1</span>) / <span class="n">3</span>; }
+
+<span class="k">void</span> <span class="f">dfs</span>(<span class="k">int</span> score) {
+    <span class="c">// ① 选出候选最少的空格：最受约束优先</span>
+    <span class="k">int</span> br = <span class="n">0</span>, bc = <span class="n">0</span>, bcnt = <span class="n">10</span>;
+    <span class="k">for</span> (<span class="k">int</span> r = <span class="n">1</span>; r &lt;= <span class="n">9</span>; ++r)
+        <span class="k">for</span> (<span class="k">int</span> c = <span class="n">1</span>; c &lt;= <span class="n">9</span>; ++c) {
+            <span class="k">if</span> (a[r][c]) <span class="k">continue</span>;
+            <span class="k">int</span> b = <span class="f">getBox</span>(r, c), cnt = <span class="n">0</span>;
+            <span class="k">for</span> (<span class="k">int</span> v = <span class="n">1</span>; v &lt;= <span class="n">9</span>; ++v)
+                <span class="k">if</span> (!row[r][v] &amp;&amp; !col[c][v] &amp;&amp; !box[b][v]) ++cnt;
+            <span class="k">if</span> (cnt == <span class="n">0</span>) <span class="k">return</span>;                    <span class="c">// 有空格无处可填，这条分支已死</span>
+            <span class="k">if</span> (cnt &lt; bcnt) { bcnt = cnt; br = r; bc = c; }
+        }
+    <span class="k">if</span> (br == <span class="n">0</span>) { ans = <span class="k">max</span>(ans, score); <span class="k">return</span>; }   <span class="c">// 没有空格：得到一个完整解</span>
+
+    <span class="c">// ② 上界剪枝：剩下的格子全填 9 也追不上已知最优</span>
+    <span class="k">if</span> (score + <span class="n">9</span> * restW &lt;= ans) <span class="k">return</span>;
+
+    <span class="k">int</span> b = <span class="f">getBox</span>(br, bc), ww = w[br][bc];
+    <span class="k">for</span> (<span class="k">int</span> v = <span class="n">1</span>; v &lt;= <span class="n">9</span>; ++v) {
+        <span class="k">if</span> (row[br][v] || col[bc][v] || box[b][v]) <span class="k">continue</span>;
+        a[br][bc] = v;
+        row[br][v] = col[bc][v] = box[b][v] = <span class="k">true</span>;
+        restW -= ww;
+        <span class="f">dfs</span>(score + v * ww);
+        restW += ww;
+        a[br][bc] = <span class="n">0</span>;
+        row[br][v] = col[bc][v] = box[b][v] = <span class="k">false</span>;
+    }
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">for</span> (<span class="k">int</span> r = <span class="n">1</span>; r &lt;= <span class="n">9</span>; ++r)
+        <span class="k">for</span> (<span class="k">int</span> c = <span class="n">1</span>; c &lt;= <span class="n">9</span>; ++c) w[r][c] = <span class="n">10</span> - <span class="k">max</span>(<span class="k">abs</span>(r - <span class="n">5</span>), <span class="k">abs</span>(c - <span class="n">5</span>));
+
+    <span class="k">int</span> base = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> r = <span class="n">1</span>; r &lt;= <span class="n">9</span>; ++r)
+        <span class="k">for</span> (<span class="k">int</span> c = <span class="n">1</span>; c &lt;= <span class="n">9</span>; ++c) {
+            <span class="k">cin</span> &gt;&gt; a[r][c];
+            <span class="k">if</span> (a[r][c]) {
+                <span class="k">int</span> v = a[r][c], b = <span class="f">getBox</span>(r, c);
+                row[r][v] = col[c][v] = box[b][v] = <span class="k">true</span>;   <span class="c">// 题目给的数字先记进冲突表</span>
+                base += v * w[r][c];
+            } <span class="k">else</span> {
+                restW += w[r][c];                          <span class="c">// 空格待定，权值先记着</span>
+            }
+        }
+
+    <span class="f">dfs</span>(base);
+    <span class="k">cout</span> &lt;&lt; ans &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b266">关键片段拆解</div><table class="lines"><thead><tr><th id="b267">片段</th><th id="b268">作用</th></tr></thead><tbody><tr><td id="b269"><code>w[r][c] = 10 - max(abs(r - 5), abs(c - 5));</code></td><td id="b270">切比雪夫距离决定圈数：中心 (5,5) 是 10，第二圈 9，……最外圈 6。用 max(|dr|,|dc|) 而不是曼哈顿距离，因为靶子的圈是方的。</td></tr><tr><td id="b271"><code>int restW = 0;</code></td><td id="b272">还没填的格子的权值总和。它是上界剪枝的核心：剩下的格子无论填什么都不超过 9。</td></tr><tr><td id="b273"><code>int ans = -1;</code></td><td id="b274">初值 −1 兼作“无解”标记：只要没有任何一个完整解走到出口，答案就还是 −1，正好符合题目要求。</td></tr><tr><td id="b275"><code>if (cnt == 0) return;</code></td><td id="b276">某个空格一个候选都没有，这条分支必然无解，立刻剪掉。这一句比上界剪枝更早生效。</td></tr><tr><td id="b277"><code>if (score + 9 * restW &lt;= ans) return;</code></td><td id="b278">上界剪枝。restW 随填格递减，所以上界越来越紧；用 <code>&lt;=</code> 是因为等于也不会有改进。</td></tr><tr><td id="b279"><code>if (br == 0) { ans = max(ans, score); return; }</code></td><td id="b280">出口：没有空格了。与上一例题不同，这里不能 return true，必须把所有解都比一遍取最大。</td></tr><tr><td id="b281"><code>restW -= ww;  dfs(...);  restW += ww;</code></td><td id="b282">全局量也要回溯：进入时把这一格的权值从“待定”里扣掉，返回时加回来。漏了这一步，上界会算大，剪枝失效。</td></tr><tr><td id="b283"><code>row[br][v] = col[bc][v] = box[b][v] = true;</code></td><td id="b284">三类标记一起标、一起撤，下标必须一模一样，这是最容易手误的地方。</td></tr></tbody></table><div class="box warn"><div class="t" id="b285">这题最容易错的地方</div><ul><li id="b286">照搬上一题的行优先顺序、不做“最受约束优先”：答案对，但最坏数据会 TLE。</li><li id="b287">把出口写成 <code>return true</code> 式的“找到就收”：那样只会得到第一个解，不是最大分。</li><li id="b288">上界剪枝把 restW 忘了回溯：上界越算越大，剪枝基本失效（甚至可能剪掉最优解）。</li><li id="b289">ans 初值写成 0：无解时应当输出 −1，写 0 会输出 0。</li></ul></div></div></details></div><div class="box info"><div class="t" id="b290">延伸阅读 / 参考</div><ul><li id="b291">《算法竞赛进阶指南》第 0x22 节：深度优先搜索与剪枝</li><li id="b292">《算法竞赛试炼场》搜索专题：迷宫路径与数独</li><li id="b293">洛谷 P1238、P1784、P1451、P1074 题解区的高赞实现</li></ul></div>
+
+<footer>算竞教程 · 算竞教程 · 生成于自建课程体系，题目版权归洛谷及各命题方所有<br>
+转载请注明出处；模板代码可直接用于比赛</footer>

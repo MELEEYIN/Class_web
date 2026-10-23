@@ -1,0 +1,211 @@
+
+<p id="b0">第 6~9 节只教了三件事：用<b>值</b>当下标的桶、用<b>位置</b>当下标的二维数组、把<b>字符</b>当数据的字符串。这一节不讲新算法，只做一件事——把这三件事放进 5 道黄题里，逼你在 30 秒内认出该用哪一件。</p><p id="b1">节奏建议：<b>90 分钟 5 题</b>。先花 3 分钟通读全部题面，把“一定会做”“有思路”“完全不会”分成三堆；再按从易到难的顺序单题限时 18 分钟。每写完一题立刻提交，不要攒到最后一起交——早一步看到 WA，就早一步知道自己错在哪个下标上。</p><div class="quote" id="b2">回顾课的目标不是“五题都 AC”，而是看到任何一道新题，都答得出两个问题：下标表示什么？要开多大？</div><table><thead><tr><th id="b3">题型</th><th id="b4">题目里的信号词</th><th id="b5">下标表示什么</th><th id="b6">固定写法</th></tr></thead><tbody><tr><td id="b7">桶计数</td><td id="b8">出现次数 / 第几个 / 是否出现过 / 去重 / 数条数</td><td id="b9">值本身：字母、数字、和</td><td id="b10">cnt[x]++ 累加，再从 0 扫到值域上界</td></tr><tr><td id="b11">二维数组</td><td id="b12">n 行 m 列 / 上下左右 / 八个方向 / 网格 / 方阵</td><td id="b13">行号与列号</td><td id="b14">坐标从 1 开始，数组多开 5 格，方向用 (dx,dy) 常量数组</td></tr><tr><td id="b15">字符串</td><td id="b16">一行文字 / 含空格 / 不区分大小写 / 子串 / 每个字符</td><td id="b17">字符在串中的位置 i</td><td id="b18">整行 getline，逐字符处理，时刻盯住左右边界</td></tr></tbody></table><p id="b19">本节没有真正的新函数，但有 4 件工具会在 5 道题里反复出现。先花 10 分钟看完这 4 张卡，比写到一半再回来查要快得多。</p><div class="fn"><div class="fh" id="b20">新函数拆解 · getline 与 cin.ignore（整行读入）</div><div class="fb"><div class="sig" id="b21">getline(std::cin, s);
+std::cin.ignore();</div><table class="lines"><thead><tr><th id="b22">组成</th><th id="b23">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b24"><code>getline(cin, s)</code></td><td id="b25">读一整行到 string s，读到 '\n' 为止，并把 '\n' 从流里取走。空格、Tab 原样保留在 s 里。</td></tr><tr><td id="b26"><code>cin &gt;&gt; s</code></td><td id="b27">只读一个“词”，遇到空白就停。含空格的句子用它只能拿到第一个词。</td></tr><tr><td id="b28"><code>cin.ignore()</code></td><td id="b29">丢掉缓冲区里的一个字符，通常用来吃掉上一次 cin &gt;&gt; 留下的 '\n'。</td></tr><tr><td id="b30"><code>cin.get()</code></td><td id="b31">读一个字符并返回它；不想保存返回值时和 ignore 等价。</td></tr><tr><td id="b32"><code>使用顺序</code></td><td id="b33">先 cin &gt;&gt; 读入，再用 getline，中间必须插一句 cin.ignore()；两次 getline 连用则不需要。</td></tr></tbody></table><div class="cap" id="b34">最小可运行示例</div><div class="cap" id="b35">示例</div><pre id="b36"><code><span class="k">string</span> s;
+<span class="k">int</span> n;
+<span class="k">cin</span> &gt;&gt; n;              <span class="c">// 输入 "3\nhello world"</span>
+<span class="k">cin</span>.<span class="f">ignore</span>();          <span class="c">// 吃掉 3 后面那个 '\n'</span>
+<span class="k">getline</span>(<span class="k">cin</span>, s);       <span class="c">// s = "hello world"</span>
+
+<span class="c">// 两行都是整行时，直接两次 getline，不需要 ignore</span>
+<span class="k">string</span> w, t;
+<span class="k">getline</span>(<span class="k">cin</span>, w);       <span class="c">// 第一行</span>
+<span class="k">getline</span>(<span class="k">cin</span>, t);       <span class="c">// 第二行</span></code></pre><div class="box tip"><div class="t" id="b37">注意</div><p id="b38">漏了 ignore() 的症状很固定：getline 读到空串，后面所有数据整体错位一行，样例必然全错。</p><p id="b39">含空格的输入（P1308、P1765）必须整行读；用 cin 只会得到第一个词，答案稳定偏小。</p></div></div></div><div class="fn"><div class="fh" id="b40">新函数拆解 · tolower / toupper（大小写统一）</div><div class="fb"><div class="sig" id="b41">int tolower(int c);
+int toupper(int c);</div><table class="lines"><thead><tr><th id="b42">组成</th><th id="b43">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b44"><code>tolower(c)</code></td><td id="b45">大写字母返回对应小写，其它字符原样返回。返回 int，但直接赋给 char 也能编译。</td></tr><tr><td id="b46"><code>toupper(c)</code></td><td id="b47">小写字母返回对应大写，其它字符原样返回。</td></tr><tr><td id="b48"><code>参数</code></td><td id="b49">传的是“字符的整数值”，不是下标。写成 tolower(s[i] - 'a') 是错的。</td></tr><tr><td id="b50"><code>等价写法</code></td><td id="b51">判断小写可以直接写 s[i] &gt;= 'a' &amp;&amp; s[i] &lt;= 'z'，不依赖 cctype，也不会踩 char 符号性的坑。</td></tr></tbody></table><div class="cap" id="b52">最小可运行示例</div><div class="cap" id="b53">示例</div><pre id="b54"><code><span class="k">string</span> s = <span class="s">"Hello World"</span>;
+<span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; (<span class="k">int</span>)s.<span class="k">size</span>(); ++i)
+    s[i] = <span class="f">tolower</span>(s[i]);       <span class="c">// "hello world"</span>
+
+<span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; (<span class="k">int</span>)s.<span class="k">size</span>(); ++i)
+    <span class="k">if</span> (s[i] &gt;= <span class="s">'a'</span> &amp;&amp; s[i] &lt;= <span class="s">'z'</span>) { <span class="c">/* 是小写字母 */</span> }</code></pre><div class="box tip"><div class="t" id="b55">注意</div><p id="b56">tolower('A') 的结果就是整数 97，和 'a' 相等，类型不是 char 也没关系。</p><p id="b57">统一转小写之后，比较时就不用再管大小写——P1308 的标准做法就是先全转小写。</p></div></div></div><div class="fn"><div class="fh" id="b58">新函数拆解 · string::find 与 substr（查找、截取）</div><div class="fb"><div class="sig" id="b59">s.find(t)
+s.substr(pos, len)</div><table class="lines"><thead><tr><th id="b60">组成</th><th id="b61">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b62"><code>s.size()</code></td><td id="b63">字符个数。和 int 比较时先写成 (int)s.size()，否则 -1 会被当成巨大的正数。</td></tr><tr><td id="b64"><code>s.find(t)</code></td><td id="b65">从前往后找子串 t，返回第一次出现的下标；找不到返回 string::npos。</td></tr><tr><td id="b66"><code>s.find(t, pos)</code></td><td id="b67">从下标 pos 开始找。循环里要靠它不断往后推进，才能找全所有出现位置。</td></tr><tr><td id="b68"><code>s.substr(pos, len)</code></td><td id="b69">从 pos 开始取 len 个字符；len 超过末尾时自动截到末尾，不会越界报错。</td></tr><tr><td id="b70"><code>s[i]</code></td><td id="b71">下标访问单个字符，i 从 0 到 (int)s.size()-1。</td></tr></tbody></table><div class="cap" id="b72">最小可运行示例</div><div class="cap" id="b73">示例</div><pre id="b74"><code><span class="k">string</span> s = <span class="s">"abcabc"</span>;
+<span class="k">int</span> p = s.<span class="f">find</span>(<span class="s">"bc"</span>);          <span class="c">// p = 1</span>
+<span class="k">if</span> (p != (<span class="k">int</span>)<span class="k">string</span>::npos) { <span class="c">/* 找到了 */</span> }
+
+<span class="k">string</span> t = s.<span class="f">substr</span>(<span class="n">1</span>, <span class="n">2</span>);     <span class="c">// t = "bc"</span>
+<span class="k">int</span> len = (<span class="k">int</span>)s.<span class="k">size</span>();       <span class="c">// 6</span></code></pre><div class="box tip"><div class="t" id="b75">注意</div><p id="b76">find 返回的是下标，不是“第几个”。第一个字符的位置是 0——P1308 要的正是这个 0 起算的位置。</p><p id="b77">string::npos 被赋给 int 时会变成 -1，所以 (int)s.find(t) == -1 也是常见且正确的判空写法。</p></div></div></div><div class="fn"><div class="fh" id="b78">新函数拆解 · memset 与 fill（批量赋值）</div><div class="fb"><div class="sig" id="b79">memset(a, 0, sizeof(a));
+fill(a, a + n, 0);</div><table class="lines"><thead><tr><th id="b80">组成</th><th id="b81">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b82"><code>memset(a, 0, sizeof(a))</code></td><td id="b83">把 a 的每个<b>字节</b>设成 0。只对 0 和 -1 安全，填 1 会得到 0x01010101 而不是 1。</td></tr><tr><td id="b84"><code>sizeof(a)</code></td><td id="b85">a 必须是真数组。函数参数里的数组名是指针，sizeof 得到的是 8，不是长度。</td></tr><tr><td id="b86"><code>fill(begin, end, val)</code></td><td id="b87">按元素赋值，可以填任意值，区间左闭右开。</td></tr><tr><td id="b88"><code>全局数组</code></td><td id="b89">开在 main 外面的数组默认全是 0，连 memset 都不用写，这是竞赛里最省事的做法。</td></tr></tbody></table><div class="cap" id="b90">最小可运行示例</div><div class="cap" id="b91">示例</div><pre id="b92"><code><span class="k">int</span> cnt[<span class="n">26</span>] = {<span class="n">0</span>};        <span class="c">// 局部数组：必须显式清零</span>
+<span class="k">int</span> g[<span class="n">105</span>][<span class="n">105</span>];          <span class="c">// 全局数组：默认全 0</span>
+
+<span class="k">int</span> b[<span class="n">10</span>];
+<span class="k">fill</span>(b, b + <span class="n">10</span>, <span class="n">7</span>);       <span class="c">// 10 个元素全变成 7</span></code></pre><div class="box tip"><div class="t" id="b93">注意</div><p id="b94">多组数据忘了清空，第二组会带着第一组的残留，症状是“第一组对、后面全错”。</p><p id="b95">把大数组开在 main 里（栈上）会栈溢出 RE；元素数超过 10⁵ 就一律开全局。</p></div></div></div><div class="prob"><div class="ph"><span class="pn" id="b96">例题 · 扫雷游戏</span><span class="oi">洛谷 P2670</span><span class="badge diff">普及-</span><a href="https://www.luogu.com.cn/problem/P2670" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b97">给出 n 行 m 列的雷区，字符 <code>*</code> 表示地雷格，<code>?</code> 表示非地雷格。要求把每个非地雷格换成它周围八个方向上地雷格的个数，地雷格原样输出 <code>*</code>。“周围”指上、下、左、右、左上、右上、左下、右下八个直接相邻的格子。</p><p id="b98">输入格式：第一行两个整数 n、m（1 ≤ n,m ≤ 100）。接下来 n 行，每行 m 个字符。输出格式：n 行，每行 m 个字符，地雷格为 <code>*</code>，非地雷格为周围地雷个数。</p></div><div class="io" id="b99">输入：
+3 3
+*??
+???
+?*?
+输出：
+*10
+221
+1*1</div></div><div class="step"><div class="sh" id="b100">例题怎么想：一道题同时用上二维数组和字符</div><p id="b101">题目只要求一件事：对每个非雷格，数它八个方向上有几个雷。所以数据结构必然是<b>字符</b>二维数组——输入里是 <code>*</code> 和 <code>?</code>，不是数字。</p><p id="b102">动手前先把三个决定定下来，这三个决定就是这道题的全部难点：</p><ul><li id="b103">下标从 1 开始存。这样 x-1、y-1 这类偏移不会变成负数，越界判断只写一个条件就够。</li><li id="b104">数组开到 105×105。n ≤ 100，坐标最大 100，再加 1 格方向偏移也只到 101，105 的余量保证永远不越界，所以代码里可以完全不写边界判断。</li><li id="b105">八个方向写成两个长度 8 的常量数组，用 for 循环扫一遍。写 8 个 if 也能过，但题目一改（比如改成 4 方向）就要改 8 处。</li></ul><p id="b106">剩下的是纯粹的循环：对每个格子，是雷就输出 <code>*</code>，不是雷就用 8 个方向数邻居、输出数字；每行结束补一个换行。</p><div class="cap" id="b107">完整代码</div><pre id="b108"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">char</span> g[<span class="n">105</span>][<span class="n">105</span>];                 <span class="c">// 全局数组：默认 '\0'，越界位置不会误判成雷</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">int</span> n, m;
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; m;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i)
+        <span class="k">for</span> (<span class="k">int</span> j = <span class="n">1</span>; j &lt;= m; ++j)
+            <span class="k">cin</span> &gt;&gt; g[i][j];       <span class="c">// cin 读 char 会自动跳过空格和换行，网格逐字符读不会错位</span>
+
+    <span class="k">int</span> dx[<span class="n">8</span>] = {-<span class="n">1</span>, -<span class="n">1</span>, -<span class="n">1</span>, <span class="n">0</span>, <span class="n">0</span>, <span class="n">1</span>, <span class="n">1</span>, <span class="n">1</span>};   <span class="c">// 八个方向成对定义</span>
+    <span class="k">int</span> dy[<span class="n">8</span>] = {-<span class="n">1</span>, <span class="n">0</span>, <span class="n">1</span>, -<span class="n">1</span>, <span class="n">1</span>, -<span class="n">1</span>, <span class="n">0</span>, <span class="n">1</span>};
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        <span class="k">for</span> (<span class="k">int</span> j = <span class="n">1</span>; j &lt;= m; ++j) {
+            <span class="k">if</span> (g[i][j] == <span class="s">'*'</span>) { <span class="k">cout</span> &lt;&lt; <span class="s">'*'</span>; <span class="k">continue</span>; }   <span class="c">// 是雷，原样输出，不数邻居</span>
+            <span class="k">int</span> c = <span class="n">0</span>;
+            <span class="k">for</span> (<span class="k">int</span> k = <span class="n">0</span>; k &lt; <span class="n">8</span>; ++k) {
+                <span class="k">int</span> x = i + dx[k], y = j + dy[k];
+                <span class="k">if</span> (g[x][y] == <span class="s">'*'</span>) ++c;                     <span class="c">// 只需判内容，不需判界</span>
+            }
+            <span class="k">cout</span> &lt;&lt; c;
+        }
+        <span class="k">cout</span> &lt;&lt; <span class="s">'\n'</span>;              <span class="c">// 换行放在内层循环外，一行一个</span>
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b109">逐行拆解</div><table class="lines"><thead><tr><th id="b110">代码片段</th><th id="b111">含义与理由</th></tr></thead><tbody><tr><td id="b112"><code>char g[105][105];</code></td><td id="b113">字符网格必须用 char。用 int 存、再 cin &gt;&gt; 读 '*'，cin 会立刻失败，后面全是 0。</td></tr><tr><td id="b114"><code>cin &gt;&gt; g[i][j];</code></td><td id="b115">提取运算符读 char 时跳过所有空白，所以网格里没空格也能一行一行读下来。</td></tr><tr><td id="b116"><code>int dx[8] = {-1,-1,-1,0,0,1,1,1};</code></td><td id="b117">八个方向的横坐标增量，和 dy 一一配对。顺序无所谓，成对就行。</td></tr><tr><td id="b118"><code>if (g[i][j] == '*') { cout &lt;&lt; '*'; continue; }</code></td><td id="b119">雷格不输出数字，continue 直接跳到下一格，省掉一次 8 方向扫描。</td></tr><tr><td id="b120"><code>for (int k = 0; k &lt; 8; ++k)</code></td><td id="b121">把八个方向写成循环，比 8 个 if 短，也不容易漏方向。</td></tr><tr><td id="b122"><code>if (g[x][y] == '*') ++c;</code></td><td id="b123">只判内容不判界：105 已覆盖 100 加 1 个偏移的所有下标，不会读到数组外面。</td></tr><tr><td id="b124"><code>cout &lt;&lt; '\n';</code></td><td id="b125">换行在列循环之外，保证每行恰好 m 个字符加一个换行。</td></tr></tbody></table></div></div><div class="box warn"><div class="t" id="b126">这 5 个坑会直接 WA 或 RE，都是高频</div><p id="b127">字符网格写成 <code>int g[105][105]</code>，再用 <code>cin &gt;&gt; g[i][j]</code>：读到 <code>*</code> 时 cin 失败，之后所有格子保持初值 0，答案全错（WA），而且看起来“代码没毛病”。</p><p id="b128">方向数组里混进了 (0,0)：中心格被算成自己的邻居，每个数字都偏大 1。</p><p id="b129">数组只开 <code>char g[101][101]</code>：n = 100 时 i+1 = 101 越界，轻则 WA，重则 RE。多开 5 格几乎不花内存。</p><p id="b130">行列读反：<code>cin &gt;&gt; n &gt;&gt; m</code> 之后条件写成 <code>j &lt;= n</code>，读入整体错位，样例第一行就挂。</p><p id="b131">字符串题里用 <code>s.substr(i, m) == w</code> 做比较：每次复制 m 个字符，长度 10⁶ 时慢一个量级，容易 TLE；逐字符比较才是 O(1) 额外空间。</p></div><div class="reproduce"><div class="rt" id="b132">自己动手复现</div><p id="b133">关掉这一页，把上面的程序从头敲一遍，提交 P2670，先确认能看到 AC。</p><p id="b134">改一改：把八个方向换成四个方向（上下左右），样例输出会从 <code>*10 / 221 / 1*1</code> 变成 <code>*10 / 110 / 1*1</code>。先自己推一遍再跑，对不上就说明方向数组和你想的不一样。</p><p id="b135">再改一改：把雷的字符从 <code>*</code> 换成 <code>#</code>，只改输入读入和比较这两处——体会“字符只是数据”。</p></div><p id="b136">下面 5 道题就是本次训练。每题先只看题面和提示，自己写完再展开思路对照；拦不住的题先记下卡在哪一步，回头重看本节对应那一行。</p><table><thead><tr><th id="b137">题号</th><th id="b138">题目</th><th id="b139">考的是哪一节</th><th id="b140">要多想一步的地方</th><th id="b141">建议用时</th></tr></thead><tbody><tr><td id="b142">A</td><td id="b143">P1125 笨小猴</td><td id="b144">桶计数（第 6 节）</td><td id="b145">minn 只在出现过的字母里取</td><td id="b146">18 分钟</td></tr><tr><td id="b147">B</td><td id="b148">P1789 插火把</td><td id="b149">二维数组（第 7 节）</td><td id="b150">火把缺四个角，萤石是整块 5×5</td><td id="b151">20 分钟</td></tr><tr><td id="b152">C</td><td id="b153">P1980 计数问题</td><td id="b154">数位拆解（第 9 节）</td><td id="b155">x = 0 时不能凭空补前导零</td><td id="b156">15 分钟</td></tr><tr><td id="b157">D</td><td id="b158">P1308 统计单词数</td><td id="b159">字符串（第 8、9 节）</td><td id="b160">匹配前要确认左右都不是字母</td><td id="b161">22 分钟</td></tr><tr><td id="b162">E</td><td id="b163">P1765 手机</td><td id="b164">字符映射（第 8 节）</td><td id="b165">空格算一次键，且必须整行读入</td><td id="b166">15 分钟</td></tr></tbody></table><div class="box tip"><div class="t" id="b167">每题提交前的 30 秒检查</div><p id="b168">数组大小：最大下标再加 5，够不够？</p><p id="b169">初值：局部数组写 <code>= {0}</code> 了吗？全局数组默认 0。</p><p id="b170">输出：行末有多余空格吗？两个数之间是一个空格还是别的？不存在的情况输出的是 −1 还是 0？</p><p id="b171">读入：含空格的整行用 getline 了吗？getline 前需要 ignore 吗？</p></div><h2 id="b172">本次训练 · 共 5 题</h2><div class="box tip"><div class="t" id="b173">做题方式</div><p id="b174">限时 <b>100 分钟</b>。每题先自己写 20~25 分钟；写不出来先看提示，再给自己 10 分钟；还不行才点开思路。每题都独立限时，不要一题耗死。</p></div><div class="challenge"><div class="ct" id="b175">大题 挑战题 1 · 笨小猴</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1125</span><span class="badge diff">普及-</span><a href="https://www.luogu.com.cn/problem/P1125" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b176">给出一个只含小写字母的单词（长度小于 100）。设 maxn 为出现次数最多的字母的出现次数，minn 为出现次数最少的字母的出现次数（只统计出现过的字母）。若 maxn − minn 是质数，就称这个单词是 Lucky Word。</p><p id="b177">输入格式：一行，一个只含小写字母的字符串。输出格式：两行。第一行是 <code>Lucky Word</code> 或 <code>No Answer</code>；第二行是一个整数，是 Lucky Word 时输出 maxn − minn，否则输出 0。</p><p id="b178">样例：输入 <code>error</code> → 输出 <code>Lucky Word</code> 和 <code>2</code>（r 出现 3 次，最少 1 次，3−1=2 是质数）；输入 <code>olympic</code> → 输出 <code>No Answer</code> 和 <code>0</code>（每个字母都只出现 1 次，差为 0）。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b179">先数每个字母出现了几次：26 个格子，下标就是字母本身。</p><p id="b180">minn 不是 0：没出现过的字母不参与比较，否则答案永远是 No Answer。</p><p id="b181">质数只用试除到 √d，但别忘了 0 和 1 都不是质数。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b182">cnt[26]，cnt[s[i] - 'a']++ 数出每个字母的出现次数。</p><p id="b183">扫一遍 26 个桶，跳过 cnt == 0 的，同时维护 mx 和 mn。</p><p id="b184">d = mx − mn。d &lt; 2 直接判死；否则试除 2 到 √d，有因子就不是质数。</p><p id="b185">为什么这么写就对：桶把“谁出现最多”变成一次线性遍历；试除是判质数的标准 O(√d) 做法，d ≤ 100。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b186">参考代码</div><pre id="b187"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">string</span> s;
+    <span class="k">cin</span> &gt;&gt; s;                        <span class="c">// 单词只含小写字母、无空格，cin 一次读完</span>
+
+    <span class="k">int</span> cnt[<span class="n">26</span>] = {<span class="n">0</span>};               <span class="c">// 局部数组必须清零，否则是随机值</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; (<span class="k">int</span>)s.<span class="k">size</span>(); ++i)
+        ++cnt[s[i] - <span class="s">'a'</span>];           <span class="c">// 字母 → 0~25 的下标，桶 +1</span>
+
+    <span class="k">int</span> mx = <span class="n">0</span>, mn = <span class="n">1000</span>;           <span class="c">// mn 初值要大于任何可能的出现次数</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; <span class="n">26</span>; ++i) {
+        <span class="k">if</span> (cnt[i] == <span class="n">0</span>) <span class="k">continue</span>;   <span class="c">// 没出现过的字母不参与 min</span>
+        mx = <span class="k">max</span>(mx, cnt[i]);
+        mn = <span class="k">min</span>(mn, cnt[i]);
+    }
+
+    <span class="k">int</span> d = mx - mn;
+    <span class="k">bool</span> prime = (d &gt;= <span class="n">2</span>);           <span class="c">// 0 和 1 都不是质数，先一刀切死</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">2</span>; i * i &lt;= d; ++i) <span class="c">// 试除到 √d 就够</span>
+        <span class="k">if</span> (d % i == <span class="n">0</span>) { prime = <span class="k">false</span>; <span class="k">break</span>; }
+
+    <span class="k">if</span> (prime) <span class="k">cout</span> &lt;&lt; <span class="s">"Lucky Word\n"</span> &lt;&lt; d &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">else</span>       <span class="k">cout</span> &lt;&lt; <span class="s">"No Answer\n0\n"</span>;   <span class="c">// 不是 Lucky Word 时第二行必须是 0</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b188">关键片段拆解</div><table class="lines"><thead><tr><th id="b189">片段</th><th id="b190">作用</th></tr></thead><tbody><tr><td id="b191"><code>cnt[s[i] - 'a']++</code></td><td id="b192">把字符映射成 0~25 的下标：'a' → 0，'z' → 25，桶长正好 26。</td></tr><tr><td id="b193"><code>if (cnt[i] == 0) continue;</code></td><td id="b194">漏了这句 mn 恒为 0，d 变成 mx，几乎全部输出 No Answer。</td></tr><tr><td id="b195"><code>int d = mx - mn;</code></td><td id="b196">题目要的就是这个差。</td></tr><tr><td id="b197"><code>bool prime = (d &gt;= 2);</code></td><td id="b198">先把 d &lt; 2 全部判死，后面循环才能从 2 开始、不用特判。</td></tr><tr><td id="b199"><code>for (int i = 2; i * i &lt;= d; ++i)</code></td><td id="b200">只需试到 √d：若 d 有大于 √d 的因子，必有一个小于 √d 的搭档。</td></tr></tbody></table><div class="box warn"><div class="t" id="b201">这题最容易错的地方</div><ul><li id="b202">把没出现的字母算进 minn，导致 mn = 0。</li><li id="b203">把 1 当成质数：单词里只有一种字母时 d = 0，只有两种且次数相差 1 时 d = 1，都会被误判成 Lucky。</li><li id="b204">输出字符串写错：必须是 <code>Lucky Word</code>（首字母大写、中间一个空格），<code>No Answer</code> 同理。</li><li id="b205">两个数字之间用了 cout &lt;&lt; ' '，但这里根本不是一行两个数——是两行，别按套路写。</li></ul></div></div></details></div><div class="challenge"><div class="ct" id="b206">大题 挑战题 2 · 插火把</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1789</span><span class="badge diff">普及-</span><a href="https://www.luogu.com.cn/problem/P1789" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b207">在 n×n 的方阵里放 m 个火把和 k 个萤石。火把照亮自己所在格，以及与自己横纵偏移的绝对值之和不超过 2 的格子（一共 13 格，是十字形：5×5 去掉 4 个角、再去掉四条边上与角相邻的 8 格）；萤石照亮以自己为中心的完整 5×5 正方形（25 格）。没有光又没有东西的格子会生成怪物，求这样的格子数。</p><p id="b208">输入格式：第一行三个整数 n、m、k；接下来 m 行每行两个整数，是火把坐标；再接下来 k 行每行两个整数，是萤石坐标。坐标从 1 开始，保证 1 ≤ n ≤ 100，1 ≤ m ≤ 25，0 ≤ k ≤ 5。输出格式：一行一个整数，表示会生成怪物的格子数。</p><p id="b209">样例：输入 <code>5 1 0</code> 加一行 <code>3 3</code>（5×5 方阵，只有 1 个火把在正中）→ 输出 <code>12</code>（火把照亮 13 格，25 − 13 = 12）。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b210">不要算面积、不要算重叠——直接开一个标记数组，照到就置 1，最后数还剩几个 0。</p><p id="b211">火光和萤石的区别只有一个：火把要跳过 |dx| + |dy| 超过 2 的那 12 个偏移。</p><p id="b212">输入是两段：m 个火把全部读完，才开始读萤石。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b213">a[105][105] 全 0，a[i][j] == 1 表示格子 (i,j) 已经被照亮。</p><p id="b214">火把：dx、dy 各从 −2 枚举到 2（25 个偏移），|dx| + |dy| &gt; 2 的跳过（正好 12 个），剩下的在界内就置 1。</p><p id="b215">萤石：同样 25 个偏移，一个都不跳，在界内就置 1。</p><p id="b216">最后数 a[i][j] == 0 的个数。复杂度 O((m+k)×25 + n²)：最坏 25×25 + 100² ≈ 1.1×10⁴ 次操作，瞬间完成。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b217">参考代码</div><pre id="b218"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> a[<span class="n">105</span>][<span class="n">105</span>];                      <span class="c">// 全局数组：默认全 0，不用手动清零</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">int</span> n, m, k, x, y;
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; m &gt;&gt; k;
+
+    <span class="k">for</span> (<span class="k">int</span> t = <span class="n">0</span>; t &lt; m; ++t) {     <span class="c">// 先把 m 个火把全部读完</span>
+        <span class="k">cin</span> &gt;&gt; x &gt;&gt; y;
+        <span class="k">for</span> (<span class="k">int</span> dx = -<span class="n">2</span>; dx &lt;= <span class="n">2</span>; ++dx)
+            <span class="k">for</span> (<span class="k">int</span> dy = -<span class="n">2</span>; dy &lt;= <span class="n">2</span>; ++dy) {
+                <span class="k">if</span> (<span class="k">abs</span>(dx) + <span class="k">abs</span>(dy) &gt; <span class="n">2</span>) <span class="k">continue</span>;   <span class="c">// 十字形：这 12 个偏移照不到</span>
+                <span class="k">int</span> nx = x + dx, ny = y + dy;
+                <span class="k">if</span> (nx &lt; <span class="n">1</span> || nx &gt; n || ny &lt; <span class="n">1</span> || ny &gt; n) <span class="k">continue</span>;  <span class="c">// 出界的偏移直接丢</span>
+                a[nx][ny] = <span class="n">1</span>;
+            }
+    }
+
+    <span class="k">for</span> (<span class="k">int</span> t = <span class="n">0</span>; t &lt; k; ++t) {     <span class="c">// 再读 k 个萤石</span>
+        <span class="k">cin</span> &gt;&gt; x &gt;&gt; y;
+        <span class="k">for</span> (<span class="k">int</span> dx = -<span class="n">2</span>; dx &lt;= <span class="n">2</span>; ++dx)
+            <span class="k">for</span> (<span class="k">int</span> dy = -<span class="n">2</span>; dy &lt;= <span class="n">2</span>; ++dy) {
+                <span class="k">int</span> nx = x + dx, ny = y + dy;
+                <span class="k">if</span> (nx &lt; <span class="n">1</span> || nx &gt; n || ny &lt; <span class="n">1</span> || ny &gt; n) <span class="k">continue</span>;
+                a[nx][ny] = <span class="n">1</span>;            <span class="c">// 萤石是整块 5×5，不判距离</span>
+            }
+    }
+
+    <span class="k">int</span> ans = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i)
+        <span class="k">for</span> (<span class="k">int</span> j = <span class="n">1</span>; j &lt;= n; ++j)
+            <span class="k">if</span> (a[i][j] == <span class="n">0</span>) ++ans;      <span class="c">// 还是 0 的格子就是没被照亮</span>
+    <span class="k">cout</span> &lt;&lt; ans &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b219">关键片段拆解</div><table class="lines"><thead><tr><th id="b220">片段</th><th id="b221">作用</th></tr></thead><tbody><tr><td id="b222"><code>int a[105][105];</code></td><td id="b223">开在全局：默认全 0，而且不受栈空间限制（8 MB 栈放不下大二维数组）。</td></tr><tr><td id="b224"><code>abs(dx) + abs(dy) &gt; 2</code></td><td id="b225">曼哈顿距离。等于 3 的有 8 个、等于 4 的有 4 个，共 12 个偏移被剔除，剩下的正好是 13 格十字。</td></tr><tr><td id="b226"><code>nx &lt; 1 || nx &gt; n</code></td><td id="b227">把越界统一处理成 continue，比给数组多开两圈更直观，坐标从 1 开始时尤其好写。</td></tr><tr><td id="b228"><code>先读 m 个火把，再读 k 个萤石</code></td><td id="b229">输入是分两段给的。边读火把边读萤石会把坐标错位，答案全错。</td></tr><tr><td id="b230"><code>if (a[i][j] == 0) ++ans;</code></td><td id="b231">统计必须扫满 1..n 的整块方阵，只扫一部分就会漏。</td></tr></tbody></table><div class="box warn"><div class="t" id="b232">这题最容易错的地方</div><ul><li id="b233">把火把也当成整块 5×5，照亮范围变大，答案偏小。</li><li id="b234">两段输入顺序读反（先读萤石）→ 坐标全部错位，样例就挂。</li><li id="b235">数组只开 100×100：坐标 100、偏移 +2 时 a[102][102] 越界，轻则 WA，重则 RE。</li><li id="b236">忘记 n = 1 的边界：此时火把只照亮 1 格，答案应为 0；越界判断写错就会输出 1 或负数。</li></ul></div></div></details></div><div class="challenge"><div class="ct" id="b237">大题 挑战题 3 · 计数问题</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1980</span><span class="badge diff">普及-</span><a href="https://www.luogu.com.cn/problem/P1980" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b238">试计算在区间 1 到 n 的所有整数中，数字 x（0 ≤ x ≤ 9）一共出现了多少次。例如在 1 到 11 中，数字 1 在 1、10、11 里共出现了 4 次。</p><p id="b239">输入格式：一行两个整数 n、x（1 ≤ n ≤ 10⁶，0 ≤ x ≤ 9）。输出格式：一行一个整数，表示出现次数。</p><p id="b240">样例：输入 <code>11 1</code> → 输出 <code>4</code>（1、10、11 里的 1 各算一次，11 里有两个 1）。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b241">不要找公式：n ≤ 10⁶ 时，把每个数拆成十进制位逐位比较就足够快。</p><p id="b242">拆一个数：反复取 % 10 拿到末位，再 / 10 丢掉末位，直到这个数变成 0。</p><p id="b243">x = 0 时要小心：数字 5 只有一位，不能因为“位数不够”就给它补前导零。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b244">从 1 枚举到 n，每拿到一个数就把它复制到临时变量 t。</p><p id="b245">循环：if (t % 10 == x) ++ans; t /= 10; 直到 t == 0。</p><p id="b246">因为 t == 0 就停，数字 5 只会拆出 5 这一位，不会凭空多出前导零，x = 0 也自然正确。</p><p id="b247">总操作数约 n × 位数 ≈ 6×10⁶，一秒内轻松跑完。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b248">参考代码</div><pre id="b249"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">int</span> n, x;
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; x;
+
+    <span class="k">long</span> <span class="k">long</span> ans = <span class="n">0</span>;                  <span class="c">// 答案类变量一律 long long，零成本</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        <span class="k">int</span> t = i;                      <span class="c">// 复制一份再拆，不要拆坏循环变量</span>
+        <span class="k">while</span> (t &gt; <span class="n">0</span>) {
+            <span class="k">if</span> (t % <span class="n">10</span> == x) ++ans;     <span class="c">// 末位是不是 x</span>
+            t /= <span class="n">10</span>;                    <span class="c">// 丢掉末位</span>
+        }
+    }
+    <span class="k">cout</span> &lt;&lt; ans &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b250">关键片段拆解</div><table class="lines"><thead><tr><th id="b251">片段</th><th id="b252">作用</th></tr></thead><tbody><tr><td id="b253"><code>int t = i;</code></td><td id="b254">拆位会破坏数字，所以先复制。直接拆 i 会让 i 归零，for 里的 i++ 只把它加到 1，于是无限循环。</td></tr><tr><td id="b255"><code>while (t &gt; 0)</code></td><td id="b256">t 归零就停，这样数字 5 只贡献一位，x = 0 时不会多算前导零。</td></tr><tr><td id="b257"><code>t % 10</code></td><td id="b258">取十进制末位；t % 10 == x 就说明这一位等于 x。</td></tr><tr><td id="b259"><code>t /= 10</code></td><td id="b260">整数除法，末位被丢掉，下一位变成末位。</td></tr><tr><td id="b261"><code>long long ans</code></td><td id="b262">n = 10⁶ 时答案不超过 6×10⁶，int 装得下；但用 long long 可以免掉一类低级错误。</td></tr></tbody></table><div class="box warn"><div class="t" id="b263">这题最容易错的地方</div><ul><li id="b264">把 while 写成 while (t >= 0) → 死循环，TLE。</li><li id="b265">循环区间写成 0 到 n，多算了数字 0 本身（x = 0 时答案正好多 1）。</li><li id="b266">用 to_string 再补零对齐位数 → x = 0 时把前导零也算进去，答案偏大。</li><li id="b267">把 x 声明成 char：cin 读到的是字符 '1'（值 49），和 t % 10 的整数比较永远不相等，答案恒为 0。</li></ul></div></div></details></div><div class="challenge"><div class="ct" id="b268">大题 挑战题 4 · 统计单词数</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1308</span><span class="badge diff">普及-</span><a href="https://www.luogu.com.cn/problem/P1308" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b269">给一个单词和一篇文章（一行），求这个单词在文章里出现了多少次，以及第一次出现时首字母在文章中的位置（从 0 开始计）。匹配不区分大小写，但必须是完整单词：<code>to</code> 不能匹配 <code>today</code> 里的 <code>to</code>。</p><p id="b270">输入格式：第一行一个单词（长度不超过 10）；第二行一篇文章（长度不超过 10⁶，可能含空格，空格占一个字母位）。输出格式：若出现过，输出两个整数——出现次数、第一次出现时首字母的位置（从 0 开始计）；若没出现过，输出 −1。</p><p id="b271">样例：输入单词 <code>To</code>、文章 <code>to be or not to be is a question</code> → 输出 <code>2 0</code>（位置从 0 起算，文章开头就是 to）。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b272">第一行不会有空格，第二行会——所以第二行必须整行读。</p><p id="b273">先把单词和文章都转成小写，后面就只比较小写字母。</p><p id="b274">“完整单词”的判据是两条：左邻不是字母，右邻也不是字母，缺一不可。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b275">两次 getline 读入单词 w 和文章 s，彻底避开 cin 与换行残留的坑。</p><p id="b276">逐字符 tolower，两边都变成小写。</p><p id="b277">枚举起点 i（0 ≤ i ≤ n−m）：若 s[i−1] 是字母，说明 i 落在某个单词中间，跳过；若 s[i+m] 是字母，说明只是某个单词的前缀，也跳过。</p><p id="b278">通过了边界检查再逐字符比较，全等就 ans++，第一次成功时记下 i。</p><p id="b279">最后按 ans 是否为 0 分别输出。复杂度 O(n·m)，m ≤ 10 时约 10⁷ 次比较，稳过。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b280">参考代码</div><pre id="b281"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">string</span> w, s;
+    <span class="k">getline</span>(<span class="k">cin</span>, w);                 <span class="c">// 第一行：单词</span>
+    <span class="k">getline</span>(<span class="k">cin</span>, s);                 <span class="c">// 第二行：文章，可能含空格，必须整行读</span>
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; (<span class="k">int</span>)w.<span class="k">size</span>(); ++i) w[i] = <span class="f">tolower</span>(w[i]);   <span class="c">// 统一小写</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; (<span class="k">int</span>)s.<span class="k">size</span>(); ++i) s[i] = <span class="f">tolower</span>(s[i]);
+
+    <span class="k">int</span> n = (<span class="k">int</span>)s.<span class="k">size</span>(), m = (<span class="k">int</span>)w.<span class="k">size</span>();
+    <span class="k">int</span> ans = <span class="n">0</span>, <span class="k">first</span> = -<span class="n">1</span>;         <span class="c">// first = -1 表示还没找到过</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i + m &lt;= n; ++i) {
+        <span class="k">if</span> (i &gt; <span class="n">0</span> &amp;&amp; s[i - <span class="n">1</span>] &gt;= <span class="s">'a'</span> &amp;&amp; s[i - <span class="n">1</span>] &lt;= <span class="s">'z'</span>) <span class="k">continue</span>;   <span class="c">// 左边还是字母 → 不在词首</span>
+        <span class="k">if</span> (i + m &lt; n &amp;&amp; s[i + m] &gt;= <span class="s">'a'</span> &amp;&amp; s[i + m] &lt;= <span class="s">'z'</span>) <span class="k">continue</span>; <span class="c">// 右边还是字母 → 只是前缀</span>
+
+        <span class="k">int</span> k = <span class="n">0</span>;
+        <span class="k">while</span> (k &lt; m &amp;&amp; s[i + k] == w[k]) ++k;
+        <span class="k">if</span> (k == m) {
+            ++ans;
+            <span class="k">if</span> (<span class="k">first</span> &lt; <span class="n">0</span>) <span class="k">first</span> = i;    <span class="c">// 只记第一次，后面不再覆盖</span>
+        }
+    }
+
+    <span class="k">if</span> (ans == <span class="n">0</span>) <span class="k">cout</span> &lt;&lt; -<span class="n">1</span> &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">else</span>          <span class="k">cout</span> &lt;&lt; ans &lt;&lt; <span class="s">" "</span> &lt;&lt; <span class="k">first</span> &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b282">关键片段拆解</div><table class="lines"><thead><tr><th id="b283">片段</th><th id="b284">作用</th></tr></thead><tbody><tr><td id="b285"><code>getline(cin, w); getline(cin, s);</code></td><td id="b286">两行都整行读。第二行含空格，用 cin &gt;&gt; 只会读到第一个词。</td></tr><tr><td id="b287"><code>s[i] = tolower(s[i]);</code></td><td id="b288">统一小写之后，比较时不必再反复转换，边界判断也只需要看 'a'~'z'。</td></tr><tr><td id="b289"><code>s[i - 1] &gt;= 'a' &amp;&amp; s[i - 1] &lt;= 'z'</code></td><td id="b290">左边界检查：前面还有字母，说明 i 落在某个单词内部。</td></tr><tr><td id="b291"><code>s[i + m] &gt;= 'a' &amp;&amp; s[i + m] &lt;= 'z'</code></td><td id="b292">右边界检查：后面还有字母，说明匹配到的只是某个单词的前缀。</td></tr><tr><td id="b293"><code>if (first &lt; 0) first = i;</code></td><td id="b294">位置要求的是“第一次”，后续匹配成功不能再改。</td></tr><tr><td id="b295"><code>if (ans == 0) cout &lt;&lt; -1</code></td><td id="b296">题目要求不存在时输出 −1，不是 0 也不是 “0 0”。</td></tr></tbody></table><div class="box warn"><div class="t" id="b297">这题最容易错的地方</div><ul><li id="b298">用 cin &gt;&gt; 读文章，只拿到第一个词，答案稳定偏小。</li><li id="b299">只做左边界检查：<code>to</code> 会匹配到 <code>today</code>、<code>together</code> 里的 <code>to</code>，答案偏大。</li><li id="b300">位置输出成 i + 1（从 1 开始计），全部偏大 1。</li><li id="b301">忘了 ans == 0 时输出 −1，样例能过但测试点 1 就 WA。</li></ul></div></div></details></div><div class="challenge"><div class="ct" id="b302">大题 挑战题 5 · 手机</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1765</span><span class="badge diff">普及-</span><a href="https://www.luogu.com.cn/problem/P1765" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b303">手机键盘上，数字键 2~9 依次对应 abc、def、ghi、jkl、mno、pqrs、tuv、wxyz。同一个键上的字母按顺序排列：按一次得第一个字母，按两次得第二个，依此类推（所以 s 在 7 键上要按 4 次）。空格按一次键。</p><p id="b304">输入格式：一行文字，只含小写字母和空格，长度不超过 200。输出格式：一行一个整数，表示打完这句话至少按了多少次键。</p><p id="b305">样例：输入 <code>i have a dream</code> → 输出 <code>23</code>（i 3 次 + 3 个空格 + h 2 + a 1 + v 3 + e 2 + a 1 + d 1 + r 3 + e 2 + a 1 + m 1 = 23）。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b306">把“字母 → 按几下”直接做成一张 26 项的常量表，最快也最不容易错。</p><p id="b307">空格不在 26 个字母里，要单独判断，算 1 次。</p><p id="b308">这一行含空格，cin &gt;&gt; 只能读到第一个词。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b309">key[26] = {1,2,3, 1,2,3, ...}，下标 s[i] - 'a' 直接查表得到按键次数。</p><p id="b310">getline 读整行；遇到空格 ans += 1；遇到小写字母 ans += key[s[i] - 'a']。</p><p id="b311">为什么手写表比推公式好：pqrs 和 wxyz 是 4 个一组，前面都是 3 个一组，公式要分情况，表不用。</p><p id="b312">复杂度 O(n)，n ≤ 200，怎么读都不会慢。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b313">参考代码</div><pre id="b314"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="c">// key[i] = 打完第 i 个小写字母要按几下：a→1, b→2, ... z→4</span>
+    <span class="k">int</span> key[<span class="n">26</span>] = {<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>,  <span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>,  <span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>,  <span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>,  <span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>,
+                   <span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>, <span class="n">4</span>,  <span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>,  <span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>, <span class="n">4</span>};
+
+    <span class="k">string</span> s;
+    <span class="k">getline</span>(<span class="k">cin</span>, s);                 <span class="c">// 含空格，必须整行读</span>
+
+    <span class="k">int</span> ans = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; (<span class="k">int</span>)s.<span class="k">size</span>(); ++i) {
+        <span class="k">if</span> (s[i] == <span class="s">' '</span>) ++ans;      <span class="c">// 空格在 0 键上，按一次</span>
+        <span class="k">else</span> <span class="k">if</span> (s[i] &gt;= <span class="s">'a'</span> &amp;&amp; s[i] &lt;= <span class="s">'z'</span>) ans += key[s[i] - <span class="s">'a'</span>];
+    }
+    <span class="k">cout</span> &lt;&lt; ans &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b315">关键片段拆解</div><table class="lines"><thead><tr><th id="b316">片段</th><th id="b317">作用</th></tr></thead><tbody><tr><td id="b318"><code>int key[26] = {...}</code></td><td id="b319">常量表：下标 0~25 对应 a~z，值就是“按几下”。查表 O(1)，也不会算错分组。</td></tr><tr><td id="b320"><code>getline(cin, s);</code></td><td id="b321">整行读入，空格才会进到字符串里。</td></tr><tr><td id="b322"><code>if (s[i] == ' ') ++ans;</code></td><td id="b323">空格也要按一次键，这是最容易漏的一项。</td></tr><tr><td id="b324"><code>ans += key[s[i] - 'a'];</code></td><td id="b325">字母 → 下标 → 次数，一次查表搞定。</td></tr><tr><td id="b326"><code>else if (s[i] &gt;= 'a' &amp;&amp; s[i] &lt;= 'z')</code></td><td id="b327">加 else：空格分支已经处理过，这里只需保证下标落在 0~25，不会越界。</td></tr></tbody></table><div class="box warn"><div class="t" id="b328">这题最容易错的地方</div><ul><li id="b329">用 cin &gt;&gt; s，只统计到第一个词。</li><li id="b330">忘了空格算 1 次：样例 "i have a dream" 有 3 个空格，答案会少 3。</li><li id="b331">按键表写错（把 pqrs 当成 3 个一组），遇到 s 就少算 1。</li><li id="b332">答案用 char 累加，超过 127 后变成奇怪的字符，输出乱码。</li></ul></div></div></details></div><div class="box ok"><div class="t" id="b333">做完之后自问</div><ul><li id="b334">能在 30 秒内说出：这道题的下标表示什么、值域多大、数组该开多少。</li><li id="b335">不看笔记写出“26 个桶 + 只统计出现过的字母”的 max/min 扫法。</li><li id="b336">看到八方向网格，能立刻写出 dx、dy 两个常量数组，并说清为什么坐标从 1 开始。</li><li id="b337">知道含空格的一行必须 getline，并能解释为什么 getline 前有时要先 cin.ignore()。</li><li id="b338">做完一题能自己造 3~5 个元素的小数据手算验证，而不是反复提交碰运气。</li></ul></div><div class="box info"><div class="t" id="b339">延伸阅读</div><ul><li id="b340">《算法竞赛入门笔记》第 3~4 章：数组、字符与字符串</li><li id="b341">《算法竞赛试炼场：洛谷 300 题精析》桶计数与网格模拟部分</li><li id="b342">洛谷 P2670、P1125、P1789、P1980、P1308、P1765 题解区的高赞思路</li></ul></div>
+
+<footer>算竞教程 · 算竞教程 · 生成于自建课程体系，题目版权归洛谷及各命题方所有<br>
+转载请注明出处；模板代码可直接用于比赛</footer>

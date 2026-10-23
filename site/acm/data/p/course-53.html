@@ -1,0 +1,291 @@
+
+<div class="box info"><div class="t" id="b0">本节出现的新函数 / 新语法（先看懂再用）</div><ul><li id="b1"><a href="#fn-0">lg 数组预计算（floor(log2) 查表）</a> —— 四行预处理 floor(log2)，查询时 O(1) 取层号</li><li id="b2"><a href="#fn-1">ST 表：st[k][i] 的建表与查询</a> —— 预处理 n log n 个区间，查询只查两段</li><li id="b3"><a href="#fn-2">倍增跳表 up[k][v]</a> —— up[k][v] 表示跳 2^k 步到哪，一行递推建表</li></ul></div><p id="b4">倍增只有一个动作：<b>先把“走 2<sup>k</sup> 步之后到哪”全部算出来，再把任意步数拆成二进制去拼。</b>正整数的二进制分解唯一，所以 10<sup>5</sup> 步最多拆成 17 段，每段长度都是 2 的幂。这一节用它做两件事：O(1) 的静态区间最值（ST 表）、O(log n) 的树上 LCA。</p><div class="quote" id="b5">ST 表 = 预处理所有长度是 2 的幂的区间 + 每次查询用两段这样的区间拼出目标区间。建表 O(n log n)，查询 O(1)，代价是只能用于 max、min、gcd 这类“重复算不影响结果”的运算。</div><table><thead><tr><th id="b6">要做的事</th><th id="b7">数据规模</th><th id="b8">做法</th><th id="b9">复杂度</th></tr></thead><tbody><tr><td id="b10">静态区间最值（ST 表）</td><td id="b11">n ≤ 10<sup>5</sup>，m ≤ 2×10<sup>6</sup></td><td id="b12">倍增预处理 2 的幂长度区间</td><td id="b13">建表 O(n log n)，单次 O(1)</td></tr><tr><td id="b14">树上两点 LCA（倍增）</td><td id="b15">n, m ≤ 5×10<sup>5</sup></td><td id="b16">up[k][v] 跳 2<sup>k</sup> 级祖先</td><td id="b17">预处理 O(n log n)，单次 O(log n)</td></tr><tr><td id="b18">树上第 k 级祖先</td><td id="b19">n, m ≤ 5×10<sup>5</sup></td><td id="b20">把 k 按二进制拆开跳</td><td id="b21">单次 O(log n)</td></tr><tr><td id="b22">快速幂的指数拆分（第 37 节）</td><td id="b23">b ≤ 10<sup>18</sup></td><td id="b24">同一个思想，底数平方递推</td><td id="b25">单次 O(log b)</td></tr></tbody></table><p id="b26">先把两个工具拆开。第一个是 <code>lg</code> 数组——它只有四行代码，但决定了查询能不能真的 O(1)；第二个是 ST 表本身的定义与递推。</p><div class="fn"><div class="fh" id="b27">新函数拆解 · lg 数组预计算（floor(log2) 查表）</div><div class="fb"><div class="sig" id="b28">lg[i] = lg[i &gt;&gt; 1] + 1;          // 预处理，O(n)
+int k = lg[r - l + 1];           // 查询时 O(1) 取出</div><table class="lines"><thead><tr><th id="b29">组成</th><th id="b30">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b31"><code>lg[i] 的含义</code></td><td id="b32">最大的非负整数 k，使 2<sup>k</sup> ≤ i。也就是 ⌊log<sub>2</sub> i⌋，等于 i 的二进制位数减 1。</td></tr><tr><td id="b33"><code>初始化</code></td><td id="b34">lg[1] = 0（2<sup>0</sup> = 1 ≤ 1，而 2<sup>1</sup> = 2 &gt; 1）；lg[0] 用不到，全局数组默认 0 正好无害。循环从 i = 2 开始，不要从 1 开始，否则会把 lg[1] 改写成 1。</td></tr><tr><td id="b35"><code>递推式</code></td><td id="b36">lg[i >> 1] + 1。因为 i 与 ⌊i/2⌋ 的二进制位数最多差 1，而 ⌊log<sub>2</sub> i⌋ = ⌊log<sub>2</sub>⌊i/2⌋⌋ + 1 对 i ≥ 2 恒成立（乘 2 = 指数加 1，奇数末位被取整吃掉）。</td></tr><tr><td id="b37"><code>数组大小</code></td><td id="b38">必须开到 n + 1。开成 n 时 lg[n] 越界，症状是随机的 RE 或答案错，而且往往小样例看不出来。</td></tr><tr><td id="b39"><code>为什么不用 log2</code></td><td id="b40">log2 是浮点函数，一次调用几十纳秒，2×10<sup>6</sup> 次询问就是上百毫秒；而且它不保证对 2 的幂返回恰好整数，转 int 后可能少 1，直接查错层。查表既快又准。</td></tr><tr><td id="b41"><code>__lg 的替代</code></td><td id="b42">GCC 内建 <code>__lg(x)</code> 直接返回 ⌊log<sub>2</sub> x⌋，x ≥ 1。但它不是标准 C++（MSVC 没有），且实测在密集查询里略慢于查表，竞赛里一般还是预计算。</td></tr></tbody></table><div class="cap" id="b43">最小可运行示例</div><div class="cap" id="b44">示例</div><pre id="b45"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> lg2v[<span class="n">10</span>];
+
+<span class="k">int</span> <span class="f">main</span>() {
+    lg2v[<span class="n">1</span>] = <span class="n">0</span>;                                  <span class="c">// 2^0 = 1</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">2</span>; i &lt;= <span class="n">8</span>; ++i) lg2v[i] = lg2v[i &gt;&gt; <span class="n">1</span>] + <span class="n">1</span>;
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= <span class="n">8</span>; ++i) <span class="k">cout</span> &lt;&lt; i &lt;&lt; <span class="s">" -&gt; "</span> &lt;&lt; lg2v[i] &lt;&lt; <span class="s">"\n"</span>;
+    <span class="c">// 1 -&gt; 0    2 -&gt; 1    3 -&gt; 1    4 -&gt; 2</span>
+    <span class="c">// 5 -&gt; 2    6 -&gt; 2    7 -&gt; 2    8 -&gt; 3</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="box tip"><div class="t" id="b46">注意</div><p id="b47">本文把这张表记作 <code>lg</code>；示例与完整代码里的数组名是 <code>lg2v</code>，两者是同一个东西。</p><p id="b48"><code>lg2v[i] = lg2v[i &gt;&gt; 1] + 1</code> 依赖 <code>lg2v[⌊i/2⌋]</code> 已经算好。因为 ⌊i/2⌋ &lt; i，从小到大循环天然满足。</p><p id="b49">查询时长度是 <code>r - l + 1</code>，不是 <code>r - l</code>。差一个 1 会让 k 取小一层，结果只覆盖半个区间（WA，答案偏小）。</p></div></div></div><div class="fn"><div class="fh" id="b50">新函数拆解 · ST 表：st[k][i] 的建表与查询</div><div class="fb"><div class="sig" id="b51">st[k][i] = 区间 [i, i + 2^k - 1] 的答案
+st[0][i] = a[i];
+st[k][i] = max(st[k-1][i], st[k-1][i + (1 &lt;&lt; (k-1))]);
+ans = max(st[k][l], st[k][r - (1 &lt;&lt; k) + 1]);   // k = lg[r-l+1]</div><table class="lines"><thead><tr><th id="b52">组成</th><th id="b53">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b54"><code>st[k][i] 的定义</code></td><td id="b55">以 i 为左端点、长度恰好 2<sup>k</sup> 的区间的答案。k 叫“层”，i 叫“起点”，两者一起唯一确定一个区间。</td></tr><tr><td id="b56"><code>第 0 层</code></td><td id="b57">长度 2<sup>0</sup> = 1，就是原数组。建表时可以直接把读入写进 st[0][i]，省掉一个 a[] 数组。</td></tr><tr><td id="b58"><code>递推怎么来</code></td><td id="b59">长度 2<sup>k</sup> 的区间从中间劈成两个长度 2<sup>k-1</sup> 的半段：[i, i+2<sup>k-1</sup>-1] 与 [i+2<sup>k-1</sup>, i+2<sup>k</sup>-1]，正好是 st[k-1][i] 与 st[k-1][i + 2<sup>k-1</sup>]。所以一行 max 就能合成。</td></tr><tr><td id="b60"><code>合并只要求结合律 + 幂等</code></td><td id="b61">同一元素算两次不影响结果（max、min、gcd、按位或、按位与都满足）。求和、乘积不满足，套进来就错。</td></tr><tr><td id="b62"><code>查询的两个起点</code></td><td id="b63">k = ⌊log<sub>2</sub> len⌋。左段从 l 起（覆盖前 2<sup>k</sup> 个），右段以 r 结尾（起点 r − 2<sup>k</sup> + 1）。两段都落在 [l, r] 内。</td></tr><tr><td id="b64"><code>为什么两段一定盖满</code></td><td id="b65">由 k 的定义 2<sup>k</sup> ≤ len &lt; 2<sup>k+1</sup>。若两段之间有缝，则 len &gt; 2<sup>k+1</sup>，矛盾。所以要么重叠、要么恰好相接。</td></tr><tr><td id="b66"><code>空间与写法</code></td><td id="b67">st[K][n+1] 个 int。第一维放层、第二维放起点：查询时同一个 k 连查两个起点，行内地址连续，缓存命中率更高。</td></tr></tbody></table><div class="cap" id="b68">最小可运行示例</div><div class="cap" id="b69">示例</div><pre id="b70"><code><span class="c">// n = 1e5，K = 17（2^16 = 65536 &lt;= 1e5 &lt; 2^17）</span>
+<span class="k">int</span> st[<span class="n">17</span>][<span class="n">100005</span>], lg2v[<span class="n">100005</span>];
+
+lg2v[<span class="n">1</span>] = <span class="n">0</span>;
+<span class="k">for</span> (<span class="k">int</span> i = <span class="n">2</span>; i &lt;= n; ++i) lg2v[i] = lg2v[i &gt;&gt; <span class="n">1</span>] + <span class="n">1</span>;
+
+<span class="k">for</span> (<span class="k">int</span> k = <span class="n">1</span>; (<span class="n">1</span> &lt;&lt; k) &lt;= n; ++k)                       <span class="c">// 只要 2^k &lt;= n 就有合法区间</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i + (<span class="n">1</span> &lt;&lt; k) - <span class="n">1</span> &lt;= n; ++i)           <span class="c">// 右端点不能越过 n</span>
+        st[k][i] = <span class="k">max</span>(st[k-<span class="n">1</span>][i], st[k-<span class="n">1</span>][i + (<span class="n">1</span> &lt;&lt; (k-<span class="n">1</span>))]);
+
+<span class="k">int</span> <span class="f">query</span>(<span class="k">int</span> l, <span class="k">int</span> r) {
+    <span class="k">int</span> k = lg2v[r - l + <span class="n">1</span>];
+    <span class="k">return</span> <span class="k">max</span>(st[k][l], st[k][r - (<span class="n">1</span> &lt;&lt; k) + <span class="n">1</span>]);
+}</code></pre><div class="box tip"><div class="t" id="b71">注意</div><p id="b72">内层循环的右端点判断 <code>i + (1 &lt;&lt; k) - 1 &lt;= n</code> 不能省。省掉就是越界写，会踩坏后面的数组，症状是 RE 或者只有大数据才错。</p><p id="b73">把 max 换成 + 立刻 WA：查询时两段重叠，重叠部分会被加两次。这就是“只支持幂等运算”的实际含义。</p></div></div></div><p id="b74">这两块拼起来就是 ST 表模板。下面这道题把 m 堆到 2×10<sup>6</sup>，正是逼你把单次查询压到 O(1) 的经典设置——线段树 O(log n) 会多出一个 17 的常数，在 3.4×10<sup>7</sup> 次操作上就是过与不过的差别。</p><div class="prob"><div class="ph"><span class="pn" id="b75">例题 · 【模板】ST 表</span><span class="oi">洛谷 P3865</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P3865" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b76">给定 n 个整数 a<sub>1</sub>…a<sub>n</sub>，和 m 次询问，每次询问区间 [l, r] 内的最大值。</p><p id="b77">输入：第一行两个整数 n、m（1 ≤ n ≤ 10<sup>5</sup>，1 ≤ m ≤ 2×10<sup>6</sup>）。第二行 n 个整数，|a<sub>i</sub>| ≤ 10<sup>9</sup>。接下来 m 行，每行 l、r（1 ≤ l ≤ r ≤ n）。</p><p id="b78">输出：m 行，每行一个整数，表示对应询问的答案。</p></div><div class="io" id="b79">输入：
+8 3
+9 3 1 7 5 2 6 4
+1 6
+2 8
+3 3
+输出：
+9
+7
+1</div></div><div class="step"><div class="sh" id="b80">例题怎么想：把“所有区间”砍到只剩 2 的幂</div><p id="b81">先估暴力：每次询问扫一遍 [l, r]，最坏 O(n) 一次，总 O(nm) = 10<sup>5</sup> × 2×10<sup>6</sup> = 2×10<sup>11</sup> 次比较，按每秒 10<sup>9</sup> 次算也要 200 秒。瓶颈不是每一步慢，是步数太多。</p><p id="b82">要 O(1)，答案就必须“提前算好、查询时只做常数次查表”。所以问题变成：<b>预处理哪些区间，才既装得下又够用？</b></p><p id="b83">所有区间有 n(n+1)/2 个，10<sup>5</sup> 时约 5×10<sup>9</sup> 个，装不下。于是只留长度是 2 的幂的区间：每一层 n 个，一共 17 层，1.7×10<sup>6</sup> 个数，只占 6.8 MB。<b>少算的代价由“两段拼接”补回来。</b></p><p id="b84">拼接的正确性：设 len = r − l + 1，k = ⌊log<sub>2</sub> len⌋。长度 2<sup>k</sup> 的区间放得下，左起一段 [l, l+2<sup>k</sup>−1] 和右止一段 [r−2<sup>k</sup>+1, r] 都在 [l, r] 内；又因为 2<sup>k+1</sup> &gt; len，两段长度之和超过 len，中间不可能有缝。重叠部分被算了两次，但 max 对同一个数算两次没有影响。</p><table><thead><tr><th id="b85">层 k</th><th id="b86">区间长度</th><th id="b87">st[k][1..]</th><th id="b88">说明</th></tr></thead><tbody><tr><td id="b89">0</td><td id="b90">1</td><td id="b91">9 3 1 7 5 2 6 4</td><td id="b92">原数组，一个数一段</td></tr><tr><td id="b93">1</td><td id="b94">2</td><td id="b95">9 3 7 7 5 6 6</td><td id="b96">每两个取 max</td></tr><tr><td id="b97">2</td><td id="b98">4</td><td id="b99">9 7 7 7 6</td><td id="b100">每四个取 max</td></tr><tr><td id="b101">3</td><td id="b102">8</td><td id="b103">9</td><td id="b104">整个数组</td></tr></tbody></table><p id="b105">走一遍询问 l = 2、r = 8：len = 7，k = ⌊log<sub>2</sub> 7⌋ = 2。左段 st[2][2] 覆盖 [2,5]，值是 7；右段起点 8 − 4 + 1 = 5，st[2][5] 覆盖 [5,8]，值是 6。答案 max(7, 6) = 7。区间 [5,5] 同时被两段覆盖（叠了一次），但 7 和 6 取 max 仍是 7，结果不受影响。</p><div class="cap" id="b106">三步骨架</div><pre id="b107"><code>lg2v[<span class="n">1</span>] = <span class="n">0</span>
+<span class="k">for</span> i = <span class="n">2</span> .. n:  lg2v[i] = lg2v[i &gt;&gt; <span class="n">1</span>] + <span class="n">1</span>        <span class="c">// ① 长度 -&gt; 层号</span>
+
+st[<span class="n">0</span>][i] = a[i]                                     <span class="c">// ② 第 0 层就是原数组</span>
+<span class="k">for</span> k = <span class="n">1</span> .. <span class="k">while</span> <span class="n">2</span>^k &lt;= n:
+    <span class="k">for</span> i = <span class="n">1</span> .. n - <span class="n">2</span>^k + <span class="n">1</span>:
+        st[k][i] = <span class="k">max</span>(st[k-<span class="n">1</span>][i], st[k-<span class="n">1</span>][i + <span class="n">2</span>^(k-<span class="n">1</span>)])
+
+<span class="f">query</span>(l, r):
+    k = lg2v[r - l + <span class="n">1</span>]                             <span class="c">// ③ 两段拼接</span>
+    <span class="k">return</span> <span class="k">max</span>(st[k][l], st[k][r - <span class="n">2</span>^k + <span class="n">1</span>])</code></pre></div><div class="cap" id="b108">完整代码</div><pre id="b109"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">100005</span>;
+<span class="k">const</span> <span class="k">int</span> K = <span class="n">17</span>;                       <span class="c">// 2^16 = 65536 &lt;= 1e5 &lt; 2^17，层数最多到 16</span>
+
+<span class="k">int</span> st[K][N];                           <span class="c">// st[k][i]：区间 [i, i + 2^k - 1] 的最大值</span>
+<span class="k">int</span> lg2v[N];                            <span class="c">// lg2v[len] = floor(log2(len))</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> n, m;
+    <span class="k">scanf</span>(<span class="s">"%d %d"</span>, &amp;n, &amp;m);             <span class="c">// m 到 2e6，用 scanf/printf 比 cin/cout 稳</span>
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;st[<span class="n">0</span>][i]);   <span class="c">// 第 0 层直接读入，省掉 a[]</span>
+
+    lg2v[<span class="n">1</span>] = <span class="n">0</span>;                                            <span class="c">// 长度 1 只需要第 0 层</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">2</span>; i &lt;= n; ++i) lg2v[i] = lg2v[i &gt;&gt; <span class="n">1</span>] + <span class="n">1</span>;
+
+    <span class="c">// 递推：长度 2^k 的区间 = 左右两个长度 2^(k-1) 的区间</span>
+    <span class="k">for</span> (<span class="k">int</span> k = <span class="n">1</span>; (<span class="n">1</span> &lt;&lt; k) &lt;= n; ++k)
+        <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i + (<span class="n">1</span> &lt;&lt; k) - <span class="n">1</span> &lt;= n; ++i)         <span class="c">// 右端点不越界</span>
+            st[k][i] = <span class="k">max</span>(st[k - <span class="n">1</span>][i], st[k - <span class="n">1</span>][i + (<span class="n">1</span> &lt;&lt; (k - <span class="n">1</span>))]);
+
+    <span class="k">while</span> (m--) {
+        <span class="k">int</span> l, r;
+        <span class="k">scanf</span>(<span class="s">"%d %d"</span>, &amp;l, &amp;r);
+        <span class="k">int</span> k = lg2v[r - l + <span class="n">1</span>];                            <span class="c">// 2^k &lt;= 长度 &lt; 2^(k+1)</span>
+        <span class="c">// 左段以 l 开头，右段以 r 结尾；两段必然覆盖整个区间</span>
+        <span class="k">printf</span>(<span class="s">"%d\n"</span>, <span class="k">max</span>(st[k][l], st[k][r - (<span class="n">1</span> &lt;&lt; k) + <span class="n">1</span>]));
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b110">逐行拆解</div><table class="lines"><thead><tr><th id="b111">代码片段</th><th id="b112">含义与理由</th></tr></thead><tbody><tr><td id="b113"><code>const int K = 17;</code></td><td id="b114">层数上限。n ≤ 10<sup>5</sup> 时 ⌊log<sub>2</sub> n⌋ = 16，需要 0…16 共 17 层。少开一层就会写越界。</td></tr><tr><td id="b115"><code>int st[K][N];</code></td><td id="b116">层放第一维、起点放第二维。查询时同一个 k 连查两个起点，行内地址连续；写成 st[i][k] 会在两个不相邻的行之间来回跳。</td></tr><tr><td id="b117"><code>scanf("%d %d", &amp;n, &amp;m);</code></td><td id="b118">询问最多 2×10<sup>6</sup> 次、整数最多 4×10<sup>6</sup> 个，scanf 直读比 cin 少一层类型解析。</td></tr><tr><td id="b119"><code>scanf("%d", &amp;st[0][i])</code></td><td id="b120">读进第 0 层。第 0 层就是原数组，这样省掉一个 a[]，也省掉一次复制。</td></tr><tr><td id="b121"><code>lg2v[1] = 0;</code></td><td id="b122">长度 1 对应第 0 层。这个初值必须写，循环是从 2 开始的。</td></tr><tr><td id="b123"><code>lg2v[i] = lg2v[i &gt;&gt; 1] + 1;</code></td><td id="b124">i 的层号 = ⌊i/2⌋ 的层号 + 1。从小到大推，右式一定已算好。</td></tr><tr><td id="b125"><code>(1 &lt;&lt; k) &lt;= n</code></td><td id="b126">只要 2<sup>k</sup> ≤ n，这一层就存在合法区间。n = 10<sup>5</sup> 时建到 k = 16 为止。</td></tr><tr><td id="b127"><code>i + (1 &lt;&lt; k) - 1 &lt;= n</code></td><td id="b128">区间右端点不能越过 n。缺这个条件的症状是越界写，小数据正常、大数据 RE。</td></tr><tr><td id="b129"><code>st[k-1][i + (1 &lt;&lt; (k-1))]</code></td><td id="b130">右半段的左端点 = i + 2<sup>k-1</sup>。这是整个递推唯一容易写错的下标。</td></tr><tr><td id="b131"><code>int k = lg2v[r - l + 1];</code></td><td id="b132">长度换层号，一次数组访问，O(1)。写成 r − l 会取小一层，只覆盖大半个区间。</td></tr><tr><td id="b133"><code>st[k][r - (1 &lt;&lt; k) + 1]</code></td><td id="b134">以 r 结尾、长度 2<sup>k</sup> 的那一段。+1 不能丢，丢了整段左移一格，答案可能取到区间外的数。</td></tr><tr><td id="b135"><code>max(两段)</code></td><td id="b136">重叠部分被算了两次，但 max 幂等，结果不变。换成 + 就会把重叠部分加两遍。</td></tr><tr><td id="b137"><code>printf("%d\n", ...)</code></td><td id="b138">2×10<sup>6</sup> 行输出，用 "\n" 而不是 endl。endl 每次都刷新缓冲区，实测慢 3~10 倍。</td></tr></tbody></table></div><p id="b139">ST 表是倍增在“数组上的一段”里的用法。同一个思想在树上是求 <b>LCA</b>：给定以 s 为根的树和两点 u、v，求它们最近的公共祖先。</p><p id="b140">朴素做法：从 u 一路往上走，把经过的点打上标记；再从 v 往上走，第一次踩到标记的点就是 LCA。单次 O(深度)，5×10<sup>5</sup> 次询问在一条链上直接退化成 2.5×10<sup>11</sup> 次操作。倍增把它压到 O(log n)：只预存“往上跳 2<sup>k</sup> 步到哪”这 n log n 个位置。</p><div class="fn"><div class="fh" id="b141">新函数拆解 · 倍增跳表 up[k][v]</div><div class="fb"><div class="sig" id="b142">up[0][v] = fa[v];
+up[k][v] = up[k-1][up[k-1][v]];</div><table class="lines"><thead><tr><th id="b143">组成</th><th id="b144">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b145"><code>up[k][v]</code></td><td id="b146">从 v 往上走 2<sup>k</sup> 步到达的点。k = 0 是父亲，k = 1 是爷爷，k = 2 是往上第 4 个点。</td></tr><tr><td id="b147"><code>递推依据</code></td><td id="b148">走 2<sup>k</sup> 步 = 先走 2<sup>k-1</sup> 步、再走 2<sup>k-1</sup> 步。所以两次 up[k-1] 串起来就是 up[k]，一行搞定。</td></tr><tr><td id="b149"><code>0 号哨兵</code></td><td id="b150">把根的父亲设成 0，并让 up[*][0] = 0、dep[0] = 0。往上跳出树根时自动停在 0，全程不用特判。</td></tr><tr><td id="b151"><code>计算顺序</code></td><td id="b152">必须等 up[k-1][v] 的整行算完，才能算 up[k][v]。所以要么 BFS（父亲先出队），要么在 DFS 里“进儿子之前”把当前点整行算完。</td></tr><tr><td id="b153"><code>深度差怎么用</code></td><td id="b154">d = dep[u] − dep[v] 是个整数，按二进制位从低到高扫，第 k 位是 1 就 u = up[k][u]，总共只有 O(log n) 跳，而且跳的步数加起来恰好是 d。</td></tr><tr><td id="b155"><code>LCA 的第二步</code></td><td id="b156">深度对齐后，从 k = K−1 往 0 试：若 up[k][u] ≠ up[k][v]，说明还跳不到公共祖先之上，可以跳；循环结束时 u、v 必是 LCA 的两个不同儿子，答案是 up[0][u]。</td></tr></tbody></table><div class="cap" id="b157">最小可运行示例</div><div class="cap" id="b158">示例</div><pre id="b159"><code><span class="c">// 建表（跟 BFS 一起做，避免链状树爆栈）</span>
+<span class="k">void</span> <span class="f">bfs</span>(<span class="k">int</span> root) {
+    <span class="k">queue</span>&lt;<span class="k">int</span>&gt; q; q.<span class="f">push</span>(root); dep[root] = <span class="n">1</span>;
+    <span class="k">while</span> (!q.<span class="k">empty</span>()) {
+        <span class="k">int</span> u = q.<span class="f">front</span>(); q.<span class="f">pop</span>();
+        <span class="k">for</span> (<span class="k">int</span> k = <span class="n">1</span>; k &lt; K; ++k) up[k][u] = up[k-<span class="n">1</span>][up[k-<span class="n">1</span>][u]];
+        <span class="k">for</span> (<span class="k">int</span> e = head[u]; e; e = nxt[e]) {
+            <span class="k">int</span> v = to[e];
+            <span class="k">if</span> (v == up[<span class="n">0</span>][u]) <span class="k">continue</span>;      <span class="c">// 跳过父亲</span>
+            up[<span class="n">0</span>][v] = u; dep[v] = dep[u] + <span class="n">1</span>;
+            q.<span class="f">push</span>(v);
+        }
+    }
+}
+
+<span class="c">// up[k][3] 的含义：从 3 号点往上跳 2^k 步</span>
+<span class="c">// 例：路径 3 -&gt; 5 -&gt; 8 -&gt; 12 -&gt; 1 -&gt; 0（0 是树外的哨兵）</span>
+<span class="c">//     up[0][3] = 5    往上第 1 步</span>
+<span class="c">//     up[1][3] = 8    往上第 2 步（= up[0][up[0][3]]）</span>
+<span class="c">//     up[2][3] = 1    往上第 4 步（= up[1][up[1][3]] = up[1][8]）</span></code></pre><div class="box tip"><div class="t" id="b160">注意</div><p id="b161">数组开成 <code>up[K][N]</code>：K ≈ log<sub>2</sub> n + 1。n = 5×10<sup>5</sup> 时 K 取 20 足够。</p><p id="b162">用 BFS 建表而不是递归 DFS：链状树深度 5×10<sup>5</sup>，每层栈帧几十字节，递归会爆栈（RE）。</p></div></div></div><div class="cap" id="b163">倍增求 LCA（输入格式同 P3379：n、m、根，n−1 条边，m 次询问）</div><pre id="b164"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">500005</span>;                  <span class="c">// P3379 的量级：5×10^5 个点</span>
+<span class="k">const</span> <span class="k">int</span> K = <span class="n">20</span>;                      <span class="c">// 2^18 = 262144 &lt;= 5e5 &lt; 2^19，层数到 18，开 20 留余量</span>
+
+<span class="k">int</span> head[N], nxt[N &lt;&lt; <span class="n">1</span>], to[N &lt;&lt; <span class="n">1</span>], ecnt;   <span class="c">// 链式前向星（第 41 节）</span>
+<span class="k">int</span> up[K][N], dep[N];
+
+<span class="k">void</span> <span class="f">addEdge</span>(<span class="k">int</span> u, <span class="k">int</span> v) {
+    to[++ecnt] = v; nxt[ecnt] = head[u]; head[u] = ecnt;
+}
+
+<span class="k">void</span> <span class="f">bfs</span>(<span class="k">int</span> root) {
+    <span class="k">queue</span>&lt;<span class="k">int</span>&gt; q;
+    q.<span class="f">push</span>(root);
+    dep[root] = <span class="n">1</span>;                     <span class="c">// 根的深度设 1，于是 dep[0] = 0 天然是哨兵</span>
+    <span class="k">while</span> (!q.<span class="k">empty</span>()) {
+        <span class="k">int</span> u = q.<span class="f">front</span>(); q.<span class="f">pop</span>();
+        <span class="k">for</span> (<span class="k">int</span> k = <span class="n">1</span>; k &lt; K; ++k)    <span class="c">// 整行一次算完：2^k = 2^(k-1) + 2^(k-1)</span>
+            up[k][u] = up[k - <span class="n">1</span>][up[k - <span class="n">1</span>][u]];
+        <span class="k">for</span> (<span class="k">int</span> e = head[u]; e; e = nxt[e]) {
+            <span class="k">int</span> v = to[e];
+            <span class="k">if</span> (v == up[<span class="n">0</span>][u]) <span class="k">continue</span>;         <span class="c">// 无向边存了两遍，跳过父亲</span>
+            up[<span class="n">0</span>][v] = u;                        <span class="c">// 儿子的一级祖先就是 u</span>
+            dep[v] = dep[u] + <span class="n">1</span>;
+            q.<span class="f">push</span>(v);
+        }
+    }
+}
+
+<span class="k">int</span> <span class="f">lca</span>(<span class="k">int</span> u, <span class="k">int</span> v) {
+    <span class="k">if</span> (dep[u] &lt; dep[v]) <span class="k">swap</span>(u, v);   <span class="c">// 让 u 更深</span>
+    <span class="k">int</span> d = dep[u] - dep[v];
+    <span class="k">for</span> (<span class="k">int</span> k = <span class="n">0</span>; k &lt; K; ++k)        <span class="c">// 深度差按二进制拆开，逐位往上跳</span>
+        <span class="k">if</span> (d &gt;&gt; k &amp; <span class="n">1</span>) u = up[k][u];
+    <span class="k">if</span> (u == v) <span class="k">return</span> u;              <span class="c">// v 本来就是 u 的祖先</span>
+    <span class="k">for</span> (<span class="k">int</span> k = K - <span class="n">1</span>; k &gt;= <span class="n">0</span>; --k)   <span class="c">// 从大到小试：跳完还不同就跳</span>
+        <span class="k">if</span> (up[k][u] != up[k][v]) { u = up[k][u]; v = up[k][v]; }
+    <span class="k">return</span> up[<span class="n">0</span>][u];                   <span class="c">// 此时 u、v 是 LCA 的两个儿子</span>
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> n, m, s;
+    <span class="k">scanf</span>(<span class="s">"%d %d %d"</span>, &amp;n, &amp;m, &amp;s);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt; n; ++i) {
+        <span class="k">int</span> u, v; <span class="k">scanf</span>(<span class="s">"%d %d"</span>, &amp;u, &amp;v);
+        <span class="f">addEdge</span>(u, v); <span class="f">addEdge</span>(v, u);
+    }
+    <span class="f">bfs</span>(s);
+    <span class="k">while</span> (m--) {
+        <span class="k">int</span> a, b; <span class="k">scanf</span>(<span class="s">"%d %d"</span>, &amp;a, &amp;b);
+        <span class="k">printf</span>(<span class="s">"%d\n"</span>, <span class="f">lca</span>(a, b));
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b165">LCA 代码的三处关键</div><table class="lines"><thead><tr><th id="b166">代码片段</th><th id="b167">含义与理由</th></tr></thead><tbody><tr><td id="b168"><code>dep[root] = 1;</code></td><td id="b169">根深度设 1，则 dep[0] = 0。0 号点成了“树外”的哨兵，跳到根外面会自动停住，不用写 if。</td></tr><tr><td id="b170"><code>up[k][u] = up[k-1][up[k-1][u]];</code></td><td id="b171">内层先取 up[k-1][u]，外层再取一次 up[k-1]。要求内层那一点的整行已经算好——BFS 里它一定是 u 的祖先，早就出队算完了。</td></tr><tr><td id="b172"><code>if (v == up[0][u]) continue;</code></td><td id="b173">无向边正反存了两份。漏了这一行会把父亲也当儿子压进队列，深度层层加错，最后死循环。</td></tr><tr><td id="b174"><code>if (d &gt;&gt; k &amp; 1) u = up[k][u];</code></td><td id="b175">把深度差 d 拆成二进制。d 的每一位最多被用一次，跳完恰好等于 d，不会多跳一步。</td></tr><tr><td id="b176"><code>if (u == v) return u;</code></td><td id="b177">深度对齐后两点重合，说明 v 是 u 的祖先，答案就是 v。少了这句，下面会多跳一层，返回 v 的父亲。</td></tr><tr><td id="b178"><code>for (int k = K - 1; k &gt;= 0; --k)</code></td><td id="b179">★ 必须从大到小。从大到小每次跳“跳了还不同”的最大步长，最后必然停在 LCA 下方；从小到大很可能第一步就跨过 LCA，再也回不来。</td></tr><tr><td id="b180"><code>if (up[k][u] != up[k][v])</code></td><td id="b181">判据是“跳完还不同”。相同说明这一步会落到 LCA 或 LCA 之上，不能跳。</td></tr><tr><td id="b182"><code>return up[0][u];</code></td><td id="b183">循环收敛时 u、v 深度相同且是 LCA 的两个不同儿子，父亲即答案。</td></tr></tbody></table></div><div class="box warn"><div class="t" id="b184">这一节的 8 种典型错法（附症状）</div><p id="b185"><b>WA，答案偏小</b>。—— 查询写成 <code>st[k][l]</code> 与 <code>st[k][l + 2^k - 1]</code>，右对齐的那一段没取，区间右半边根本没参与。第二个下标必须是 <code>r - (1 &lt;&lt; k) + 1</code>。</p><p id="b186"><b>WA，答案偏大</b>。—— 把 max 换成 + 或 ×。两段在 len 不是 2 的幂时必然重叠，重叠部分被算了两次。</p><p id="b187"><b>RE，或只有大数据错</b>。—— 建表少了 <code>i + (1 &lt;&lt; k) - 1 &lt;= n</code>，st[k][i] 写到数组外面，踩坏 lg 数组或别的变量。</p><p id="b188"><b>RE，段错误</b>。—— K 开小一层。n = 10<sup>5</sup> 时要用到第 16 层，写 <code>K = 16</code> 就越界；n = 5×10<sup>5</sup> 的 LCA 要用到第 18 层，写 <code>K = 18</code> 同样越界。</p><p id="b189"><b>TLE</b>。—— m = 2×10<sup>6</sup> 还开着 cin/cout 同步、每行用 endl。总量 4×10<sup>6</sup> 次读写，光刷新缓冲区就能吃掉 1 秒以上。</p><p id="b190"><b>WA，全负区间输出 0</b>。—— 把答案初值写成 0 再 max 累加。区间里全是负数时 0 比任何元素都大。正确写法是直接对两个真实元素取 max，不设初值。</p><p id="b191"><b>RE（爆栈）</b>。—— 倍增 LCA 用递归 DFS 建表，遇到链状树（深度 5×10<sup>5</sup>）栈溢出。改用 BFS。</p><p id="b192"><b>WA，LCA 差一层</b>。—— 第二步的循环写成 <code>for (int k = 0; k &lt; K; ++k)</code>。从小到大跳会越过 LCA，返回的是 LCA 的某个祖先。</p></div><div class="reproduce"><div class="rt" id="b193">自己动手复现</div><p id="b194">关掉页面，把 P3865 从空文件敲一遍并提交。</p><p id="b195">改一改 ①：把查询里的 max 换成 +，输入上面的样例，手算 [1,6]：st[2][1] = 9（区间 1–4）、st[2][3] = 7（区间 3–6），相加得 16，而真实和是 27。亲眼看清“重叠”是怎么回事。</p><p id="b196">改一改 ②：删掉 lg 数组，查询里写 <code>int k = (int)log2(r - l + 1);</code>，构造长度 8、16 的询问，看会不会因为浮点误差取到 2 层而不是 3 层。</p><p id="b197">改一改 ③：把 st 声明改成 <code>st[N][K]</code>（两个维度交换），代码逻辑不变，用 2×10<sup>6</sup> 次询问计时对比——差的是缓存命中，不是算法。</p><p id="b198">改一改 ④：把 LCA 代码交到 P3379 上，再把第二步的循环方向改成从小到大，重新提交，看答案错成什么样。</p></div><div class="mathcard"><div class="mt" id="b199">数学补给 · log2、二进制分解与区间覆盖</div><p id="b200">⌊log<sub>2</sub> n⌋ 就是 n 的二进制位数减 1。这个等式说明：<b>倍增的层数，和整数的二进制长度是同一件事</b>。估 K 的时候不用背表，把 n 写成二进制数位数即可。</p><ul><li id="b201">n = 8 = 1000<sub>2</sub>，4 位，⌊log<sub>2</sub> n⌋ = 3，需要 0…3 共 4 层。</li><li id="b202">n = 10<sup>5</sup> = 11000011010100000<sub>2</sub>，17 位，⌊log<sub>2</sub> n⌋ = 16，K 至少 17。</li><li id="b203">n = 5×10<sup>5</sup>：2<sup>18</sup> = 262144 ≤ 5×10<sup>5</sup> &lt; 524288 = 2<sup>19</sup>，故 ⌊log<sub>2</sub> n⌋ = 18，K 至少 19。</li></ul><p id="b204"><b>两段必覆盖的严格论证</b>：设 len = r − l + 1，k = ⌊log<sub>2</sub> len⌋，于是 2<sup>k</sup> ≤ len &lt; 2<sup>k+1</sup>。左段 L = [l, l+2<sup>k</sup>−1]，右段 R = [r−2<sup>k</sup>+1, r]。两段的端点都落在 [l, r] 里，所以 L、R ⊆ [l, r]。若 L ∪ R 有缺口，则 l+2<sup>k</sup>−1 &lt; r−2<sup>k</sup>+1，即 len = r−l+1 &gt; 2<sup>k+1</sup>，与 k 的定义矛盾。所以 L ∪ R = [l, r]，两段至多重叠 2<sup>k+1</sup> − len 个元素。</p><p id="b205"><b>幂等性为什么是必要条件</b>：把运算记作 ⊕。要允许“同一元素被算两次”，必须 a ⊕ a = a（幂等）；要能“劈半合并”，必须有结合律。max、min、gcd、lcm、按位或、按位与都满足这两条；加法、乘法、异或只满足结合律不满足幂等，所以 sum 的区间查询必须用前缀和（第 18 节）或线段树（第 47 节）。</p><p id="b206"><b>空间账</b>：ST 表存 (⌊log<sub>2</sub> n⌋ + 1) × n 个 int。n = 10<sup>5</sup> 时 17 × 10<sup>5</sup> × 4 B = 6.8 MB；lg 数组 0.4 MB。总计 7 MB 出头，洛谷常见的 125 MB 限制下非常宽裕；但 n 涨到 10<sup>6</sup> 就要 20 层、80 MB，这时候要么改用分块（第 57 节），要么改用线段树把空间压回 O(n)。</p><p id="b207"><b>LCA 的运算量</b>：预处理 n log n ≈ 5×10<sup>5</sup> × 19 = 9.5×10<sup>6</sup> 次赋值；单次询问第一步最多 19 次跳、第二步最多 20 次判断，合计不到 40 次比较，与树有多大完全无关。这就是“把 O(n) 压成 O(log n)”的实际含义：<b>把和规模成正比的部分全部搬到预处理里</b>。</p></div><div class="think"><div class="tt" id="b208">举一反三 · 想清楚这些再往下走</div><div class="thint">先自己写出答案，再点开核对——方向对不对，比答案本身更重要</div><ol><li id="b209"><div class="tq">如果询问换成“区间 gcd”或“区间按位或”，ST 表还能不能原样用？区间和为什么不行？请从“一个元素最多被算几次”这个角度回答。</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">gcd 和按位或都能原样用，一行递推只换合并运算：<code>__gcd</code> 或 <code>|</code>。它们都满足结合律，并且<b>幂等</b>——<code>gcd(x,x)=x</code>、<code>x|x=x</code>，所以重叠部分算两次不改变结果。从“一个元素最多被算几次”看：两段长度都是 2<sup>k</sup>，合计盖住 2<sup>k+1</sup> 个位置，而 len ∈ [2<sup>k</sup>, 2<sup>k+1</sup>)，于是重叠 2<sup>k+1</sup> − len 个元素，最多能到 2<sup>k</sup> 个（len 恰好是 2<sup>k</sup> 时两段完全重合）。区间和不行：<code>a + a = 2a ≠ a</code>，重叠部分被加两遍，答案恒偏大（例题里 [1,6] 会算成 16 而真实和是 27）。常见错路是把“结合律”当成充分条件——加法也有结合律，但它不幂等；另一条是 gcd 表忘了第 0 层，全局数组的 0 参加 gcd 反而无害（gcd(x,0)=x），但换成 min 表就会把 0 卷进去，这类“初值恰好无害”的巧合不能当成通用规律。</div></details></li><li id="b210"><div class="tq">要用 ST 表查“区间内出现次数最多的数”或者“区间第 k 小”，行不行？不行的根本原因是缺少哪条性质？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">都不行，缺的是<b>可合并性</b>：每段的答案能不能用 O(1) 大小的信息表示。众数不满足——左段的众数和右段的众数拼不出整体的众数，右段里一个出现 3 次的数可能反超左段的 5 次，你根本不知道它出现了几次；第 k 小同理，两段的“第 k 小”给不出整体的第 k 小，除非知道完整分布。注意这里缺的不是幂等性，而是“信息量”：ST 表能成立的前提是“一段的答案就是一个数、合并只要 O(1)”，而众数和第 k 小的答案携带的信息量是 O(值域)。常见错路是用“左段众数 vs 右段众数，谁出现次数多取谁”——反例：左段 <code>1 1 1</code>、右段 <code>2 2</code>，整体众数是 1 而不是 2 也不是 1 对 2 的直接比较；另一条是把“可合并”误当成“满足结合律”，其实还要 O(1) 合并。这类题的正解是分块 / 莫队 / 值域线段树，不是 ST 表。</div></details></li><li id="b211"><div class="tq">倍增还能用在哪？至少举出两个例子并说清“跳 2<sup>k</sup> 步”在那里对应什么操作（提示：快速幂的指数、树上第 k 级祖先、后缀数组的倍增构造）。</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">三个通用例子：① <b>快速幂</b>——<code>a<sup>2<sup>k</sup></sup></code> 靠不断平方求出，把指数 b 按二进制拆开，“跳 2<sup>k</sup> 步”= 乘上 <code>a<sup>2<sup>k</sup></sup></code>，O(log b)；② <b>树上第 k 级祖先</b>——<code>up[k][v]</code> 就是跳 2<sup>k</sup> 级，“跳 2<sup>k</sup> 步”= 查一次表，O(log n)；③ <b>后缀数组的倍增构造</b>——<code>rk[i]</code> 是“从 i 开始长度 2<sup>k</sup> 的子串的排名”，从 2<sup>k</sup> 推到 2<sup>k+1</sup> 靠 <code>pair(rk[i], rk[i+2<sup>k</sup>])</code> 排序，“跳 2<sup>k</sup> 步”= 用两段 2<sup>k</sup> 拼出长度 2<sup>k+1</sup> 的关键字。本节的挑战题又给了一个：<code>mn[k][v]</code> 表示往上 2<sup>k</sup> 步路径上的最小边权，“跳 2<sup>k</sup> 步”= 合并两段的最小值。常见错路是把倍增和二分混为一谈——倍增是“按 2 的幂拼”，每步自己决定跳不跳，不需要单调性；二分要先有单调性才能砍一半。</div></details></li><li id="b212"><div class="tq">如果数组会被单点修改、同时要区间最大值，ST 表还能保持 O(1) 查询吗？为什么？这时候应该换成什么结构？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">不能。ST 表是“把所有 2<sup>k</sup> 段提前算好”，改一个位置会让所有包含它的段失效：长度 2<sup>k</sup> 的段里，包含位置 p 的起点有 2<sup>k</sup> 个（从 p−2<sup>k</sup>+1 到 p，截断后更少），全部层加起来约 2n 个，所以单点修改要 O(n) 重建。这时换成<b>线段树</b>：单点改 O(log n)、区间查 O(log n)，n = 10<sup>5</sup>、m = 2×10<sup>6</sup> 时约 3.4×10<sup>7</sup> 次操作，勉强能过。注意不能换树状数组——max 没有逆运算，<code>max(1..r) − max(1..l−1)</code> 什么也还原不出（第 46 节已经算过这笔账）。常见错路是“只更新 st[0][p] 就行”，上层全部陈旧，查询命中旧区间时答案随机；另一条是以为可以像树状数组那样“改一个点只动 log n 个格子”——ST 表没有“管辖关系”，它存的是互不相同的固定长度段。</div></details></li><li id="b213"><div class="tq">二维 ST 表求子矩阵最大值：多一维之后，预处理和查询各变成多少？空间涨到什么量级？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">二维 ST 表 <code>st[k1][k2][i][j]</code> 表示左上角 (i,j)、大小 2<sup>k1</sup>×2<sup>k2</sup> 的子矩阵最值。预处理 O(nm log n log m)：每个状态由四块 2<sup>k1−1</sup>×2<sup>k2−1</sup> 合并而来，O(1)。查询仍是 O(1)，但要取 <b>4 块</b>：<code>k1 = lg(高)</code>、<code>k2 = lg(宽)</code>，四个角各放一块 2<sup>k1</sup>×2<sup>k2</sup>，取 max——高和宽两个方向都可能留缝，所以两块不够。空间是 O(nm log n log m)：1000×1000 时层数各约 10，共 10×10×10<sup>6</sup> = 10<sup>8</sup> 个 int，<b>400 MB</b>，常见 125 MB 限制直接爆；500×500 才是 9×9×2.5×10<sup>5</sup> ≈ 2×10<sup>7</sup> 个 int ≈ 80 MB 的可接受量级。常见错路是只取两块（一维思维），剩下两个方向的部分完全没参与；另一条是层数按 max(n,m) 开，实际只用得到 log<sub>2</sub>min(n,m) 层，白白翻倍。</div></details></li><li id="b214"><div class="tq">LCA 的第二步为什么必须从大到小枚举 k？请构造一棵具体的小树，说明从小到大枚举会跳到哪里。</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">因为“从大到小”配合“跳完还不同才跳”恰好等价于用二进制把“到 LCA 的距离减 1”填出来，每一步都保证仍在 LCA 下方，最终停在 LCA 的两个不同儿子上，返回它们的父亲正好是 LCA。反例：树是两条长 3 的链挂在根 1 下——<code>1-2-3-4</code> 与 <code>1-5-6-7</code>，问 LCA(4,7)，答案是 1。从小到大枚举：k=0 时 up[0][4]=3、up[0][7]=6 不同，于是各跳一步到 3 和 6；k=1 时 up[1][3]=1=up[1][6]，不跳；k=2 时都是 0，不跳。循环结束，返回 up[0][3] = <b>2</b>，而正确答案是 1——因为“跳完还不同”只保证两点不重合，不保证没跨过 LCA，一次跳 1 之后剩下的距离 2 已经没有机会再用 k=1 补上了。常见错路是以为“从小到大也能收敛，只是多跳几步”；另一条是把判据写成 <code>up[k][u] != 0</code>，那会一路跳到根以上。</div></details></li><li id="b215"><div class="tq">如果图的形状不是树而是 DAG（一个点可以有多个父亲），“LCA”还有意义吗？怎么定义才不矛盾？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">原来的定义会失去意义：DAG 里两点可能有多个公共祖先，而且其中可能没有任何一个“最近”的（两个公共祖先互不可达，谁都不比谁近）。两种能自洽的定义：① 加规则——“所有公共祖先里深度最大者，深度并列时取拓扑序最大”，这是工程上常用的补丁，但答案依赖编号；② 换成<b>支配树</b>：u 支配 v 指从源点到 v 的所有路径都经过 u，支配关系天然构成一棵树，在支配树上求 u、v 的 LCA，就是“两条路径共同必经的、最深的那个点”，这也是编译器里求“最近公共支配点”的标准做法（Lengauer–Tarjan）。常见错路是把树上的倍增直接搬过来——沿父亲跳会停在某个公共祖先，但不保证最近，而且 DAG 里根本没有唯一的父亲可跳；另一条是以为“一个点可以有多个父亲”就完全用不了 LCA，其实支配树已经把它变回树了。</div></details></li></ol></div><div class="box tip"><div class="t" id="b216">自测：能全部回答再进下一节</div><ul><li id="b217">能默写 lg 数组的递推，并解释为什么 ⌊log<sub>2</sub> i⌋ = ⌊log<sub>2</sub>⌊i/2⌋⌋ + 1。</li><li id="b218">能手算 n = 10<sup>5</sup> 与 n = 5×10<sup>5</sup> 时需要的 K，并说明 st 数组为什么要开 K × (n+1)。</li><li id="b219">能说清 ST 表查询为什么只查两段、为什么允许两段重叠、为什么 sum 不行。</li><li id="b220">能看着样例的 8 个数，把第 0/1/2/3 层全部手写出来。</li><li id="b221">能默写倍增 LCA 的三步：对齐深度、同时上跳、返回父亲，并说清 0 号哨兵的作用。</li><li id="b222">知道倍增 LCA 为什么优先用 BFS 建表而不是递归 DFS。</li><li id="b223">拿到一道“静态区间最值、m 很大”的题，能立刻判断该用 ST 表还是线段树，并说出理由。</li></ul></div><div class="challenge"><div class="ct" id="b224">挑战题 · Balanced Lineup G</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P2880</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P2880" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b225">农夫约翰有 N 头奶牛，每天按固定顺序站成一排，第 i 头奶牛身高为 h<sub>i</sub>。有 Q 次询问，每次给出一个区间 [A, B]，求这段区间里最高牛与最矮牛的身高差。</p><p id="b226">输入：第一行两个整数 N、Q（1 ≤ N ≤ 5×10<sup>4</sup>，1 ≤ Q ≤ 2×10<sup>5</sup>）。接下来 N 行，每行一个整数 h<sub>i</sub>（1 ≤ h<sub>i</sub> ≤ 10<sup>6</sup>）。接下来 Q 行，每行两个整数 A、B（1 ≤ A ≤ B ≤ N）。</p><p id="b227">输出：Q 行，每行一个整数，表示 h<sub>A</sub> 到 h<sub>B</sub> 中的最大值减最小值。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b228">题目只要区间最值，没有任何修改操作——这类题的第一反应应该是 ST 表，而不是线段树。</p><p id="b229">一次询问要两个最值。同一套 st 数组能不能同时存最大和最小？如果不能，要开几个二维数组？</p><p id="b230">答案就是“区间最大值 − 区间最小值”。注意：局部变量的初值、数组的默认值会不会影响 min 的结果？</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b231">把 ST 表模板复制两份：mx[k][i] 存区间 [i, i+2^k−1] 的最大值，mn[k][i] 存最小值，两者的建表方式完全一样，只是合并时一个用 max、一个用 min。</p><p id="b232">第 0 层就是原数组，mx[0][i] = mn[0][i] = h[i]。这一步是 min 表唯一能拿到真实值的地方，不能指望全局数组的 0 初值——h<sub>i</sub> ≥ 1，用 0 初始化会让所有 min 都变成 0。</p><p id="b233">每次询问按同样的 k 取出两段：hi = max(mx[k][A], mx[k][B−2^k+1])，lo = min(mn[k][A], mn[k][B−2^k+1])，输出 hi − lo。两段重叠对 max 和 min 都没有影响，所以同一个 k 可以直接用于两张表。</p><p id="b234">复杂度：预处理 O(N log N) ≈ 5×10<sup>4</sup> × 16 = 8×10<sup>5</sup>，Q 次询问每次 4 次取最值，总计不到 10<sup>6</sup> 次运算。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b235">参考代码</div><pre id="b236"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">50005</span>;
+<span class="k">const</span> <span class="k">int</span> K = <span class="n">17</span>;                       <span class="c">// 2^15 = 32768 &lt;= 5e4 &lt; 65536，层数最多到 15</span>
+
+<span class="k">int</span> mx[K][N], mn[K][N];
+<span class="k">int</span> lg2v[N];
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> n, q;
+    <span class="k">scanf</span>(<span class="s">"%d %d"</span>, &amp;n, &amp;q);
+
+    lg2v[<span class="n">1</span>] = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">2</span>; i &lt;= n; ++i) lg2v[i] = lg2v[i &gt;&gt; <span class="n">1</span>] + <span class="n">1</span>;
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        <span class="k">int</span> x; <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;x);
+        mx[<span class="n">0</span>][i] = mn[<span class="n">0</span>][i] = x;        <span class="c">// 长度 1 的区间，最大最小都是自己</span>
+    }
+
+    <span class="k">for</span> (<span class="k">int</span> k = <span class="n">1</span>; (<span class="n">1</span> &lt;&lt; k) &lt;= n; ++k) {
+        <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i + (<span class="n">1</span> &lt;&lt; k) - <span class="n">1</span> &lt;= n; ++i) {
+            <span class="k">int</span> j = i + (<span class="n">1</span> &lt;&lt; (k - <span class="n">1</span>));             <span class="c">// 右半段的左端点</span>
+            mx[k][i] = <span class="k">max</span>(mx[k - <span class="n">1</span>][i], mx[k - <span class="n">1</span>][j]);
+            mn[k][i] = <span class="k">min</span>(mn[k - <span class="n">1</span>][i], mn[k - <span class="n">1</span>][j]);
+        }
+    }
+
+    <span class="k">while</span> (q--) {
+        <span class="k">int</span> a, b;
+        <span class="k">scanf</span>(<span class="s">"%d %d"</span>, &amp;a, &amp;b);
+        <span class="k">int</span> k = lg2v[b - a + <span class="n">1</span>];
+        <span class="k">int</span> hi = <span class="k">max</span>(mx[k][a], mx[k][b - (<span class="n">1</span> &lt;&lt; k) + <span class="n">1</span>]);
+        <span class="k">int</span> lo = <span class="k">min</span>(mn[k][a], mn[k][b - (<span class="n">1</span> &lt;&lt; k) + <span class="n">1</span>]);
+        <span class="k">printf</span>(<span class="s">"%d\n"</span>, hi - lo);         <span class="c">// 身高差，不是和</span>
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b237">关键片段拆解</div><table class="lines"><thead><tr><th id="b238">片段</th><th id="b239">作用</th></tr></thead><tbody><tr><td id="b240"><code>int mx[K][N], mn[K][N];</code></td><td id="b241">两张表结构完全相同，只有合并运算不同。一次建表顺手把两个都填好，比建两遍各扫一次省一半时间。</td></tr><tr><td id="b242"><code>mx[0][i] = mn[0][i] = x;</code></td><td id="b243">★ 第 0 层必须真的写入。全局数组默认是 0，如果漏了 mn[0][i]，min 会在第 1 层就把 0 卷进去，答案恒等于最大值。</td></tr><tr><td id="b244"><code>(1 &lt;&lt; k) &lt;= n</code></td><td id="b245">层数上限由 n 决定：2<sup>15</sup> = 32768 ≤ 5×10<sup>4</sup>，所以最高建到 k = 15。</td></tr><tr><td id="b246"><code>int j = i + (1 &lt;&lt; (k - 1));</code></td><td id="b247">右半段起点。写成 i + (1 &lt;&lt; k) 会跳过半个区间，写成 i + (1 &lt;&lt; k) - 1 会少覆盖一个元素。</td></tr><tr><td id="b248"><code>int k = lg2v[b - a + 1];</code></td><td id="b249">长度 → 层号。两个查询都复用这个 k，因为 mx、mn 的层划分完全一致。</td></tr><tr><td id="b250"><code>b - (1 &lt;&lt; k) + 1</code></td><td id="b251">右段的起点。与模板一致，+1 不能丢。</td></tr><tr><td id="b252"><code>hi - lo</code></td><td id="b253">题目要的是差。写成 lo - hi 会输出负数；写成 hi + lo 是另一道题。</td></tr></tbody></table><div class="box warn"><div class="t" id="b254">这题最容易错的地方</div><ul><li id="b255">mn 表没有写第 0 层：全局数组的 0 被卷进 min，n 以内的最小值全变 0，输出恒等于最大值，样例就能看出来。</li><li id="b256">K 写成 15：n 到 5×10<sup>4</sup> 时需要第 15 层，数组只有 0…14，越界写 → RE 或答案随机。</li><li id="b257">两张表用了不同的 k：mx 取 lg2v[len]、mn 取 lg2v[len−1]，覆盖区间不同，差值没有意义。</li><li id="b258">把 hi − lo 写成 lo − hi 或 hi + lo：前者三个询问全是负数，后者全错，样例一眼可见，别靠样例蒙。</li></ul></div></div></details></div><div class="box tip" style="margin:22px 0 -6px"><div class="t" id="b259">挑战 2 · 难度高一级，允许组合多个已学算法</div><p id="b260">这题比上面的挑战题更难：它不只用本节一个算法，可能需要把前面几节的工具拼起来。独立做出来说明这一块真的过关了；做完记得在侧边栏勾上 🌟。</p></div><div class="challenge ch2"><div class="ct" id="b261">挑战 2 · 货车运输</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1967</span><span class="badge diff">提高-/提高</span><a href="https://www.luogu.com.cn/problem/P1967" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b262">A 国有 n 座城市（编号 1..n）和 m 条双向道路，每条道路对车辆有限重 z。有 q 辆货车，第 i 辆要从城市 x 运货到城市 y。问：在「路径上每条边的限重都不小于车载重」的前提下，这辆车最多能运多重的货？也就是求 x 到 y 所有路径中，<b>路径上最小边权的最大值</b>。</p><p id="b263">输入：第一行两个整数 n、m（1 ≤ n &lt; 10<sup>4</sup>，1 ≤ m &lt; 5×10<sup>4</sup>）；接下来 m 行，每行三个整数 x、y、z（0 ≤ z ≤ 10<sup>5</sup>），表示 x 与 y 之间有一条限重 z 的道路，两点之间可能有多条道路。接下来一行一个整数 q（1 ≤ q &lt; 3×10<sup>4</sup>），再往下 q 行，每行两个整数 x、y，表示一次运输。</p><p id="b264">输出：q 行，每行一个整数，表示该次运输的最大载重；若 x 到 y 不连通，输出 −1。</p><p id="b265">样例：4 座城市、(1,2,7)、(2,3,5)、(1,3,3) 三条路。1 到 3 可以走 1-2-3（瓶颈 5）或直接走 1-3（瓶颈 3），取大的 5；4 号城市孤立，任何询问含 4 都输出 −1。</p></div><div class="cap" id="b266">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+4 3
+1 2 7
+2 3 5
+1 3 3
+3
+1 3
+3 1
+1 4
+输出：
+5
+5
+-1</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b267">q 只有 3×10<sup>4</sup>，但 m 有 5×10<sup>4</sup>。先想一个更基本的问题：图里那么多条边，哪些边是<b>永远不可能</b>成为最优路径的一部分的？</p><p id="b268">如果一条边的权值比另一条「同样连通这两堆点」的边小，它就没用。把所有「把两部分连通的最宽的那条边」留下来，剩下的结构是什么？</p><p id="b269">换成一片森林之后，一次询问变成「树上两点路径上的最小边权」。链上求这个、还要 q 次，本节的正课里正好有一张表能让单次询问降到 log 级。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b270">暴力：每次询问跑一次「最大瓶颈路」的 Dijkstra 变体，O(m log n) 一次，q = 3×10<sup>4</sup> 时约 1.5×10<sup>9</sup>，TLE。</p><p id="b271">关键结论：这样的边只可能来自<b>最大生成森林</b>。Kruskal 从大到小加边时，两点在「只保留权值 ≥ X 的边」下连通，当且仅当它们在最大生成森林里也连通。所以最大瓶颈路的瓶颈值 = 生成森林路径上的最小边权。</p><p id="b272">第一步：边按权值降序排，用并查集合并，能合并就把这条边加进森林。O(m log m)，最多留下 n−1 条边。</p><p id="b273">第二步：对森林的每一棵树 BFS，填 dep[v]、up[0][v]（父亲）、mn[0][v]（到父亲这条边的权值）。图可能不连通，所以要对每个没访问过的点都起一次 BFS。</p><p id="b274">第三步：倍增。up[k][v] 是 v 的 2<sup>k</sup> 级祖先，mn[k][v] 是从 v 往上走 2<sup>k</sup> 步经过的最小边权，递推 mn[k][v] = min(mn[k−1][v], mn[k−1][up[k−1][v]])：跳 2<sup>k</sup> 步 = 先跳 2<sup>k−1</sup> 再跳 2<sup>k−1</sup>。</p><p id="b275">询问：先把深的点跳到同一深度（沿途取 min）；两点重合就结束；否则从高位到低位同时往上跳，只要跳完祖先不同就跳并取 min，最后停在 LCA 的两个儿子上，再补上各自到 LCA 的那条边。</p><p id="b276">不连通：并查集根不同，直接 −1。复杂度 O(m log m + (n + q) log n)。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b277">参考代码</div><pre id="b278"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">10005</span>, MAXM = <span class="n">50005</span>, LOG = <span class="n">15</span>, INF = <span class="n">1e9</span>;
+<span class="k">struct</span> Edge { <span class="k">int</span> u, v, w; } e[MAXM];
+
+<span class="k">int</span> head[MAXN], nxt[MAXN &lt;&lt; <span class="n">1</span>], to[MAXN &lt;&lt; <span class="n">1</span>], wt[MAXN &lt;&lt; <span class="n">1</span>], ecnt = <span class="n">0</span>;
+<span class="k">void</span> <span class="f">addEdge</span>(<span class="k">int</span> u, <span class="k">int</span> v, <span class="k">int</span> w) {
+    to[++ecnt] = v; wt[ecnt] = w; nxt[ecnt] = head[u]; head[u] = ecnt;
+}
+
+<span class="k">int</span> fa[MAXN];
+<span class="k">int</span> <span class="f">find</span>(<span class="k">int</span> x) { <span class="k">return</span> fa[x] == x ? x : fa[x] = <span class="f">find</span>(fa[x]); }
+
+<span class="k">int</span> up[LOG][MAXN], mn[LOG][MAXN], dep[MAXN];
+<span class="k">bool</span> vis[MAXN];
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+    <span class="k">int</span> n, m;
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; m;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= m; ++i) <span class="k">cin</span> &gt;&gt; e[i].u &gt;&gt; e[i].v &gt;&gt; e[i].w;
+
+    <span class="c">// 1) Kruskal 建最大生成森林：只有这些边可能出现在最优路径上</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) fa[i] = i;
+    <span class="k">sort</span>(e + <span class="n">1</span>, e + m + <span class="n">1</span>, [](<span class="k">const</span> Edge&amp; a, <span class="k">const</span> Edge&amp; b) { <span class="k">return</span> a.w &gt; b.w; });
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= m; ++i) {
+        <span class="k">int</span> ru = <span class="f">find</span>(e[i].u), rv = <span class="f">find</span>(e[i].v);
+        <span class="k">if</span> (ru == rv) <span class="k">continue</span>;
+        fa[ru] = rv;
+        <span class="f">addEdge</span>(e[i].u, e[i].v, e[i].w);
+        <span class="f">addEdge</span>(e[i].v, e[i].u, e[i].w);
+    }
+
+    <span class="c">// 2) 每棵树 BFS 一遍，填第 0 层：父亲与到父亲的边权</span>
+    <span class="k">queue</span>&lt;<span class="k">int</span>&gt; q;
+    <span class="k">for</span> (<span class="k">int</span> r = <span class="n">1</span>; r &lt;= n; ++r) {
+        <span class="k">if</span> (vis[r]) <span class="k">continue</span>;
+        vis[r] = <span class="k">true</span>; dep[r] = <span class="n">0</span>; up[<span class="n">0</span>][r] = r; mn[<span class="n">0</span>][r] = INF;
+        q.<span class="f">push</span>(r);
+        <span class="k">while</span> (!q.<span class="k">empty</span>()) {
+            <span class="k">int</span> u = q.<span class="f">front</span>(); q.<span class="f">pop</span>();
+            <span class="k">for</span> (<span class="k">int</span> i = head[u]; i; i = nxt[i]) {
+                <span class="k">int</span> v = to[i];
+                <span class="k">if</span> (vis[v]) <span class="k">continue</span>;
+                vis[v] = <span class="k">true</span>; dep[v] = dep[u] + <span class="n">1</span>;
+                up[<span class="n">0</span>][v] = u; mn[<span class="n">0</span>][v] = wt[i];
+                q.<span class="f">push</span>(v);
+            }
+        }
+    }
+
+    <span class="c">// 3) 倍增表：2^k 级祖先 + 这一段路径上的最小边权</span>
+    <span class="k">for</span> (<span class="k">int</span> k = <span class="n">1</span>; k &lt; LOG; ++k)
+        <span class="k">for</span> (<span class="k">int</span> v = <span class="n">1</span>; v &lt;= n; ++v) {
+            up[k][v] = up[k - <span class="n">1</span>][up[k - <span class="n">1</span>][v]];
+            mn[k][v] = <span class="k">min</span>(mn[k - <span class="n">1</span>][v], mn[k - <span class="n">1</span>][up[k - <span class="n">1</span>][v]]);
+        }
+
+    <span class="k">int</span> Q;
+    <span class="k">cin</span> &gt;&gt; Q;
+    <span class="k">while</span> (Q--) {
+        <span class="k">int</span> u, v;
+        <span class="k">cin</span> &gt;&gt; u &gt;&gt; v;
+        <span class="k">if</span> (<span class="f">find</span>(u) != <span class="f">find</span>(v)) { <span class="k">cout</span> &lt;&lt; -<span class="n">1</span> &lt;&lt; <span class="s">'\n'</span>; <span class="k">continue</span>; }
+        <span class="k">int</span> ans = INF;
+        <span class="k">if</span> (dep[u] &lt; dep[v]) <span class="k">swap</span>(u, v);
+        <span class="k">int</span> diff = dep[u] - dep[v];
+        <span class="k">for</span> (<span class="k">int</span> k = <span class="n">0</span>; k &lt; LOG; ++k)
+            <span class="k">if</span> (diff &gt;&gt; k &amp; <span class="n">1</span>) { ans = <span class="k">min</span>(ans, mn[k][u]); u = up[k][u]; }
+        <span class="k">if</span> (u == v) { <span class="k">cout</span> &lt;&lt; ans &lt;&lt; <span class="s">'\n'</span>; <span class="k">continue</span>; }
+        <span class="k">for</span> (<span class="k">int</span> k = LOG - <span class="n">1</span>; k &gt;= <span class="n">0</span>; --k)
+            <span class="k">if</span> (up[k][u] != up[k][v]) {
+                ans = <span class="k">min</span>(ans, <span class="k">min</span>(mn[k][u], mn[k][v]));
+                u = up[k][u]; v = up[k][v];
+            }
+        ans = <span class="k">min</span>(ans, <span class="k">min</span>(mn[<span class="n">0</span>][u], mn[<span class="n">0</span>][v]));   <span class="c">// 补最后一条边，跳到 LCA</span>
+        <span class="k">cout</span> &lt;&lt; ans &lt;&lt; <span class="s">'\n'</span>;
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b279">关键片段拆解</div><table class="lines"><thead><tr><th id="b280">片段</th><th id="b281">作用</th></tr></thead><tbody><tr><td id="b282"><code>sort(e + 1, e + m + 1, ... a.w &gt; b.w)</code></td><td id="b283">★ 要的是「最小边尽量大」，所以按权值从大到小加边。写反就成了最小生成树，答案系统性偏小。</td></tr><tr><td id="b284"><code>if (ru == rv) continue; ... addEdge(...)</code></td><td id="b285">Kruskal：把 m 条边的图压成森林，后续才能用树上工具。</td></tr><tr><td id="b286"><code>mn[k][v] = min(mn[k-1][v], mn[k-1][up[k-1][v]])</code></td><td id="b287">倍增的核心：跳 2<sup>k</sup> 步拆成两段 2<sup>k−1</sup> 步，最小值照样可以这样合并。</td></tr><tr><td id="b288"><code>for (int r = 1; r &lt;= n; ++r) { if (vis[r]) continue; ... }</code></td><td id="b289">图可能不连通：每棵树的根都要起一次 BFS，否则另一棵树的 up/mn 全是 0。</td></tr><tr><td id="b290"><code>for (int k = 0; k &lt; LOG; ++k) if (diff &gt;&gt; k &amp; 1)</code></td><td id="b291">先对齐深度。二进制拆分保证每个点只跳 O(log n) 次。</td></tr><tr><td id="b292"><code>ans = min(ans, min(mn[0][u], mn[0][v]));</code></td><td id="b293">★ 最后补的那一跳：两点还差一步就到 LCA，忘了它答案会偏大。</td></tr></tbody></table><div class="box warn"><div class="t" id="b294">这题最容易错的地方</div><ul><li id="b295">按权值升序排序（写成了最小生成树）：答案是 WA 而不是 RE，纠错时先看这一行。</li><li id="b296">倍增结束后忘了补 mn[0][u]、mn[0][v]：路径上最深的那条边没被统计，答案偏大。</li><li id="b297">只从 1 号点开始建表：图不连通时其他树的 up/mn 全是 0，答案变 0。</li><li id="b298">LOG 开小：n &lt; 10<sup>4</sup> 需要 2<sup>14</sup> &gt; 10<sup>4</sup>，所以 LOG 至少 15，数组下标 0..14。</li></ul></div></div></details></div><div class="box info"><div class="t" id="b299">延伸阅读 / 参考</div><ul><li id="b300">《算法竞赛入门笔记》倍增与 RMQ 章节</li><li id="b301">《算法竞赛进阶指南》0x21 树与图的遍历：倍增求 LCA</li><li id="b302">《算法竞赛试炼场：洛谷300题精析》P3865、P2880 两题的精析</li><li id="b303">《算法竞赛黄金法则：提高算法和思考力的77项技巧》第 44 条：把 2 的幂当作步长的单位</li></ul></div>
+
+<footer>算竞教程 · 算竞教程 · 生成于自建课程体系，题目版权归洛谷及各命题方所有<br>
+转载请注明出处；模板代码可直接用于比赛</footer>

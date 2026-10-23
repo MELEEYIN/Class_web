@@ -1,0 +1,246 @@
+
+<div class="box info"><div class="t" id="b0">本节出现的新函数 / 新语法（先看懂再用）</div><ul><li id="b1"><a href="#fn-0">vector 的 vector（邻接表）</a> —— 用“每个点一条 list”存下一整张图的边</li><li id="b2"><a href="#fn-1">struct Edge（把一条边打包）</a> —— 把 (终点, 边权) 捆成一个类型，一个数组存下整张图</li></ul></div><p id="b3">第 24、26 节的 DFS 和 BFS 都在网格上跑：邻居不用存，四个方向数组现算一个出来就行。一旦题目直接给出 n 个点、m 条边，邻居就必须自己记下来。这一节只干两件事：<b>边记在哪</b>，<b>记下来之后怎么走</b>。</p><p id="b4">图有两种给法。<b>隐式</b>：点是格子，边由“能不能走”决定，邻居现算 —— 迷宫、马的遍历都属于这一类。<b>显式</b>：题目给一张边表，第 i 行 <code>u v w</code> 就是一条边。隐式图不需要存，显式图必须先存。本节讨论后者。</p><div class="quote" id="b5">存图只有两个判据：n 大不大，以及你要不要 O(1) 查一条边。选错了不是慢一点，是存不下。</div><table><thead><tr><th id="b6">存法</th><th id="b7">空间</th><th id="b8">查 u→v</th><th id="b9">枚举 u 的邻点</th><th id="b10">什么时候用</th></tr></thead><tbody><tr><td id="b11">邻接矩阵 g[u][v]</td><td id="b12">O(n²)</td><td id="b13">O(1)</td><td id="b14">O(n)</td><td id="b15">n ≤ 3000、要频繁查边、Floyd（第 42 节）</td></tr><tr><td id="b16">邻接表 vector</td><td id="b17">O(n + m)，无向图 O(n + 2m)</td><td id="b18">O(deg(u))</td><td id="b19">O(deg(u))</td><td id="b20">绝大多数题，m 到 10⁶ 也存得下</td></tr><tr><td id="b21">边集数组 (u,v,w)</td><td id="b22">O(m)</td><td id="b23">O(m)</td><td id="b24">O(m)</td><td id="b25">只按边处理，如 Kruskal（第 43 节）</td></tr></tbody></table><p id="b26">算一次空间账就明白为什么必须用邻接表：n = 10⁵ 的邻接矩阵是 10¹⁰ 个 int，40 GB，而同样的图用邻接表只要 n 个 vector 对象（每个 24 字节，共 2.4 MB）加 2m 个 int（m = 10⁶ 时 8 MB）。反过来，n = 500 的小图用矩阵只有 1 MB，还能 O(1) 查边，这时邻接表反而自找麻烦。</p><p id="b27"><b>存无向图时每条边要加两次。</b>无向边 (u, v) 在内存里是两条有向弧：<code>g[u].push_back(v)</code> 和 <code>g[v].push_back(u)</code>。于是 m 条无向边写进表里是 2m 条记录，遍历所有邻点看到的总数也是 2m。三个后果：</p><ul><li id="b28">边集数组、链式前向星要开 <code>2m</code> 个位置。开 m 会越界，症状是 RE 或悄悄写坏旁边的数组。</li><li id="b29">DFS/BFS 的复杂度写 O(n + m)，无向图里那个 m 实际是 2m —— 常数 2 不影响量级，但要心里有数。</li><li id="b30">所有点的度数之和等于 2m（每条边给两个端点各贡献 1），所以“度数为奇数”的点一定是偶数个。</li></ul><p id="b31">本节新增两个东西：一个能装下整张表的容器，一个能一次带走“终点 + 边权”的类型。后面所有图论题的建图部分，都从这两个里面选一个。</p><div class="fn"><div class="fh" id="b32">新函数拆解 · vector 的 vector（邻接表）</div><div class="fb"><div class="sig" id="b33">vector&lt;vector&lt;int&gt;&gt; g(n + 1);
+ g[u].push_back(v);
+ g[u].size();
+ for (int v : g[u]) ...</div><table class="lines"><thead><tr><th id="b34">组成</th><th id="b35">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b36"><code>vector&lt;vector&lt;int&gt;&gt;</code></td><td id="b37">外层每个元素本身是一个 <code>vector&lt;int&gt;</code>。外层长度 = 点数，内层长度 = 该点的出度。整张表就是“每个点一条 list”。</td></tr><tr><td id="b38"><code>g(n + 1)</code></td><td id="b39">构造时给定外层大小。n + 1 是为了让下标 1..n 直接用；写 g(n) 再访问 g[n] 就越界。外层是运行期才知道的大小时，也可以先声明全局 <code>vector&lt;vector&lt;int&gt;&gt; g;</code>，再在 main 里 <code>g.resize(n + 1);</code>。</td></tr><tr><td id="b40"><code>g[u].push_back(v)</code></td><td id="b41">在 u 的邻点表末尾追加一个 v。有向图加一次；无向图 u、v 各加一次。</td></tr><tr><td id="b42"><code>g[u].size()</code></td><td id="b43">u 的出度（无向图里是度数）。返回 <code>size_t</code>，与 int 混比会有符号警告，要倒序循环记得写 <code>(int)g[u].size() - 1</code>。</td></tr><tr><td id="b44"><code>g[u][i]</code></td><td id="b45">第 i 个邻点，i 从 0 到 size() − 1。越界不报错，只会读到随机值。</td></tr><tr><td id="b46"><code>g[u].clear()</code></td><td id="b47">只清掉 u 这一条表，外层长度不变。多测时清整张表用 <code>g.assign(n + 1, vector&lt;int&gt;());</code>。</td></tr><tr><td id="b48"><code>for (int v : g[u])</code></td><td id="b49">范围 for，遍历 u 的全部邻点，比写下标短且不会写错边界。</td></tr></tbody></table><div class="cap" id="b50">最小可运行示例</div><div class="cap" id="b51">示例</div><pre id="b52"><code><span class="k">int</span> n = <span class="n">4</span>;
+<span class="k">vector</span>&lt;<span class="k">vector</span>&lt;<span class="k">int</span>&gt;&gt; <span class="f">g</span>(n + <span class="n">1</span>);          <span class="c">// 下标 0..4，0 号空着不用</span>
+
+g[<span class="n">1</span>].<span class="k">push_back</span>(<span class="n">2</span>);                     <span class="c">// 有向边 1→2</span>
+g[<span class="n">1</span>].<span class="k">push_back</span>(<span class="n">3</span>);                     <span class="c">// 有向边 1→3</span>
+g[<span class="n">3</span>].<span class="k">push_back</span>(<span class="n">1</span>);                     <span class="c">// 无向边要两个方向各加一次</span>
+
+<span class="k">cout</span> &lt;&lt; g[<span class="n">1</span>].<span class="k">size</span>() &lt;&lt; <span class="s">"\n"</span>;           <span class="c">// 2：点 1 有两条出边</span>
+<span class="k">for</span> (<span class="k">int</span> v : g[<span class="n">1</span>]) <span class="k">cout</span> &lt;&lt; v &lt;&lt; <span class="s">" "</span>;   <span class="c">// 2 3</span>
+
+<span class="k">vector</span>&lt;<span class="k">vector</span>&lt;<span class="k">int</span>&gt;&gt; h;                 <span class="c">// 空的：一个点都没有，此时访问 h[1] 是越界</span>
+h.<span class="f">assign</span>(n + <span class="n">1</span>, <span class="k">vector</span>&lt;<span class="k">int</span>&gt;());        <span class="c">// 变成 n+1 个空表，多测时用它清空</span></code></pre><div class="box tip"><div class="t" id="b53">注意</div><p id="b54">两层尖括号在 C++11 之后可以直接连写 <code>&gt;&gt;</code>，不用写成 <code>&gt; &gt;</code>。</p><p id="b55">邻接表的内存是<b>分段</b>的：每个 g[i] 各自申请一块。所以不能对它 memcpy，也不能用 <code>&amp;g[u][0]</code> 算指针偏移。</p><p id="b56">点数固定且不大时，竞赛里更常见的写法是 <code>vector&lt;int&gt; g[N];</code> ——定长数组，每个元素是 vector，等价且不用 resize，但不能按输入动态开大小。</p></div></div></div><div class="fn"><div class="fh" id="b57">新函数拆解 · struct Edge（把一条边打包）</div><div class="fb"><div class="sig" id="b58">struct Edge { int to, w; };
+vector&lt;Edge&gt; g[N];
+g[u].push_back({v, w});</div><table class="lines"><thead><tr><th id="b59">组成</th><th id="b60">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b61"><code>struct Edge</code></td><td id="b62">自定义类型：把“一条弧去哪、代价多少”捆成一个整体。用一个名字代替两个平行数组，以后要加“边编号”“反向边下标”也只改这一处。</td></tr><tr><td id="b63"><code>int to</code></td><td id="b64">这条弧的终点。无向图里同一对点会出现两次，方向相反。</td></tr><tr><td id="b65"><code>int w</code></td><td id="b66">边权。无权图可以整条删掉，只留 to —— 那就是 <code>vector&lt;int&gt;</code> 的邻接表。</td></tr><tr><td id="b67"><code>vector&lt;Edge&gt; g[N]</code></td><td id="b68">外层是定长数组，每个元素存“从 u 出发的所有弧”。和 <code>vector&lt;vector&lt;Edge&gt;&gt;</code> 完全等价，只是不用 resize。</td></tr><tr><td id="b69"><code>push_back({v, w})</code></td><td id="b70">花括号按成员的<b>声明顺序</b>填，不是按名字。等价于 <code>push_back(Edge{v, w})</code>。</td></tr><tr><td id="b71"><code>e.to / e.w</code></td><td id="b72">成员变量，不是函数，不加括号。范围 for 用 <code>for (auto &amp;e : g[u])</code>，写引用是为了不复制结构体。</td></tr><tr><td id="b73"><code>无向图的加边</code></td><td id="b74">两次 push：<code>g[u].push_back({v, w}); g[v].push_back({u, w});</code>。权值相同，to 与起点互换。</td></tr></tbody></table><div class="cap" id="b75">最小可运行示例</div><div class="cap" id="b76">示例</div><pre id="b77"><code><span class="k">struct</span> Edge { <span class="k">int</span> to, w; };          <span class="c">// to: 终点, w: 边权</span>
+
+<span class="k">vector</span>&lt;Edge&gt; g[<span class="n">105</span>];                   <span class="c">// g[u] = 从 u 出发的所有弧</span>
+
+g[<span class="n">1</span>].<span class="k">push_back</span>({<span class="n">2</span>, <span class="n">7</span>});                <span class="c">// 有向边 1→2，权 7</span>
+g[<span class="n">1</span>].<span class="k">push_back</span>({<span class="n">3</span>, <span class="n">2</span>});                <span class="c">// 有向边 1→3，权 2</span>
+
+<span class="k">for</span> (<span class="k">auto</span> &amp;e : g[<span class="n">1</span>])                   <span class="c">// 引用遍历，不复制</span>
+    <span class="k">cout</span> &lt;&lt; e.to &lt;&lt; <span class="s">" "</span> &lt;&lt; e.w &lt;&lt; <span class="s">"\n"</span>;     <span class="c">// 2 7 / 3 2</span>
+
+<span class="k">cout</span> &lt;&lt; g[<span class="n">1</span>][<span class="n">0</span>].to &lt;&lt; <span class="s">"\n"</span>;            <span class="c">// 2：像二维数组一样取第 0 条弧的终点</span></code></pre><div class="box tip"><div class="t" id="b78">注意</div><p id="b79"><code>{2, 7}</code> 按声明顺序填。把 to、w 的声明顺序调换，<code>{2, 7}</code> 的含义就跟着变，而编译器一个字都不会提醒 —— 这类错只能靠自觉。</p><p id="b80">自己写了构造函数就不能再用花括号按位置初始化，除非保留一个全参数的构造函数。</p><p id="b81">无权图别硬套 Edge：多存一个用不上的 w，还多一次写错的机会。</p></div></div></div><div class="box tip"><div class="t" id="b82">建图前先回答三个问题</div><p id="b83">有向还是无向？无向图每条边加两次，边集数组要开 2m。</p><p id="b84">要不要边权？不要就用 <code>vector&lt;int&gt;</code>，要就用 <code>vector&lt;Edge&gt;</code>。</p><p id="b85">下标从 1 还是从 0？从 1 开始就开 n + 1 个位置，别让 g[n] 越界。</p></div><div class="prob"><div class="ph"><span class="pn" id="b86">例题 · 查找文献</span><span class="oi">洛谷 P5318</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P5318" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b87">洛谷博客里一共有 n 篇文章（编号 1 到 n）和 m 条参考文献引用关系。文献 X → Y 表示文章 X 有参考文献 Y。小 K 已经打开了编号为 1 的文章，他看一篇文章就一定会看它引用的全部文献（看过的不会再看）。</p><p id="b88">请对这张图分别做 DFS 和 BFS，输出遍历结果。如果有多个文献可以参阅，先看编号较小的那篇（因此你可能需要先排序）。</p><p id="b89">输入格式：第一行两个整数 n、m（1 ≤ n ≤ 10⁵，1 ≤ m ≤ 10⁶）；接下来 m 行，每行两个整数 X、Y。不保证 1 号文章没有被其他文章引用。</p><p id="b90">输出格式：共两行。第一行为 DFS 遍历结果，第二行为 BFS 遍历结果，同一行内用空格分隔。</p></div><div class="io" id="b91">输入：
+8 9
+1 2
+1 3
+2 4
+2 5
+3 6
+3 7
+4 8
+5 8
+6 7
+输出：
+1 2 4 8 5 3 6 7
+1 2 3 4 5 6 7 8</div></div><div class="step"><div class="sh" id="b92">例题怎么想：四步，第三步最容易被忽略</div><p id="b93"><b>① 建图。</b>有向图，m 条弧，<code>g[X].push_back(Y)</code> 一次就够。写成无向会凭空多出一半的边，可达的点变多，输出整片错。</p><p id="b94"><b>② 排序。</b>题目要“先看编号小的”。DFS 和 BFS 的访问顺序<b>完全由邻接表里的存储顺序决定</b>，不排序得到的是输入顺序决定的序列 —— 样例都过不了。排序总代价 Σ deg(u)·log deg(u) ≤ m log m。</p><p id="b95"><b>③ 两个序列要分两次遍历，visited 必须重置。</b>一次 DFS 跑完 vis 全是 true，接着跑 BFS 只会输出一个点。这是本题最高频的错误，且不排序、不清零这两件事在样例上都会暴露，所以样例一定要手推一遍。</p><p id="b96"><b>④ 复杂度。</b>建图 O(m)，排序 O(m log m)，两次遍历各 O(n + m)。m = 10⁶ 时总操作约 2×10⁷ 次，1 秒内。</p><div class="cap" id="b97">四步骨架</div><pre id="b98"><code><span class="c">// 骨架：建图 → 排序 → DFS → 清空 → BFS</span>
+<span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; m; ++i) { <span class="k">cin</span> &gt;&gt; x &gt;&gt; y; g[x].<span class="k">push_back</span>(y); }   <span class="c">// 有向，只加一次</span>
+<span class="k">for</span> (<span class="k">int</span> u = <span class="n">1</span>; u &lt;= n; ++u) <span class="k">sort</span>(g[u].<span class="k">begin</span>(), g[u].<span class="k">end</span>());        <span class="c">// 让"最小的邻点"排在最前</span>
+
+<span class="f">dfs</span>(<span class="n">1</span>);  <span class="k">cout</span> &lt;&lt; <span class="s">"\n"</span>;                     <span class="c">// 先序输出整条 DFS 序列</span>
+<span class="k">memset</span>(vis, <span class="n">0</span>, <span class="k">sizeof</span>(vis));               <span class="c">// ★ 不清零，下一行只会输出一个 1</span>
+q.<span class="f">push</span>(<span class="n">1</span>); vis[<span class="n">1</span>] = <span class="k">true</span>;                  <span class="c">// BFS：入队即标记</span>
+<span class="k">while</span> (!q.<span class="k">empty</span>()) { <span class="c">/* 出队、输出、把未访问的邻点压进队 */</span> }</code></pre></div><p id="b99">DFS 用递归写最省事：递归调用栈本身就是“走到黑再退回”的那条路径。BFS 用 <code>queue</code>，第 26 节已经写熟了，这里只换掉“邻居怎么来”——从方向数组换成邻接表。另外记住一条：<b>DFS 可以递归也可以显式栈，BFS 只能队列</b>，因为它们对“下一个访问谁”的要求不同。</p><div class="cap" id="b100">完整代码（C++17）</div><pre id="b101"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">100005</span>;
+<span class="k">int</span> n, m;
+<span class="k">vector</span>&lt;<span class="k">vector</span>&lt;<span class="k">int</span>&gt;&gt; g;            <span class="c">// g[u] = u 引用的所有文献</span>
+<span class="k">bool</span> vis[N];                      <span class="c">// 访问标记：两个序列共用，用前都要清</span>
+
+<span class="k">void</span> <span class="f">dfs</span>(<span class="k">int</span> u) {
+    vis[u] = <span class="k">true</span>;
+    <span class="k">cout</span> &lt;&lt; u &lt;&lt; <span class="s">" "</span>;             <span class="c">// 先序：一进点就输出，这就是"DFS 序列"</span>
+    <span class="k">for</span> (<span class="k">int</span> v : g[u])            <span class="c">// g[u] 已升序，天然满足"先看编号小的"</span>
+        <span class="k">if</span> (!vis[v]) <span class="f">dfs</span>(v);      <span class="c">// 有环时必须判重，否则无限递归</span>
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; m;
+    g.<span class="f">resize</span>(n + <span class="n">1</span>);              <span class="c">// n+1 条空表，下标 1..n 可用</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; m; ++i) {
+        <span class="k">int</span> x, y;
+        <span class="k">cin</span> &gt;&gt; x &gt;&gt; y;
+        g[x].<span class="k">push_back</span>(y);        <span class="c">// 有向边 X→Y，只加一个方向</span>
+    }
+    <span class="k">for</span> (<span class="k">int</span> u = <span class="n">1</span>; u &lt;= n; ++u)  <span class="c">// 每个邻接表单独升序</span>
+        <span class="k">sort</span>(g[u].<span class="k">begin</span>(), g[u].<span class="k">end</span>());
+
+    <span class="f">dfs</span>(<span class="n">1</span>);                       <span class="c">// 从 1 号文章出发</span>
+    <span class="k">cout</span> &lt;&lt; <span class="s">"\n"</span>;
+
+    <span class="k">memset</span>(vis, <span class="n">0</span>, <span class="k">sizeof</span>(vis));  <span class="c">// ★ 第二轮必须清空</span>
+    <span class="k">queue</span>&lt;<span class="k">int</span>&gt; q;
+    q.<span class="f">push</span>(<span class="n">1</span>);
+    vis[<span class="n">1</span>] = <span class="k">true</span>;                <span class="c">// 入队即标记，不能等出队</span>
+    <span class="k">while</span> (!q.<span class="k">empty</span>()) {
+        <span class="k">int</span> u = q.<span class="f">front</span>();
+        q.<span class="f">pop</span>();                  <span class="c">// front 取值、pop 删除，两句不能合并</span>
+        <span class="k">cout</span> &lt;&lt; u &lt;&lt; <span class="s">" "</span>;
+        <span class="k">for</span> (<span class="k">int</span> v : g[u])
+            <span class="k">if</span> (!vis[v]) {        <span class="c">// 判重同时保证"每个点只进队一次"</span>
+                vis[v] = <span class="k">true</span>;
+                q.<span class="f">push</span>(v);
+            }
+    }
+    <span class="k">cout</span> &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b102">逐行拆解</div><table class="lines"><thead><tr><th id="b103">代码片段</th><th id="b104">含义与理由</th></tr></thead><tbody><tr><td id="b105"><code>const int N = 100005;</code></td><td id="b106">n 到 10⁵，开 100005 留 5 个余量。正好开 100000 时，u = 100000 会踩到 vis[100000] 之外的一格。</td></tr><tr><td id="b107"><code>vector&lt;vector&lt;int&gt;&gt; g;</code></td><td id="b108">定义成全局是为了 dfs 能直接看见它，省一个“传引用”的参数。外层大小要到读入 n 之后才知道，所以先声明、再 resize。</td></tr><tr><td id="b109"><code>g.resize(n + 1);</code></td><td id="b110">变成 n + 1 条空表。多测时这一句同时就是“清空整张图” —— resize 到相同大小不会清内容，所以多测要么先 g.clear() 再 resize，要么直接 assign。</td></tr><tr><td id="b111"><code>g[x].push_back(y);</code></td><td id="b112">一条有向弧。P5318 是“X 引用 Y”，单向；加成双向会把可达点放大，输出多出一堆不该出现的编号。</td></tr><tr><td id="b113"><code>sort(g[u].begin(), g[u].end());</code></td><td id="b114">题目要“先看编号小的”。排的是每个点自己的邻点表，不是把 1..n 排序。总代价 O(m log m)，m = 10⁶ 时约 2×10⁷ 次比较。</td></tr><tr><td id="b115"><code>vis[u] = true; cout &lt;&lt; u &lt;&lt; " ";</code></td><td id="b116">先序输出：进点即打印。DFS 的“先/中/后”三种序只差这一句的位置，图没有中序，绝大多数题要的是先序。</td></tr><tr><td id="b117"><code>for (int v : g[u]) if (!vis[v]) dfs(v);</code></td><td id="b118">范围 for 直接遍历邻点，已访问的必须跳过。忘了判重，有环时立刻无限递归，表现为 RE（栈溢出）。</td></tr><tr><td id="b119"><code>dfs(1);</code></td><td id="b120">源点是 1 号文章。题目只要求“他能看到的”，别的点即使能走到 1 也不输出。</td></tr><tr><td id="b121"><code>memset(vis, 0, sizeof(vis));</code></td><td id="b122">★ 整节最关键的一行。不清零，vis 全为 true，BFS 只输出 1 就结束，第二个序列直接废掉。</td></tr><tr><td id="b123"><code>q.push(1); vis[1] = true;</code></td><td id="b124">BFS 入队即标记。等出队才标记的话，同一个点会被多个前驱各 push 一次，序列里出现重复编号。</td></tr><tr><td id="b125"><code>int u = q.front(); q.pop();</code></td><td id="b126">先取值再删除。<code>int u = q.pop()</code> 编译不过：pop() 返回 void。</td></tr><tr><td id="b127"><code>cout &lt;&lt; "\n";</code></td><td id="b128">两个序列各占一行，行末不留空格。DFS 的循环里输出的是“编号 + 空格”，所以最后一个空格之后才换行。</td></tr></tbody></table></div><div class="step"><div class="sh" id="b129">同一套 DFS，换个外层：连通块计数</div><p id="b130">无向图里，能互相到达的点构成一个<b>连通块</b>。数连通块的做法只有一行新代码：外层扫一遍所有点，遇到没访问过的，就说明发现了一个新块，从这里跑一次 DFS 把整块点亮。</p><div class="cap" id="b131">连通块计数：只加一个外层循环</div><pre id="b132"><code><span class="k">int</span> blocks = <span class="n">0</span>;
+<span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i)
+    <span class="k">if</span> (!vis[i]) {          <span class="c">// 这个点没被任何已发现的块扫到 → 新块</span>
+        ++blocks;
+        <span class="f">dfs</span>(i);             <span class="c">// 一次 DFS 把整个块标记完</span>
+    }
+<span class="k">cout</span> &lt;&lt; blocks &lt;&lt; <span class="s">"\n"</span>;</code></pre><p id="b133"><b>为什么总复杂度还是 O(n + m)。</b>每次 <code>dfs(i)</code> 只在 vis[i] 为假时启动，而它会把进入的每个点立即标记，所以每个点恰好被进入一次；每个点的邻点表在它自己那次进入时被遍历一次，无向边被两端各看一次，合计 2m 次。<b>外层循环不是乘上去的</b>，因为大多数点会被 continue 掉。</p><p id="b134">这个外层循环是图论里最常用的一段代码。它其实在回答三个问题：图连不连通（blocks == 1）、有几个独立的部分（blocks 的值）、每个点属于哪个部分（把 <code>++blocks</code> 换成 <code>block[i] = blocks</code> 在 dfs 里赋值）。有向图里对应的概念叫强连通分量，本节不展开。</p><p id="b135">再顺手记一个数：若图有 n 个点、m 条边、k 个连通块，则 <b>k ≥ n − m</b>。因为每个连通块至少要有一棵生成树，树边共 n − k 条，而 m 不小于树边数。这个不等式能用来粗查“边数是不是少得可疑”。</p></div><div class="step"><div class="sh" id="b136">再进一步：二分图判定的雏形</div><p id="b137"><b>二分图</b>：能把点集分成两类，使每条边的两个端点分属不同类。等价说法是<b>图中没有奇环</b>（长度为奇数的环）。判定只要给每个点染一种颜色，要求一条边的两端颜色不同。</p><p id="b138">染色规则只有一句：<code>color[v] = 3 - color[u]</code>（颜色取 1 和 2）。若某个邻点已经染过、且颜色与 u 相同，就出现了同色边，说明有奇环，直接返回 false。</p><div class="cap" id="b139">二分图染色：BFS 版</div><pre id="b140"><code><span class="k">int</span> color[N];                     <span class="c">// 0 = 未染色, 1 / 2 = 两种颜色</span>
+
+<span class="k">bool</span> <span class="f">isBipartite</span>() {
+    <span class="k">for</span> (<span class="k">int</span> s = <span class="n">1</span>; s &lt;= n; ++s) {            <span class="c">// ★ 每个连通块都要单独起一次</span>
+        <span class="k">if</span> (color[s]) <span class="k">continue</span>;
+        color[s] = <span class="n">1</span>;                          <span class="c">// 块内第一个点随便染</span>
+        <span class="k">queue</span>&lt;<span class="k">int</span>&gt; q; q.<span class="f">push</span>(s);
+        <span class="k">while</span> (!q.<span class="k">empty</span>()) {
+            <span class="k">int</span> u = q.<span class="f">front</span>(); q.<span class="f">pop</span>();
+            <span class="k">for</span> (<span class="k">int</span> v : g[u]) {
+                <span class="k">if</span> (!color[v]) {               <span class="c">// 没染过：强制染成反色</span>
+                    color[v] = <span class="n">3</span> - color[u];
+                    q.<span class="f">push</span>(v);
+                } <span class="k">else</span> <span class="k">if</span> (color[v] == color[u]) {
+                    <span class="k">return</span> <span class="k">false</span>;              <span class="c">// 同色相邻 → 奇环 → 不是二分图</span>
+                }
+            }
+        }
+    }
+    <span class="k">return</span> <span class="k">true</span>;
+}</code></pre><p id="b141"><b>为什么这样一定对。</b>一条边两端必须异色，所以一个连通块里只要定下任意一个点的颜色，其余所有点的颜色都被唯一确定（沿路径一路翻色）。两种整体配色只差“把 1 和 2 对调”，对判定没有影响。因此“染色过程中出现同色边”当且仅当存在奇环。</p><p id="b142">三个必须注意的地方：<b>①</b>必须对每个连通块各起一次 BFS —— 只从 1 号点染，别的块全是 0，永远判成二分图；<b>②</b>这只适用于无向图，有向图的“二分”是另一个概念；<b>③</b>自环 (u, u) 会让 <code>color[v] == color[u]</code> 当场成立，立刻判 false，这正好符合“自环是长度 1 的奇环”。复杂度同样是 O(n + m)。</p></div><div class="step"><div class="sh" id="b143">把递归改成显式栈：深度 10⁵ 也不怕</div><p id="b144">递归 DFS 的深度等于最长的一条链。本题 n 能到 10⁵，如果数据是一条 10⁵ 长的链，递归深度就是 10⁵，每层几十字节，合计几 MB —— <b>在栈限制 8 MB 的评测机上会 RE</b>。洛谷的栈空间通常够用，但你必须知道这个风险：数组没越界却 RE，先怀疑递归深度。</p><p id="b145">解法是把“调用栈”自己用一个 vector 实现。顺序能完全一致，关键在<b>逆序压栈</b>：把 u 的邻点从大到小压进去，编号最小的那个就落在栈顶，正好等于递归时“先走最小的那条边”。</p><div class="cap" id="b146">显式栈 DFS：与递归版输出完全相同的序列</div><pre id="b147"><code><span class="k">void</span> <span class="f">dfs_iter</span>(<span class="k">int</span> s) {
+    <span class="k">vector</span>&lt;<span class="k">int</span>&gt; st;                        <span class="c">// 自己当栈用：back() 看栈顶，push_back 压栈</span>
+    st.<span class="k">push_back</span>(s);
+    <span class="k">while</span> (!st.<span class="k">empty</span>()) {
+        <span class="k">int</span> u = st.<span class="f">back</span>();
+        st.<span class="k">pop_back</span>();
+        <span class="k">if</span> (vis[u]) <span class="k">continue</span>;              <span class="c">// 同一个点可能被多个前驱压进来</span>
+        vis[u] = <span class="k">true</span>;
+        <span class="k">cout</span> &lt;&lt; u &lt;&lt; <span class="s">" "</span>;                  <span class="c">// 出栈即输出，位置等价于递归里的"刚进函数"</span>
+        <span class="c">// 逆序压栈：让编号最小的邻点留在栈顶</span>
+        <span class="k">for</span> (<span class="k">int</span> i = (<span class="k">int</span>)g[u].<span class="k">size</span>() - <span class="n">1</span>; i &gt;= <span class="n">0</span>; --i)
+            <span class="k">if</span> (!vis[g[u][i]]) st.<span class="k">push_back</span>(g[u][i]);
+    }
+}</code></pre><p id="b148">代价是栈里最多压 m 条记录（一个点可能被多个前驱重复压栈），m = 10⁶ 时 4 MB，可以接受。顺便记住这个对应关系：<b>递归 = 系统栈，显式栈 = 自己管；DFS 用栈，BFS 用队列</b>。把 queue 换成 stack，BFS 就变成了“深度优先但顺序不对”的东西，这也说明两种容器的区别不只是写法。</p></div><div class="box warn"><div class="t" id="b149">本节的 8 个坑，每个都有具体症状</div><p id="b150">无向图只加了一次边（漏了 <code>g[v].push_back(u)</code>）：从 v 出发回到 u 的路消失，连通块数偏大、可达点偏少 → <b>WA</b>。样例常是树，容易蒙过去。</p><p id="b151">两个序列共用 vis 却不重置：第二个序列只剩源点 → <b>WA</b>，且错得非常整齐（一行只有一个数）。</p><p id="b152">BFS 在出队时才标记：同一个点被多个前驱各压一次，序列里出现重复编号 → <b>WA</b>。</p><p id="b153">忘记 sort 邻接表：输出的是输入顺序决定的序列，与“先看编号小的”不符 → <b>WA</b>。这种错样例就能查出来，属于最好查的一类，务必先手推样例。</p><p id="b154">数组开 <code>vector&lt;int&gt; g[100000]</code> 而 n 正好是 10⁵：下标 g[100000] 越界 → <b>RE</b> 或随机 WA。习惯写 N + 5。</p><p id="b155">有环图删掉 <code>if (!vis[v])</code>：递归无出口，几秒内爆栈 → <b>RE</b>（报错信息通常是 Stack overflow / Segmentation fault）。</p><p id="b156">链状数据上递归 DFS，深度 10⁵ → <b>RE</b>，而且数组完全没越界。改显式栈即可。</p><p id="b157">邻接矩阵开在函数里：n = 5000 时 5000² × 4 字节 = 100 MB，直接爆栈 → <b>RE</b>。大数组一律放全局或静态区（全局数组在 BSS 段，不受 8 MB 栈限制）。</p></div><div class="reproduce"><div class="rt" id="b158">自己动手复现</div><p id="b159">关掉页面，从空文件把 P5318 敲一遍并提交。</p><p id="b160">用样例里的 8 个点、9 条边手推两个序列，再和程序输出逐位比对：DFS 应为 <code>1 2 4 8 5 3 6 7</code>，BFS 应为 <code>1 2 3 4 5 6 7 8</code>。</p><p id="b161">改一改①：在 <code>g[x].push_back(y)</code> 后面补一句 <code>g[y].push_back(x)</code>（当成无向图），同一组数据重跑 —— 两个序列居然一模一样。因为新增的反向边全部指向已经访问过的点。这就是“样例查不出方向错误”的原因：改一条边为 <code>7 1</code>（或任何指向未访问点的边）再看，顺序立刻变。</p><p id="b162">改一改②：删掉 <code>sort</code> 那一行。样例的两个序列都变，说明顺序由邻接表的存储顺序决定。</p><p id="b163">改一改③：删掉 <code>memset(vis, 0, sizeof(vis))</code>。BFS 那一行只剩一个 <code>1</code> ——这是本节最高频的错，亲眼见一次比读十遍有用。</p><p id="b164">改一改④：把 vis 换成 <code>int block[N]</code>，先补成无向图，再按连通块给每个点标号，输出块数和每个点所属的块号，看看 1 号文章到底能不能到全部 8 篇。</p></div><div class="mathcard"><div class="mt" id="b165">数学补给 · 度、握手引理与两种存法的空间账</div><p id="b166">无向图里，点 u 的<b>度</b> deg(u) 是与它相连的边数。有向图分成出度（从 u 出发的边数）和入度。邻接表里 <code>g[u].size()</code> 在有向图中就是出度，这一点在读题时经常要用。</p><p id="b167"><b>握手引理：</b>Σ<sub>u</sub> deg(u) = 2m。理由只有一句：每条边 u–v 给 deg(u) 贡献 1、给 deg(v) 贡献 1，被数了两次。有向图里同样的道理给出 Σ out(u) = Σ in(u) = m。</p><p id="b168">推论（很实用）：<b>度数为奇数的点一定有偶数个</b>。这就是欧拉路径判定里“奇点只有 0 个或 2 个”的来源，也是很多构造题的突破口 —— 如果一个构造要求“每个点的度数都是奇数”，那么点数必须是偶数，否则无解。</p><p id="b169">空间账。设 int 占 4 字节，一个空的 <code>vector</code> 对象占 24 字节：</p><table><thead><tr><th id="b170">n</th><th id="b171">m</th><th id="b172">邻接矩阵 n² × 4</th><th id="b173">邻接表（无向）n × 24 + 2m × 4</th></tr></thead><tbody><tr><td id="b174">10³</td><td id="b175">10⁵</td><td id="b176">4 MB</td><td id="b177">24 KB + 0.8 MB ≈ 0.8 MB</td></tr><tr><td id="b178">10⁴</td><td id="b179">10⁵</td><td id="b180">400 MB（存不下）</td><td id="b181">0.24 MB + 0.8 MB ≈ 1 MB</td></tr><tr><td id="b182">10⁵</td><td id="b183">10⁶</td><td id="b184">40 GB（存不下）</td><td id="b185">2.4 MB + 8 MB ≈ 10 MB</td></tr></tbody></table><p id="b186">表里能读出一条分界线：<b>n ≤ 3000 时矩阵还能用（36 MB，放全局），n ≥ 10⁴ 时矩阵必死（400 MB 起）</b>。所以“n ≤ 500 的 Floyd 题”用矩阵，“n 到 10⁵ 的遍历题”用邻接表，不是风格问题，是能不能存下的问题。</p><p id="b187">遍历的代价。DFS 每个点进一次、每条邻点表扫一次；无向图里邻点表的总长度是 2m，所以是 O(n + 2m) = O(n + m)。递归深度不超过 n，BFS 队列长度也不超过 n。本题 n = 10⁵、m = 10⁶，两次遍历共约 2×(10⁵ + 2×10⁶) ≈ 4×10⁶ 次操作，加上排序的 2×10⁷ 次比较 —— <b>瓶颈在排序，不在遍历</b>，这是很多图论题的真实情况。</p><p id="b188">最后记一个二分图的计数结论：n 个点的二分图最多有 ⌊n²/4⌋ 条边（Mantel 定理），取到等号的是两部各 n/2 个点的完全二分图。所以看到“二分图 + 边数接近 n²/4”就该警觉：这图是稠密的，邻接矩阵可能比邻接表更合适。</p></div><div class="think"><div class="tt" id="b189">举一反三 · 想清楚这些再往下走</div><div class="thint">先自己写出答案，再点开核对——方向对不对，比答案本身更重要</div><ol><li id="b190"><div class="tq">如果题目要输出“每个点在第几层被 BFS 扫到”，BFS 代码改哪两行？为什么层号就是无权图上的最短距离？把这个 dis 数组和第 26 节的 dis 对比一下，看是不是同一个东西。</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">加一个 dis[]，改两处：入队时写 <code>dis[s] = 0</code>，以及 push 之前写 <code>dis[v] = dis[u] + 1</code>。层号就是最短距离，因为边权全是 1：第一次访问 v 时走的一定是最少边数——若存在更短的路径，那条路上的点会更早把 v 标记掉。它和第 26 节网格 BFS 的 dis 是同一个东西，只换了“邻居从哪来”：方向数组换成邻接表。常见错路：出队时才标记（同一个点被多个前驱压入，dis 被后者覆盖成更大的值）；或者靠“遍历了几层”手工计数，忘了同一层有多个点。</div></details></li><li id="b191"><div class="tq">P5318 里 m 到 10⁶，排序花了 O(m log m)。能不能降到 O(n + m)？提示：把 m 条边当记录做两趟<b>稳定</b>的计数排序（先按终点 v，再按起点 u），第二趟排完就是“按 u 分组、组内按 v 升序”，这就是基数排序（第 6 节的桶计数推广）。</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">能，用两趟稳定的计数排序（基数排序）。把 m 条边当记录：第一趟按终点 v 分桶（桶宽 n），第二趟按起点 u 分桶；因为计数排序稳定，第二趟排完同一组 u 内仍保持第一趟的 v 升序，结果与 sort 完全一致。代价 O(n + m) 两趟，n = 10⁵、m = 10⁶ 时约 2×10⁶ 次操作，比 m log m ≈ 2×10⁷ 小一个量级。常见错路：第二趟用不稳定排序（sort 本身），组内 v 的顺序被打乱；或者桶只开到 max(u) 而不是 n，末尾的点丢失。</div></details></li><li id="b192"><div class="tq">无向图删掉一条边会让连通块数 +1，这样的边叫什么？用一次 DFS 找出所有这样的边，需要额外记什么？（提示：记“进入每个点的时刻”和“不走父边能回到的最早时刻”。）</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">这种边叫<b>桥（割边）</b>。需要额外记两个量：dfn[u]（进入 u 的时刻）和 low[u]（不经过父边能回到的最早时刻）。对树边 (u,v)（v 是 u 的儿子），它是桥 ⟺ low[v] &gt; dfn[u]：low[v] ≤ dfn[u] 说明 v 的子树有回边绕回 u 或更早，删了照样连通。常见错路：用“父节点编号”判回头，遇到重边会把两条平行边误判成一条桥——必须按<b>边的编号</b>跳过父边；还有只记 dfn 不记 low，那就退化成枚举删边重跑 DFS。</div></details></li><li id="b193"><div class="tq">有 10⁵ 次询问“a 能否到达 b”，图不变。每次都跑 DFS 是 10⁵ × (n + m)，肯定超时。能预处理出什么，让每次询问 O(1)？（先想无向图，再想有向图难在哪。）</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">无向图可以 O(1)：一次 DFS 给每个点标上连通块编号（或并查集合并），询问时比两个编号即可。有向图难在“可达”不是等价关系——a 能到 b 不代表 b 能到 a，不能简单分块。标准路线是先 Tarjan 缩成强连通分量、得到 DAG，再在 DAG 上做传递闭包：n ≤ 5000 时用 bitset，O(n²/64)；n = 10⁵ 时 bitset 要 10⁹ 位/行，存不下，只能靠题目结构（树、区间、离线）另想办法。常见错路：把有向图当无向图按连通块回答，答案会在一半询问上错。</div></details></li><li id="b194"><div class="tq">二分图判定里，为什么只检查“邻点与自己同色”就够，不用检查更远的点？如果图里有奇环，染色一定在奇环的哪一步失败？画一个五元环推一遍。</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">因为染色是沿边逐步推进的：每次只给未染色的邻点染反色，唯一可能出错的地方就是“遇到已染色且同色的邻点”。五元环 v₁..v₅ 从 v₁ 染 1，沿环得到 1、2、1、2、1，最后一条边 (v₅,v₁) 两端都是 1——失败正好发生在闭合环的那条边上。偶环交替后首尾颜色必不相同，所以永远不冲突；这就是“二分图 ⟺ 无奇环”的染色版本。常见错路：只从 1 号点起一次 BFS，别的连通块全是 0，永远判成二分图。</div></details></li><li id="b195"><div class="tq">重边（同一个 u→v 出现多次）对 DFS/BFS 的遍历序列有影响吗？对连通块数呢？对“从 1 到 n 的路径条数”呢？三种情况分别给结论。</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">遍历序列：没有影响。第二次走到同一个点时 vis 已为真，直接跳过，DFS 序和 BFS 序都不变。连通块数：没有影响，重边不改变连通性。从 1 到 n 的路径<b>条数</b>：有影响，每条重边算一种不同的走法，条数按重数成倍增加。常见错路：以为重边会让 BFS 输出重复编号（vis 会挡掉）；或者求路径条数时用 set 去重，把不同的走法合并成一条。</div></details></li><li id="b196"><div class="tq">把本节所有代码里的 <code>vector&lt;vector&lt;int&gt;&gt;</code> 换成邻接矩阵，哪些题会 TLE 或 MLE？换成边集数组呢？分别写出 n = 10⁵、m = 10⁶ 时的估算。</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">换邻接矩阵：n = 10⁵ 时矩阵是 10¹⁰ 个 int = 40 GB，根本开不出来（MLE）；就算开得出，遍历一个点要扫 n 格，总代价 O(n²) = 10¹⁰，也必然 TLE。本题、连通块、二分图、P3916 全是这个下场，n ≥ 10⁴ 就不能用矩阵。换边集数组：空间只有 2m 个 int = 8 MB，存得下；但“枚举 u 的邻点”要扫全部 m 条边，一次遍历 O(n·m) = 10¹¹，必 TLE。所以边集只适合按边处理的算法（Kruskal 排序边），不适合遍历——“存得下”和“走得动”是两件事。</div></details></li></ol></div><div class="box tip"><div class="t" id="b197">自测：能全部回答再进下一节</div><ul><li id="b198">能不看资料写出“读 n、m，建有向图，排序邻接表，跑 DFS 和 BFS”的完整程序。</li><li id="b199">能说清无向图为什么要加两次边，以及 2m 这个数字会出现在哪些地方（内存、复杂度、度数和）。</li><li id="b200">能默写连通块计数的外层循环，并解释为什么总复杂度仍是 O(n + m) 而不是 O(n(n + m))。</li><li id="b201">能说出二分图判定的染色规则，以及为什么必须对每个连通块各起一次遍历。</li><li id="b202">知道递归 DFS 的深度风险和显式栈的写法，能说出“逆序压栈”是为了什么。</li><li id="b203">拿到一道新图论题，能在 30 秒内决定用邻接矩阵还是邻接表，并说出理由。</li></ul></div><div class="challenge"><div class="ct" id="b204">挑战题 · 图的遍历</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P3916</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P3916" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b205">给出 N 个点、M 条边的有向图。对每个点 v，令 A(v) 表示从点 v 出发能到达的编号最大的点。请求出 A(1), A(2), …, A(N)。</p><p id="b206">输入格式：第一行两个整数 N、M（1 ≤ N, M ≤ 10⁵）；接下来 M 行，每行两个整数 U、V，表示一条边 U → V。点用 1..N 编号。</p><p id="b207">输出格式：一行 N 个整数，依次为 A(1) 到 A(N)，用空格分隔。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b208">对每个点各跑一次 DFS 是 O(N(N + M))，N = 10⁵ 时是 10¹⁰ 量级，必然超时。换个方向想。</p><p id="b209">“从 v 出发能到 w”和“在反图里从 w 出发能到 v”是同一句话。反图就是把每条边掉个头。</p><p id="b210">先处理编号大的点：在反图上从 w 出发，一次能扫到的所有点，它们的答案至少是 w。从 N 递减到 1 走一遍，每个点只需要被扫到一次。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b211">建<b>反图</b>：原边 u → v 在反图里存成 v → u，即 <code>rg[v].push_back(u)</code>。这样“反图上从 w 出发能到达 x”就等价于“原图上 x 能到达 w”。</p><p id="b212">ans[] 全部先置 0，vis[] 全部先置 false。</p><p id="b213">for w = N down to 1：若 vis[w] 为假，就把 ans[w] 记成 w，然后从 w 出发在反图上做一次 BFS/DFS，把遇到的每个未访问点 x 都标成 <code>vis[x] = true; ans[x] = w;</code>。</p><p id="b214">正确性：处理到 w 时，所有编号大于 w 的点都已经处理完，它们能到达的点全被标记过。若 x 此刻还没被标记，说明原图上 x 到不了任何编号大于 w 的点；而反图上从 w 能扫到 x，说明原图上 x 能到 w。两者合起来，x 能到达的最大编号正好是 w。</p><p id="b215">若 w 已标记就整块跳过：此时原图上 w 能到某个编号更大的点，w 的答案已经定了；能到达 w 的点当然也能到达那个更大的点，答案同样已经定了，不必再扫。</p><p id="b216">复杂度：每个点在反图上最多被扫到一次，每条反边最多被看一次，O(N + M)，N = M = 10⁵ 时总操作不到 2×10⁵ 次。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b217">参考代码</div><pre id="b218"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">100005</span>;
+<span class="k">int</span> n, m;
+<span class="k">int</span> ans[N];                        <span class="c">// ans[v]：从 v 出发能到达的最大编号</span>
+<span class="k">bool</span> vis[N];
+<span class="k">vector</span>&lt;<span class="k">vector</span>&lt;<span class="k">int</span>&gt;&gt; rg;            <span class="c">// 反图：rg[v] 存"能一步到达 v 的点"</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; m;
+    rg.<span class="f">resize</span>(n + <span class="n">1</span>);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; m; ++i) {
+        <span class="k">int</span> u, v;
+        <span class="k">cin</span> &gt;&gt; u &gt;&gt; v;
+        rg[v].<span class="k">push_back</span>(u);        <span class="c">// 原边 u→v，反图里是 v→u</span>
+    }
+
+    <span class="k">queue</span>&lt;<span class="k">int</span>&gt; q;
+    <span class="k">for</span> (<span class="k">int</span> w = n; w &gt;= <span class="n">1</span>; --w) {         <span class="c">// 从大到小，先定大答案</span>
+        <span class="k">if</span> (vis[w]) <span class="k">continue</span>;              <span class="c">// 已被更大的点扫过，答案已定</span>
+        vis[w] = <span class="k">true</span>;
+        ans[w] = w;                        <span class="c">// w 能到自己，且到不了更大的点</span>
+        q.<span class="f">push</span>(w);
+        <span class="k">while</span> (!q.<span class="k">empty</span>()) {               <span class="c">// 反图上从 w 扩散</span>
+            <span class="k">int</span> u = q.<span class="f">front</span>();
+            q.<span class="f">pop</span>();
+            <span class="k">for</span> (<span class="k">int</span> x : rg[u])
+                <span class="k">if</span> (!vis[x]) {             <span class="c">// 每个点只标一次 → O(N+M)</span>
+                    vis[x] = <span class="k">true</span>;
+                    ans[x] = w;
+                    q.<span class="f">push</span>(x);
+                }
+        }
+    }
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i)
+        <span class="k">cout</span> &lt;&lt; ans[i] &lt;&lt; (i == n ? <span class="s">'\n'</span> : <span class="s">' '</span>);
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b219">关键片段拆解</div><table class="lines"><thead><tr><th id="b220">片段</th><th id="b221">作用</th></tr></thead><tbody><tr><td id="b222"><code>rg[v].push_back(u);</code></td><td id="b223">反着存。这是全题的关键一步：把“从 v 出发能到谁”变成“谁一步能到 v”，于是从一个大声号的点出发，就能一次扫出“能到达它”的所有点。</td></tr><tr><td id="b224"><code>for (int w = n; w &gt;= 1; --w)</code></td><td id="b225">从大到小枚举。只有“先处理大的”，第一次被标记才一定是最大值。写成从小到大答案全错，而且错得很有规律：每个点都得到最小的那个可达点。</td></tr><tr><td id="b226"><code>if (vis[w]) continue;</code></td><td id="b227">w 已被更大的点扫过，说明原图上 w 能到达编号更大的点，w 的答案已经定了；能到达 w 的点答案也早就定了，整块不用再扫。这一步保证总复杂度是 O(N + M)。</td></tr><tr><td id="b228"><code>ans[w] = w;</code></td><td id="b229">w 至少能到自己，所以 A(w) ≥ w；而所有比 w 大的点都没扫到过 w，说明 w 到不了它们，所以 A(w) 正好等于 w。</td></tr><tr><td id="b230"><code>q.push(w);</code></td><td id="b231">用队列做 BFS。这里用 DFS 也对（顺序不影响标记结果），但 BFS 不会递归，天然避开 10⁵ 长链的爆栈问题。</td></tr><tr><td id="b232"><code>for (int x : rg[u]) if (!vis[x])</code></td><td id="b233">把“能一步到 u”的点全摊开，它们都能沿原图 u 继续走到 w。判重让每个点只被标记一次。</td></tr><tr><td id="b234"><code>ans[x] = w;</code></td><td id="b235">给新点打上答案。注意写的是 w（这一轮出发的大点），不是 u、也不是 x。</td></tr><tr><td id="b236"><code>(i == n ? '\n' : ' ')</code></td><td id="b237">行末只换行、不多空格。N 个数一行时这个细节直接决定 WA 与否。</td></tr></tbody></table><div class="box warn"><div class="t" id="b238">这题最容易错的地方</div><ul><li id="b239">忘记建反图，直接在原图上从 w 出发扩散：方向反了，扫到的是“w 能到达的点”，答案整片错。</li><li id="b240">从 1 开始从小到大枚举：先被标记的是小的可达点，而题目要最大值 → WA。</li><li id="b241">用递归 DFS 且数据是一条 10⁵ 长的链：栈溢出 → RE，数组却没越界。改成队列或显式栈。</li><li id="b242">数组只开 <code>100000</code>（而 N 能到 10⁵）：<code>ans[100000]</code>、<code>vis[100000]</code> 越界，→ RE 或随机 WA，习惯写 N + 5。</li></ul></div></div></details></div><div class="box tip" style="margin:22px 0 -6px"><div class="t" id="b243">挑战 2 · 难度高一级，允许组合多个已学算法</div><p id="b244">这题比上面的挑战题更难：它不只用本节一个算法，可能需要把前面几节的工具拼起来。独立做出来说明这一块真的过关了；做完记得在侧边栏勾上 🌟。</p></div><div class="challenge ch2"><div class="ct" id="b245">挑战 2 · 寻找道路</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P2296</span><span class="badge diff">提高-/提高</span><a href="https://www.luogu.com.cn/problem/P2296" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b246">在有向图 G 中，每条边的长度都是 1。给定起点 s 和终点 t，请找一条从 s 到 t 的路径，满足：<b>路径上的每个点，它的所有出边所指向的点都能直接或间接到达 t</b>。在这个前提下让路径最短。</p><p id="b247">注意图里可能有重边和自环，题目保证终点 t 没有出边。</p><p id="b248">输入格式：第一行两个整数 n、m（1 ≤ n ≤ 10⁴，1 ≤ m ≤ 2×10⁵），表示点数和边数；接下来 m 行，每行两个整数 x、y，表示一条 x → y 的有向边；最后一行两个整数 s、t，表示起点与终点。</p><p id="b249">输出格式：一行一个整数，表示符合条件的路径长度；不存在这样的路径输出 −1。</p><p id="b250"><b>样例输入</b><br><code>6 6<br>1 2<br>1 3<br>2 3<br>2 6<br>3 4<br>4 5<br>1 5</code><br><b>样例输出</b><br><code>3</code><br>样例解释：合法路径是 1 → 3 → 4 → 5，长度 3。点 2 不能出现在答案里——它有一条出边连到 6，而 6 到不了终点 5。注意 1 号点自己是合法的：它的两条出边通向 2 和 3，两者都能到达 5。</p></div><div class="cap" id="b251">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+6 6
+1 2
+1 3
+2 3
+2 6
+3 4
+4 5
+1 5
+输出：
+3</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b252">条件里「所有出边」最难办：一个点能不能上路径，取决于它<b>全部</b>的出边，而不是某一条。先别管路径，先回答一个更简单的问题——哪些点「能到达 t」？</p><p id="b253">「x 能到 t」和「反图上 t 能到 x」是同一句话。一次 BFS 就能把「能到 t」的点全部标出来，这个动作和本节挑战题 P3916 里的一样。</p><p id="b254">有了 canReach 之后，一个点 u 合法当且仅当它的每条出边都指向 canReach 为真的点。在合法点上再跑一次 BFS，第一次踩到 t 的步数就是答案。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b255"><b>① 谁能到 t。</b>建反图（原边 u→v 存成 v→u），从 t 出发做一次 BFS。标到的每个 x 都满足「原图上 x 能走到 t」。正着对每个点各跑一次是 O(n(n+m))，反图上一次就够：O(n+m)。</p><p id="b256"><b>② 谁合法。</b>u 合法 ⟺ canReach[u] 为真，且 u 的每条出边指向的 v 都有 canReach[v] 为真。只要有一条出边通向死路，u 就不能上路径——这就是题面里「所有出边」四个字的全部含义。</p><p id="b257"><b>③ 在合法点上跑 BFS。</b>从 s 出发，只允许经过合法的点。边权全是 1，所以第一次到达 t 的层数就是最短长度；到不了输出 −1。</p><p id="b258"><b>为什么这样就对。</b>合法性只和「点的出边集合」有关，与路径无关，所以可以先一次性算好；再把不合法点整片删掉，剩下图里任何一条 s→t 路径都满足题目条件，反之亦然。两条方向合起来就是等价。</p><p id="b259"><b>复杂度。</b>反图 BFS O(n+m)、扫一遍所有边判合法 O(m)、原图 BFS O(n+m)，合计 O(n+m)。n = 10⁴、m = 2×10⁵ 时约 6×10⁵ 次操作。</p><p id="b260"><b>两个边界。</b>t 保证没有出边，所以 t 一定合法；s 若本身不合法（比如 s 有一条边通向死路），答案直接是 −1。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b261">参考代码</div><pre id="b262"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">10005</span>;
+<span class="k">int</span> n, m, s, t;
+<span class="k">vector</span>&lt;<span class="k">int</span>&gt; g[N], rg[N];     <span class="c">// g：原图；rg：反图</span>
+<span class="k">bool</span> canReach[N];            <span class="c">// canReach[x]：x 能（直接或间接）走到终点 t</span>
+<span class="k">bool</span> ok[N];                  <span class="c">// ok[x]：x 的所有出边都指向 canReach 为真的点</span>
+<span class="k">int</span> dist[N];
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">scanf</span>(<span class="s">"%d%d"</span>, &amp;n, &amp;m);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; m; ++i) {
+        <span class="k">int</span> u, v;
+        <span class="k">scanf</span>(<span class="s">"%d%d"</span>, &amp;u, &amp;v);
+        g[u].<span class="k">push_back</span>(v);
+        rg[v].<span class="k">push_back</span>(u);      <span class="c">// 反着存，才能从终点往回搜</span>
+    }
+    <span class="k">scanf</span>(<span class="s">"%d%d"</span>, &amp;s, &amp;t);
+
+    <span class="c">// 第一遍：反图上从 t 出发，标出所有“能到达 t”的点</span>
+    <span class="k">queue</span>&lt;<span class="k">int</span>&gt; q;
+    q.<span class="f">push</span>(t);
+    canReach[t] = <span class="k">true</span>;
+    <span class="k">while</span> (!q.<span class="k">empty</span>()) {
+        <span class="k">int</span> u = q.<span class="f">front</span>(); q.<span class="f">pop</span>();
+        <span class="k">for</span> (<span class="k">int</span> v : rg[u])
+            <span class="k">if</span> (!canReach[v]) { canReach[v] = <span class="k">true</span>; q.<span class="f">push</span>(v); }
+    }
+
+    <span class="c">// 第二遍：一个点的所有出边都必须指向“能到达 t”的点，它才允许出现在路径上</span>
+    <span class="k">for</span> (<span class="k">int</span> u = <span class="n">1</span>; u &lt;= n; ++u) {
+        <span class="k">if</span> (!canReach[u]) <span class="k">continue</span>;
+        <span class="k">bool</span> good = <span class="k">true</span>;
+        <span class="k">for</span> (<span class="k">int</span> v : g[u])
+            <span class="k">if</span> (!canReach[v]) { good = <span class="k">false</span>; <span class="k">break</span>; }
+        ok[u] = good;
+    }
+
+    <span class="c">// 第三遍：在 ok 的点上做 BFS，边权都是 1，第一次到达即最短</span>
+    <span class="k">memset</span>(dist, -<span class="n">1</span>, <span class="k">sizeof</span> dist);
+    <span class="k">if</span> (ok[s]) {
+        q.<span class="f">push</span>(s);
+        dist[s] = <span class="n">0</span>;
+        <span class="k">while</span> (!q.<span class="k">empty</span>()) {
+            <span class="k">int</span> u = q.<span class="f">front</span>(); q.<span class="f">pop</span>();
+            <span class="k">for</span> (<span class="k">int</span> v : g[u]) {
+                <span class="k">if</span> (!ok[v] || dist[v] != -<span class="n">1</span>) <span class="k">continue</span>;
+                dist[v] = dist[u] + <span class="n">1</span>;
+                q.<span class="f">push</span>(v);
+            }
+        }
+    }
+
+    <span class="k">printf</span>(<span class="s">"%d\n"</span>, dist[t]);
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b263">关键片段拆解</div><table class="lines"><thead><tr><th id="b264">片段</th><th id="b265">作用</th></tr></thead><tbody><tr><td id="b266"><code>rg[v].push_back(u);</code></td><td id="b267">反着存一条边。第一次 BFS 全靠它：从终点出发沿反边走，走到谁，谁就能正着回到终点。</td></tr><tr><td id="b268"><code>q.push(t); canReach[t] = true;</code></td><td id="b269">终点自己算「能到达自己」。漏了这一行，t 的入点全部标不上，答案恒为 −1。</td></tr><tr><td id="b270"><code>for (int v : g[u]) if (!canReach[v]) { good = false; break; }</code></td><td id="b271">「所有出边」的判定就在这里：只要有一条出边通向到不了 t 的点，u 直接作废。写成「存在一条能到 t」是另一道题。</td></tr><tr><td id="b272"><code>if (!canReach[u]) continue;</code></td><td id="b273">自己都到不了 t 的点本来就上不了 s→t 的路径，不必再查它的出边，省一半时间。</td></tr><tr><td id="b274"><code>if (!ok[v] || dist[v] != -1) continue;</code></td><td id="b275">第二次 BFS 只走合法点，且每个点只入队一次，所以整遍仍是 O(n+m)。</td></tr><tr><td id="b276"><code>printf("%d\n", dist[t]);</code></td><td id="b277">dist 全部初始化成 −1，所以不可达时自然输出 −1，不需要额外的 if。</td></tr></tbody></table><div class="box warn"><div class="t" id="b278">这题最容易错的地方</div><ul><li id="b279">只在原图上从 s 搜一次、不做合法性预处理：路径可能经过 2 这种「出边通向死路」的点 → WA。</li><li id="b280">反图 BFS 忘了把 t 自己标成 canReach：t 的入点全标不上，任何数据都输出 −1。</li><li id="b281">合法性写成「存在一条出边能到 t」（用 || 提前 break）：条件被放松，会输出一条并不合法的短路 → WA。</li><li id="b282">数组只开 10⁴：n 能取到 10⁴，g[10000] 已经在界外，习惯写 10005。</li></ul></div></div></details></div><div class="box info"><div class="t" id="b283">延伸阅读 / 参考</div><ul><li id="b284">《算法竞赛进阶指南》第 0x21 节：树与图的遍历</li><li id="b285">《算法竞赛入门笔记》图论章：邻接表、连通块与染色</li><li id="b286">洛谷 P5318、P3916 题解区的图论视角讲解</li></ul></div>
+
+<footer>算竞教程 · 算竞教程 · 生成于自建课程体系，题目版权归洛谷及各命题方所有<br>
+转载请注明出处；模板代码可直接用于比赛</footer>

@@ -1,0 +1,109 @@
+<section class="sec" id="s8" data-cat="字符串" fold>
+  
+  <div class="secbody">
+    <div class="callout"><p>字符串题目的套路性极强。第 4 章已经讲了 KMP（前缀函数）和字符串哈希，这一章补齐 Manacher 和 Z 函数，并给出字符串题的通用判断表。</p></div>
+    <article class="algo" id="pl-87" data-cat="字符串" data-name="8.1 字符串题先做一次选择 拿到一道字符串题，先按这个表定位工具： 题目在问什么 用什么 复杂度 --- --- --- 子串是否相等、回文判定 字符串哈希 O(1) 单次比较 模式串在文本串中出现位置 KMP O(n+m) 最长回文子串、回文计数 Manacher">
+      <div class="ah"><h4>8.1 字符串题先做一次选择</h4><span class="lv lv-a">进阶</span><span class="st">★★★★★</span><span class="tag">进阶</span></div>
+      <p>拿到一道字符串题，先按这个表定位工具：</p>
+      <table>
+      <tr><th>题目在问什么</th><th>用什么</th><th>复杂度</th></tr>
+      <tr><td>子串是否相等、回文判定</td><td><b>字符串哈希</b></td><td>O(1) 单次比较</td></tr>
+      <tr><td>模式串在文本串中出现位置</td><td><b>KMP</b></td><td>O(n+m)</td></tr>
+      <tr><td>最长回文子串、回文计数</td><td><b>Manacher</b></td><td>O(n)</td></tr>
+      <tr><td>每个后缀与原串的 LCP</td><td><b>Z 函数</b></td><td>O(n)</td></tr>
+      <tr><td>前缀查询、前缀计数</td><td><b>Trie</b></td><td>O(text{长度})</td></tr>
+      <tr><td>多模式串同时匹配</td><td><b>AC 自动机</b></td><td>第 9 章</td></tr>
+      <tr><td>子串排序、本质不同子串数</td><td><b>后缀数组 / SAM</b></td><td>第 9 章</td></tr>
+      </table>
+    </article>
+    <article class="algo" id="pl-88" data-cat="字符串" data-name="8.2 哈希的进阶用法 基础哈希已在 4.5 节。这里补充三个高频技巧： ① 回文判定（正反双哈希） cpp // 正着哈希 h1，反着哈希 h2 // 子串 s[l..r] 是回文 ⟺ 正哈希(l,r) == 反哈希(n-r+1, n-l+1) ② 二分 + 哈希求 LCP（最长公共前缀） 两个后缀的 LCP 长度关于长度单调（">
+      <div class="ah"><h4>8.2 哈希的进阶用法</h4><span class="lv lv-a">进阶</span><span class="st">★★★★★</span><span class="tag">进阶</span><a class="prac" href="practice.html#P3370" target="_blank" title="题单里的模板题">P3370</a><a class="prac" href="practice.html#P3805" target="_blank" title="题单里的模板题">P3805</a><a class="prac" href="practice.html#P4551" target="_blank" title="题单里的模板题">P4551</a></div>
+      <p>基础哈希已在 4.5 节。这里补充三个高频技巧：</p>
+      <p><b>① 回文判定（正反双哈希）</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      // 正着哈希 h1，反着哈希 h2
+      // 子串 s[l..r] 是回文 ⟺ 正哈希(l,r) == 反哈希(n-r+1, n-l+1)
+      </script></div>
+      <p><b>② 二分 + 哈希求 LCP（最长公共前缀）</b></p>
+      <p>两个后缀的 LCP 长度<b>关于长度单调</b>（长度 L 成立则更短的都成立），所以可以二分：</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      int l = 0, r = min(n - i + 1, n - j + 1);
+      while (l < r) {
+          int mid = (l + r + 1) >> 1;
+          if (hash(i, i + mid - 1) == hash(j, j + mid - 1)) l = mid;
+          else r = mid - 1;
+      }
+      // l 就是 LCP 长度，单次 O(log n)
+      </script></div>
+      <p>这是「哈希 + 二分」的经典组合，能替代很多 KMP 的活。</p>
+      <p><b>③ 判断循环节</b></p>
+      <p>若 <code>n % (n - pi[n-1]) == 0</code>，最小循环节长度是 <code>n - pi[n-1]</code>（用 KMP 更直接，见 4.10 节）。</p>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p><b>单模数哈希在正式比赛会被卡</b>（出题人可以针对你的模数和进制构造反例）。重要场次一律双哈希，或者加随机进制。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P3370" target="_blank">P3370</a> 字符串哈希　·　<a href="practice.html#P3805" target="_blank">P3805</a> Manacher（哈希也能过）　·　<a href="practice.html#P4551" target="_blank">P4551</a> 最长异或路径</p>
+    </article>
+    <article class="algo" id="pl-89" data-cat="字符串" data-name="8.3 Manacher：线性求最长回文 本质 在字符间插入分隔符，把「奇回文」和「偶回文」统一成奇回文。然后利用回文的对称性——已算出的回文信息可以直接「镜像」给右边的新位置，避免重复扩展。 类比 你在一串字符里找最长的镜子。已经确认「以 i 为中心、半径 r 的镜子」之后，它覆盖范围内右边的位置，其回文半径至少等于「左边对称位置」的半径——免费拿到">
+      <div class="ah"><h4>8.3 Manacher：线性求最长回文</h4><span class="lv lv-a">进阶</span><span class="st">★★★★★</span><span class="tag">进阶</span><a class="prac" href="practice.html#P3805" target="_blank" title="题单里的模板题">P3805</a><a class="prac" href="practice.html#P4555" target="_blank" title="题单里的模板题">P4555</a><a class="prac" href="practice.html#P1659" target="_blank" title="题单里的模板题">P1659</a></div>
+      <p class="idea"><b>本质</b>：在字符间插入分隔符，把「奇回文」和「偶回文」<b>统一成奇回文</b>。然后利用回文的对称性——已算出的回文信息可以直接「镜像」给右边的新位置，避免重复扩展。</p>
+      <div class="box idea"><span class="t">🎨 生活类比</span><p>你在一串字符里找最长的镜子。已经确认「以 i 为中心、半径 r 的镜子」之后，它覆盖范围内右边的位置，其回文半径至少等于「左边对称位置」的半径——<b>免费拿到一个下界，然后从这个下界开始往外扩。</b></p></div>
+      <p><b>模板</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      // 返回半径数组 p，t 中插入分隔符后 s 的最长回文 = max(p[i]) - 1
+      string t;
+      vector<int> manacher(const string &s) {
+          t = "^#";
+          for (char c : s) { t += c; t += '#'; }
+          t += '$';
+          int n = t.size();
+          vector<int> p(n, 0);
+          int c = 0, r = 0;                       // c 是当前最右回文中心，r 是右端点
+          for (int i = 1; i < n - 1; ++i) {
+              p[i] = (i < r) ? min(r - i, p[2 * c - i]) : 1;   // 镜像
+              while (t[i - p[i]] == t[i + p[i]]) ++p[i];       // 向外扩
+              if (i + p[i] > r) { c = i; r = i + p[i]; }       // 更新最右
+          }
+          return p;
+      }
+      </script></div>
+      <p><b>两个哨兵 <code>^</code> 和 <code>$</code> 是精髓</b>——它们互不相等且不在字符串中出现，所以 <code>while</code> 循环永远不需要判边界，代码不会越界。</p>
+      <p><b>为什么是 O(n)</b></p>
+      <p><code>r</code> 只会单调右移，总共右移 n 次；每次 <code>while</code> 成功扩展都会让 <code>r</code> 右移。所以总扩展次数 O(n)——又是均摊分析。</p>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P3805" target="_blank">P3805</a> Manacher 模板　·　<a href="practice.html#P4555" target="_blank">P4555</a> 最长双回文串　·　<a href="practice.html#P1659" target="_blank">P1659</a> 拉拉队排练　·　<a href="practice.html#P4287" target="_blank">P4287</a> 双倍回文</p>
+    </article>
+    <article class="algo" id="pl-90" data-cat="字符串" data-name="8.4 Z 函数（扩展 KMP） 本质 z_i = 原串与自己的后缀 s[i..] 的最长公共前缀长度。它比 KMP 更通用——把模式串和文本串拼成 p + &#x27;#&#x27; + s 跑一遍 Z 函数，就能得到「每个位置开始能匹配多长」，从而一次解决几乎所有线性匹配问题。 模板 cpp vector&lt;int zfunc(const string &amp;s">
+      <div class="ah"><h4>8.4 Z 函数（扩展 KMP）</h4><span class="lv lv-a">进阶</span><span class="st">★★★★★</span><span class="tag">进阶</span><a class="prac" href="practice.html#P5410" target="_blank" title="题单里的模板题">P5410</a><a class="prac" href="practice.html#P2375" target="_blank" title="题单里的模板题">P2375</a><a class="prac" href="practice.html#P3435" target="_blank" title="题单里的模板题">P3435</a></div>
+      <p class="idea"><b>本质</b>：z_i = 原串与自己的后缀 s[i..] 的<b>最长公共前缀长度</b>。它比 KMP 更通用——把模式串和文本串拼成 <code>p + '#' + s</code> 跑一遍 Z 函数，就能得到「每个位置开始能匹配多长」，从而一次解决几乎所有线性匹配问题。</p>
+      <p><b>模板</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      vector<int> zfunc(const string &s) {
+          int n = s.size();
+          vector<int> z(n, 0);
+          z[0] = n;
+          for (int i = 1, l = 0, r = 0; i < n; ++i) {
+              if (i <= r) z[i] = min(r - i + 1, z[i - l]);     // 利用已算信息
+              while (i + z[i] < n && s[z[i]] == s[i + z[i]]) ++z[i];
+              if (i + z[i] - 1 > r) { l = i; r = i + z[i] - 1; }
+          }
+          return z;
+      }
+      </script></div>
+      <p><b>三个用法</b></p>
+      <table>
+      <tr><th>需求</th><th>做法</th></tr>
+      <tr><td>模式串 p 在文本 t 中所有出现位置</td><td>拼成 <code>p + '#' + t</code>，找「z 值等于模式串长度」的位置</td></tr>
+      <tr><td>求字符串所有周期</td><td><code>n - z[i]</code> 为周期的位置</td></tr>
+      <tr><td>求「每个前缀在原串出现几次」</td><td>对 z 数组做后缀计数（可用树状数组）</td></tr>
+      </table>
+      <div class="box tip"><span class="t">💡 提示</span><p><b>Z 函数和 KMP 的 <code>pi</code> 数组是"同一枚硬币的两面"</b>：<code>pi</code> 看「以 i 结尾」，<code>z</code> 看「以 i 开头」。两者复杂度都是 O(n)，能解决的问题高度重叠，选一个练熟即可。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P5410" target="_blank">P5410</a> 扩展 KMP（Z 函数）　·　<a href="practice.html#P2375" target="_blank">P2375</a> 动物园　·　<a href="practice.html#P3435" target="_blank">P3435</a> OKR-Periods of Words</p>
+    </article>
+    <article class="algo" id="pl-91" data-cat="字符串" data-name="8.5 字符串题的四条经验 1. 先想哈希。绝大多数「判等 / 判回文 / 求 LCP」的题，哈希 + 二分能在 20 行内写完，且不容易错。 2. 需要「所有出现位置」时才上 KMP/Z。只判存在性，哈希更快。 3. 多模式串直接想 AC 自动机（第 9 章）。不要试图用 KMP 一个个匹配。 4. 字符串题的对拍特别好写：暴力用 find">
+      <div class="ah"><h4>8.5 字符串题的四条经验</h4><span class="lv lv-a">进阶</span><span class="st">★★★★★</span><span class="tag">进阶</span></div>
+      <ol class="tight"><li><b>先想哈希</b>。绝大多数「判等 / 判回文 / 求 LCP」的题，哈希 + 二分能在 20 行内写完，且不容易错。</li><li><b>需要「所有出现位置」时才上 KMP/Z</b>。只判存在性，哈希更快。</li><li><b>多模式串直接想 AC 自动机</b>（第 9 章）。不要试图用 KMP 一个个匹配。</li><li><b>字符串题的对拍特别好写</b>：暴力用 <code>find</code> / 双重循环，随机生成小写字符串即可。<b>字符串题一定要对拍</b>，因为边界情况（空串、单字符、全同字符）极多。</li></ol>
+    </article>
+    <article class="algo" id="pl-92" data-cat="字符串" data-name="8.6 第 8 章验收标准 - [ ] 哈希（单/双模）、KMP、Manacher、Z 函数四套模板能盲写。 - [ ] 能说清「哈希 vs KMP vs Z vs Trie」各自该在什么时候用。 - [ ] 知道单哈希会被卡，以及双哈希为什么更安全。 - [ ] 累计 AC 洛谷字符串题不少于 10 道。 ---">
+      <div class="ah"><h4>8.6 第 8 章验收标准</h4><span class="lv lv-a">进阶</span><span class="st">★★★★★</span><span class="tag">进阶</span></div>
+      <ul class="tight"><li>☐ 哈希（单/双模）、KMP、Manacher、Z 函数四套模板能盲写。</li><li>☐ 能说清「哈希 vs KMP vs Z vs Trie」各自该在什么时候用。</li><li>☐ 知道单哈希会被卡，以及双哈希为什么更安全。</li><li>☐ 累计 AC 洛谷字符串题不少于 10 道。</li></ul>
+    </article>
+  </div>
+</section>
+

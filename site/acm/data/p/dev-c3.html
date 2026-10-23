@@ -1,0 +1,316 @@
+
+<p class="lead">前面两件解决「值不值得写」和「写得快不快」，这一件解决最难的那个问题：<b>你怎么知道自己是对的？</b>只看代码是看不出来的 —— 你需要一台能自动挑错的机器。</p>
+
+<details class="fold" id="h1" open>
+<summary>3.1　为什么对拍是唯一可靠的调试手段<span class="sum-note">「我觉得没错」不是证据</span></summary>
+<div class="fold-body">
+<p class="idea"><b>本质</b>：写一个<b>「肯定对但很慢」</b>的暴力程序，再写一个随机数据生成器，让两者在同一份数据上跑 —— <b>输出不一致，就说明正解错了</b>，而且数据自动给你留下来了。</p>
+<p class="idea">为什么它比「盯着代码看」强这么多？因为三件事：</p>
+<table>
+<thead><tr><th>盯着代码看</th><th>对拍</th></tr></thead>
+<tbody>
+<tr><td>靠你对代码的理解 —— 而<b>错误恰恰来自你理解错的地方</b>，所以你看多少遍都看不出来</td><td>靠两份<b>独立实现</b>的对比 —— 它们同时错在同一个地方的概率极低</td></tr>
+<tr><td>只能覆盖你<b>想到</b>的情况。你没想到的边界，你也不会去测</td><td>随机数据会跑出你<b>没想到</b>的组合，这才是它真正的价值</td></tr>
+<tr><td>发现错了之后，还得自己造一组能复现的数据，可能花掉半小时</td><td>停下时数据已经存在 <span class="mono">in.txt</span> 里了 —— <b>直接拿它去调</b></td></tr>
+</tbody>
+</table>
+<div class="callout ok">
+<p><b>一句话把它的定位说清楚：</b>对拍不能帮你<b>想出</b>解法，但能在你自以为想出来之后，<b>用机器证明你错了</b>。竞赛里「我觉得这题对了」和「这题确实对了」之间的距离，就是对拍填上的。</p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="h2" open>
+<summary>3.2　对拍三件套与工作流<span class="sum-note">gen / brute / std</span></summary>
+<div class="fold-body">
+<table>
+<thead><tr><th class="num">角色</th><th>写什么</th><th>要求</th></tr></thead>
+<tbody>
+<tr><td class="num mono">gen</td><td>数据生成器</td><td>输出到 stdout，够快就行</td></tr>
+<tr><td class="num mono">brute</td><td>暴力程序</td><td><b>慢可以，但必须一定对</b>。枚举 / 搜索 / 直接把题目翻译成代码</td></tr>
+<tr><td class="num mono">std</td><td>你的正解</td><td>就是你要交的那一份</td></tr>
+</tbody>
+</table>
+<p class="idea">三份代码都编译成可执行文件，然后让脚本反复跑「生成 → 两边各跑一次 → 比输出」这个循环：</p>
+<svg class="fig" viewBox="0 0 0 0 680 320" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>对拍的工作流</title>
+<desc>生成器把随机数据写进文件，暴力程序和正解读同一份数据，比较两者输出：一致就换下一组，不一致就停下并保存这份数据作为反例。</desc>
+<rect class="fg-card" x="250" y="40" width="180" height="44" rx="10"/>
+<text class="fg-t" x="340" y="62" font-size="13" text-anchor="middle" dominant-baseline="central">gen　生成随机数据</text>
+<line class="st-ok" x1="300" y1="84" x2="210.5" y2="114.7"/>
+<path class="ah-ok" d="M200 118 L208.9 109.9 L212 119.4 Z"/>
+<line class="st-acc" x1="380" y1="84" x2="469.5" y2="114.7"/>
+<path class="ah-acc" d="M480 118 L468 119.4 L471.1 109.9 Z"/>
+<rect class="box-ok" x="80" y="120" width="200" height="44" rx="10"/>
+<text class="fg-t" x="180" y="142" font-size="12.5" text-anchor="middle" dominant-baseline="central">brute　暴力（慢，但一定对）</text>
+<rect class="box-acc" x="400" y="120" width="200" height="44" rx="10"/>
+<text class="fg-t" x="500" y="142" font-size="12.5" text-anchor="middle" dominant-baseline="central">std　你要交的那份正解</text>
+<line class="st-acc" x1="180" y1="164" x2="289.3" y2="191.3"/>
+<path class="ah-acc" d="M300 194 L288.1 196.2 L290.6 186.5 Z"/>
+<line class="st-acc" x1="500" y1="164" x2="390.7" y2="191.3"/>
+<path class="ah-acc" d="M380 194 L389.5 186.5 L391.9 196.2 Z"/>
+<rect class="fg-card" x="250" y="196" width="180" height="44" rx="10"/>
+<text class="fg-t" x="340" y="218" font-size="13" text-anchor="middle" dominant-baseline="central">diff　比较两份输出</text>
+<path class="st-acc" d="M430 218 H618 V62 H447" fill="none" stroke-dasharray="5 4"/>
+<path class="ah-acc" d="M432 62 L445 56.5 L445 67.5 Z"/>
+<text class="fg-s" x="612" y="140" font-size="11" text-anchor="end" dominant-baseline="central">一致 → 继续跑下一组</text>
+<rect class="band-ok" x="40" y="254" width="560" height="46" rx="8"/>
+<text class="fg-t" x="52" y="272" font-size="12.5">输出一致 → 换一组数据继续跑（这就是那个循环）</text>
+<text class="fg-t" x="52" y="290" font-size="12.5">输出不一致 → 停下，把这份数据存下来 —— 它是一个能让正解出错的最小反例</text>
+</svg>
+<p class="figcap">循环的每一轮都是一次独立的随机试验。不一致的那一刻，<span class="mono">in.txt</span> 就是一份能让正解出错的最小反例。</p>
+<div class="callout">
+<p><b>为什么不把生成器写进 brute 或 std 里面？</b>因为两个程序必须读<b>完全相同的输入</b>。如果在各自的程序里生成，就要保证两边随机序列一模一样 —— 一旦有半点差别，你比的就是两份不同的数据，对拍立刻失去意义。<b>生成器必须是独立进程，输出写进文件，两边从同一个文件读。</b></p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="h3">
+<summary>3.3　数据生成器：三个关键技巧<span class="sum-note">决定对拍有没有用</span></summary>
+<div class="fold-body">
+<p class="idea">对拍能不能抓到错，<b>九成取决于生成器写得好不好</b>。随机数乱撒只能撞到「普通的错」，而真正难查的是边界。</p>
+<ol class="tight">
+<li><b>先小后大。</b>从 <span class="mono">n ≤ 8</span> 开始。空数据、n=1、全负数、全部相等、严格递增这些边界错误，<b>几乎一定在小数据里就暴露</b>。而且小数据你还能手动推演，知道到底哪一步错了。</li>
+<li><b>构造特殊数据，不要纯随机。</b>纯随机的数据「太普通」了。要专门生成：全部相同、严格递增、严格递减、只有 0、只有负数、最大和最小紧挨着。<b>把这些形状混进随机流里</b>（例如 30% 概率走特殊分支）。</li>
+<li><b>卡住数据范围的边界。</b>题目说 <span class="mono">a ≤ 10⁹</span>，那随机数就<b>必须覆盖到 10⁹ 和 −10⁹</b>。只在 <span class="mono">[0, 1000]</span> 里取数，永远试不出溢出和精度问题。</li>
+</ol>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <cstdio>、<cstdlib>、<ctime>、<algorithm>
+using namespace std;
+
+// 生成 [lo, hi] 的随机整数（能覆盖到大数，绕开 RAND_MAX 的限制）
+long long rnd(long long lo, long long hi) {
+    long long r = (1LL * rand() << 15) ^ rand();   // 拼出 30 位随机数
+    return lo + r % (hi - lo + 1);
+}
+
+int main() {
+    srand(time(0) ^ (unsigned)clock());   // 种子带上时钟，避免同一秒内重复
+    int mode = rand() % 4;                // 30% 左右走特殊形状
+
+    if (mode == 0) {                      // ① 极小规模：专打边界
+        int n = rand() % 8 + 1;
+        printf("%d\n", n);
+        for (int i = 1; i <= n; ++i) printf("%lld ", rnd(-10, 10));
+    } else if (mode == 1) {               // ② 全部相同
+        int n = rand() % 100 + 1;
+        long long v = rnd(-1000000000LL, 1000000000LL);
+        printf("%d\n", n);
+        for (int i = 1; i <= n; ++i) printf("%lld ", v);
+    } else if (mode == 2) {               // ③ 严格递增（很多算法只在这上面才露馅）
+        int n = rand() % 200 + 1;
+        printf("%d\n", n);
+        long long cur = -1000000000LL;    // ★ 从数据范围下界起步
+        for (int i = 1; i <= n; ++i) { cur += rand() % 10 + 1; printf("%lld ", cur); }
+    } else {                              // ④ 贴着范围上限
+        int n = 100000;                   // 大数组，试复杂度和溢出
+        printf("%d\n", n);
+        for (int i = 1; i <= n; ++i) printf("%lld ", rnd(-1000000000LL, 1000000000LL));
+    }
+    putchar('\n');
+    return 0;
+}</script></div>
+<div class="callout warn">
+<p><b>注意 ③ 那种「只在小数据里才出现的错误」和 ④ 那种「只在最大数据里才出现的错误」是两类，都要覆盖。</b>前者靠 mode 0～2，后者靠 mode 3。<b>只有大数据的对拍会漏掉边界，只有小数据的对拍会漏掉溢出。</b></p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="h4">
+<summary>3.4　随机数：<span class="mono">rand()</span> 的四个坑<span class="sum-note">本地能跑、评测机不对，多半是这里</span></summary>
+<div class="fold-body">
+<svg class="fig" viewBox="0 0 0 0 680 238" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>rand() 能生成的数值范围</title>
+<desc>Linux 上 RAND_MAX 是 21 亿多，Windows 上只有 32767，相差五个数量级，导致本地生成不出大数据。</desc>
+<text class="fg-s" x="40" y="26" font-size="12.5">rand() 能生成的数值范围（RAND_MAX）</text>
+<text class="fg-s" x="40" y="50" font-size="12">Linux / macOS / 评测机：RAND_MAX = 2147483647（2³¹−1）</text>
+<rect class="bd bd-ok" x="40" y="58" width="480" height="20" rx="4"/>
+<text class="fg-s" x="40" y="96" font-size="12">Windows（本地调试 / MinGW / VS）：RAND_MAX = 32767</text>
+<rect class="bd bd-dan" x="40" y="104" width="6" height="20" rx="2"/>
+<text class="tx-dan" x="56" y="114" font-size="11.5" dominant-baseline="central">只占上面那一条的万分之一</text>
+<rect class="band-warn" x="40" y="142" width="600" height="76" rx="8"/>
+<text class="fg-t" x="52" y="164" font-size="12">后果：在 Windows 本地测 10⁵～10⁶ 级数据时，rand() 根本生成不出大数，</text>
+<text class="fg-t" x="52" y="182" font-size="12">对拍数据全挤在 0～32767 里 —— 只有大数据才暴露的错误，永远试不出来。</text>
+<text class="tx-warn" x="52" y="204" font-size="12">解法：(rand() &lt;&lt; 15) ^ rand() 手动拼大数，或者直接换 &lt;random&gt; 里的 mt19937。</text>
+</svg>
+<p class="figcap">同一个 <span class="mono">rand()</span>，在 Windows 和 Linux 上能生成的数值范围差了五个数量级。</p>
+<table>
+<thead><tr><th>坑</th><th>后果</th><th>怎么绕开</th></tr></thead>
+<tbody>
+<tr><td><b>1. <span class="mono">RAND_MAX</span> 在 Windows 上只有 32767</b></td><td>本地生成 <span class="mono">n = 10⁵</span> 的数据时，所有值都挤在 0～32767 里，<b>大数据才暴露的错误永远试不出来</b></td><td><span class="mono">(rand() &lt;&lt; 15) ^ rand()</span> 手动拼；或直接换 <span class="mono">&lt;random&gt;</span> 的 <span class="mono">mt19937</span></td></tr>
+<tr><td><b>2. 不播种时序列完全一样</b></td><td>每次跑都是同一组数据，对拍等于只测了一次</td><td><span class="mono">srand(time(0) ^ (unsigned)clock())</span>。<b>注意要 XOR 上 <span class="mono">clock()</span></b>：<span class="mono">time(0)</span> 的粒度是秒，同一秒内启动两次种子相同</td></tr>
+<tr><td><b>3. <span class="mono">rand() % n</span> 分布不均匀</b></td><td>较小的数被生成得更多（除非 n 整除 <span class="mono">RAND_MAX + 1</span>）。数据「不够随机」，某些组合永远随机不到</td><td>正式场合用 <span class="mono">mt19937</span> + <span class="mono">uniform_int_distribution</span></td></tr>
+<tr><td><b>4. <span class="mono">rand() * rand()</span> 会溢出</b></td><td><span class="mono">int</span> 相乘直接爆掉，结果是负的或者很小</td><td>先转 64 位：<span class="mono">1LL * rand() * rand()</span>，或者用上面的 <span class="mono">&lt;&lt; 15 ^</span> 写法</td></tr>
+</tbody>
+</table>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <random>、<algorithm>、<vector>
+// 正经的随机数：不依赖 RAND_MAX，分布均匀
+std::mt19937 rng(std::random_device{}());          // 用真随机源播种，不需要 srand
+std::uniform_int_distribution<long long> dist(-1000000000LL, 1000000000LL);
+
+long long v = dist(rng);                           // 均匀落在 [lo, hi]
+
+// 打乱一个序列（比手写随机交换更均匀）
+std::vector<int> a = {1, 2, 3, 4, 5};
+std::shuffle(a.begin(), a.end(), rng);</script></div>
+<div class="callout">
+<p><b>但也要说句公道话：</b>在 OJ 上做题，<span class="mono">rand()</span> 加个 <span class="mono">srand(time(0))</span> 通常就够了 —— 你是拿它造对拍数据，不是做密码学。<b>换 <span class="mono">mt19937</span> 的理由只有一个：你写的生成器在 Windows 本地跑，数据规模上到 10⁵ 以上。</b></p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="h5">
+<summary>3.5　对拍脚本：三个平台各一份<span class="sum-note">能跑起来，比对拍本身更重要</span></summary>
+<div class="fold-body">
+<p class="idea"><b>Windows 批处理</b>（双击就能跑，最省事）：</p>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">:: 存成 loop.bat，和 gen.exe / brute.exe / std.exe 放一起
+:: 编译：g++ gen.cpp -o gen.exe -O2   （brute 不要开 -O2，让它慢慢跑）
+@echo off
+setlocal enabledelayedexpansion
+set /a cnt=0
+:loop
+gen.exe > in.txt
+brute.exe < in.txt > out1.txt
+std.exe   < in.txt > out2.txt
+fc out1.txt out2.txt > nul
+if not errorlevel 1 (
+    set /a cnt+=1
+    echo [!cnt!] OK
+    goto loop
+)
+echo.
+echo ====== WRONG！正解和数据已保存 ======
+echo 出错的输入在 in.txt
+echo 正解输出 out1.txt，你的输出 out2.txt
+type in.txt
+pause</script></div>
+<p class="idea"><b>Linux / macOS shell</b>（一行命令起手）：</p>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">#!/bin/bash
+# 存成 loop.sh，chmod +x loop.sh
+i=0
+while true; do
+    ./gen > in.txt
+    ./brute < in.txt > out1.txt
+    ./std   < in.txt > out2.txt
+    if ! diff -q out1.txt out2.txt > /dev/null; then
+        echo "WRONG at test #$i"
+        cat in.txt          # 把出错数据打出来，省得再去看文件
+        break
+    fi
+    i=$((i + 1))
+    echo "[$i] OK"
+    # 想限制跑多久就加：【 if [ $i -ge 2000 ]; then break; fi 】
+done</script></div>
+<div class="callout warn">
+<p><b>一个平台差异坑：</b>Windows 的批处理 <b>不会自动换行到 <span class="mono">LF</span></b>，而 <span class="mono">printf("\n")</span> 输出的是 <span class="mono">CRLF</span>；Linux 上是 <span class="mono">LF</span>。如果生成器用 <span class="mono">printf</span>、而比较用的是 <span class="mono">diff</span>，或者你在 Windows 上写数据、拿到 Linux 上比，<b>行尾差异会导致假的「不一致」</b>。稳妥做法：比较前统一行尾，或者两边都用同一套命令。</p>
+</div>
+<p class="idea"><b>Python 版</b>（跨平台、最好改，推荐）：</p>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-python">#!/usr/bin/env python3
+# 依赖：只需标准库。存成 loop.py，和三个可执行文件放一起
+import subprocess, sys
+
+MAX_TESTS = 2000      # 最多跑多少轮，防止忘了关
+
+for i in range(1, MAX_TESTS + 1):
+    data = subprocess.run(['./gen'], capture_output=True).stdout
+    r1 = subprocess.run(['./brute'], input=data, capture_output=True).stdout
+    r2 = subprocess.run(['./std'], input=data, capture_output=True).stdout
+    if r1.split() != r2.split():        # 按 token 比，忽略行尾与多余空格
+        print(f'WRONG at test #{i}')
+        print('--- 输入 ---')
+        print(data.decode())
+        print('--- 暴力 ---')
+        print(r1.decode())
+        print('--- 正解 ---')
+        print(r2.decode())
+        open('in.txt', 'wb').write(data)   # 存下来，方便单独复现
+        sys.exit(1)
+    if i % 100 == 0:
+        print(f'[{i}] OK')
+
+print('全部通过')</script></div>
+<div class="callout ok">
+<p><b>Python 版多做了两件值得抄的事：</b>① <b>用 <span class="mono">split()</span> 按 token 比较</b>，忽略行尾和多余空格造成的假报警；② <b>设了 <span class="mono">MAX_TESTS</span> 上限</b> —— 忘了关的对拍脚本会在你写下一个程序时偷偷占着 CPU。</p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="h6">
+<summary>3.6　什么时候对拍不上<span class="sum-note">不是所有题都能这么办</span></summary>
+<div class="fold-body">
+<svg class="fig" viewBox="0 0 0 0 680 250" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>对拍能成立的两个支柱，和它撑不住的地方</title>
+<desc>左边是对拍必须满足的三个前提，右边是三种没法用对拍的情况。</desc>
+<text class="fg-s" x="40" y="26" font-size="12.5">对拍能成立的两个支柱，和它撑不住的地方</text>
+<rect class="fg-card" x="40" y="40" width="290" height="190" rx="10"/>
+<rect class="bd bd-ok" x="52" y="52" width="266" height="28" rx="6"/>
+<text class="tx-ok" x="185" y="66" font-size="12.5" text-anchor="middle" dominant-baseline="central">三个前提：缺一个就无效</text>
+<text class="fg-t" x="56" y="98" font-size="11.5">暴力必须真的对</text>
+<text class="fg-s" x="56" y="113" font-size="10.5">先用题目样例验证暴力</text>
+<text class="fg-t" x="56" y="140" font-size="11.5">两边读入格式完全一致</text>
+<text class="fg-s" x="56" y="155" font-size="10.5">多一个空格就假报错</text>
+<text class="fg-t" x="56" y="182" font-size="11.5">两个程序都得跑得动</text>
+<text class="fg-s" x="56" y="197" font-size="10.5">跑不动就不叫对拍</text>
+<rect class="fg-card" x="350" y="40" width="290" height="190" rx="10"/>
+<rect class="bd bd-dan" x="362" y="52" width="266" height="28" rx="6"/>
+<text class="tx-dan" x="495" y="66" font-size="12.5" text-anchor="middle" dominant-baseline="central">什么时候对拍不上</text>
+<text class="fg-t" x="366" y="98" font-size="11.5">写不出暴力</text>
+<text class="fg-s" x="366" y="113" font-size="10.5">搜索空间太大 / 答案不可枚举</text>
+<text class="fg-t" x="366" y="140" font-size="11.5">答案不唯一</text>
+<text class="fg-s" x="366" y="155" font-size="10.5">多解题要另写 special judge</text>
+<text class="fg-t" x="366" y="182" font-size="11.5">交互题</text>
+<text class="fg-s" x="366" y="197" font-size="10.5">输入输出交错，没法离线跑</text>
+</svg>
+<p class="figcap">对拍能成立，靠的是「有暴力可写 + 答案可比较」这两根支柱。任意一根断了，就得换别的办法。</p>
+<div class="callout warn">
+<p><b>对拍失败时最危险的心态</b>，是「对拍脚本报错了，说明是我脚本写错了」—— 然后去改脚本。<b>先怀疑正解，再怀疑脚本。</b>验证脚本本身对不对的办法：故意把正解改错一行（比如把 <span class="mono">&lt;</span> 改成 <span class="mono">&lt;=</span>），看对拍能不能抓出来。<b>抓不出来，说明你的对拍是无效的。</b></p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="h7">
+<summary>3.7　对拍部分的七条常见错误<span class="sum-note">每一条都会让你白跑一晚</span></summary>
+<div class="fold-body">
+<h3>1. 暴力程序本身就是错的</h3>
+<p class="idea">最致命的一条 —— <b>暴力和正解一起错，对拍永远显示「通过」</b>，给你虚假的安全感。所以：<b>先用题目给的样例验证暴力</b>，或者用另一道更简单的同类题验证。暴力要写「笨到不用动脑」的版本，别在这里秀技巧。</p>
+
+<h3>2. 两边读入格式不一致</h3>
+<p class="idea">暴力读 <span class="mono">n</span> 之后读到行尾，正解读到行尾<b>加一个空格</b> —— 这种差别会让两边吃到不同的数据，然后报一堆假错。<b>暴力请直接复制正解的读入部分。</b></p>
+
+<h3>3. 生成器只生成小数据</h3>
+<p class="idea">小数据能抓边界，抓不到溢出和复杂度问题。<b>让 <span class="mono">n</span> 在 1 到上限之间都取到</b>，而且要有几档接近上限的。</p>
+
+<h3>4. 生成器只生成大数据</h3>
+<p class="idea">反过来同理。<span class="mono">n = 10⁵</span> 的随机数据里出现「n = 1」或「全部相同」的概率是零，而这类边界恰恰是最容易写错的。</p>
+
+<h3>5. 用 <span class="mono">rand()</span> 生成 10⁵ 级的数据</h3>
+<p class="idea">Windows 上 <span class="mono">RAND_MAX = 32767</span>，生成不出真的大数 —— 而你在 Windows 上写、在 Linux 上测，就会看到「本地对拍通过、交上去 WA」。见 3.4。</p>
+
+<h3>6. 让暴力也开 O2、也做优化</h3>
+<p class="idea">暴力的价值就在于「简单到不可能错」。给它加优化、加剪枝，你就等于又写了一个可能错的正解。<b>暴力就让它慢。</b></p>
+
+<h3>7. 对拍脚本没有退出条件</h3>
+<p class="idea">一直 <span class="mono">while true</span> 跑下去，忘了关就占着 CPU。<b>设一个轮数上限或时间上限</b>，跑够就自动停。</p>
+<div class="callout">
+<p><b>一个很实用的自检：</b>把正解故意改错一个地方，跑对拍，看它<b>几轮之内</b>能不能抓到。如果跑了几千轮都没抓到，说明你的生成器覆盖得太差 —— <b>这比对拍本身更值得修</b>。</p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="h8">
+<summary>3.8　题单：对拍怎么练<span class="sum-note">找一道你有把握的题</span></summary>
+<div class="fold-body">
+<table>
+<thead><tr><th class="num">练什么</th><th>怎么做</th></tr></thead>
+<tbody>
+<tr><td class="num"><b>第一次对拍</b></td><td>找任意一道你<b>已经 AC 过</b>的题，把「暴力 + 正解 + 生成器」三份代码都写出来，跑 1 分钟。目的不是找错，是<b>把流程跑顺</b>。</td></tr>
+<tr><td class="num"><b>验证对拍有效</b></td><td>然后把正解<b>故意改错一行</b>，看对拍几轮内抓到它。抓不到就改生成器 —— 这一步能让你真正理解「生成器决定对拍上限」。</td></tr>
+<tr><td class="num"><b>真刀真枪</b></td><td>以后任何一道题只要 WA 了、又看不出问题，就写对拍。<b>养成这个反射，比多刷十道题有用。</b></td></tr>
+</tbody>
+</table>
+<p class="ref">搭配题单（原文给的）：先做 <a  href="#mod-hb">学习手册</a> 里你已经有把握的入门题；想要有难度的可以直接上 <b>洛谷 P1908 逆序对</b> —— 它的暴力（双重循环 O(n²)）和正解（归并 / 树状数组）差得很远，是练对拍的好材料。</p>
+<div class="callout ok">
+<p><b>对拍是可以积累的：</b>把 gen / brute / loop 三个文件做成模板放进一个 <span class="mono">stress/</span> 目录，以后每道题只改 <span class="mono">gen</span> 和 <span class="mono">brute</span>。<b>越麻烦的东西越要变成模板，这是第 2 章那句话的延续。</b></p>
+</div>
+</div>
+</details>
+

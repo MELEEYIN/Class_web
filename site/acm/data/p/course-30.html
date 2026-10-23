@@ -1,0 +1,363 @@
+
+<p id="b0">第 26~29 节给的东西可以压成三句话：<b>BFS 按层扩散，第一次访问就是最短路</b>；<b>答案有单调性时，把「求最优」换成「判可行」再二分</b>；<b>容器只决定一件事——下一次该取谁</b>（queue 取最早、stack 取最晚、priority_queue 取最小）。这一节不教新算法，只用一道完整例题把 BFS 模板从头抄到尾，再把二分、堆、队列的骨架各拆一遍，最后用 5 道洛谷黄题限时训练。</p><div class="quote" id="b1">BFS 的答案在第一次访问时定下；二分的答案在最后一次收缩时定下；容器的答案在弹出顺序里定下。</div><table><thead><tr><th id="b2">节</th><th id="b3">内容</th><th id="b4">看到这些字就上它</th></tr></thead><tbody><tr><td id="b5">26</td><td id="b6">BFS：一层一层地扩散</td><td id="b7">「最少几步」「最短时间」「同时从多个点出发」，且每一步代价相同</td></tr><tr><td id="b8">27</td><td id="b9">二分查找与二分答案</td><td id="b10">「最大值最小」「最小值最大」「第 k 个满足…」，且答案随判定单调</td></tr><tr><td id="b11">28</td><td id="b12">双端队列与优先队列</td><td id="b13">「每次取当前最小 / 最大」；边权只有 0 和 1 的最短路</td></tr><tr><td id="b14">29</td><td id="b15">栈与队列的应用</td><td id="b16">「括号」「后缀表达式」「出栈顺序」；「最近一段时间内到达的人」</td></tr></tbody></table><div class="prob"><div class="ph"><span class="pn" id="b17">例题 · 奶酪</span><span class="oi">洛谷 P3958</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P3958" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b18">一块长方体奶酪，高为 h，底面在平面 z = 0 上，顶面在 z = h。奶酪里有 n 个球形空洞，半径都是 r，第 i 个洞的球心是 (xᵢ, yᵢ, zᵢ)。</p><p id="b19">一只老鼠在奶酪底面上，它只能通过空洞穿行：两个洞若<b>相交或相切</b>（球心距离 ≤ 2r）就互相连通；洞若与底面接触（zᵢ ≤ r）就能从底面钻进去，若与顶面接触（zᵢ + r ≥ h）就能钻出来。问老鼠能否从底面走到顶面。</p><p id="b20">输入格式：第一行一个整数 T，表示数据组数。每组数据：第一行三个整数 n、h、r；接下来 n 行，每行三个整数 xᵢ、yᵢ、zᵢ。</p><p id="b21">输出格式：每组数据输出一行，能走出去输出 <code>Yes</code>，否则输出 <code>No</code>。</p><p id="b22">数据范围：1 ≤ n ≤ 1000，1 ≤ h, r ≤ 10⁹，0 ≤ xᵢ, yᵢ, zᵢ ≤ 10⁹。</p></div><div class="io" id="b23">输入：
+1
+2 4 1
+1 1 1
+1 1 3
+输出：
+Yes</div></div><p id="b24">先看清这 6 个东西的结构。它们的名字和参数写错一个字符，整道题就从 WA 开始。</p><div class="fn"><div class="fh" id="b25">新函数拆解 · queue（队列）</div><div class="fb"><div class="sig" id="b26">queue&lt;int&gt; q;
+q.push(x);  q.front();  q.pop();  q.empty();</div><table class="lines"><thead><tr><th id="b27">组成</th><th id="b28">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b29"><code>queue&lt;int&gt;</code></td><td id="b30">先进先出（FIFO）容器。BFS 靠它保证「先被发现的点先扩展」，于是步数单调不减。</td></tr><tr><td id="b31"><code>q.push(x)</code></td><td id="b32">放到队尾。BFS 里就是「发现一个新点，排队等处理」。</td></tr><tr><td id="b33"><code>q.front()</code></td><td id="b34">读队头元素，<b>只读不删</b>。</td></tr><tr><td id="b35"><code>q.pop()</code></td><td id="b36">删掉队头，<b>返回 void</b>，不能写 <code>int u = q.pop();</code>。</td></tr><tr><td id="b37"><code>q.empty()</code></td><td id="b38">空返回 true。循环固定写 <code>while (!q.empty())</code>。</td></tr><tr><td id="b39"><code>q.size()</code></td><td id="b40">元素个数，返回无符号数，和 int 比较时留意类型。</td></tr></tbody></table><div class="cap" id="b41">最小可运行示例</div><div class="cap" id="b42">示例</div><pre id="b43"><code><span class="k">queue</span>&lt;<span class="k">int</span>&gt; q;
+q.<span class="f">push</span>(<span class="n">1</span>); q.<span class="f">push</span>(<span class="n">2</span>); q.<span class="f">push</span>(<span class="n">3</span>);   <span class="c">// 队列内：1 2 3</span>
+
+<span class="k">int</span> u = q.<span class="f">front</span>();                 <span class="c">// u = 1，元素还在队里</span>
+q.<span class="f">pop</span>();                           <span class="c">// 队列内：2 3</span>
+
+<span class="k">cout</span> &lt;&lt; q.<span class="f">front</span>() &lt;&lt; <span class="s">" "</span> &lt;&lt; q.<span class="k">size</span>() &lt;&lt; <span class="s">"\n"</span>;   <span class="c">// 2 2</span></code></pre><div class="box tip"><div class="t" id="b44">注意</div><p id="b45"><code>front()</code> 取值和 <code>pop()</code> 删元素是两步。少写一步 = 同一个点被处理两次。</p><p id="b46">对空队列调用 <code>front()/pop()</code> 是未定义行为：本地可能不崩，评测机上就是 RE。</p></div></div></div><div class="fn"><div class="fh" id="b47">新函数拆解 · pair 与结构化绑定（C++17）</div><div class="fb"><div class="sig" id="b48">queue&lt;pair&lt;int,int&gt;&gt; q;
+q.push({x, y});
+auto [x, y] = q.front();</div><table class="lines"><thead><tr><th id="b49">组成</th><th id="b50">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b51"><code>pair&lt;int,int&gt;</code></td><td id="b52">把两个 int 打包成一个类型。网格题用它存 (行, 列)，就不必开两个队列、两个数组。</td></tr><tr><td id="b53"><code>q.push({x, y})</code></td><td id="b54">花括号直接构造一个 pair 压入队列。</td></tr><tr><td id="b55"><code>auto [x, y] = ...</code></td><td id="b56">结构化绑定：一次把 first、second 拆成两个变量。C++17 起可用。</td></tr><tr><td id="b57"><code>老写法</code></td><td id="b58"><code>int x = q.front().first, y = q.front().second;</code>，机子只支持 C++14 时改这样。</td></tr><tr><td id="b59"><code>嵌套尖括号</code></td><td id="b60"><code>queue&lt;pair&lt;int,int&gt;&gt;</code> 结尾两个 <code>&gt;</code> 之间留空格，C++11 之前会当成右移。</td></tr></tbody></table><div class="cap" id="b61">最小可运行示例</div><div class="cap" id="b62">示例</div><pre id="b63"><code><span class="k">queue</span>&lt;<span class="k">pair</span>&lt;<span class="k">int</span>,<span class="k">int</span>&gt;&gt; q;
+q.<span class="f">push</span>({<span class="n">2</span>, <span class="n">5</span>});
+q.<span class="f">push</span>({<span class="n">3</span>, <span class="n">1</span>});
+
+<span class="k">auto</span> [x, y] = q.<span class="f">front</span>();      <span class="c">// x = 2, y = 5（拷贝，改它不影响队列）</span>
+q.<span class="f">pop</span>();
+
+<span class="k">int</span> a = q.<span class="f">front</span>().<span class="k">first</span>;      <span class="c">// 不用结构化绑定的等价写法</span>
+<span class="k">int</span> b = q.<span class="f">front</span>().<span class="k">second</span>;</code></pre><div class="box tip"><div class="t" id="b64">注意</div><p id="b65"><code>auto [x, y]</code> 拿到的是副本；想改队列里的元素要用引用，而 <code>queue</code> 本来就不给改队头。</p><p id="b66">坐标顺序全程统一：都用 (行, 列)。方向数组那里如果换成 (列, 行)，答案会整体转置。</p></div></div></div><div class="fn"><div class="fh" id="b67">新函数拆解 · lower_bound / upper_bound（有序区间二分）</div><div class="fb"><div class="sig" id="b68">int p = lower_bound(a + 1, a + n + 1, x) - a;</div><table class="lines"><thead><tr><th id="b69">组成</th><th id="b70">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b71"><code>区间</code></td><td id="b72">左闭右开 <code>[first, last)</code>，<b>必须已按 &lt; 升序排好</b>。</td></tr><tr><td id="b73"><code>lower_bound</code></td><td id="b74">返回<b>第一个大于等于</b> x 的位置。</td></tr><tr><td id="b75"><code>upper_bound</code></td><td id="b76">返回<b>第一个严格大于</b> x 的位置。</td></tr><tr><td id="b77"><code>换成下标</code></td><td id="b78">数组写 <code>- a</code>，vector 写 <code>- v.begin()</code>，否则得到的是迭代器。</td></tr><tr><td id="b79"><code>找不到</code></td><td id="b80">返回 last。判断不存在要写 <code>it != last</code>，不能只看 <code>*it == x</code>。</td></tr><tr><td id="b81"><code>复杂度</code></td><td id="b82">O(log n) 次比较。n = 10⁶ 时约 20 次，比扫一遍快 5 万倍。</td></tr></tbody></table><div class="cap" id="b83">最小可运行示例</div><div class="cap" id="b84">示例</div><pre id="b85"><code><span class="k">int</span> a[<span class="n">6</span>] = {<span class="n">0</span>, <span class="n">1</span>, <span class="n">3</span>, <span class="n">3</span>, <span class="n">3</span>, <span class="n">7</span>};              <span class="c">// a[1..5] 有序，下标从 1 起</span>
+<span class="k">int</span> p = <span class="k">lower_bound</span>(a + <span class="n">1</span>, a + <span class="n">6</span>, <span class="n">3</span>) - a;   <span class="c">// p = 2，第一个 3</span>
+<span class="k">int</span> q = <span class="k">upper_bound</span>(a + <span class="n">1</span>, a + <span class="n">6</span>, <span class="n">3</span>) - a;   <span class="c">// q = 5，第一个大于 3 的位置</span>
+<span class="k">int</span> c = q - p;                              <span class="c">// c = 3，即 3 的个数</span></code></pre><div class="box tip"><div class="t" id="b86">注意</div><p id="b87">没排序就 lower_bound，结果毫无意义：在 <code>1 2 1</code> 里查 1，返回的是中间那个。</p><p id="b88">手写二分有 <code>while (l &lt;= r)</code> 与 <code>while (l &lt; r)</code> 两套模板，混着写必死循环；用库函数没有这个风险。</p></div></div></div><div class="fn"><div class="fh" id="b89">新函数拆解 · 二分答案的固定骨架（check + 收缩）</div><div class="fb"><div class="sig" id="b90">while (l &lt; r) { int mid = ...; if (check(mid)) ...; else ...; }</div><table class="lines"><thead><tr><th id="b91">组成</th><th id="b92">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b93"><code>check(x)</code></td><td id="b94">返回「答案不超过 x（或 x 可行）」。必须<b>单调</b>：x 变大时结果只从 false 变 true，不能反复。</td></tr><tr><td id="b95"><code>l、r</code></td><td id="b96">区间永远是「答案所在的范围」。l、r 的初值要真的把答案包住，宁可放宽一格。</td></tr><tr><td id="b97"><code>mid 防溢出</code></td><td id="b98"><code>l + (r - l) / 2</code>，别写 <code>(l + r) / 2</code>：两者都接近 2×10⁹ 时会溢出成负数。</td></tr><tr><td id="b99"><code>求最小值</code></td><td id="b100">下取整 mid；check 为真 <code>r = mid</code>，否则 <code>l = mid + 1</code>。</td></tr><tr><td id="b101"><code>求最大值</code></td><td id="b102">上取整 <code>l + (r - l + 1) / 2</code>；check 为真 <code>l = mid</code>，否则 <code>r = mid - 1</code>。</td></tr><tr><td id="b103"><code>复杂度</code></td><td id="b104">O(log 值域 × check)。值域 10⁹ 时约 30 次 check，10⁶ 个数也就 3×10⁷ 次运算。</td></tr></tbody></table><div class="cap" id="b105">最小可运行示例</div><div class="cap" id="b106">示例</div><pre id="b107"><code><span class="c">// 求最小的可行值：check 形如 false false ... false true true ...</span>
+<span class="k">int</span> l = <span class="n">0</span>, r = <span class="n">1000000000</span>;
+<span class="k">while</span> (l &lt; r) {
+    <span class="k">int</span> mid = l + (r - l) / <span class="n">2</span>;
+    <span class="k">if</span> (<span class="f">check</span>(mid)) r = mid;        <span class="c">// mid 可行，答案不超过 mid</span>
+    <span class="k">else</span>            l = mid + <span class="n">1</span>;    <span class="c">// mid 不可行，答案更大</span>
+}
+<span class="k">cout</span> &lt;&lt; l &lt;&lt; <span class="s">"\n"</span>;                  <span class="c">// 收敛时 l == r，就是答案</span></code></pre><div class="box tip"><div class="t" id="b108">注意</div><p id="b109">「r = mid 配下取整」「l = mid 配上取整」这两对必须成套。配错了就是死循环 TLE。</p><p id="b110">check 写错方向（把 ≥ 写成 &gt;、把「不超过」写成「不少于」）时，二分照样跑完，只是答案是错的——这类 WA 最难查。</p></div></div></div><div class="fn"><div class="fh" id="b111">新函数拆解 · priority_queue（优先队列 / 堆）</div><div class="fb"><div class="sig" id="b112">priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; pq;</div><table class="lines"><thead><tr><th id="b113">组成</th><th id="b114">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b115"><code>priority_queue&lt;int&gt;</code></td><td id="b116">默认<b>大根堆</b>：<code>top()</code> 是当前最大值。</td></tr><tr><td id="b117"><code>三个参数</code></td><td id="b118">元素类型、底层容器、比较方式。<code>greater&lt;int&gt;</code> 表示小的优先，即小根堆。</td></tr><tr><td id="b119"><code>pq.push(x)</code></td><td id="b120">插入，O(log n)。</td></tr><tr><td id="b121"><code>pq.top()</code></td><td id="b122">读堆顶（最值），O(1)，只读不删。</td></tr><tr><td id="b123"><code>pq.pop()</code></td><td id="b124">删堆顶，O(log n)，同样不返回值。</td></tr><tr><td id="b125"><code>底层</code></td><td id="b126">完全二叉树压在数组里；建堆 O(n)，单次操作 O(log n)。</td></tr></tbody></table><div class="cap" id="b127">最小可运行示例</div><div class="cap" id="b128">示例</div><pre id="b129"><code><span class="k">priority_queue</span>&lt;<span class="k">int</span>, <span class="k">vector</span>&lt;<span class="k">int</span>&gt;, <span class="k">greater</span>&lt;<span class="k">int</span>&gt;&gt; pq;   <span class="c">// 小根堆</span>
+
+<span class="k">for</span> (<span class="k">int</span> x : {<span class="n">5</span>, <span class="n">1</span>, <span class="n">4</span>, <span class="n">2</span>}) pq.<span class="f">push</span>(x);
+<span class="k">while</span> (!pq.<span class="k">empty</span>()) {
+    <span class="k">cout</span> &lt;&lt; pq.<span class="f">top</span>() &lt;&lt; <span class="s">" "</span>;   <span class="c">// 1 2 4 5</span>
+    pq.<span class="f">pop</span>();
+}</code></pre><div class="box tip"><div class="t" id="b130">注意</div><p id="b131">写成 <code>priority_queue&lt;int&gt;</code> 就是大根堆，取出的顺序整个反过来——合并果子这类题会直接 WA。</p><p id="b132">堆里存结构体要自己写比较规则；比较规则写反、或漏了兜底字段，是堆题的第一大 WA 来源。</p></div></div></div><div class="fn"><div class="fh" id="b133">新函数拆解 · stack（栈）</div><div class="fb"><div class="sig" id="b134">stack&lt;int&gt; st;
+st.push(x);  st.top();  st.pop();  st.empty();</div><table class="lines"><thead><tr><th id="b135">组成</th><th id="b136">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b137"><code>stack&lt;int&gt;</code></td><td id="b138">后进先出（LIFO）容器。</td></tr><tr><td id="b139"><code>st.push(x)</code></td><td id="b140">压栈，放到栈顶。</td></tr><tr><td id="b141"><code>st.top()</code></td><td id="b142">读栈顶，O(1)，只读不删。</td></tr><tr><td id="b143"><code>st.pop()</code></td><td id="b144">弹出栈顶，返回 void。</td></tr><tr><td id="b145"><code>用之前必须判空</code></td><td id="b146">对空栈 <code>top()/pop()</code> 是未定义行为，代码里永远「先判空、再 top」。</td></tr></tbody></table><div class="cap" id="b147">最小可运行示例</div><div class="cap" id="b148">示例</div><pre id="b149"><code><span class="k">stack</span>&lt;<span class="k">char</span>&gt; st;
+<span class="k">string</span> s = <span class="s">"(()"</span>;
+<span class="k">for</span> (<span class="k">char</span> c : s) {
+    <span class="k">if</span> (c == <span class="s">'('</span>) st.<span class="f">push</span>(c);
+    <span class="k">else</span> <span class="k">if</span> (!st.<span class="k">empty</span>()) st.<span class="f">pop</span>();   <span class="c">// 先判空</span>
+}
+<span class="k">cout</span> &lt;&lt; (st.<span class="k">empty</span>() ? <span class="s">"匹配"</span> : <span class="s">"不匹配"</span>) &lt;&lt; <span class="s">"\n"</span>;</code></pre><div class="box tip"><div class="t" id="b150">注意</div><p id="b151">括号匹配的判据是「扫完栈为空」；中途遇到右括号而栈已空，同样直接判不匹配。</p><p id="b152">把 stack 换成 queue 就是 BFS，换成 deque 就是 0-1 BFS——三个容器只差一两个函数名。</p></div></div></div><div class="box tip"><div class="t" id="b153">容器怎么选：只看「下一次该取谁」</div><p id="b154">取<b>最早进来的</b> → <code>queue</code>。BFS、按时间滑动的窗口（海港）。</p><p id="b155">取<b>最后进来的</b> → <code>stack</code>。括号匹配、后缀表达式、非递归 DFS。</p><p id="b156">取<b>当前最小 / 最大</b> → <code>priority_queue</code>。质量检测（滑窗最小值）、Dijkstra、贪心选最优。</p><p id="b157">两头都要取 → <code>deque</code>。<b>0-1 BFS</b>（边权只有 0 和 1）：权 0 塞队头、权 1 塞队尾，一次 BFS 就得到最短路。</p></div><div class="step"><div class="sh" id="b158">例题怎么想：把“洞”当成点，把“连通”当成边</div><p id="b159"><b>抽象。</b>每个洞是一个点。两个洞连通 ⇔ 球心距离 ≤ 2r。再加两个虚拟点：底面 S 与所有满足 <code>zᵢ ≤ r</code> 的洞相连，顶面 T 与所有满足 <code>zᵢ + r ≥ h</code> 的洞相连。问题变成“S 与 T 是否连通”——一次 BFS 就够。</p><p id="b160"><b>判定条件为什么是这两个不等式。</b>洞是半径 r 的球：它最低点是 zᵢ − r，最高点是 zᵢ + r。与底面（z = 0）相碰 ⟺ <code>zᵢ − r ≤ 0</code>；与顶面（z = h）相碰 ⟺ <code>zᵢ + r ≥ h</code>。切点也算，所以用 ≤ / ≥ 而不是 &lt; / &gt;。</p><p id="b161"><b>距离比较必须避开浮点。</b>球心距 ≤ 2r 等价于 <code>(Δx)² + (Δy)² + (Δz)² ≤ 4r²</code>。坐标到 10⁹，平方到 10¹⁸，三项相加到 3×10¹⁸，仍在 long long 范围内（上限约 9.2×10¹⁸）。如果先开根号再比较，浮点误差会让“相切”这种边界情况判错。</p><p id="b162"><b>BFS 还是 DFS？</b>都可以。这里只要“连通与否”，不关心步数，用 BFS 只是为了不用递归、不担心栈深度（本题 n ≤ 1000，其实都安全）。</p><p id="b163"><b>复杂度。</b>每轮 BFS 最多把每条边看一遍，边数是 n²/2 = 5×10⁵，乘上 T 组数据，1 秒能过。</p><p id="b164"><b>为什么不能排序后只连相邻的。</b>“距离 ≤ 2r”不是一个偏序关系，排序之后相邻的两个洞不一定连通、隔得远的却可能连通，所以只能两两判。</p></div><div class="cap" id="b165">完整代码</div><pre id="b166"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">int</span> T;
+    <span class="k">cin</span> &gt;&gt; T;
+    <span class="k">while</span> (T--) {
+        <span class="k">int</span> n;
+        <span class="k">long</span> <span class="k">long</span> h, r;
+        <span class="k">cin</span> &gt;&gt; n &gt;&gt; h &gt;&gt; r;
+
+        <span class="k">vector</span>&lt;array&lt;<span class="k">long</span> <span class="k">long</span>, <span class="n">3</span>&gt;&gt; <span class="f">p</span>(n);
+        <span class="k">for</span> (<span class="k">auto</span>&amp; a : p) <span class="k">cin</span> &gt;&gt; a[<span class="n">0</span>] &gt;&gt; a[<span class="n">1</span>] &gt;&gt; a[<span class="n">2</span>];
+
+        <span class="k">vector</span>&lt;<span class="k">int</span>&gt; <span class="f">vis</span>(n, <span class="n">0</span>);
+        <span class="k">queue</span>&lt;<span class="k">int</span>&gt; q;
+
+        <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; n; ++i)
+            <span class="k">if</span> (p[i][<span class="n">2</span>] &lt;= r) { vis[i] = <span class="n">1</span>; q.<span class="f">push</span>(i); }    <span class="c">// 从底面能直接钻进去</span>
+
+        <span class="k">bool</span> ok = <span class="k">false</span>;
+        <span class="k">while</span> (!q.<span class="k">empty</span>() &amp;&amp; !ok) {
+            <span class="k">int</span> u = q.<span class="f">front</span>(); q.<span class="f">pop</span>();
+            <span class="k">if</span> (p[u][<span class="n">2</span>] + r &gt;= h) { ok = <span class="k">true</span>; <span class="k">break</span>; }     <span class="c">// 这个洞碰到顶面</span>
+            <span class="k">for</span> (<span class="k">int</span> v = <span class="n">0</span>; v &lt; n; ++v) {
+                <span class="k">if</span> (vis[v]) <span class="k">continue</span>;
+                <span class="k">long</span> <span class="k">long</span> dx = p[u][<span class="n">0</span>] - p[v][<span class="n">0</span>];
+                <span class="k">long</span> <span class="k">long</span> dy = p[u][<span class="n">1</span>] - p[v][<span class="n">1</span>];
+                <span class="k">long</span> <span class="k">long</span> dz = p[u][<span class="n">2</span>] - p[v][<span class="n">2</span>];
+                <span class="k">if</span> (dx * dx + dy * dy + dz * dz &lt;= <span class="n">4</span> * r * r) {   <span class="c">// 相交或相切</span>
+                    vis[v] = <span class="n">1</span>;
+                    q.<span class="f">push</span>(v);
+                }
+            }
+        }
+        <span class="k">cout</span> &lt;&lt; (ok ? <span class="s">"Yes"</span> : <span class="s">"No"</span>) &lt;&lt; <span class="s">"\n"</span>;
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b167">逐行拆解</div><table class="lines"><thead><tr><th id="b168">代码片段</th><th id="b169">含义与理由</th></tr></thead><tbody><tr><td id="b170"><code>vector&lt;array&lt;long long, 3&gt;&gt; p(n);</code></td><td id="b171">坐标存 long long：距离平方要到 10¹⁸ 量级，int 早就溢出。多组数据用 vector 现开现释放，比全局数组更省心。</td></tr><tr><td id="b172"><code>if (p[i][2] &lt;= r)</code></td><td id="b173">与底面接触的条件。注意用它而不是 <code>z &lt; 0</code>——球的最低点是 z − r，只要这个值 ≤ 0 就能从底下钻进去。</td></tr><tr><td id="b174"><code>if (p[u][2] + r &gt;= h)</code></td><td id="b175">与顶面接触的条件。切点也算通，所以用 ≥。</td></tr><tr><td id="b176"><code>dx * dx + dy * dy + dz * dz &lt;= 4 * r * r</code></td><td id="b177">用“平方比较”代替开根号：避免浮点误差，也省掉 sqrt 的时间。注意 <code>4 * r * r</code> 必须先做乘法再比较，写成 <code>2 * r * 2 * r</code> 结果相同但可读性差。</td></tr><tr><td id="b178"><code>long long dx = ...;</code></td><td id="b179">差值的平方一定非负，但差值本身可以是负数：用 long long 存，乘方之后才安全。</td></tr><tr><td id="b180"><code>if (vis[v]) continue;</code></td><td id="b181">已经入队的洞不再重复入队。BFS 里“入队即标记”，这是从第 26 节就定下来的规矩。</td></tr><tr><td id="b182"><code>while (!q.empty() &amp;&amp; !ok)</code></td><td id="b183">找到一条到顶面的路就可以停，不必跑完整张图。这份剪枝在多组数据时很值钱。</td></tr></tbody></table></div><table><thead><tr><th id="b184">看到这些话</th><th id="b185">第一反应</th><th id="b186">复杂度</th></tr></thead><tbody><tr><td id="b187">最少几步 / 最短时间，每步代价相同</td><td id="b188">BFS，距离数组兼作 visited</td><td id="b189">O(状态数)</td></tr><tr><td id="b190">最大值最小 / 最小值最大</td><td id="b191">二分答案 + check</td><td id="b192">O(log 值域 × check)</td></tr><tr><td id="b193">每次取当前最小 / 最大</td><td id="b194">priority_queue（注意小根堆三参数）</td><td id="b195">O(n log n)</td></tr><tr><td id="b196">括号 / 后缀式 / 出栈顺序</td><td id="b197">stack 模拟</td><td id="b198">O(n)</td></tr><tr><td id="b199">按时间滑动的区间</td><td id="b200">queue 存元素 + cnt 计数，队头过期就弹出</td><td id="b201">O(总元素数)</td></tr></tbody></table><div class="box warn"><div class="t" id="b202">这一章最容易踩的 7 个坑（都带症状）</div><p id="b203">BFS 把「标记已访问」写在出队时而不是入队时：同一个点被多个父亲反复推进队列。症状是<b>小数据全对、大数据 TLE 或 MLE</b>，队列长度能到状态数的几倍。</p><p id="b204">距离数组初值用 0 而不是 −1：全局数组默认就是 0，「到不了」的格子被当成「0 步到达」。症状是<b>输出一片 0</b>，样例第一眼就能看出来。</p><p id="b205">方向数组与棋盘下标起点不匹配（0 起 vs 1 起）：症状是<b>第一行或第一列全是 −1</b>，而且小样例往往只差一两个格子，极易被忽略。</p><p id="b206">二分求最大值时 mid 用了下取整 <code>(l + r) / 2</code>：l 与 r 相邻且 check 为真时 l 不动。症状是<b>死循环 TLE</b>，最后几个点全挂。</p><p id="b207">check 里累加用 <code>int</code>：砍树 n = 10⁶、树高 4×10⁵，总和到 4×10¹¹，溢出成负数后 check 永远为真。症状是<b>输出二分上界而不是答案</b>。</p><p id="b208">二分的上界开小了：H 只开到 10⁵，比它高的答案全被截断。症状是<b>WA 但样例照过</b>，因为样例的树矮——上界一定要按题目给的最大值开。</p><p id="b209"><code>priority_queue&lt;int&gt;</code> 当小根堆用：取出的永远是大值。症状是<b>质量检测的答案全变成窗口最大值</b>（1 3 2 5 4 6 会输出 3 3 5 6 而不是 1 2 2 4），因为大根堆把最大的顶在上面。</p></div><div class="reproduce"><div class="rt" id="b210">自己动手复现</div><p id="b211">关掉页面，把上面 P3958 的完整代码手打一遍并提交，样例必须输出 Yes。</p><p id="b212">改一改①：把距离判断换成浮点写法 <code>sqrt(dx*dx+dy*dy+dz*dz) &lt;= 2*r</code>，造一组“两个球恰好相切”的数据，看会不会判错——这就是浮点误差的现场。</p><p id="b213">改一改②：把 <code>4 * r * r</code> 写成 <code>4 * r * r</code> 但把 dx 的类型改成 int，输入坐标到 10⁹ 的数据，看结果为什么突然变成 Yes/No 乱跳（溢出）。</p><p id="b214">改一改③：把 <code>z &lt;= r</code> 改成 <code>z &lt; r</code>，造一组“球正好与底面外切”的数据，验证边界必须取等号。</p><p id="b215">改一改④：把 BFS 换成 DFS 递归，n = 1000 的链状数据也能过；再想想如果 n 到 10⁵ 会怎样。</p></div><div class="box info"><div class="t" id="b216">这次训练怎么用 95 分钟</div><p id="b217">0~10 分钟：只读题，不写代码。按「能立刻写」→「有思路」→「没思路」给 5 题排个序。</p><p id="b218">10~30 分钟：A（01迷宫）。重点不是 BFS 模板，而是「每个连通块只算一次」那句优化。</p><p id="b219">30~55 分钟：B（砍树）。二分答案的第一个方向：找最后一个可行值，mid 要上取整。</p><p id="b220">55~75 分钟：C（数列分段）。第二个方向：找第一个可行值，下界必须取 max(aᵢ)。</p><p id="b221">75~85 分钟：D（质量检测）。小根堆 + 懒删除：队首过期就 pop，写出 while 而不是 if。</p><p id="b222">85~95 分钟：E（海港）。只写队列 + 计数数组，不写复杂结构；最后核对边界与计数顺序。</p></div><div class="box ok"><div class="t" id="b223">提交前的 30 秒检查清单</div><p id="b224">BFS：距离数组初值 −1、起点 0、入队即标记，三件事都做了吗？</p><p id="b225">二分：l、r 的初值真的把答案包住了吗？mid 的取整方向与收缩方向配套吗？</p><p id="b226">check 里的累加变量是 <code>long long</code> 吗？最大值估一遍：个数 × 单值。</p><p id="b227">小根堆是不是写全了 <code>&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt;</code>？</p><p id="b228">多组数据 / 多组询问：全局数组、栈、队列都清空了吗？</p><p id="b229">输出：行末有没有多余空格？每组询问是否各自换行？</p></div><h2 id="b230">本次训练 · 共 5 题</h2><div class="box tip"><div class="t" id="b231">做题方式</div><p id="b232">限时 <b>100 分钟</b>。每题先自己写 20~25 分钟；写不出来先看提示，再给自己 10 分钟；还不行才点开思路。每题都独立限时，不要一题耗死。</p></div><div class="challenge"><div class="ct" id="b233">大题 挑战题 1 · 01迷宫</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1141</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P1141" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b234">有一个 n × n 的迷宫，每格是 0 或 1。站在 0 上只能走到相邻 4 格中的 1，站在 1 上只能走到相邻 4 格中的 0。</p><p id="b235">给出 m 个询问 (i, j)，每次求从这一格出发能走到的格子数（包含自身）。</p><p id="b236">输入格式：第一行 n、m（1 ≤ n ≤ 1000，1 ≤ m ≤ 10⁵）；接下来 n 行每行 n 个 0/1 字符、字符间没有空格；再接下来 m 行，每行两个整数 i、j。</p><p id="b237">输出格式：m 行，每行一个整数，表示对应询问的答案。</p></div><div class="cap" id="b238">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+2 2
+01
+10
+1 1
+2 2
+
+输出：
+4
+4</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b239">照题面直译：每个询问从 (i,j) 做一次 BFS。先估一下最坏要做多少次、每次多大。</p><p id="b240">如果两个格子互相可达，它们的答案必然相同。想一想「互相可达」把整张棋盘分成了什么。</p><p id="b241">既然同块同答案，能不能每块只算一次，之后每个询问只查表？</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b242">把格子看成点，相邻且数字不同就连一条边。「数字不同」是对称的，所以这是一张无向图。</p><p id="b243">询问「从 (i,j) 能走到多少格」等价于求 (i,j) 所在<b>连通块的大小</b>。</p><p id="b244">同一连通块里任意两点可达集合相同，块内一点也走不到块外，所以块内所有格子的答案都等于块大小。</p><p id="b245">于是每个块只 BFS 一次：数出块大小，再把大小写回块内所有格子。之后每个询问 O(1) 查表。</p><p id="b246">实现上让 ans 数组兼作访问标记：0 = 没处理，−1 = 已入队、大小待定，正数 = 块大小。</p><p id="b247">复杂度 O(n² + m)：每格只入队一次，询问只查表。若每个询问单独 BFS，最坏 10⁵ × 10⁶ = 10¹¹，必 TLE。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b248">参考代码</div><pre id="b249"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">1005</span>;
+<span class="k">int</span> n, m;
+<span class="k">char</span> g[MAXN][MAXN];            <span class="c">// g[i][j]：'0' 或 '1'，行列从 1 开始</span>
+<span class="k">int</span> ans[MAXN][MAXN];           <span class="c">// 0 = 未处理，-1 = 已入队待定，正数 = 块大小</span>
+<span class="k">int</span> cells[MAXN * MAXN];        <span class="c">// 当前块内的格子，压成 i * MAXN + j</span>
+<span class="k">int</span> dx[<span class="n">4</span>] = {<span class="n">1</span>, -<span class="n">1</span>, <span class="n">0</span>, <span class="n">0</span>};
+<span class="k">int</span> dy[<span class="n">4</span>] = {<span class="n">0</span>, <span class="n">0</span>, <span class="n">1</span>, -<span class="n">1</span>};
+
+<span class="c">// 把 (sx, sy) 所在的整个连通块算完，并把块大小写回块内每一格</span>
+<span class="k">void</span> <span class="f">fill_block</span>(<span class="k">int</span> sx, <span class="k">int</span> sy) {
+    <span class="k">queue</span>&lt;<span class="k">pair</span>&lt;<span class="k">int</span>,<span class="k">int</span>&gt;&gt; q;
+    q.<span class="f">push</span>({sx, sy});
+    ans[sx][sy] = -<span class="n">1</span>;          <span class="c">// 入队就标记，不能等出队</span>
+
+    <span class="k">int</span> cnt = <span class="n">0</span>;
+    <span class="k">while</span> (!q.<span class="k">empty</span>()) {
+        <span class="k">auto</span> [x, y] = q.<span class="f">front</span>(); q.<span class="f">pop</span>();
+        cells[cnt++] = x * MAXN + y;       <span class="c">// 记下块内格子，等会儿统一回填</span>
+        <span class="k">for</span> (<span class="k">int</span> d = <span class="n">0</span>; d &lt; <span class="n">4</span>; ++d) {
+            <span class="k">int</span> nx = x + dx[d], ny = y + dy[d];
+            <span class="k">if</span> (nx &lt; <span class="n">1</span> || nx &gt; n || ny &lt; <span class="n">1</span> || ny &gt; n) <span class="k">continue</span>;
+            <span class="k">if</span> (ans[nx][ny] != <span class="n">0</span>) <span class="k">continue</span>;            <span class="c">// 已属于某个块</span>
+            <span class="k">if</span> (g[nx][ny] == g[x][y]) <span class="k">continue</span>;        <span class="c">// 只能走到数字不同的格</span>
+            ans[nx][ny] = -<span class="n">1</span>;
+            q.<span class="f">push</span>({nx, ny});
+        }
+    }
+    <span class="k">for</span> (<span class="k">int</span> k = <span class="n">0</span>; k &lt; cnt; ++k)                  <span class="c">// 同块同答案</span>
+        ans[cells[k] / MAXN][cells[k] % MAXN] = cnt;
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; m;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i)
+        <span class="k">for</span> (<span class="k">int</span> j = <span class="n">1</span>; j &lt;= n; ++j) <span class="k">cin</span> &gt;&gt; g[i][j];   <span class="c">// 读 char 会自动跳过换行</span>
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i)
+        <span class="k">for</span> (<span class="k">int</span> j = <span class="n">1</span>; j &lt;= n; ++j)
+            <span class="k">if</span> (ans[i][j] == <span class="n">0</span>) <span class="f">fill_block</span>(i, j);      <span class="c">// 每块只算一次</span>
+
+    <span class="k">while</span> (m--) {
+        <span class="k">int</span> i, j;
+        <span class="k">cin</span> &gt;&gt; i &gt;&gt; j;
+        <span class="k">cout</span> &lt;&lt; ans[i][j] &lt;&lt; <span class="s">"\n"</span>;                     <span class="c">// 询问退化成查表</span>
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b250">关键片段拆解</div><table class="lines"><thead><tr><th id="b251">片段</th><th id="b252">作用</th></tr></thead><tbody><tr><td id="b253"><code>int ans[MAXN][MAXN];</code></td><td id="b254">同时当答案表和访问标记。省掉一个 vis 数组，也省掉一次「两块表不同步」的 bug。</td></tr><tr><td id="b255"><code>ans[sx][sy] = -1;</code></td><td id="b256">入队立刻标记。等出队再标记的话，同一块里的格子会被多个父亲重复压入，块大小就数大了。</td></tr><tr><td id="b257"><code>cells[cnt++] = x * MAXN + y;</code></td><td id="b258">BFS 时还不知道块最终多大，只能先记下来；把坐标压成一个 int，一个数组就够。</td></tr><tr><td id="b259"><code>if (g[nx][ny] == g[x][y]) continue;</code></td><td id="b260">这就是「边」的定义：只能走到数字不同的相邻格。写反成 != 时 continue，整题崩。</td></tr><tr><td id="b261"><code>ans[cells[k] / MAXN][cells[k] % MAXN] = cnt;</code></td><td id="b262">回填：同一块所有格子的答案都等于块大小。</td></tr><tr><td id="b263"><code>while (m--)</code></td><td id="b264">询问阶段只查表，O(1)。这正是把 10¹¹ 降到 10⁶ 的地方。</td></tr></tbody></table><div class="box warn"><div class="t" id="b265">这题最容易错的地方</div><ul><li id="b266">对每个询问单独 BFS：m = 10⁵、n = 1000 时约 10¹¹ 次操作 → TLE。</li><li id="b267">入队时不标记、只在出队时标记 → 同一格被重复压入，块大小数大 → WA。</li><li id="b268">cells 数组按 10⁵ 开：n = 1000 时一整块能有 10⁶ 个格子，越界 → RE。</li><li id="b269">询问下标 1 起、数组开成 0 起，混用后答案整体错位一行一列。</li></ul></div></div></details></div><div class="challenge"><div class="ct" id="b270">大题 挑战题 2 · 砍树</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1873</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P1873" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b271">有 N 棵树，第 i 棵高 hᵢ。设定锯片高度 H 后，每棵高于 H 的树被锯掉 hᵢ − H 米，得到木材总量 Σ max(0, hᵢ − H)。</p><p id="b272">求最大的整数 H，使木材总量至少为 M。</p><p id="b273">输入格式：第一行两个整数 N、M（1 ≤ N ≤ 10⁶，1 ≤ M ≤ 2×10⁹）；第二行 N 个整数表示每棵树的高度（≤ 4×10⁵），保证所有树高之和 &gt; M。</p><p id="b274">输出格式：一个整数，表示锯片能升到的最大高度 H。</p></div><div class="cap" id="b275">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+4 7
+20 15 10 17
+
+输出：
+15</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b276">枚举 H 从 0 到最高的树，每次扫一遍 N 棵树：这样是多少次操作？N = 10⁶ 时能过吗？</p><p id="b277">H 增大时木材总量怎么变？把这句话翻译成一个单调的判定函数。</p><p id="b278">二分的上界不用猜——最高的那棵树就是自然上界。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b279">check(H)：Σ max(0, hᵢ − H) ≥ M。H 越大能锯到的越少，check 单调（真…真假…假）。</p><p id="b280">要的是<b>最后一个</b> check 为真的 H，于是用「上取整 mid + 可行则 l = mid」那一套。</p><p id="b281">上界取 mx = max(hᵢ)（再高就一棵也锯不到），下界 0（题目保证总和 &gt; M，H = 0 一定可行）。</p><p id="b282">check 里的 sum 必须 long long：10⁶ 棵 4×10⁵ 的树，总量 4×10¹¹，int 直接溢出。</p><p id="b283">复杂度 O(N log mx) ≈ 10⁶ × 19 ≈ 2×10⁷ 次运算，1 秒内稳过。</p><p id="b284">边界提醒：答案可能是 0（树都很矮），也可能是 mx，所以 l、r 的初值必须覆盖这两端。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b285">参考代码</div><pre id="b286"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">1000005</span>;
+<span class="k">int</span> n, h[MAXN];
+<span class="k">long</span> <span class="k">long</span> need;              <span class="c">// M 到 2×10⁹，用 int 比较会溢出</span>
+
+<span class="c">// 锯片高度为 H 时，得到的木材是否够 M 米</span>
+<span class="k">bool</span> <span class="f">check</span>(<span class="k">int</span> H) {
+    <span class="k">long</span> <span class="k">long</span> sum = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        <span class="k">if</span> (h[i] &gt; H) {
+            sum += h[i] - H;
+            <span class="k">if</span> (sum &gt;= need) <span class="k">return</span> <span class="k">true</span>;   <span class="c">// 够了就提前退出</span>
+        }
+    }
+    <span class="k">return</span> <span class="k">false</span>;
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">scanf</span>(<span class="s">"%d%lld"</span>, &amp;n, &amp;need);
+
+    <span class="k">int</span> mx = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;h[i]);
+        <span class="k">if</span> (h[i] &gt; mx) mx = h[i];
+    }
+
+    <span class="k">int</span> l = <span class="n">0</span>, r = mx;                      <span class="c">// 答案一定在 [0, 最高的树] 内</span>
+    <span class="k">while</span> (l &lt; r) {
+        <span class="k">int</span> mid = l + (r - l + <span class="n">1</span>) / <span class="n">2</span>;      <span class="c">// 上取整：求最大值必须这么写</span>
+        <span class="k">if</span> (<span class="f">check</span>(mid)) l = mid;            <span class="c">// mid 可行，答案不小于 mid</span>
+        <span class="k">else</span>            r = mid - <span class="n">1</span>;        <span class="c">// mid 不可行，答案更小</span>
+    }
+    <span class="k">printf</span>(<span class="s">"%d\n"</span>, l);
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b287">关键片段拆解</div><table class="lines"><thead><tr><th id="b288">片段</th><th id="b289">作用</th></tr></thead><tbody><tr><td id="b290"><code>bool check(int H)</code></td><td id="b291">把「H 行不行」封装成函数，主函数的二分只剩四行，也方便单独手测 check。</td></tr><tr><td id="b292"><code>long long sum = 0;</code></td><td id="b293">木材总量最大 4×10¹¹。用 int 溢出后变负，check 永远为真，输出上界而不是答案。</td></tr><tr><td id="b294"><code>if (h[i] &gt; H) sum += h[i] - H;</code></td><td id="b295">严格高于 H 才锯。恰好等于 H 的树贡献 0，写 &gt;= 结果一样，但按题意写更好读。</td></tr><tr><td id="b296"><code>if (sum &gt;= need) return true;</code></td><td id="b297">提前退出。木材够了就没必要继续扫后半段，n = 10⁶ 时这一句能省掉不少循环。</td></tr><tr><td id="b298"><code>int mid = l + (r - l + 1) / 2;</code></td><td id="b299">上取整。若用下取整，l 与 r 相邻且 check 为真时 l 永远不动 → 死循环。</td></tr><tr><td id="b300"><code>if (check(mid)) l = mid; else r = mid - 1;</code></td><td id="b301">可行就往上走，不可行就退一格。循环结束时 l == r，就是最后一个可行值。</td></tr></tbody></table><div class="box warn"><div class="t" id="b302">这题最容易错的地方</div><ul><li id="b303">上界写成 10⁵ 或 n：树高可以到 4×10⁵，比上界高的答案被截断 → WA。</li><li id="b304">check 里 sum 用 int：总量 4×10¹¹ 溢出 → check 恒真 → WA（输出上界）。</li><li id="b305">mid 用下取整又配 l = mid：l = r − 1 时死循环 → TLE。</li><li id="b306">scanf 用 <code>%d</code> 读 M：M 到 2×10⁹ 时溢出 → 比较全错。</li></ul></div></div></details></div><div class="challenge"><div class="ct" id="b307">大题 挑战题 3 · 数列分段 Section II</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1182</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P1182" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b308">给定一个长度为 N 的数列 A，把它分成 M 段连续的子段，要求每段和的最大值尽量小，输出这个最小值。</p><p id="b309">输入格式：第一行两个正整数 N、M（1 ≤ N ≤ 10⁵，M ≤ N）；第二行 N 个空格隔开的非负整数 Aᵢ（Aᵢ &lt; 10⁸）。</p><p id="b310">输出格式：一个整数，即每段和最大值的最小可能值（答案不超过 10⁹）。</p></div><div class="cap" id="b311">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+5 3
+4 2 4 5 1
+
+输出：
+6</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b312">「最大值最小」是二分答案的固定信号。先回答一个问题：如果限定每段和 ≤ X，最少要几段？</p><p id="b313">段数与 X 之间是单调的：X 越大，需要的段数越少。这就是能二分的理由。</p><p id="b314">二分的下界不能随便取 1。想一想：一个数本身就超过 X 时，你的 check 会怎么数段？</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b315">check(X)：从左往右贪心累加，能装就装，装不下就开新段，数出最少段数 cnt。</p><p id="b316">cnt ≤ M 说明 X 可行——段数不够可以把某段再切开，段数只会更多，而上限仍是 X。</p><p id="b317">段数随 X 单调不增，所以「最小可行 X」可以二分，用「下取整 mid + 可行则 r = mid」那一套。</p><p id="b318">下界必须取 max(Aᵢ)：否则 X 比某个数还小时，check 会把「单个元素已超限」的段也当成一段，二分会输出一个装不下的假答案。例：A = 10 1 1、M = 3，正确答案 10，下界取 1 会输出 2。</p><p id="b319">上界取总和 ΣAᵢ（只分一段），10⁵ × 10⁸ = 10¹³，必须 long long。</p><p id="b320">复杂度 O(N log ΣA) ≈ 10⁵ × 44，稳过。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b321">参考代码</div><pre id="b322"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">100005</span>;
+<span class="k">int</span> n, m, a[MAXN];
+
+<span class="c">// 每段和不超过 X 时，最少要分成几段</span>
+<span class="k">bool</span> <span class="f">check</span>(<span class="k">long</span> <span class="k">long</span> X) {
+    <span class="k">int</span> cnt = <span class="n">1</span>;                 <span class="c">// 至少一段</span>
+    <span class="k">long</span> <span class="k">long</span> sum = <span class="n">0</span>;           <span class="c">// 当前段的和</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        <span class="k">if</span> (sum + a[i] &lt;= X) {
+            sum += a[i];         <span class="c">// 能装就装：段数越少越容易满足 cnt &lt;= m</span>
+        } <span class="k">else</span> {
+            ++cnt;               <span class="c">// 装不下，开新段</span>
+            sum = a[i];
+        }
+    }
+    <span class="k">return</span> cnt &lt;= m;
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">scanf</span>(<span class="s">"%d%d"</span>, &amp;n, &amp;m);
+
+    <span class="k">long</span> <span class="k">long</span> l = <span class="n">0</span>, r = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;a[i]);
+        <span class="k">if</span> (a[i] &gt; l) l = a[i];  <span class="c">// 下界：最大的那个数</span>
+        r += a[i];               <span class="c">// 上界：全部装进一段</span>
+    }
+
+    <span class="k">while</span> (l &lt; r) {
+        <span class="k">long</span> <span class="k">long</span> mid = l + (r - l) / <span class="n">2</span>;
+        <span class="k">if</span> (<span class="f">check</span>(mid)) r = mid;        <span class="c">// X 够大，试试更小</span>
+        <span class="k">else</span>            l = mid + <span class="n">1</span>;    <span class="c">// X 太小，段数超了</span>
+    }
+    <span class="k">printf</span>(<span class="s">"%lld\n"</span>, l);
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b323">关键片段拆解</div><table class="lines"><thead><tr><th id="b324">片段</th><th id="b325">作用</th></tr></thead><tbody><tr><td id="b326"><code>int cnt = 1; long long sum = 0;</code></td><td id="b327">段数从 1 开始（哪怕只有一个数也是一段）。把 cnt 写成 0 会让答案差 1。</td></tr><tr><td id="b328"><code>if (sum + a[i] &lt;= X)</code></td><td id="b329">能塞就塞。贪心为什么对：段越少越容易满足 cnt ≤ m，而「尽量往右扩」不会让后面更难分。</td></tr><tr><td id="b330"><code>else { ++cnt; sum = a[i]; }</code></td><td id="b331">装不下就开新段，并把当前数放进去。别写 sum = 0 再 += a[i]，多一步就多一次写错的机会。</td></tr><tr><td id="b332"><code>return cnt &lt;= m;</code></td><td id="b333">段数不超过 M 就算可行——多出来的段可以把某段切开，上限仍然是 X。</td></tr><tr><td id="b334"><code>if (a[i] &gt; l) l = a[i];</code></td><td id="b335">关键一行。下界取 1 会在 X &lt; max(aᵢ) 时把超限的段也数进去，二分会给出假答案。</td></tr><tr><td id="b336"><code>if (check(mid)) r = mid; else l = mid + 1;</code></td><td id="b337">求最小值：可行就收缩右边界。配下取整的 mid，l = r 时收敛，不会死循环。</td></tr></tbody></table><div class="box warn"><div class="t" id="b338">这题最容易错的地方</div><ul><li id="b339">下界写成 0 或 1：X &lt; max(aᵢ) 时 check 仍会算出一个段数，于是输出比 max(aᵢ) 还小的假答案 → WA。</li><li id="b340">段数和 sum 用 int：总和可到 10¹³，直接溢出 → 二分区间错乱。</li><li id="b341">cnt 初值写 0：所有数装得下时正确答案是 1，你会输出 0。</li><li id="b342">上界只写 max(aᵢ)：那只够分一段，M ≥ 2 时真实答案超过上界，二分会卡在 max(aᵢ) → WA。</li></ul></div></div></details></div><div class="challenge"><div class="ct" id="b343">大题 挑战题 4 · 质量检测</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P2251</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P2251" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b344">生产流水线上有 N 件产品，第 i 件的质量分数是 Aᵢ。质检员要从第 1 件开始，每次框住<b>连续 M 件</b>（第 1~M 件、第 2~M+1 件、……、第 N−M+1~N 件），记下这一次框住的产品里最差（最小）的分数。</p><p id="b345">请按顺序输出这一串最小值：共 N − M + 1 个数，第 i 个是第 i 个窗口里的最小值。</p><p id="b346">输入格式：第一行两个整数 N、M（1 ≤ M ≤ N ≤ 10⁵）；第二行 N 个整数 Aᵢ（Aᵢ ≤ 10⁶）。</p><p id="b347">输出格式：共 N − M + 1 行，每行一个整数。</p></div><div class="cap" id="b348">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+6 3
+1 3 2 5 4 6
+输出：
+1
+2
+2
+4</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b349">最直接的做法是对每个窗口扫一遍求最小，O(NM)；N = M = 10⁵ 时是 10¹⁰ 次比较，必超时。</p><p id="b350">窗口每次只往右滑一格：进来一个新元素，出去一个旧元素。能不能用第 28 节的容器，让“求最小值”从 O(M) 降到 O(log M)？</p><p id="b351">用优先队列存 <code>(数值, 下标)</code>。窗口滑动后，队首可能是早就滑出去的旧元素——只要它的下标 ≤ 当前窗口左端 − 1，就弹掉它。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b352"><b>暴力为什么慢。</b>相邻两个窗口重叠了 M−1 个元素，暴力把它们重新扫一遍，等于把同一批数据看了 M 次。要让每个元素“进出”容器的次数是常数，总复杂度才能降到 O(N log N)。</p><p id="b353"><b>做法：小根堆 + 懒删除。</b>维护一个按值排序的优先队列，元素是 <code>(Aᵢ, i)</code>。从左到右依次把 Aᵢ 压入；此时队首是“已经出现过的所有元素里最小的”。但队首可能已经滑出窗口——它的下标不满足 <code>i − M + 1 ≤ 下标 ≤ i</code>。于是每到一个位置，先 <code>while</code> 把下标 ≤ i − M 的队首弹掉，剩下的队首就是当前窗口的最小值。</p><p id="b354"><b>为什么懒删除是对的。</b>我们从不主动删除“过期但不在队首”的元素，它们被埋在堆里不会有危害：只要它还没冒到队首，就轮不到它当答案；而一旦它冒到队首，<code>while</code> 会立刻把它清掉。每个元素最多被压一次、弹一次，总 O(N log N)。</p><p id="b355"><b>输出时机。</b>当 <code>i ≥ M</code>（窗口凑满 M 个）时，队首就是答案，输出一行。注意清过期的动作要放在输出<b>之前</b>。</p><p id="b356"><b>另一种写法。</b>用单调队列（deque）可以做到 O(N)：队列里的下标递增、对应数值也递增，进队前把队尾比它大的都弹掉，出队时看队首下标是否过期。那是第 48 节的内容；本题用堆已经够快，而且“懒删除”是处理“过期元素”的通用技巧。</p><p id="b357"><b>复杂度。</b>每个元素入堆一次、出堆至多一次，每次堆操作 O(log N)，总 O(N log N) ≈ 1.7×10⁶。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b358">参考代码</div><pre id="b359"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">int</span> n, m;
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; m;
+
+    <span class="c">// 小根堆：按 (数值, 下标) 排序</span>
+    <span class="k">priority_queue</span>&lt;<span class="k">pair</span>&lt;<span class="k">int</span>, <span class="k">int</span>&gt;, <span class="k">vector</span>&lt;<span class="k">pair</span>&lt;<span class="k">int</span>, <span class="k">int</span>&gt;&gt;, <span class="k">greater</span>&lt;<span class="k">pair</span>&lt;<span class="k">int</span>, <span class="k">int</span>&gt;&gt;&gt; pq;
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        <span class="k">int</span> x;
+        <span class="k">cin</span> &gt;&gt; x;
+        pq.<span class="f">push</span>({x, i});
+        <span class="k">while</span> (pq.<span class="f">top</span>().<span class="k">second</span> &lt;= i - m) pq.<span class="f">pop</span>();   <span class="c">// 滑出窗口的旧元素，懒删除</span>
+        <span class="k">if</span> (i &gt;= m) <span class="k">cout</span> &lt;&lt; pq.<span class="f">top</span>().<span class="k">first</span> &lt;&lt; <span class="s">"\n"</span>;  <span class="c">// 窗口凑满，队首即答案</span>
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b360">关键片段拆解</div><table class="lines"><thead><tr><th id="b361">片段</th><th id="b362">作用</th></tr></thead><tbody><tr><td id="b363"><code>priority_queue&lt;pair&lt;int,int&gt;, vector&lt;...&gt;, greater&lt;...&gt;&gt;</code></td><td id="b364">小根堆。默认的 priority_queue 是大根堆，要加 <code>greater</code> 才反过来。pair 先比 first 再比 second，所以相等时按下标排，不影响结果。</td></tr><tr><td id="b365"><code>pq.push({x, i});</code></td><td id="b366">边读边处理，不需要把整张表存下来。下标 i 必须一起入堆，否则无法判断是否过期。</td></tr><tr><td id="b367"><code>while (pq.top().second &lt;= i - m) pq.pop();</code></td><td id="b368">当前窗口是 [i−m+1, i]，下标 ≤ i−m 的都已经滑出去了。用 while 是因为可能连续几个都过期。</td></tr><tr><td id="b369"><code>if (i &gt;= m) cout &lt;&lt; pq.top().first;</code></td><td id="b370">前 m−1 个位置窗口还没凑满，不输出。清过期的动作一定要在输出之前。</td></tr><tr><td id="b371"><code>greater&lt;pair&lt;int,int&gt;&gt;</code></td><td id="b372">需要 <code>&lt;functional&gt;</code>，<code>bits/stdc++.h</code> 已经包含。写成自定义 cmp 也行，但结构体写法比函数写法啰嗦。</td></tr></tbody></table><div class="box warn"><div class="t" id="b373">这题最容易错的地方</div><ul><li id="b374">用大根堆：输出的是窗口最大值。忘了写 <code>greater</code> 是最常见的错。</li><li id="b375">只 pop 一次而不写 while：连续过期两个元素时，队首仍然是过期的，答案错。</li><li id="b376">把过期判断写成 <code>&lt; i - m + 1</code>：差一位，会把窗口最左端的元素也弹掉。</li><li id="b377">在 <code>i &lt; m</code> 时就输出：前 m−1 行是多余的，输出行数不对。</li></ul></div></div></details></div><div class="challenge"><div class="ct" id="b378">大题 挑战题 5 · 海港</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P2058</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P2058" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b379">有 n 艘船依次到港，第 i 艘船在 tᵢ 秒到达，船上有 kᵢ 名乘客，国籍分别是 xᵢ,₁ … xᵢ,kᵢ。tᵢ 递增。</p><p id="b380">对每艘船，统计「到它到达为止的 24 小时（86400 秒）内」到港的所有乘客来自多少个不同的国家，即统计满足 tᵢ − 86400 &lt; tⱼ ≤ tᵢ 的船上所有乘客的不同国籍数。</p><p id="b381">输入格式：第一行 n（1 ≤ n ≤ 10⁵，Σkᵢ ≤ 3×10⁵）；接下来 n 行，每行先是 tᵢ、kᵢ，再是 kᵢ 个国籍编号（≤ 10⁵）。</p><p id="b382">输出格式：n 行，每行一个整数，表示第 i 艘船到达后的统计结果。</p></div><div class="cap" id="b383">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+3
+1 4 4 1 2 2
+2 2 2 3
+10 1 3
+
+输出：
+3
+4
+4</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b384">窗口随时间往后滑，过期的人要从统计里去掉。哪种容器适合「先进先出、按时间排队」？</p><p id="b385">如果记录「每个国家在窗口里有几个人」，一个国家从 0 变 1 时答案加 1，从 1 变 0 时答案减 1。</p><p id="b386">队头什么时候该弹？注意题面是 tᵢ − 86400 &lt; tⱼ，边界的等号要小心。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b387">把所有乘客按到达顺序排进一个队列，每个元素存 (到达时刻, 国籍)。船与人的层级被压平。</p><p id="b388">维护 cnt[c] = 窗口内国籍 c 的人数，以及 ans = 窗口内不同国籍数。</p><p id="b389">一艘船到达：先把它的 kᵢ 个乘客逐个入队并更新 cnt（从 0 到 1 时 ans++）。</p><p id="b390">再把队头所有「到达时刻 ≤ tᵢ − 86400」的乘客弹出，弹出时 cnt−−，减到 0 时 ans−−。</p><p id="b391">为什么用 queue：时间递增，过期的永远在队头，且不会有人「重新进来」。每个乘客进队一次、出队一次。</p><p id="b392">复杂度 O(Σkᵢ) = 3×10⁵ 次操作。若每艘船都把窗口内的乘客重扫一遍，是 O(n·Σkᵢ)，必 TLE。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b393">参考代码</div><pre id="b394"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">100005</span>;
+<span class="k">int</span> cnt[MAXN];                 <span class="c">// cnt[c]：窗口内国籍 c 的乘客数</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> n;
+    <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;n);
+
+    <span class="k">queue</span>&lt;<span class="k">pair</span>&lt;<span class="k">int</span>,<span class="k">int</span>&gt;&gt; q;    <span class="c">// (到达时刻, 国籍)，按时间排队</span>
+    <span class="k">int</span> ans = <span class="n">0</span>;               <span class="c">// 窗口内不同国籍数</span>
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; n; ++i) {
+        <span class="k">int</span> t, k;
+        <span class="k">scanf</span>(<span class="s">"%d%d"</span>, &amp;t, &amp;k);
+        <span class="k">for</span> (<span class="k">int</span> j = <span class="n">0</span>; j &lt; k; ++j) {
+            <span class="k">int</span> c;
+            <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;c);
+            q.<span class="f">push</span>({t, c});            <span class="c">// 同一艘船的人分享同一个到达时刻</span>
+            <span class="k">if</span> (cnt[c] == <span class="n">0</span>) ++ans;    <span class="c">// 这个国家在窗口里从无到有</span>
+            ++cnt[c];
+        }
+        <span class="c">// 队伍左端：超过 24 小时的人出队</span>
+        <span class="k">while</span> (!q.<span class="k">empty</span>() &amp;&amp; q.<span class="f">front</span>().<span class="k">first</span> &lt;= t - <span class="n">86400</span>) {
+            <span class="k">int</span> c = q.<span class="f">front</span>().<span class="k">second</span>;
+            q.<span class="f">pop</span>();
+            --cnt[c];
+            <span class="k">if</span> (cnt[c] == <span class="n">0</span>) --ans;    <span class="c">// 这个国家在窗口里彻底消失</span>
+        }
+        <span class="k">printf</span>(<span class="s">"%d\n"</span>, ans);
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b395">关键片段拆解</div><table class="lines"><thead><tr><th id="b396">片段</th><th id="b397">作用</th></tr></thead><tbody><tr><td id="b398"><code>queue&lt;pair&lt;int,int&gt;&gt; q;</code></td><td id="b399">队列里放「每个乘客」，不是「每艘船」：出队时按人扣减，计数才对得上。</td></tr><tr><td id="b400"><code>if (cnt[c] == 0) ++ans; ++cnt[c];</code></td><td id="b401">先判「从无到有」再加人数。顺序反了（先 ++cnt 再判 0）就永远不成立，ans 一直是 0。</td></tr><tr><td id="b402"><code>while (!q.empty() &amp;&amp; q.front().first &lt;= t - 86400)</code></td><td id="b403">窗口左边界：t − 86400。用 ≤ 正好把「恰好 86400 秒前」的人排除，符合题面的严格小于。</td></tr><tr><td id="b404"><code>--cnt[c]; if (cnt[c] == 0) --ans;</code></td><td id="b405">出队一个人：人数减一；减到 0 说明这个国家整个离开窗口，国家数减一。</td></tr><tr><td id="b406"><code>printf("%d\n", ans);</code></td><td id="b407">每艘船处理完立刻输出当前窗口答案——题目要的是每艘船一个结果，不是最后一次性输出。</td></tr></tbody></table><div class="box warn"><div class="t" id="b408">这题最容易错的地方</div><ul><li id="b409">计数顺序写反（先 ++cnt 再判是否为 0）→ ans 永远不加 → 全输出 0。</li><li id="b410">弹出条件写成 <code>&lt; t - 86400</code>：恰好 86400 秒前到的人被留在窗口里 → 边界数据 WA。</li><li id="b411">用 bool 数组标记「这个国家在窗口里出现过」：同一国家有多人时，走掉一个就以为整个国家消失了 → 答案偏小。必须用计数。</li><li id="b412">cnt 只开到 1000：国籍编号最大 10⁵ → 越界，表现为乱答案或 RE。</li></ul></div></div></details></div><div class="box tip" style="margin:24px 0 -6px"><div class="t" id="b413">附加挑战 2（不计入限时）</div><p id="b414">做完上面的整套题还有余力，再啃这一道。它比本套题的平均难度高一级。</p></div><div class="challenge ch2"><div class="ct" id="b415">挑战 2 · 刺杀大使</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1902</span><span class="badge diff">提高-/提高</span><a href="https://www.luogu.com.cn/problem/P1902" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b416">一个 n×m 的房间矩阵，相邻房间之间有门可走（上下左右）。第 1 行的每个房间都有通向外界的大门，是入口；第 n 行的 m 个房间里有 m 个机关，必须<b>全部</b>到达。</p><p id="b417">除第 1 行与第 n 行外，每个房间都装了激光装置，进入就会受到 pᵢⱼ 点伤害（第 1 行与第 n 行的伤害值都是 0）。</p><p id="b418">可以派任意多的人从任意入口进入。一个士兵受到的伤害等于他路径上所有房间伤害值的<b>最大值</b>，整个部队的伤害等于所有士兵伤害的最大值。求让所有人完成任务的<b>最小</b>部队伤害。</p><p id="b419">输入格式：第一行两个整数 n、m；接下来 n 行，每行 m 个整数 pᵢⱼ。数据范围：n, m ≤ 1000，0 ≤ pᵢⱼ ≤ 1000。</p><p id="b420">输出格式：一行一个整数，表示最小伤害代价。</p></div><div class="cap" id="b421">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+3 3
+0 0 0
+1 2 5
+0 0 0
+输出：
+1</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b422">答案一定在 [0, max p] 之间。先想一个更简单的问题：如果规定“只能走伤害值 ≤ X 的房间”，能不能从第 1 行走到第 n 行？这个判定只要一次 BFS。</p><p id="b423">“X 越大越容易走通”——这个单调性就是二分答案的信号。</p><p id="b424">判定时不用真的走到第 n 行的每一间：第 n 行的伤害值全是 0，只要有一只脚踏上第 n 行，就能沿着第 n 行横着走遍所有机关。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b425"><b>第一步：把“最小化最大值”翻译成判定问题。</b>设 <code>ok(X)</code> = “只用伤害值 ≤ X 的房间，能否从第 1 行走到第 n 行”。那么题目的答案就是最小的满足 ok(X) 的 X——因为部队伤害取的是所有路径最大值中的最大值，而只要存在一条“每格都 ≤ X”的路径，伤害就能控制在 X 以内。</p><p id="b426"><b>第二步：单调性。</b>X 变大，能走的房间只增不减，所以 <code>ok</code> 形如“假假…假真真…真”。二分 X 的取值区间 <code>[0, max p]</code>，每次判定 O(nm)，共约 log₂(1000) ≈ 10 次。</p><p id="b427"><b>第三步：判定怎么写。</b>把所有第 1 行的格子作为多源起点（它们的 p = 0，一定 ≤ X），BFS 只走 <code>p ≤ X</code> 且没访问过的格子。一旦扩到任意一个 <code>x == n</code> 的格子，就返回 true。</p><p id="b428"><b>为什么“到达一个就等于到达全部”。</b>第 n 行所有格子的伤害值都是 0 ≤ X，而且它们左右相邻、可以互相走通，所以从任意一个第 n 行的格子出发都能走遍整行。这一条把“必须到达每个机关”化简成“到达第 n 行”。</p><p id="b429"><b>为什么二分下界取 0。</b>第 1 行与第 n 行伤害为 0，若 n = 1 则不需要经过任何有伤害的房间，答案是 0。取 0 作下界可以覆盖这种退化情况。</p><p id="b430"><b>复杂度。</b>每次判定 O(nm)；二分 10 次，总计约 10⁷ 次操作，n, m = 1000 时 1 秒内跑完。空间只需要 p 数组（4MB）和 vis（1MB）。</p><p id="b431"><b>为什么不能直接求最短路。</b>“路径上最大值最小”是极小极大问题，它没有“距离可以相加”的结构，最短路算法用不上；二分 + 连通性判定才是标准解法。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b432">参考代码</div><pre id="b433"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> n, m;
+<span class="k">int</span> p[<span class="n">1005</span>][<span class="n">1005</span>];
+<span class="k">bool</span> vis[<span class="n">1005</span>][<span class="n">1005</span>];
+<span class="k">int</span> dx[<span class="n">4</span>] = {<span class="n">1</span>, -<span class="n">1</span>, <span class="n">0</span>, <span class="n">0</span>};
+<span class="k">int</span> dy[<span class="n">4</span>] = {<span class="n">0</span>, <span class="n">0</span>, <span class="n">1</span>, -<span class="n">1</span>};
+
+<span class="k">bool</span> <span class="f">ok</span>(<span class="k">int</span> X) {                          <span class="c">// 只走伤害值 &lt;= X 的房间，能否到第 n 行</span>
+    <span class="k">memset</span>(vis, <span class="n">0</span>, <span class="k">sizeof</span> vis);
+    <span class="k">queue</span>&lt;<span class="k">pair</span>&lt;<span class="k">int</span>, <span class="k">int</span>&gt;&gt; q;
+    <span class="k">for</span> (<span class="k">int</span> j = <span class="n">1</span>; j &lt;= m; ++j) {        <span class="c">// 第 1 行全是入口</span>
+        vis[<span class="n">1</span>][j] = <span class="k">true</span>;
+        q.<span class="f">push</span>({<span class="n">1</span>, j});
+    }
+    <span class="k">while</span> (!q.<span class="k">empty</span>()) {
+        <span class="k">auto</span> [x, y] = q.<span class="f">front</span>(); q.<span class="f">pop</span>();
+        <span class="k">if</span> (x == n) <span class="k">return</span> <span class="k">true</span>;          <span class="c">// 踩到第 n 行就算成功</span>
+        <span class="k">for</span> (<span class="k">int</span> k = <span class="n">0</span>; k &lt; <span class="n">4</span>; ++k) {
+            <span class="k">int</span> nx = x + dx[k], ny = y + dy[k];
+            <span class="k">if</span> (nx &lt; <span class="n">1</span> || nx &gt; n || ny &lt; <span class="n">1</span> || ny &gt; m) <span class="k">continue</span>;
+            <span class="k">if</span> (vis[nx][ny] || p[nx][ny] &gt; X) <span class="k">continue</span>;
+            vis[nx][ny] = <span class="k">true</span>;
+            q.<span class="f">push</span>({nx, ny});
+        }
+    }
+    <span class="k">return</span> <span class="k">false</span>;
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; m;
+    <span class="k">int</span> mx = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i)
+        <span class="k">for</span> (<span class="k">int</span> j = <span class="n">1</span>; j &lt;= m; ++j) {
+            <span class="k">cin</span> &gt;&gt; p[i][j];
+            mx = <span class="k">max</span>(mx, p[i][j]);
+        }
+
+    <span class="k">int</span> lo = <span class="n">0</span>, hi = mx, ans = mx;
+    <span class="k">while</span> (lo &lt;= hi) {                    <span class="c">// 找第一个可行的 X</span>
+        <span class="k">int</span> mid = (lo + hi) / <span class="n">2</span>;
+        <span class="k">if</span> (<span class="f">ok</span>(mid)) { ans = mid; hi = mid - <span class="n">1</span>; }
+        <span class="k">else</span>         lo = mid + <span class="n">1</span>;
+    }
+    <span class="k">cout</span> &lt;&lt; ans &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b434">关键片段拆解</div><table class="lines"><thead><tr><th id="b435">片段</th><th id="b436">作用</th></tr></thead><tbody><tr><td id="b437"><code>bool ok(int X)</code></td><td id="b438">判定函数只回答“能不能”，不回答“代价是多少”。二分答案的判定函数语义必须单一。</td></tr><tr><td id="b439"><code>for (int j = 1; j &lt;= m; ++j) { vis[1][j] = true; q.push({1, j}); }</code></td><td id="b440">第 1 行所有格子都是入口，一起入队——这就是第 26 节的多源 BFS，一次扫完。</td></tr><tr><td id="b441"><code>if (p[nx][ny] &gt; X) continue;</code></td><td id="b442">整个判定只有这一处与 X 有关：伤害超标的房间当作墙。</td></tr><tr><td id="b443"><code>if (x == n) return true;</code></td><td id="b444">踩到第 n 行立刻返回。不需要检查具体哪一间，因为第 n 行伤害全为 0、整行连通。</td></tr><tr><td id="b445"><code>memset(vis, 0, sizeof vis);</code></td><td id="b446">每次判定都要重新清空。写成 <code>sizeof(vis)</code> 一次清 1MB，10 次共 10MB 的写入，可以忽略。</td></tr><tr><td id="b447"><code>if (ok(mid)) { ans = mid; hi = mid - 1; }</code></td><td id="b448">可行就往小的方向继续找——“第一个可行的 X”的标准写法。若求“最后一个可行的”，就换成 lo = mid + 1。</td></tr><tr><td id="b449"><code>int lo = 0, hi = mx;</code></td><td id="b450">上界取输入里出现过的最大伤害值。取一个更大的常数（如 1000）也能过，但用实测上界能让二分少几步。</td></tr></tbody></table><div class="box warn"><div class="t" id="b451">这题最容易错的地方</div><ul><li id="b452">把“到达第 n 行”写成“到达第 n 行的每一间”：判定退化成需要记住走了哪几列，复杂度和正确性都毁了。</li><li id="b453">二分写成找“最后一个可行”：答案会偏大。题目要的是最小可行值。</li><li id="b454">判定里忘了清空 vis：上一轮的访问痕迹把这一轮的路堵死，ok 恒为 false，答案变成上界。</li><li id="b455">BFS 起点只放了 (1,1)：其他入口被漏掉，某些数据会错判为不可行。</li></ul></div></div></details></div><div class="box ok"><div class="t" id="b456">做完之后自问</div><ul><li id="b457">不看资料能写出网格 BFS 的完整模板：方向数组、距离数组、入队即标记三件套。</li><li id="b458">能说清「BFS 第一次访问即最短」的理由，并举一个 DFS 求最短路会错的例子。</li><li id="b459">能手写二分答案的两套收缩方式，并说清哪一套必须配上取整的 mid。</li><li id="b460">能解释 check 单调性是什么意思，以及为什么「段数 ≤ m」等价于「每段和 ≤ X 可行」。</li><li id="b461">能说出 <code>priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt;</code> 三个参数各是什么。</li><li id="b462">能说清 P2058 里为什么弹出条件是 <code>q.front().first &lt;= t - 86400</code> 而不是 <code>&lt;</code>，以及 P2251 里为什么用 while 清过期元素而不是 if。</li><li id="b463">能说出 0-1 BFS 为什么必须用 deque：权 0 的边塞队头、权 1 的边塞队尾。</li></ul></div><div class="box info"><div class="t" id="b464">延伸阅读</div><ul><li id="b465">《算法竞赛入门笔记》：BFS、二分查找与 STL 容器相关章节</li><li id="b466">《算法竞赛进阶指南》第 0x25 节：广度优先搜索；第 0x04 节：二分</li><li id="b467">《算法竞赛试炼场：洛谷300题精析》：P3958、P1141、P1873、P1182、P2251、P2058、P1902 的题解</li><li id="b468">《算法竞赛黄金法则》：先证明单调性，再动手二分</li><li id="b469">想再练一道纯栈模拟，加做 P4387 验证栈序列 / P1449 后缀表达式（不计入本次限时）</li></ul></div>
+
+<footer>算竞教程 · 算竞教程 · 生成于自建课程体系，题目版权归洛谷及各命题方所有<br>
+转载请注明出处；模板代码可直接用于比赛</footer>

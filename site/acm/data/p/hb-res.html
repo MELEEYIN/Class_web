@@ -1,0 +1,54 @@
+
+
+<h3>6.1 书籍（按用途排序，不建议全买）</h3>
+<table>
+<tr><th>书名</th><th>作者</th><th>适合阶段</th><th>说明</th></tr>
+<tr><td>《算法竞赛入门经典》（第 2 版，紫书）</td><td>刘汝佳</td><td>入门 → 基础</td><td>国内最经典的入门教材，语言基础 + 基础算法 + 简单数据结构，配套 UVa 题目略老</td></tr>
+<tr><td>《算法竞赛进阶指南》</td><td>李煜东</td><td>基础 → 进阶</td><td><b>本手册的首选配套书</b>。章节编号（0x01、0x21…）与本手册知识点可一一对应，题目大部分在 AcWing/洛谷可提交</td></tr>
+<tr><td>《挑战程序设计竞赛》（第 2 版）</td><td>秋叶拓哉 等</td><td>入门 → 进阶</td><td>日系风格，讲"为什么这样做"很清楚，第 2 册有大量进阶专题</td></tr>
+<tr><td>《算法竞赛》（入门到进阶）</td><td>罗勇军、郭卫斌</td><td>入门 → 基础</td><td>配合蓝桥杯/ACM 入门，题目以洛谷为主，中文友好</td></tr>
+<tr><td>Competitive Programmer's Handbook（CPH）</td><td>Antti Laaksonen</td><td>入门 → 进阶</td><td><b>免费 PDF</b>（cses.fi/book），配套 CSES Problem Set 是公认最好的基础题单之一</td></tr>
+<tr><td>《算法导论》（CLRS）</td><td>Cormen 等</td><td>理论补强</td><td>不要通读。按需查阅：分治、图算法、NP 完全性、线性规划几章价值最高</td></tr>
+<tr><td>《具体数学》</td><td>Graham、Knuth、Patashnik</td><td>数学专题</td><td>生成函数、组合恒等式、数论求和的最佳读物，读第 2、5、7 章收益最大</td></tr>
+<tr><td>《组合数学》</td><td>Richard Stanley / Brualdi</td><td>数学专题</td><td>容斥、母函数、Pólya 计数理论的系统讲解</td></tr>
+<tr><td>《计算几何：算法与应用》</td><td>de Berg 等</td><td>几何专题</td><td>查询用工具书，不必通读</td></tr>
+</table>
+
+<h3>6.2 在线资源（按使用频率排序）</h3>
+<table>
+<tr><th>资源</th><th>地址</th><th>用途</th></tr>
+<tr><td><b>OI-Wiki</b></td><td>oi-wiki.org</td><td>中文最全的竞赛知识库。本手册每个算法条目都可以在 OI-Wiki 找到更严谨的完整推导，<b>首选查阅源</b></td></tr>
+<tr><td><b>CP-Algorithms</b></td><td>cp-algorithms.com</td><td>英文，算法描述严谨、有复杂度证明与完整实现，适合对照学习</td></tr>
+<tr><td><b>洛谷</b></td><td>luogu.com.cn</td><td>中文主战场：题库、题单、题解、月赛。本手册的题单 90% 指向这里</td></tr>
+<tr><td><b>AcWing</b></td><td>acwing.com</td><td>《算法竞赛进阶指南》配套题库 + 视频课，按章节刷题的体验最好</td></tr>
+<tr><td><b>Codeforces</b></td><td>codeforces.com</td><td>全球最大比赛平台。按 tag + rating 筛题是最高效的刷题方式</td></tr>
+<tr><td><b>AtCoder</b></td><td>atcoder.jp</td><td>题面干净、质量极高。Educational DP Contest（26 题覆盖 DP 全谱）是必刷题单</td></tr>
+<tr><td><b>CSES Problem Set</b></td><td>cses.fi/problemset</td><td>300 题覆盖全部基础专题，配套 CPH 教材，适合体系化检验</td></tr>
+<tr><td><b>USACO Guide</b></td><td>usaco.guide</td><td>按难度分层的知识地图 + 题单，从 Bronze 到 Platinum 的路径设计非常科学</td></tr>
+<tr><td><b>Library Checker</b></td><td>judge.yosupo.jp</td><td>模板正确性与性能的验证场，适合检验自己的模板是否写对/够快</td></tr>
+<tr><td><b>牛客网</b></td><td>nowcoder.com</td><td>多校训练赛、公司笔试、专题练习</td></tr>
+<tr><td><b>LibreOJ / UOJ</b></td><td>loj.ac / uoj.ac</td><td>高难度题与集训队作业，进阶选手的练兵场</td></tr>
+<tr><td><b>Kattis</b></td><td>open.kattis.com</td><td>ICPC 风格题库，含大量团队赛真题</td></tr>
+</table>
+
+<h3>6.3 工具链（决定效率）</h3>
+<ul class="tight">
+<li><b>编辑器</b>：VS Code + C/C++ 扩展（推荐配置：format on save、tasks.json 一键编译运行、launch.json 支持调试）。竞赛老手也有用 Vim/Emacs 的，选顺手的即可。</li>
+<li><b>Competitive Companion</b>：浏览器插件，一键把 Codeforces/AtCoder 等平台的题目样例抓成本地测试文件，省去手工造数据。</li>
+<li><b>cf-tool / cf-toolkit</b>：命令行工具，自动拉题、编译、对拍、提交，Codeforces 重度用户必备。</li>
+<li><b>对拍脚本</b>：务必自己配一份「数据生成器 + 暴力标准解 + 待测程序」三方对拍脚本（Windows 用 .bat，Linux 用 .sh），这是本地调试最有效的手段。</li>
+<li><b>模板库</b>：KACTL（ICPCOpen 团队模板）、jiangly 的比赛模板都是开源的高质量参考；但<b>最终要整理成自己的</b>，否则考场上找不到。</li>
+<li><b>在线编译</b>：godbolt.org（看汇编/优化）、wandbox.org（快速试代码）。</li>
+<li><b>复杂度估算</b>：本地 <code>clock()</code> 计时 + <code>chrono</code> 高精度计时，跑一遍最坏数据再决定是否卡常。</li>
+<li><b>调试手段</b>：gdb / 打印变量 / <code>-fsanitize=address,undefined</code> 编译。竞赛中最实用的是"对拍 + 二分注释法"。</li>
+</ul>
+
+<h3>6.4 赛事与练习节奏</h3>
+<ul class="tight">
+<li><b>日常</b>：Codeforces Div.2/Div.3（每周）、AtCoder ABC（每周六）、洛谷月赛、牛客练习赛。</li>
+<li><b>进阶</b>：AtCoder ARC/AGC、Codeforces Div.1、ICPC/CCPC 网络赛与区域赛、各校集训队选拔赛。</li>
+<li><b>复盘比刷题重要</b>：每场比赛后 ① 补完没做出的题 ② 写出题解（讲清"卡在哪一步"）③ 把新学到的技巧归档进模板库。</li>
+<li><b>难度梯度参考</b>：入门篇 ≈ 洛谷 普及−/普及/提高−；基础篇 ≈ 提高/提高+；进阶篇 ≈ 省选/NOI/ICPC 区域赛中上。</li>
+</ul>
+
+<!-- ============ 7 训练表 ============ -->

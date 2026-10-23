@@ -1,0 +1,248 @@
+<section class="sec" id="s6" data-cat="图论" fold>
+  
+  <div class="secbody">
+    <div class="callout"><p>图论是「建模」的训练场。同一道题，建图方式不同，难度天差地别。这一章先学怎么把问题变成图，再学图上跑什么算法。</p></div>
+    <article class="algo" id="pl-66" data-cat="图论" data-name="6.1 建图：选择「边怎么存」 本质 竞赛中 90% 用 vector 邻接表，需要极限压空间/常数时用链式前向星。 三种存法 cpp // ① 邻接矩阵：n ≤ 1000 的稠密图，O(1) 查边，空间 O(n^2) int g[1005][1005]; // ② vector 邻接表：最常用 vector&lt;int g[N];">
+      <div class="ah"><h4>6.1 建图：选择「边怎么存」</h4><span class="lv lv-b">基础</span><span class="st">★★★★★</span><span class="tag">必考</span><a class="prac" href="practice.html#P3916" target="_blank" title="题单里的模板题">P3916</a><a class="prac" href="practice.html#P1629" target="_blank" title="题单里的模板题">P1629</a><a class="prac" href="practice.html#P4568" target="_blank" title="题单里的模板题">P4568</a></div>
+      <p class="idea"><b>本质</b>：<b>竞赛中 90% 用 <code>vector</code> 邻接表，需要极限压空间/常数时用链式前向星。</b></p>
+      <p><b>三种存法</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      // ① 邻接矩阵：n ≤ 1000 的稠密图，O(1) 查边，空间 O(n^2)
+      int g[1005][1005];
+      
+      // ② vector 邻接表：最常用
+      vector<int> g[N];                    // 无权图
+      vector<pair<int,int>> gw[N];         // 带权图：gw[u].push_back({v, w})
+      
+      // ③ 链式前向星：极限压常数（见 4.3 节）
+      </script></div>
+      <p><b>四个必会的建模技巧</b></p>
+      <table>
+      <tr><th>技巧</th><th>什么时候用</th><th>例子</th></tr>
+      <tr><td><b>反向建图</b></td><td>求「所有点到某点的距离」而非「某点到所有点」</td><td>P3916 图的遍历、P1629 邮递员送信</td></tr>
+      <tr><td><b>超级源点/汇点</b></td><td>多个起点/终点</td><td>网络流、多源最短路</td></tr>
+      <tr><td><b>拆点</b></td><td>一个点有「进入/离开」两种状态，或有容量限制</td><td>费用流、分层图</td></tr>
+      <tr><td><b>分层图</b></td><td>有「k 次免费」这类限制</td><td>P4568 飞行路线</td></tr>
+      </table>
+      <div class="box ok"><span class="t">✅ 小结</span><p><b>图论题的一半难度在建模，一半在算法。</b> 建模想不出来时，先问「什么应该是一个点」「什么应该是一条边」。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P5318" target="_blank">P5318</a> 查找文献　·　<a href="practice.html#P3916" target="_blank">P3916</a> 图的遍历　·　<a href="practice.html#P3371" target="_blank">P3371</a> 单源最短路（建图练习）　·　<a href="practice.html#P1330" target="_blank">P1330</a> 封锁阳光大学</p>
+    </article>
+    <article class="algo" id="pl-67" data-cat="图论" data-name="6.2 图的遍历与连通块 本质 图的遍历是后面「连通分量、拓扑、割点、二分图、树上信息」所有算法的基础框架。要形成肌肉记忆的是：何时标记访问（DFS 在入栈时，BFS 在入队时）。 cpp // DFS 遍历（递归版） void dfs(int u) { vis[u] = true; for (int v : g[u])">
+      <div class="ah"><h4>6.2 图的遍历与连通块</h4><span class="lv lv-b">基础</span><span class="st">★★★★★</span><span class="tag">必考</span><a class="prac" href="practice.html#P5318" target="_blank" title="题单里的模板题">P5318</a><a class="prac" href="practice.html#P1141" target="_blank" title="题单里的模板题">P1141</a><a class="prac" href="practice.html#P1596" target="_blank" title="题单里的模板题">P1596</a></div>
+      <p class="idea"><b>本质</b>：图的遍历是后面「连通分量、拓扑、割点、二分图、树上信息」<b>所有算法的基础框架</b>。要形成肌肉记忆的是：<b>何时标记访问</b>（DFS 在入栈时，BFS 在入队时）。</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      // DFS 遍历（递归版）
+      void dfs(int u) {
+          vis[u] = true;
+          for (int v : g[u]) if (!vis[v]) dfs(v);
+      }
+      
+      // BFS 遍历（求无权最短路）
+      queue<int> q;
+      vis[s] = true; dist[s] = 0; q.push(s);
+      while (!q.empty()) {
+          int u = q.front(); q.pop();
+          for (int v : g[u]) if (!vis[v]) {
+              vis[v] = true; dist[v] = dist[u] + 1; q.push(v);
+          }
+      }
+      </script></div>
+      <p><b>连通块计数</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      int cnt = 0;
+      for (int i = 1; i <= n; ++i)
+          if (!vis[i]) { ++cnt; dfs(i); }     // 每启动一次 dfs 就是一个新连通块
+      </script></div>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p>图不连通时要从每个未访问点启动一次；10^5 节点的深链会爆栈，改 BFS 或手写栈。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P5318" target="_blank">P5318</a> 查找文献　·　<a href="practice.html#P1141" target="_blank">P1141</a> 01 迷宫　·　<a href="practice.html#P1596" target="_blank">P1596</a> 湖计数　·　<a href="practice.html#P1330" target="_blank">P1330</a> 封锁阳光大学　·　<a href="practice.html#P4017" target="_blank">P4017</a> 最大食物链计数</p>
+    </article>
+    <article class="algo" id="pl-68" data-cat="图论" data-name="6.3 拓扑排序 本质 给 DAG（有向无环图）排一个线性序，使所有边都从前指向后。它是 DAG 上 DP 的通用引擎——只要按拓扑序递推，依赖就一定满足。同时还能检测环（排序后的长度小于 n 说明有环）。 类比 选课有先修关系。「高数 → 线代 → 概率论」，你必须按这个顺序修。拓扑排序就是给你一个合法的修课顺序。 模板（B">
+      <div class="ah"><h4>6.3 拓扑排序</h4><span class="lv lv-b">基础</span><span class="st">★★★★★</span><span class="tag">必考</span><a class="prac" href="practice.html#P1113" target="_blank" title="题单里的模板题">P1113</a><a class="prac" href="practice.html#P1807" target="_blank" title="题单里的模板题">P1807</a><a class="prac" href="practice.html#P4017" target="_blank" title="题单里的模板题">P4017</a></div>
+      <p class="idea"><b>本质</b>：给 DAG（有向无环图）排一个线性序，使所有边都从前指向后。它是 <b>DAG 上 DP 的通用引擎</b>——只要按拓扑序递推，依赖就一定满足。同时还能检测环（排序后的长度小于 n 说明有环）。</p>
+      <div class="box idea"><span class="t">🎨 生活类比</span><p>选课有先修关系。「高数 → 线代 → 概率论」，你必须按这个顺序修。拓扑排序就是给你一个合法的修课顺序。</p></div>
+      <p><b>模板（BFS 版，Kahn 算法）</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      int indeg[N];
+      queue<int> q;
+      for (int i = 1; i <= n; ++i) if (!indeg[i]) q.push(i);
+      while (!q.empty()) {
+          int u = q.front(); q.pop();
+          topo[++cnt] = u;
+          for (int v : g[u])
+              if (--indeg[v] == 0) q.push(v);
+      }
+      if (cnt < n) { /* 有环 */ }
+      </script></div>
+      <p><b>DAG 上 DP 的标准写法</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      // 最长路：按拓扑序递推
+      for (int i = 1; i <= n; ++i) {
+          int u = topo[i];
+          for (int v : g[u]) f[v] = max(f[v], f[u] + w(u, v));
+      }
+      </script></div>
+      <div class="box tip"><span class="t">💡 提示</span><p><b>拓扑排序 + DP</b> 是 DAG 上的万能解法。看到「有依赖关系」「求最长链」「方案计数」且图不存在环，先想它。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P1113" target="_blank">P1113</a> 杂务　·　<a href="practice.html#P1807" target="_blank">P1807</a> 最长路　·　<a href="practice.html#P4017" target="_blank">P4017</a> 最大食物链计数　·　<a href="practice.html#P1983" target="_blank">P1983</a> 车站分级　·　<a href="practice.html#P1347" target="_blank">P1347</a> 排序　·　<a href="practice.html#P1038" target="_blank">P1038</a> 神经网络</p>
+    </article>
+    <article class="algo" id="pl-69" data-cat="图论" data-name="6.4 Floyd：全源最短路 本质 动态规划。f[k][i][j] = 只允许经过前 k 个点中转时，i 到 j 的最短路。压掉第一维后就是那个三重循环。O(n^3)，但代码只有五行，n ≤ 500 时首选。 cpp for (int k = 1; k &lt;= n; ++k) // k 必须是最外层！ fo">
+      <div class="ah"><h4>6.4 Floyd：全源最短路</h4><span class="lv lv-b">基础</span><span class="st">★★★★★</span><span class="tag">必考</span><a class="prac" href="practice.html#P1119" target="_blank" title="题单里的模板题">P1119</a><a class="prac" href="practice.html#P2419" target="_blank" title="题单里的模板题">P2419</a><a class="prac" href="practice.html#P6175" target="_blank" title="题单里的模板题">P6175</a></div>
+      <p class="idea"><b>本质</b>：动态规划。<code>f[k][i][j]</code> = 只允许经过前 k 个点中转时，i 到 j 的最短路。压掉第一维后就是那个三重循环。O(n^3)，但<b>代码只有五行</b>，n ≤ 500 时首选。</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      for (int k = 1; k <= n; ++k)               // k 必须是最外层！
+          for (int i = 1; i <= n; ++i)
+              for (int j = 1; j <= n; ++j)
+                  f[i][j] = min(f[i][j], f[i][k] + f[k][j]);
+      </script></div>
+      <p><b>初始化</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      memset(f, 0x3f, sizeof f);
+      for (int i = 1; i <= n; ++i) f[i][i] = 0;
+      // 读边：f[u][v] = min(f[u][v], w);   （无向图两边都赋）
+      </script></div>
+      <p><b>三个用途</b></p>
+      <table>
+      <tr><th>用途</th><th>做法</th></tr>
+      <tr><td>传递闭包（可达性）</td><td>把 <code>min</code> 换成或运算：<code>f[i][j] |= f[i][k] &amp;&amp; f[k][j]</code></td></tr>
+      <tr><td>最小环</td><td>在 Floyd 过程中，用 <code>f[i][j] + w(i,k) + w(k,j)</code> 更新答案</td></tr>
+      <tr><td>带增量（P1119 灾后重建）</td><td>按时间顺序逐个加入中转点</td></tr>
+      </table>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p><b><code>k</code> 必须在最外层</b>（这是 DP 的阶段，写在内层就全错了）；<code>0x3f3f3f3f</code> 相加两个会超过 int 吗？不会（1.06×10^9 × 2 = 2.1×10^9 刚好在 int 内，但用 <code>long long</code> 更安全）。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P2419" target="_blank">P2419</a> 牛大赛　·　<a href="practice.html#P6175" target="_blank">P6175</a> 无向图的最小环问题　·　<a href="practice.html#P1119" target="_blank">P1119</a> 灾后重建　·　<a href="practice.html#P1613" target="_blank">P1613</a> 跑路（倍增 Floyd）</p>
+    </article>
+    <article class="algo" id="pl-70" data-cat="图论" data-name="6.5 Dijkstra：单源最短路（非负权） 本质 贪心。每次取出「当前距离最小的未确定节点」，它的距离就确定下来了（因为边权非负，绕路不可能更短），然后拿它去松弛邻居。用堆优化后是 O(mlog n)。 类比 往水里丢石子，波纹先到近的地方再到远的地方，第一次到达就是最短距离。（这其实就是 BFS 的加权版。） 模板（堆优化） cpp typedef">
+      <div class="ah"><h4>6.5 Dijkstra：单源最短路（非负权）</h4><span class="lv lv-b">基础</span><span class="st">★★★★★</span><span class="tag">必考</span><a class="prac" href="practice.html#P4779" target="_blank" title="题单里的模板题">P4779</a><a class="prac" href="practice.html#P3371" target="_blank" title="题单里的模板题">P3371</a><a class="prac" href="practice.html#P1629" target="_blank" title="题单里的模板题">P1629</a></div>
+      <p class="idea"><b>本质</b>：贪心。每次取出「当前距离最小的未确定节点」，它的距离就<b>确定下来了</b>（因为边权非负，绕路不可能更短），然后拿它去松弛邻居。用堆优化后是 O(mlog n)。</p>
+      <div class="box idea"><span class="t">🎨 生活类比</span><p>往水里丢石子，波纹先到近的地方再到远的地方，<b>第一次到达就是最短距离</b>。（这其实就是 BFS 的加权版。）</p></div>
+      <p><b>模板（堆优化）</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      typedef long long ll;
+      vector<pair<int, int>> g[N];          // {to, weight}
+      ll dist[N];
+      bool done[N];
+      
+      void dijkstra(int s) {
+          memset(dist, 0x3f, sizeof dist);
+          dist[s] = 0;
+          priority_queue<pair<ll, int>, vector<pair<ll, int>>, greater<>> pq;
+          pq.push({0, s});
+          while (!pq.empty()) {
+              auto [d, u] = pq.top(); pq.pop();
+              if (done[u]) continue;         // 过时的堆项直接跳过
+              done[u] = true;                // 第一次出队即确定
+              for (auto [v, w] : g[u]) {
+                  if (dist[v] > d + w) {
+                      dist[v] = d + w;
+                      pq.push({dist[v], v});
+                  }
+              }
+          }
+      }
+      </script></div>
+      <p><b>三个必须知道的限制</b></p>
+      <ol class="tight"><li><b>不能有负权边</b>。有负权请用 Bellman-Ford/SPFA。</li><li><b>不能直接求最长路</b>（把边权取负会得到负权图）。</li><li><b>稠密图用朴素版</b> O(n^2)（不加堆），反而更快。</li></ol>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P4779" target="_blank">P4779</a> 单源最短路（标准版）　·　<a href="practice.html#P3371" target="_blank">P3371</a> 单源最短路（弱化版）　·　<a href="practice.html#P1629" target="_blank">P1629</a> 邮递员送信（反图）　·　<a href="practice.html#P4568" target="_blank">P4568</a> 飞行路线（分层图）　·　<a href="practice.html#P1144" target="_blank">P1144</a> 最短路计数　·　<a href="practice.html#P1462" target="_blank">P1462</a> 通往奥格瑞玛的道路（二分 + Dijkstra）</p>
+    </article>
+    <article class="algo" id="pl-71" data-cat="图论" data-name="6.6 SPFA 与负环 本质 Bellman-Ford 的队列优化版：只有「距离被更新过」的点才需要继续松弛别人。能做负权、能判负环，但最坏复杂度 O(nm)，在构造数据下比 Dijkstra 慢几个数量级。 cpp bool spfa(int s, int n) { // 返回 true 表示有负环">
+      <div class="ah"><h4>6.6 SPFA 与负环</h4><span class="lv lv-b">基础</span><span class="st">★★★★★</span><span class="tag">必考</span><a class="prac" href="practice.html#P3385" target="_blank" title="题单里的模板题">P3385</a><a class="prac" href="practice.html#P3371" target="_blank" title="题单里的模板题">P3371</a><a class="prac" href="practice.html#P5960" target="_blank" title="题单里的模板题">P5960</a></div>
+      <p class="idea"><b>本质</b>：Bellman-Ford 的队列优化版：只有「距离被更新过」的点才需要继续松弛别人。能做负权、能判负环，但<b>最坏复杂度 O(nm)</b>，在构造数据下比 Dijkstra 慢几个数量级。</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      bool spfa(int s, int n) {              // 返回 true 表示有负环
+          memset(dist, 0x3f, sizeof dist);
+          memset(inq, 0, sizeof inq);
+          memset(cnt, 0, sizeof cnt);
+          queue<int> q;
+          dist[s] = 0; q.push(s); inq[s] = true;
+          while (!q.empty()) {
+              int u = q.front(); q.pop(); inq[u] = false;
+              for (auto [v, w] : g[u]) {
+                  if (dist[v] > dist[u] + w) {
+                      dist[v] = dist[u] + w;
+                      cnt[v] = cnt[u] + 1;
+                      if (cnt[v] >= n) return true;      // 最短路上的边数 ≥ n，必有负环
+                      if (!inq[v]) { inq[v] = true; q.push(v); }
+                  }
+              }
+          }
+          return false;
+      }
+      </script></div>
+      <p><b>使用建议</b></p>
+      <table>
+      <tr><th>场景</th><th>选谁</th></tr>
+      <tr><td>全是非负权</td><td><b>Dijkstra</b>（永远优先）</td></tr>
+      <tr><td>有负权但没有负环</td><td>SPFA（或 Bellman-Ford）</td></tr>
+      <tr><td>判负环</td><td>SPFA + 计数，或 Bellman-Ford 跑 n-1 轮</td></tr>
+      <tr><td>有负权且要用 Dijkstra</td><td>Johnson 算法（先跑一遍 Bellman-Ford 重赋权）</td></tr>
+      </table>
+      <div class="box tip"><span class="t">💡 提示</span><p><b>「能非负权就别用 SPFA」是必须建立的直觉</b>。很多同学用 SPFA 过了所有题，然后在正式比赛上被卡到 TLE。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P3385" target="_blank">P3385</a> 负环　·　<a href="practice.html#P3371" target="_blank">P3371</a> 单源最短路（弱化版）　·　<a href="practice.html#P5960" target="_blank">P5960</a> 差分约束算法</p>
+    </article>
+    <article class="algo" id="pl-72" data-cat="图论" data-name="6.7 最小生成树：Kruskal 与 Prim 本质 在连通无向图中选 n-1 条边，使总权最小。Kruskal 是贪心加边（按边权排序 + 并查集判环），Prim 是贪心加点（类似 Dijkstra）。两者都是拟阵贪心，都可证明。 类比 要给 n 个村子铺路，使所有村子连通、总长度最短。Kruskal 的做法是「从最短的路开始铺，只要不形成环就铺」。 K">
+      <div class="ah"><h4>6.7 最小生成树：Kruskal 与 Prim</h4><span class="lv lv-b">基础</span><span class="st">★★★★★</span><span class="tag">必考</span><a class="prac" href="practice.html#P3366" target="_blank" title="题单里的模板题">P3366</a><a class="prac" href="practice.html#P1546" target="_blank" title="题单里的模板题">P1546</a><a class="prac" href="practice.html#P2330" target="_blank" title="题单里的模板题">P2330</a></div>
+      <p class="idea"><b>本质</b>：在连通无向图中选 n-1 条边，使总权最小。Kruskal 是<b>贪心加边</b>（按边权排序 + 并查集判环），Prim 是<b>贪心加点</b>（类似 Dijkstra）。两者都是拟阵贪心，都可证明。</p>
+      <div class="box idea"><span class="t">🎨 生活类比</span><p>要给 n 个村子铺路，使所有村子连通、总长度最短。Kruskal 的做法是「从最短的路开始铺，只要不形成环就铺」。</p></div>
+      <p><b>Kruskal 模板（更常用，好写）</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      struct Edge { int u, v, w; };
+      vector<Edge> e;
+      bool cmp(const Edge &a, const Edge &b) { return a.w < b.w; }
+      
+      sort(e.begin(), e.end(), cmp);
+      long long ans = 0; int cnt = 0;
+      for (auto &ed : e) {
+          if (find(ed.u) != find(ed.v)) {      // 不在同一集合 → 不形成环
+              merge(ed.u, ed.v);
+              ans += ed.w;
+              if (++cnt == n - 1) break;
+          }
+      }
+      if (cnt < n - 1) { /* 不连通，无生成树 */ }
+      </script></div>
+      <p>复杂度 O(mlog m)（排序主导）。</p>
+      <p><b>两者怎么选</b></p>
+      <table>
+      <tr><th></th><th>Kruskal</th><th>Prim</th></tr>
+      <tr><td>复杂度</td><td>O(mlog m)</td><td>O(n^2) 或 O(mlog n)（堆优化）</td></tr>
+      <tr><td>适合</td><td>稀疏图</td><td>稠密图</td></tr>
+      <tr><td>代码</td><td>短（要并查集）</td><td>类似 Dijkstra</td></tr>
+      </table>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p>忘记判「不连通」（<code>cnt &lt; n-1</code>）；无向图要存两次边；<code>ans</code> 用 <code>long long</code>。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P3366" target="_blank">P3366</a> 最小生成树模板　·　<a href="practice.html#P1546" target="_blank">P1546</a> 最短网络　·　<a href="practice.html#P2330" target="_blank">P2330</a> 繁忙的都市　·　<a href="practice.html#P1967" target="_blank">P1967</a> 货车运输（Kruskal 重构树/倍增）　·　<a href="practice.html#P1195" target="_blank">P1195</a> 口袋的天空</p>
+    </article>
+    <article class="algo" id="pl-73" data-cat="图论" data-name="6.8 欧拉路 本质 能否不重不漏地走完每条边。判定条件只看度数： - 欧拉回路（回到起点）：所有点度数为偶数，且图连通。 - 欧拉路（不要求回起点）：恰好 0 个或 2 个奇度点。 构造用 Hierholzer：走到走不动再回溯，出栈序即为答案。 cpp void dfs(int u) { for (int &amp;i">
+      <div class="ah"><h4>6.8 欧拉路</h4><span class="lv lv-b">基础</span><span class="st">★★★★★</span><span class="tag">必考</span><a class="prac" href="practice.html#P1341" target="_blank" title="题单里的模板题">P1341</a><a class="prac" href="practice.html#P2731" target="_blank" title="题单里的模板题">P2731</a><a class="prac" href="practice.html#P7771" target="_blank" title="题单里的模板题">P7771</a></div>
+      <p class="idea"><b>本质</b>：能否不重不漏地走完每条边。<b>判定条件只看度数</b>：</p>
+      <ul class="tight"><li><b>欧拉回路</b>（回到起点）：所有点度数为偶数，且图连通。</li><li><b>欧拉路</b>（不要求回起点）：恰好 0 个或 2 个奇度点。</li></ul>
+      <p><b>构造用 Hierholzer</b>：走到走不动再回溯，<b>出栈序</b>即为答案。</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      void dfs(int u) {
+          for (int &i = head[u]; i < (int)g[u].size(); ++i) {   // 当前弧优化
+              auto [v, id] = g[u][i];
+              if (used[id]) continue;
+              used[id] = true; used[id ^ 1] = true;            // 无向图正反两条边一起标记
+              dfs(v);
+          }
+          ans.push_back(u);        // 回溯时入栈
+      }
+      // 最后把 ans 反转就是路径
+      </script></div>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p>图必须连通（忽略孤立点）；有向图的判定是「每个点入度 = 出度」或「恰有一个点出度比入度大 1，一个点入度比出度大 1」。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P1341" target="_blank">P1341</a> 无序字母对　·　<a href="practice.html#P2731" target="_blank">P2731</a> 骑马修栅栏　·　<a href="practice.html#P7771" target="_blank">P7771</a> 欧拉路径　·　<a href="practice.html#P1127" target="_blank">P1127</a> 词链</p>
+    </article>
+    <article class="algo" id="pl-74" data-cat="图论" data-name="6.9 差分约束 本质 把一组形如 x_v - x_u ≤ w 的不等式，变成图上的「边 u → v，权 w」，然后跑最短路（求上界）或最长路（求下界）。有负环则无解。 cpp // x_v ≤ x_u + w ⇒ 建边 u → v，权 w // 跑最短路，dist[v] 就是 x_v 的最大可行值 为什么最短路的松弛">
+      <div class="ah"><h4>6.9 差分约束</h4><span class="lv lv-b">基础</span><span class="st">★★★★★</span><span class="tag">必考</span><a class="prac" href="practice.html#P5960" target="_blank" title="题单里的模板题">P5960</a><a class="prac" href="practice.html#P1250" target="_blank" title="题单里的模板题">P1250</a><a class="prac" href="practice.html#P1993" target="_blank" title="题单里的模板题">P1993</a></div>
+      <p class="idea"><b>本质</b>：把一组形如 x_v - x_u ≤ w 的不等式，变成图上的「边 u → v，权 w」，然后跑<b>最短路</b>（求上界）或<b>最长路</b>（求下界）。有负环则无解。</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      // x_v ≤ x_u + w  ⇒  建边 u → v，权 w
+      // 跑最短路，dist[v] 就是 x_v 的最大可行值
+      </script></div>
+      <p><b>为什么最短路的松弛 <code>dist[v] &gt; dist[u] + w</code> 恰好对应不等式？</b> 因为收敛后 <code>dist[v] &lt;= dist[u] + w</code> 恒成立——这正是约束。</p>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P5960" target="_blank">P5960</a> 差分约束算法　·　<a href="practice.html#P1250" target="_blank">P1250</a> 种树　·　<a href="practice.html#P1993" target="_blank">P1993</a> 小 K 的农场</p>
+    </article>
+    <article class="algo" id="pl-75" data-cat="图论" data-name="6.10 第 6 章验收标准 - [ ] 能说清「三种最短路各适用于什么图」，并各默写一遍。 - [ ] Kruskal + 并查集能盲写；Floyd 的 k 在最外层的理由能讲清楚。 - [ ] 拓扑排序 + DAG 上 DP 熟练。 - [ ] 见到一道题能说出「什么该建成点、什么该建成边」。 - [ ] 累计 AC 洛谷「普及+/提高−」图">
+      <div class="ah"><h4>6.10 第 6 章验收标准</h4><span class="lv lv-b">基础</span><span class="st">★★★★★</span><span class="tag">必考</span></div>
+      <ul class="tight"><li>☐ 能说清「三种最短路各适用于什么图」，并各默写一遍。</li><li>☐ Kruskal + 并查集能盲写；Floyd 的 <code>k</code> 在最外层的理由能讲清楚。</li><li>☐ 拓扑排序 + DAG 上 DP 熟练。</li><li>☐ 见到一道题能说出「什么该建成点、什么该建成边」。</li><li>☐ 累计 AC 洛谷「普及+/提高−」图论题不少于 20 道。</li></ul>
+    </article>
+  </div>
+</section>
+

@@ -1,0 +1,317 @@
+
+<p class="lead">前四件是「做事的习惯」，这第五件是<b>一件具体的前置技能</b>。它本身只有十几行代码，但没有它，树状数组、线段树、扫描线这些结构有一大半题目都用不了。</p>
+
+<details class="fold" id="j1" open>
+<summary>5.1　本质与三步<span class="sum-note">值域 10⁹ → 下标 n</span></summary>
+<div class="fold-body">
+<p class="idea"><b>本质</b>：当数值很大（比如到 <span class="mono">10⁹</span>）但<b>个数很少</b>（比如 <span class="mono">10⁵</span>）时，我们往往只关心它们的<b>相对大小</b>，而不关心具体是多少。把「排序去重后的排名」当作新下标，值域就从 <span class="mono">10⁹</span> 缩到 <span class="mono">n</span>。</p>
+<div class="form">三步：① 拷一份存起来   ② sort + unique 去重   ③ lower_bound 查排名（排名就是新下标）</div>
+<svg class="fig" viewBox="0 0 0 0 680 264" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>离散化前后的对照</title>
+<desc>原始值一百、三、三、五十五、一百、三变成排名三、一、一、二、三、一，映射关系是三到一、五十五到二、一百到三，值域从十亿降到三。</desc>
+<text class="fg-s" x="40" y="26" font-size="12.5">值域 10⁹ → 下标 1..n：只保留「相对大小」</text>
+<text class="fg-s" x="40" y="57" font-size="12" dominant-baseline="central">原始值</text>
+<text class="fg-mono fg-t" x="164" y="57" font-size="13" text-anchor="middle" dominant-baseline="central">100</text>
+<text class="fg-mono fg-t" x="246" y="57" font-size="13" text-anchor="middle" dominant-baseline="central">3</text>
+<text class="fg-mono fg-t" x="328" y="57" font-size="13" text-anchor="middle" dominant-baseline="central">3</text>
+<text class="fg-mono fg-t" x="410" y="57" font-size="13" text-anchor="middle" dominant-baseline="central">55</text>
+<text class="fg-mono fg-t" x="492" y="57" font-size="13" text-anchor="middle" dominant-baseline="central">100</text>
+<text class="fg-mono fg-t" x="574" y="57" font-size="13" text-anchor="middle" dominant-baseline="central">3</text>
+<rect class="fg-card" x="128" y="42" width="72" height="30" rx="6"/>
+<rect class="fg-card" x="210" y="42" width="72" height="30" rx="6"/>
+<rect class="fg-card" x="292" y="42" width="72" height="30" rx="6"/>
+<rect class="fg-card" x="374" y="42" width="72" height="30" rx="6"/>
+<rect class="fg-card" x="456" y="42" width="72" height="30" rx="6"/>
+<rect class="fg-card" x="538" y="42" width="72" height="30" rx="6"/>
+<path class="st-dan" d="M120 74 V88" fill="none" stroke-dasharray="3 3"/>
+<path class="ah-dan" d="M120 92 L116 85 L124 85 Z"/>
+<text class="fg-s" x="40" y="107" font-size="12" dominant-baseline="central">排名</text>
+<text class="fg-mono tx-acc" x="164" y="107" font-size="13" text-anchor="middle" dominant-baseline="central">3</text>
+<text class="fg-mono tx-acc" x="246" y="107" font-size="13" text-anchor="middle" dominant-baseline="central">1</text>
+<text class="fg-mono tx-acc" x="328" y="107" font-size="13" text-anchor="middle" dominant-baseline="central">1</text>
+<text class="fg-mono tx-acc" x="410" y="107" font-size="13" text-anchor="middle" dominant-baseline="central">2</text>
+<text class="fg-mono tx-acc" x="492" y="107" font-size="13" text-anchor="middle" dominant-baseline="central">3</text>
+<text class="fg-mono tx-acc" x="574" y="107" font-size="13" text-anchor="middle" dominant-baseline="central">1</text>
+<rect class="bd bd-acc" x="128" y="92" width="72" height="30" rx="6"/>
+<rect class="bd bd-acc" x="210" y="92" width="72" height="30" rx="6"/>
+<rect class="bd bd-acc" x="292" y="92" width="72" height="30" rx="6"/>
+<rect class="bd bd-acc" x="374" y="92" width="72" height="30" rx="6"/>
+<rect class="bd bd-acc" x="456" y="92" width="72" height="30" rx="6"/>
+<rect class="bd bd-acc" x="538" y="92" width="72" height="30" rx="6"/>
+<text class="fg-s" x="40" y="155" font-size="12" dominant-baseline="central">值域</text>
+<rect class="bd bd-dan" x="110" y="143" width="490" height="18" rx="4"/>
+<text class="fg-t" x="120" y="152" font-size="11" dominant-baseline="central">原始 0 ~ 10⁹：桶和树状数组都开不出来</text>
+<rect class="bd bd-ok" x="110" y="171" width="8" height="18" rx="3"/>
+<text class="tx-ok" x="126" y="180" font-size="11" dominant-baseline="central">离散化后 1 ~ n（n 是不同值的个数，这个例子里是 3）</text>
+<rect class="band-ok" x="40" y="200" width="600" height="44" rx="8"/>
+<text class="fg-t" x="52" y="220" font-size="12">排名完整保留了「谁大谁小」的全部信息，所以第 k 小、比 x 小的有几个、逆序对这些都能做。</text>
+<text class="fg-t" x="52" y="238" font-size="12">但它丢掉了「相差多少」—— 求和、算距离的题不能直接对排名下手（见 5.4）。</text>
+</svg>
+<p class="figcap">原始值 <span class="mono">[100, 3, 3, 55, 100, 3]</span> → 排名 <span class="mono">[3, 1, 1, 2, 3, 1]</span>，映射表 <span class="mono">{3→1, 55→2, 100→3}</span>。<b>值之间的「大小关系」被完整保留</b>，这就是它能用的原因。</p>
+<div class="callout">
+<p><b>为什么需要它？</b>因为「桶」和「树」这两种结构都要求<b>下标是紧凑的整数</b>。<span class="mono">10⁹</span> 个桶开不出来（4 GB）；但 <span class="mono">10⁵</span> 个桶、<span class="mono">10⁵</span> 个节点的树状数组毫无压力。<b>离散化做的事，就是把「值」翻译成「位置」。</b></p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="j2">
+<summary>5.2　完整模板（含 <span class="mono">unique</span> 的机制）<span class="sum-note">最容易误解的一步</span></summary>
+<div class="fold-body">
+<svg class="fig" viewBox="0 0 0 0 680 254" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>unique 的机制</title>
+<desc>排序后的六个元素，unique 只把不重复的三个挪到前面并返回新结尾位置，容器长度不变，剩下的三个格子内容未定义。</desc>
+<text class="fg-s" x="40" y="26" font-size="12.5">unique 不删除元素，只把不重复的挪到前面 —— 必须配 erase 才真正变短</text>
+<text class="fg-s" x="40" y="57" font-size="12" dominant-baseline="central">sort 之后</text>
+<text class="fg-mono fg-t" x="164" y="57" font-size="13" text-anchor="middle" dominant-baseline="central">3</text>
+<text class="fg-mono fg-t" x="246" y="57" font-size="13" text-anchor="middle" dominant-baseline="central">3</text>
+<text class="fg-mono fg-t" x="328" y="57" font-size="13" text-anchor="middle" dominant-baseline="central">3</text>
+<text class="fg-mono fg-t" x="410" y="57" font-size="13" text-anchor="middle" dominant-baseline="central">55</text>
+<text class="fg-mono fg-t" x="492" y="57" font-size="13" text-anchor="middle" dominant-baseline="central">100</text>
+<text class="fg-mono fg-t" x="574" y="57" font-size="13" text-anchor="middle" dominant-baseline="central">100</text>
+<rect class="bd bd-ok" x="128" y="42" width="72" height="30" rx="6"/>
+<rect class="bd bd-ok" x="210" y="42" width="72" height="30" rx="6"/>
+<rect class="bd bd-ok" x="292" y="42" width="72" height="30" rx="6"/>
+<rect class="bd bd-ok" x="374" y="42" width="72" height="30" rx="6"/>
+<rect class="bd bd-ok" x="456" y="42" width="72" height="30" rx="6"/>
+<rect class="bd bd-ok" x="538" y="42" width="72" height="30" rx="6"/>
+<text class="fg-s" x="40" y="107" font-size="12" dominant-baseline="central">unique 之后</text>
+<text class="fg-mono tx-ok" x="164" y="107" font-size="13" text-anchor="middle" dominant-baseline="central">3</text>
+<text class="fg-mono tx-ok" x="246" y="107" font-size="13" text-anchor="middle" dominant-baseline="central">55</text>
+<text class="fg-mono tx-ok" x="328" y="107" font-size="13" text-anchor="middle" dominant-baseline="central">100</text>
+<text class="fg-mono tx-dan" x="410" y="107" font-size="13" text-anchor="middle" dominant-baseline="central">?</text>
+<text class="fg-mono tx-dan" x="492" y="107" font-size="13" text-anchor="middle" dominant-baseline="central">?</text>
+<text class="fg-mono tx-dan" x="574" y="107" font-size="13" text-anchor="middle" dominant-baseline="central">?</text>
+<rect class="bd bd-ok" x="128" y="92" width="72" height="30" rx="6"/>
+<rect class="bd bd-ok" x="210" y="92" width="72" height="30" rx="6"/>
+<rect class="bd bd-ok" x="292" y="92" width="72" height="30" rx="6"/>
+<rect class="bd-dash" x="374" y="92" width="72" height="30" rx="6"/>
+<rect class="bd-dash" x="456" y="92" width="72" height="30" rx="6"/>
+<rect class="bd-dash" x="538" y="92" width="72" height="30" rx="6"/>
+<line class="st-dan" x1="374" y1="88" x2="374" y2="126" stroke-dasharray="3 3"/>
+<text class="tx-dan" x="378" y="84" font-size="10.5">返回值指向这里</text>
+<text class="fg-s" x="40" y="157" font-size="12" dominant-baseline="central">erase 之后</text>
+<text class="fg-mono tx-ok" x="164" y="157" font-size="13" text-anchor="middle" dominant-baseline="central">3</text>
+<text class="fg-mono tx-ok" x="246" y="157" font-size="13" text-anchor="middle" dominant-baseline="central">55</text>
+<text class="fg-mono tx-ok" x="328" y="157" font-size="13" text-anchor="middle" dominant-baseline="central">100</text>
+<rect class="bd bd-ok" x="128" y="142" width="72" height="30" rx="6"/>
+<rect class="bd bd-ok" x="210" y="142" width="72" height="30" rx="6"/>
+<rect class="bd bd-ok" x="292" y="142" width="72" height="30" rx="6"/>
+<text class="fg-s" x="378" y="157" font-size="11" dominant-baseline="central">长度这才真的变成 3</text>
+<rect class="band-warn" x="40" y="180" width="600" height="54" rx="8"/>
+<text class="fg-t" x="52" y="200" font-size="12">后面那 3 个格子的内容是「未定义」的 —— 它们还在容器里，还会被 lower_bound 搜到。</text>
+<text class="fg-t" x="52" y="220" font-size="12">所以只调 unique 不调 erase，排名一定错位，而且不会报任何错。</text>
+</svg>
+<p class="figcap"><span class="mono">unique</span> <b>不删除元素、也不改变容器长度</b>，只是把不重复的挪到前面，然后返回「新逻辑结尾」的位置。</p>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>、<vector>
+using namespace std;
+
+// ========== 标准三步模板 ==========
+vector<int> a = {100, 3, 3, 55, 100, 3};
+
+vector<int> b = a;                                    // ① 备份（排序会破坏原顺序）
+sort(b.begin(), b.end());                             // ② 排序
+b.erase(unique(b.begin(), b.end()), b.end());         //    去重 —— 注意必须配 erase
+
+// ③ 查排名：lower_bound 返回迭代器，减去 begin() 得到下标
+vector<int> rk(a.size());
+for (size_t i = 0; i < a.size(); ++i)
+    rk[i] = int(lower_bound(b.begin(), b.end(), a[i]) - b.begin()) + 1;   // 1 开始
+
+// a  =  100   3   3   55  100   3
+// rk =    3   1   1    2    3   1
+// 映射表：3 → 1，55 → 2，100 → 3
+
+// ========== 如果原值是 long long ==========
+// 模板完全一样，把 vector<int> 换成 vector<long long> 即可，
+// lower_bound 会自动按 long long 比较，不需要额外处理。</script></div>
+<h3>为什么 <span class="mono">unique</span> 必须配 <span class="mono">erase</span></h3>
+<p class="idea"><span class="mono">unique</span> 的返回值是「新逻辑结尾」的迭代器，<b>容器本身的 <span class="mono">size()</span> 一点没变</b>。只调 <span class="mono">unique</span> 不 <span class="mono">erase</span>，后面那几个「已失效但还占着位置」的元素还会被 <span class="mono">lower_bound</span> 搜到 —— 排名就全错了。</p>
+<div class="form">b.erase(unique(b.begin(), b.end()), b.end());
+          └─ 返回新结尾 ─┘                └─ 从新结尾删到真正的末尾 ─┘</div>
+<div class="callout warn">
+<p><b>还要记住 <span class="mono">unique</span> 的前提：区间必须已经有序。</b>它只去掉<b>相邻的</b>重复项。<span class="mono">[3, 55, 3]</span> 不排序直接 <span class="mono">unique</span>，结果还是 <span class="mono">[3, 55, 3]</span> —— 一个都没去掉。<b>顺序永远是：先 sort，再 unique。</b></p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="j3">
+<summary>5.3　用到的四个函数：参数、返回值、复杂度<span class="sum-note">一次讲清，不用再查</span></summary>
+<div class="fold-body">
+<table>
+<thead><tr><th class="num">函数</th><th>作用</th><th>返回 / 复杂度</th><th>最容易错的地方</th></tr></thead>
+<tbody>
+<tr>
+<td class="num mono">sort(f, l)</td>
+<td>把 <span class="mono">[f, l)</span> 升序排序，在 <span class="mono">&lt;algorithm&gt;</span></td>
+<td>无返回值 · <b>O(n log n)</b>，<b>不稳定</b></td>
+<td><b>左闭右开</b>：对数组要写 <span class="mono">sort(a, a + n)</span>，<b>不是 <span class="mono">a + n − 1</span></b></td>
+</tr>
+<tr>
+<td class="num mono">unique(f, l)</td>
+<td>把<b>相邻</b>的重复元素挪到后面，在 <span class="mono">&lt;algorithm&gt;</span></td>
+<td>返回<b>新逻辑结尾</b>的迭代器 · O(n)</td>
+<td><b>不删除元素、不改长度</b>；<b>要求区间已有序</b>；必须配 <span class="mono">erase</span></td>
+</tr>
+<tr>
+<td class="num mono">lower_bound(f, l, x)</td>
+<td>在<b>有序</b>区间里找第一个 <b>≥ x</b> 的位置，二分实现</td>
+<td>返回迭代器（全都 &lt; x 时返回 <span class="mono">l</span>）· <b>O(log n)</b></td>
+<td>区间<b>必须有序</b>，否则结果随机；改成下发问 <span class="mono">- begin()</span> 拿 0-based 下标</td>
+</tr>
+<tr>
+<td class="num mono">v.erase(f, l)</td>
+<td>删除一段区间，后面的元素整体前移</td>
+<td>返回被删区间之后的第一个位置 · <b>O(n)</b></td>
+<td>删除会让<b>后面的迭代器全部失效</b>，别在遍历里随手 erase</td>
+</tr>
+</tbody>
+</table>
+<div class="callout">
+<p><b>顺带把 <span class="mono">upper_bound</span> 一起记了：</b>它返回第一个 <b>&gt; x</b> 的位置。<br>
+<span class="mono">lower_bound(b, x) - begin() + 1</span> = <b>x 的排名</b>（从 1 开始，也是「比 x 小的个数 + 1」）<br>
+<span class="mono">upper_bound(b, x) - lower_bound(b, x)</span> = <b>x 重复出现的次数</b><br>
+<span class="mono">lower_bound(b, x) - begin()</span> = <b>比 x 小的元素个数</b></p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="j4">
+<summary>5.4　离散化会丢掉什么<span class="sum-note">什么时候不能这么干</span></summary>
+<div class="fold-body">
+<p class="idea">这是原文里那句「要注意」的完整版 —— <b>也是唯一一个会让你用错离散化的地方。</b></p>
+<svg class="fig" viewBox="0 0 0 0 680 288" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>离散化能做什么和不能做什么</title>
+<desc>只需要顺序的问题可以离散化，需要距离或求和的问题不能直接离散化，因为排名之间的差会从五十二变成一。</desc>
+<text class="fg-s" x="40" y="26" font-size="12.5">判断标准只有一句话：你要的是「顺序」还是「距离」？</text>
+<rect class="fg-card" x="40" y="42" width="290" height="170" rx="10"/>
+<rect class="bd bd-ok" x="52" y="54" width="266" height="28" rx="6"/>
+<text class="tx-ok" x="185" y="68" font-size="12.5" text-anchor="middle" dominant-baseline="central">只需要顺序 → 可以离散化</text>
+<text class="fg-t" x="56" y="100" font-size="11.5">第 k 小 / 排名</text>
+<text class="fg-t" x="56" y="120" font-size="11.5">比 x 小的有几个</text>
+<text class="fg-t" x="56" y="140" font-size="11.5">逆序对（只比大小）</text>
+<text class="fg-t" x="56" y="160" font-size="11.5">去重后的种类数</text>
+<text class="tx-ok" x="56" y="186" font-size="11">排名保留了全部的顺序关系</text>
+<rect class="fg-card" x="350" y="42" width="290" height="170" rx="10"/>
+<rect class="bd bd-dan" x="362" y="54" width="266" height="28" rx="6"/>
+<text class="tx-dan" x="495" y="68" font-size="12.5" text-anchor="middle" dominant-baseline="central">需要距离 → 不能直接用</text>
+<text class="fg-t" x="366" y="100" font-size="11.5">区间和 / 加权和</text>
+<text class="fg-t" x="366" y="120" font-size="11.5">两点距离 / 面积</text>
+<text class="fg-t" x="366" y="140" font-size="11.5">计数（个数也要小心）</text>
+<text class="fg-t" x="366" y="160" font-size="11.5">3, 55, 100 → 1, 2, 3</text>
+<text class="tx-dan" x="366" y="186" font-size="11">差 52 变成差 1，求和全错</text>
+<rect class="band-ok" x="40" y="224" width="600" height="44" rx="8"/>
+<text class="fg-t" x="52" y="244" font-size="12">补救：离散化时同时保留原值 —— 位置用排名（紧凑），数值用原值（不丢距离），两者配对使用。</text>
+<text class="fg-t" x="52" y="262" font-size="12">另一条路：只压缩坐标轴、不压权值 —— 扫描线就是这么干的，区间长度靠相邻坐标差算回来。</text>
+</svg>
+<p class="figcap">判断标准就一句话：<b>你要的是「顺序」还是「距离」？</b></p>
+<table>
+<thead><tr><th>问题在问什么</th><th>能离散化吗</th><th>例子</th></tr></thead>
+<tbody>
+<tr><td><b>谁大谁小 / 排第几</b></td><td class="ok"><b>能</b></td><td>第 k 小、比 x 小的有几个、排名、逆序对（只要比出大小）、去重后的种类数</td></tr>
+<tr><td><b>相差多少 / 加起来是多少</b></td><td class="dan"><b>不能直接用</b></td><td>区间和、加权和、两点距离、面积、计数（个数也要小心）</td></tr>
+</tbody>
+</table>
+<div class="callout ok">
+<p><b>补救办法（很常用）：</b>离散化时<b>同时保留原值</b>，用原值参与数值计算，用排名参与下标寻址，两者配对使用。</p>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>、<vector>
+// 树的节点：位置用排名（紧凑），数值用原值（不丢距离）
+struct Node { int pos; long long val; };
+
+// 例：求「区间和」时，树状数组存的是 val，索引用的是 pos
+//     离散化只压缩了【坐标轴】，没有压缩【权值】
+add(rank(x), value);        // 排名当索引，原值当权
+long long s = query(rank(r)) - query(rank(l) - 1);</script></div>
+<p><b>另一条路：不压缩坐标轴，改成只保留「关键点」。</b>比如扫描线求矩形面积并，只用到矩形的 <span class="mono">2n</span> 条竖直边，把它们的 x 坐标离散化，这样<b>区间长度</b>可以靠相邻两个坐标的差算回来，距离信息并没有丢。</p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="j5">
+<summary>5.5　离散化之后能干什么<span class="sum-note">它为什么是「前置技能」</span></summary>
+<div class="fold-body">
+<p class="idea">值域从 <span class="mono">10⁹</span> 降到 <span class="mono">10⁵</span> 之后，一大批「下标必须紧凑」的结构才能用上：</p>
+<table>
+<thead><tr><th class="num">解锁的东西</th><th>离散化在这里做什么</th></tr></thead>
+<tbody>
+<tr><td class="num"><b>树状数组求逆序对</b></td><td>把数值当索引。原值 <span class="mono">10⁹</span> 开不了那么大的数组，离散化后 <span class="mono">n</span> 个格子正好</td></tr>
+<tr><td class="num"><b>线段树 / 主席树</b></td><td>「第 k 小」「区间内第 k 大」—— 树的下标就是离散化排名</td></tr>
+<tr><td class="num"><b>权值线段树</b></td><td>同上，用排名当权值下标，才能统计「某个区间的数有几个」</td></tr>
+<tr><td class="num"><b>扫描线求矩形面积并</b></td><td>把 <span class="mono">2n</span> 条竖边的 x 坐标离散化，区间长度用相邻坐标差算</td></tr>
+<tr><td class="num"><b>桶计数</b></td><td>本来开 <span class="mono">10⁹</span> 个桶是 4 GB；离散化后 <span class="mono">n</span> 个桶就能数了</td></tr>
+</tbody>
+</table>
+<div class="callout">
+<p><b>一道题里它往往只是一行工具。</b>所以真正要记住的不是「离散化怎么写」（第 5.2 节那 5 行已经够了），而是<b>「什么时候该想到它」</b> —— 当你发现「值域很大、但个数不多」，而且想用「按下标寻址」的结构时，就该想起它。</p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="j6">
+<summary>5.6　离散化部分的六条常见错误<span class="sum-note">第一条最常见</span></summary>
+<div class="fold-body">
+<h3>1. 用了 <span class="mono">unique</span> 却没有 <span class="mono">erase</span></h3>
+<p class="idea">最常见的一条。容器长度没变，后面那些失效元素还会被搜到，排名整体错位。<b>写成一行 <span class="mono">b.erase(unique(b.begin(), b.end()), b.end());</span> 就不会忘。</b></p>
+
+<h3>2. 先 <span class="mono">unique</span> 才 <span class="mono">sort</span></h3>
+<p class="idea"><span class="mono">unique</span> 只处理相邻重复。<b>顺序必须是 sort → unique。</b>写反了一个都去不掉，而且不报错。</p>
+
+<h3>3. <span class="mono">lower_bound</span> 之前忘了保证有序</h3>
+<p class="idea"><span class="mono">lower_bound</span> 是二分，区间无序时结果是<b>随机的</b>（不是报错，是安静地给你错答案）。所有 <span class="mono">lower_bound</span> / <span class="mono">upper_bound</span> / 二分查找都要求有序。</p>
+
+<h3>4. 忘记 <span class="mono">+1</span> 或 <span class="mono">-1</span>，1-based 与 0-based 混用</h3>
+<p class="idea"><span class="mono">- b.begin()</span> 得到 0-based；<span class="mono">+1</span> 变成 1-based。<b>选一种用到底。</b>混用的典型症状是「答案差 1」或者「最后一个元素丢失」—— 树状数组通常要 1-based（因为 <span class="mono">lowbit(0) = 0</span> 会死循环）。</p>
+
+<h3>5. 覆盖了原数组</h3>
+<p class="idea">直接 <span class="mono">sort(a)</span> 再离散化，原顺序就没了 —— 而很多题需要「原来的第 i 个数」。</p>
+<div class="codebox"><button class="cp" type="button">复制</button><pre><code></code></pre><script type="text/x-cpp">// 依赖头文件：#include <algorithm>、<vector>
+// ✗ 直接排序原数组，原顺序丢了
+sort(a.begin(), a.end());
+// 后面想找「原来第 3 个数是多少」已经找不到了
+
+// ✓ 拷一份出来排序，原数组不动
+vector<int> b = a;
+sort(b.begin(), b.end());
+b.erase(unique(b.begin(), b.end()), b.end());</script></div>
+
+<h3>6. 把「距离信息」也一起离散掉了</h3>
+<p class="idea">见 5.4。需要求和、算距离、算面积的题，离散化只能压缩坐标轴，不能压缩权值。<b>离散化之后直接对排名求和，答案一定是错的。</b></p>
+<div class="callout warn">
+<p><b>自检清单（写完离散化立刻核对）：</b><br>
+① sort 和 unique 的顺序对吗？ ② 有 <span class="mono">erase</span> 吗？<br>
+③ 排名是 0 还是 1 开始，全文一致吗？ ④ 原数组有没有被破坏？<br>
+⑤ 这道题要的是「顺序」还是「距离」？</p>
+</div>
+</div>
+</details>
+
+<details class="fold" id="j7">
+<summary>5.7　题单：离散化的三道必做<span class="sum-note">原文给的三道，说明各自练什么</span></summary>
+<div class="fold-body">
+<table>
+<thead><tr><th class="num">题目</th><th>练什么</th><th>做完应该记住</th></tr></thead>
+<tbody>
+<tr>
+<td class="num"><b>P1908</b><br>逆序对</td>
+<td><b>必做。</b>树状数组 + 离散化的标准组合：值当索引，从右往左扫，统计「比当前数小的有几个」</td>
+<td><span class="mono">ans += query(rank) - query(rank - 1)</span> 里的下标为什么必须是 1-based</td>
+</tr>
+<tr>
+<td class="num"><b>P1955</b><br>[NOI2015] 程序自动分析</td>
+<td>并查集 + 离散化。<b>变量名是 10⁹ 量级的编号，但个数只有 10⁵</b> —— 典型的「值域大、个数少」</td>
+<td>离散化不只是为了数组下标，<b>任何「把大编号当集合元素」的场景都要它</b></td>
+</tr>
+<tr>
+<td class="num"><b>P5490</b><br>「模板」扫描线</td>
+<td>线段树 + 离散化 + <b>「只压缩坐标轴、不压权值」</b> 的经典场面：区间长度靠相邻坐标差算回来</td>
+<td>这就是 5.4 那个「补救办法」的真实用法</td>
+</tr>
+</tbody>
+</table>
+<div class="callout ok">
+<p><b>建议的顺序：</b>先做 P1908（最纯粹的离散化 + 树状数组，一遍就能把模板记住），
+再做 P1955（感受「离散化不止用于数组下标」），最后做 P5490（理解「坐标轴可以压、权值不能压」）。</p>
+</div>
+<p class="ref">这些题在 <a href="practice.html" target="_blank">题练场</a> 的「基础数据结构」与「进阶」分组里都能找到；对应的算法卡片在 <a  href="#mod-hb">学习手册</a> 的「树状数组」「线段树」「并查集」三张卡上。</p>
+</div>
+</details>
+

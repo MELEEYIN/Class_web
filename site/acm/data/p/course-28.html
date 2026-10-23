@@ -1,0 +1,218 @@
+
+<div class="box info"><div class="t" id="b0">本节出现的新函数 / 新语法（先看懂再用）</div><ul><li id="b1"><a href="#fn-0">deque：双端队列的两端操作</a> —— 两端 O(1) 进出的队列；0-1 BFS 的核心工具</li><li id="b2"><a href="#fn-1">priority_queue 的三参数模板</a> —— 元素类型 + 底层容器 + 比较器；缺一个参数就编译不过</li></ul></div><p id="b3">第 26 节的 BFS 只有一条规矩：所有点<b>从队尾进、从队头出</b>。这条规矩之所以对，是因为每条边的长度都等于 1 —— 先被发现的点一定不比后发现的远。可一旦边权出现 0，这个前提就断了：一个点是绕了三步才发现的，距离却可能和第一步就发现的点一样。<b>“第几层”不再等于“多远”</b>，所以要换容器。</p><p id="b4">本节的另一半内容方向刚好相反：有些问题根本不关心先后顺序，只关心<b>“当前最小的是谁”</b>。这时用 <code>priority_queue</code>（二叉堆），每次取最值 O(log n)，付出的代价是彻底放弃顺序。</p><div class="quote" id="b5">三种容器，三种规矩：queue 守顺序，deque 守“距离只差 0 或 1”，priority_queue 守“堆顶最值”。选错了不是慢一点，是答案错。</div><table><thead><tr><th id="b6">容器</th><th id="b7">元素怎么进出</th><th id="b8">能拿到什么</th><th id="b9">单次代价</th><th id="b10">用在哪种题上</th></tr></thead><tbody><tr><td id="b11">queue&lt;int&gt;</td><td id="b12">队尾进、队头出</td><td id="b13">最旧的元素</td><td id="b14">O(1)</td><td id="b15">边权全为 1 的 BFS、按层扩散</td></tr><tr><td id="b16">deque&lt;int&gt;</td><td id="b17">两端都能进、两端都能出</td><td id="b18">最旧的和最新的</td><td id="b19">O(1)</td><td id="b20">0-1 BFS、滑动窗口最值（第 19 节）</td></tr><tr><td id="b21">priority_queue&lt;int&gt;</td><td id="b22">随便进、只能从堆顶出</td><td id="b23">当前最大/最小</td><td id="b24">O(log n)</td><td id="b25">每步取当前最优、多路归并、Top-K</td></tr></tbody></table><p id="b26">表里只有 deque 那一行是新的容器，另外两个前面都见过。但“见过”和“能说清它为什么能两端 O(1) 插入”是两件事 —— deque 的内存是<b>分段</b>的：一段一段申请，用一张表记录各段的首地址，头插就往前一段挂，尾插就往后一段挂，所以不像 vector 那样要把整块数据搬家。代价是元素不保证连续，<code>&amp;dq[0] + n</code> 这种指针算术在 deque 上是危险的。</p><div class="fn"><div class="fh" id="b27">新函数拆解 · deque：双端队列的两端操作</div><div class="fb"><div class="sig" id="b28">deque&lt;int&gt; dq;
+dq.push_back(x);   dq.push_front(x);
+dq.pop_back();     dq.pop_front();
+dq.front();        dq.back();</div><table class="lines"><thead><tr><th id="b29">组成</th><th id="b30">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b31"><code>deque&lt;int&gt;</code></td><td id="b32">头文件 &lt;deque&gt;（bits 已包含）。带下标的双端队列，<b>两端插入删除都是 O(1)</b>。</td></tr><tr><td id="b33"><code>push_back(x) / push_front(x)</code></td><td id="b34">在队尾 / 队头插入一个元素。这是 deque 与 vector 的实质区别：vector 的 push_front 是不存在的，insert(begin(), x) 是 O(n)。</td></tr><tr><td id="b35"><code>pop_back() / pop_front()</code></td><td id="b36">删除队尾 / 队头元素，O(1)。<b>返回 void，不返回值</b>；要取值必须先 back() / front()。</td></tr><tr><td id="b37"><code>front() / back()</code></td><td id="b38">读队头 / 队尾，O(1)，不删除。容器为空时调用是未定义行为，通常表现为 RE。</td></tr><tr><td id="b39"><code>empty() / size()</code></td><td id="b40">判空 / 元素个数。pop 之前先判空，是本节所有代码的固定动作。</td></tr><tr><td id="b41"><code>dq[i]</code></td><td id="b42">支持下标访问，O(1)。但一旦用下标，说明你只需要随机访问，那就该用 vector 了。</td></tr></tbody></table><div class="cap" id="b43">最小可运行示例</div><div class="cap" id="b44">示例</div><pre id="b45"><code>deque&lt;<span class="k">int</span>&gt; dq;
+dq.<span class="k">push_back</span>(<span class="n">1</span>);     <span class="c">// [1]</span>
+dq.<span class="k">push_back</span>(<span class="n">2</span>);     <span class="c">// [1, 2]</span>
+dq.<span class="f">push_front</span>(<span class="n">0</span>);    <span class="c">// [0, 1, 2]      只有 deque 能这么干</span>
+<span class="k">cout</span> &lt;&lt; dq.<span class="f">front</span>() &lt;&lt; dq.<span class="f">back</span>();        <span class="c">// 02</span>
+dq.<span class="f">pop_front</span>();      <span class="c">// [1, 2]</span>
+dq.<span class="k">pop_back</span>();       <span class="c">// [1]</span>
+
+deque&lt;<span class="k">int</span>&gt; d2;
+<span class="c">// d2.front();       // 空容器上取 front：未定义行为，现场 RE</span>
+<span class="k">if</span> (!d2.<span class="k">empty</span>()) d2.<span class="f">pop_front</span>();        <span class="c">// 正确写法：先判空</span></code></pre><div class="box tip"><div class="t" id="b46">注意</div><p id="b47">deque 没有 reserve()，也不能用 memcpy / 指针遍历 —— 内存是分段的。</p><p id="b48">0-1 BFS 里<b>只有边权为 0 才允许 push_front</b>。把边权为 1 的也插到队头，队列的距离序列不再递增，同一个点会被反复松弛，答案虽然还对，但最坏退化成 SPFA 量级 → TLE。</p></div></div></div><div class="fn"><div class="fh" id="b49">新函数拆解 · priority_queue 的三参数模板</div><div class="fb"><div class="sig" id="b50">priority_queue&lt;T, Container, Compare&gt; q;</div><table class="lines"><thead><tr><th id="b51">组成</th><th id="b52">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b53"><code>T（第 1 个参数）</code></td><td id="b54">元素类型。可以是 int、long long、pair&lt;int,int&gt;，或自己写的 struct。</td></tr><tr><td id="b55"><code>Container（第 2 个）</code></td><td id="b56">底层容器，默认 vector&lt;T&gt;。要求随机访问 + push_back + pop_back，所以只能是 vector 或 deque，<b>写 list 会编译失败</b>。平时照抄 vector&lt;T&gt;。</td></tr><tr><td id="b57"><code>Compare（第 3 个）</code></td><td id="b58">比较器，回答“谁排在后面”。默认 less&lt;T&gt;，于是 top() 是最大值；写 greater&lt;T&gt; 则 top() 是最小值（第 17 节用过）。</td></tr><tr><td id="b59"><code>三个参数必须写全</code></td><td id="b60">想换比较器，前两个也得一起写出来。只写 priority_queue&lt;int, greater&lt;int&gt;&gt; 会得到一屏指向 &lt;bits/stl_queue.h&gt; 的模板报错 —— 因为第二个位置固定是容器。</td></tr><tr><td id="b61"><code>自定义比较器</code></td><td id="b62">写函数对象：struct Cmp { bool operator()(const Node &amp;x, const Node &amp;y) const { return x.w &gt; y.w; } }，然后 priority_queue&lt;Node, vector&lt;Node&gt;, Cmp&gt; q; <b>不能直接传函数名</b>，除非用 decltype 取它的类型。</td></tr><tr><td id="b63"><code>Compare 的语义</code></td><td id="b64">Cmp(a, b) == true 表示 a 的优先级<b>更低</b>、排在 b 后面。所以想要小根堆，就要让“大的”优先级低 —— 传 greater，或写 x.w &gt; y.w。</td></tr></tbody></table><div class="cap" id="b65">最小可运行示例</div><div class="cap" id="b66">示例</div><pre id="b67"><code><span class="c">// 写法一：小根堆</span>
+<span class="k">priority_queue</span>&lt;<span class="k">int</span>, <span class="k">vector</span>&lt;<span class="k">int</span>&gt;, <span class="k">greater</span>&lt;<span class="k">int</span>&gt;&gt; small;
+
+<span class="c">// 写法二：pair 默认按 first 比，first 相同再比 second</span>
+<span class="k">priority_queue</span>&lt;<span class="k">pair</span>&lt;<span class="k">int</span>, <span class="k">int</span>&gt;&gt; p;              <span class="c">// 默认大根堆</span>
+p.<span class="f">push</span>({<span class="n">2</span>, <span class="n">5</span>}); p.<span class="f">push</span>({<span class="n">2</span>, <span class="n">3</span>}); p.<span class="f">push</span>({<span class="n">1</span>, <span class="n">9</span>});
+<span class="k">cout</span> &lt;&lt; p.<span class="f">top</span>().<span class="k">first</span> &lt;&lt; <span class="s">' '</span> &lt;&lt; p.<span class="f">top</span>().<span class="k">second</span>; <span class="c">// 2 5（first 同，second 大的在前）</span>
+
+<span class="c">// 写法三：自定义比较器，按 w 小的优先</span>
+<span class="k">struct</span> Node { <span class="k">int</span> w, id; };
+<span class="k">struct</span> Cmp { <span class="k">bool</span> <span class="k">operator</span>()(<span class="k">const</span> Node &amp;x, <span class="k">const</span> Node &amp;y) <span class="k">const</span> { <span class="k">return</span> x.w &gt; y.w; } };
+<span class="k">priority_queue</span>&lt;Node, <span class="k">vector</span>&lt;Node&gt;, Cmp&gt; q;</code></pre><div class="box tip"><div class="t" id="b68">注意</div><p id="b69">priority_queue 不能遍历、不能删除任意元素、<b>不能修改已入堆元素的值</b>（改了也不会重排）。要“改值”就再 push 一份新的，取出时和记录里的最新值比一下，旧的那份就跳过。</p><p id="b70">pair 的默认比较是字典序：{dist, id} 放进小根堆，距离小的先出，距离相同时 id 小的先出。如果题目对同距离的顺序敏感，就别依赖这个次序。</p></div></div></div><div class="prob"><div class="ph"><span class="pn" id="b71">例题 · 最小函数值</span><span class="oi">洛谷 P2085</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P2085" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b72">有 n 个函数 F_i(x) = a_i·x² + b_i·x + c_i，定义域是正整数 x = 1, 2, 3, …。把所有函数在所有正整数上取到的值合在一起，求其中最小的 m 个，按升序输出（重复的值各算一个）。</p><p id="b73">输入格式：第一行两个整数 n、m；接下来 n 行，每行三个正整数 a_i、b_i、c_i。</p><p id="b74">输出格式：m 行，每行一个整数，依次为第 1 小、第 2 小……第 m 小的函数值。</p><p id="b75">数据范围：1 ≤ n, m ≤ 10⁴，a_i 恒为正（保证每个函数在正整数上单调递增）。</p></div></div><div class="step"><div class="sh" id="b76">把无穷多个值砍成 n 个有序序列</div><p id="b77"><b>第一步：每个函数自己是有序的。</b>a_i ＞ 0，抛物线开口向上，对称轴在 x = −b_i/(2a_i) ＜ 0，所以整数部分 x ≥ 1 整段都落在增区间上：F_i(1) ≤ F_i(2) ≤ F_i(3) ≤ …。这一步把“无穷多个值”变成了“一条递增序列”。</p><p id="b78"><b>第二步：问题变成 n 路归并。</b>每个函数贡献一条递增序列，全局前 m 小就是这 n 条序列归并后的前 m 项。这和第 17 节合并果子是同一个结构：<b>每一步在 n 个候选里取最小</b>。</p><p id="b79"><b>第三步：候选只需要 n 个。</b>对第 i 个函数，只把“它当前还没输出的最小项”放进堆。堆顶就是全体候选的最小值，输出它，然后让这个函数往前走一格（x 加 1）再放回去。其他函数的候选没变，不用动。</p><p id="b80"><b>为什么不会漏。</b>堆里始终装着每条序列“尚未输出部分”的首元素。全局最小必然等于某条序列尚无输出的首元素，所以它一定在堆里 —— 取堆顶就是取全局最小。</p><p id="b81"><b>为什么只推进 m 次。</b>输出 m 个数就结束；每个函数最多被推进 m 次，堆的大小恒为 n，总复杂度 O((n + m) log n)。n = m = 10⁴ 时是 2×10⁴ 次堆操作、每次约 14 次比较，总共几十万次比较，可以忽略不计。</p><div class="cap" id="b82">每次输出的六个动作</div><pre id="b83"><code><span class="c">// 核心只有三步：取堆顶 -&gt; 输出 -&gt; 同一函数推进一格</span>
+Node cur = pq.<span class="f">top</span>();
+pq.<span class="f">pop</span>();
+<span class="k">cout</span> &lt;&lt; cur.val &lt;&lt; <span class="s">'\n'</span>;
+<span class="k">int</span> nx = cur.x + <span class="n">1</span>;                   <span class="c">// 只推进这一个函数，别的候选不动</span>
+<span class="k">long</span> <span class="k">long</span> nv = f[cur.id].a * nx * nx + f[cur.id].b * nx + f[cur.id].c;
+pq.<span class="f">push</span>({nv, cur.id, nx});</code></pre></div><p id="b84">函数值最大能到 a_i·x² 量级，x 可以到 10⁴，所以乘积必须用 long long 存，这一点在代码里靠 <code>long long a</code> 让整条表达式自动提升。</p><div class="cap" id="b85">完整可编译代码（C++17）</div><pre id="b86"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">struct</span> Func { <span class="k">long</span> <span class="k">long</span> a, b, c; };   <span class="c">// 系数只存一份，堆结点里不重复存</span>
+
+<span class="k">struct</span> Node {
+    <span class="k">long</span> <span class="k">long</span> val;                    <span class="c">// 这个函数当前能给出的最小值</span>
+    <span class="k">int</span> id, x;                        <span class="c">// 来自第 id 个函数，自变量取 x</span>
+    <span class="c">// 小根堆：val 大的"排在后面"。方向和 sort 的 cmp 相反（第 17 节）</span>
+    <span class="k">bool</span> <span class="k">operator</span>&lt;(<span class="k">const</span> Node &amp;o) <span class="k">const</span> { <span class="k">return</span> val &gt; o.val; }
+};
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">int</span> n, m;
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; m;
+    <span class="k">vector</span>&lt;Func&gt; <span class="f">f</span>(n);
+    <span class="k">priority_queue</span>&lt;Node&gt; pq;          <span class="c">// 大小恒为 n：每个函数只放一个候选</span>
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; n; ++i) {
+        <span class="k">cin</span> &gt;&gt; f[i].a &gt;&gt; f[i].b &gt;&gt; f[i].c;
+        <span class="k">long</span> <span class="k">long</span> v = f[i].a + f[i].b + f[i].c;   <span class="c">// F_i(1) = a+b+c，a 是 long long 自动提升</span>
+        pq.<span class="f">push</span>({v, i, <span class="n">1</span>});
+    }
+
+    <span class="k">for</span> (<span class="k">int</span> t = <span class="n">0</span>; t &lt; m; ++t) {
+        Node cur = pq.<span class="f">top</span>();
+        pq.<span class="f">pop</span>();                     <span class="c">// pop 不返回值，所以先把堆顶存下来</span>
+        <span class="k">cout</span> &lt;&lt; cur.val &lt;&lt; <span class="s">'\n'</span>;
+
+        <span class="c">// 只让同一个函数往前走一格：其他函数的候选本来就在堆里，不需要重放</span>
+        <span class="k">const</span> Func &amp;g = f[cur.id];
+        <span class="k">int</span> nx = cur.x + <span class="n">1</span>;
+        <span class="k">long</span> <span class="k">long</span> nv = g.a * nx * nx + g.b * nx + g.c;
+        pq.<span class="f">push</span>({nv, cur.id, nx});
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b87">逐行拆解</div><table class="lines"><thead><tr><th id="b88">代码片段</th><th id="b89">含义与理由</th></tr></thead><tbody><tr><td id="b90"><code>struct Func { long long a, b, c; };</code></td><td id="b91">系数单独存在 vector 里。堆里每个结点只带 id，重算时回表取系数，结点小、拷贝便宜。</td></tr><tr><td id="b92"><code>bool operator&lt;(const Node &amp;o) const { return val &gt; o.val; }</code></td><td id="b93">整个算法的方向由这一行决定。写成 val &lt; o.val 就是大根堆，每次弹出当前最大值，答案整片错。末尾的 const 不能漏，漏了报错指向模板深处。</td></tr><tr><td id="b94"><code>long long v = f[i].a + f[i].b + f[i].c;</code></td><td id="b95">初始候选是 x = 1 的值。因为 a 是 long long，加法的每一步都按 64 位算，不会溢出。</td></tr><tr><td id="b96"><code>priority_queue&lt;Node&gt; pq;</code></td><td id="b97">三个模板参数这里只写了第一个，因为另外两个用默认值（vector&lt;Node&gt; 和 less&lt;Node&gt;），而 less&lt;Node&gt; 会去调我们刚重载的 operator&lt;。</td></tr><tr><td id="b98"><code>Node cur = pq.top(); pq.pop();</code></td><td id="b99">先复制再删。pq.pop() 返回 void，直接写 cur = pq.pop() 编译不过。</td></tr><tr><td id="b100"><code>cout &lt;&lt; cur.val &lt;&lt; '\n';</code></td><td id="b101">输出的是值，不是下标、也不是 x。这里最容易在改代码时手滑写成 cur.id。</td></tr><tr><td id="b102"><code>const Func &amp;g = f[cur.id];</code></td><td id="b103">引用而不是拷贝，避免每次迭代复制三个 long long；const 只是表明不修改。</td></tr><tr><td id="b104"><code>pq.push({nv, cur.id, nx});</code></td><td id="b105">把<b>同一个函数</b>的下一个值放回去。写成别的 id，那条序列就会断层，答案偏大。</td></tr><tr><td id="b106"><code>pq 的大小恒为 n</code></td><td id="b107">初始 n 个候选，每轮一出一进，所以堆永远是 n 个元素。O(m log n) 的前提就靠这一点。</td></tr></tbody></table></div><div class="step"><div class="sh" id="b108">同一个堆，换个方向：Top-K 只留 k 个</div><p id="b109">问题：n 个数里找出最大的 k 个（k 远小于 n），n 可以到 10⁶。排序是 O(n log n)，而<b>只留 k 个候选</b>可以做到 O(n log k)。</p><p id="b110">做法：维护一个<b>大小为 k 的小根堆</b>。堆顶是“当前第 k 大”，也就是候选里最差的那个。新来的数只有比堆顶大，才可能挤进前 k，于是弹掉堆顶、把新数放进去；否则直接扔掉。</p><p id="b111">为什么这样对：扫描到任意位置时，堆里恰好是“已扫描部分最大的 min(k, 已扫描个数) 个”。归纳一步：新数 x 若 ≤ 堆顶，则堆里已有 k 个数 ≥ 堆顶 ≥ x，x 挤不进前 k（最多与第 k 名并列）；若 x ＞ 堆顶，堆顶是 k 个里最差的，用 x 换掉它，剩下的仍然是最大的 k 个。</p><div class="cap" id="b112">Top-K 的核心代码</div><pre id="b113"><code><span class="c">// n 个数里最大的 k 个，按降序输出</span>
+<span class="k">priority_queue</span>&lt;<span class="k">int</span>, <span class="k">vector</span>&lt;<span class="k">int</span>&gt;, <span class="k">greater</span>&lt;<span class="k">int</span>&gt;&gt; q;   <span class="c">// 小根堆，堆顶 = 第 k 大</span>
+<span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; n; ++i) {
+    <span class="k">int</span> x;
+    <span class="k">cin</span> &gt;&gt; x;
+    <span class="k">if</span> ((<span class="k">int</span>)q.<span class="k">size</span>() &lt; k) q.<span class="f">push</span>(x);               <span class="c">// 前 k 个直接进</span>
+    <span class="k">else</span> <span class="k">if</span> (x &gt; q.<span class="f">top</span>()) {                         <span class="c">// 只有更大才值得换</span>
+        q.<span class="f">pop</span>();
+        q.<span class="f">push</span>(x);
+    }
+}
+<span class="k">vector</span>&lt;<span class="k">int</span>&gt; ans;
+<span class="k">while</span> (!q.<span class="k">empty</span>()) { ans.<span class="k">push_back</span>(q.<span class="f">top</span>()); q.<span class="f">pop</span>(); }   <span class="c">// 弹出是升序</span>
+<span class="k">reverse</span>(ans.<span class="k">begin</span>(), ans.<span class="k">end</span>());                   <span class="c">// 翻成降序</span></code></pre><p id="b114">两个必须记住的细节：<b>①</b>堆的大小没到 k 时不能读 q.top()（空堆 RE），所以先判 size；<b>②</b>求“最小的 k 个”时方向完全反过来 —— 用大根堆，堆顶是第 k 小，条件是 x ＜ 堆顶。<b>堆顶永远是“当前候选里最差的那个”，被替换的永远是它。</b></p><p id="b115">代价对比：n = 10⁶、k = 10 时，log k ≈ 3.3，总比较约 3.3×10⁶ 次；排序要 2×10⁷ 次，差一个量级。k 接近 n 时两者差不多，直接 sort 更省事。</p></div><div class="step"><div class="sh" id="b116">0-1 BFS：只有两种边权时，deque 比堆便宜</div><p id="b117">模型：n × m 的网格，每格有权 0 或 1。从左上角走到右下角，每步上下左右，进入一格的代价等于该格的权值，求最小总代价。</p><p id="b118"><b>普通 BFS 不行。</b>BFS 的正确性依赖“先发现的更近”，而这里边权有 0：同一个点可能被一条长路先发现（层数多），却被一条短路后到达（总代价小）。层数和距离脱钩了。</p><p id="b119"><b>Dijkstra 行，但贵。</b>nm 个点各有一个 dist，每次取最小要堆，复杂度 O(nm log(nm))。可是这里边权只有 0 和 1，<b>dist 的最小值只有两种可能</b>：当前值 d，或 d + 1。两种值只需要两个“桶”，而 deque 恰好能当两个桶用 —— 这就是 0-1 BFS。</p><p id="b120">规矩只有两条：从<b>队头</b>取点 u 扩展；若走到 v 的边权是 0，把 v <b>push_front</b>，若是 1，把 v <b>push_back</b>。</p><p id="b121"><b>为什么队头一定是最小的。</b>设当前 dq 里的距离序列非递减，且只含 d 与 d + 1 两种值。从队头取出 dist = d 的点 u：边权 0 的新点距离也是 d，插到队头不破坏非递减；边权 1 的新点距离是 d + 1，插到队尾也不破坏非递减。<b>两条规矩都是为了保住这个不变式。</b>于是每次取出的都是当前最小，和 Dijkstra 一样，只是“堆”退化成了两个桶。</p><div class="cap" id="b122">0-1 BFS 的完整骨架</div><pre id="b123"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">1005</span>;
+<span class="k">const</span> <span class="k">int</span> INF = <span class="n">0x3f3f3f3f</span>;
+<span class="k">int</span> n, m;
+<span class="k">int</span> w[N][N], d[N][N];
+<span class="k">int</span> dx[<span class="n">4</span>] = {-<span class="n">1</span>, <span class="n">1</span>, <span class="n">0</span>, <span class="n">0</span>}, dy[<span class="n">4</span>] = {<span class="n">0</span>, <span class="n">0</span>, -<span class="n">1</span>, <span class="n">1</span>};
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; m;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; n; ++i)
+        <span class="k">for</span> (<span class="k">int</span> j = <span class="n">0</span>; j &lt; m; ++j) {
+            <span class="k">cin</span> &gt;&gt; w[i][j];
+            d[i][j] = INF;
+        }
+
+    deque&lt;<span class="k">int</span>&gt; dq;                       <span class="c">// 存编号 x*m+y，省一个 pair 的拷贝</span>
+    d[<span class="n">0</span>][<span class="n">0</span>] = <span class="n">0</span>;
+    dq.<span class="f">push_front</span>(<span class="n">0</span>);                    <span class="c">// 源点距离最小，从队头进</span>
+    <span class="k">while</span> (!dq.<span class="k">empty</span>()) {
+        <span class="k">int</span> id = dq.<span class="f">front</span>();
+        dq.<span class="f">pop_front</span>();
+        <span class="k">int</span> x = id / m, y = id % m;      <span class="c">// 注意除的是列数 m，不是行数 n</span>
+        <span class="k">for</span> (<span class="k">int</span> k = <span class="n">0</span>; k &lt; <span class="n">4</span>; ++k) {
+            <span class="k">int</span> nx = x + dx[k], ny = y + dy[k];
+            <span class="k">if</span> (nx &lt; <span class="n">0</span> || nx &gt;= n || ny &lt; <span class="n">0</span> || ny &gt;= m) <span class="k">continue</span>;
+            <span class="k">int</span> nd = d[x][y] + w[nx][ny];
+            <span class="k">if</span> (nd &gt;= d[nx][ny]) <span class="k">continue</span>;   <span class="c">// 不比已知更优，就不必再进队</span>
+            d[nx][ny] = nd;
+            <span class="k">if</span> (w[nx][ny] == <span class="n">0</span>) dq.<span class="f">push_front</span>(nx * m + ny);   <span class="c">// 0 边：插队头</span>
+            <span class="k">else</span>                dq.<span class="k">push_back</span>(nx * m + ny);    <span class="c">// 1 边：排队尾</span>
+        }
+    }
+    <span class="k">cout</span> &lt;&lt; d[n - <span class="n">1</span>][m - <span class="n">1</span>] &lt;&lt; <span class="s">'\n'</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b124">0-1 BFS 的四个要点</div><table class="lines"><thead><tr><th id="b125">代码片段</th><th id="b126">含义与理由</th></tr></thead><tbody><tr><td id="b127"><code>deque&lt;int&gt; dq; dq.push_front(0);</code></td><td id="b128">源点必须从队头进：它的距离 0 是全图最小的。用 push_back 也碰巧对，但会破坏“队头最小”的阅读直觉。</td></tr><tr><td id="b129"><code>int x = id / m, y = id % m;</code></td><td id="b130">编号是按行铺开的，所以模和除都用列数 m。用成 n 时只有方阵能过，非方阵立刻 WA —— 这类错极难自查。</td></tr><tr><td id="b131"><code>if (nd &gt;= d[nx][ny]) continue;</code></td><td id="b132">这里没有 visited，而且<b>不能有</b>：同一个点可能入队两次 —— 先被一条 1 边松弛到 d + 1，再被一条 0 边改小到 d（新的一份插到队头，会先出队）。所以判断条件必须是 nd &lt; d[nx][ny]。这一行也是复杂度的保证：每个点的 dist 最多被改小一次，即最多入队两次，总代价 O(V + E)。</td></tr><tr><td id="b133"><code>w[nx][ny] == 0 ? push_front : push_back</code></td><td id="b134">整个算法只有这一行在区分两种边。判断的对象是<b>进入 v 的这条边的权值</b>，不是 u 的权值，也不是 dist 的奇偶。写错就退化成 SPFA。</td></tr><tr><td id="b135"><code>cout &lt;&lt; d[n-1][m-1]</code></td><td id="b136">终点代价含终点自己的权值（因为代价计在“进入”上）。若题面把代价定义在出发格，就要改成 d[n-1][m-1] + w[0][0] —— 读题时确认一次。</td></tr></tbody></table></div></div><div class="box warn"><div class="t" id="b137">这一节的 7 个坑，每个都有具体症状</div><p id="b138">空 deque 上调用 front() / back() / pop_front()：未定义行为，几乎必然 <b>RE</b>。0-1 BFS 里忘记 push 源点，或者把 while 写成 do-while，第一轮就访问空容器。</p><p id="b139">0-1 BFS 把 0 边的 push_front 写成 push_back：距离序列不再非递减，同一个点被反复松弛，<b>答案仍然正确但会超时（TLE）</b>。这种错在随机小数据上完全看不出来，必须用长链数据压。</p><p id="b140">0-1 BFS 用 <code>int x = id / n</code>：只有 n == m 时才对，矩形网格一测就 <b>WA</b>。牢记“行优先编号，除和模都用列数”。</p><p id="b141">priority_queue 自定义比较器方向写反（想要小根堆却写 <code>return val &lt; o.val;</code>）：只有一个函数时看不出问题，n 个函数立刻 <b>WA</b>。方向口诀：cmp 写“谁在前”，operator&lt; 写“谁在后”。</p><p id="b142">Top-K 用默认大根堆还写 <code>if (x &gt; q.top())</code>：堆顶是候选里最大的，新数几乎永远比不过它，结果输出的是前 k 个输入数 → <b>WA</b>（数据 <code>5 1 9 3 7 2</code>、k = 3 时会输出 1 5 9，正确答案 9 7 5）。</p><p id="b143">用 int 存函数值或前缀乘积：P2085 里 a·x² 可到 10¹¹，溢出成负数后堆顶跑到最小端，输出一整片负数 → <b>WA</b>。凡是“平方”“乘积”“累加”，先估一遍量级。</p><p id="b144">想修改已经 push 进堆的元素（比如把某个点的 dist 改小后直接改结构体字段）：堆内部顺序不会重排，之后 top() 拿到的是错的值 → <b>WA</b>。正确做法是 push 一份新值，取出时判旧值并跳过。</p></div><div class="reproduce"><div class="rt" id="b145">自己动手复现</div><p id="b146">关掉页面，把 P2085 的代码从零敲一遍并提交。</p><p id="b147">自测数据：<code>2 4 / 1 1 1 / 1 1 2</code>，两个函数的值是 3,7,13,21 和 4,8,14,22，答案应为 3 4 7 8。手算一遍再对拍。</p><p id="b148">改一改①：把 <code>operator&lt;</code> 里的 <code>val &gt; o.val</code> 改成 <code>val &lt; o.val</code>（变成大根堆），同一组数据，输出从 3 4 7 8 变成 4 8 14 22 —— 四个数全取自第二个函数，第一个函数一次都没出队。只改一个字符，却是本节最高频的错。</p><p id="b149">改一改②：Top-K 代码把 <code>greater&lt;int&gt;</code> 删掉变成大根堆，跑 n = 6、k = 3、数据 <code>5 1 9 3 7 2</code>。正确答案是 9 7 5，改完得到 1 5 9 —— 亲手确认一次“堆顶是谁决定了一切”。</p></div><div class="mathcard"><div class="mt" id="b150">数学补给 · log 到底省了多少：堆的高度、Top-K 与两个桶</div><p id="b151">堆是一棵完全二叉树：n 个结点时高度 h = ⌊log₂ n⌋ + 1。一次 push 或 pop 沿着一条从根到叶的路径上下移动，最多比较 h 次，所以是 O(log n)。<b>堆的所有复杂度都来自这一条路径。</b></p><table><thead><tr><th id="b152">n</th><th id="b153">⌊log₂ n⌋</th><th id="b154">堆高 h</th><th id="b155">n·log₂n 次比较</th><th id="b156">n·log₂k（k = 10）次比较</th></tr></thead><tbody><tr><td id="b157">10³</td><td id="b158">9</td><td id="b159">10</td><td id="b160">10⁴</td><td id="b161">3.3×10³</td></tr><tr><td id="b162">10⁵</td><td id="b163">16</td><td id="b164">17</td><td id="b165">1.7×10⁶</td><td id="b166">3.3×10⁵</td></tr><tr><td id="b167">10⁶</td><td id="b168">19</td><td id="b169">20</td><td id="b170">2.0×10⁷</td><td id="b171">3.3×10⁶</td></tr><tr><td id="b172">10⁸</td><td id="b173">26</td><td id="b174">27</td><td id="b175">2.7×10⁹</td><td id="b176">3.3×10⁸</td></tr></tbody></table><p id="b177">速记：<b>2¹⁰ = 1024 ≈ 10³</b>，所以每 10 次二分大约跨越 3 个十进制位。log₂(10⁶) = 19.9，log₂(10⁹) = 29.9 —— 十亿也就 30 层。竞赛里 n ≤ 10⁶ 时，log n 的常数按 20 估，堆操作 10⁶ 次约 2×10⁷ 次比较，在 1 秒内很宽裕。</p><p id="b178">Top-K 的收益就来自把 log n 换成 log k：n = 10⁶、k = 10 时是 3.3×10⁶ 对 2.0×10⁷，差 6 倍；k = 10³ 时是 10⁷ 对 2×10⁷，只差 2 倍 —— <b>k 越大越不值得用堆</b>，这是选择排序还是堆的量化依据。</p><p id="b179">0-1 BFS 省掉的则是整个 log。Dijkstra 每次要取 dist 最小的点，所以需要堆；而边权只有 0 和 1 时，队列中的 dist 只可能是 d 与 d + 1 两个值，<b>“取最小”退化成“看队头属于哪个桶”</b>，O(log V) 变成 O(1)，总复杂度从 O(E log V) 降到 O(V + E)。</p><p id="b180">这类“值域很小的最短路”有统一名字：桶排序式的最短路（Dial 算法）。边权是 0…W 时开 W + 1 个桶循环使用，复杂度 O(E + W·V)；W = 1 就是本节的双端队列版本。</p></div><div class="think"><div class="tt" id="b181">举一反三 · 想清楚这些再往下走</div><div class="thint">先自己写出答案，再点开核对——方向对不对，比答案本身更重要</div><ol><li id="b182"><div class="tq">如果边权只有 0、1、2 三种，deque 还够用吗？想想需要几个“桶”，以及为什么不能简单地用两个 deque 循环装（提示：取最小的时候要同时看两个桶的头）。</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">不够，需要 3 个桶（值域 0..2，桶数 = 最大权 + 1）。0-1 BFS 之所以只要一个 deque，是因为队列里的距离只可能是 d 与 d+1 两种，两个桶正好；三种边权会产生 d、d+1、d+2 三种值，deque 只有两端装不下。这时的标准做法是 Dial 算法：开 W+1 个桶按距离取模循环使用，取最小距离时从当前桶的位置顺序往后找第一个非空桶。为什么不能“两个 deque 轮流取”：两个桶各自有序，但“全局最小”要同时看两个桶的队头，谁更小并不固定，轮流取一定取错。常见错路：把 0..2 的权值除以 2 硬塞进 0-1 框架——那会把 1 权当成 0 权，答案偏小。</div></details></li><li id="b183"><div class="tq">P2085 如果 m 到 10⁹ 而 n 只有 10，堆还合适吗？提示：二分答案 mid，数一数每个函数有几个 x 满足 F_i(x) ≤ mid —— 解一元二次不等式，O(n log C) 就能定位第 m 小。</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">堆不合适：它每次只推进一个候选，要取第 m 小就得 push/pop m 次，m = 10⁹ 时是 10⁹ 次堆操作。改成二分第 m 小的值：对候选值 mid，<code>check(mid)</code> = Σ #{x ≥ 1 : a_i·x² + b_i·x + c_i ≤ mid}，每个函数解一元二次不等式就能 O(1) 算出个数，总 O(n log C)，C 为值域。但要注意题目要的是“输出前 m 个值”，m = 10⁹ 时光输出本身就不现实，所以这种改法只适合“只问第 m 小”的版本；真要输出还得靠堆按需推进。常见错路：用堆硬推（TLE）；或者二分时把“≤ mid 的个数”数成“&lt; mid”，边界差一，输出错值。</div></details></li><li id="b184"><div class="tq">Top-K 要改成“只求第 k 大、不要排序”时，还能更快吗？回忆第 13 节的 nth_element 与快速选择，为什么它的期望复杂度是 O(n) 而不是 O(n log k)？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">能更快：nth_element（快速选择）期望 O(n)。为什么是 O(n)：快速选择每轮只递归“含有第 k 小的那一半”，工作量 n + n/2 + n/4 + … = 2n；而堆要维护 k 个元素的有序结构，n 次操作共 O(n log k)。差值随 k 变化：k = 10 时 log k ≈ 3.3，堆的 3.3×10⁶ 次比较并不比快速选择的 2×10⁶ 差太多，而且堆还能顺带得到“最大的 k 个”；k = n/2 时 log k ≈ 16，nth_element 明显更快。常见错路：以为 nth_element 会给出完整排序（它只保证第 k 位就位，其余无序）；以及忽略它最坏 O(n²)，对最坏情况敏感时要随机化。</div></details></li><li id="b185"><div class="tq">把 0-1 BFS 的 deque 直接换成 priority_queue，答案还对吗？复杂度变成多少？在什么形状的数据上这两种写法几乎没差别？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">答案还对——priority_queue 版本就是 Dijkstra，0-1 BFS 只是它在“边权 0/1”下的特例；复杂度从 O(V+E) 变成 O(E log V)（每点出队一次、每边松弛一次，堆操作 O(log V)）。在“边几乎全是 1 权、0 权很少”或者“图很小很稠密”的数据上两者几乎没差别：松弛次数一样，只是容器常数不同，0-1 BFS 的 push_front 优势根本用不上。常见错路：以为换成优先队列就不用写松弛条件——Dijkstra 仍然必须写 <code>if (d + w &lt; dist[v])</code>，写成“没访问过才入队”就会漏掉更短的路。</div></details></li><li id="b186"><div class="tq">P2085 如果 a_i 允许为负，单调性就没了。这时该怎么办？提示：抛物线顶点在 x₀ = −b/(2a)，从顶点往两边各是一条单调序列，相当于每个函数贡献两条序列。</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">单调性没了：a 为负时 x ≥ 1 这一段可能先减后增，“每个函数贡献一条递增序列”的前提崩了。处理办法是求顶点 x₀ = −b/(2a)，把定义域 x ≥ 1 拆成两段：x ≤ x₀ 递减、x ≥ x₀ 递增；于是“n 个函数”变成“最多 2n 条有序序列”，多路归并的堆里每条序列放一个候选，取出后按它所在的方向推进（递减段 x 减 1、递增段 x 加 1）。x₀ &lt; 1 时整段递增，退化成原题。常见错路：只在顶点处放一个候选——取完顶点后两边都要能推进，只放一个就漏了一半；或者没处理“顶点不是整数”，两段分界重叠、同一个 x 被取两次。</div></details></li><li id="b187"><div class="tq">为什么 0-1 BFS 的队列里元素距离“最多只差 1”？如果图里有 −1 权边，这个性质会怎么坏掉？再想想为什么负权图需要 Bellman-Ford 而不是 Dijkstra。</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">不变式是这样的：出队的点距离是 d，新压入的点距离只能是 d（0 权边）或 d+1（1 权边），而队里原有的点距离都不超过 d+1，所以队列里的取值始终只有 d 与 d+1 两种且非降——deque 的两个“桶”就是这个意思。有 −1 权边时，新点的距离可能是 d−1，会被塞到队头，可队里还压着距离 d 的点，队头不再最小；更糟的是 d−1 又能引出 d−2，距离没有下界，只能在环上无限“改进”，Bellman-Ford 正是靠“最多 n−1 轮、每轮扫所有边”兜住这种情况并检测负环。Dijkstra 的前提是“取出最小后它不可能再被改小”，负权边直接破坏这个前提。常见错路：以为“负权只要把 dist 初值调大就行”——问题不在初值，在“已确定的最短路可能被后来的负边推翻”。</div></details></li><li id="b188"><div class="tq">用 deque 求滑动窗口最大值（第 19 节单调队列）时，为什么被淘汰的元素从队尾弹，而不是队头？把“队头”和“队尾”的角色说清楚，你就真的懂 deque 了。</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">因为淘汰的判据是“新元素更优且更晚过期”：a[r] 进队时，队尾那些 ≤ a[r] 的旧元素既比它小（做不了最大值），下标又比它小（会先离开窗口），永远不可能再成为答案，所以从队尾成批弹掉。队头淘汰的则是“下标滑出窗口”的过期元素，与值无关，所以从队头弹。两个方向的职责完全不同：队尾维护“值的单调递减”，队头维护“时间的有效性”。常见错路：从队头弹“比新元素小的”——那会打乱下标顺序、还可能丢掉仍在窗口内的候选；反过来从队尾弹过期元素也不行，下标在队列里是递增的，过期的只会在队头。</div></details></li></ol></div><div class="box tip"><div class="t" id="b189">自测：能全部回答再进下一节</div><ul><li id="b190">能不看资料写出 deque 的四个两端操作，并说出它与 vector 的实质差别（以及它不能做什么）。</li><li id="b191">能写出 priority_queue 的三参数模板，并解释三个参数各自为什么不能省。</li><li id="b192">能说清 0-1 BFS 中 push_front 与 push_back 分别对应哪种权值，并给出“队头最小”的证明。</li><li id="b193">能证明 P2085 中每个函数只推进 m 次，并算出总复杂度 O((n + m) log n)。</li><li id="b194">能用一句话说明 Top-K 为什么用小根堆、堆顶代表什么、被替换的为什么是堆顶。</li><li id="b195">知道 priority_queue 不能修改已入堆的值，要用“重新 push 一份 + 取出时跳过旧值”的办法。</li></ul></div><div class="challenge"><div class="ct" id="b196">挑战题 · 序列合并</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1631</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P1631" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b197">有两个长度都是 N 的序列 A、B。在 A 中取一个数、在 B 中取一个数相加，一共能得到 N² 个和。求这些和里最小的 N 个，按升序输出。</p><p id="b198">输入格式：第一行一个整数 N；第二行 N 个整数 A_i；第三行 N 个整数 B_i。</p><p id="b199">输出格式：一行 N 个整数，为最小的 N 个和，从小到大排列，用空格隔开。</p><p id="b200">数据范围：1 ≤ N ≤ 10⁵，1 ≤ A_i, B_i ≤ 10⁹。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b201">N² 个和存都存不下（N = 10⁵ 时是 10¹⁰ 个），必须利用“有序”。先把 A、B 都升序排序，再观察结构。</p><p id="b202">固定 A_i，序列 A_i + B_1, A_i + B_2, …, A_i + B_N 是递增的（因为 B 已排序）。于是 N² 个和 = N 个递增序列的并，问题变成多路归并。</p><p id="b203">要求全局第 1 小，只需在这 N 个序列的首元素里取最小 —— 用一个堆维护这 N 个候选，取出之后只把被取走的那条序列往前推一格。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b204"><b>排序。</b>把 A、B 都升序排。设排好后 A_1 ≤ … ≤ A_N，B_1 ≤ … ≤ B_N。</p><p id="b205"><b>转化。</b>对每个 i，S_i = (A_i + B_1, A_i + B_2, …, A_i + B_N) 是一条非递减序列。N² 个和正是这 N 条序列的全部元素。求最小的 N 个 = N 路归并取前 N 项。</p><p id="b206"><b>候选。</b>每个序列只把首元素 A_i + B_1 放进堆：堆结点存 (和, i, j)，i 是行号，j 是 B 的下标。堆里初始有 N 个元素。</p><p id="b207"><b>循环 N 次。</b>取堆顶输出；若 j &lt; N，把同一行的下一个 (A_i + B_{j+1}, i, j+1) 放回堆。一出一进，堆大小恒为 N。</p><p id="b208"><b>正确性。</b>堆里始终是每条序列“尚未输出部分”的首元素，而序列内部非递减，所以全局最小必定是某个序列的首元素 —— 它一定在堆里。取出后只推进该序列，其余序列的首元素不变，不变式保持。</p><p id="b209"><b>为什么只推进一格不会漏。</b>S_i 的第 j+1 项只有在第 j 项被取走之后，才可能成为全局最小（它 ≥ 第 j 项，而第 j 项当时就在堆里且更小）。</p><p id="b210"><b>复杂度。</b>排序 O(N log N)，归并 N 次、每次 O(log N)，总共 O(N log N)，N = 10⁵ 轻松过。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b211">参考代码</div><pre id="b212"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">100005</span>;
+<span class="k">int</span> n;
+<span class="k">long</span> <span class="k">long</span> a[N], b[N];
+
+<span class="k">struct</span> Node {
+    <span class="k">long</span> <span class="k">long</span> val;          <span class="c">// 和：A_i + B_j</span>
+    <span class="k">int</span> i, j;               <span class="c">// 来自 A 的第 i 个、B 的第 j 个（1-indexed）</span>
+    <span class="c">// 小根堆：val 大的排在后面（与 sort 的 cmp 反着写）</span>
+    <span class="k">bool</span> <span class="k">operator</span>&lt;(<span class="k">const</span> Node &amp;o) <span class="k">const</span> { <span class="k">return</span> val &gt; o.val; }
+};
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">cin</span> &gt;&gt; n;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) <span class="k">cin</span> &gt;&gt; a[i];
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) <span class="k">cin</span> &gt;&gt; b[i];
+    <span class="k">sort</span>(a + <span class="n">1</span>, a + n + <span class="n">1</span>);
+    <span class="k">sort</span>(b + <span class="n">1</span>, b + n + <span class="n">1</span>);      <span class="c">// 两个都要排，只排一个序列就不单调了</span>
+
+    <span class="k">priority_queue</span>&lt;Node&gt; pq;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i)
+        pq.<span class="f">push</span>({a[i] + b[<span class="n">1</span>], i, <span class="n">1</span>});    <span class="c">// 每条序列只放首元素，共 N 个候选</span>
+
+    <span class="k">for</span> (<span class="k">int</span> t = <span class="n">1</span>; t &lt;= n; ++t) {
+        Node cur = pq.<span class="f">top</span>();
+        pq.<span class="f">pop</span>();                        <span class="c">// pop 不返回值，先存堆顶</span>
+        <span class="k">cout</span> &lt;&lt; cur.val &lt;&lt; (t == n ? <span class="s">'\n'</span> : <span class="s">' '</span>);
+
+        <span class="k">if</span> (cur.j &lt; n) {                 <span class="c">// 该行还有下一个，放回去</span>
+            <span class="k">int</span> nj = cur.j + <span class="n">1</span>;
+            pq.<span class="f">push</span>({a[cur.i] + b[nj], cur.i, nj});
+        }
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b213">关键片段拆解</div><table class="lines"><thead><tr><th id="b214">片段</th><th id="b215">作用</th></tr></thead><tbody><tr><td id="b216"><code>sort(a + 1, a + n + 1); sort(b + 1, b + n + 1);</code></td><td id="b217">两个序列都必须升序。只排 A 的话，固定 A_i 得到的 A_i + B_j 就不再单调，“堆里放首元素”的前提直接崩了。</td></tr><tr><td id="b218"><code>pq.push({a[i] + b[1], i, 1});</code></td><td id="b219">初始候选是每条序列的最小项，共 N 个。不要把所有 N² 个和都塞进去 —— 内存和时间都不允许。</td></tr><tr><td id="b220"><code>bool operator&lt;(const Node &amp;o) const { return val &gt; o.val; }</code></td><td id="b221">取最小 → 小根堆 → operator&lt; 里写 val &gt; o.val。方向反了就是每次输出当前最大，答案整片错。</td></tr><tr><td id="b222"><code>cout &lt;&lt; cur.val &lt;&lt; (t == n ? '\n' : ' ');</code></td><td id="b223">行末不能多空格，用一个条件表达式控制分隔符。写成先输出再判空也等价，但别两边都加空格。</td></tr><tr><td id="b224"><code>if (cur.j &lt; n)</code></td><td id="b225">边界：j = N 时该行已经取完，不能再 push。不加这个判断会访问 b[N+1]，读到 0 或脏数据 → WA。</td></tr><tr><td id="b226"><code>pq.push({a[cur.i] + b[nj], cur.i, nj});</code></td><td id="b227">只推进 cur 所在的这一行，i 必须沿用 cur.i。写成别的行号会让某条序列断层、另一条重复，答案错。</td></tr><tr><td id="b228"><code>long long val</code></td><td id="b229">A_i、B_i 到 10⁹，两个相加到 2×10⁹，已经贴着 int 上限；必须 long long。</td></tr></tbody></table><div class="box warn"><div class="t" id="b230">这题最容易错的地方</div><ul><li id="b231">只排序一个序列：固定 A_i 后 A_i + B_j 不单调，堆里放的“首元素”不是最小，WA。</li><li id="b232">把 N² 个和全部算出来再排序：N = 10⁵ 时是 10¹⁰ 个 long long，内存直接爆（MLE / RE）。</li><li id="b233">弹出后忘记 push 下一项：堆会提前变空，循环还没走完就对空堆 top() → RE；只忘了 j 加 1（一直 push 同一个 j）：输出一堆重复值 → WA。</li><li id="b234">用 int 存和：2×10⁹ 溢出成负数后堆序全乱 → WA。</li><li id="b235">行末多输出一个空格：本机看不出，严格比对时会 WA。</li></ul></div></div></details></div><div class="box tip" style="margin:22px 0 -6px"><div class="t" id="b236">挑战 2 · 难度高一级，允许组合多个已学算法</div><p id="b237">这题比上面的挑战题更难：它不只用本节一个算法，可能需要把前面几节的工具拼起来。独立做出来说明这一块真的过关了；做完记得在侧边栏勾上 🌟。</p></div><div class="challenge ch2"><div class="ct" id="b238">挑战 2 · 电路维修</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P4667</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P4667" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b239">一块 N 行 M 列的电路板上，每个格子是一个正方形元件：它的两条对角线中，只有一条接着导线，另一条不接。元件上画 <code>/</code> 或 <code>\</code> 表示接着的是哪一条对角线。</p><p id="b240">电源接在电路板的左上角（格点），灯接在右下角（格点）。导线只在格点上相连，所以电流要沿着元件里的对角线一段一段走。</p><p id="b241">任意元件都可以旋转 90°（每旋转一个元件算 1 次操作）。求让灯亮起来所需的最少旋转次数；如果无论怎么转都接不通，输出 <code>NO SOLUTION</code>。</p><p id="b242">输入格式：第一行 N、M（1 ≤ N, M ≤ 500）；接下来 N 行，每行 M 个字符，只含 <code>/</code> 或 <code>\</code>。</p><p id="b243">输出格式：一行，最少旋转次数，或 <code>NO SOLUTION</code>。</p><p id="b244">样例：1×1 的元件画成 <code>/</code> 时，它接的是左下到右上，而电源在左上、灯在右下，通不了；旋转一次变成 <code>\</code> 就接通了，所以答案是 1。</p></div><div class="cap" id="b245">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+1 1
+/
+输出：
+1</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b246">把“格点”当节点、把“元件里的导线”当边，这就是一张图。元件不需要转时这条边权是 0，需要转时权是 1。</p><p id="b247">边权只有 0 和 1，用普通 BFS 会错（它按边数分层，不按权值分层）。想想第 28 节的 deque 能怎么用：权 0 的边放到队头，权 1 的边放到队尾。</p><p id="b248">还有一个必须提前判掉的情况：从左上角走到右下角，横竖坐标之和的奇偶性是固定的——只有奇偶性匹配的格点才可能被走到，否则直接判无解。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b249"><b>建模。</b>把 (N+1)×(M+1) 个格点当作图的节点，编号 (i,j)（0 ≤ i ≤ N，0 ≤ j ≤ M）。每个元件 (i,j) 连接它的两条对角线中的一条：</p><p id="b250">{'kind': 'list', 'ordered': False, 'items': ['画 <code>\\</code>：连接左上 (i,j) 与右下 (i+1,j+1)；', '画 <code>/</code>：连接右上 (i,j+1) 与左下 (i+1,j)。']}</p><p id="b251"><b>边权。</b>从当前格点沿元件里真实存在的对角线走到对面格点，花费 0；如果元件方向不对、必须旋转才能沿这条对角线走，花费 1。于是“最少旋转次数”= 从 (0,0) 到 (N,M) 的 0-1 最短路。</p><p id="b252"><b>为什么普通 BFS 不行。</b>BFS 按“边数”分层，而这里一条 0 权边不花代价。若把 0/1 混在一起入队，某个点可能先被 1 权路径标记，之后又发现 0 权路径——没法更新。</p><p id="b253"><b>0-1 BFS 的做法。</b>队列换成 <code>deque</code>：边权 0 时把新点 <code>push_front</code>，边权 1 时 <code>push_back</code>。这样队列里的距离始终只有两种取值、且非降，和普通 BFS 的“两层”性质一模一样，只是每层内又把 0 权边先处理完。复杂度 O(V + E) = O(NM)，每个格点最多被“稳定”两次。</p><p id="b254"><b>松弛条件。</b>写成 <code>if (d + w &lt; dist[nx][ny]) { dist[nx][ny] = d + w; push... }</code>，而不是简单的“没访问过就入队”——因为同一个点可能先以较大的距离被访问，之后才找到更短的 0 权路。这是 0-1 BFS 与普通 BFS 最大的代码区别。</p><p id="b255"><b>无解的奇偶性判断。</b>每走一个元件，格点的 (i+j) 奇偶性都改变一次（因为两个端点的 i+j 相差 1）。从 (0,0)（偶）走到 (N,M) 需要 N+M 步，所以 N+M 必须是偶数；否则一步都走不到，直接输出 <code>NO SOLUTION</code>。这一句能在最前面挡掉一半的无解数据。</p><p id="b256"><b>量级。</b>节点数 (N+1)(M+1) ≤ 251001，每个节点 4 条出边，deque 操作均为 O(1)，总共约 10⁶ 次操作，1 秒内轻松跑完。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b257">参考代码</div><pre id="b258"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXV = <span class="n">505</span> * <span class="n">505</span>;
+<span class="k">int</span> n, m;
+<span class="k">string</span> g[<span class="n">505</span>];                     <span class="c">// g[i][j]：第 i 行第 j 列的元件（0-based）</span>
+<span class="k">int</span> dist[<span class="n">505</span>][<span class="n">505</span>];                <span class="c">// 到格点 (i,j) 的最少旋转次数，-1 表示没到过</span>
+
+<span class="k">struct</span> Node { <span class="k">int</span> x, y; };
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; m;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; n; ++i) <span class="k">cin</span> &gt;&gt; g[i];
+
+    <span class="k">if</span> ((n + m) % <span class="n">2</span>) {             <span class="c">// 奇偶性不匹配，永远走不到</span>
+        <span class="k">cout</span> &lt;&lt; <span class="s">"NO SOLUTION\n"</span>;
+        <span class="k">return</span> <span class="n">0</span>;
+    }
+
+    <span class="k">memset</span>(dist, -<span class="n">1</span>, <span class="k">sizeof</span> dist);
+    deque&lt;Node&gt; dq;
+    dist[<span class="n">0</span>][<span class="n">0</span>] = <span class="n">0</span>;
+    dq.<span class="f">push_front</span>({<span class="n">0</span>, <span class="n">0</span>});
+
+    <span class="c">// 四个方向：目标格点 (nx,ny)、涉及的元件坐标、走这条对角线元件"应该"画成什么</span>
+    <span class="k">int</span> dx[<span class="n">4</span>] = {<span class="n">1</span>, <span class="n">1</span>, -<span class="n">1</span>, -<span class="n">1</span>}, dy[<span class="n">4</span>] = {<span class="n">1</span>, -<span class="n">1</span>, <span class="n">1</span>, -<span class="n">1</span>};
+    <span class="k">char</span> want[<span class="n">4</span>] = {<span class="s">'\\'</span>, <span class="s">'/'</span>, <span class="s">'/'</span>, <span class="s">'\\'</span>};
+
+    <span class="k">while</span> (!dq.<span class="k">empty</span>()) {
+        Node u = dq.<span class="f">front</span>(); dq.<span class="f">pop_front</span>();
+        <span class="k">int</span> d = dist[u.x][u.y];
+        <span class="k">if</span> (u.x == n &amp;&amp; u.y == m) <span class="k">break</span>;            <span class="c">// 出了队首就说明它已是最短</span>
+
+        <span class="k">for</span> (<span class="k">int</span> k = <span class="n">0</span>; k &lt; <span class="n">4</span>; ++k) {
+            <span class="k">int</span> nx = u.x + dx[k], ny = u.y + dy[k];
+            <span class="k">if</span> (nx &lt; <span class="n">0</span> || nx &gt; n || ny &lt; <span class="n">0</span> || ny &gt; m) <span class="k">continue</span>;
+            <span class="k">int</span> cx = <span class="k">min</span>(u.x, nx), cy = <span class="k">min</span>(u.y, ny);   <span class="c">// 这一步跨过的元件坐标</span>
+            <span class="k">int</span> w = (g[cx][cy] == want[k]) ? <span class="n">0</span> : <span class="n">1</span>;     <span class="c">// 方向对 = 0，要转 = 1</span>
+            <span class="k">if</span> (dist[nx][ny] == -<span class="n">1</span> || d + w &lt; dist[nx][ny]) {
+                dist[nx][ny] = d + w;
+                <span class="k">if</span> (w == <span class="n">0</span>) dq.<span class="f">push_front</span>({nx, ny});    <span class="c">// 0 权走队头</span>
+                <span class="k">else</span>        dq.<span class="k">push_back</span>({nx, ny});     <span class="c">// 1 权走队尾</span>
+            }
+        }
+    }
+
+    <span class="k">if</span> (dist[n][m] == -<span class="n">1</span>) <span class="k">cout</span> &lt;&lt; <span class="s">"NO SOLUTION\n"</span>;
+    <span class="k">else</span>                  <span class="k">cout</span> &lt;&lt; dist[n][m] &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b259">关键片段拆解</div><table class="lines"><thead><tr><th id="b260">片段</th><th id="b261">作用</th></tr></thead><tbody><tr><td id="b262"><code>int dist[505][505];</code></td><td id="b263">存的是“最少旋转次数”，不是“步数”。它是 0/1 权最短路，取值范围 0..NM。</td></tr><tr><td id="b264"><code>if ((n + m) % 2) { cout &lt;&lt; "NO SOLUTION"; }</code></td><td id="b265">每走一个元件，(i+j) 的奇偶性必变。从 (0,0) 出发能到的格点必须满足 i+j 为偶数，所以 N+M 为奇数时终点根本不可达。这一句直接挡掉一半无解数据。</td></tr><tr><td id="b266"><code>deque&lt;Node&gt; dq;</code></td><td id="b267">普通 queue 只能从队尾进；0-1 BFS 需要把 0 权的新点插到队头，所以必须用双端队列。</td></tr><tr><td id="b268"><code>int cx = min(u.x, nx), cy = min(u.y, ny);</code></td><td id="b269">这一步跨过的元件的左上角坐标。因为 (nx,ny) 与 (u.x,u.y) 只差 1，取最小值正好是元件的位置。</td></tr><tr><td id="b270"><code>char want[4] = {'\\', '/', '/', '\\'};</code></td><td id="b271">四条对角线与“元件应有的字符”的对应表。注意反斜杠在 C++ 字符串里要写成 <code>'\\'</code>。四个方向与四个字符必须一一对应，写错一个答案就整体偏大。</td></tr><tr><td id="b272"><code>int w = (g[cx][cy] == want[k]) ? 0 : 1;</code></td><td id="b273">方向对就不用转（0），方向错就转一次（1）。这就是边权的全部来源。</td></tr><tr><td id="b274"><code>if (dist[nx][ny] == -1 || d + w &lt; dist[nx][ny])</code></td><td id="b275">必须用“松弛”而不是“没访问过才进”。同一个格点可能先被一条 1 权路径访问，之后才被 0 权路径找到更优值。</td></tr><tr><td id="b276"><code>if (w == 0) dq.push_front(...); else dq.push_back(...);</code></td><td id="b277">0-1 BFS 的核心一行：0 权插队头，1 权插队尾。这样队列里的距离始终只有两种取值。</td></tr><tr><td id="b278"><code>if (u.x == n &amp;&amp; u.y == m) break;</code></td><td id="b279">终点一出队就可以停。因为 deque 保证出队顺序的距离非降，第一次出队即最短。</td></tr></tbody></table><div class="box warn"><div class="t" id="b280">这题最容易错的地方</div><ul><li id="b281">用普通 BFS 的“没访问过就入队”：0 权边和 1 权边混在一起，答案偏大。</li><li id="b282">用了 deque 但仍然“访问过就不再更新”：漏掉了“后来发现更短的 0 权路”的情况。</li><li id="b283">方向字符表写错（<code>/</code> 与 <code>\</code> 对应反了）：所有边权整体反转，答案完全不对。</li><li id="b284">忘了奇偶性判断：N+M 为奇数时答案应为 NO SOLUTION，但程序可能输出一个错误的小数字。</li></ul></div></div></details></div><div class="box info"><div class="t" id="b285">延伸阅读 / 参考</div><ul><li id="b286">《算法竞赛进阶指南》第 0x26 节：广搜的变形（双端队列 BFS）</li><li id="b287">《算法竞赛试炼场：洛谷 300 题精析》搜索章：0-1 BFS 与多路归并</li><li id="b288">洛谷 P2085、P1631 题解区的高赞思路</li></ul></div>
+
+<footer>算竞教程 · 算竞教程 · 生成于自建课程体系，题目版权归洛谷及各命题方所有<br>
+转载请注明出处；模板代码可直接用于比赛</footer>

@@ -1,0 +1,158 @@
+
+<div class="box info"><div class="t" id="b0">本节出现的新函数 / 新语法（先看懂再用）</div><ul><li id="b1"><a href="#fn-0">二维数组 a[i][j]</a> —— 两个下标表示行列，全局定义自动清零</li><li id="b2"><a href="#fn-1">方向数组 dx[] / dy[]</a> —— 把“走一格”变成加一个常数，配对使用</li></ul></div><p id="b3">前面几节的数组只有一个下标，是一条“线”。网格题的数组有两个下标：<code>a[i][j]</code>。下标从 1 个变 2 个，错的种类也翻倍：<b>行列写反、越界没判、方向数组配错</b>，这三类占了入门阶段网格题 WA 的绝大多数。这一节把这三件事逐个钉死。</p><table><thead><tr><th id="b4"></th><th id="b5">j = 1</th><th id="b6">j = 2</th><th id="b7">j = 3</th></tr></thead><tbody><tr><td id="b8">i = 1</td><td id="b9">a[1][1]</td><td id="b10">a[1][2]</td><td id="b11">a[1][3]</td></tr><tr><td id="b12">i = 2</td><td id="b13">a[2][1]</td><td id="b14">a[2][2]</td><td id="b15">a[2][3]</td></tr><tr><td id="b16">i = 3</td><td id="b17">a[3][1]</td><td id="b18">a[3][2]</td><td id="b19">a[3][3]</td></tr></tbody></table><p id="b20"><b>第一个下标 i 是行</b>，从上往下增大；<b>第二个下标 j 是列</b>，从左往右增大。数学课上的点 (x, y) 是 x 向右、y 向上，和这里正好差一次转置——题目给你 (x, y) 时，先在纸上改写成 (行, 列)，再动键盘。同一份代码里同时出现两种约定，是查三小时也查不出来的那种错。</p><div class="quote" id="b21">网格题的铁律只有一条：先判边界，再碰数组。顺序反了，程序读到的东西就不由你决定了。</div><div class="fn"><div class="fh" id="b22">新函数拆解 · 二维数组 a[i][j]</div><div class="fb"><div class="sig" id="b23">int a[105][105];      // 105 行 105 列
+a[i][j] = x;          // 第 i 行第 j 列</div><table class="lines"><thead><tr><th id="b24">组成</th><th id="b25">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b26"><code>int a[N][M];</code></td><td id="b27">定义。第一个方括号管行（纵向），第二个管列（横向）。N、M 必须是编译期常量，不能是运行时读进来的变量。</td></tr><tr><td id="b28"><code>a[i][j]</code></td><td id="b29">访问第 i 行第 j 列。行从上往下编号增大，列从左往右编号增大。</td></tr><tr><td id="b30"><code>有效范围</code></td><td id="b31">0 ≤ i < N 且 0 ≤ j < M。C++ 不做越界检查：a[N][0] 会安静地写到数组外面的内存里。</td></tr><tr><td id="b32"><code>行优先存储</code></td><td id="b33">内存里是 a[0][0] a[0][1] … a[0][M-1] a[1][0] … 一整条连续空间。所以按行遍历（外层 i、内层 j）比反过来快，大数组上能差好几倍。</td></tr><tr><td id="b34"><code>全局 vs 局部</code></td><td id="b35">全局数组在静态区，默认全 0，不占函数栈；函数里的数组占栈。a[1000][1000] 是 4 MB，直接栈溢出 RE。</td></tr><tr><td id="b36"><code>清零</code></td><td id="b37">memset(a, 0, sizeof a) 按字节填，只对 0 和 -1 成立。要填别的值就老老实实双重循环。</td></tr></tbody></table><div class="cap" id="b38">最小可运行示例</div><div class="cap" id="b39">示例</div><pre id="b40"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">105</span>;
+<span class="k">int</span> a[N][N];                  <span class="c">// 全局：自动全 0，也不占栈</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> n, m;
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; m;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i)
+        <span class="k">for</span> (<span class="k">int</span> j = <span class="n">1</span>; j &lt;= m; ++j)
+            <span class="k">cin</span> &gt;&gt; a[i][j];   <span class="c">// 第 i 行第 j 列</span>
+
+    a[<span class="n">1</span>][<span class="n">2</span>] = <span class="n">7</span>;              <span class="c">// 第 1 行第 2 列，不是第 2 行第 1 列</span>
+    <span class="k">cout</span> &lt;&lt; a[<span class="n">1</span>][<span class="n">2</span>] &lt;&lt; <span class="s">"\n"</span>;  <span class="c">// 7</span>
+    <span class="k">cout</span> &lt;&lt; a[<span class="n">2</span>][<span class="n">1</span>] &lt;&lt; <span class="s">"\n"</span>;  <span class="c">// 这是输入读进来的第 2 行第 1 列，和上面的 7 毫无关系</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="box tip"><div class="t" id="b41">注意</div><p id="b42">不要写 <code>int a[n][m]</code>（用运行时变量开数组）：GCC 当扩展支持，标准 C++ 不允许，而且没法定义成全局数组。</p><p id="b43"><code>a[i][j]</code> 与 <code>a[j][i]</code> 是两个不同的格子。网格题一半的 WA 就来自把这两个写反。</p></div></div></div><div class="fn"><div class="fh" id="b44">新函数拆解 · 方向数组 dx[] / dy[]</div><div class="fb"><div class="sig" id="b45">const int dx[4] = {0, 1, 0, -1};   // 右 下 左 上
+const int dy[4] = {1, 0, -1, 0};</div><table class="lines"><thead><tr><th id="b46">组成</th><th id="b47">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b48"><code>dx[d]</code></td><td id="b49">第 d 个方向的行增量：<code>nr = r + dx[d]</code>。</td></tr><tr><td id="b50"><code>dy[d]</code></td><td id="b51">第 d 个方向的列增量：<code>nc = c + dy[d]</code>。两个数组长度必须相同、下标一一对应。</td></tr><tr><td id="b52"><code>4 方向</code></td><td id="b53">顺时针写成 (0,1)(1,0)(0,-1)(-1,0)，好处是 <code>(d+1)%4</code> 恰好等于“向右转 90°”。</td></tr><tr><td id="b54"><code>8 方向</code></td><td id="b55">{-1,-1,0,1,1,1,0,-1} 配 {0,1,1,1,0,-1,-1,-1}，从上开始顺时针绕一圈，不重不漏。</td></tr><tr><td id="b56"><code>标准用法</code></td><td id="b57">for (d = 0; d < 8; ++d) { 算 ni、nj；先判边界；再访问 a[ni][nj]； }</td></tr><tr><td id="b58"><code>为什么用数组</code></td><td id="b59">把 8 段 if 压成一次循环；而且 d 可以当“朝向”存进变量，转向就是一句取模。</td></tr></tbody></table><div class="cap" id="b60">最小可运行示例</div><div class="cap" id="b61">示例</div><pre id="b62"><code><span class="k">const</span> <span class="k">int</span> dx[<span class="n">4</span>] = {<span class="n">0</span>, <span class="n">1</span>, <span class="n">0</span>, -<span class="n">1</span>};   <span class="c">// 右 下 左 上</span>
+<span class="k">const</span> <span class="k">int</span> dy[<span class="n">4</span>] = {<span class="n">1</span>, <span class="n">0</span>, -<span class="n">1</span>, <span class="n">0</span>};
+
+<span class="c">// 站在 (r,c)，看四个邻居分别是哪一格</span>
+<span class="k">for</span> (<span class="k">int</span> d = <span class="n">0</span>; d &lt; <span class="n">4</span>; ++d) {
+    <span class="k">int</span> nr = r + dx[d];
+    <span class="k">int</span> nc = c + dy[d];
+    <span class="k">if</span> (nr &lt; <span class="n">1</span> || nr &gt; n || nc &lt; <span class="n">1</span> || nc &gt; m) <span class="k">continue</span>;  <span class="c">// 先判边界</span>
+    <span class="c">// 到这里 (nr,nc) 一定在棋盘内，可以放心访问</span>
+}</code></pre><div class="box tip"><div class="t" id="b63">注意</div><p id="b64">dx 与 dy 写反（把行增量塞进 dy）不会编译报错，只会让整张图静默地转 90°，极难查。</p><p id="b65">用 -1..1 双重循环凑 8 方向时，必须跳过 (0,0)，否则格子会把自己也算成邻居。</p></div></div></div><p id="b66">第一个例子选扫雷：它把“访问邻居”和“判边界”这两件事同时用上，而且不用任何别的算法。</p><div class="prob"><div class="ph"><span class="pn" id="b67">例题 · 扫雷游戏</span><span class="oi">洛谷 P2670</span><span class="badge diff">普及-</span><a href="https://www.luogu.com.cn/problem/P2670" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b68">给出 n 行 m 列的雷区，<code>*</code> 表示地雷，<code>?</code> 表示待计算的非地雷格。对每个 <code>?</code> 求出它周围 8 个方向内地雷的个数，<code>*</code> 原样输出。</p><p id="b69">输入：第一行 n、m（1 ≤ n, m ≤ 100），接下来 n 行每行 m 个字符。输出：n 行，<code>*</code> 保留，<code>?</code> 换成 0~8 的数字。</p></div><div class="io" id="b70">输入：
+3 3
+*??
+???
+?*?
+输出：
+*10
+221
+1*1</div></div><div class="step"><div class="sh" id="b71">扫雷：三步走，别边读边算</div><p id="b72">第一步，把整张图读进来。不能边读边算：算第 1 行的格子时，第 2 行的字符还没进内存。</p><p id="b73">第二步，坐标统一用 1..n、1..m。这样“越界”只剩两种：某个下标小于 1，或者大于 n。判断短，也不容易漏写。</p><p id="b74">第三步，对每个格子：自己是雷就输出 <code>*</code> 并跳过；否则用方向数组把 8 个邻居过一遍，数里面有几个雷。</p><p id="b75">复杂度：n·m·8 次比较，n、m ≤ 100 时约 8×10⁴ 次，随便过。</p></div><div class="cap" id="b76">完整代码</div><pre id="b77"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">char</span> g[<span class="n">105</span>][<span class="n">105</span>];                       <span class="c">// 全局：自动清零，也不吃函数栈</span>
+
+<span class="c">// 8 个方向：上、右上、右、右下、下、左下、左、左上（顺时针一圈）</span>
+<span class="k">const</span> <span class="k">int</span> dx[<span class="n">8</span>] = {-<span class="n">1</span>, -<span class="n">1</span>,  <span class="n">0</span>,  <span class="n">1</span>, <span class="n">1</span>, <span class="n">1</span>, <span class="n">0</span>, -<span class="n">1</span>};
+<span class="k">const</span> <span class="k">int</span> dy[<span class="n">8</span>] = { <span class="n">0</span>,  <span class="n">1</span>,  <span class="n">1</span>,  <span class="n">1</span>, <span class="n">0</span>, -<span class="n">1</span>, -<span class="n">1</span>, -<span class="n">1</span>};
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> n, m;
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; m;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i)
+        <span class="k">for</span> (<span class="k">int</span> j = <span class="n">1</span>; j &lt;= m; ++j)
+            <span class="k">cin</span> &gt;&gt; g[i][j];             <span class="c">// char 版 cin 只取一个非空白字符，换行被自动跳过</span>
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        <span class="k">for</span> (<span class="k">int</span> j = <span class="n">1</span>; j &lt;= m; ++j) {
+            <span class="k">if</span> (g[i][j] == <span class="s">'*'</span>) {       <span class="c">// 雷格原样输出，不用数</span>
+                <span class="k">cout</span> &lt;&lt; <span class="s">'*'</span>;
+                <span class="k">continue</span>;
+            }
+            <span class="k">int</span> cnt = <span class="n">0</span>;
+            <span class="k">for</span> (<span class="k">int</span> d = <span class="n">0</span>; d &lt; <span class="n">8</span>; ++d) {
+                <span class="k">int</span> ni = i + dx[d], nj = j + dy[d];
+                <span class="c">// 顺序不能反：边界不合法时，g[ni][nj] 已经是数组外的内存</span>
+                <span class="k">if</span> (ni &lt; <span class="n">1</span> || ni &gt; n || nj &lt; <span class="n">1</span> || nj &gt; m) <span class="k">continue</span>;
+                <span class="k">if</span> (g[ni][nj] == <span class="s">'*'</span>) ++cnt;
+            }
+            <span class="k">cout</span> &lt;&lt; cnt;                <span class="c">// 输出 0~8，不加空格、不加分隔符</span>
+        }
+        <span class="k">cout</span> &lt;&lt; <span class="s">'\n'</span>;                   <span class="c">// 一整行输出完才换行</span>
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b78">逐行拆解</div><table class="lines"><thead><tr><th id="b79">代码片段</th><th id="b80">含义与理由</th></tr></thead><tbody><tr><td id="b81"><code>char g[105][105];</code></td><td id="b82">数组开到 105 而不是 100，是给“手滑写到 n+1”留一层缓冲；char 每个 1 字节，总共约 11 KB。</td></tr><tr><td id="b83"><code>const int dx[8] = {...};</code></td><td id="b84">第 d 个方向的行增量。dx、dy 必须同序配对：dx[0]=-1 配 dy[0]=0 才是正上方。</td></tr><tr><td id="b85"><code>cin &gt;&gt; g[i][j];</code></td><td id="b86">g 是 char，cin 读一个非空白字符，行末换行被跳过，所以不需要 getline，也不用手动吸回车。</td></tr><tr><td id="b87"><code>if (g[i][j] == '*') { ... continue; }</code></td><td id="b88">雷格先处理掉，后面数邻居的循环就只管非雷格，少一层缩进、少一个条件。</td></tr><tr><td id="b89"><code>int ni = i + dx[d], nj = j + dy[d];</code></td><td id="b90">把“方向”翻译成“候选坐标”。内外层循环加起来就是沿着 (i,j) 绕一圈。</td></tr><tr><td id="b91"><code>if (ni &lt; 1 || ni &gt; n || nj &lt; 1 || nj &gt; m) continue;</code></td><td id="b92">四个条件一个都不能少。少判 nj 上界，就会读到下一行第一格，答案看起来“只差一点”，最难查。</td></tr><tr><td id="b93"><code>if (g[ni][nj] == '*') ++cnt;</code></td><td id="b94">累加器写在最内层，每换一个格子必须重置为 0——这就是 int cnt = 0 放在 j 循环里的原因。</td></tr><tr><td id="b95"><code>cout &lt;&lt; cnt;</code></td><td id="b96">输出的是一位数字字符。题目不要求空格分隔，加了就是格式错误。</td></tr><tr><td id="b97"><code>cout &lt;&lt; '\n';</code></td><td id="b98">换行写在内层循环外面，才能形成 n 行 m 列，而不是 n·m 行。</td></tr></tbody></table></div><div class="box warn"><div class="t" id="b99">网格题最常见的 6 个错，对照症状查</div><p id="b100"><b>WA，答案全错但每格只差一点点</b>：边界判断写成 <code>ni &lt; 0 || ni &gt;= n</code>，却又用 1-indexed 存图，整体错位一格。用 1-indexed 就只判 <code>&lt; 1</code> 和 <code>&gt; n</code>，别混着来。</p><p id="b101"><b>WA，个别格子数值随机</b>：先访问 <code>g[ni][nj]</code> 再判越界。越界读到的是相邻数组的残留数据，本地能过、提交就错。</p><p id="b102"><b>WA，输出全 0 或全 1</b>：8 方向里忘了跳过自己。用双重循环 -1..1 时一定加 <code>if (dx == 0 &amp;&amp; dy == 0) continue;</code>。</p><p id="b103"><b>RE（运行错误）</b>：把 105×105 的 <code>char</code> 改成 <code>int</code> 再挪进 main——还好；但若开到 1000×1000 的 int 放局部，4 MB 直接爆栈。网格数组一律定义在 main 外面。</p><p id="b104"><b>WA 在最后一列</b>：行列写反。<code>g[j][i]</code> 编译完全合法，只是你读的是转置后的图。调试时先把 (i,j) 打出来看。</p><p id="b105"><b>TLE（超时）</b>：数据一放大（比如 n = m = 3000）而不写 <code>ios::sync_with_stdio(false); cin.tie(nullptr);</code>，光读入就可能超时；再叠加一句“对每个格子重新扫一遍全图”的 O(n²m²) 写法，必挂。</p></div><p id="b106">扫雷是“站在一格看周围”。第二类网格题是“沿着一条路一直走”：从某格出发，每步换个方向。典型代表就是蛇形方阵——它看起来是打印题，本质是<b>状态机</b>。</p><div class="prob"><div class="ph"><span class="pn" id="b107">例题 · 蛇形方阵</span><span class="oi">洛谷 P5731</span><span class="badge diff">入门</span><a href="https://www.luogu.com.cn/problem/P5731" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b108">给出一个不大于 9 的正整数 n，输出 n×n 的蛇形方阵：从左上角填 1，顺时针方向依次填入 1 到 n²。</p><p id="b109">输出 n 行，每行 n 个数，每个数占 3 个字符宽度、右对齐、前面补空格。</p></div><div class="io" id="b110">输入：
+4
+输出：
+  1  2  3  4
+ 12 13 14  5
+ 11 16 15  6
+ 10  9  8  7</div></div><div class="step"><div class="sh" id="b111">蛇形方阵：把“填数”想成“一个小人在走”</div><p id="b112">不要想“第几圈、第几条边、这条边填几个”，那个思路的分支条件非常多。换成：有个小人从 (1,1) 出发，手里拿着 1、2、3……每走到一格就写下当前数字。</p><p id="b113">小人只会两个动作：<b>直走</b>和<b>右转</b>。规则一句话：下一步如果出界、或者那格已经写过，就右转；否则直走。</p><p id="b114">于是状态只有三个：当前位置 (r,c)、朝向 dir、当前要写的数 k。dir 取 0..3 表示右、下、左、上，右转就是 <code>dir = (dir + 1) % 4</code>。</p><p id="b115">注意 <code>a[nr][nc] != 0</code> 这一项：因为全局数组初始全 0，而写进去的数都 ≥ 1，所以“非 0”就是“写过”，省掉一个 vis 数组。</p><div class="cap" id="b116">核心就这几行：先算候选，不合法就转向重算</div><pre id="b117"><code><span class="c">// 站在 (r,c)、朝向 dir，问下一步去哪</span>
+<span class="k">int</span> nr = r + dx[dir], nc = c + dy[dir];
+<span class="k">if</span> (nr &lt; <span class="n">1</span> || nr &gt; n || nc &lt; <span class="n">1</span> || nc &gt; n || a[nr][nc] != <span class="n">0</span>) {
+    dir = (dir + <span class="n">1</span>) % <span class="n">4</span>;                    <span class="c">// 撞墙或撞到旧数字：右转</span>
+    nr = r + dx[dir], nc = c + dy[dir];     <span class="c">// 转向后用新方向再算一次</span>
+}</code></pre><p id="b118">为什么这样一定对：每一步都保证 r、c 在界内且 a[r][c] == 0，n² 步恰好把 n² 个格子各写一次。把这句不变量记住，写错了也能自己推回来。</p></div><div class="cap" id="b119">完整代码</div><pre id="b120"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> a[<span class="n">15</span>][<span class="n">15</span>];                          <span class="c">// 全局：全 0，用 0 表示“还没写过”</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> n;
+    <span class="k">cin</span> &gt;&gt; n;
+
+    <span class="k">const</span> <span class="k">int</span> dx[<span class="n">4</span>] = {<span class="n">0</span>, <span class="n">1</span>, <span class="n">0</span>, -<span class="n">1</span>};     <span class="c">// 右 下 左 上</span>
+    <span class="k">const</span> <span class="k">int</span> dy[<span class="n">4</span>] = {<span class="n">1</span>, <span class="n">0</span>, -<span class="n">1</span>, <span class="n">0</span>};
+    <span class="k">int</span> r = <span class="n">1</span>, c = <span class="n">1</span>, dir = <span class="n">0</span>;          <span class="c">// 从左上角出发，朝右</span>
+
+    <span class="k">for</span> (<span class="k">int</span> k = <span class="n">1</span>; k &lt;= n * n; ++k) {
+        a[r][c] = k;                    <span class="c">// 每走一步就写一个数</span>
+        <span class="k">if</span> (k == n * n) <span class="k">break</span>;          <span class="c">// 最后一格写完后不再预判，免得算出界外坐标</span>
+
+        <span class="k">int</span> nr = r + dx[dir], nc = c + dy[dir];
+        <span class="c">// 出界 or 撞到自己写过的数字，就顺时针转 90° 再试一次</span>
+        <span class="k">if</span> (nr &lt; <span class="n">1</span> || nr &gt; n || nc &lt; <span class="n">1</span> || nc &gt; n || a[nr][nc] != <span class="n">0</span>) {
+            dir = (dir + <span class="n">1</span>) % <span class="n">4</span>;
+            nr = r + dx[dir], nc = c + dy[dir];
+        }
+        r = nr; c = nc;                 <span class="c">// 只有合法才真正前进</span>
+    }
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        <span class="k">for</span> (<span class="k">int</span> j = <span class="n">1</span>; j &lt;= n; ++j) <span class="k">printf</span>(<span class="s">"%3d"</span>, a[i][j]);   <span class="c">// 题目要求 3 字符宽</span>
+        <span class="k">printf</span>(<span class="s">"\n"</span>);                   <span class="c">// 一行结束才换行</span>
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b121">逐行拆解</div><table class="lines"><thead><tr><th id="b122">代码片段</th><th id="b123">含义与理由</th></tr></thead><tbody><tr><td id="b124"><code>int a[15][15];</code></td><td id="b125">n ≤ 9，开到 15 留余量。全局数组全 0，这个 0 有两种作用：占位的“空”和判断“写过”的标志。</td></tr><tr><td id="b126"><code>int r = 1, c = 1, dir = 0;</code></td><td id="b127">起点在左上角，初始朝右。用 1-indexed，出界判断就只剩两种形式。</td></tr><tr><td id="b128"><code>const int dx[4] = {0, 1, 0, -1};</code></td><td id="b129">顺序是右、下、左、上，加 1 就是顺时针右转。若把顺序改成右、上、左、下，就变成逆时针螺旋——输出会是另一个矩阵。</td></tr><tr><td id="b130"><code>a[r][c] = k;</code></td><td id="b131">先写再走，保证每格写且只写一次；写完的数非 0，后面的 <code>a[nr][nc] != 0</code> 才有意义。</td></tr><tr><td id="b132"><code>if (k == n * n) break;</code></td><td id="b133">最后一格写满就收工。少了这句，程序会继续算出界外的 nr、nc 并赋给 r、c，虽然循环马上结束不会写坏内存，但“变量已经越界却没人管”是不该留的习惯。</td></tr><tr><td id="b134"><code>int nr = r + dx[dir], nc = c + dy[dir];</code></td><td id="b135">只算候选坐标，不动 r、c。这是整段代码的关键：候选和目标分开存，判断不通过时原状态一点没被污染。</td></tr><tr><td id="b136"><code>|| a[nr][nc] != 0</code></td><td id="b137">第二个条件不能漏。只判出界的话，小人会沿着已经写过的路径一直撞，n² 步填不满 n² 个格子。</td></tr><tr><td id="b138"><code>dir = (dir + 1) % 4;</code></td><td id="b139">取模让 3 的下一个回到 0，省掉 if 分支，也保证 dir 永远是合法下标。</td></tr><tr><td id="b140"><code>r = nr; c = nc;</code></td><td id="b141">所有判断都通过后才前进，所以 r、c 永远停在“合法且空白”的格子上。</td></tr><tr><td id="b142"><code>printf("%3d", a[i][j]);</code></td><td id="b143">3 表示最小场宽 3，默认右对齐、左边补空格。这是本题的格式要求，用 cout 会 WA。</td></tr></tbody></table></div><div class="box tip"><div class="t" id="b144">“预判”和“先走再退”的差别</div><p id="b145">先走再退：<code>r += dx[dir]; c += dy[dir];</code> 发现不合法再退回来、转向、再走一次。同一句“走”出现两次，改一处漏一处。</p><p id="b146">预判：先算 nr、nc，不合法只改 dir，合法才赋值。全程 r、c 都在合法格子上，出了错只需要打印 (r, c, dir)。</p><p id="b147">同一个套路后面还会用到：网格 DFS/BFS 判“能不能进下一格”、扫描线判“能不能放下一个矩形”，都是先算候选、再判、最后提交。</p></div><div class="box warn"><div class="t" id="b148">蛇形方阵专属的 4 个坑</div><p id="b149"><b>格式 WA</b>：用 <code>cout &lt;&lt; a[i][j] &lt;&lt; " "</code>。题目要求每数占 3 字符宽，必须 <code>printf("%3d", ...)</code>。</p><p id="b150"><b>给“最后一格”写特判</b>：填满的判据只有 <code>k == n * n</code>。别去猜终点在哪个坐标——n 的奇偶不同，终点位置也不同，猜错就会提前跳出，矩阵里留一片 0。</p><p id="b151"><b>只判出界、忘了判重</b>：小人写完一圈会掉头冲进已经写过的格子，把 1、2、3 覆盖掉，同时留下几格 0。看到“外圈数字被改、内圈是 0”，就是漏了 <code>a[nr][nc] != 0</code>。</p><p id="b152"><b>数组开成 a[9][9]</b>：n 正好 9 时下标 9 越界，写坏内存。网格数组的每一维都留余量，这是肌肉记忆。</p></div><div class="reproduce"><div class="rt" id="b153">自己动手复现</div><p id="b154">关掉页面，从空文件开始重写扫雷（P2670），只允许看题目描述，20 行以内写完并提交。</p><p id="b155">改一改：把扫雷的 8 方向缩成 4 方向（只数上下左右），先猜 3×3 样例会变成什么样，再改代码验证。</p><p id="b156">再改一改：把蛇形方阵的 dx/dy 顺序改成右、上、左、下，用 n = 4 手推一次再看输出——你会亲眼看到“方向的顺序就是转向的方向”。</p></div><div class="mathcard"><div class="mt" id="b157">数学补给 · 网格里的四条换算</div><p id="b158"><b>① 二维 ↔ 一维。</b>m 列的格子，0 起下标的 (r, c) 对应一维编号 <code>id = r*m + c</code>；反过来 <code>r = id / m</code>，<code>c = id % m</code>（整数除法）。一维数组之所以能当二维用，就是因为这个双射。后面 BFS 的队列里只存一个 int，靠的就是它。</p><p id="b159"><b>② 顺时针 90° 的坐标变换。</b>方向 (dr, dc) 顺时针转 90° 变成 <b>(dc, −dr)</b>。验证：(0,1) 向右 → (1,0) 向下；(1,0) 向下 → (0,−1) 向左。蛇形矩阵的 <code>dir = (dir+1) % 4</code> 只是这条公式的查表版；没有表的时候，用公式现推。</p><p id="b160"><b>③ 同一句“照 2 格”，两种距离两种形状。</b>|dr| + |dc| ≤ 2 是菱形，含 <b>13</b> 格；max(|dr|, |dc|) ≤ 2 是正方形，含 <b>25</b> 格。写范围类题目第一件事就是判断题目说的是哪种距离。</p><table><thead><tr><th id="b161">距离名</th><th id="b162">公式</th><th id="b163">偏移 2 内的格数</th><th id="b164">形状</th></tr></thead><tbody><tr><td id="b165">曼哈顿距离</td><td id="b166">|dr| + |dc|</td><td id="b167">13</td><td id="b168">菱形</td></tr><tr><td id="b169">切比雪夫距离</td><td id="b170">max(|dr|, |dc|)</td><td id="b171">25</td><td id="b172">正方形</td></tr></tbody></table><p id="b173"><b>④ 螺旋的层号。</b>n×n 里 0 起的格子 (r, c) 落在第 <code>k = min(r, c, n−1−r, n−1−c)</code> 层。第 k 层边长为 n−2k，格子数 = 4(n−2k−1)（边长 1 时取 1）。全部加起来恰好 n²——这是自检公式：算出的各层之和不是 n²，说明你的行/列范围有重叠或漏掉。</p></div><div class="think"><div class="tt" id="b174">举一反三 · 想清楚这些再往下走</div><div class="thint">先自己写出答案，再点开核对——方向对不对，比答案本身更重要</div><ol><li id="b175"><div class="tq">扫雷里把 8 方向换成 4 方向（只数上下左右），3×3 样例的输出会变成什么？先手算，再改代码验证。</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">8 方向时输出是 <code>*10 / 221 / 1*1</code>，改成只数上下左右后变成 <code>*10 / 110 / 1*1</code>：几个斜角上的雷不再算给 (1,2) 和 (2,1)，中间格 (2,2) 只剩下面那个雷。改代码时把 dx/dy 换成 <code>{0,1,0,-1}/{1,0,-1,0}</code>、循环上界从 8 改成 4。<br>常见错路是直接把 8 方向数组截成前 4 项——本题 dx 的顺序是上、右上、右、右下、下、左下、左、左上，前 4 个里带两个斜方向，数出来既不是 8 邻居也不是 4 邻居。</div></details></li><li id="b176"><div class="tq">为什么网格题的数组常见 105、1005 这种“多 5”的尺寸？如果坐标改成从 0 开始存，边界判断能短多少，又会多出哪些坑？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">105 = 数据上限 100 + 1（1-indexed 的偏移）+ 余量，保证 (i±1, j±1) 的邻居访问不越界，所以正文里连边界判断都能省；1005 同理，只是数据到了 10³ 级。改成从 0 开始存并不会让判断变短：<code>nr &lt; 0 || nr &gt;= n</code> 和 <code>nr &lt; 1 || nr &gt; n</code> 都是两个比较，只是把 1 换成 0。<br>好处是下标可以直接用、不用减 1；多出来的坑有三条：题面坐标从 1 开始时必须先减 1（漏了整体错位一格）、−1 不能再当“没访问”的标记、以及 0 是合法下标，“非 0 即真”那类判断要想清楚。常见错路是 1-indexed 存图却用 0-indexed 的边界条件，每格都差一点，最难查。</div></details></li><li id="b177"><div class="tq">只允许上下左右走 k 步，能到达的格子构成什么形状？用 |dr| + |dc| 怎么描述？这和 BFS 里的“第几层”是什么关系？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">能到达的格子是菱形（旋转 45° 的正方形）：到 (r0,c0) 的曼哈顿距离 |dr| + |dc| ≤ k，格数 = 1 + 2k(k+1)。k = 2 时是 13，正是正文里火把的 13 格；k = 3 时是 25。<br>和 BFS 的关系：BFS 第 d 层是“恰好走 d 步、且之前没到过”的格子，按层累加，前 k 层并起来就是 |dr| + |dc| ≤ k 的菱形，所以“走不超过 k 步能到哪”不用 BFS 也能用公式算。常见错路是把它当成切比雪夫距离 max(|dr|,|dc|) ≤ k 的正方形——k = 2 时那是 25 格，比 13 多 12 格，正好是“火把 vs 萤石”的差别。</div></details></li><li id="b178"><div class="tq">如果 n = 2000，蛇形方阵还能先存进 a[2005][2005] 再输出吗？算一下内存。哪些题必须边生成边输出？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">能，但很勉强：2005² × 4 ≈ <b>15.3MB</b>，全局开没问题（128MB 限制下只用八分之一），但必须放全局，放 main 里栈就爆了。输出量还要算：2000 行 × 2000 个格 ≈ 1.6×10⁷ 个字符，cout 不关同步会明显拖慢。<br>必须边生成边输出的情形：内存限制小（16MB 级）而 n 大、答案只要某一行或某个位置（像 Cantor 表只问第 N 项）、以及生成顺序和输出顺序一致的时候。蛇形方阵恰好相反——生成是蛇形走、打印是逐行扫，两个顺序不一致，所以要存。常见错路是只算“4 字节 × 格子数”却忘了输出量和格式化的成本。</div></details></li><li id="b179"><div class="tq">蛇形方阵的答案和“方向数组怎么写”有关吗？如果题目要求从中心出发、逆时针向外，代码要改哪几行？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">非常有关：<code>dir = (dir + 1) % 4</code> 只认“数组里的下一个方向”，所以 dx/dy 的排列顺序<b>就是</b>转向顺序——把右、下、左、上改成右、上、左、下，蛇形立刻变成逆时针，n = 4 的输出是另一个矩阵（镜像）。<br>要从中心出发、逆时针向外：起点改成 <code>((n+1)/2, (n+1)/2)</code>，方向数组按逆时针排，其余“撞墙或撞旧数就转”的逻辑不变；但 n 为偶数时中心不唯一（n = 4 时 (2,2) 与 (3,3) 都“居中”），题目必须说清用哪个。常见错路是只改起点不改 dir，第一步就朝右冲出边界。</div></details></li><li id="b180"><div class="tq">扫雷的输入如果是“每行一个不含空格的字符串”，读法要怎么改？为什么那时候必须用 string 而不是 char？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">改成 <code>string g[105];</code>，用 <code>cin &gt;&gt; g[i]</code> 一次读一整行（遇到空白才停，而每行不含空格，正好一行），访问写 <code>g[i][j]</code>。这比 105×105 的 char 二维数组省事：每行自带 size()，能直接比较两行、找子串，也不担心某行长度不够。<br>必须用 string 而不是单个 char 的场合是：要对“整行”做操作（比较两行、找子串、统计某一段），单个 char 只有一格的视野，长度信息直接丢了。常见错路是 <code>scanf("%s", g[i])</code> 去读 string——string 不是字符数组，直接崩；或者混用 <code>cin &gt;&gt; g[i][j]</code> 和 getline 时忘了先 ignore。</div></details></li></ol></div><div class="box tip"><div class="t" id="b181">自测：能全部回答再进下一节</div><ul><li id="b182">能在纸上画出 2×3 数组的 6 个格子，并说清 <code>a[i][j]</code> 里 i、j 各是哪一维。</li><li id="b183">能不看书默写 4 方向和 8 方向两组 dx/dy，并指出哪一组是顺时针序、为什么。</li><li id="b184">能解释为什么访问 g[ni][nj] 之前必须先判边界，不判会出现什么现象（WA 还是 RE）。</li><li id="b185">能独立写出蛇形方阵，并说清 <code>a[nr][nc] != 0</code> 这个条件漏了会怎样。</li><li id="b186">知道二维数组为什么开成全局，知道 a[1000][1000] 的 int 占 4 MB、放在 main 里会 RE。</li><li id="b187">能说出 printf("%3d") 里 3 的含义，以及它和 <code>cout &lt;&lt; a[i][j]</code> 的区别。</li></ul></div><div class="challenge"><div class="ct" id="b188">挑战题 · 【Mc生存】插火把</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1789</span><span class="badge diff">普及-</span><a href="https://www.luogu.com.cn/problem/P1789" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b189">在 n×n 的方阵上放了 m 个火把和 k 个萤石。火把照亮自己所在的格子，以及和它曼哈顿距离不超过 2 的所有格子（形状是上下左右各延伸 2 格的菱形，共 13 格）；萤石照亮以自己为中心的 5×5 正方形（共 25 格）。</p><p id="b190">超出方阵的部分忽略。没有被任何光源照到的格子会生成怪物，求这样的格子数。</p><p id="b191">输入格式：第一行三个整数 n、m、k（1 ≤ n ≤ 100，0 ≤ m, k ≤ 100）；接下来 m 行每行两个整数，是火把的坐标；再接下来 k 行每行两个整数，是萤石的坐标。坐标从 1 开始，保证在方阵内。</p><p id="b192">输出格式：一行一个整数，表示会生成怪物的格子数。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b193">先把“照亮”变成一张布尔表：被照到就是 true。最后统一数 false 的个数，比边照边数省事得多。</p><p id="b194">别急着写两套代码：先写出“以 (x,y) 为中心，遍历 5×5 范围并标记”的循环，再想火把要在这个循环上加什么条件。</p><p id="b195">把火把的 5×5 画出来，标出哪 13 格是亮的，用两个偏移量之间的关系描述这个形状（提示：不是“两个都小”，而是“加起来小”）。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b196">开 <code>bool lit[105][105]</code>，全局定义自动全 false，表示还没有光。</p><p id="b197">火把的 13 个格子可以直接列成两个常量数组——这就是“方向数组”，只不过这张表有 13 项而不是 4 项（马的 8 种走法也是同一招）。</p><p id="b198">萤石是完整的 5×5，不需要表：两重循环 dx、dy 各从 -2 到 2，正好生成 25 个偏移。</p><p id="b199">每个偏移都要先判 x + dx 是否落在 1..n 内——越界那部分“照到方阵外面”，直接丢掉。</p><p id="b200">最后双重循环数 lit 为 false 的格子数。复杂度 (m+k)×25 + n²，n ≤ 100 时约 1.5×10⁴。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b201">参考代码</div><pre id="b202"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">bool</span> lit[<span class="n">105</span>][<span class="n">105</span>];                 <span class="c">// lit[i][j] = 这一格有没有光；全局自动全 false</span>
+
+<span class="c">// 火把照亮的 13 个偏移：曼哈顿距离 &lt;= 2，也就是 (0,0) + 4 个距离 1 + 8 个距离 2</span>
+<span class="k">const</span> <span class="k">int</span> tx[<span class="n">13</span>] = { <span class="n">0</span>, -<span class="n">1</span>, <span class="n">1</span>,  <span class="n">0</span>, <span class="n">0</span>, -<span class="n">1</span>, <span class="n">1</span>, -<span class="n">1</span>, <span class="n">1</span>, -<span class="n">2</span>, <span class="n">2</span>,  <span class="n">0</span>, <span class="n">0</span>};
+<span class="k">const</span> <span class="k">int</span> ty[<span class="n">13</span>] = { <span class="n">0</span>,  <span class="n">0</span>, <span class="n">0</span>, -<span class="n">1</span>, <span class="n">1</span>, -<span class="n">1</span>, -<span class="n">1</span>, <span class="n">1</span>, <span class="n">1</span>,  <span class="n">0</span>, <span class="n">0</span>, -<span class="n">2</span>, <span class="n">2</span>};
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> n, m, k;
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; m &gt;&gt; k;
+
+    <span class="k">for</span> (<span class="k">int</span> t = <span class="n">0</span>; t &lt; m; ++t) {
+        <span class="k">int</span> x, y;
+        <span class="k">cin</span> &gt;&gt; x &gt;&gt; y;
+        <span class="k">for</span> (<span class="k">int</span> d = <span class="n">0</span>; d &lt; <span class="n">13</span>; ++d) {
+            <span class="k">int</span> nx = x + tx[d], ny = y + ty[d];
+            <span class="k">if</span> (nx &lt; <span class="n">1</span> || nx &gt; n || ny &lt; <span class="n">1</span> || ny &gt; n) <span class="k">continue</span>;  <span class="c">// 照到方阵外面的部分不算</span>
+            lit[nx][ny] = <span class="k">true</span>;
+        }
+    }
+
+    <span class="k">for</span> (<span class="k">int</span> t = <span class="n">0</span>; t &lt; k; ++t) {
+        <span class="k">int</span> x, y;
+        <span class="k">cin</span> &gt;&gt; x &gt;&gt; y;
+        <span class="c">// 萤石是完整的 5×5：两重循环直接生成 25 个偏移，不需要表</span>
+        <span class="k">for</span> (<span class="k">int</span> dx = -<span class="n">2</span>; dx &lt;= <span class="n">2</span>; ++dx)
+            <span class="k">for</span> (<span class="k">int</span> dy = -<span class="n">2</span>; dy &lt;= <span class="n">2</span>; ++dy) {
+                <span class="k">int</span> nx = x + dx, ny = y + dy;
+                <span class="k">if</span> (nx &lt; <span class="n">1</span> || nx &gt; n || ny &lt; <span class="n">1</span> || ny &gt; n) <span class="k">continue</span>;
+                lit[nx][ny] = <span class="k">true</span>;
+            }
+    }
+
+    <span class="k">int</span> ans = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i)
+        <span class="k">for</span> (<span class="k">int</span> j = <span class="n">1</span>; j &lt;= n; ++j)
+            <span class="k">if</span> (!lit[i][j]) ++ans;  <span class="c">// 一次都没被照到</span>
+    <span class="k">cout</span> &lt;&lt; ans &lt;&lt; <span class="s">'\n'</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b203">关键片段拆解</div><table class="lines"><thead><tr><th id="b204">片段</th><th id="b205">作用</th></tr></thead><tbody><tr><td id="b206"><code>bool lit[105][105];</code></td><td id="b207">只关心“有光/没光”，用 bool 而不是 int，占 1 字节，也把意图写在类型上。</td></tr><tr><td id="b208"><code>const int tx[13] = {...};</code></td><td id="b209">把 13 个偏移抄成表，和方向数组一个思路，只是这张表更长。抄错一个偏移，答案就少亮或多亮一格，所以抄完要数一下：1 + 4 + 8 = 13。</td></tr><tr><td id="b210"><code>for (int d = 0; d &lt; 13; ++d)</code></td><td id="b211">遍历表里每一个偏移。d 只是下标，没有任何几何含义，别把它当方向编号。</td></tr><tr><td id="b212"><code>int nx = x + tx[d], ny = y + ty[d];</code></td><td id="b213">候选坐标：先算出来，判完再用。</td></tr><tr><td id="b214"><code>if (nx &lt; 1 || nx &gt; n || ny &lt; 1 || ny &gt; n) continue;</code></td><td id="b215">方阵只有 1..n，越界部分等于照到墙外。四个条件都要写，少一个就会写到别的行上去。</td></tr><tr><td id="b216"><code>lit[nx][ny] = true;</code></td><td id="b217">重复点亮同一个格子无所谓，true 是幂等的，所以不用先判断“是不是已经亮过”。</td></tr><tr><td id="b218"><code>for (int dx = -2; dx &lt;= 2; ++dx)</code></td><td id="b219">萤石不需要表：两重循环各 5 个取值，生成的正好是 25 个偏移。</td></tr><tr><td id="b220"><code>if (!lit[i][j]) ++ans;</code></td><td id="b221">最后统一统计，别在标记过程中维护答案，那样每点亮一格都要判断是不是第一次。</td></tr></tbody></table><div class="box warn"><div class="t" id="b222">这题最容易错的地方</div><ul><li id="b223">把火把当成 5×5 整块：多照亮 12 格，答案偏小。25 − 13 = 12，看到答案差十几先查这里。</li><li id="b224">抄偏移表时漏一格或重一格（比如 (-1,1) 和 (1,-1) 抄成同一个），亮区就少一块；抄完数一遍 1 + 4 + 8 = 13。</li><li id="b225">边界只判了 nx 没判 ny，或者把 nx > n 写成 nx > m——本题 m 是火把个数，写混了编译器不报错。</li><li id="b226">坐标从 0 开始存进 1-indexed 的数组，整张图错位一行一列，答案完全对不上。</li><li id="b227">把 lit 定义在 main 里又不初始化：局部数组的值是随机的，答案每次都不一样。定全局，或 memset(lit, 0, sizeof lit)。</li></ul></div></div></details></div><div class="box info"><div class="t" id="b228">延伸阅读 / 参考</div><ul><li id="b229">《算法竞赛入门笔记》：数组与二维表格一节</li><li id="b230">《算法竞赛进阶指南》0x03 节：数组与矩阵的常见操作</li><li id="b231">洛谷 P2670、P5731 题解区的多种写法对比</li></ul></div>
+
+<footer>算竞教程 · 算竞教程 · 生成于自建课程体系，题目版权归洛谷及各命题方所有<br>
+转载请注明出处；模板代码可直接用于比赛</footer>

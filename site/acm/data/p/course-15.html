@@ -1,0 +1,220 @@
+
+<p id="b0">第 11~14 节给的是四件工具：<b>函数</b>打包逻辑，<b>结构体</b>打包数据，<b>sort + cmp</b> 按你定的规则排队，<b>枚举</b>把搜索空间数清楚再暴力。比赛里它们几乎同时出现：先给数据建模（结构体），再定比较规则（cmp），交给 sort，最后按规则取出答案。这一节不讲新算法，只把这四件工具磨到不会写错。</p><div class="quote" id="b1">排序题 90% 的分数不在 <code>sort</code> 那一行，而在 <code>cmp</code> 的三行判断里。</div><table><thead><tr><th id="b2">节</th><th id="b3">内容</th><th id="b4">一句话判据</th></tr></thead><tbody><tr><td id="b5">11</td><td id="b6">函数：参数传递与返回值</td><td id="b7">想改调用者的变量，参数写成 <code>类型 &amp;</code>；只读不写，写 <code>const 类型 &amp;</code></td></tr><tr><td id="b8">12</td><td id="b9">结构体与多关键字排序</td><td id="b10">排序规则一句话说不完，就写 <code>cmp</code></td></tr><tr><td id="b11">13</td><td id="b12">去重、离散化与第 k 大</td><td id="b13">全部有序用 <code>sort</code>；只要一个位置用 <code>nth_element</code>；值域 10⁹ 而下标只有 10⁵，先离散化</td></tr><tr><td id="b14">14</td><td id="b15">枚举与暴力</td><td id="b16">先估搜索空间有多大，再决定写几重循环</td></tr></tbody></table><div class="prob"><div class="ph"><span class="pn" id="b17">例题 · 奖学金</span><span class="oi">洛谷 P1093</span><span class="badge diff">普及-</span><a href="https://www.luogu.com.cn/problem/P1093" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b18">n 名学生，每人有语文、数学、英语三科成绩（0~100），总分 = 三科之和。</p><p id="b19">排序规则：总分高的在前；总分相同，语文高的在前；总分和语文都相同，<b>学号小的在前</b>。</p><p id="b20">输出：按上述规则排好的前 5 名，每行「学号 总分」。</p><p id="b21">输入格式：第一行 n（n ≤ 300）；接下来 n 行，第 i 行是学号为 i 的学生的语文、数学、英语成绩。</p><p id="b22">输出格式：共 5 行，每行两个整数，学号与总分。</p></div><div class="io" id="b23">输入：
+6
+90 67 80
+87 66 91
+78 89 91
+88 99 77
+67 89 64
+78 89 98
+
+输出：
+6 265
+4 264
+3 258
+2 244
+1 237</div></div><p id="b24">这题只输出学号和总分，排序却要用到语文。所以结构体必须同时存 <code>id、ch、ma、en、sum</code>：<b>排序要用什么，结构体就存什么</b>。下面先把四件工具的写法逐个拆开，再拼成完整代码。</p><div class="fn"><div class="fh" id="b25">新函数拆解 · sort（三参数版）</div><div class="fb"><div class="sig" id="b26">sort(v.begin(), v.end(), cmp);</div><table class="lines"><thead><tr><th id="b27">组成</th><th id="b28">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b29"><code>v.begin(), v.end()</code></td><td id="b30">左闭右开区间 <code>[first, last)</code>，排的是 first 到 last-1。</td></tr><tr><td id="b31"><code>cmp</code></td><td id="b32">比较函数：返回 <code>true</code> 表示「a 应该排在 b 前面」。</td></tr><tr><td id="b33"><code>返回值</code></td><td id="b34"><code>void</code>。排的是原区间本身，不产生新数组。</td></tr><tr><td id="b35"><code>复杂度</code></td><td id="b36">O(n log n) 次比较。n = 10⁶ 时约 2×10⁷ 次，1 秒内能过。</td></tr><tr><td id="b37"><code>两参数版</code></td><td id="b38"><code>sort(v.begin(), v.end())</code> 按 <code>&lt;</code> 升序；<code>greater&lt;int&gt;()</code> 降序。</td></tr></tbody></table><div class="cap" id="b39">最小可运行示例</div><div class="cap" id="b40">示例</div><pre id="b41"><code><span class="k">vector</span>&lt;<span class="k">int</span>&gt; v = {<span class="n">3</span>, <span class="n">1</span>, <span class="n">4</span>, <span class="n">1</span>, <span class="n">5</span>};
+
+<span class="k">sort</span>(v.<span class="k">begin</span>(), v.<span class="k">end</span>());                  <span class="c">// 1 1 3 4 5   升序</span>
+<span class="k">sort</span>(v.<span class="k">begin</span>(), v.<span class="k">end</span>(), <span class="k">greater</span>&lt;<span class="k">int</span>&gt;());  <span class="c">// 5 4 3 1 1   降序</span>
+
+<span class="k">int</span> a[<span class="n">5</span>] = {<span class="n">3</span>, <span class="n">1</span>, <span class="n">4</span>, <span class="n">1</span>, <span class="n">5</span>};
+<span class="k">sort</span>(a, a + <span class="n">5</span>);        <span class="c">// 数组用「首指针, 尾后指针」</span>
+<span class="k">sort</span>(a + <span class="n">1</span>, a + <span class="n">4</span>);    <span class="c">// 只排 a[1]..a[3]，a[0] 与 a[4] 不动</span></code></pre><div class="box tip"><div class="t" id="b42">注意</div><p id="b43">数组写 <code>sort(a, a + n)</code>；写成 <code>sort(a, a + n - 1)</code> 就漏掉最后一个元素。</p><p id="b44">下标从 1 开始时是 <code>sort(a + 1, a + n + 1)</code>，尾后指针要多加 1。</p></div></div></div><div class="fn"><div class="fh" id="b45">新函数拆解 · cmp 比较函数（结构体 + const 引用）</div><div class="fb"><div class="sig" id="b46">bool cmp(const Stu &amp;a, const Stu &amp;b)</div><table class="lines"><thead><tr><th id="b47">组成</th><th id="b48">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b49"><code>bool</code></td><td id="b50">返回 a 是否该排在 b 前面：true 排前面，false 不排前面。</td></tr><tr><td id="b51"><code>const Stu &amp;a</code></td><td id="b52">引用传参不拷贝；结构体里有 string 时，按值传参每次比较都要复制一份。</td></tr><tr><td id="b53"><code>第一个 if</code></td><td id="b54">第一关键字：不相等就定胜负，相等才往下走。</td></tr><tr><td id="b55"><code>最后一个 return</code></td><td id="b56">兜底关键字，必须让任意两个不同元素分出胜负。</td></tr><tr><td id="b57"><code>严格弱序</code></td><td id="b58">三条铁律：<code>cmp(a,a)</code> 必须为 false；<code>cmp(a,b)</code> 与 <code>cmp(b,a)</code> 不能同时为 true；大小关系可传递。</td></tr></tbody></table><div class="cap" id="b59">最小可运行示例</div><div class="cap" id="b60">示例</div><pre id="b61"><code><span class="k">struct</span> Stu { <span class="k">int</span> id, sum, ch; };
+
+<span class="k">bool</span> <span class="f">cmp</span>(<span class="k">const</span> Stu &amp;a, <span class="k">const</span> Stu &amp;b) {
+    <span class="k">if</span> (a.sum != b.sum) <span class="k">return</span> a.sum &gt; b.sum;  <span class="c">// 总分降序</span>
+    <span class="k">if</span> (a.ch  != b.ch ) <span class="k">return</span> a.ch  &gt; b.ch;   <span class="c">// 语文降序</span>
+    <span class="k">return</span> a.id &lt; b.id;                        <span class="c">// 学号升序：兜底，必有胜负</span>
+}</code></pre><div class="box tip"><div class="t" id="b62">注意</div><p id="b63">写成 <code>a.sum &gt;= b.sum</code> 破坏严格弱序：sort 可能越界读写，本地小数据正常、评测大点 RE 或乱序 WA。</p><p id="b64">cmp 里只做比较，不要改元素、不要输出调试信息——sort 调用它多少次是不确定的。</p></div></div></div><div class="fn"><div class="fh" id="b65">新函数拆解 · unique（去重）</div><div class="fb"><div class="sig" id="b66">v.erase(unique(v.begin(), v.end()), v.end());</div><table class="lines"><thead><tr><th id="b67">组成</th><th id="b68">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b69"><code>前提</code></td><td id="b70">区间已经有序（至少相同元素相邻），否则只去掉相邻的重复。</td></tr><tr><td id="b71"><code>作用</code></td><td id="b72">把不重复元素依次搬到区间前部，返回去重后区间的尾后指针。</td></tr><tr><td id="b73"><code>长度不变</code></td><td id="b74"><code>unique</code> 不删元素，容器 size 仍是原值，多余旧值留在后面。</td></tr><tr><td id="b75"><code>erase 收尾</code></td><td id="b76">删掉 <code>[新尾, 原尾)</code> 这一段，size 才等于答案。</td></tr><tr><td id="b77"><code>只要个数</code></td><td id="b78"><code>int k = unique(a, a + n) - a;</code> 不删元素，直接拿到去重后的长度。</td></tr></tbody></table><div class="cap" id="b79">最小可运行示例</div><div class="cap" id="b80">示例</div><pre id="b81"><code><span class="k">vector</span>&lt;<span class="k">int</span>&gt; v = {<span class="n">1</span>, <span class="n">1</span>, <span class="n">2</span>, <span class="n">2</span>, <span class="n">2</span>, <span class="n">5</span>};
+<span class="k">sort</span>(v.<span class="k">begin</span>(), v.<span class="k">end</span>());                      <span class="c">// 前提：先有序</span>
+
+v.<span class="f">erase</span>(<span class="k">unique</span>(v.<span class="k">begin</span>(), v.<span class="k">end</span>()), v.<span class="k">end</span>());
+<span class="c">// v = {1, 2, 5}, v.size() == 3</span>
+
+<span class="k">int</span> a[<span class="n">6</span>] = {<span class="n">1</span>, <span class="n">1</span>, <span class="n">2</span>, <span class="n">2</span>, <span class="n">2</span>, <span class="n">5</span>};
+<span class="k">int</span> k = <span class="k">unique</span>(a, a + <span class="n">6</span>) - a;                  <span class="c">// k == 3，前 3 个是答案</span></code></pre><div class="box tip"><div class="t" id="b82">注意</div><p id="b83">只写 <code>unique</code> 不写 <code>erase</code>，再按原长度遍历就会输出重复值。</p><p id="b84">没排序就 unique，只合并相邻重复：<code>1 2 1</code> 一个也去不掉。</p></div></div></div><div class="fn"><div class="fh" id="b85">新函数拆解 · nth_element（求第 k 小）</div><div class="fb"><div class="sig" id="b86">nth_element(a, a + k, a + n);</div><table class="lines"><thead><tr><th id="b87">组成</th><th id="b88">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b89"><code>a + k</code></td><td id="b90">第 k 小（k 从 0 开始）该放的位置。执行完 <code>a[k]</code> 就是答案。</td></tr><tr><td id="b91"><code>两侧保证</code></td><td id="b92">左边元素都不大于 <code>a[k]</code>，右边都不小于它。</td></tr><tr><td id="b93"><code>两侧无序</code></td><td id="b94">不要假设 <code>a[0..k-1]</code> 有序，它只是「都比 a[k] 小」。</td></tr><tr><td id="b95"><code>复杂度</code></td><td id="b96">平均 O(n)，比 sort 的 O(n log n) 快。n = 5×10⁶ 时差距是 0.2 秒和 1 秒的区别。</td></tr><tr><td id="b97"><code>第 k 大</code></td><td id="b98">换下标：k 从 1 起时，第 k 大 = 第 <code>n-k</code> 小。</td></tr></tbody></table><div class="cap" id="b99">最小可运行示例</div><div class="cap" id="b100">示例</div><pre id="b101"><code><span class="k">int</span> a[<span class="n">8</span>] = {<span class="n">7</span>, <span class="n">3</span>, <span class="n">9</span>, <span class="n">1</span>, <span class="n">5</span>, <span class="n">2</span>, <span class="n">8</span>, <span class="n">4</span>};
+<span class="f">nth_element</span>(a, a + <span class="n">2</span>, a + <span class="n">8</span>);   <span class="c">// a[2] == 3，即第 2 小（0 起）</span>
+<span class="c">// 此时 a[0..1] 都 ≤ 3，a[3..7] 都 ≥ 3，但两侧都没排好序</span></code></pre><div class="box tip"><div class="t" id="b102">注意</div><p id="b103">k ≥ n 是未定义行为，本地可能不报错，评测机给出乱答案。</p><p id="b104">要的是「排序后的前 k 个」而不是「第 k 个」时，必须用 sort。</p></div></div></div><div class="box tip"><div class="t" id="b105">第 11 节回头看一眼：函数的三句话</div><p id="b106"><b>参数</b>：写 <code>int f(int x)</code> 是拷贝，改 x 不影响调用者；写 <code>void f(int &amp;x)</code> 才真正改到外面的变量。</p><p id="b107"><b>返回</b>：<code>bool isPrime(int x)</code> 让调用处读起来就是一句话；需要返回多项时，返回一个结构体比用全局变量干净。</p><p id="b108"><b>作用域</b>：函数里定义的变量出了函数就消失；算法题里的大数组一律放全局，主函数里开 10⁶ 个 int 会爆栈。</p></div><div class="step"><div class="sh" id="b109">例题怎么想：先定关键字，再写 cmp，最后才是 sort</div><p id="b110">关键字有三层，顺序不能换：总分降序 → 语文降序 → 学号升序。前一层分不出胜负才看后一层。</p><p id="b111">第三层「学号升序」不是为了好看：题目保证学号互不相同，这一层让任意两人一定分出先后，cmp 才是严格弱序，sort 的行为才可预测。这正是 P1093 里「必须严格按规则排序」的含义。</p><p id="b112">总分在<b>读入时</b>就算好存进结构体。放进 cmp 里现算的话，每次比较多做 3 次加法，n log n 次比较就是几百万次多余运算。</p><p id="b113">排序只需要一次 <code>sort</code>，之后按下标取前 5 个就行——不要再写任何比较。</p></div><div class="cap" id="b114">完整代码 · 结构体 + 三关键字 cmp</div><pre id="b115"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">struct</span> Stu {
+    <span class="k">int</span> id;            <span class="c">// 学号：第 i 行数据就是学号 i</span>
+    <span class="k">int</span> ch, ma, en;    <span class="c">// 语文、数学、英语</span>
+    <span class="k">int</span> sum;           <span class="c">// 总分，读入时一次算好</span>
+};
+
+<span class="c">// 返回 true 表示 a 应该排在 b 前面</span>
+<span class="k">bool</span> <span class="f">cmp</span>(<span class="k">const</span> Stu &amp;a, <span class="k">const</span> Stu &amp;b) {
+    <span class="k">if</span> (a.sum != b.sum) <span class="k">return</span> a.sum &gt; b.sum;   <span class="c">// ① 总分高者在前</span>
+    <span class="k">if</span> (a.ch  != b.ch ) <span class="k">return</span> a.ch  &gt; b.ch;    <span class="c">// ② 总分相同，语文高者在前</span>
+    <span class="k">return</span> a.id &lt; b.id;                         <span class="c">// ③ 再相同，学号小者在前（兜底）</span>
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">int</span> n;
+    <span class="k">cin</span> &gt;&gt; n;
+    <span class="k">vector</span>&lt;Stu&gt; <span class="f">v</span>(n);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; n; ++i) {
+        v[i].id = i + <span class="n">1</span>;                         <span class="c">// 输入顺序就是从 1 开始的学号</span>
+        <span class="k">cin</span> &gt;&gt; v[i].ch &gt;&gt; v[i].ma &gt;&gt; v[i].en;
+        v[i].sum = v[i].ch + v[i].ma + v[i].en;  <span class="c">// 只在读入时加一次</span>
+    }
+
+    <span class="k">sort</span>(v.<span class="k">begin</span>(), v.<span class="k">end</span>(), cmp);
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; <span class="n">5</span> &amp;&amp; i &lt; n; ++i)         <span class="c">// n 小于 5 时也不会越界</span>
+        <span class="k">cout</span> &lt;&lt; v[i].id &lt;&lt; <span class="s">" "</span> &lt;&lt; v[i].sum &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b116">逐行拆解</div><table class="lines"><thead><tr><th id="b117">代码片段</th><th id="b118">含义与理由</th></tr></thead><tbody><tr><td id="b119"><code>#include &lt;bits/stdc++.h&gt;</code></td><td id="b120">竞赛万能头，一次包含 <code>vector</code>、<code>algorithm</code>（sort、unique、nth_element）、<code>iostream</code>。</td></tr><tr><td id="b121"><code>struct Stu { ... };</code></td><td id="b122">把一个人的 5 项信息打包成一个类型。sort 交换的是整个结构体，id 与 sum 跟着 ch/ma/en 一起移动，不会错位。</td></tr><tr><td id="b123"><code>bool cmp(const Stu &amp;a, const Stu &amp;b)</code></td><td id="b124">const 引用：不拷贝、不改原对象。本题结构体只有 int，按值传也不慢，但换成带 string 的结构体就会明显变慢。</td></tr><tr><td id="b125"><code>if (a.sum != b.sum) return a.sum &gt; b.sum;</code></td><td id="b126">第一关键字降序。先判「不相等」再比大小，后两层只在真正相等时才执行。</td></tr><tr><td id="b127"><code>if (a.ch != b.ch) return a.ch &gt; b.ch;</code></td><td id="b128">第二关键字：只有总分相同时才走得到这一行，所以不需要再判总分。</td></tr><tr><td id="b129"><code>return a.id &lt; b.id;</code></td><td id="b130">兜底。学号互不相同，任意两元素在这里一定分出胜负，cmp 满足严格弱序。</td></tr><tr><td id="b131"><code>v[i].id = i + 1;</code></td><td id="b132">第 i 行数据（i 从 0 起）对应学号 i+1。写错这一行，输出顺序对、号码全错，是本题最常见的 WA。</td></tr><tr><td id="b133"><code>v[i].sum = ...;</code></td><td id="b134">读入即算。放在 cmp 里算也能过，但每次比较都重算三遍加法，属于白费。</td></tr><tr><td id="b135"><code>sort(v.begin(), v.end(), cmp);</code></td><td id="b136">按 cmp 排整个 vector。n ≤ 300，排序耗时可以忽略，真正的成本在读入。</td></tr><tr><td id="b137"><code>i &lt; 5 &amp;&amp; i &lt; n</code></td><td id="b138">题目要求输出前 5 名；加 <code>i &lt; n</code> 保证 n 小于 5 时不越界。</td></tr></tbody></table></div><table><thead><tr><th id="b139">排序要求</th><th id="b140">cmp 写法</th><th id="b141">注意</th></tr></thead><tbody><tr><td id="b142">升序</td><td id="b143"><code>return a &lt; b;</code></td><td id="b144">等价于不写 cmp</td></tr><tr><td id="b145">降序</td><td id="b146"><code>return a &gt; b;</code></td><td id="b147">不要写成 <code>a &gt;= b</code></td></tr><tr><td id="b148">多关键字</td><td id="b149"><code>if (a.x != b.x) return a.x &gt; b.x;<br>return a.y &lt; b.y;</code></td><td id="b150">最后一层必须能分出胜负</td></tr><tr><td id="b151">拼起来更大</td><td id="b152"><code>return a.s + b.s &gt; b.s + a.s;</code></td><td id="b153">字符串拼接比较，不是比长度</td></tr><tr><td id="b154">按比值排序</td><td id="b155"><code>return (long long)a.p * b.w &gt; (long long)b.p * a.w;</code></td><td id="b156">交叉相乘代替除法，避免浮点</td></tr></tbody></table><div class="box warn"><div class="t" id="b157">这一章最容易踩的 7 个坑（都带症状）</div><p id="b158">cmp 里写 <code>&gt;=</code> 或 <code>&lt;=</code>：严格弱序被破坏，sort 内部可能走到区间外。症状是<b>本地小数据全对、交上去 RE 或随机 WA</b>，最难查。</p><p id="b159"><b>cmp 忘了兜底 return</b>：函数走到末尾没有返回值，是未定义行为。症状是同一份代码两次运行结果不同。</p><p id="b160">关键字的<b>顺序</b>写反：先比语文再比总分，样例可能刚好过，遇到总分高但语文低的就 WA。</p><p id="b161">把 <code>sort(a, a + n)</code> 写成 <code>sort(a, a + n - 1)</code>：最后一个元素没参与排序。症状是<b>输出里总有一个数在原位不动</b>。</p><p id="b162"><code>unique</code> 后忘记 <code>erase</code>：后续按原长度遍历，输出里出现旧值。症状是<b>答案行数比预期多</b>。</p><p id="b163">用 <code>double</code> 算 <code>m * 1.5</code> 再截断：浮点存不准时可能少算 1 名。症状是<b>分数线差 1 分、人数差 1 人</b>，样例还看不出来。</p><p id="b164">n = 10⁵ 还自己写冒泡或选择排序：约 5×10⁹ 次比较，必定 <b>TLE</b>；<code>sort</code> 只要 1.7×10⁶ 次，差距是 3000 倍。</p></div><p id="b165">第 13 节还有两件工具在这里补一句：<b>离散化</b> = 排序 + 去重 + 把每个值换成它的名次，把 10⁹ 的值域压成 10⁵ 以内的下标；<b>第 k 大</b> = 第 n−k 小，只是一次下标换算。两者都建立在「先排好序」之上，所以本章的动作顺序永远是：建模 → 排序 → 查表。</p><div class="reproduce"><div class="rt" id="b166">自己动手复现</div><p id="b167">关掉页面，把上面 P1093 的完整代码手打一遍并提交。</p><p id="b168">改一改①：把「输出前 5 名」改成「输出全部 n 名」，只动 for 循环的边界。</p><p id="b169">改一改②：把第三关键字从「学号升序」改成「英语降序 + 学号升序」，用同一组数据看结果变没变。</p><p id="b170">改一改③：把兜底那行改成 <code>return false;</code>，输入 5 个总分完全相同的学生，观察输出顺序是否还是学号升序——这就是严格弱序被破坏的现场。</p></div><table><thead><tr><th id="b171">题</th><th id="b172">编号</th><th id="b173">主要考什么</th><th id="b174">最容易错在哪</th></tr></thead><tbody><tr><td id="b175">A</td><td id="b176">P1059</td><td id="b177">sort + unique 的去重三行</td><td id="b178">普及-</td></tr><tr><td id="b179">B</td><td id="b180">P1104</td><td id="b181">结构体的多关键字排序</td><td id="b182">普及-</td></tr><tr><td id="b183">C</td><td id="b184">P1068</td><td id="b185">排序 + 分数线与并列人数</td><td id="b186">普及-</td></tr><tr><td id="b187">D</td><td id="b188">P1923</td><td id="b189">nth_element + 快读 + 全局数组</td><td id="b190">普及/提高-</td></tr><tr><td id="b191">E</td><td id="b192">P1217</td><td id="b193">枚举 + 两个判定函数</td><td id="b194">偶数位回文数被 11 整除；i*i 溢出</td></tr></tbody></table><div class="box info"><div class="t" id="b195">这次训练怎么用 90 分钟</div><p id="b196">0~10 分钟：只读题，不写代码。把 5 题按「能立刻写」→「有思路」→「没思路」排个序。</p><p id="b197">10~30 分钟：P1059。最短的一道，用来找手感；写完只检查一件事：有没有 <code>erase</code>。</p><p id="b198">30~60 分钟：P1104 与 P1068。两道都是结构体排序，重点在关键字的<b>顺序</b>和<b>兜底</b>。</p><p id="b199">60~85 分钟：P1923 或 P1217 选一道做透。前者考 <code>nth_element</code> 与快读，后者考枚举 + 两个判定函数。</p><p id="b200">85~90 分钟：不写新代码，只核对数组大小、<code>i*i</code> 溢出、0/1 起点、行末空格。</p></div><div class="box ok"><div class="t" id="b201">提交前的 30 秒检查清单（排序题专用）</div><p id="b202">cmp 的三个分支都用 <code>!=</code> 判「不相等」了吗？最后一层是不是一定分出胜负？</p><p id="b203">数组区间是 <code>[0, n)</code> 还是 <code>[1, n]</code>？尾后指针有没有差一位？</p><p id="b204">结构体的字段数量够不够？排序要用到的信息是否都在结构体里？</p><p id="b205">答案需要 long long 吗？总分、平方、乘积先按最坏情况估一遍。</p><p id="b206">输出格式：行末有没有多余空格？换行够不够？</p></div><h2 id="b207">本次训练 · 共 5 题</h2><div class="box tip"><div class="t" id="b208">做题方式</div><p id="b209">限时 <b>100 分钟</b>。每题先自己写 20~25 分钟；写不出来先看提示，再给自己 10 分钟；还不行才点开思路。每题都独立限时，不要一题耗死。</p></div><div class="challenge"><div class="ct" id="b210">大题 挑战题 1 · 明明的随机数</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1059</span><span class="badge diff">普及-</span><a href="https://www.luogu.com.cn/problem/P1059" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b211">明明生成了 n 个 1 到 1000 之间的随机整数，其中重复的数只保留一个，剩下的数从小到大排好序。</p><p id="b212">输入格式：第一行一个正整数 n（1 ≤ n ≤ 100）；第二行 n 个用空格隔开的整数，每个在 1 到 1000 之间。</p><p id="b213">输出格式：第一行一个整数 M，表示不同的随机数个数；第二行 M 个用空格隔开的整数，为从小到大排好序的不相同的随机数。</p></div><div class="cap" id="b214">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+10
+20 40 32 67 40 20 89 300 400 15
+
+输出：
+8
+15 20 32 40 67 89 300 400</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b215">值域只有 1000，第 6 节的桶计数也能做；但这道题要求用「排序 + 去重」，把第 13 节的三行写熟。</p><p id="b216">去重前必须先有序，否则只能去掉相邻的重复。</p><p id="b217">unique 只搬元素、不改长度，想一想怎么把后面多余的部分真正删掉。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b218"><b>sort</b>：把相同数字挤到一起，为 unique 创造条件。</p><p id="b219"><b>unique</b>：把每段连续重复的第一个留在原地，返回去重后区间的新末尾。</p><p id="b220"><b>erase</b>：删掉 [新末尾, 原末尾) 这段垃圾，size() 才等于真实答案。</p><p id="b221">先输出 size，再按下标输出。复杂度 O(n log n + n)，n ≤ 100 瞬间过。</p><p id="b222">同理可推广：若值域是 10⁹ 而 n 只有 10⁵，排序去重后配合二分就是离散化。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b223">参考代码</div><pre id="b224"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">int</span> n;
+    <span class="k">cin</span> &gt;&gt; n;
+    <span class="k">vector</span>&lt;<span class="k">int</span>&gt; <span class="f">a</span>(n);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; n; ++i) <span class="k">cin</span> &gt;&gt; a[i];
+
+    <span class="k">sort</span>(a.<span class="k">begin</span>(), a.<span class="k">end</span>());                      <span class="c">// 先让相同元素相邻</span>
+    a.<span class="f">erase</span>(<span class="k">unique</span>(a.<span class="k">begin</span>(), a.<span class="k">end</span>()), a.<span class="k">end</span>());   <span class="c">// 再去重并真正缩短</span>
+
+    <span class="k">cout</span> &lt;&lt; a.<span class="k">size</span>() &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">int</span> m = (<span class="k">int</span>)a.<span class="k">size</span>();                          <span class="c">// size() 是无符号数，先转 int</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; m; ++i)
+        <span class="k">cout</span> &lt;&lt; a[i] &lt;&lt; (i + <span class="n">1</span> == m ? <span class="s">'\n'</span> : <span class="s">' '</span>);  <span class="c">// 行末只换行，不加空格</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b225">关键片段拆解</div><table class="lines"><thead><tr><th id="b226">片段</th><th id="b227">作用</th></tr></thead><tbody><tr><td id="b228"><code>sort(a.begin(), a.end());</code></td><td id="b229">unique 只合并相邻重复，所以必须先把相同值排到一起。</td></tr><tr><td id="b230"><code>unique(a.begin(), a.end())</code></td><td id="b231">把不重复的元素依次搬到前面，返回去重后区间的新末尾；此时容器长度没变。</td></tr><tr><td id="b232"><code>a.erase(..., a.end());</code></td><td id="b233">把 [新末尾, 原末尾) 这一段删掉，size() 才等于答案。</td></tr><tr><td id="b234"><code>int m = (int)a.size();</code></td><td id="b235">size() 返回无符号数，直接与 int 比较会出现符号/无符号警告。</td></tr><tr><td id="b236"><code>(i + 1 == m ? '\n' : ' ')</code></td><td id="b237">最后一个数后面只换行，避免严格评测判行末空格错。</td></tr></tbody></table><div class="box warn"><div class="t" id="b238">这题最容易错的地方</div><ul><li id="b239">只写 unique 不写 erase，再按原长度遍历，输出里混进旧值 → WA。</li><li id="b240">忘了 sort 就 unique，只去掉相邻重复，输出 1 2 1 这种错答案。</li><li id="b241">第二行行末多打一个空格，个别评测机会判格式错。</li><li id="b242">把去重后的长度写成 n（原长度），第一行就错。</li></ul></div></div></details></div><div class="challenge"><div class="ct" id="b243">大题 挑战题 2 · 生日</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1104</span><span class="badge diff">普及-</span><a href="https://www.luogu.com.cn/problem/P1104" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b244">给出 n 个同学的姓名与出生年、月、日，按年龄从大到小输出姓名，一行一个。</p><p id="b245">年龄大的排在前面，也就是出生日期早的排在前面。</p><p id="b246">如果两个同学生日完全相同，输入的靠后的同学先输出。</p><p id="b247">输入格式：第一行一个整数 n；接下来 n 行，每行一个不含空格的姓名和三个整数，表示出生年、月、日。</p><p id="b248">输出格式：共 n 行，每行一个姓名。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b249">比较两个生日，先比年、再比月、再比日，这个顺序就是 cmp 里 if 的顺序。</p><p id="b250">「输入靠后先输出」说明结构体里除了生日，还得额外记一个输入下标。</p><p id="b251">如果 cmp 只写两层，生日相同的两个人谁先谁后就不确定，答案会错。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b252">结构体存 <code>name、y、m、d、id</code>，id 是读入顺序（从 0 开始）。</p><p id="b253">cmp 四层：年小在前 → 月小在前 → 日小在前 → id 大在前。</p><p id="b254">前三层用「出生早 = 年龄大」；第四层用「id 大 = 输入靠后」。</p><p id="b255">id 互不相同，所以第四层保证任意两人一定分出胜负，严格弱序成立。</p><p id="b256">sort 后按顺序输出姓名。交换的是整个结构体，姓名跟着生日一起走，不会错配。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b257">参考代码</div><pre id="b258"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">struct</span> Node {
+    <span class="k">string</span> name;
+    <span class="k">int</span> y, m, d, id;     <span class="c">// id：读入顺序，从 0 开始</span>
+};
+
+<span class="k">bool</span> <span class="f">cmp</span>(<span class="k">const</span> Node &amp;a, <span class="k">const</span> Node &amp;b) {
+    <span class="k">if</span> (a.y != b.y) <span class="k">return</span> a.y &lt; b.y;   <span class="c">// 出生早的年龄大</span>
+    <span class="k">if</span> (a.m != b.m) <span class="k">return</span> a.m &lt; b.m;
+    <span class="k">if</span> (a.d != b.d) <span class="k">return</span> a.d &lt; b.d;
+    <span class="k">return</span> a.id &gt; b.id;                 <span class="c">// 生日相同：输入靠后的先输出</span>
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">int</span> n;
+    <span class="k">cin</span> &gt;&gt; n;
+    <span class="k">vector</span>&lt;Node&gt; <span class="f">v</span>(n);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; n; ++i) {
+        <span class="k">cin</span> &gt;&gt; v[i].name &gt;&gt; v[i].y &gt;&gt; v[i].m &gt;&gt; v[i].d;
+        v[i].id = i;
+    }
+
+    <span class="k">sort</span>(v.<span class="k">begin</span>(), v.<span class="k">end</span>(), cmp);
+
+    <span class="k">for</span> (<span class="k">const</span> <span class="k">auto</span> &amp;x : v) <span class="k">cout</span> &lt;&lt; x.name &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b259">关键片段拆解</div><table class="lines"><thead><tr><th id="b260">片段</th><th id="b261">作用</th></tr></thead><tbody><tr><td id="b262"><code>struct Node { string name; ... };</code></td><td id="b263">把一个人的姓名与生日打包。sort 交换的是整个结构体，姓名不会和生日错配。</td></tr><tr><td id="b264"><code>bool cmp(const Node &amp;a, const Node &amp;b)</code></td><td id="b265">const 引用：结构体里有 string，按值传参会每次比较都复制字符串。</td></tr><tr><td id="b266"><code>if (a.y != b.y) return a.y &lt; b.y;</code></td><td id="b267">年份小 = 出生早 = 年龄大 = 排前面。</td></tr><tr><td id="b268"><code>return a.id &gt; b.id;</code></td><td id="b269">生日完全相同时，id 大的（输入靠后）排前面。</td></tr><tr><td id="b270"><code>sort(v.begin(), v.end(), cmp);</code></td><td id="b271">整体排序，O(n log n)；n 不大，主要成本在读入。</td></tr><tr><td id="b272"><code>for (const auto &amp;x : v)</code></td><td id="b273">范围 for + 常引用，不拷贝结构体；只读时加 const 更安全。</td></tr></tbody></table><div class="box warn"><div class="t" id="b274">这题最容易错的地方</div><ul><li id="b275">cmp 只写到年份就 return，生日相同的两人顺序随机 → WA。</li><li id="b276">把 id 的兜底方向写反（写成 <code>a.id &lt; b.id</code>），同生日的人顺序颠倒。</li><li id="b277">把出生年份当「越大越老」，方向反了，整份输出倒序。</li><li id="b278">cmp 里用 <code>&gt;=</code>，严格弱序被破坏，可能 RE。</li></ul></div></div></details></div><div class="challenge"><div class="ct" id="b279">大题 挑战题 3 · 分数线划定</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1068</span><span class="badge diff">普及-</span><a href="https://www.luogu.com.cn/problem/P1068" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b280">n 名选手报名，计划录取 m 名志愿者。面试分数线定为排名第 ⌊m × 1.5⌋ 名选手的分数（成绩高者排前，同分报名号小者排前）。</p><p id="b281">所有成绩不低于面试分数线的选手都能进入面试。</p><p id="b282">输入格式：第一行两个整数 n、m；接下来 n 行，每行两个整数，表示报名号与笔试成绩。</p><p id="b283">输出格式：第一行输出面试分数线与实际进入面试的人数；接下来每行一个进入面试的选手的报名号和成绩，按成绩从高到低输出，成绩相同按报名号从小到大输出。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b284">先按「成绩降序、报名号升序」排好，讨论第几名才有意义。</p><p id="b285">⌊1.5m⌋ 用整数算：<code>m * 3 / 2</code>，不要用 double。</p><p id="b286">分数线之上可能有并列，实际人数要重新数一遍，不能直接输出 ⌊1.5m⌋。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b287">读入 + 排序：cmp 两个关键字，成绩降序、报名号升序。</p><p id="b288">need = ⌊1.5m⌋，再用 min(n, need) 夹一下——m 接近 n 时 1.5m 会超过总人数。</p><p id="b289">分数线 line = v[need-1].sc：下标从 0 开始，第 need 名就是 v[need-1]。</p><p id="b290">实际人数 cnt = 从前往后数第一个「成绩 < line」的位置，这自动把并列的人全算进来。</p><p id="b291">先输出 line 与 cnt，再输出前 cnt 个人的报名号与成绩。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b292">参考代码</div><pre id="b293"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">struct</span> P {
+    <span class="k">int</span> id, sc;
+};
+
+<span class="k">bool</span> <span class="f">cmp</span>(<span class="k">const</span> P &amp;a, <span class="k">const</span> P &amp;b) {
+    <span class="k">if</span> (a.sc != b.sc) <span class="k">return</span> a.sc &gt; b.sc;   <span class="c">// 成绩高的在前</span>
+    <span class="k">return</span> a.id &lt; b.id;                     <span class="c">// 同分报名号小的在前</span>
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">int</span> n, m;
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; m;
+    <span class="k">vector</span>&lt;P&gt; <span class="f">v</span>(n);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; n; ++i) <span class="k">cin</span> &gt;&gt; v[i].id &gt;&gt; v[i].sc;
+
+    <span class="k">sort</span>(v.<span class="k">begin</span>(), v.<span class="k">end</span>(), cmp);
+
+    <span class="k">int</span> need = m * <span class="n">3</span> / <span class="n">2</span>;            <span class="c">// ⌊1.5m⌋，整数运算没有精度问题</span>
+    <span class="k">if</span> (need &gt; n) need = n;          <span class="c">// 1.5m 可能超过总人数</span>
+    <span class="k">int</span> line = v[need - <span class="n">1</span>].sc;       <span class="c">// 第 need 名的分数就是分数线</span>
+
+    <span class="k">int</span> cnt = <span class="n">0</span>;
+    <span class="k">while</span> (cnt &lt; n &amp;&amp; v[cnt].sc &gt;= line) ++cnt;   <span class="c">// 并列的全进，重新数</span>
+
+    <span class="k">cout</span> &lt;&lt; line &lt;&lt; <span class="s">" "</span> &lt;&lt; cnt &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; cnt; ++i)
+        <span class="k">cout</span> &lt;&lt; v[i].id &lt;&lt; <span class="s">" "</span> &lt;&lt; v[i].sc &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b294">关键片段拆解</div><table class="lines"><thead><tr><th id="b295">片段</th><th id="b296">作用</th></tr></thead><tbody><tr><td id="b297"><code>int need = m * 3 / 2;</code></td><td id="b298">整数除法向下取整，正好等于 ⌊1.5m⌋；<code>(int)(1.5*m)</code> 可能因浮点误差少 1。</td></tr><tr><td id="b299"><code>if (need &gt; n) need = n;</code></td><td id="b300">m 接近 n 时 1.5m 超过总人数，不夹住就数组越界（RE）。</td></tr><tr><td id="b301"><code>int line = v[need - 1].sc;</code></td><td id="b302">下标 0 起，第 need 名是 v[need-1]；写成 v[need] 分数线差一名。</td></tr><tr><td id="b303"><code>while (cnt &lt; n &amp;&amp; v[cnt].sc &gt;= line)</code></td><td id="b304">「不低于」用 >=；并列的人全部进入，人数不一定等于 need。</td></tr><tr><td id="b305"><code>cout &lt;&lt; line &lt;&lt; " " &lt;&lt; cnt &lt;&lt; "\n";</code></td><td id="b306">先分数线和人数，同行用空格分隔。</td></tr></tbody></table><div class="box warn"><div class="t" id="b307">这题最容易错的地方</div><ul><li id="b308">分数线取成 v[need] ，整份输出全错。</li><li id="b309">实际人数直接输出 need，忽略并列 → 人数与名单条数不一致，WA。</li><li id="b310">cmp 写成 <code>a.sc &gt;= b.sc</code>，严格弱序被破坏，可能 RE。</li><li id="b311">忘了把 need 夹到 n，n 较小时数组越界，表现为 RE 而不是 WA。</li></ul></div></div></details></div><div class="challenge"><div class="ct" id="b312">大题 挑战题 4 · 求第 k 小的数</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1923</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P1923" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b313">给出 n 个整数，求其中第 k 小的数，最小的数算第 0 小。</p><p id="b314">输入格式：第一行两个整数 n、k（n &lt; 5×10⁶，0 ≤ k &lt; n）；接下来 n 个整数，可能跨多行。</p><p id="b315">输出格式：一行一个整数，即第 k 小的数。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b316">只求一个位置，不需要把全部数据排好。想一想第 13 节为此准备的函数。</p><p id="b317">题目的 k 从 0 开始：k = 0 就是最小值。</p><p id="b318">n 到 5×10⁶，cin 读入偏慢，试试用 getchar 自己写一个读入函数。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b319"><code>nth_element(a, a+k, a+n)</code> 执行完后 a[k] 就是第 k 小（0 起），平均 O(n)。</p><p id="b320">它的原理是快速选择：按基准把区间分成两半，只继续处理包含 k 的那一半，所以是 O(n) 而不是 O(n log n)。</p><p id="b321">左侧元素都不大于 a[k]，右侧都不小于 a[k]，但两侧都没有排好序。</p><p id="b322">5×10⁶ 个 int 约 20MB，必须放全局数组：栈空间只有几 MB，放 main 里直接栈溢出 RE。</p><p id="b323">手写快读逐字符解析，比 cin 快 2~3 倍，也顺手解决「数据跨行」的问题。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b324">参考代码</div><pre id="b325"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">5000000</span>;
+<span class="k">int</span> a[MAXN + <span class="n">5</span>];          <span class="c">// 全局数组：静态区，不受栈大小限制</span>
+
+<span class="k">int</span> <span class="f">readInt</span>() {           <span class="c">// 手写快读，返回一个 int</span>
+    <span class="k">int</span> x = <span class="n">0</span>, f = <span class="n">1</span>;
+    <span class="k">char</span> c = <span class="f">getchar</span>();
+    <span class="k">while</span> (c &lt; <span class="s">'0'</span> || c &gt; <span class="s">'9'</span>) {      <span class="c">// 跳过空格、换行等</span>
+        <span class="k">if</span> (c == <span class="s">'-'</span>) f = -<span class="n">1</span>;
+        c = <span class="f">getchar</span>();
+    }
+    <span class="k">while</span> (c &gt;= <span class="s">'0'</span> &amp;&amp; c &lt;= <span class="s">'9'</span>) {
+        x = x * <span class="n">10</span> + (c - <span class="s">'0'</span>);
+        c = <span class="f">getchar</span>();
+    }
+    <span class="k">return</span> x * f;
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> n = <span class="f">readInt</span>(), k = <span class="f">readInt</span>();
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; n; ++i) a[i] = <span class="f">readInt</span>();
+
+    <span class="f">nth_element</span>(a, a + k, a + n);     <span class="c">// 执行后 a[k] 就是第 k 小</span>
+    <span class="k">printf</span>(<span class="s">"%d\n"</span>, a[k]);
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b326">关键片段拆解</div><table class="lines"><thead><tr><th id="b327">片段</th><th id="b328">作用</th></tr></thead><tbody><tr><td id="b329"><code>int a[MAXN + 5];</code></td><td id="b330">全局数组在静态区；5×10⁶ 个 int 约 20MB，放 main 里会栈溢出。</td></tr><tr><td id="b331"><code>int readInt()</code></td><td id="b332">返回 int 的函数：把「读一个整数」这件事打包，主函数只剩三行调用。</td></tr><tr><td id="b333"><code>while (c &lt; '0' || c &gt; '9')</code></td><td id="b334">跳过所有非数字字符，所以数据跨行、多空格都能正确读。</td></tr><tr><td id="b335"><code>x = x * 10 + (c - '0');</code></td><td id="b336">逐位拼数：每读一位就把已有结果左移一位再加上新数字。</td></tr><tr><td id="b337"><code>nth_element(a, a + k, a + n);</code></td><td id="b338">第 k 小放到 a[k]，左边不大于它、右边不小于它，两侧无序。</td></tr><tr><td id="b339"><code>printf("%d\n", a[k]);</code></td><td id="b340">直接输出 a[k]；不必再 sort，排了也只会更慢。</td></tr></tbody></table><div class="box warn"><div class="t" id="b341">这题最容易错的地方</div><ul><li id="b342">把 k 当成 1 起，输出 a[k-1] → 全 WA。</li><li id="b343">把数组开在 main 里 → 栈溢出，本地小数据正常、大数据 RE。</li><li id="b344">用 sort 交：5×10⁶ 规模下 nlogn 约 1.1×10⁸ 次比较，容易 TLE。</li><li id="b345">数组少开一个 0（开成 5×10⁵）→ 越界，小数据看不出来。</li></ul></div></div></details></div><div class="challenge"><div class="ct" id="b346">大题 挑战题 5 · 回文质数</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1217</span><span class="badge diff">普及-</span><a href="https://www.luogu.com.cn/problem/P1217" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b347">回文数是正着读与反着读都一样的数，151 既是回文数又是质数，称为回文质数。</p><p id="b348">求区间 [a, b] 内所有回文质数，每行输出一个，从小到大。</p><p id="b349">输入格式：一行两个整数 a、b（5 ≤ a &lt; b ≤ 10⁸）。</p><p id="b350">输出格式：若干行，每行一个回文质数。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b351">先写两个小函数：判质数、判回文。主函数只负责枚举和调用，逻辑立刻变短。</p><p id="b352">判质数只需试除到 √x，不必试到 x。</p><p id="b353">10⁸ 全枚举太慢。注意偶数位数的回文数有一个固定因数，想想是几。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b354">偶数位回文数一定能被 11 整除：以 abba 为例，1001a + 110b = 11(91a + 10b)。</p><p id="b355">所以除 11 本身以外，偶数位回文数全是合数。答案都落在 1~7 位数里。</p><p id="b356">把 b 截断到 9999999，枚举量从 10⁸ 降到 10⁷。</p><p id="b357">枚举 i ∈ [a, b]：先判回文（几次除法，极快），是回文再判质数（试除到 √i）。</p><p id="b358">只有回文才做质数判定，实际质数判定约 1.1 万次，总耗时约 0.1 秒。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b359">参考代码</div><pre id="b360"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">bool</span> <span class="f">isPrime</span>(<span class="k">int</span> x) {
+    <span class="k">if</span> (x &lt; <span class="n">2</span>) <span class="k">return</span> <span class="k">false</span>;                        <span class="c">// 0、1 不是质数</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">2</span>; (<span class="k">long</span> <span class="k">long</span>)i * i &lt;= x; ++i)     <span class="c">// 只试到 √x</span>
+        <span class="k">if</span> (x % i == <span class="n">0</span>) <span class="k">return</span> <span class="k">false</span>;
+    <span class="k">return</span> <span class="k">true</span>;
+}
+
+<span class="k">bool</span> <span class="f">isPal</span>(<span class="k">int</span> x) {
+    <span class="k">int</span> t = x, r = <span class="n">0</span>;
+    <span class="k">while</span> (t &gt; <span class="n">0</span>) { r = r * <span class="n">10</span> + t % <span class="n">10</span>; t /= <span class="n">10</span>; } <span class="c">// 把 x 倒过来</span>
+    <span class="k">return</span> r == x;                                  <span class="c">// 用临时变量，不改原数</span>
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">int</span> a, b;
+    <span class="k">cin</span> &gt;&gt; a &gt;&gt; b;
+    <span class="k">if</span> (b &gt; <span class="n">9999999</span>) b = <span class="n">9999999</span>;   <span class="c">// 8 位及以上回文数都是 11 的倍数</span>
+
+    <span class="k">for</span> (<span class="k">int</span> i = a; i &lt;= b; ++i)
+        <span class="k">if</span> (<span class="f">isPal</span>(i) &amp;&amp; <span class="f">isPrime</span>(i)) <span class="k">cout</span> &lt;&lt; i &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b361">关键片段拆解</div><table class="lines"><thead><tr><th id="b362">片段</th><th id="b363">作用</th></tr></thead><tbody><tr><td id="b364"><code>if (b &gt; 9999999) b = 9999999;</code></td><td id="b365">偶数位回文数都能被 11 整除，截断后不会漏解，枚举量少一个数量级。</td></tr><tr><td id="b366"><code>bool isPrime(int x)</code></td><td id="b367">判定函数：返回 bool，调用处 <code>if (isPrime(i))</code> 读起来就是一句话。</td></tr><tr><td id="b368"><code>(long long)i * i &lt;= x</code></td><td id="b369">i*i 在 i 接近 10⁵ 时会接近 10¹⁰，用 int 直接溢出成负数 → 死循环。</td></tr><tr><td id="b370"><code>int t = x, r = 0;</code></td><td id="b371">用临时变量倒序，保持 x 不变；若直接改 x，后面的质数判定就拿到错的值。</td></tr><tr><td id="b372"><code>if (isPal(i) &amp;&amp; isPrime(i))</code></td><td id="b373">短路求值：先判回文（便宜），只有回文才做质数判定。</td></tr></tbody></table><div class="box warn"><div class="t" id="b374">这题最容易错的地方</div><ul><li id="b375">把 1 当质数（别的题 a 可能从 1 开始）。</li><li id="b376">循环条件写成 <code>i &lt; x</code> 而不是 <code>i*i &lt;= x</code>，10⁷ 级别直接 TLE。</li><li id="b377">不截断 b，枚举到 10⁸ → TLE。</li><li id="b378">isPal 里直接改 x，导致 isPrime 拿到的不是原数 → 全错。</li></ul></div></div></details></div><div class="box ok"><div class="t" id="b379">做完之后自问</div><ul><li id="b380">不看资料能写出 P1093 的完整代码，并说清三行 cmp 各自在比什么。</li><li id="b381">能手写 sort 的两参数版与三参数版，知道数组和 vector 的区间边界分别怎么写。</li><li id="b382">能说出严格弱序的三条要求，并举一个「用 <code>&gt;=</code> 会 RE」的例子。</li><li id="b383">能不查资料写出 sort + unique + erase 的去重三行，并解释为什么必须先排序。</li><li id="b384">能说清 <code>nth_element</code> 之后 a[k] 两侧<b>是</b>什么性质、<b>不是</b>什么性质。</li><li id="b385">P1068 里 ⌊1.5m⌋ 为什么用 <code>m * 3 / 2</code> 而不是 <code>m * 1.5</code>，能讲清浮点误差怎么变成 WA。</li><li id="b386">P1217 里为什么能把 b 截断到 9999999，能自己举一个 4 位回文数验证它是 11 的倍数。</li></ul></div><div class="box info"><div class="t" id="b387">延伸阅读</div><ul><li id="b388">《算法竞赛入门笔记》：函数、结构体与排序相关章节</li><li id="b389">《算法竞赛进阶指南》第 0x05 节：排序（cmp 与严格弱序）</li><li id="b390">洛谷 P1093、P1104、P1068 题解区关于多关键字排序的讨论</li><li id="b391">《算法竞赛黄金法则》：先把比较规则写清楚，再动手排序</li></ul></div>
+
+<footer>算竞教程 · 算竞教程 · 生成于自建课程体系，题目版权归洛谷及各命题方所有<br>
+转载请注明出处；模板代码可直接用于比赛</footer>

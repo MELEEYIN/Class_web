@@ -1,0 +1,52 @@
+
+<p class="lead">这一页有 <b>41 张卡片</b>，但它不是「从第 1 张读到第 41 张」用的。<b>第一遍你只需要 6 张</b>，加起来约半小时；剩下 35 张对应的是<b>具体的问题</b> —— 撞到了再回来查，一遍就能记住，比提前硬啃十遍都管用。</p>
+
+<div class="path">
+  <div class="path-hd"><span class="path-no">第一段</span><b>建立「能不能过」的直觉</b><em>约 15 分钟</em></div>
+  <div class="path-bd">
+    <p class="path-line"><b>先读</b><a href="#/dev/c1#f1">1.1</a> · <a href="#/dev/c1#f2">1.2</a> · <a href="#/dev/c1#f3">1.3</a> —— 计数的本质、增长曲线、数据规模对照表。</p>
+    <p class="path-line"><b>读完你会</b>：拿到题先看 <span class="mono">n</span> 的范围，反推该用什么复杂度。<b>这一步想清楚，能省掉后面一半的返工</b> —— 很多人卡住不是因为不会算法，是因为一开始就在用注定超时的思路。</p>
+  </div>
+</div>
+
+<div class="path">
+  <div class="path-hd"><span class="path-no">第二段</span><b>抄一份脚手架 + 知道出错该查哪</b><em>约 15 分钟</em></div>
+  <div class="path-bd">
+    <p class="path-line"><b>先读</b><a href="#/dev/c2#g7">2.7</a> · <a href="#/dev/c4#i2">4.2</a> · <a href="#/dev/c4#i7">4.7</a> —— 完整的脚手架模板、六种评测结果对照表、三个最贵的坑。</p>
+    <p class="path-line"><b>读完你会</b>：有一套自己的模板可以直接用；看到 <span class="mono">WA</span> / <span class="mono">RE</span> / <span class="mono">TLE</span> 知道第一个该怀疑什么，而不是到处瞎改。</p>
+    <p class="path-line"><b>2.7 那段代码可以直接复制走</b>，存成编辑器的代码片段。4.2 那张表建议打印出来贴在显示器旁边。</p>
+  </div>
+</div>
+
+<div class="path">
+  <div class="path-hd"><span class="path-no">第三段</span><b>真正写起来之后，按问题回来查</b><em>之后一直用</em></div>
+  <div class="path-bd">
+    <table>
+      <thead><tr><th>你现在的情况</th><th>直接去看</th></tr></thead>
+      <tbody>
+        <tr><td>刚开始学，还没写过几道题</td><td class="mono"><a href="#/dev/c1#f1">1.1</a> · <a href="#/dev/c1#f2">1.2</a> · <a href="#/dev/c1#f3">1.3</a></td></tr>
+        <tr><td>代码编译不过，或者看不懂报错</td><td class="mono"><a href="#/dev/c4#i2">4.2</a> · <a href="#/dev/c4#i3">4.3</a> · <a href="#/dev/c4#i4">4.4</a></td></tr>
+        <tr><td>能写出来，但总是超时</td><td class="mono"><a href="#/dev/c2#g4">2.4</a> · <a href="#/dev/c2#g5">2.5</a> · <a href="#/dev/c4#i5">4.5</a></td></tr>
+        <tr><td>答案不对，又看不出错在哪</td><td class="mono"><a href="#/dev/c4#i3">4.3</a> · <a href="#/dev/c4#i6">4.6</a> · <a href="#/dev/c3#h1">3.1</a> · <a href="#/dev/c3#h2">3.2</a> · <a href="#/dev/c3#h3">3.3</a></td></tr>
+        <tr><td>想确认自己写的到底对不对</td><td class="mono"><a href="#/dev/c3#h1">3.1</a> · <a href="#/dev/c3#h2">3.2</a> · <a href="#/dev/c3#h3">3.3</a> · <a href="#/dev/c3#h5">3.5</a></td></tr>
+        <tr><td>值域太大，数组开不下</td><td class="mono"><a href="#/dev/c5#j1">5.1</a> · <a href="#/dev/c5#j2">5.2</a> · <a href="#/dev/c5#j6">5.6</a></td></tr>
+        <tr><td>只想要一份能直接抄的模板</td><td class="mono"><a href="#/dev/c2#g7">2.7</a> · <a href="#/dev/c2#g8">2.8</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="callout warn">
+<p><b>剩下的 35 张，不要提前读。</b>它们不是「更高级的知识」，而是「针对某个具体毛病的解法」。举个例：</p>
+<ul class="tight">
+<li><b>1.5 调和级数</b>、<b>1.7 麦森数</b>、<b>2.3 INF 为什么是 0x3f3f3f3f</b> —— 这些是「你已经在写，想搞懂为什么」的时候看的。</li>
+<li><b>3.4 rand() 的四个坑</b>、<b>4.4 栈与内存</b>、<b>4.6 五个调试手法</b> —— 这些是「本地跑得对、交上去不对」的时候看的。</li>
+<li><b>5.3～5.7</b> —— 这些是「你要用树状数组 / 线段树了」的时候看的。</li>
+</ul>
+<p>提前读它们的效果，和你现在读一篇你没做过题目的题解差不多：看得懂，但记不住。<b>撞到问题再读，一次就记住。</b></p>
+</div>
+<div class="callout ok">
+<p><b>五件里如果只能先做一件，做第 1 件；做完立刻做第 3 件。</b>第 1 件（复杂度）让你不浪费时间，第 3 件（对拍）让你不再骗自己 —— 这两件加起来，能解决入门阶段八成的卡顿。</p>
+<p>另外：<b>遇到不认识的词，直接去文末的 <a href="#glossary">术语词典</a></b>。那里按分类收了这一页用到的所有术语，用大白话解释，每条还标了它出现在哪一节。</p>
+</div>
+

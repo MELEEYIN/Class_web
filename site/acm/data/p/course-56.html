@@ -1,0 +1,296 @@
+
+<div class="box info"><div class="t" id="b0">本节出现的新函数 / 新语法（先看懂再用）</div><ul><li id="b1"><a href="#fn-0">分治函数骨架 solve(l, r)</a> —— 划分 / 递归 / 合并三段，闭区间写法，mid 向下取整</li><li id="b2"><a href="#fn-1">归并的双指针合并</a> —— 两个指针各走一遍，O(n) 归并两段有序区间</li><li id="b3"><a href="#fn-2">三元组结构体与去重（CDQ 的前置）</a> —— 合并相同三元组并用 cnt 记次数，CDQ 正确性的前置条件</li></ul></div><p id="b4">上一节（回顾九）末尾给过一段十几行的归并排序求逆序对，说好“下一节再用到”，就是这里。那段代码看着像个小技巧，其实是分治的原型：把区间砍成两半，答案 = 左半 + 右半 + <b>跨中点</b>的那一部分。前两项递归算，第三项在合并时顺手算完——分治的全部内容就是这个。</p><div class="quote" id="b5">分治能成立只有一条理由：<b>每个答案对恰好在一个合并点被数一次</b>。想不清这一点，写出来必然重复计数或者漏算。</div><table><thead><tr><th id="b6">步骤</th><th id="b7">归并排序</th><th id="b8">逆序对（本节例题）</th><th id="b9">CDQ 三维偏序</th></tr></thead><tbody><tr><td id="b10">① 划分</td><td id="b11">mid = (l + r) / 2</td><td id="b12">同左</td><td id="b13">先按 a 排序，再按<b>位置</b>切</td></tr><tr><td id="b14">② 递归</td><td id="b15">solve(l, mid)、solve(mid+1, r)</td><td id="b16">同左</td><td id="b17">同左</td></tr><tr><td id="b18">③ 合并</td><td id="b19">双指针按值归并</td><td id="b20">取右边时 ans += mid − i + 1</td><td id="b21">按 b 归并 + 树状数组查 c</td></tr><tr><td id="b22">答案对在哪</td><td id="b23">—</td><td id="b24">i 在左半、j 在右半</td><td id="b25">左半的 (b, c) 都不超过右半</td></tr><tr><td id="b26">复杂度</td><td id="b27">O(n log n)</td><td id="b28">O(n log n)</td><td id="b29">O(n log n log k)</td></tr></tbody></table><p id="b30">动手前先回答三个问题，答不出就别写：<b>①</b> 怎么切（两半规模尽量相等）；<b>②</b> 递归结束后两半各处于什么状态（归并排序：各自升序）；<b>③</b> 合并时怎么在 O(n) 或 O(n log n) 内把跨中点的贡献算完。第 ③ 问是分治的全部难点，前两问是套路。</p><p id="b31">为什么合并时只管跨中点的对：若 i、j 同在某半内部，这一对在递归到那一层时已经数过；若 i、j 被中点分开，它只可能在这一层被数到——更外层的合并只统计跨它自己中点的对，根本不会碰到它。这就是不重不漏的来源。</p><p id="b32">先看两块骨架：<b>分治函数怎么写</b>、<b>合并的双指针怎么写</b>。这两块立住了，三维偏序只是在合并里塞一棵树状数组。</p><div class="fn"><div class="fh" id="b33">新函数拆解 · 分治函数骨架 solve(l, r)</div><div class="fb"><div class="sig" id="b34">void solve(int l, int r) {
+    if (l &gt;= r) return;
+    int mid = (l + r) &gt;&gt; 1;
+    solve(l, mid);
+    solve(mid + 1, r);
+    /* 合并：只处理跨中点的贡献 */
+}</div><table class="lines"><thead><tr><th id="b35">组成</th><th id="b36">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b37"><code>l, r</code></td><td id="b38">当前处理的<b>闭区间</b>。用闭区间是为了让 mid 和 mid+1 直接对应“左段右端 / 右段左端”，不用额外 +1。</td></tr><tr><td id="b39"><code>if (l &gt;= r) return;</code></td><td id="b40">出口。长度 ≤ 1 的区间天然有序，也没有跨中点的对。写成 l == r 在 l &gt; r 时会漏掉保护。</td></tr><tr><td id="b41"><code>int mid = (l + r) &gt;&gt; 1;</code></td><td id="b42">取中点，&gt;&gt; 1 就是整除 2。l + r 超过 2.1×10⁹ 时才需要写成 l + (r - l) / 2，本题不需要。</td></tr><tr><td id="b43"><code>两个递归调用</code></td><td id="b44">先递归、后合并。归并排序必须这个顺序：两半没排好，合并毫无意义。</td></tr><tr><td id="b45"><code>合并段</code></td><td id="b46">整个分治唯一要动脑的地方。它只能看见“跨中点”的对，其余交给递归。</td></tr><tr><td id="b47"><code>递归层数</code></td><td id="b48">log₂n 层。n = 5×10⁵ 时 19 层，栈深度 19，绝不会爆栈。</td></tr></tbody></table><div class="cap" id="b49">最小可运行示例</div><div class="cap" id="b50">示例</div><pre id="b51"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">void</span> <span class="f">solve</span>(<span class="k">int</span> l, <span class="k">int</span> r) {
+    <span class="k">if</span> (l &gt;= r) <span class="k">return</span>;
+    <span class="k">int</span> mid = (l + r) &gt;&gt; <span class="n">1</span>;
+    <span class="k">cout</span> &lt;&lt; <span class="s">"["</span> &lt;&lt; l &lt;&lt; <span class="s">","</span> &lt;&lt; r &lt;&lt; <span class="s">"]  mid = "</span> &lt;&lt; mid &lt;&lt; <span class="s">"\n"</span>;
+    <span class="f">solve</span>(l, mid);          <span class="c">// 左半</span>
+    <span class="f">solve</span>(mid + <span class="n">1</span>, r);      <span class="c">// 右半</span>
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="f">solve</span>(<span class="n">1</span>, <span class="n">8</span>);            <span class="c">// 先看清“切”的形状，再往里加合并</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="box tip"><div class="t" id="b52">注意</div><p id="b53">跑一遍数层数：8 个元素切 3 层，第 0 层 1 段、第 1 层 2 段、第 2 层 4 段。</p><p id="b54">把 <code>solve(1, 8)</code> 改成 <code>solve(1, 10)</code>，会看到 mid 向下取整，左段可能比右段长 1——所有分治都这样。</p><p id="b55">递归函数别传大对象（比如把整个 vector 按值传），每个元素会被复制 log n 次，常数直接翻倍。</p></div></div></div><div class="fn"><div class="fh" id="b56">新函数拆解 · 归并的双指针合并</div><div class="fb"><div class="sig" id="b57">int i = l, j = mid + 1, k = l;
+while (i &lt;= mid &amp;&amp; j &lt;= r)
+    tmp[k++] = (a[i] &lt;= a[j]) ? a[i++] : a[j++];</div><table class="lines"><thead><tr><th id="b58">组成</th><th id="b59">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b60"><code>i</code></td><td id="b61">左段指针，从 l 出发，最远走到 mid。</td></tr><tr><td id="b62"><code>j</code></td><td id="b63">右段指针，从 mid+1 出发，最远走到 r。</td></tr><tr><td id="b64"><code>k</code></td><td id="b65">写指针，从 l 出发。它写的是 <b>tmp</b> 而不是 a——原地写回会覆盖还没读的数据。</td></tr><tr><td id="b66"><code>a[i] &lt;= a[j]</code></td><td id="b67">相等时优先取左边。这叫稳定，也是逆序对统计的正确性来源（相等不算逆序对）。</td></tr><tr><td id="b68"><code>tmp[k++] = ...</code></td><td id="b69">三件事压成一行：写入、k 前移、被选中那一侧的指针前移。</td></tr><tr><td id="b70"><code>收尾两个 while</code></td><td id="b71">一侧走空后，另一侧剩下的元素本就有序，直接照抄，不需要再比较。</td></tr><tr><td id="b72"><code>最后的抄回</code></td><td id="b73">写完一段立刻抄回 a[l..r]。上层合并要求看到两半有序，这一步不能省。</td></tr></tbody></table><div class="cap" id="b74">最小可运行示例</div><div class="cap" id="b75">示例</div><pre id="b76"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> a[<span class="n">9</span>] = {<span class="n">0</span>, <span class="n">1</span>, <span class="n">4</span>, <span class="n">7</span>, <span class="n">2</span>, <span class="n">5</span>, <span class="n">8</span>, <span class="n">9</span>, <span class="n">9</span>};   <span class="c">// a[1..3] 与 a[4..8] 各自升序</span>
+<span class="k">int</span> tmp[<span class="n">9</span>];
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> i = <span class="n">1</span>, j = <span class="n">4</span>, k = <span class="n">1</span>;
+    <span class="k">while</span> (i &lt;= <span class="n">3</span> &amp;&amp; j &lt;= <span class="n">8</span>) tmp[k++] = (a[i] &lt;= a[j]) ? a[i++] : a[j++];
+    <span class="k">while</span> (i &lt;= <span class="n">3</span>) tmp[k++] = a[i++];      <span class="c">// 左段剩余</span>
+    <span class="k">while</span> (j &lt;= <span class="n">8</span>) tmp[k++] = a[j++];      <span class="c">// 右段剩余</span>
+    <span class="k">for</span> (<span class="k">int</span> p = <span class="n">1</span>; p &lt;= <span class="n">8</span>; ++p) <span class="k">cout</span> &lt;&lt; tmp[p] &lt;&lt; <span class="s">" "</span>;
+    <span class="k">cout</span> &lt;&lt; <span class="s">"\n"</span>;                          <span class="c">// 1 2 4 5 7 8 9 9</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="box tip"><div class="t" id="b77">注意</div><p id="b78">示例把两段有序数据直接写死了，可以单独编译运行；真实代码里这三段（主循环 + 两个收尾）要放进 msort 的合并位置。</p><p id="b79">把 &lt;= 改成 &lt;，排序结果一模一样，但相等元素的先后被交换——逆序对统计会在这一点上出错，症状是 WA 而不是 RE。</p></div></div></div><div class="prob"><div class="ph"><span class="pn" id="b80">例题 · 逆序对</span><span class="oi">洛谷 P1908</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P1908" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b81">给定长度为 n 的正整数序列 a。若 i &lt; j 且 aᵢ &gt; aⱼ，则称 (i, j) 是一个逆序对，求逆序对总数。</p><p id="b82">输入格式：第一行一个整数 n；第二行 n 个整数，每个数不超过 10⁹。<br>输出格式：一行一个整数，表示逆序对的数目。</p><p id="b83">数据范围：1 ≤ n ≤ 5×10⁵。答案最大约 n(n−1)/2 ≈ 1.25×10¹¹，需用 64 位整数。</p></div><div class="io" id="b84">输入：
+6
+5 4 2 6 3 1
+
+输出：
+11</div></div><div class="step"><div class="sh" id="b85">把“数对”拆成三份</div><p id="b86">暴力枚举每一对，n = 5×10⁵ 时是 <b>1.25×10¹¹</b> 次比较，几十秒起步，必然 TLE。</p><p id="b87"><b>拆成三份。</b>设 solve(l, r) 给出区间内的逆序对数，则</p><p id="b88">solve(l, r) = solve(l, mid) + solve(mid+1, r) + cross(l, mid, r)，cross 只数 <b>i ≤ mid &lt; j 且 a[i] &gt; a[j]</b> 的对。</p><p id="b89"><b>让递归顺手排序。</b>归并排序的递归本来就是“把两半排好”，于是 solve 除了返回答案，还要保证 a[l..r] 升序。这个附加状态正是 cross 能 O(n) 算出来的前提。</p><p id="b90"><b>合并时怎么数。</b>取右边的 a[j] 时，说明 a[i] &gt; a[j]；而 a[i..mid] 单调不降，所以这 <b>mid − i + 1</b> 个数全都 &gt; a[j]，一次贡献这么多对。取左边时 a[i] ≤ a[j]，不构成逆序对，直接放走。</p><p id="b91"><b>为什么不重复。</b>每一对 (p, q) 在递归树上有唯一的最低公共层——它恰好横跨那一层的中点，于是只被那一层的合并数到一次。</p><p id="b92"><b>等号的位置很关键。</b>用 <code>a[i] &lt;= a[j]</code> 判断取左边：相等时先放左边，相等的一对不进入答案。改一个符号就变成“非严格逆序对”，这是 WA 而不是 RE。</p><p id="b93"><b>相对第 46 节的树状数组写法，这里省掉离散化。</b>归并只比较大小，值到 10⁹ 也照样做；树状数组得先把值压成 1..n 的名次。代价是归并只能离线计数，改一个数就得重跑。</p></div><div class="cap" id="b94">完整可编译代码（C++17）：归并排序求逆序对</div><pre id="b95"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">500005</span>;
+<span class="k">int</span> n, a[N], tmp[N];
+<span class="k">long</span> <span class="k">long</span> ans;                 <span class="c">// 上限 n(n-1)/2 ≈ 1.25e11，int 装不下</span>
+
+<span class="k">void</span> <span class="f">msort</span>(<span class="k">int</span> l, <span class="k">int</span> r) {
+    <span class="k">if</span> (l &gt;= r) <span class="k">return</span>;                  <span class="c">// 长度 1，天然有序</span>
+    <span class="k">int</span> mid = (l + r) &gt;&gt; <span class="n">1</span>;
+    <span class="f">msort</span>(l, mid);                       <span class="c">// 先让两半各自有序</span>
+    <span class="f">msort</span>(mid + <span class="n">1</span>, r);
+
+    <span class="k">int</span> i = l, j = mid + <span class="n">1</span>, k = l;
+    <span class="k">while</span> (i &lt;= mid &amp;&amp; j &lt;= r) {
+        <span class="k">if</span> (a[i] &lt;= a[j]) {
+            tmp[k++] = a[i++];           <span class="c">// 取左边：这一对不是逆序对</span>
+        } <span class="k">else</span> {
+            ans += mid - i + <span class="n">1</span>;          <span class="c">// a[i..mid] 全都 &gt; a[j]，一次加一整段</span>
+            tmp[k++] = a[j++];
+        }
+    }
+    <span class="k">while</span> (i &lt;= mid) tmp[k++] = a[i++];
+    <span class="k">while</span> (j &lt;= r) tmp[k++] = a[j++];
+    <span class="k">for</span> (<span class="k">int</span> p = l; p &lt;= r; ++p) a[p] = tmp[p];   <span class="c">// 抄回，供上层合并使用</span>
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">cin</span> &gt;&gt; n;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) <span class="k">cin</span> &gt;&gt; a[i];
+    <span class="f">msort</span>(<span class="n">1</span>, n);
+    <span class="k">cout</span> &lt;&lt; ans &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b96">逐行拆解</div><table class="lines"><thead><tr><th id="b97">代码片段</th><th id="b98">含义与理由</th></tr></thead><tbody><tr><td id="b99"><code>long long ans</code></td><td id="b100">答案上限 1.25×10¹¹，用 int 会溢出成负数，且只在大测试点挂。</td></tr><tr><td id="b101"><code>msort(1, n)</code></td><td id="b102">对整段 1..n 调用，返回值放在全局 ans 里，省掉函数返回值的搬运。</td></tr><tr><td id="b103"><code>if (l &gt;= r) return;</code></td><td id="b104">单元素区间既没有内部对，也没有跨中点的对，直接结束。</td></tr><tr><td id="b105"><code>msort(l, mid); msort(mid + 1, r);</code></td><td id="b106">两半排好序后，a[l..mid] 与 a[mid+1..r] 各自升序——这是合并能线性进行的前提。</td></tr><tr><td id="b107"><code>ans += mid - i + 1</code></td><td id="b108">此刻 a[i] > a[j]，而 a[i..mid] 升序，故这一段每个数都 > a[j]，共 mid−i+1 个逆序对。</td></tr><tr><td id="b109"><code>i++, j++ 的分工</code></td><td id="b110">只会有一个指针前移，所以整个 while 最多走 n 步，合并是 O(区间长度)。</td></tr><tr><td id="b111"><code>for (p = l; p &lt;= r; ++p) a[p] = tmp[p];</code></td><td id="b112">把合并结果写回原数组。漏掉这句，上层合并看到的是乱序，答案偏小。</td></tr><tr><td id="b113"><code>tmp 是全局数组</code></td><td id="b114">不用每层新开，也避免递归里开大数组爆栈。每一层只写自己那一段 [l, r]，互不干扰。</td></tr></tbody></table></div><p id="b115">下面是正题。<b>逆序对其实是二维偏序</b>：数满足 i &lt; j 且 a[i] &gt; a[j] 的对，等价于“下标一维、值一维”。把下标换成属性 a、值换成属性 b，就是数 aᵢ ≤ aⱼ 且 bᵢ ≤ bⱼ 的对。再加第三维 c，就得到三维偏序：<b>排序管一维，分治管一维，树状数组管一维</b>。</p><table><thead><tr><th id="b116">维数</th><th id="b117">要数的东西</th><th id="b118">工具</th><th id="b119">复杂度</th></tr></thead><tbody><tr><td id="b120">1 维</td><td id="b121">aᵢ ≤ aⱼ 的对数</td><td id="b122">排序 + 双指针</td><td id="b123">O(n log n)</td></tr><tr><td id="b124">2 维（逆序对）</td><td id="b125">i &lt; j 且 aᵢ &gt; aⱼ</td><td id="b126">归并 / 排序 + 树状数组</td><td id="b127">O(n log n)</td></tr><tr><td id="b128">3 维</td><td id="b129">aᵢ ≤ aⱼ、bᵢ ≤ bⱼ、cᵢ ≤ cⱼ</td><td id="b130">排序 + CDQ + 树状数组</td><td id="b131">O(n log n log k)</td></tr><tr><td id="b132">4 维以上</td><td id="b133">再叠一维</td><td id="b134">CDQ 套 CDQ / 树套树</td><td id="b135">O(n log³ n) 起步</td></tr></tbody></table><p id="b136">先拆开 CDQ 里唯一的新语法：<b>三元组结构体 + 去重</b>。看上去是存储问题，其实是正确性问题。</p><div class="fn"><div class="fh" id="b137">新函数拆解 · 三元组结构体与去重（CDQ 的前置）</div><div class="fb"><div class="sig" id="b138">struct Node { int a, b, c, cnt, id; };
+bool cmp(const Node &amp;x, const Node &amp;y);</div><table class="lines"><thead><tr><th id="b139">组成</th><th id="b140">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b141"><code>a, b, c</code></td><td id="b142">三个属性。排序只按 a → b → c 的字典序，因为 CDQ 的“左半 ≤ 右半”依赖 a 单调。</td></tr><tr><td id="b143"><code>cnt</code></td><td id="b144">这个三元组出现了几次。<b>完全相同的三元组必须合并成一个节点</b>，否则它们在递归切分时的互相贡献会算错。</td></tr><tr><td id="b145"><code>id</code></td><td id="b146">合并后的编号，也是答案数组的下标。cdq 会反复打乱数组顺序，只有 id 能把答案找回去。</td></tr><tr><td id="b147"><code>cmp 的三行</code></td><td id="b148">依次比 a、b、c；全相等时返回 false。这样 sort 之后，相同的三元组必然相邻。</td></tr><tr><td id="b149"><code>去重循环</code></td><td id="b150">扫一遍：与上一组相同就 ++cnt，不同就开新组并记 id。因为已经排好序，一趟就够。</td></tr><tr><td id="b151"><code>为什么必须去重</code></td><td id="b152">若两个元素三个属性都相同，它们互相满足 ≤，答案里各要算对方一次。合并成 cnt 后，用 cnt 参与树状数组计数，最后再补 cnt−1，就能一次算对。</td></tr></tbody></table><div class="cap" id="b153">最小可运行示例</div><div class="cap" id="b154">示例</div><pre id="b155"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">struct</span> Node {
+    <span class="k">int</span> a, b, c, cnt, id;
+} q[<span class="n">10</span>];
+
+<span class="k">bool</span> <span class="f">cmp</span>(<span class="k">const</span> Node &amp;x, <span class="k">const</span> Node &amp;y) {
+    <span class="k">if</span> (x.a != y.a) <span class="k">return</span> x.a &lt; y.a;
+    <span class="k">if</span> (x.b != y.b) <span class="k">return</span> x.b &lt; y.b;
+    <span class="k">return</span> x.c &lt; y.c;                 <span class="c">// 全相等返回 false，保证相同元素相邻</span>
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> raw[<span class="n">5</span>][<span class="n">3</span>] = {{<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>}, {<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>}, {<span class="n">2</span>, <span class="n">1</span>, <span class="n">1</span>}, {<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>}, {<span class="n">2</span>, <span class="n">1</span>, <span class="n">1</span>}};
+    <span class="k">int</span> n = <span class="n">5</span>, tot = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        q[i].a = raw[i - <span class="n">1</span>][<span class="n">0</span>];
+        q[i].b = raw[i - <span class="n">1</span>][<span class="n">1</span>];
+        q[i].c = raw[i - <span class="n">1</span>][<span class="n">2</span>];
+    }
+    <span class="k">sort</span>(q + <span class="n">1</span>, q + n + <span class="n">1</span>, cmp);
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        <span class="k">if</span> (tot &amp;&amp; !<span class="f">cmp</span>(q[tot], q[i])) ++q[tot].cnt;      <span class="c">// 与上一组完全相同</span>
+        <span class="k">else</span> { q[++tot] = q[i]; q[tot].cnt = <span class="n">1</span>; q[tot].id = tot; }
+    }
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= tot; ++i)
+        <span class="k">cout</span> &lt;&lt; q[i].a &lt;&lt; <span class="s">" "</span> &lt;&lt; q[i].b &lt;&lt; <span class="s">" "</span> &lt;&lt; q[i].c
+             &lt;&lt; <span class="s">"  cnt="</span> &lt;&lt; q[i].cnt &lt;&lt; <span class="s">"  id="</span> &lt;&lt; q[i].id &lt;&lt; <span class="s">"\n"</span>;
+    <span class="c">// 1 2 3 cnt=3 id=1   /   2 1 1 cnt=2 id=2</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="box tip"><div class="t" id="b156">注意</div><p id="b157"><code>!cmp(q[tot], q[i])</code> 能判等，是因为数组已按 cmp 升序；此时“不小于”只能是“相等”。</p><p id="b158">去重后的元素个数 tot 可能远小于 n，后面的 cdq 只在 1..tot 上跑。</p><p id="b159">答案要按 id 存回，因为 cdq 的归并会把 q 的顺序改得面目全非。</p></div></div></div><div class="prob"><div class="ph"><span class="pn" id="b160">例题 · 【模板】三维偏序（陌上花开）</span><span class="oi">洛谷 P3810</span><span class="badge diff">提高+/省选-</span><a href="https://www.luogu.com.cn/problem/P3810" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b161">有 n 个元素，第 i 个元素有三个属性 aᵢ、bᵢ、cᵢ。设 f(i) 为满足 aⱼ ≤ aᵢ 且 bⱼ ≤ bᵢ 且 cⱼ ≤ cᵢ 且 j ≠ i 的 j 的个数。</p><p id="b162">对每个 d ∈ [0, n)，求 f(i) = d 的 i 的个数。</p><p id="b163">输入格式：第一行两个整数 n、k（k 是属性最大值）；接下来 n 行，每行三个整数。<br>输出格式：共 n 行，第 d+1 行表示 f(i) = d 的 i 的个数。</p><p id="b164">数据范围：1 ≤ n ≤ 10⁵，1 ≤ aᵢ, bᵢ, cᵢ ≤ k ≤ 2×10⁵。</p></div></div><div class="step"><div class="sh" id="b165">三个维度，三种工具，各管一维</div><p id="b166">暴力是 O(n²) = 10¹⁰。二维可以用“排序 + 树状数组”降到 O(n log n)，但三维时排完 a，剩下的 b、c 两维没法同时用一次扫描解决——这就是 CDQ 的用武之地。</p><p id="b167"><b>第一维 a 交给排序。</b>按 (a, b, c) 字典序排完，数组就满足 a 单调。于是任意“左半 / 右半”的切分都天然满足：左半每个元素的 a ≤ 右半每个元素的 a。</p><p id="b168"><b>第二维 b 交给归并。</b>合并时双指针按 b 归并：把左半元素按 b 递增塞进树状数组，遇到右半元素时，树状数组里的左半元素全都满足 b ≤ 当前元素的 b。</p><p id="b169"><b>第三维 c 交给树状数组。</b>进树状数组时在位置 c 上加 cnt，查询时算 <code>sum(c)</code>，得到的就是“b、c 两维都不超过它”的左半元素个数，直接累加到答案。</p><p id="b170"><b>答案对只在这个合并点被数一次。</b>左半内部、右半内部的贡献在各自的递归里已经算完；跨中点的对恰好被这一层数到；更外层不会再碰它们。</p><p id="b171"><b>去重是必须的。</b>三个属性全相同的元素互相满足条件，但它们在排序后是同一组，不会再跨中点分开。所以合并成 cnt，进树状数组时加 cnt，最后再补上同组内另外 cnt−1 个。</p><p id="b172"><b>每层结束要清空树状数组。</b>第 l..mid 个元素被加过，必须原样减回去；否则外层的查询会把不属于它的元素也算进来，答案单调偏大。</p><p id="b173"><b>复杂度。</b>递归 log n 层，每层所有区间长度之和是 n，每个元素要么一次 add 要么一次 sum，各 O(log k) → O(n log n log k)。n = 10⁵、k = 2×10⁵ 时约 3×10⁷ 次操作。</p></div><div class="cap" id="b174">完整可编译代码（C++17）：CDQ 分治求三维偏序</div><pre id="b175"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">100005</span>;          <span class="c">// 元素个数上限</span>
+<span class="k">const</span> <span class="k">int</span> M = <span class="n">200005</span>;          <span class="c">// 属性值上限：树状数组下标是 c，要开到 2e5</span>
+<span class="k">int</span> n, k, tot;
+<span class="k">int</span> bit[M];                    <span class="c">// 树状数组，管第三维 c</span>
+<span class="k">int</span> ans[N];                    <span class="c">// ans[id]：比第 id 组小的元素个数</span>
+<span class="k">int</span> res[N];                    <span class="c">// res[d]：f(i) = d 的元素个数</span>
+
+<span class="k">struct</span> Node {
+    <span class="k">int</span> a, b, c, cnt, id;
+} q[N], tmp[N];
+
+<span class="k">bool</span> <span class="f">cmp</span>(<span class="k">const</span> Node &amp;x, <span class="k">const</span> Node &amp;y) {
+    <span class="k">if</span> (x.a != y.a) <span class="k">return</span> x.a &lt; y.a;
+    <span class="k">if</span> (x.b != y.b) <span class="k">return</span> x.b &lt; y.b;
+    <span class="k">return</span> x.c &lt; y.c;
+}
+
+<span class="k">int</span> <span class="f">lowbit</span>(<span class="k">int</span> x) { <span class="k">return</span> x &amp; -x; }
+<span class="k">void</span> <span class="f">add</span>(<span class="k">int</span> i, <span class="k">int</span> v) { <span class="k">for</span> (; i &lt;= k; i += <span class="f">lowbit</span>(i)) bit[i] += v; }
+<span class="k">int</span> <span class="f">sum</span>(<span class="k">int</span> i) { <span class="k">int</span> s = <span class="n">0</span>; <span class="k">for</span> (; i &gt; <span class="n">0</span>; i -= <span class="f">lowbit</span>(i)) s += bit[i]; <span class="k">return</span> s; }
+
+<span class="k">void</span> <span class="f">cdq</span>(<span class="k">int</span> l, <span class="k">int</span> r) {
+    <span class="k">if</span> (l &gt;= r) <span class="k">return</span>;
+    <span class="k">int</span> mid = (l + r) &gt;&gt; <span class="n">1</span>;
+    <span class="f">cdq</span>(l, mid);                       <span class="c">// 先把两半内部的答案算完</span>
+    <span class="f">cdq</span>(mid + <span class="n">1</span>, r);                   <span class="c">// 两个递归结束后，两半各自按 b 有序</span>
+
+    <span class="c">// 合并：按 b 归并，只统计“左半 → 右半”的贡献</span>
+    <span class="k">int</span> i = l, j = mid + <span class="n">1</span>, t = l;
+    <span class="k">while</span> (i &lt;= mid &amp;&amp; j &lt;= r) {
+        <span class="k">if</span> (q[i].b &lt;= q[j].b) {            <span class="c">// 左半这个 b 更小，它可以贡献给后面所有右半元素</span>
+            <span class="f">add</span>(q[i].c, q[i].cnt);         <span class="c">// 第三维交给树状数组</span>
+            tmp[t++] = q[i++];
+        } <span class="k">else</span> {
+            ans[q[j].id] += <span class="f">sum</span>(q[j].c);   <span class="c">// 树里的都满足 b 更小，再查 c &lt;= 它的有几个</span>
+            tmp[t++] = q[j++];
+        }
+    }
+    <span class="k">while</span> (i &lt;= mid) { <span class="f">add</span>(q[i].c, q[i].cnt); tmp[t++] = q[i++]; }
+    <span class="k">while</span> (j &lt;= r) { ans[q[j].id] += <span class="f">sum</span>(q[j].c); tmp[t++] = q[j++]; }
+
+    <span class="k">for</span> (<span class="k">int</span> p = l; p &lt;= mid; ++p) <span class="f">add</span>(q[p].c, -q[p].cnt);   <span class="c">// 撤销本层，别污染外层</span>
+    <span class="k">for</span> (<span class="k">int</span> p = l; p &lt;= r; ++p) q[p] = tmp[p];              <span class="c">// 按 b 有序写回</span>
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; k;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) <span class="k">cin</span> &gt;&gt; q[i].a &gt;&gt; q[i].b &gt;&gt; q[i].c;
+    <span class="k">sort</span>(q + <span class="n">1</span>, q + n + <span class="n">1</span>, cmp);
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {                 <span class="c">// 相同三元组合并成一组</span>
+        <span class="k">if</span> (tot &amp;&amp; !<span class="f">cmp</span>(q[tot], q[i])) ++q[tot].cnt;
+        <span class="k">else</span> { q[++tot] = q[i]; q[tot].cnt = <span class="n">1</span>; q[tot].id = tot; }
+    }
+
+    <span class="f">cdq</span>(<span class="n">1</span>, tot);
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= tot; ++i)                 <span class="c">// 同组内另外 cnt-1 个也要算</span>
+        res[ans[q[i].id] + q[i].cnt - <span class="n">1</span>] += q[i].cnt;
+    <span class="k">for</span> (<span class="k">int</span> d = <span class="n">0</span>; d &lt; n; ++d) <span class="k">cout</span> &lt;&lt; res[d] &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b176">逐行拆解</div><table class="lines"><thead><tr><th id="b177">代码片段</th><th id="b178">含义与理由</th></tr></thead><tbody><tr><td id="b179"><code>int bit[M]</code></td><td id="b180">树状数组下标是第三维 c，最大 2×10⁵。只开到 N = 10⁵ 会越界写，症状是 RE 或随机 WA。</td></tr><tr><td id="b181"><code>sort(q + 1, q + n + 1, cmp)</code></td><td id="b182">先把 a 排成单调。之后任何“左半 / 右半”切分都满足左半 a ≤ 右半 a。</td></tr><tr><td id="b183"><code>!cmp(q[tot], q[i])</code></td><td id="b184">数组已升序，cmp 返回 false 只可能是相等。于是相同三元组被并成一组，cnt 记次数。</td></tr><tr><td id="b185"><code>cdq(l, mid); cdq(mid + 1, r);</code></td><td id="b186">顺序不能反：合并要求两半各自按 b 有序，而这个有序正是递归产出的。</td></tr><tr><td id="b187"><code>if (q[i].b &lt;= q[j].b)</code></td><td id="b188">谁 b 小谁先动。左半元素进树的条件就是它的 b ≤ 当前右半元素的 b。</td></tr><tr><td id="b189"><code>add(q[i].c, q[i].cnt)</code></td><td id="b190">按 cnt 加，因为这一组背后有 cnt 个真实元素，每个都要各贡献 1。</td></tr><tr><td id="b191"><code>ans[q[j].id] += sum(q[j].c)</code></td><td id="b192">树里全是 b 不超的左半元素，sum(c) 数出其中 c 也不超的个数，正是这一对的贡献。</td></tr><tr><td id="b193"><code>add(q[p].c, -q[p].cnt) 的撤销</code></td><td id="b194">把本层的加法原样减回去。漏了这句，外层查询会混入不属于它的元素，答案单调偏大。</td></tr><tr><td id="b195"><code>q[p] = tmp[p]</code></td><td id="b196">按 b 有序写回，供上一层继续二路归并。不写回，上一层看到的是乱序，答案偏小。</td></tr><tr><td id="b197"><code>res[ans[...] + cnt - 1] += cnt</code></td><td id="b198">同组内 cnt 个元素互相都满足 ≤，所以每个的 f 值是 ans + cnt − 1；这一组共 cnt 个元素，一起加。</td></tr></tbody></table></div><div class="step"><div class="sh" id="b199">分治还能拿去做什么</div><p id="b200">这一节的骨架可以套在三个方向上，都是同一句话：<b>把“枚举所有对”换成“在每个合并点批量处理跨中点的对”</b>。</p><ul><li id="b201"><b>归并类</b>：数逆序对、数“左边比它大的个数”、数满足某种大小关系的对，合并时用双指针 + 一次整段计数。</li><li id="b202"><b>CDQ 类</b>：偏序计数（本题）、带修改的偏序（把修改看成时间维，变成三维）、CDQ 优化 DP。</li><li id="b203"><b>整体二分</b>：把“对每个询问二分答案”改成“对所有询问一起二分”，每层 O(n + m)，共 log 层。</li></ul><p id="b204"><b>CDQ 优化 DP 的形状</b>：dp[i] 只从 j &lt; i 且满足某个偏序条件的 j 转移。把“枚举 j”换成分治：算完左半的 dp，就用左半的所有 dp 值去批量更新右半的候选，O(n²) 直接掉到 O(n log² n)。判断能不能用的标准只有一个——<b>转移能不能写成跨中点的偏序计数</b>。</p><p id="b205"><b>不能用的信号</b>：合并时无法在 O(n) 或 O(n log n) 内算清跨中点的贡献（比如要求跨中点区间的某种最值搭配），那就得换工具，硬套分治只会得到一个更慢的暴力。</p></div><div class="box warn"><div class="t" id="b206">这一节的坑，按症状记</div><p id="b207">把 <code>a[i] &lt;= a[j]</code> 写成 <code>a[i] &lt; a[j]</code>：相等的一对被算成逆序对 → <b>WA</b>，而答案恰好偏大“相同元素对数”那么多；没有重复数的样例完全测不出来。</p><p id="b208"><code>ans</code> 用 int：上限 1.25×10¹¹，溢出成负数 → <b>WA</b>，小数据全对，大数据全挂。</p><p id="b209">忘记 <code>a[p] = tmp[p]</code> 抄回：上层合并看到的是乱序段 → <b>WA</b>，答案偏小，且错得很隐蔽。</p><p id="b210">CDQ 里忘记撤销树状数组（<code>add(q[p].c, -q[p].cnt)</code>）：外层查询混入不属于它的元素 → <b>WA</b>，答案单调偏大，n 越大错得越离谱。</p><p id="b211">CDQ 没做相同三元组的合并：三个属性全相同的元素在递归里永远同侧，互相的贡献全丢 → <b>WA</b>；只要数据有重复就挂，没重复就全对。</p><p id="b212">树状数组只开到 <code>N = 10⁵</code> 而属性 c 能到 2×10⁵：越界写 → <b>RE</b>，或者更糟——写坏别的全局变量。</p></div><div class="reproduce"><div class="rt" id="b213">自己动手复现</div><p id="b214">关掉页面，把 P1908 的 30 行从零敲一遍，提交确认样例输出 11。</p><p id="b215">改一改①：把 <code>a[i] &lt;= a[j]</code> 改成 <code>a[i] &lt; a[j]</code>。先用样例跑（答案仍是 11，因为没有重复数），再输入 <code>3</code> 换行 <code>3 3 1</code>，预测并验证：正确答案 2，改后变成 3。</p><p id="b216">改一改②：在合并前打印 <code>l r mid ans</code>，观察 ans 只在“取右边”时增长——这就是 cross 的定义在代码里的样子。</p><p id="b217">改一改③：把 CDQ 里撤销树状数组那一行注释掉，用 n = 10 的小数据跑 P3810 的样例，看输出怎么变，再想为什么。</p></div><div class="mathcard"><div class="mt" id="b218">数学补给 · 分治的 log n 是从哪一层数出来的</div><p id="b219">设一次规模为 n 的归并耗时不超过 c·n（每个元素搬进 tmp 再抄回，常数次操作）。三步骤直接给出递归式</p><p id="b220"><b>T(n) = 2T(n/2) + c·n</b>，T(1) = O(1)。</p><p id="b221">按层展开，每层的工作量居然完全相同：第 i 层有 2ⁱ 段，每段长 n/2ⁱ，一段的合并代价是 c·n/2ⁱ，相乘还是 c·n。层数是 log₂n + 1。</p><table><thead><tr><th id="b222">层 i</th><th id="b223">区间段数 2ⁱ</th><th id="b224">每段长度 n / 2ⁱ</th><th id="b225">本层总工作量</th></tr></thead><tbody><tr><td id="b226">0</td><td id="b227">1</td><td id="b228">n</td><td id="b229">c·n</td></tr><tr><td id="b230">1</td><td id="b231">2</td><td id="b232">n/2</td><td id="b233">c·n</td></tr><tr><td id="b234">2</td><td id="b235">4</td><td id="b236">n/4</td><td id="b237">c·n</td></tr><tr><td id="b238">…</td><td id="b239">…</td><td id="b240">…</td><td id="b241">…</td></tr><tr><td id="b242">log₂n</td><td id="b243">n</td><td id="b244">1</td><td id="b245">c·n</td></tr></tbody></table><p id="b246">所以 T(n) = c·n·(log₂n + 1) = <b>O(n log n)</b>。n = 5×10⁵ 时 log₂n ≈ 18.9，总操作约 5×10⁵ × 19 ≈ 9.5×10⁶——比 O(n²) 的 1.25×10¹¹ 小四个数量级。</p><p id="b247"><b>CDQ 多出来的那个 log 来自树状数组。</b>每层所有区间长度之和恰好是 n，每个元素在每层要么 add 一次、要么 sum 一次，各 O(log k)。于是每层 O(n log k)，共 log n 层：<b>O(n log n log k)</b>。n = 10⁵、k = 2×10⁵ 时约 10⁵ × 17 × 18 ≈ 3×10⁷。</p><p id="b248"><b>先估答案位数再写类型。</b>逆序对最多 n(n−1)/2，n = 5×10⁵ 时是 124999750000 ≈ 1.25×10¹¹，12 位十进制。int 上限 2.147×10⁹，差两个数量级，所以 <code>long long</code> 不是保险，是必须。</p><p id="b249">主定理一句话：T(n) = aT(n/b) + f(n)，本题 a = b = 2、f(n) = Θ(n)，结果 Θ(n log n)。注意结论的另一半——<b>合并做多慢，分治就多慢</b>：若合并要 Θ(n²)，总复杂度就是 Θ(n²)，分治毫无收益。</p></div><div class="think"><div class="tt" id="b250">举一反三 · 想清楚这些再往下走</div><div class="thint">先自己写出答案，再点开核对——方向对不对，比答案本身更重要</div><ol><li id="b251"><div class="tq">若把逆序对的 “&gt;” 换成 “&gt;=”（相等也算），合并里哪个符号要改？答案会多出多少？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">改“取左边”的那个条件：把 <code>a[i] &lt;= a[j]</code> 改成 <code>a[i] &lt; a[j]</code>。因为现在相等也算逆序对，所以 a[i] == a[j] 时必须走 else 分支、把 <code>ans += mid - i + 1</code> 算上；增量式子一个字不用动，因为 a[i..mid] 升序、且都 ≥ a[j]（含相等）。答案会多出“相等数对”的个数，即每个值出现 cnt 次就多 C(cnt,2) 对：样例 <code>3 3 1</code> 从 2 变成 3，多出的正是那一对 (3,3)。常见错路是把 else 里的 <code>ans += ...</code> 改成判断 <code>a[i] == a[j]</code> 再单独加 1——那会把整段的贡献算漏（左半可能有多个相等元素）；另一条是只改符号不改理解，以为“改成 &gt;= 就是把 &lt;= 取反”，结果写成 <code>a[i] &gt;= a[j]</code> 取左边，相等时反而放走了。</div></details></li><li id="b252"><div class="tq">要求输出“每个位置 i 左边比它大的个数”，而不是总数，归并里的那一行要怎么改？要不要多开一个数组？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">要改的不止一行：<b>归并会把 a 的物理位置重排</b>，所以 j 早就不是原始下标了。必须让每个元素带着“原始下标 id”一起归并，把 <code>ans += mid - i + 1</code> 改成 <code>cnt[id[j]] += mid - i + 1</code>。所以要多开两个数组：<code>cnt[N]</code> 存每个位置的答案（long long 或 int 都行，单项最多 n−1），以及每个元素的 id（可以塞进结构体，也可以单开一个 id 数组跟着交换）。省事的替代：这题用第 46 节的树状数组从左往右扫，天然就是“每个位置左边比它大的个数”，代价是要离散化。常见错路是直接写 <code>cnt[j]</code>（用归并后的物理位置），答案全部对不上原序列；另一条是归并完才想把答案挪回原位，但没有 id 就再也还原不出映射了。</div></details></li><li id="b253"><div class="tq">二维偏序（aᵢ ≤ aⱼ 且 bᵢ ≤ bⱼ、j 任意）为什么“排序 + 树状数组”就够，不需要分治？三维时缺的到底是哪一步？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">二维时，排序把 a 这一维变成了“扫描顺序”：按 a 排完，从左往右扫，前面的元素天然满足 a ≤ 当前，于是只剩 b 一维要数“b 更小的有几个”，一个树状数组就够，O(n log n)。三维缺的正是这一步：排完 a 之后剩下的 (b, c) 是二维问题，标准解法是“再按 b 排一次 + 树状数组管 c”，可<b>你不能再排一次</b>——一按 b 重排，a 的先后就全乱了，跨中点的 a 偏序也就没了。CDQ 解决的就是这个矛盾：切分永远按 a 的位置来，合并时按 b 归并，两个顺序同时保住，c 才轮得到树状数组。常见错路是“排两次序就完事了”，第二次排序把第一次的顺序毁掉；另一条是以为三维也能只用一个树状数组，那需要二维树状数组，空间 O(k²) = 4×10¹⁰，开不出来。</div></details></li><li id="b254"><div class="tq">CDQ 里把树状数组换成“合并完再双指针扫一遍 b”，能省掉一个 log 吗？代价是什么？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">省不掉。双指针只能利用<b>已经有序</b>的那一维：合并时 b 是有序的，可 c 是乱序的，要数“b 不超且 c 不超”是二维条件，一个指针同时管不了两个条件。想给 c 也做双指针，就得先把两半按 c 排序——可那样 b 的顺序又没了，等于把刚解决的问题原样退回去。真要硬省，只能在合并里再套一层分治（对 c 归并），层数变成 log²，和树状数组的一个 log 完全等价，一分钱没省下来。所以树状数组的 O(log k) 是“在不破坏已有顺序的前提下引入一个新维度”的最小代价。常见错路是写“按 b 归并完再从左到右扫一遍 c 累加”——那只是在数“c 更小”，b 的条件被丢掉了，答案偏大。</div></details></li><li id="b255"><div class="tq">带修改的逆序对（单点修改 + 查全局逆序对数）能不能用 CDQ？把什么当成第三维？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">能，第三维就是<b>时间</b>：把初始的 n 个元素看成一串“插入”事件，每次单点修改拆成“删除旧值”和“插入新值”两个事件，要数的对满足“插入时间更早、位置更小、值更大”，正好三维，CDQ 直接套。本节的挑战题 P3157 是这个模型的简化版：它把“第几步被删”记成 t，未删的记成 m+1，“删第 q 步时它还在不在”就变成 t ≥ q 的偏序条件，于是同一份 CDQ 跑两遍（一遍数左边更大、一遍镜像后数右边更小）就出答案。常见错路是把“修改”当成一个点而不是两个事件，旧值消失这一步被漏掉；另一条是忘了时间和位置必须同时进偏序条件——只按位置扫，就退化成静态问题了。</div></details></li><li id="b256"><div class="tq">n = 5×10⁵ 个点、但 k（属性最大值）只有 10 的偏序问题，O(n log n log k) 里的 log k 还有意义吗？该不该换算法？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">log k = log₂10 ≈ 3.3，也就是说树状数组的 add/sum 各只走三四步，这一项已经是常数，O(n log n log k) 实质就是 O(n log n)，换算法省不出东西。真正该改的是<b>思路</b>：k ≤ 10 意味着三个属性的取值都只有 10 种，不同三元组最多 10³ = 1000 个。去重之后对每一组暴力扫其余组（10⁶ 次比较）就能算出所有 f 值，比 CDQ 更短也更快——值域小的时候，桶比树状数组值钱。常见错路是“k 小所以把树状数组换成长度为 k 的普通数组再每次求前缀和”，那是 O(k) = 10 步，比树状数组的 3 步还慢；另一条是看见 log k 就以为还能再优化一层，实际上瓶颈在 n log n 的排序与递归。</div></details></li></ol></div><div class="box tip"><div class="t" id="b257">自测：能全部回答再进下一节</div><ul><li id="b258">能默写分治骨架的三段，并说出为什么必须“先递归后合并”。</li><li id="b259">能解释 <code>ans += mid - i + 1</code> 为什么可以一次加一整段，且不会重复。</li><li id="b260">能说清“不重不漏”的依据：每一对在递归树上有唯一的最低公共层。</li><li id="b261">能写出 CDQ 的合并段，并指出 add / sum 各负责哪一维。</li><li id="b262">能说出为什么必须撤销树状数组、为什么必须做相同三元组的合并。</li><li id="b263">能估出 O(n log n log k) 在 n = 10⁵ 时的量级，并判断需要 64 位整数。</li></ul></div><div class="challenge"><div class="ct" id="b264">挑战题 · 寒假作业</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P2717</span><span class="badge diff">提高-</span><a href="https://www.luogu.com.cn/problem/P2717" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b265">给定长度为 n 的正整数序列 a，求有多少个<b>连续</b>子序列的平均值不小于给定的 k。</p><p id="b266">输入格式：第一行两个整数 n、k；接下来 n 行，每行一个整数，第 i 个数是 aᵢ。<br>输出格式：一行一个整数，表示答案。</p><p id="b267">数据范围：1 ≤ n ≤ 10⁵，1 ≤ aᵢ, k ≤ 10⁴。答案最大约 n(n+1)/2 ≈ 5×10⁹，需用 64 位整数。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b268">平均值的除法不好处理：它把整数比较变成了小数比较，也破坏了“能和前缀和相减”的性质。</p><p id="b269">试着把 k 从每个数里先减掉。子段 [i, j] 的平均值 ≥ k，等价于这段 (a − k) 的和 ≥ 0。</p><p id="b270">对 (a − k) 做前缀和 S[0..n]。子段 [i, j] 对应一对下标 (i−1, j)，且 i−1 &lt; j。问题变成数“有多少对 S[p] ≤ S[q]”。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b271"><b>变形。</b>sum(a[i..j]) ≥ k·(j−i+1) 等价于 sum(a[i..j] − k) ≥ 0。令 bᵢ = aᵢ − k，S₀ = 0、S_x = b₁+…+b_x，则子段 [i, j] 合法 ⟺ S_j ≥ S_{i−1}。</p><p id="b272"><b>数对。</b>于是答案是：数下标对 (p, q)，0 ≤ p &lt; q ≤ n，满足 S_p ≤ S_q。注意这里共有 <b>n+1</b> 个前缀和，S₀ 必须参与。</p><p id="b273"><b>反过来数。</b>不满足的就是 S_p &gt; S_q 的对，即严格逆序对数 inv。总对数 C(n+1, 2)，答案 = 总对数 − inv。这样可以直接套本节模板，不必在合并里额外处理“等于”。</p><p id="b274"><b>求 inv。</b>把这 n+1 个 long long 前缀和交给归并排序，用 <code>a[i] &lt;= a[j]</code> 取左边，答案 O(n log n)。数值规模：|aᵢ − k| ≤ 10⁴，n·10⁴ = 10⁹，前缀和不会超 int，但比较与相减统一用 long long 更省心。</p><p id="b275"><b>为什么不能把 k 直接乘进下标。</b>常见的错法是把 S_x 写成 S_x − k·x：那等于把 k 减了两次，样例就会挂。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b276">参考代码</div><pre id="b277"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">100005</span>;
+<span class="k">int</span> n, k;
+<span class="k">long</span> <span class="k">long</span> s[N], tmp[N], inv;          <span class="c">// s: 减掉 k 之后的前缀和</span>
+
+<span class="k">void</span> <span class="f">msort</span>(<span class="k">int</span> l, <span class="k">int</span> r) {
+    <span class="k">if</span> (l &gt;= r) <span class="k">return</span>;
+    <span class="k">int</span> mid = (l + r) &gt;&gt; <span class="n">1</span>;
+    <span class="f">msort</span>(l, mid);
+    <span class="f">msort</span>(mid + <span class="n">1</span>, r);
+
+    <span class="k">int</span> i = l, j = mid + <span class="n">1</span>, t = l;
+    <span class="k">while</span> (i &lt;= mid &amp;&amp; j &lt;= r) {
+        <span class="k">if</span> (s[i] &lt;= s[j]) tmp[t++] = s[i++];       <span class="c">// 相等不算逆序对</span>
+        <span class="k">else</span> { inv += mid - i + <span class="n">1</span>; tmp[t++] = s[j++]; }
+    }
+    <span class="k">while</span> (i &lt;= mid) tmp[t++] = s[i++];
+    <span class="k">while</span> (j &lt;= r) tmp[t++] = s[j++];
+    <span class="k">for</span> (<span class="k">int</span> p = l; p &lt;= r; ++p) s[p] = tmp[p];
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; k;
+    s[<span class="n">0</span>] = <span class="n">0</span>;                                  <span class="c">// 空前缀，别忘了它</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        <span class="k">long</span> <span class="k">long</span> a;
+        <span class="k">cin</span> &gt;&gt; a;
+        s[i] = s[i - <span class="n">1</span>] + (a - k);             <span class="c">// 把“平均值 ≥ k”化成“前缀和不降”</span>
+    }
+
+    <span class="f">msort</span>(<span class="n">0</span>, n);                               <span class="c">// n+1 个数，下标 0..n</span>
+    <span class="k">long</span> <span class="k">long</span> tot = (<span class="k">long</span> <span class="k">long</span>)(n + <span class="n">1</span>) * n / <span class="n">2</span>;
+    <span class="k">cout</span> &lt;&lt; tot - inv &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b278">关键片段拆解</div><table class="lines"><thead><tr><th id="b279">片段</th><th id="b280">作用</th></tr></thead><tbody><tr><td id="b281"><code>s[i] = s[i - 1] + (a - k)</code></td><td id="b282">把 k 摊到每个元素上：sum(a) − k·len ≥ 0 等价于 sum(a − k) ≥ 0。一次前缀和就把区间条件变成两点比较。</td></tr><tr><td id="b283"><code>msort(0, n)</code></td><td id="b284">0..n 共 n+1 个前缀和。写成 msort(1, n) 会漏掉所有“从第 1 个元素开始”的子段。</td></tr><tr><td id="b285"><code>s[i] &lt;= s[j]</code></td><td id="b286">取等号：S_p == S_q 表示子段和为 0，平均值恰好等于 k，是合法答案，不能算成逆序对。</td></tr><tr><td id="b287"><code>inv += mid - i + 1</code></td><td id="b288">左半剩下的 i..mid 都严格大于 s[j]，一次加一整段，这是 O(n log n) 的关键。</td></tr><tr><td id="b289"><code>tot - inv</code></td><td id="b290">总对数减去“S_p &gt; S_q”的对数，剩下的正是“S_p ≤ S_q”。</td></tr><tr><td id="b291"><code>(long long)(n + 1) * n / 2</code></td><td id="b292">C(n+1, 2) 可达 5×10⁹，先转 long long 再乘，否则中间就溢出成负数。</td></tr></tbody></table><div class="box warn"><div class="t" id="b293">这题最容易错的地方</div><ul><li id="b294">下标只取 1..n，漏掉 S₀：所有“从第 1 个元素开始”的子段全丢 → WA，且答案恰好少若干个。</li><li id="b295">取左边时漏掉等号：S_p == S_q 的对被当成逆序对减掉 → WA，测试数据里有“平均值恰好等于 k”的子段就会挂。</li><li id="b296">tot 用 int 算：5×10⁹ 溢出成负数 → WA，小样例照样过。</li><li id="b297">把前缀和写成 S_x − k·x：等价于把 k 减了两次，样例立刻挂——这是这道题最常见的错。</li><li id="b298">忘记把 tmp 抄回 s：上层合并看到乱序段，inv 偏小 → WA。</li></ul></div></div></details></div><div class="box tip" style="margin:22px 0 -6px"><div class="t" id="b299">挑战 2 · 难度高一级，允许组合多个已学算法</div><p id="b300">这题比上面的挑战题更难：它不只用本节一个算法，可能需要把前面几节的工具拼起来。独立做出来说明这一块真的过关了；做完记得在侧边栏勾上 🌟。</p></div><div class="challenge ch2"><div class="ct" id="b301">挑战 2 · 动态逆序对</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P3157</span><span class="badge diff">提高-/提高</span><a href="https://www.luogu.com.cn/problem/P3157" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b302">给出 1..n 的一个排列，再按某种顺序依次删除 m 个元素（每次删的元素互不相同）。你的任务：在每次删除<b>之前</b>，输出整个序列当前的逆序对个数。</p><p id="b303">输入：第一行两个整数 n、m（1 ≤ n ≤ 10<sup>5</sup>，1 ≤ m ≤ 5×10<sup>4</sup>）；接下来 n 个整数，是 1..n 的一个排列；接下来 m 个整数，依次是每次要删除的元素。</p><p id="b304">输出：m 行，第 i 行是<b>删除第 i 个元素之前</b>的逆序对数。</p><p id="b305">样例：排列 1 5 3 4 2，删除顺序 5、1、4、2。初始逆序对 5 对；删 5 后剩 (3,2)、(4,2) 两对；删 1 后仍是两对；删 4 后剩一对；删 2 后为 0。前四次的答案是 5、2、2、1。</p></div><div class="cap" id="b306">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+5 4
+1 5 3 4 2
+5 1 4 2
+输出：
+5
+2
+2
+1</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b307">逆序对总数只会因为「和刚删掉的那个数有关的对」而减少。所以问题变成：删它的时候，场上还有多少个和它构成逆序对的数？</p><p id="b308">把「第几步被删」也当成一维数据。一个元素要计入答案，必须同时满足三个条件：它还没被删、位置在它左边、值比它大。三个条件放在一起是什么问题？</p><p id="b309">本节正课那副 CDQ 骨架可以原样搬：一维靠排序、一维靠归并、一维靠树状数组。另外别忘「右边比它小」也是逆序对——把位置和值同时镜像一下，它就变成同一个问题了。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b310">记 t[i] 为位置 i 的元素「第几步被删」，没被删的记为 m+1（永远在场）。删第 q 步的元素 e 时，场上的元素恰好是 {j : t[j] ≥ q}。</p><p id="b311">这一步减少的逆序对数 = A + B：A = #{j : t[j] ≥ t[e], pos[j] &lt; pos[e], a[j] &gt; a[e]}（左边比它大），B = #{j : t[j] ≥ t[e], pos[j] &gt; pos[e], a[j] &lt; a[e]}（右边比它小）。</p><p id="b312">B 用镜像坐标 p′ = n+1−pos、v′ = n+1−a 一代，就变成「p′ 更小且 v′ 更大」，与 A 完全同形。所以同一份 CDQ 写一遍，跑两遍，两次的答案相加就是该元素的贡献。</p><p id="b313">CDQ 怎么切：把元素按 t 降序排好，递归时按 mid 切。这样任一层切出来的左半，t 全部 ≥ 右半，「时间」这一维自动满足，剩下的只有 pos 与 a 两维。</p><p id="b314">谁来管这两维：归并管 pos（按 pos 升序合并），树状数组管 a（下标是值）。合并时右半元素按 pos 递增取出，把 pos 更小的左半元素逐个塞进树状数组，查询「值比它大」的个数 = 已插入个数 − sum(a[e])。</p><p id="b315">不重不漏：左半内部、右半内部的对在更深层已经数完；跨中点的对只可能在这一层被数到一次。</p><p id="b316">每层合并完必须把树状数组撤销，否则外层的查询会把不属于它的元素也加进来，答案单调偏大。</p><p id="b317">最后：初始逆序对用树状数组单独数一遍；之后每一步先输出当前值，再减去该元素的 A + B。</p><p id="b318">复杂度 O(n log² n)：n = 10<sup>5</sup> 时约 10<sup>5</sup>×17×17 ≈ 2.9×10<sup>7</sup> 次操作，跑两遍常数 ×2。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b319">参考代码</div><pre id="b320"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">100005</span>;
+<span class="k">int</span> n, m;
+<span class="k">int</span> a[MAXN], posv[MAXN];     <span class="c">// posv[值] = 下标</span>
+<span class="k">int</span> tim[MAXN];               <span class="c">// tim[下标] = 第几步被删；未被删的记为 m+1</span>
+<span class="k">int</span> delVal[MAXN];
+
+<span class="k">struct</span> Item { <span class="k">int</span> t, p, v, id; } it[MAXN], tmp[MAXN];
+<span class="k">int</span> out[MAXN];               <span class="c">// out[下标] = 和它构成逆序对、且删它时还在场的元素个数</span>
+<span class="k">int</span> bit[MAXN];
+
+<span class="k">inline</span> <span class="k">int</span> <span class="f">lowbit</span>(<span class="k">int</span> x) { <span class="k">return</span> x &amp; -x; }
+<span class="k">void</span> <span class="f">add</span>(<span class="k">int</span> i, <span class="k">int</span> d) { <span class="k">for</span> (; i &lt;= n; i += <span class="f">lowbit</span>(i)) bit[i] += d; }
+<span class="k">int</span> <span class="f">sum</span>(<span class="k">int</span> i) { <span class="k">int</span> s = <span class="n">0</span>; <span class="k">for</span> (; i &gt; <span class="n">0</span>; i -= <span class="f">lowbit</span>(i)) s += bit[i]; <span class="k">return</span> s; }
+
+<span class="c">// 统计每个元素：排在它前面（t 更大或相等）的元素里，p 更小且 v 更大的个数</span>
+<span class="k">void</span> <span class="f">cdq</span>(<span class="k">int</span> l, <span class="k">int</span> r) {
+    <span class="k">if</span> (l == r) <span class="k">return</span>;
+    <span class="k">int</span> mid = (l + r) &gt;&gt; <span class="n">1</span>;
+    <span class="f">cdq</span>(l, mid);
+    <span class="f">cdq</span>(mid + <span class="n">1</span>, r);         <span class="c">// 递归后两半各自按 p 升序；t 的大小关系由最外层排序保证</span>
+    <span class="k">int</span> i = l;
+    <span class="k">for</span> (<span class="k">int</span> j = mid + <span class="n">1</span>; j &lt;= r; ++j) {
+        <span class="k">while</span> (i &lt;= mid &amp;&amp; it[i].p &lt; it[j].p) { <span class="f">add</span>(it[i].v, <span class="n">1</span>); ++i; }
+        out[it[j].id] += (i - l) - <span class="f">sum</span>(it[j].v);   <span class="c">// 已进的左半元素里 v 比它大的个数</span>
+    }
+    <span class="k">for</span> (<span class="k">int</span> k = l; k &lt; i; ++k) <span class="f">add</span>(it[k].v, -<span class="n">1</span>);  <span class="c">// 撤销</span>
+    <span class="k">int</span> x = l, y = mid + <span class="n">1</span>, z = l;
+    <span class="k">while</span> (x &lt;= mid &amp;&amp; y &lt;= r) tmp[z++] = (it[x].p &lt; it[y].p) ? it[x++] : it[y++];
+    <span class="k">while</span> (x &lt;= mid) tmp[z++] = it[x++];
+    <span class="k">while</span> (y &lt;= r) tmp[z++] = it[y++];
+    <span class="k">for</span> (<span class="k">int</span> k = l; k &lt;= r; ++k) it[k] = tmp[k];
+}
+
+<span class="k">void</span> <span class="f">solveOnce</span>(<span class="k">bool</span> reflect) {
+    <span class="k">for</span> (<span class="k">int</span> p = <span class="n">1</span>; p &lt;= n; ++p) {
+        it[p].t = tim[p];
+        it[p].p = reflect ? n + <span class="n">1</span> - p : p;
+        it[p].v = reflect ? n + <span class="n">1</span> - a[p] : a[p];
+        it[p].id = p;
+    }
+    <span class="k">sort</span>(it + <span class="n">1</span>, it + n + <span class="n">1</span>, [](<span class="k">const</span> Item&amp; x, <span class="k">const</span> Item&amp; y) { <span class="k">return</span> x.t &gt; y.t; });
+    <span class="k">memset</span>(bit, <span class="n">0</span>, <span class="k">sizeof</span>(<span class="k">int</span>) * (n + <span class="n">1</span>));
+    <span class="f">cdq</span>(<span class="n">1</span>, n);
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">scanf</span>(<span class="s">"%d%d"</span>, &amp;n, &amp;m);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) { <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;a[i]); posv[a[i]] = i; tim[i] = m + <span class="n">1</span>; }
+    <span class="k">for</span> (<span class="k">int</span> q = <span class="n">1</span>; q &lt;= m; ++q) { <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;delVal[q]); tim[posv[delVal[q]]] = q; }
+
+    <span class="k">long</span> <span class="k">long</span> cur = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) { cur += (i - <span class="n">1</span>) - <span class="f">sum</span>(a[i]); <span class="f">add</span>(a[i], <span class="n">1</span>); }
+    <span class="k">memset</span>(bit, <span class="n">0</span>, <span class="k">sizeof</span>(<span class="k">int</span>) * (n + <span class="n">1</span>));
+
+    <span class="f">solveOnce</span>(<span class="k">false</span>);        <span class="c">// 左边比它大</span>
+    <span class="f">solveOnce</span>(<span class="k">true</span>);         <span class="c">// 镜像后是同一个问题：右边比它小</span>
+
+    <span class="k">for</span> (<span class="k">int</span> q = <span class="n">1</span>; q &lt;= m; ++q) {
+        <span class="k">int</span> p = posv[delVal[q]];
+        <span class="k">printf</span>(<span class="s">"%lld\n"</span>, cur);   <span class="c">// 先输出「删除前」的答案</span>
+        cur -= out[p];
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b321">关键片段拆解</div><table class="lines"><thead><tr><th id="b322">片段</th><th id="b323">作用</th></tr></thead><tbody><tr><td id="b324"><code>it[p].t = tim[p];</code></td><td id="b325">时间维把「在场」变成偏序条件：t ≥ 当前步数 就等价于「还没被删」。</td></tr><tr><td id="b326"><code>sort(it + 1, it + n + 1, ... x.t &gt; y.t)</code></td><td id="b327">★ 按 t 降序，靠 mid 切；切出来的左半 t 全都 ≥ 右半，第一维自动成立。</td></tr><tr><td id="b328"><code>out[it[j].id] += (i - l) - sum(it[j].v);</code></td><td id="b329">已插入的左半元素（p 更小）里，值比它大的个数 = 总数 − 前缀和。</td></tr><tr><td id="b330"><code>for (int k = l; k &lt; i; ++k) add(it[k].v, -1);</code></td><td id="b331">撤销。漏掉这一句，外层查询会混进不属于它的元素。</td></tr><tr><td id="b332"><code>tmp[z++] = (it[x].p &lt; it[y].p) ? it[x++] : it[y++];</code></td><td id="b333">归并按 p 升序，上一层才能用双指针一趟扫完。</td></tr><tr><td id="b334"><code>solveOnce(true);</code></td><td id="b335">镜像：位置和值同时反号，「右边更小」就变成「左边更大」，代码一行不用改。</td></tr><tr><td id="b336"><code>printf(...); cur -= out[p];</code></td><td id="b337">先输出再减：题目要的是删除<b>之前</b>的逆序对数。</td></tr></tbody></table><div class="box warn"><div class="t" id="b338">这题最容易错的地方</div><ul><li id="b339">先减后输出：整份答案错位一行，第一行变成删除之后的值。</li><li id="b340">忘记撤销树状数组：多层累加，答案单调偏大。</li><li id="b341">只统计「左边比它大」这一个方向：漏掉右边比它小的那些对，答案偏大。</li><li id="b342">先按 p 归并再想用 mid 划分：mid 只能切「按 t 有序」的数组，排序必须在最外层做一次。</li></ul></div></div></details></div><div class="box info"><div class="t" id="b343">延伸阅读 / 参考</div><ul><li id="b344">《算法竞赛进阶指南》0x30 分治：CDQ 分治与三维偏序</li><li id="b345">《算法竞赛入门笔记》归并排序与逆序对一节</li><li id="b346">洛谷 P1908、P3810 题解区的高赞实现</li></ul></div>
+
+<footer>算竞教程 · 算竞教程 · 生成于自建课程体系，题目版权归洛谷及各命题方所有<br>
+转载请注明出处；模板代码可直接用于比赛</footer>

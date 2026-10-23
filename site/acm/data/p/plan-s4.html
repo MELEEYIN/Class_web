@@ -1,0 +1,427 @@
+<section class="sec" id="s4" data-cat="数据结构" fold>
+  
+  <div class="secbody">
+    <div class="callout"><p>这一章开始，你手上的工具从「思维动作」升级为「武器」。每个数据结构都只解决一类问题，所以学的时候一定要先问：<b>它到底替我做了什么我做不到的事？</b></p></div>
+    <article class="algo" id="pl-42" data-cat="数据结构" data-name="4.1 栈与单调栈 栈：后进先出 本质 最后放进去的东西最先拿出来。就像叠盘子——你只能从最上面拿。 cpp stack&lt;int st; st.push(1); // 压栈 st.top(); // 看栈顶 st.pop(); // 弹栈 st.empty();">
+      <div class="ah"><h4>4.1 栈与单调栈</h4><span class="lv lv-b">基础</span><span class="st">★★★★★</span><span class="tag">必考</span><a class="prac" href="practice.html#P1449" target="_blank" title="题单里的模板题">P1449</a><a class="prac" href="practice.html#P1739" target="_blank" title="题单里的模板题">P1739</a><a class="prac" href="practice.html#P5788" target="_blank" title="题单里的模板题">P5788</a></div>
+      <p><b>栈：后进先出</b></p>
+      <p class="idea"><b>本质</b>：最后放进去的东西最先拿出来。就像叠盘子——你只能从最上面拿。</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      stack<int> st;
+      st.push(1);        // 压栈
+      st.top();          // 看栈顶
+      st.pop();          // 弹栈
+      st.empty();        // 判空（弹之前必须判！）
+      </script></div>
+      <p>竞赛里栈的三大用途：<b>括号匹配、表达式求值、DFS 的手写版</b>。</p>
+      <p><b>单调栈：一次扫描求出「最近的大于它的元素」</b></p>
+      <p><b>为什么需要它</b>：求「每个元素左边/右边第一个比它大（或小）的元素」，暴力是 O(n^2)，但用单调栈只要 O(n)。</p>
+      <div class="box idea"><span class="t">🎨 生活类比</span><p>一排人从左到右站着，你要给每个人找「右边第一个比他高的人」。如果后面来了个很高的人，那么所有比他矮的人就都有答案了——矮个子的信息<b>一次性全部结算</b>，不用再留着。</p></div>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      // 单调栈模板：求每个元素右边第一个比它大的元素的下标
+      int ans[N];
+      stack<int> st;
+      for (int i = 1; i <= n; ++i) {
+          while (!st.empty() && a[st.top()] < a[i]) {
+              ans[st.top()] = i;     // 被弹出者的答案在弹出这一瞬间确定
+              st.pop();
+          }
+          st.push(i);
+      }
+      // 循环结束后还在栈里的元素，右边没有更大的
+      </script></div>
+      <p><b>核心思想一句话</b>：<b>被弹出者的答案在弹出瞬间确定。</b> 这就是单调栈的全部。</p>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p><code>while</code> 里的比较符号决定是「第一个大于」还是「第一个大于等于」；相等元素要不要弹，取决于题目要「严格大」还是「大于等于」。</p></div>
+      <div class="box ok"><span class="t">✅ 小结</span><p><b>单调栈不是"栈的一种用法"，而是"用栈做延迟结算"。</b></p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P1449" target="_blank">P1449</a> 后缀表达式　·　<a href="practice.html#P1739" target="_blank">P1739</a> 表达式括号匹配　·　<a href="practice.html#P5788" target="_blank">P5788</a> 单调栈模板　·　<a href="practice.html#P1901" target="_blank">P1901</a> 发射站　·　<a href="practice.html#P2947" target="_blank">P2947</a> Look Up　·　<a href="practice.html#P4147" target="_blank">P4147</a> 玉蟾宫</p>
+    </article>
+    <article class="algo" id="pl-43" data-cat="数据结构" data-name="4.2 队列与单调队列 队列：先进先出 本质 先进先出，保证处理的层次性——这正是 BFS 能得到最短路的原因。 cpp queue&lt;int q; q.push(1); q.front(); q.pop(); q.empty(); deque&lt;int dq; // 双端队列，两端都能进出">
+      <div class="ah"><h4>4.2 队列与单调队列</h4><span class="lv lv-b">基础</span><span class="st">★★★★★</span><span class="tag">必考</span><a class="prac" href="practice.html#P1996" target="_blank" title="题单里的模板题">P1996</a><a class="prac" href="practice.html#P1886" target="_blank" title="题单里的模板题">P1886</a><a class="prac" href="practice.html#P1440" target="_blank" title="题单里的模板题">P1440</a></div>
+      <p><b>队列：先进先出</b></p>
+      <p class="idea"><b>本质</b>：先进先出，保证处理的<b>层次性</b>——这正是 BFS 能得到最短路的原因。</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      queue<int> q;
+      q.push(1); q.front(); q.pop(); q.empty();
+      deque<int> dq;                     // 双端队列，两端都能进出
+      dq.push_front(1); dq.push_back(2); dq.front(); dq.back();
+      </script></div>
+      <p><b>单调队列：滑动窗口的最值</b></p>
+      <p><b>为什么需要它</b>：求「每个长度为 k 的窗口的最大/最小值」，暴力 O(nk)，单调队列 O(n)。</p>
+      <div class="box idea"><span class="t">🎨 生活类比</span><p>排队买票，队伍里前面的人如果比后面的人矮，那他就永远不可能当「最高的人」——直接踢掉。于是队伍始终保持从高到低，队首永远是当前窗口的最高者。</p></div>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      // 单调队列模板：滑动窗口最小值
+      deque<int> q;
+      for (int i = 1; i <= n; ++i) {
+          while (!q.empty() && q.front() <= i - k) q.pop_front();   // ① 队首过期
+          while (!q.empty() && a[q.back()] >= a[i]) q.pop_back();    // ② 队尾不如新的，弹掉
+          q.push_back(i);
+          if (i >= k) printf("%d ", a[q.front()]);                   // ③ 队首就是答案
+      }
+      </script></div>
+      <p><b>三行口诀：队首过期弹、队尾不如弹、队首是答案。</b></p>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p>三步顺序不能乱（先弹过期，再弹队尾，最后入队）；求最大值时比较符号反过来；队列里存的是<b>下标</b>不是值（否则无法判断过期）。</p></div>
+      <p><b>单调队列优化 DP</b></p>
+      <p>这是它真正值钱的地方。当转移形如 f(i) = max{f(j)} + a_i，其中 j ∈ [i-k, i-1]，就可以用单调队列把内层的 O(k) 枚举降到 O(1) 均摊，整体 O(n)。</p>
+      <div class="box ok"><span class="t">✅ 小结</span><p><b>单调队列 = 一个会自动淘汰"没前途"元素的窗口。</b> 判据是「决策区间随 i 单调移动」。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P1996" target="_blank">P1996</a> 约瑟夫问题　·　<a href="practice.html#P1886" target="_blank">P1886</a> 滑动窗口　·　<a href="practice.html#P1440" target="_blank">P1440</a> 求 m 区间内的最小值　·　<a href="practice.html#P1443" target="_blank">P1443</a> 马的遍历（BFS 模板）　·　<a href="practice.html#P2058" target="_blank">P2058</a> 海港　·　<a href="practice.html#P1725" target="_blank">P1725</a> 琪露诺（单调队列优化 DP）</p>
+    </article>
+    <article class="algo" id="pl-44" data-cat="数据结构" data-name="4.3 链表与前向星 本质 用指针/下标把不连续的内存串起来，支持 O(1) 插入删除。竞赛里几乎不用 new，一律用数组模拟（静态链表）。 为什么不用 vector vector 在中间插入/删除是 O(n)（要搬移后面的元素）。如果题目要在 10^5 次操作里频繁在中间插入，就必须用链表。 静态链表模板 cpp int n">
+      <div class="ah"><h4>4.3 链表与前向星</h4><span class="lv lv-b">基础</span><span class="st">★★★★★</span><span class="tag">必考</span><a class="prac" href="practice.html#P1160" target="_blank" title="题单里的模板题">P1160</a><a class="prac" href="practice.html#P1996" target="_blank" title="题单里的模板题">P1996</a><a class="prac" href="practice.html#P1540" target="_blank" title="题单里的模板题">P1540</a></div>
+      <p class="idea"><b>本质</b>：用指针/下标把不连续的内存串起来，支持 O(1) 插入删除。<b>竞赛里几乎不用 <code>new</code>，一律用数组模拟（静态链表）。</b></p>
+      <p><b>为什么不用 <code>vector</code></b></p>
+      <p><code>vector</code> 在中间插入/删除是 O(n)（要搬移后面的元素）。如果题目要在 10^5 次操作里频繁在中间插入，就必须用链表。</p>
+      <p><b>静态链表模板</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      int nxt[N], pre[N];      // 下标当指针用
+      
+      // 在 i 后面插入 x
+      nxt[x] = nxt[i];
+      pre[x] = i;
+      pre[nxt[i]] = x;
+      nxt[i] = x;
+      
+      // 删除 x
+      nxt[pre[x]] = nxt[x];
+      pre[nxt[x]] = pre[x];
+      </script></div>
+      <p><b>链式前向星（图论必用）</b></p>
+      <p>存图时，如果边数很多且要极限压空间的写法：</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      int head[N], to[M], nxt[M], tot;
+      void add(int u, int v) {
+          to[++tot] = v; nxt[tot] = head[u]; head[u] = tot;
+      }
+      for (int e = head[u]; e; e = nxt[e]) { int v = to[e]; /* ... */ }
+      </script></div>
+      <div class="box tip"><span class="t">💡 提示</span><p>90% 的题用 <code>vector&lt;int&gt; g[N]</code> 就够了。只有点数/边数爆炸（10^6 级）或者卡常数时，才换链式前向星。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P1160" target="_blank">P1160</a> 队列安排　·　<a href="practice.html#P1996" target="_blank">P1996</a> 约瑟夫问题　·　<a href="practice.html#P1540" target="_blank">P1540</a> 机器翻译</p>
+    </article>
+    <article class="algo" id="pl-45" data-cat="数据结构" data-name="4.4 堆与优先队列 本质 一棵满足「父 ≤ 子」的完全二叉树，用数组存储，支持 O(log n) 插入/删除、O(1) 取最值。竞赛中的堆多半是用来做「动态取最值 + 反悔」。 类比 一堆任务按紧急程度排队，你永远只处理最紧急的那个；新任务随时插进来，但不需要全体排序，只要保证「最紧急的在最上面」。 STL 用法 cpp pr">
+      <div class="ah"><h4>4.4 堆与优先队列</h4><span class="lv lv-b">基础</span><span class="st">★★★★★</span><span class="tag">必考</span><a class="prac" href="practice.html#P3378" target="_blank" title="题单里的模板题">P3378</a><a class="prac" href="practice.html#P1090" target="_blank" title="题单里的模板题">P1090</a><a class="prac" href="practice.html#P1631" target="_blank" title="题单里的模板题">P1631</a></div>
+      <p class="idea"><b>本质</b>：一棵满足「父 ≤ 子」的完全二叉树，用数组存储，支持 O(log n) 插入/删除、O(1) 取最值。竞赛中的堆多半是用来做「<b>动态取最值 + 反悔</b>」。</p>
+      <div class="box idea"><span class="t">🎨 生活类比</span><p>一堆任务按紧急程度排队，你永远只处理最紧急的那个；新任务随时插进来，但<b>不需要全体排序</b>，只要保证「最紧急的在最上面」。</p></div>
+      <p><b>STL 用法</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      priority_queue<int> pq;                                    // 大根堆，top 是最大值
+      priority_queue<int, vector<int>, greater<int>> minq;       // 小根堆
+      priority_queue<pair<int,int>, vector<pair<int,int>>, greater<>> pq2;  // 按 first 小的优先
+      
+      pq.push(x);      // O(log n)
+      pq.top();        // O(1)
+      pq.pop();        // O(log n)，注意没有返回值
+      pq.size(); pq.empty();
+      </script></div>
+      <p><b>两个经典应用</b></p>
+      <p><b>① 合并果子（Huffman）</b>：每次取最小的两堆合并。O(nlog n)。</p>
+      <p><b>② 对顶堆求中位数</b>：用一个<b>大根堆存较小的一半</b>，一个小根堆存较大的一半，保持两者大小差不超过 1。中位数就是某个堆的堆顶。</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      // 加入 x 后读中位数
+      if (big.empty() || x <= big.top()) big.push(x);
+      else small.push(x);
+      // 调整大小：big 的大小始终 ≥ small，且差 ≤ 1
+      if (big.size() > small.size() + 1) { small.push(big.top()); big.pop(); }
+      if (small.size() > big.size())     { big.push(small.top()); small.pop(); }
+      // 中位数 = big.top()
+      </script></div>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p><code>pq.pop()</code> 没有返回值，要取值必须先 <code>top()</code>；对自定义结构体用 <code>priority_queue</code> 必须重载 <code>operator&lt;</code>（注意方向是反的——大根堆用 <code>&lt;</code>）。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P3378" target="_blank">P3378</a> 堆模板　·　<a href="practice.html#P1090" target="_blank">P1090</a> 合并果子　·　<a href="practice.html#P1631" target="_blank">P1631</a> 序列合并　·　<a href="practice.html#P2085" target="_blank">P2085</a> 最小函数值　·　<a href="practice.html#P1168" target="_blank">P1168</a> 中位数　·　<a href="practice.html#P1801" target="_blank">P1801</a> 黑匣子　·　<a href="practice.html#P2278" target="_blank">P2278</a> 操作系统</p>
+    </article>
+    <article class="algo" id="pl-46" data-cat="数据结构" data-name="4.5 哈希与字符串哈希 本质 用函数把「大值域」压到「小值域」，用 O(1) 期望时间做判重/查找。关键永远是冲突处理：开放寻址、拉链法，或者对字符串用「多项式哈希 + 双模数」把冲突概率压到可忽略。 类比 图书馆按书名的首字母分区放书——你想找《算法导论》，直接去 A 区，不用翻遍全馆。代价是同一个区里可能有很多本，需要再逐个找。">
+      <div class="ah"><h4>4.5 哈希与字符串哈希</h4><span class="lv lv-b">基础</span><span class="st">★★★★★</span><span class="tag">必考</span><a class="prac" href="practice.html#P3370" target="_blank" title="题单里的模板题">P3370</a><a class="prac" href="practice.html#P1102" target="_blank" title="题单里的模板题">P1102</a><a class="prac" href="practice.html#P2580" target="_blank" title="题单里的模板题">P2580</a></div>
+      <p class="idea"><b>本质</b>：用函数把「大值域」压到「小值域」，用 O(1) 期望时间做判重/查找。<b>关键永远是冲突处理</b>：开放寻址、拉链法，或者对字符串用「多项式哈希 + 双模数」把冲突概率压到可忽略。</p>
+      <div class="box idea"><span class="t">🎨 生活类比</span><p>图书馆按书名的首字母分区放书——你想找《算法导论》，直接去 A 区，不用翻遍全馆。<b>代价是同一个区里可能有很多本，需要再逐个找。</b></p></div>
+      <p><b>字符串哈希：把子串变成整数</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      typedef unsigned long long ull;          // 利用自然溢出，相当于自动 mod 2^64
+      const ull B = 131;                        // 进制，常用 131 或 13331
+      
+      ull h[N], pw[N];
+      pw[0] = 1;
+      for (int i = 1; i <= n; ++i) {
+          pw[i] = pw[i - 1] * B;
+          h[i] = h[i - 1] * B + s[i];           // s[1..n]，字符按 ASCII 当数字
+      }
+      
+      // 子串 s[l..r] 的哈希值，O(1)
+      ull get(int l, int r) { return h[r] - h[l - 1] * pw[r - l + 1]; }
+      </script></div>
+      <p><b>为什么有效</b>：把字符串看成一个 B 进制的大整数再取模。判断两个子串是否相等，就变成比较两个整数——O(1) 完成，比 KMP 简单太多。</p>
+      <p><b>三个必须知道的坑</b></p>
+      <ol class="tight"><li><b>单模数会被构造数据卡掉</b>。重要比赛用<b>双哈希</b>：取两个不同的模数（如 10^9+7 和 10^9+9），两个都相等才算相等。</li><li><b>字符必须映射成非零正整数</b>。直接用 <code>'a' = 97</code> 就行，但 <code>'A' = 65</code> 这种小数字容易造成前导零混淆——统一加一个偏移量更安全。</li><li><b>不要用 <code>unordered_map</code> 当万能容器</b>。它能被 O(n) 的构造数据卡成 O(n^2)，10^5 规模就可能 TLE。要么手写哈希表，要么加随机扰动。</li></ol>
+      <div class="box ok"><span class="t">✅ 小结</span><p><b>哈希是用错误率换速度。</b> 单哈希在平时练习够用，正式比赛一律双哈希。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P3370" target="_blank">P3370</a> 字符串哈希　·　<a href="practice.html#P1102" target="_blank">P1102</a> A-B 数对　·　<a href="practice.html#P2580" target="_blank">P2580</a> 于是他错误的点名开始了　·　<a href="practice.html#P3805" target="_blank">P3805</a> Manacher</p>
+    </article>
+    <article class="algo" id="pl-47" data-cat="数据结构" data-name="4.6 二叉树与遍历 本质 二叉树是「分治的结构化表达」。要掌握的核心是三种遍历的关系：前序定根、中序分左右、后序定根；以及完全二叉树的数组编号（i 的孩子是 2i、2i+1）。 三种遍历 cpp void preorder(int u) { if (!u) return; printf(&quot;%d &quot;, u); preorder(">
+      <div class="ah"><h4>4.6 二叉树与遍历</h4><span class="lv lv-b">基础</span><span class="st">★★★★★</span><span class="tag">必考</span><a class="prac" href="practice.html#P1305" target="_blank" title="题单里的模板题">P1305</a><a class="prac" href="practice.html#P1030" target="_blank" title="题单里的模板题">P1030</a><a class="prac" href="practice.html#P1827" target="_blank" title="题单里的模板题">P1827</a></div>
+      <p class="idea"><b>本质</b>：二叉树是「分治的结构化表达」。要掌握的核心是三种遍历的关系：<b>前序定根、中序分左右、后序定根</b>；以及完全二叉树的数组编号（<code>i</code> 的孩子是 <code>2i</code>、<code>2i+1</code>）。</p>
+      <p><b>三种遍历</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      void preorder(int u)  { if (!u) return; printf("%d ", u); preorder(lc[u]); preorder(rc[u]); }
+      void inorder(int u)   { if (!u) return; inorder(lc[u]);  printf("%d ", u); inorder(rc[u]); }
+      void postorder(int u) { if (!u) return; postorder(lc[u]); postorder(rc[u]); printf("%d ", u); }
+      </script></div>
+      <p><b>唯一要背的结论</b></p>
+      <table>
+      <tr><th>已知</th><th>能否唯一确定一棵二叉树</th></tr>
+      <tr><td>前序 + 中序</td><td>✓ 能</td></tr>
+      <tr><td>后序 + 中序</td><td>✓ 能</td></tr>
+      <tr><td>前序 + 后序</td><td>✗ 不能（无法区分只有一个孩子时是左还是右）</td></tr>
+      <tr><td>层序 + 中序</td><td>✓ 能</td></tr>
+      </table>
+      <p><b>做法</b>：前序的第一个元素是根 → 在中序里找到它，左边是左子树、右边是右子树 → 递归处理两段。</p>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p>递归时要传「子树在数组中的区间」，不要传下标本身；空树要单独判断。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P1305" target="_blank">P1305</a> 新二叉树　·　<a href="practice.html#P1030" target="_blank">P1030</a> 求先序排列　·　<a href="practice.html#P1827" target="_blank">P1827</a> 美国血统　·　<a href="practice.html#P1087" target="_blank">P1087</a> FBI 树　·　<a href="practice.html#P4715" target="_blank">P4715</a> 淘汰赛　·　<a href="practice.html#P4913" target="_blank">P4913</a> 二叉树深度</p>
+    </article>
+    <article class="algo" id="pl-48" data-cat="数据结构" data-name="4.7 Trie（字典树）与 01-Trie 本质 把字符串按字符逐层挂在树上，用「公共前缀」共享存储。它把「前缀匹配」从多次哈希比较变成一次树上走步，天然支持前缀查询、前缀计数。 类比 查字典时，所有以 &quot;abc&quot; 开头的词都排在一起。Trie 就是把这个「排在一起」做成了树结构——共同前缀只存一份。 模板 cpp int ch[N][26], cn">
+      <div class="ah"><h4>4.7 Trie（字典树）与 01-Trie</h4><span class="lv lv-b">基础</span><span class="st">★★★★★</span><span class="tag">必考</span><a class="prac" href="practice.html#P8306" target="_blank" title="题单里的模板题">P8306</a><a class="prac" href="practice.html#P2580" target="_blank" title="题单里的模板题">P2580</a><a class="prac" href="practice.html#P4551" target="_blank" title="题单里的模板题">P4551</a></div>
+      <p class="idea"><b>本质</b>：把字符串按字符逐层挂在树上，用「公共前缀」共享存储。它把「前缀匹配」从多次哈希比较变成一次树上走步，天然支持前缀查询、前缀计数。</p>
+      <div class="box idea"><span class="t">🎨 生活类比</span><p>查字典时，所有以 "abc" 开头的词都排在一起。Trie 就是把这个「排在一起」做成了树结构——共同前缀只存一份。</p></div>
+      <p><b>模板</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      int ch[N][26], cnt[N], tot = 0;      // 根节点是 0，tot 是节点总数
+      
+      void insert(const string &s) {
+          int p = 0;
+          for (char c : s) {
+              int &nx = ch[p][c - 'a'];
+              if (!nx) nx = ++tot;          // 没有这条边就新建
+              p = nx;
+          }
+          ++cnt[p];                          // 这个单词出现了一次
+      }
+      
+      int query(const string &s) {           // 返回以 s 为前缀的单词数
+          int p = 0;
+          for (char c : s) {
+              p = ch[p][c - 'a'];
+              if (!p) return 0;              // 断链，说明不存在
+          }
+          return cnt[p];
+      }
+      </script></div>
+      <p><b>01-Trie：把整数按二进制挂上去</b></p>
+      <p>处理「异或」问题的神器。把每个数按 31 位二进制从高到低插入，查询「与 x 异或最大的数」时就<b>沿着与当前位相反的分支走</b>。</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      // 插入与查询（高位优先）
+      void insert(int x) {
+          int p = 0;
+          for (int i = 30; i >= 0; --i) {
+              int b = (x >> i) & 1;
+              if (!ch[p][b]) ch[p][b] = ++tot;
+              p = ch[p][b];
+          }
+      }
+      int queryMaxXor(int x) {
+          int p = 0, res = 0;
+          for (int i = 30; i >= 0; --i) {
+              int b = (x >> i) & 1;
+              if (ch[p][b ^ 1]) { res |= 1 << i; p = ch[p][b ^ 1]; }   // 反着走
+              else p = ch[p][b];
+          }
+          return res;
+      }
+      </script></div>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p>节点数组要开 <code>总长度 × 字符集大小</code>（10^5 个长度 26 的字符串就要 2.6×10^6 个节点），开小了直接 RE。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P8306" target="_blank">P8306</a> Trie 字符串统计　·　<a href="practice.html#P2580" target="_blank">P2580</a> 于是他错误的点名开始了　·　<a href="practice.html#P4551" target="_blank">P4551</a> 最长异或路径　·　<a href="practice.html#P2922" target="_blank">P2922</a> Secret Message　·　<a href="practice.html#P3879" target="_blank">P3879</a> 阅读理解</p>
+    </article>
+    <article class="algo" id="pl-49" data-cat="数据结构" data-name="4.8 set / map：有序集合 本质 set/map 底层是红黑树（一种平衡二叉搜索树），所以查找、插入、删除都是 O(log n)，并且天然有序。它解决的是「需要动态维护有序集合 + 查前驱后继/排名」这类问题。 什么时候用（对比 vector + sort） 需求 用什么 --- --- 一次性排序后静态查询">
+      <div class="ah"><h4>4.8 set / map：有序集合</h4><span class="lv lv-b">基础</span><span class="st">★★★★★</span><span class="tag">必考</span><a class="prac" href="practice.html#P1097" target="_blank" title="题单里的模板题">P1097</a><a class="prac" href="practice.html#P3879" target="_blank" title="题单里的模板题">P3879</a><a class="prac" href="practice.html#P2234" target="_blank" title="题单里的模板题">P2234</a></div>
+      <p class="idea"><b>本质</b>：<code>set</code>/<code>map</code> 底层是红黑树（一种平衡二叉搜索树），所以查找、插入、删除都是 O(log n)，并且<b>天然有序</b>。它解决的是「需要<b>动态维护有序集合</b> + 查前驱后继/排名」这类问题。</p>
+      <p><b>什么时候用（对比 vector + sort）</b></p>
+      <table>
+      <tr><th>需求</th><th>用什么</th></tr>
+      <tr><td>一次性排序后静态查询</td><td><code>vector</code> + <code>sort</code> + <code>lower_bound</code>（更快）</td></tr>
+      <tr><td>边插入边查询、还要查前驱后继</td><td><code>set</code> / <code>map</code></td></tr>
+      <tr><td>只要判重、不关心顺序</td><td><code>unordered_set</code>（注意 4.5 节的坑）</td></tr>
+      </table>
+      <p><b>常用操作</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      set<int> s;
+      s.insert(3);  s.erase(3);  s.count(3);  s.size();
+      auto it = s.lower_bound(3);      // 第一个 ≥ 3 的迭代器
+      auto it2 = s.upper_bound(3);     // 第一个 > 3 的迭代器
+      if (it != s.begin()) { --it; /* it 现在指向 3 的前驱 */ }
+      
+      map<string, int> mp;
+      mp["abc"] = 1;
+      if (mp.count("abc")) { /* 存在 */ }
+      for (auto &[k, v] : mp) { /* 按 key 升序遍历 */ }
+      </script></div>
+      <div class="callout"><p><code>mp["不存在的键"]</code> 会自动插入一个默认值<b>，既改变容器大小又可能让后面的逻辑出错。</b>判断存在用 <code>count</code> 或 <code>find</code>，不要用 <code>[]</code>。</p></div>
+      <div class="box ok"><span class="t">✅ 小结</span><p><code>set</code>/<code>map</code> 的常数很大（比手写平衡树慢 3~5 倍），2×10^5 规模的题要留意会不会 TLE。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P1097" target="_blank">P1097</a> 统计数字　·　<a href="practice.html#P3879" target="_blank">P3879</a> 阅读理解　·　<a href="practice.html#P2234" target="_blank">P2234</a> 营业额统计（前驱后继）　·　<a href="practice.html#P5250" target="_blank">P5250</a> 木材仓库</p>
+    </article>
+    <article class="algo" id="pl-50" data-cat="数据结构" data-name="4.9 并查集 本质 维护「等价关系」的划分。两个优化缺一不可：路径压缩 + 按秩/按大小合并，合起来使单次操作近似 O(α(n))，比 log 还小。 类比 一群同学互相认识，问 A 和 B 是否属于同一个圈子。你只要维护「每个圈子的代表是谁」，问的时候看两人能不能走到同一个代表即可。 模板（必背） cpp int fa">
+      <div class="ah"><h4>4.9 并查集</h4><span class="lv lv-b">基础</span><span class="st">★★★★★</span><span class="tag">必考</span><a class="prac" href="practice.html#P1196" target="_blank" title="题单里的模板题">P1196</a><a class="prac" href="practice.html#P2024" target="_blank" title="题单里的模板题">P2024</a><a class="prac" href="practice.html#P1525" target="_blank" title="题单里的模板题">P1525</a></div>
+      <p class="idea"><b>本质</b>：维护「等价关系」的划分。两个优化缺一不可：<b>路径压缩</b> + <b>按秩/按大小合并</b>，合起来使单次操作近似 O(α(n))，比 log 还小。</p>
+      <div class="box idea"><span class="t">🎨 生活类比</span><p>一群同学互相认识，问 A 和 B 是否属于同一个圈子。你只要维护「每个圈子的代表是谁」，问的时候看两人能不能走到同一个代表即可。</p></div>
+      <p><b>模板（必背）</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      int fa[N], sz[N];
+      
+      void init(int n) {
+          for (int i = 1; i <= n; ++i) fa[i] = i, sz[i] = 1;
+      }
+      
+      int find(int x) {                    // 路径压缩
+          return fa[x] == x ? x : fa[x] = find(fa[x]);
+      }
+      
+      void merge(int x, int y) {           // 按大小合并
+          x = find(x); y = find(y);
+          if (x == y) return;
+          if (sz[x] < sz[y]) swap(x, y);
+          fa[y] = x; sz[x] += sz[y];
+      }
+      </script></div>
+      <p><b>三个高阶变体（知道名字即可，第 9 章再深入）</b></p>
+      <table>
+      <tr><th>变体</th><th>解决的问题</th><th>例子</th></tr>
+      <tr><td>带权并查集</td><td>维护「两点之间的相对关系」（距离、奇偶性）</td><td>P1196 银河英雄传说</td></tr>
+      <tr><td>扩展域 / 种类并查集</td><td>「敌人的敌人是朋友」这类对立关系</td><td>P2024 食物链、P1525 关押罪犯</td></tr>
+      <tr><td>可持久化 / 可撤销</td><td>支持回退（配合按秩合并，不能路径压缩）</td><td>第 9 章</td></tr>
+      </table>
+      <div class="callout"><p>并查集不支持删除，只能加边。 所以「删边」类问题要离线倒序处理——删边变加边（P1197 星球大战就是这个套路）。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P3367" target="_blank">P3367</a> 并查集模板　·　<a href="practice.html#P1551" target="_blank">P1551</a> 亲戚　·　<a href="practice.html#P1525" target="_blank">P1525</a> 关押罪犯　·　<a href="practice.html#P2024" target="_blank">P2024</a> 食物链　·　<a href="practice.html#P1197" target="_blank">P1197</a> 星球大战　·　<a href="practice.html#P1536" target="_blank">P1536</a> 村村通</p>
+    </article>
+    <article class="algo" id="pl-51" data-cat="数据结构" data-name="4.10 KMP：线性字符串匹配 本质 当匹配失败时，不要回到开头重来，而是利用「已匹配部分的最长公共前后缀」跳到一个更靠后的位置继续。这个信息就是 next 数组（也叫前缀函数 π）。 类比 你在读 &quot;abababc&quot;，已经匹配了 &quot;ababab&quot;，下一个字符对不上。聪明做法不是从头再试，而是发现 &quot;ababab&quot; 的后缀 &quot;abab&quot; 等于">
+      <div class="ah"><h4>4.10 KMP：线性字符串匹配</h4><span class="lv lv-b">基础</span><span class="st">★★★★★</span><span class="tag">必考</span><a class="prac" href="practice.html#P3375" target="_blank" title="题单里的模板题">P3375</a><a class="prac" href="practice.html#P4391" target="_blank" title="题单里的模板题">P4391</a><a class="prac" href="practice.html#P4824" target="_blank" title="题单里的模板题">P4824</a></div>
+      <p class="idea"><b>本质</b>：当匹配失败时，<b>不要回到开头重来</b>，而是利用「已匹配部分的最长公共前后缀」跳到一个更靠后的位置继续。这个信息就是 <code>next</code> 数组（也叫前缀函数 π）。</p>
+      <div class="box idea"><span class="t">🎨 生活类比</span><p>你在读 "abababc"，已经匹配了 "ababab"，下一个字符对不上。聪明做法不是从头再试，而是发现 "ababab" 的后缀 "abab" 等于它的前缀——于是直接把模式串<b>挪到 "ab" 对齐的位置</b>继续。</p></div>
+      <p><b>模板</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      int pi[N];                          // pi[i] = s[0..i] 的最长「相等前后缀」长度
+      
+      void getPi(const string &s) {
+          int n = s.size();
+          pi[0] = 0;
+          for (int i = 1; i < n; ++i) {
+              int j = pi[i - 1];
+              while (j > 0 && s[i] != s[j]) j = pi[j - 1];   // 失配就往前跳
+              if (s[i] == s[j]) ++j;
+              pi[i] = j;
+          }
+      }
+      
+      // 在 text 里找所有 pattern 的出现位置
+      void match(const string &text, const string &pat) {
+          getPi(pat);
+          int j = 0;
+          for (int i = 0; i < (int)text.size(); ++i) {
+              while (j > 0 && text[i] != pat[j]) j = pi[j - 1];
+              if (text[i] == pat[j]) ++j;
+              if (j == (int)pat.size()) { printf("%d\n", i - j + 2); j = pi[j - 1]; }
+          }
+      }
+      </script></div>
+      <p><b>复杂度 O(n + m)，因为 <code>j</code> 只会增加 n 次、减少 n 次，总共 O(n) 步。</b></p>
+      <p><b>前缀函数还能干什么</b></p>
+      <table>
+      <tr><th>用途</th><th>怎么做</th></tr>
+      <tr><td>最小循环节</td><td>若 <code>n % (n - pi[n-1]) == 0</code>，循环节长度是 <code>n - pi[n-1]</code></td></tr>
+      <tr><td>判断周期性</td><td>同上，否则整串就是一个周期</td></tr>
+      <tr><td>求所有 border（既是前缀又是后缀）</td><td>从 <code>pi[n-1]</code> 开始不断 <code>j = pi[j-1]</code></td></tr>
+      </table>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p><code>pi</code> 数组用 0-based 时下标要减 1；手写时最常错的是 <code>while</code> 里少写 <code>j &gt; 0</code>。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P3375" target="_blank">P3375</a> KMP 字符串匹配　·　<a href="practice.html#P4391" target="_blank">P4391</a> Radio Transmission　·　<a href="practice.html#P4824" target="_blank">P4824</a> 删字符串　·　<a href="practice.html#P2375" target="_blank">P2375</a> 动物园</p>
+    </article>
+    <article class="algo" id="pl-52" data-cat="数据结构" data-name="4.11 树状数组 本质 用 i += lowbit(i) 的倍增结构把「前缀」切成 log n 段，实现单点修改 + 前缀查询 O(log n)，常数远小于线段树。 类比 你有 10 个存钱罐排成一排。树状数组的做法是——第 1 个罐记「前 1 个的总和」，第 2 个记「前 2 个」，第 4 个记「前 4 个」，第 8 个记「前">
+      <div class="ah"><h4>4.11 树状数组</h4><span class="lv lv-b">基础</span><span class="st">★★★★★</span><span class="tag">必考</span><a class="prac" href="practice.html#P1908" target="_blank" title="题单里的模板题">P1908</a><a class="prac" href="practice.html#P3374" target="_blank" title="题单里的模板题">P3374</a><a class="prac" href="practice.html#P3368" target="_blank" title="题单里的模板题">P3368</a></div>
+      <p class="idea"><b>本质</b>：用 <code>i += lowbit(i)</code> 的倍增结构把「前缀」切成 log n 段，实现单点修改 + 前缀查询 O(log n)，<b>常数远小于线段树</b>。</p>
+      <div class="box idea"><span class="t">🎨 生活类比</span><p>你有 10 个存钱罐排成一排。树状数组的做法是——第 1 个罐记「前 1 个的总和」，第 2 个记「前 2 个」，第 4 个记「前 4 个」，第 8 个记「前 8 个」。要查前 7 个的和，就取 4 号罐 + 6 号罐 + 7 号罐，三段搞定。改一个数，只要顺着往上更新那几个「管辖它」的罐子。</p></div>
+      <p><b>模板（必背）</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      int n; long long c[N];
+      
+      void add(int i, long long v) {          // a[i] += v
+          for (; i <= n; i += i & -i) c[i] += v;
+      }
+      
+      long long sum(int i) {                   // a[1] + ... + a[i]
+          long long s = 0;
+          for (; i > 0; i -= i & -i) s += c[i];
+          return s;
+      }
+      
+      long long rangeSum(int l, int r) { return sum(r) - sum(l - 1); }
+      </script></div>
+      <p><b>三个必须掌握的变体</b></p>
+      <table>
+      <tr><th>需求</th><th>做法</th></tr>
+      <tr><td>单点修改 + 区间查询</td><td>上面这个模板</td></tr>
+      <tr><td>区间修改 + 单点查询</td><td>用<b>差分</b>建树状数组：<code>add(l, v), add(r+1, -v)</code>，查 <code>sum(i)</code></td></tr>
+      <tr><td>区间修改 + 区间查询</td><td>维护<b>两个</b>树状数组（公式：Σ (r-i+1)d_i 展开）</td></tr>
+      </table>
+      <p><b>它不能做什么</b></p>
+      <p>树状数组只能维护<b>可减</b>的运算：和、异或、计数。<b>最值（max/min）不能直接维护</b>（没有逆运算），除非只做「单点修改 + 前缀最值」。需要区间最值就上线段树。</p>
+      <div class="box tip"><span class="t">💡 提示</span><p><b>树状数组求逆序对</b>：离散化后从右往左扫，每次查「比当前小的数有几个」（<code>sum(a[i]-1)</code>），再 <code>add(a[i], 1)</code>。这是 P1908 的标准解法。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P3374" target="_blank">P3374</a> 树状数组 1　·　<a href="practice.html#P3368" target="_blank">P3368</a> 树状数组 2（差分）　·　<a href="practice.html#P1908" target="_blank">P1908</a> 逆序对　·　<a href="practice.html#P1966" target="_blank">P1966</a> 火柴排队　·　<a href="practice.html#P1972" target="_blank">P1972</a> HH 的项链　·　<a href="practice.html#P3605" target="_blank">P3605</a> Promotion Counting</p>
+    </article>
+    <article class="algo" id="pl-53" data-cat="数据结构" data-name="4.12 线段树 本质 把区间二分成树，每个节点维护一段区间的合并信息。区间修改靠懒标记（lazy tag）延迟下发，保证 O(log n)。它是「区间信息维护」的通用武器，进阶篇的主席树、树链剖分、李超树全是它的变形。 类比 一个公司有 10 万员工，你想知道某个部门的绩效总和。你不需要把每个人加起来——每个小组存好小计，每个">
+      <div class="ah"><h4>4.12 线段树</h4><span class="lv lv-b">基础</span><span class="st">★★★★★</span><span class="tag">必考</span><a class="prac" href="practice.html#P3373" target="_blank" title="题单里的模板题">P3373</a><a class="prac" href="practice.html#P4145" target="_blank" title="题单里的模板题">P4145</a><a class="prac" href="practice.html#P3372" target="_blank" title="题单里的模板题">P3372</a></div>
+      <p class="idea"><b>本质</b>：把区间二分成树，每个节点维护一段区间的<b>合并信息</b>。区间修改靠<b>懒标记</b>（lazy tag）延迟下发，保证 O(log n)。它是「区间信息维护」的通用武器，进阶篇的主席树、树链剖分、李超树全是它的变形。</p>
+      <div class="box idea"><span class="t">🎨 生活类比</span><p>一个公司有 10 万员工，你想知道某个部门的绩效总和。你不需要把每个人加起来——每个小组存好小计，每个部门存好小计。要改一个人的绩效，只需沿途更新他所在的每一层小计（log 层）。懒标记则是：「这个部门整体加薪 100，先记在部门账上，等有人来查再往下摊」。</p></div>
+      <p><b>模板：区间加 + 区间求和（</b>必会<b>）</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      int n;
+      long long a[N], t[N << 2], tag[N << 2];       // t 是区间和，tag 是待下发的加值
+      
+      void build(int p, int l, int r) {
+          if (l == r) { t[p] = a[l]; return; }
+          int m = (l + r) >> 1;
+          build(p << 1, l, m);  build(p << 1 | 1, m + 1, r);
+          t[p] = t[p << 1] + t[p << 1 | 1];
+      }
+      
+      void apply(int p, int l, int r, long long v) {
+          t[p] += v * (r - l + 1);                  // 整个区间加 v，总和加 v*长度
+          tag[p] += v;
+      }
+      
+      void pushdown(int p, int l, int r) {          // 把 p 的标记摊给孩子
+          if (!tag[p]) return;
+          int m = (l + r) >> 1;
+          apply(p << 1, l, m, tag[p]);
+          apply(p << 1 | 1, m + 1, r, tag[p]);
+          tag[p] = 0;
+      }
+      
+      void update(int p, int l, int r, int ql, int qr, long long v) {
+          if (ql <= l && r <= qr) { apply(p, l, r, v); return; }   // 完全覆盖
+          pushdown(p, l, r);
+          int m = (l + r) >> 1;
+          if (ql <= m)     update(p << 1, l, m, ql, qr, v);
+          if (qr > m)      update(p << 1 | 1, m + 1, r, ql, qr, v);
+          t[p] = t[p << 1] + t[p << 1 | 1];                        // 回溯更新
+      }
+      
+      long long query(int p, int l, int r, int ql, int qr) {
+          if (ql <= l && r <= qr) return t[p];
+          pushdown(p, l, r);
+          int m = (l + r) >> 1;
+          long long s = 0;
+          if (ql <= m) s += query(p << 1, l, m, ql, qr);
+          if (qr > m)  s += query(p << 1 | 1, m + 1, r, ql, qr);
+          return s;
+      }
+      </script></div>
+      <p><b>六个必知要点</b></p>
+      <ol class="tight"><li><b>数组开 <code>4n</code></b>。编号法最坏情况下节点数接近 4n，开小了必 RE。</li><li><b><code>pushdown</code> 的位置</b>：递归到子区间之前必须下发，否则孩子的值还是旧的。</li><li><b><code>apply</code> 里要更新两个东西</b>：区间和 <code>t[p]</code> 和懒标记 <code>tag[p]</code>。</li><li><b>乘法标记</b>（P3373）要规定「先乘后加」，否则无法合并。</li><li><b>复杂度</b>：建树 O(n)，单次修改/查询 O(log n)，空间 4n。</li><li><b>能不用就不用</b>。树状数组能做的一律用树状数组（常数小 3 倍），线段树只在需要「区间最值」「区间合并」时才上。</li></ol>
+      <p><b>线段树的四类扩展</b></p>
+      <table>
+      <tr><th>扩展</th><th>解决什么</th></tr>
+      <tr><td>区间赋值（势能线段树）</td><td>区间取 max/min、区间开方（P4145 花神游历各国）</td></tr>
+      <tr><td>权值线段树</td><td>维护值域，求第 k 小 / 排名</td></tr>
+      <tr><td>动态开点</td><td>值域 10^9 但实际用到的节点少</td></tr>
+      <tr><td>可持久化</td><td>保留历史版本（第 9 章主席树）</td></tr>
+      </table>
+      <div class="box ok"><span class="t">✅ 小结</span><p><b>线段树是"区间问题的万能解"，但绝不是"首选解"。</b> 先想树状数组、前缀和、差分能不能做。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P3372" target="_blank">P3372</a> 线段树 1　·　<a href="practice.html#P3373" target="_blank">P3373</a> 线段树 2（乘法标记）　·　<a href="practice.html#P2572" target="_blank">P2572</a> 序列操作　·　<a href="practice.html#P4145" target="_blank">P4145</a> 花神游历各国　·　<a href="practice.html#P1471" target="_blank">P1471</a> 方差　·　<a href="practice.html#P1198" target="_blank">P1198</a> 最大数　·　<a href="practice.html#P1816" target="_blank">P1816</a> 忠诚　·　<a href="practice.html#P4513" target="_blank">P4513</a> 小白逛公园</p>
+    </article>
+    <article class="algo" id="pl-54" data-cat="数据结构" data-name="4.13 第 4 章验收标准 - [ ] STL 的 vector / stack / queue / deque / priority_queue / set / map / sort / lower_bound 能随手用，不用查文档。 - [ ] 单调栈、单调队列、并查集、树状数组、线段树（区间加区间和）、KMP 六套模板关掉资料能默写。 -">
+      <div class="ah"><h4>4.13 第 4 章验收标准</h4><span class="lv lv-b">基础</span><span class="st">★★★★★</span><span class="tag">必考</span></div>
+      <ul class="tight"><li>☐ STL 的 <code>vector / stack / queue / deque / priority_queue / set / map / sort / lower_bound</code> 能随手用，不用查文档。</li><li>☐ 单调栈、单调队列、并查集、树状数组、线段树（区间加区间和）、KMP 六套模板<b>关掉资料能默写</b>。</li><li>☐ 能说清「树状数组 vs 线段树」「set vs vector+sort」各自该选谁，以及为什么。</li><li>☐ 累计 AC 洛谷「普及−/普及」难度题目不少于 30 道。</li></ul>
+    </article>
+  </div>
+</section>
+

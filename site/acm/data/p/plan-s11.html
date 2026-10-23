@@ -1,0 +1,70 @@
+<section class="sec" id="s11" data-cat="考场" fold>
+  
+  <div class="secbody">
+    <div class="callout"><p>会写题是一回事，能在考场上把分数拿回来是另一回事。这一章讲的全是<b>不学新算法也能提分</b>的东西。</p></div>
+    <article class="algo" id="pl-108" data-cat="考场" data-name="11.1 调试六步法 写代码时不出错是不可能的，出错的定位速度才是差距所在。按顺序走这六步，绝大多数 bug 在第三步之前就现形： 步 动作 说明 --- --- --- ① 重读题目 70% 的 WA 是读错题（「输出最小值」读成「最大值」） ② 看数据范围 会不会爆 int">
+      <div class="ah"><h4>11.1 调试六步法</h4><span class="lv lv-e">入门</span><span class="st">★★★★</span><span class="tag">提分</span></div>
+      <p>写代码时不出错是不可能的，<b>出错的定位速度才是差距所在</b>。按顺序走这六步，绝大多数 bug 在第三步之前就现形：</p>
+      <table>
+      <tr><th>步</th><th>动作</th><th>说明</th></tr>
+      <tr><td>①</td><td><b>重读题目</b></td><td>70% 的 WA 是读错题（「输出最小值」读成「最大值」）</td></tr>
+      <tr><td>②</td><td><b>看数据范围</b></td><td>会不会爆 int？数组够不够大？要不要多测清空？</td></tr>
+      <tr><td>③</td><td><b>小数据手推</b></td><td>造一个 n=3 的例子，用笔算一遍，和程序输出比</td></tr>
+      <tr><td>④</td><td><b>输出中间变量</b></td><td>在关键位置 <code>cerr</code> 打印状态，看它在哪一步分叉</td></tr>
+      <tr><td>⑤</td><td><b>对拍</b></td><td>用第 2.5 节的方法跑随机数据</td></tr>
+      <tr><td>⑥</td><td><b>检查边界</b></td><td>n=1、全相同、全负、空、最大数据——四个边界必测</td></tr>
+      </table>
+      <div class="box tip"><span class="t">💡 提示</span><p><b><code>cerr</code> 不会影响提交结果</b>（它输出到 stderr，评测机不看），所以调试时放心用：<code>cerr &lt;&lt; "i=" &lt;&lt; i &lt;&lt; " f=" &lt;&lt; f[i] &lt;&lt; "\n";</code>。提交前记得关掉。</p></div>
+    </article>
+    <article class="algo" id="pl-109" data-cat="考场" data-name="11.2 错误字典 结果 优先查什么 已有章节 --- --- --- WA 读错题 → 边界 → 溢出 → 多测清空 → 取模 2.6 TLE 复杂度 → 常数（endl / cin / STL）→ 死循环 2.6 RE 数组越界 → 除零 → 爆栈 → 空容器">
+      <div class="ah"><h4>11.2 错误字典</h4><span class="lv lv-e">入门</span><span class="st">★★★★</span><span class="tag">提分</span></div>
+      <table>
+      <tr><th>结果</th><th>优先查什么</th><th>已有章节</th></tr>
+      <tr><td>WA</td><td>读错题 → 边界 → 溢出 → 多测清空 → 取模</td><td>2.6</td></tr>
+      <tr><td>TLE</td><td>复杂度 → 常数（<code>endl</code> / <code>cin</code> / STL）→ 死循环</td><td>2.6</td></tr>
+      <tr><td>RE</td><td>数组越界 → 除零 → 爆栈 → 空容器 <code>top()</code></td><td>2.6</td></tr>
+      <tr><td>MLE</td><td>二维数组过大 → 递归过深 → 重复开大数组</td><td>2.6</td></tr>
+      <tr><td>CE</td><td>评测机 C++ 版本 → 缺头文件 → 变量重名</td><td>2.6</td></tr>
+      </table>
+    </article>
+    <article class="algo" id="pl-110" data-cat="考场" data-name="11.3 考场策略 时间分配（3 小时赛制） 时间 做什么 --- --- 0:00 – 0:10 通读所有题，按难度排一个顺序，绝不上来就写 0:10 – 1:40 按顺序做「一眼有思路」的题，每道题 40 分钟上限 1:40 – 2:20 写暴力拿部分分（比空着强得多）">
+      <div class="ah"><h4>11.3 考场策略</h4><span class="lv lv-e">入门</span><span class="st">★★★★</span><span class="tag">提分</span></div>
+      <p><b>时间分配（3 小时赛制）</b></p>
+      <table>
+      <tr><th>时间</th><th>做什么</th></tr>
+      <tr><td>0:00 – 0:10</td><td><b>通读所有题</b>，按难度排一个顺序，绝不上来就写</td></tr>
+      <tr><td>0:10 – 1:40</td><td>按顺序做「一眼有思路」的题，<b>每道题 40 分钟上限</b></td></tr>
+      <tr><td>1:40 – 2:20</td><td>写暴力拿部分分（比空着强得多）</td></tr>
+      <tr><td>2:20 – 2:50</td><td>回头攻最接近的一道</td></tr>
+      <tr><td>2:50 – 3:00</td><td>不要再提交，检查前面提交的题有没有低级错误</td></tr>
+      </table>
+      <p><b>三条铁律</b></p>
+      <ol class="tight"><li><b>先拿分，再求满分</b>。一道题 100 分，暴力能拿 40，先写暴力再优化。空着就是 0。</li><li><b>提交前必做</b>：把 <code>freopen</code> 注释掉、把调试输出删掉、把多测清空加上、检查数组大小。</li><li><b>卡住 40 分钟就换题</b>。死磕的期望收益远低于换一道。</li></ol>
+      <p><b>骗分与部分分（正式比赛的必备技能）</b></p>
+      <table>
+      <tr><th>情形</th><th>骗分策略</th></tr>
+      <tr><td>正解想不出</td><td>写 O(n^2) 或 O(2^n) 暴力，能过多少点算多少</td></tr>
+      <tr><td>特殊性质提示</td><td>题目说「保证是一条链」，就写链的解法（通常简单很多）</td></tr>
+      <tr><td>答案范围小</td><td>打表 + 输出</td></tr>
+      <tr><td>求最优解但不会</td><td>贪心/随机化（模拟退火），大概率能过一部分</td></tr>
+      <tr><td>多组数据</td><td>只处理小数据，大数据直接输出一个「看起来对」的答案</td></tr>
+      </table>
+    </article>
+    <article class="algo" id="pl-111" data-cat="考场" data-name="11.4 卡住时的四个动作 1. 换一个样例手推：你八成是某一步的理解错了。 2. 把问题规模缩到最小：n=1,2,3 时你的算法在做什么？ 3. 问自己「暴力怎么做」：暴力往往能暗示正解的方向（前缀和、差分、二分都是暴力的优化）。 4. 看题解的标题：只看「这题用了什么算法」，然后自己往下推。这比看完整题解有效十倍。">
+      <div class="ah"><h4>11.4 卡住时的四个动作</h4><span class="lv lv-e">入门</span><span class="st">★★★★</span><span class="tag">提分</span></div>
+      <ol class="tight"><li><b>换一个样例手推</b>：你八成是某一步的理解错了。</li><li><b>把问题规模缩到最小</b>：n=1,2,3 时你的算法在做什么？</li><li><b>问自己「暴力怎么做」</b>：暴力往往能暗示正解的方向（前缀和、差分、二分都是暴力的优化）。</li><li><b>看题解的标题</b>：只看「这题用了什么算法」，然后自己往下推。<b>这比看完整题解有效十倍。</b></li></ol>
+    </article>
+    <article class="algo" id="pl-112" data-cat="考场" data-name="11.5 写题解的方法 每道做错的题，按下面格式写一段（30 秒就能写完）： text 【题号】P1908 逆序对 【现象】WA on test 3 【根因】树状数组下标从 1 开始，但我离散化后得到的是从 1 开始的排名，没减 1，导致 add(n+1) 越界 【一句话规则】离散化得到的排名是 1-based，树状数组直接可用；若得到">
+      <div class="ah"><h4>11.5 写题解的方法</h4><span class="lv lv-e">入门</span><span class="st">★★★★</span><span class="tag">提分</span><a class="prac" href="practice.html#P1908" target="_blank" title="题单里的模板题">P1908</a></div>
+      <p>每道做错的题，按下面格式写一段（30 秒就能写完）：</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-plain">
+      【题号】P1908 逆序对
+      【现象】WA on test 3
+      【根因】树状数组下标从 1 开始，但我离散化后得到的是从 1 开始的排名，没减 1，导致 add(n+1) 越界
+      【一句话规则】离散化得到的排名是 1-based，树状数组直接可用；若得到 0-based 必须先 +1
+      </script></div>
+      <p><b>「一句话规则」是精华。</b> 积累到 100 条时，你已经比绝大多数人更懂自己的弱点。</p>
+    </article>
+  </div>
+</section>
+

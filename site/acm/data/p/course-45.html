@@ -1,0 +1,416 @@
+
+<p id="b0">第 41~44 节只教了四件事：<b>怎么存一张图</b>（邻接表）、<b>怎么在图上走</b>（DFS / BFS 与连通块）、<b>怎么求最短路与最小生成树</b>（Dijkstra / Floyd / Kruskal）、<b>怎么把有向无环图排成一条线</b>（拓扑排序 + DAG 上的 DP）。这一节不引入新算法：先用 P5318 把「建图 → 排序 → DFS → BFS」从空文件写到 AC，再把五张模板各拆一遍，最后 5 道洛谷黄题限时 95 分钟。</p><div class="quote" id="b1">图论题的代码很少超过 70 行。错的地方永远只有四件事：边的方向、判重的时机、下标的起点、答案的类型。</div><table><thead><tr><th id="b2">节</th><th id="b3">内容</th><th id="b4">看到这些字就上它</th><th id="b5">复杂度</th></tr></thead><tbody><tr><td id="b6">41</td><td id="b7">图的存储与遍历</td><td id="b8">「连通块」「能不能到达」「遍历序」「哪些点互相可达」</td><td id="b9">O(n+m)</td></tr><tr><td id="b10">42</td><td id="b11">最短路：Dijkstra 与 Floyd</td><td id="b12">「最短距离」「最少花费」；边权非负 → 堆优化 Dijkstra，n ≤ 400 要全源 → Floyd</td><td id="b13">O(m log n) / O(n³)</td></tr><tr><td id="b14">43</td><td id="b15">最小生成树与并查集</td><td id="b16">「连通所有点花费最少」「最早何时全部连通」「两点是否连通」</td><td id="b17">O(m log m)</td></tr><tr><td id="b18">44</td><td id="b19">拓扑排序与 DAG 上的 DP</td><td id="b20">「先修」「不能有环」「最长链」「方案数」</td><td id="b21">O(n+m)</td></tr></tbody></table><p id="b22">P5318 是这四节的最小交集：一张有向图、两种遍历、一个排序要求。它不难，但把「存图 + 判重 + 输出格式」三件事一次考完，是回顾章最合适的起手题。</p><div class="prob"><div class="ph"><span class="pn" id="b23">例题 · 查找文献</span><span class="oi">洛谷 P5318</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P5318" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b24">洛谷博客里一共有 n 篇文章（1 ≤ n ≤ 10⁵），编号 1 到 n；另有 m 条参考文献引用关系（1 ≤ m ≤ 10⁶）。若文章 X 的参考文献里有 Y，就记一条有向边 X → Y。</p><p id="b25">小 K 已经打开了 1 号文章。看完一篇就会去看它的全部参考文献（看过的不会再看）。要求分别用 DFS 和 BFS 把这个过程走一遍，输出访问到的文章编号。</p><p id="b26">同一篇文章的多篇参考文献，按编号<b>从小到大</b>依次看。</p><p id="b27">输入格式：第一行两个整数 n、m；接下来 m 行，每行两个整数 X、Y，表示 X 引用 Y。</p><p id="b28">输出格式：两行。第一行为 DFS 序，第二行为 BFS 序，编号之间用一个空格隔开。只输出从 1 号出发能到达的文章。</p></div><div class="io" id="b29">输入：
+8 9
+1 2
+1 3
+1 4
+2 5
+2 6
+3 7
+4 7
+4 8
+7 8
+
+输出：
+1 2 5 6 3 7 8 4
+1 2 3 4 5 6 7 8</div></div><p id="b30">把题目翻译成图：<b>文章是点，引用是有向边，P5318 问的就是从 1 号点出发的 DFS 序与 BFS 序</b>。两处细节决定了这题能不能一次过：邻接表必须先排序（否则顺序取决于输入），以及 DFS 不能用朴素递归（n 到 10⁵，最坏深度也是 10⁵）。</p><p id="b31">下面五张卡不是新知识，是把本节要用的骨架各默写一遍。<b>赛场上默写不出来的模板，等于没学过</b>：先能一次写对，再谈限时。</p><div class="fn"><div class="fh" id="b32">新函数拆解 · 邻接表（vector 数组）</div><div class="fb"><div class="sig" id="b33">vector&lt;int&gt; g[MAXN];
+g[u].push_back(v);
+for (int v : g[u]) { ... }</div><table class="lines"><thead><tr><th id="b34">组成</th><th id="b35">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b36"><code>vector&lt;int&gt; g[MAXN]</code></td><td id="b37">开 MAXN 个 vector，g[u] 里放 u 的全部出点。空间 O(n+m)；1e5 个空 vector 约 2.4 MB，m = 10⁶ 条边再占 4 MB。</td></tr><tr><td id="b38"><code>g[u].push_back(v)</code></td><td id="b39">有向边只加一次；无向边加两次（g[u]→v 与 g[v]→u）。漏加一次的症状：连通块数变多、无向图最短路算不出来。</td></tr><tr><td id="b40"><code>带权边</code></td><td id="b41">改成 <code>vector&lt;pair&lt;int,int&gt;&gt; g[MAXN]</code>，存 (终点, 权值)。邻接矩阵在 n = 10⁵ 时要 4×10¹⁰ 字节，开不出来。</td></tr><tr><td id="b42"><code>(int)g[u].size()</code></td><td id="b43">size() 返回无符号数。<code>for (size_t i = size - 1; i &gt;= 0; --i)</code> 在空表上会变成 2⁶⁴−1 而<b>死循环</b>；本行先强转 int 再减一，空表时就是 −1，循环直接跳过。</td></tr><tr><td id="b44"><code>for (int v : g[u])</code></td><td id="b45">遍历出边，O(deg(u))。整张图扫一遍是 O(n+m)，不是 O(n²)。</td></tr><tr><td id="b46"><code>要不要排序</code></td><td id="b47">题目要求「小编号优先」时必须对每个 g[u] 排序——邻接表里的顺序就是读入顺序。</td></tr></tbody></table><div class="cap" id="b48">最小可运行示例</div><div class="cap" id="b49">示例</div><pre id="b50"><code><span class="k">vector</span>&lt;<span class="k">int</span>&gt; g[<span class="n">100005</span>];
+
+g[<span class="n">1</span>].<span class="k">push_back</span>(<span class="n">2</span>);
+g[<span class="n">1</span>].<span class="k">push_back</span>(<span class="n">3</span>);            <span class="c">// 无向图还要写 g[2].push_back(1) 之类</span>
+g[<span class="n">2</span>].<span class="k">push_back</span>(<span class="n">3</span>);
+
+<span class="k">for</span> (<span class="k">int</span> v : g[<span class="n">1</span>]) <span class="k">cout</span> &lt;&lt; v &lt;&lt; <span class="s">" "</span>;    <span class="c">// 2 3，按入表顺序，不自动有序</span>
+<span class="k">sort</span>(g[<span class="n">1</span>].<span class="k">begin</span>(), g[<span class="n">1</span>].<span class="k">end</span>());         <span class="c">// 题目要求小编号优先时必须自己排</span></code></pre><div class="box tip"><div class="t" id="b51">注意</div><p id="b52">无向图只加一条边：从 u 能到 v，从 v 回不到 u，连通块数直接翻倍。</p><p id="b53">1e5 个点用 <code>int a[1005][1005]</code> 这种矩阵存：n 一大就爆内存，稀疏图一律邻接表。</p></div></div></div><div class="fn"><div class="fh" id="b54">新函数拆解 · DFS / BFS 遍历骨架</div><div class="fb"><div class="sig" id="b55">void dfs(int u) { vis[u] = 1; for (int v : g[u]) if (!vis[v]) dfs(v); }</div><table class="lines"><thead><tr><th id="b56">组成</th><th id="b57">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b58"><code>vis 数组</code></td><td id="b59">判重的唯一依据。DFS 进点即标记，BFS 入队即标记；晚一步同一个点就会被处理两次。</td></tr><tr><td id="b60"><code>递归 DFS</code></td><td id="b61">代码最短。但深度等于路径长度：10⁵ 的链每帧按 48 字节算是 4.8 MB，离 8 MB 的栈上限只差一点，边界数据容易 RE。</td></tr><tr><td id="b62"><code>显式栈</code></td><td id="b63"><code>st.push_back(u)</code> 弹出访问、<code>st.pop_back()</code> 模拟递归。压孩子必须<b>倒序</b>，弹出顺序才和递归版一致。</td></tr><tr><td id="b64"><code>queue BFS</code></td><td id="b65">层序扩展。边权全为 1 时，第一次访问就是最少步数。</td></tr><tr><td id="b66"><code>两遍之间</code></td><td id="b67"><code>memset(vis, 0, sizeof vis)</code>。忘了清空，第二遍所有点都被判成「已访问」，第二行只剩起点一个 1。</td></tr><tr><td id="b68"><code>复杂度</code></td><td id="b69">邻接表 O(n+m)；同样的遍历换成邻接矩阵就是 O(n²) = 10¹⁰。</td></tr></tbody></table><div class="cap" id="b70">最小可运行示例</div><div class="cap" id="b71">示例</div><pre id="b72"><code><span class="k">bool</span> vis[MAXN];
+
+<span class="k">void</span> <span class="f">dfs</span>(<span class="k">int</span> u) {                     <span class="c">// 递归版：深度大时可能爆栈</span>
+    vis[u] = <span class="n">1</span>;
+    <span class="k">cout</span> &lt;&lt; u &lt;&lt; <span class="s">" "</span>;
+    <span class="k">for</span> (<span class="k">int</span> v : g[u]) <span class="k">if</span> (!vis[v]) <span class="f">dfs</span>(v);
+}
+
+<span class="k">void</span> <span class="f">bfs</span>(<span class="k">int</span> s) {                     <span class="c">// 队列版：层序</span>
+    <span class="k">queue</span>&lt;<span class="k">int</span>&gt; q;
+    q.<span class="f">push</span>(s); vis[s] = <span class="n">1</span>;            <span class="c">// 入队即标记</span>
+    <span class="k">while</span> (!q.<span class="k">empty</span>()) {
+        <span class="k">int</span> u = q.<span class="f">front</span>(); q.<span class="f">pop</span>();
+        <span class="k">cout</span> &lt;&lt; u &lt;&lt; <span class="s">" "</span>;
+        <span class="k">for</span> (<span class="k">int</span> v : g[u]) <span class="k">if</span> (!vis[v]) { vis[v] = <span class="n">1</span>; q.<span class="f">push</span>(v); }
+    }
+}</code></pre><div class="box tip"><div class="t" id="b73">注意</div><p id="b74">BFS 改成「出队时标记」：同一个点被多个父亲反复入队，队列长度到 O(m)，大数据 TLE。</p><p id="b75">显式栈正序压孩子：遍历顺序与递归不一致，题目要求固定顺序时直接 WA。</p></div></div></div><div class="fn"><div class="fh" id="b76">新函数拆解 · 堆优化 Dijkstra</div><div class="fb"><div class="sig" id="b77">priority_queue&lt;pair&lt;long long,int&gt;, vector&lt;pair&lt;long long,int&gt;&gt;, greater&lt;pair&lt;long long,int&gt;&gt;&gt; pq;</div><table class="lines"><thead><tr><th id="b78">组成</th><th id="b79">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b80"><code>pair 的第一维</code></td><td id="b81">必须是距离。pair 按字典序比较，第一维是距离时堆顶才是「距离最小的点」。两位写反、取用时又把 first 当距离，读到的其实是编号，输出一列毫无意义的数。</td></tr><tr><td id="b82"><code>greater&lt;...&gt;</code></td><td id="b83">小根堆，堆顶是当前距离最小的点。写成默认的大根堆：只要懒删除那行还在，答案仍然对（顺序错了会不断修正），但同一个点被反复松弛，常数大几倍；若又用 used 数组「弹出即定案」，就会把错的距离冻死 → WA。</td></tr><tr><td id="b84"><code>dist 初始化</code></td><td id="b85"><code>fill(dist, dist + n + 1, INF)</code>；INF 取 <code>LLONG_MAX / 2</code>，保证 <code>d + w</code> 不会溢出成负数。</td></tr><tr><td id="b86"><code>懒删除</code></td><td id="b87"><code>if (d &gt; dist[u]) continue;</code> 堆里同一个点可能有多份历史版本，取出的 d 比记录值大就丢弃。</td></tr><tr><td id="b88"><code>松弛条件</code></td><td id="b89"><code>if (dist[v] &gt; d + w)</code>。相等时不更新，能少一次入堆。</td></tr><tr><td id="b90"><code>适用前提</code></td><td id="b91">边权全部非负。有负权必须换 Bellman-Ford / SPFA，Dijkstra 会给错答案。</td></tr></tbody></table><div class="cap" id="b92">最小可运行示例</div><div class="cap" id="b93">示例</div><pre id="b94"><code><span class="k">const</span> <span class="k">long</span> <span class="k">long</span> INF = <span class="k">LLONG_MAX</span> / <span class="n">2</span>;
+<span class="k">long</span> <span class="k">long</span> dist[MAXN];
+<span class="k">fill</span>(dist, dist + n + <span class="n">1</span>, INF);
+dist[s] = <span class="n">0</span>;
+
+<span class="k">priority_queue</span>&lt;<span class="k">pair</span>&lt;<span class="k">long</span> <span class="k">long</span>,<span class="k">int</span>&gt;, <span class="k">vector</span>&lt;<span class="k">pair</span>&lt;<span class="k">long</span> <span class="k">long</span>,<span class="k">int</span>&gt;&gt;,
+               <span class="k">greater</span>&lt;<span class="k">pair</span>&lt;<span class="k">long</span> <span class="k">long</span>,<span class="k">int</span>&gt;&gt;&gt; pq;
+pq.<span class="f">push</span>({<span class="n">0</span>, s});
+<span class="k">while</span> (!pq.<span class="k">empty</span>()) {
+    <span class="k">auto</span> [d, u] = pq.<span class="f">top</span>(); pq.<span class="f">pop</span>();
+    <span class="k">if</span> (d &gt; dist[u]) <span class="k">continue</span>;                 <span class="c">// 过期版本，丢掉</span>
+    <span class="k">for</span> (<span class="k">auto</span> [v, w] : g[u])
+        <span class="k">if</span> (dist[v] &gt; d + w) { dist[v] = d + w; pq.<span class="f">push</span>({dist[v], v}); }
+}</code></pre><div class="box tip"><div class="t" id="b95">注意</div><p id="b96">n ≤ 400 又要「任意两点间距离」时别写这个：Floyd 三重循环 O(n³) = 6.4×10⁷，三行就够。</p><p id="b97">dist 用 int 且 INF 取 0x7fffffff：<code>d + w</code> 溢出成负数，把不可达覆盖成负距离。</p></div></div></div><div class="fn"><div class="fh" id="b98">新函数拆解 · 并查集（路径压缩 + 合并）</div><div class="fb"><div class="sig" id="b99">int find(int x) {
+    while (fa[x] != x) { fa[x] = fa[fa[x]]; x = fa[x]; }
+    return x;
+}
+fa[find(a)] = find(b);</div><table class="lines"><thead><tr><th id="b100">组成</th><th id="b101">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b102"><code>fa[i] = i</code></td><td id="b103">初始化，每个点自成一个集合。漏了这一步：fa 全 0，所有 find 都返回 0，连通图也会被判成「全部连通」，最后输出 orz。</td></tr><tr><td id="b104"><code>find 路径压缩</code></td><td id="b105">把路径上的点直接挂到根，之后查询接近 O(1)。写成迭代是为了不受递归深度影响。</td></tr><tr><td id="b106"><code>fa[find(a)] = find(b)</code></td><td id="b107">合并：把 a 的根挂到 b 的根下。只把两个<b>根</b>连起来，写成 <code>fa[a] = b</code> 会把 a 底下的点全从原集合里拆走。</td></tr><tr><td id="b108"><code>判断连通</code></td><td id="b109"><code>find(a) == find(b)</code>。</td></tr><tr><td id="b110"><code>计数</code></td><td id="b111">Kruskal 里用 cnt 数已选边数，选满 n−1 就结束；最后 cnt &lt; n−1 即图不连通。</td></tr><tr><td id="b112"><code>复杂度</code></td><td id="b113">带路径压缩后单次接近 O(1)（反阿克曼函数），m = 2×10⁵ 时并查集部分耗时可忽略。</td></tr></tbody></table><div class="cap" id="b114">最小可运行示例</div><div class="cap" id="b115">示例</div><pre id="b116"><code><span class="k">int</span> fa[MAXN];
+<span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) fa[i] = i;      <span class="c">// 必须初始化</span>
+
+<span class="k">int</span> a = <span class="f">find</span>(u), b = <span class="f">find</span>(v);
+<span class="k">if</span> (a != b) { fa[a] = b; ++cnt; }            <span class="c">// 不在同一集合才合并</span></code></pre><div class="box tip"><div class="t" id="b117">注意</div><p id="b118"><code>fa[u] = v</code> 不取根：u 下面挂着的点全部脱离原集合，连通性判断随机出错，Kruskal 会加入成环的边，答案偏小。</p><p id="b119">只做路径压缩、不做按大小合并也能过；但两者都加上只是两行代码的事。</p></div></div></div><div class="fn"><div class="fh" id="b120">新函数拆解 · 拓扑排序（入度 + 队列）</div><div class="fb"><div class="sig" id="b121">for (每个入度为 0 的点 u) q.push(u);
+while (!q.empty()) {
+    int u = q.front(); q.pop();
+    for (int v : g[u]) if (--indeg[v] == 0) q.push(v);
+}</div><table class="lines"><thead><tr><th id="b122">组成</th><th id="b123">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b124"><code>indeg 数组</code></td><td id="b125">读边时 <code>++indeg[v]</code>（边 u → v）。写成出度就完全不是拓扑排序。</td></tr><tr><td id="b126"><code>初始入队</code></td><td id="b127">入度为 0 的点没有前驱，可以直接处理，全部先入队。</td></tr><tr><td id="b128"><code>--indeg[v] == 0</code></td><td id="b129">每处理一条边删掉一条入度，降到 0 才入队——保证 v 的所有前驱都处理完了。</td></tr><tr><td id="b130"><code>判环</code></td><td id="b131">数出队次数 cnt，cnt == n 才无环；cnt &lt; n 说明剩下的点互相成环，拓扑序不存在。</td></tr><tr><td id="b132"><code>DAG 上的 DP</code></td><td id="b133">按出队顺序更新 dp，就是 DAG 上正确的递推顺序：处理 u 时它的所有前驱都已算完。</td></tr><tr><td id="b134"><code>复杂度</code></td><td id="b135">O(n+m)。每个点入队一次、每条边被删一次。</td></tr></tbody></table><div class="cap" id="b136">最小可运行示例</div><div class="cap" id="b137">示例</div><pre id="b138"><code><span class="k">queue</span>&lt;<span class="k">int</span>&gt; q;
+<span class="k">int</span> cnt = <span class="n">0</span>;
+<span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) <span class="k">if</span> (indeg[i] == <span class="n">0</span>) q.<span class="f">push</span>(i);
+<span class="k">while</span> (!q.<span class="k">empty</span>()) {
+    <span class="k">int</span> u = q.<span class="f">front</span>(); q.<span class="f">pop</span>();
+    ++cnt;
+    <span class="k">for</span> (<span class="k">int</span> v : g[u])
+        <span class="k">if</span> (--indeg[v] == <span class="n">0</span>) q.<span class="f">push</span>(v);       <span class="c">// 前驱全部处理完才入队</span>
+}
+<span class="k">if</span> (cnt &lt; n) <span class="f">puts</span>(<span class="s">"有环，拓扑序不存在"</span>);</code></pre><div class="box tip"><div class="t" id="b139">注意</div><p id="b140">写成 <code>if (indeg[v] - 1 == 0)</code>：入度永远不减，队列第一次就空了，只输出一个点。</p><p id="b141">cnt 在入队时加：重边会让同一个点被数多次，判环失效。</p></div></div></div><div class="step"><div class="sh" id="b142">例题怎么想：三件事定死，代码就写完了</div><p id="b143"><b>① 存图。</b>m 到 10⁶，邻接矩阵要 n² = 10¹⁰ 个格子，开不出来。用 <code>vector&lt;int&gt; g[MAXN]</code>：每条边只存一次，空间 O(n+m)。</p><p id="b144"><b>② 定顺序。</b>题目要求「参考文献按编号从小到大看」，而邻接表里的顺序就是读入顺序。所以遍历之前必须 <code>for (i = 1..n) sort(g[i])</code>。不排序时，DFS 序完全取决于输入顺序——样例恰好是升序给的，本地根本看不出错。</p><p id="b145"><b>③ 判重。</b>vis 数组。DFS 进点即标记，BFS 入队即标记。标记晚一步，同一个点会被处理两次，输出里就出现重复编号。</p><p id="b146">DFS 还要提前决定一件事：n 到 10⁵，递归深度最坏也是 10⁵，逼近 8 MB 的栈上限。所以这里用<b>显式栈</b>：弹出时访问，然后把出点<b>倒序</b>压栈——倒序是为了让编号最小的出点留在栈顶，弹出顺序才与递归版一致。这一行写反，遍历序就变了。</p><p id="b147">BFS 用 queue，入队即标记、出队即输出，得到的自然是「先近后远，同层按编号升序」。两遍遍历之间 <code>memset(vis, 0, sizeof vis)</code>。</p><p id="b148">复杂度：排序 Σ deg(u)·log deg(u) ≤ O(m log m)，遍历 O(n+m)，读入 O(m)。m = 10⁶ 这一级读入本身就是瓶颈：用 scanf 最稳，用 cin 必须关同步。</p></div><div class="cap" id="b149">完整代码 · 邻接表 + 显式栈 DFS + BFS</div><pre id="b150"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">100005</span>;
+<span class="k">int</span> n, m;
+<span class="k">vector</span>&lt;<span class="k">int</span>&gt; g[MAXN];          <span class="c">// g[u]：u 引用的所有文献</span>
+<span class="k">bool</span> vis[MAXN];               <span class="c">// 判重：每个点最多真正访问一次</span>
+
+<span class="c">// 按顺序输出，编号之间一个空格，行末只有换行</span>
+<span class="k">void</span> <span class="f">printOrder</span>(<span class="k">const</span> <span class="k">vector</span>&lt;<span class="k">int</span>&gt; &amp;ord) {
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; (<span class="k">int</span>)ord.<span class="k">size</span>(); ++i) {
+        <span class="k">if</span> (i) <span class="f">putchar</span>(<span class="s">' '</span>);
+        <span class="k">printf</span>(<span class="s">"%d"</span>, ord[i]);
+    }
+    <span class="f">putchar</span>(<span class="s">'\n'</span>);
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">scanf</span>(<span class="s">"%d%d"</span>, &amp;n, &amp;m);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; m; ++i) {
+        <span class="k">int</span> x, y;
+        <span class="k">scanf</span>(<span class="s">"%d%d"</span>, &amp;x, &amp;y);
+        g[x].<span class="k">push_back</span>(y);              <span class="c">// 有向边 X -&gt; Y，只加一条</span>
+    }
+    <span class="c">// 题目要求小编号优先；邻接表里是读入顺序，必须自己排</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) <span class="k">sort</span>(g[i].<span class="k">begin</span>(), g[i].<span class="k">end</span>());
+
+    <span class="c">// ---------------- DFS：显式栈，避免 1e5 深度爆栈 ----------------</span>
+    <span class="k">vector</span>&lt;<span class="k">int</span>&gt; ord, st;
+    st.<span class="k">push_back</span>(<span class="n">1</span>);
+    <span class="k">while</span> (!st.<span class="k">empty</span>()) {
+        <span class="k">int</span> u = st.<span class="f">back</span>(); st.<span class="k">pop_back</span>();
+        <span class="k">if</span> (vis[u]) <span class="k">continue</span>;           <span class="c">// 可能被多个点重复压栈，只处理第一次</span>
+        vis[u] = <span class="n">1</span>;
+        ord.<span class="k">push_back</span>(u);
+        <span class="c">// 倒序压栈：编号最小的出点最后压，弹出时最先访问，与递归 DFS 一致</span>
+        <span class="k">for</span> (<span class="k">int</span> i = (<span class="k">int</span>)g[u].<span class="k">size</span>() - <span class="n">1</span>; i &gt;= <span class="n">0</span>; --i) st.<span class="k">push_back</span>(g[u][i]);
+    }
+    <span class="f">printOrder</span>(ord);
+
+    <span class="c">// ---------------- BFS：队列，入队即标记 ----------------</span>
+    <span class="k">memset</span>(vis, <span class="n">0</span>, <span class="k">sizeof</span> vis);         <span class="c">// 两遍遍历之间必须清空</span>
+    ord.<span class="f">clear</span>();
+    <span class="k">queue</span>&lt;<span class="k">int</span>&gt; q;
+    q.<span class="f">push</span>(<span class="n">1</span>); vis[<span class="n">1</span>] = <span class="n">1</span>;
+    <span class="k">while</span> (!q.<span class="k">empty</span>()) {
+        <span class="k">int</span> u = q.<span class="f">front</span>(); q.<span class="f">pop</span>();
+        ord.<span class="k">push_back</span>(u);
+        <span class="k">for</span> (<span class="k">int</span> v : g[u]) {
+            <span class="k">if</span> (vis[v]) <span class="k">continue</span>;
+            vis[v] = <span class="n">1</span>;                 <span class="c">// 入队立刻标记，否则同一点会重复进队</span>
+            q.<span class="f">push</span>(v);
+        }
+    }
+    <span class="f">printOrder</span>(ord);
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b151">逐行拆解</div><table class="lines"><thead><tr><th id="b152">代码片段</th><th id="b153">含义与理由</th></tr></thead><tbody><tr><td id="b154"><code>vector&lt;int&gt; g[MAXN];</code></td><td id="b155">邻接表。m ≤ 10⁶ 条边、n ≤ 10⁵ 个点，空间 10⁶ 个 int 加 10⁵ 个 vector 头，总共 6 MB 以内。</td></tr><tr><td id="b156"><code>for (int i = 1; i &lt;= n; ++i) sort(g[i].begin(), g[i].end());</code></td><td id="b157">题目要求「小编号优先」。样例的边恰好是按升序给的，所以删掉这一行本地看不出变化；把输入第 2、3 行对调后再删，DFS 序立刻变成 1 3 7 8 2 5 6 4 —— 顺序完全由输入决定。</td></tr><tr><td id="b158"><code>if (vis[u]) continue;</code></td><td id="b159">显式栈里同一个点可能被压进栈多次（每个前驱各压一次）。跳过已访问的，保证一个点只输出一次。</td></tr><tr><td id="b160"><code>for (int i = (int)g[u].size() - 1; i &gt;= 0; --i) st.push_back(g[u][i]);</code></td><td id="b161">倒序压栈是这题唯一的技巧。正序压栈时栈顶是编号最大的出点，遍历序与递归版不一致 → WA。另外 size() 是无符号数，先强转 int 再减一：空表时 i = −1，循环直接跳过。</td></tr><tr><td id="b162"><code>memset(vis, 0, sizeof vis);</code></td><td id="b163">两遍遍历之间清空。忘了这一行，BFS 时所有出点都被判成「已访问」，第二行只剩一个 1。</td></tr><tr><td id="b164"><code>q.push(1); vis[1] = 1;</code></td><td id="b165">起点入队的同时标记。先 push 后标记也不会错，但两件事写在一起，就不会出现「进了队却没标记」。</td></tr><tr><td id="b166"><code>if (vis[v]) continue; vis[v] = 1; q.push(v);</code></td><td id="b167">BFS 的核心：标记发生在<b>入队</b>时。改成出队时标记，同一个点会被多个父亲重复入队，队列长度从 n 涨到 O(m)。</td></tr><tr><td id="b168"><code>printOrder(ord)</code></td><td id="b169">把遍历序先存进 vector 再统一输出。这样能干净地控制「数字之间一个空格、行末只换行」，不用在每个 printf 里判断是不是第一个。</td></tr><tr><td id="b170"><code>scanf("%d%d", &amp;x, &amp;y)</code></td><td id="b171">m = 10⁶ 时读入本身就是瓶颈。scanf 在这个量级比 cin 稳；若坚持用 cin，务必关同步。</td></tr></tbody></table></div><table><thead><tr><th id="b172">题目里出现</th><th id="b173">第一反应</th><th id="b174">最容易写错的地方</th></tr></thead><tbody><tr><td id="b175">连通块个数 / 能否互相到达</td><td id="b176">DFS、BFS 或并查集，O(n+m)</td><td id="b177">无向图只加了一条边</td></tr><tr><td id="b178">无权图最少几步</td><td id="b179">BFS，距离数组兼作 visited</td><td id="b180">在出队时标记</td></tr><tr><td id="b181">非负边权的最短路</td><td id="b182">堆优化 Dijkstra</td><td id="b183">忘了 greater 或 pair 顺序写反</td></tr><tr><td id="b184">n ≤ 400 的全源最短路</td><td id="b185">Floyd 三重循环</td><td id="b186">中间点 k 没放最外层</td></tr><tr><td id="b187">连通所有点的最小花费</td><td id="b188">Kruskal：排序 + 并查集</td><td id="b189">fa 没初始化、合并不取根</td></tr><tr><td id="b190">有依赖关系的顺序 / 最长链</td><td id="b191">拓扑排序，再按出队顺序 DP</td><td id="b192">indeg 记成出度、忘判环</td></tr></tbody></table><div class="box warn"><div class="t" id="b193">这一章最常丢的 8 种分，每种都写症状</div><p id="b194"><b>无向图只加一条边 → WA / 答案偏小</b>。典型症状：n 个点本该 1 个连通块，程序数出 3 个；或者「任意两点可达」的题里有大量点输出 −1。检查 <code>g[u].push_back(v)</code> 有没有配一条 <code>g[v].push_back(u)</code>。</p><p id="b195"><b>邻接表没排序就遍历 → WA</b>。P5318 这类要求「小编号优先」的题，DFS 序会随输入顺序变。样例数据往往恰好是升序给的，本地全过、交上去第 3 个点就错。</p><p id="b196"><b>BFS 在出队时判重 → TLE</b>。小数据全对，大数据队列长度炸到 O(m)，10⁶ 条边时内存和时间一起崩。判重必须放在入队那一刻。</p><p id="b197"><b>Dijkstra 的堆方向写反 → TLE 或 WA</b>。用默认大根堆、只靠懒删除时答案<b>仍然是对的</b>（顺序错了但会不断修正），代价是同一个点被反复松弛，P4779 的菊花数据能把它卡成 TLE；一旦再配上 <code>used</code> 数组「弹出即定案」，错的距离就会被冻死，大片数据 WA。三件事一起记：小根堆 <code>greater</code>、懒删除、别加 used。</p><p id="b198"><b>INF 取成 0x7fffffff → WA</b>。不可达点的 dist 是 2³¹−1，只要在它上面加一次正权就溢出成负数，「不可达」被改写成一条负距离，之后还会继续被松弛，输出里会出现 −2000000000 这种数。写 <code>LLONG_MAX / 2</code> 最稳。</p><p id="b199"><b>并查集忘了 fa[i] = i → 连通图也输出 orz</b>。fa 全局默认全 0，所有 find 都返回 0，每条边都被判成「成环」而跳过，cnt 始终是 0。</p><p id="b200"><b>合并时写 fa[u] = v（不取根）→ WA 且答案偏小</b>。树被拆断，连通性判断随机出错，Kruskal 会加入成环的边，最终答案比正确值小，但边数还是 n−1，很难自查。</p><p id="b201"><b>答案用 int → 输出负数</b>。P1629 的答案到 10¹⁰，P4017 的方案数是指数级（必须边算边模）。凡是「求和」「相乘」「方案数」，先估量级再定类型。</p></div><div class="reproduce"><div class="rt" id="b202">自己动手复现</div><p id="b203">关掉页面，用 P5318 的样例从空文件敲一遍，提交到洛谷。</p><p id="b204">改一改①：把输入第 2、3 行对调（先 <code>1 3</code> 再 <code>1 2</code>），排序那行还在时输出不变；把排序那行注释掉，DFS 序变成 <code>1 3 7 8 2 5 6 4</code>，BFS 序变成 <code>1 3 2 4 7 5 6 8</code> —— 这就是「没排序」的现场。</p><p id="b205">改一改②：把显式栈换成递归 DFS，再自己造一条 n = 10⁵ 的链（第 i 行输入 <code>i i+1</code>），盯着程序看它是正常结束还是 RE。8 MB 栈 ÷ 每帧几十字节 ≈ 10⁵ 帧，正好卡在边界上——这就是本节用显式栈的理由。</p><p id="b206">改一改③：把 BFS 的 <code>vis[v] = 1</code> 从入队移到出队，用 m = 10⁶ 的随机图跑一遍，看时间与队列长度怎么变。</p></div><table><thead><tr><th id="b207">题号</th><th id="b208">编号</th><th id="b209">主要考什么</th><th id="b210">最容易错在哪</th></tr></thead><tbody><tr><td id="b211">A</td><td id="b212">P3916</td><td id="b213">反向建图 + BFS：编号大的先覆盖</td><td id="b214">正着建图，语义整个反了</td></tr><tr><td id="b215">B</td><td id="b216">P4779</td><td id="b217">堆优化 Dijkstra 模板</td><td id="b218">大根堆 + used 数组；pair 两位写反</td></tr><tr><td id="b219">C</td><td id="b220">P1629</td><td id="b221">正反两张图各跑一次 Dijkstra</td><td id="b222">只跑一次；ans 用 int</td></tr><tr><td id="b223">D</td><td id="b224">P3366</td><td id="b225">Kruskal + 并查集</td><td id="b226">fa 没初始化；合并不取根</td></tr><tr><td id="b227">E</td><td id="b228">P4017</td><td id="b229">拓扑排序 + 路径计数</td><td id="b230">普及/提高-</td></tr></tbody></table><div class="box info"><div class="t" id="b231">这 95 分钟怎么用</div><p id="b232">0~10 分钟：只读题不写代码。按「能立刻写」→「有思路」→「没思路」给 5 题排序，写下每题要用的模板。</p><p id="b233">10~25 分钟：A（图的遍历）。重点不是 BFS，而是「为什么从大到小扫、为什么建反图」这两问。</p><p id="b234">25~45 分钟：B（单源最短路）。模板题，要求一次写对：三个模板参数、懒删除、INF 的写法。</p><p id="b235">45~65 分钟：C（邮递员送信）。想清楚「回来」为什么等于反图上「出去」，这一题就只剩打模板。</p><p id="b236">65~80 分钟：D（最小生成树）。排序 + 并查集，重点是 fa 初始化和 orz 的判据。</p><p id="b237">80~90 分钟：E（最大食物链计数）。拓扑排序 + DP，重点是「链的起点/终点」怎么在度上体现。</p><p id="b238">90~95 分钟：只检查，不改算法。按下面的清单过一遍，每检查一项就打一个勾。</p></div><div class="box ok"><div class="t" id="b239">提交前的 30 秒检查清单</div><p id="b240">边的方向：有向图只加一条，无向图加两条，反图是否也建了？</p><p id="b241">vis：两遍遍历之间清空了吗？BFS 的标记在入队处吗？</p><p id="b242">最短路：dist 用 fill 初始化了吗？INF 够大且加法不溢出吗？小根堆写全了吗？</p><p id="b243">并查集：<code>fa[i] = i</code> 写了吗？合并的两个参数是 find 的返回值吗？</p><p id="b244">拓扑：indeg 记的是入度吗？环判了吗？</p><p id="b245">类型：求和 / 方案数是不是 long long 或边算边模？</p><p id="b246">输出：行末有没有多余空格？每个答案是否各自换行？</p></div><h2 id="b247">本次训练 · 共 5 题</h2><div class="box tip"><div class="t" id="b248">做题方式</div><p id="b249">限时 <b>100 分钟</b>。每题先自己写 20~25 分钟；写不出来先看提示，再给自己 10 分钟；还不行才点开思路。每题都独立限时，不要一题耗死。</p></div><div class="challenge"><div class="ct" id="b250">大题 挑战题 1 · 图的遍历</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P3916</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P3916" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b251">给出 N 个点、M 条边的有向图。对每个点 v，记 A(v) 为从 v 出发沿有向边走能到达的所有点（包括 v 自己）中编号最大的那个。求 A(1), A(2), …, A(N)。</p><p id="b252">输入格式：第一行两个整数 N、M（1 ≤ N, M ≤ 10⁵）；接下来 M 行，每行两个整数 Uᵢ、Vᵢ，表示一条 Uᵢ → Vᵢ 的有向边。点用 1…N 编号。</p><p id="b253">输出格式：一行 N 个整数，依次为 A(1)…A(N)，相邻两个之间一个空格。</p><p id="b254"><b>样例输入</b><br><code>4 3<br>1 2<br>2 4<br>4 3</code><br><b>样例输出</b><br><code>4 4 3 4</code><br>样例解释：1 能到 2、4、3，最大编号 4；2 能到 4、3，A(2) = 4；3 只能到自己，A(3) = 3；4 能到 3，A(4) = 4。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b255">先估暴力：每个点各跑一次遍历，最坏 N × (N+M) = 2×10¹⁰，1 秒不可能。所以必须让多个点共用同一次遍历。</p><p id="b256">如果 x 能走到 y，那么 A(x) ≥ A(y)。换句话说，答案大的点会「覆盖」答案小的点。什么样的扫描顺序能让最大的那个先说话？</p><p id="b257">把每条边的方向倒过来。原图上「谁能走到 i」，在反图上就是「从 i 能走到谁」——从 i 出发一次 BFS，就能把所有答案至少是 i 的点一次标记完。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b258">暴力 O(N(N+M)) 必 TLE。突破口是：A(v) 一定是 v 能到达的点里编号最大的那个，而「能到达」在反图上就是「被到达」。</p><p id="b259">把每条边反向：原图 u → v 存成反图 v → u。这样从 i 在反图上能走到的每个 x，都满足「原图上 x 能走到 i」，于是 A(x) ≥ i。</p><p id="b260">从 N 往 1 枚举 i。若 ans[i] 还没被赋值，就从 i 在反图上 BFS，把沿途所有未赋值的点都标成 i。</p><p id="b261">正确性：设 x 被标成 i。① 反图上 i 到 x 有路 → 原图 x 到 i 有路 → A(x) ≥ i；② 任何 j > i 都在更早的轮次处理过，若 x 能到 j，反图上 j 就能到 x，x 早被标成 ≥ j 的值，矛盾。所以 A(x) 恰好是 i。</p><p id="b262">复杂度：每个点只被赋值一次、入队一次，每条反边最多扫一次，总 O(N+M)，N = M = 10⁵ 时约 2×10⁵ 次操作。</p><p id="b263">细节：i 必须先令 ans[i] = i 再入队，否则没有出边的点会输出 0。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b264">参考代码</div><pre id="b265"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">100005</span>;
+<span class="k">int</span> n, m;
+<span class="k">vector</span>&lt;<span class="k">int</span>&gt; rg[MAXN];        <span class="c">// 反图：原边 u -&gt; v 在这里存成 v -&gt; u</span>
+<span class="k">int</span> ans[MAXN];               <span class="c">// ans[v]：v 能到达的最大编号；0 表示还没定</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">scanf</span>(<span class="s">"%d%d"</span>, &amp;n, &amp;m);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; m; ++i) {
+        <span class="k">int</span> u, v;
+        <span class="k">scanf</span>(<span class="s">"%d%d"</span>, &amp;u, &amp;v);
+        rg[v].<span class="k">push_back</span>(u);             <span class="c">// 唯一改动：反向建边</span>
+    }
+
+    <span class="k">for</span> (<span class="k">int</span> i = n; i &gt;= <span class="n">1</span>; --i) {      <span class="c">// 从大到小扫：先被覆盖的答案就是最大的</span>
+        <span class="k">if</span> (ans[i]) <span class="k">continue</span>;           <span class="c">// 更大的点已经把它定过了</span>
+        ans[i] = i;                     <span class="c">// 自己一定能到达自己</span>
+        <span class="k">queue</span>&lt;<span class="k">int</span>&gt; q;
+        q.<span class="f">push</span>(i);
+        <span class="k">while</span> (!q.<span class="k">empty</span>()) {
+            <span class="k">int</span> u = q.<span class="f">front</span>(); q.<span class="f">pop</span>();
+            <span class="k">for</span> (<span class="k">int</span> v : rg[u]) {
+                <span class="k">if</span> (ans[v]) <span class="k">continue</span>;
+                ans[v] = i;             <span class="c">// 反图 i 能到 v，等价于原图 v 能到 i</span>
+                q.<span class="f">push</span>(v);
+            }
+        }
+    }
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        <span class="k">if</span> (i &gt; <span class="n">1</span>) <span class="f">putchar</span>(<span class="s">' '</span>);
+        <span class="k">printf</span>(<span class="s">"%d"</span>, ans[i]);
+    }
+    <span class="f">putchar</span>(<span class="s">'\n'</span>);
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b266">关键片段拆解</div><table class="lines"><thead><tr><th id="b267">片段</th><th id="b268">作用</th></tr></thead><tbody><tr><td id="b269"><code>rg[v].push_back(u)</code></td><td id="b270">反向建图的全部代价就是这一行：把 push 的下标换一下，后面的代码一行都不用改。</td></tr><tr><td id="b271"><code>for (int i = n; i &gt;= 1; --i)</code></td><td id="b272">从大到小枚举。顺序反过来就没有「先被覆盖即最大」的性质，样例会输出 <code>1 2 3 3</code> 而不是 <code>4 4 3 4</code>。</td></tr><tr><td id="b273"><code>if (ans[i]) continue;</code></td><td id="b274">已经确定过的点不必再 BFS：它的答案在更早（更大）的那一轮就定下了。</td></tr><tr><td id="b275"><code>ans[i] = i;</code></td><td id="b276">自己一定能到达自己。漏了这一行，没有入边的孤立点答案是 0。</td></tr><tr><td id="b277"><code>if (ans[v]) continue; ans[v] = i;</code></td><td id="b278">只处理没赋过值的点。第一次覆盖它的 i 就是最大的可达编号，以后再被更小的 i 碰到也不用改。</td></tr><tr><td id="b279"><code>if (i &gt; 1) putchar(' ');</code></td><td id="b280">行首不加空格，行末只换行。严格比对时多余空格会 WA。</td></tr></tbody></table><div class="box warn"><div class="t" id="b281">这题最容易错的地方</div><ul><li id="b282">正着建图、从 i 出发遍历：算出来的是「i 能到达谁」，语义反了，整题全错。</li><li id="b283">从 1 到 n 枚举 i：小的先覆盖，答案偏小，样例里 A(1) 会变成 1。</li><li id="b284">忘了 ans[i] = i：题目里存在没有任何边的点，输出 0，而正确答案是它自己。</li><li id="b285">每个点单独 BFS 且不判 ans：复杂度退化成 O(N(N+M)) → TLE。</li></ul></div></div></details></div><div class="challenge"><div class="ct" id="b286">大题 挑战题 2 · 【模板】单源最短路径（标准版）</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P4779</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P4779" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b287">给定 n 个点、m 条有向边的带非负权图，求起点 s 到每个点的最短距离。数据保证 s 能到达所有点。</p><p id="b288">输入格式：第一行三个正整数 n、m、s（1 ≤ n ≤ 10⁵，1 ≤ m ≤ 2×10⁵，s = 1）；接下来 m 行，每行三个非负整数 uᵢ、vᵢ、wᵢ，表示一条 uᵢ → vᵢ、权值为 wᵢ 的有向边（0 ≤ wᵢ ≤ 10⁹，0 ≤ Σwᵢ ≤ 10⁹）。</p><p id="b289">输出格式：一行 n 个空格分隔的非负整数，第 i 个表示 s 到 i 的最短距离。</p><p id="b290"><b>样例输入</b><br><code>4 6 1<br>1 2 2<br>2 3 2<br>2 4 1<br>1 3 5<br>3 4 3<br>1 4 4</code><br><b>样例输出</b><br><code>0 2 4 3</code></p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b291">边权非负，所以某个点的最短路一旦被确定，就不会被更短的路径推翻。能不能利用这一点，规定一个「确定的顺序」，每轮只扩展一个点？</p><p id="b292">朴素做法每轮扫一遍数组找 dist 最小的未确定点，O(n²) = 10¹⁰。谁能在 O(log n) 内一直给你最小值？</p><p id="b293">同一个点可能被松弛多次，堆里会留着它的好几份历史版本。取出一个距离比当前 dist 还大的元素时，想清楚该拿它怎么办。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b294">Dijkstra 把点分成「最短路已确定」和「未确定」两组。每轮从未确定集合里取 dist 最小的点 u，把 dist[u] 定为最终答案，再用 u 松弛它的所有出边。</p><p id="b295">为什么取最小就一定定案：任何到 u 的更短路径必然先经过某个未确定点 x，而 dist[x] ≥ dist[u]；边权非负，绕过去只会更长。这与「u 是最小」矛盾。</p><p id="b296">朴素实现每轮 O(n) 找最小，总 O(n²)，n = 10⁵ 时 10¹⁰，必 TLE。</p><p id="b297">把 (dist, 编号) 塞进小根堆，堆顶就是当前最小：每个点松弛成功就入堆一次，取出时若 <code>d &gt; dist[u]</code> 说明是过期版本，直接丢弃。</p><p id="b298">复杂度 O((n+m) log n)。m = 2×10⁵ 时堆操作不超过 4×10⁵ 次，每次 log(4×10⁵) ≈ 19，总共约 8×10⁶ 次比较，1 秒内稳过。</p><p id="b299">类型：Σwᵢ ≤ 10⁹ 意味着最短路也在 10⁹ 量级，int 勉强够；但 <code>d + w</code> 在 INF 上做加法时用 int 容易溢出，一律 long long，不必再算边界。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b300">参考代码</div><pre id="b301"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">100005</span>;
+<span class="k">typedef</span> <span class="k">long</span> <span class="k">long</span> ll;
+<span class="k">typedef</span> <span class="k">pair</span>&lt;ll, <span class="k">int</span>&gt; pli;              <span class="c">// (距离, 编号)</span>
+
+<span class="k">int</span> n, m, s;
+<span class="k">vector</span>&lt;<span class="k">pair</span>&lt;<span class="k">int</span>,<span class="k">int</span>&gt;&gt; g[MAXN];          <span class="c">// (终点, 边权)</span>
+ll dist[MAXN];
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">scanf</span>(<span class="s">"%d%d%d"</span>, &amp;n, &amp;m, &amp;s);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; m; ++i) {
+        <span class="k">int</span> u, v, w;
+        <span class="k">scanf</span>(<span class="s">"%d%d%d"</span>, &amp;u, &amp;v, &amp;w);
+        g[u].<span class="k">push_back</span>({v, w});         <span class="c">// 有向边，只加一次</span>
+    }
+
+    <span class="k">const</span> ll INF = <span class="k">LLONG_MAX</span> / <span class="n">2</span>;       <span class="c">// 足够大且加 w 不会溢出</span>
+    <span class="k">fill</span>(dist, dist + n + <span class="n">1</span>, INF);
+    dist[s] = <span class="n">0</span>;
+
+    <span class="k">priority_queue</span>&lt;pli, <span class="k">vector</span>&lt;pli&gt;, <span class="k">greater</span>&lt;pli&gt;&gt; pq;   <span class="c">// 小根堆</span>
+    pq.<span class="f">push</span>({<span class="n">0</span>, s});
+    <span class="k">while</span> (!pq.<span class="k">empty</span>()) {
+        pli cur = pq.<span class="f">top</span>(); pq.<span class="f">pop</span>();
+        ll d = cur.<span class="k">first</span>;
+        <span class="k">int</span> u = cur.<span class="k">second</span>;
+        <span class="k">if</span> (d &gt; dist[u]) <span class="k">continue</span>;      <span class="c">// 过期版本：u 后来被更短的路径更新过</span>
+        <span class="k">for</span> (<span class="k">auto</span> &amp;e : g[u]) {
+            <span class="k">int</span> v = e.<span class="k">first</span>, w = e.<span class="k">second</span>;
+            <span class="k">if</span> (dist[v] &gt; d + w) {      <span class="c">// 松弛成功才入堆</span>
+                dist[v] = d + w;
+                pq.<span class="f">push</span>({dist[v], v});
+            }
+        }
+    }
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        <span class="k">if</span> (i &gt; <span class="n">1</span>) <span class="f">putchar</span>(<span class="s">' '</span>);
+        <span class="k">printf</span>(<span class="s">"%lld"</span>, dist[i]);
+    }
+    <span class="f">putchar</span>(<span class="s">'\n'</span>);
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b302">关键片段拆解</div><table class="lines"><thead><tr><th id="b303">片段</th><th id="b304">作用</th></tr></thead><tbody><tr><td id="b305"><code>typedef pair&lt;ll,int&gt; pli</code></td><td id="b306">堆里存 (距离, 编号)。pair 按字典序比较，距离是第一关键字，所以堆顶永远是「距离最小的点」。</td></tr><tr><td id="b307"><code>greater&lt;pli&gt;</code></td><td id="b308">小根堆。写成默认的 <code>priority_queue&lt;pli&gt;</code> 就是大根堆：只靠懒删除时它<b>仍然能算出正确答案</b>（顺序错了，但会一直修正），代价是同一个点被反复松弛；一旦再配「弹出即定案」的 used 数组就必错。</td></tr><tr><td id="b309"><code>if (d &gt; dist[u]) continue;</code></td><td id="b310">懒删除。不写这一句结果也对，但同一个点会被反复松弛，堆元素从 O(m) 变几倍，常数明显变大。</td></tr><tr><td id="b311"><code>if (dist[v] &gt; d + w)</code></td><td id="b312">松弛条件。相等时不入堆，省一次操作，结果不变。</td></tr><tr><td id="b313"><code>fill(dist, dist + n + 1, INF)</code></td><td id="b314">区间是 [dist, dist+n+1)，下标 1..n 全部覆盖。INF 取 LLONG_MAX/2，保证 d+w 不会溢出成负数。</td></tr><tr><td id="b315"><code>dist[s] = 0; pq.push({0, s});</code></td><td id="b316">起点先定 0 再入堆。顺序反了，第一次取出的会是 INF。</td></tr></tbody></table><div class="box warn"><div class="t" id="b317">这题最容易错的地方</div><ul><li id="b318">又用 <code>used</code> 数组「弹出即定案」、又用大根堆：过早点定案，错的距离被冻死，随机小图上错误率极高。本节代码不带 used，靠的是懒删除 + 小根堆。</li><li id="b319">INF 取 0x7fffffff 又用 int：在不可达点的 dist 上加一次边权就溢出成负数，「不可达」被写成负距离。</li><li id="b320">忘了 <code>d &gt; dist[u]</code> 的过滤：结果仍然正确，但堆里每个历史版本都会重扫一遍出边，m = 2×10⁵ 时明显变慢。</li><li id="b321">以为 Dijkstra 能处理负权：见到「负权」二字必须换 Bellman-Ford / SPFA。</li></ul></div></div></details></div><div class="challenge"><div class="ct" id="b322">大题 挑战题 3 · 邮递员送信</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1629</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P1629" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b323">邮局在 1 号点，要给 2…n 号点各送一样东西。城里所有道路都是单行的，共 m 条。邮递员每次只能带一样东西，送完一件必须返回邮局，最后也要回到邮局。求送完所有东西的最少总时间。</p><p id="b324">输入格式：第一行两个整数 n、m（1 ≤ n ≤ 10³，1 ≤ m ≤ 10⁵）；接下来 m 行，每行三个整数 u、v、w，表示 u 到 v 有一条耗时 w 的单向道路（1 ≤ w ≤ 10⁴）。输入保证任意两点互相可达。</p><p id="b325">输出格式：一行一个整数，表示最少总时间。</p><p id="b326"><b>样例输入</b><br><code>5 10<br>2 3 5<br>1 5 5<br>3 5 6<br>1 2 8<br>1 3 8<br>5 3 4<br>4 1 8<br>4 5 3<br>3 5 6<br>5 4 2</code><br><b>样例输出</b><br><code>83</code></p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b327">「送出去」和「回到邮局」是两段完全不同的路：去 i 是 1 → i，回来是 i → 1。单向图里这两件事不对称，不能用同一个距离。</p><p id="b328">1 → i 全部点只要跑一次 Dijkstra。可是 i → 1 有 n−1 个不同的起点，难道要跑 n−1 次？先数一下 n 和 m 的量级。</p><p id="b329">把每条边掉个头。在反图上从 1 出发的最短路，正好就是原图上「从某个点回到 1」的最短路——路径的每条边反向，长度不变。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b330">总时间 = Σ( 1→i 的最短路 + i→1 的最短路 )，i = 2…n。两项分别算。</p><p id="b331">第一项：以 1 为源，在原图上跑一次 Dijkstra。</p><p id="b332">第二项：i → 1 的起点各不相同，但把每条边反向之后，「i → 1」就变成了「1 → i」。所以建一张反图，再从 1 跑一次 Dijkstra。</p><p id="b333">为什么等价：原图上一条 i → a → b → 1 的路径，把每条边反向就得到反图上 1 → b → a → i 的路径，边权逐一对应，长度完全一样，且这是双射。</p><p id="b334">复杂度：两次 Dijkstra，O((n+m) log n)。n = 10³、m = 10⁵ 时约 10⁵×10 次操作。若对每个 i 单独跑一次，是 10³ × 10⁵ = 10⁸ 量级以上，1 秒很难过。</p><p id="b335">类型：单条最短路 ≤ (n−1)×10⁴ ≈ 10⁷，int 够；但 n−1 条加起来到 10¹⁰，累加答案时必须 long long。样例：正向和 28，反向和 55，总共 83。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b336">参考代码</div><pre id="b337"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">1005</span>;
+<span class="k">const</span> <span class="k">int</span> INF = <span class="n">0x3f3f3f3f</span>;         <span class="c">// 1.06e9，比任何真实最短路都大，加 w 也不溢出</span>
+<span class="k">int</span> n, m;
+<span class="k">vector</span>&lt;<span class="k">pair</span>&lt;<span class="k">int</span>,<span class="k">int</span>&gt;&gt; g[MAXN], rg[MAXN];   <span class="c">// (终点, 权值)；g 正图，rg 反图</span>
+<span class="k">int</span> d1[MAXN], d2[MAXN];
+
+<span class="c">// 从 1 出发，在 gr 这张图上跑 Dijkstra，结果写进 d</span>
+<span class="k">void</span> <span class="f">dijkstra</span>(<span class="k">vector</span>&lt;<span class="k">pair</span>&lt;<span class="k">int</span>,<span class="k">int</span>&gt;&gt; gr[], <span class="k">int</span> d[]) {
+    <span class="k">fill</span>(d, d + n + <span class="n">1</span>, INF);
+    d[<span class="n">1</span>] = <span class="n">0</span>;
+    <span class="k">priority_queue</span>&lt;<span class="k">pair</span>&lt;<span class="k">int</span>,<span class="k">int</span>&gt;, <span class="k">vector</span>&lt;<span class="k">pair</span>&lt;<span class="k">int</span>,<span class="k">int</span>&gt;&gt;, <span class="k">greater</span>&lt;<span class="k">pair</span>&lt;<span class="k">int</span>,<span class="k">int</span>&gt;&gt;&gt; pq;
+    pq.<span class="f">push</span>({<span class="n">0</span>, <span class="n">1</span>});
+    <span class="k">while</span> (!pq.<span class="k">empty</span>()) {
+        <span class="k">auto</span> [du, u] = pq.<span class="f">top</span>(); pq.<span class="f">pop</span>();
+        <span class="k">if</span> (du &gt; d[u]) <span class="k">continue</span>;                 <span class="c">// 过期版本</span>
+        <span class="k">for</span> (<span class="k">auto</span> [v, w] : gr[u])
+            <span class="k">if</span> (d[v] &gt; du + w) {
+                d[v] = du + w;
+                pq.<span class="f">push</span>({d[v], v});
+            }
+    }
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; m;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; m; ++i) {
+        <span class="k">int</span> u, v, w;
+        <span class="k">cin</span> &gt;&gt; u &gt;&gt; v &gt;&gt; w;
+        g[u].<span class="k">push_back</span>({v, w});                  <span class="c">// 送出去：u -&gt; v</span>
+        rg[v].<span class="k">push_back</span>({u, w});                 <span class="c">// 反图：用来算「从 i 回 1」</span>
+    }
+
+    <span class="f">dijkstra</span>(g, d1);                             <span class="c">// d1[i] = 1 -&gt; i</span>
+    <span class="f">dijkstra</span>(rg, d2);                            <span class="c">// d2[i] = i -&gt; 1</span>
+
+    <span class="k">long</span> <span class="k">long</span> ans = <span class="n">0</span>;                           <span class="c">// 10³ 条 10⁷ 的路，必须 long long</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">2</span>; i &lt;= n; ++i) ans += (<span class="k">long</span> <span class="k">long</span>)d1[i] + d2[i];
+    <span class="k">cout</span> &lt;&lt; ans &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b338">关键片段拆解</div><table class="lines"><thead><tr><th id="b339">片段</th><th id="b340">作用</th></tr></thead><tbody><tr><td id="b341"><code>vector&lt;pair&lt;int,int&gt;&gt; g[MAXN], rg[MAXN]</code></td><td id="b342">正图、反图各一份。n ≤ 10³、m ≤ 10⁵，两份邻接表合计 2×10⁵ 条边，约 1.6 MB。</td></tr><tr><td id="b343"><code>rg[v].push_back({u, w})</code></td><td id="b344">全题唯一的新代码。原边 u→v 在反图里记成 v→u，权值不变。</td></tr><tr><td id="b345"><code>dijkstra(g, d1)</code></td><td id="b346">第一次：1 到每个点的最短路，即送出去的时间。</td></tr><tr><td id="b347"><code>dijkstra(rg, d2)</code></td><td id="b348">第二次：反图上 1 到每个点，等于原图上每个点回到 1，即返回的时间。</td></tr><tr><td id="b349"><code>fill(d, d + n + 1, INF)</code></td><td id="b350">每次调用前整体重置。函数里用的是全局 n，区间 <code>[d, d+n+1)</code>。</td></tr><tr><td id="b351"><code>ans += (long long)d1[i] + d2[i]</code></td><td id="b352">两项相加后累加。先转 long long 再相加，避免两数相加时溢出。</td></tr><tr><td id="b353"><code>auto [du, u] = pq.top()</code></td><td id="b354">结构化绑定，一次取出距离和编号。顺序必须与 push 时一致（距离在前）。</td></tr></tbody></table><div class="box warn"><div class="t" id="b355">这题最容易错的地方</div><ul><li id="b356">只跑正向：返回的路程被忽略或按 0 算，答案只有 28 而不是 83。</li><li id="b357">反图建成了正图（写成 <code>rg[u].push_back({v,w})</code>）：两次都算「送出去」，答案变成 2×28 = 56，样例一眼可见，但很值得警惕。</li><li id="b358">对每个 i 单独跑一次 Dijkstra：10³ 次 × 10⁵ 条边 → TLE。</li><li id="b359">ans 用 int：10¹⁰ 溢出成负数，输出一个 −1.4×10⁹ 之类的数。</li></ul></div></div></details></div><div class="challenge"><div class="ct" id="b360">大题 挑战题 4 · 【模板】最小生成树</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P3366</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P3366" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b361">给出 N 个点、M 条边的无向图，求它的最小生成树（选出 N−1 条边把所有点连成一片，且边权和最小）。如果图不连通，输出 <code>orz</code>。</p><p id="b362">输入格式：第一行两个整数 N、M（1 ≤ N ≤ 5000，1 ≤ M ≤ 2×10⁵）；接下来 M 行，每行三个整数 Xᵢ、Yᵢ、Zᵢ（1 ≤ Zᵢ ≤ 10⁴），表示一条连接 Xᵢ、Yᵢ、长度为 Zᵢ 的无向边。</p><p id="b363">输出格式：连通则输出一个整数表示最小生成树的边权之和；不连通输出 <code>orz</code>（三个小写字母）。</p><p id="b364"><b>样例输入</b><br><code>4 5<br>1 2 2<br>1 3 2<br>1 4 3<br>2 3 4<br>3 4 3</code><br><b>样例输出</b><br><code>7</code><br>样例解释：选 1-2(2)、1-3(2)、3-4(3)，总权 2+2+3 = 7。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b365">n 个点的树恰好 n−1 条边。要在 m 条边里挑 n−1 条，使总权最小且不出环。先想：按什么顺序挑边最不亏？</p><p id="b366">把边按长度从小到大看。一条边什么时候必须选？什么情况下它一定不能选？「不能选」的判据，说到底和「这两个点现在是否已经连通」有关。</p><p id="b367">什么结构能在接近 O(1) 的时间里回答「两点是否连通」，并且支持把两个集合合并成一个？</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b368">Kruskal：所有边按权值升序排序，依次尝试加入。若两端已经在同一连通块里就跳过（加入会成环），否则选中这条边并把两个连通块合并。选满 n−1 条即结束。</p><p id="b369">正确性（割性质）：设 e 是当前剩下的边里权最小的，且两端分属不同连通块。任何一棵生成树都必须有某条边跨过这个割；把那条边换成 e，总权不会变大。所以 e 一定可以出现在某棵最小生成树中，删去这个子问题后归纳成立。</p><p id="b370">并查集负责「是否连通」与「合并」：路径压缩后单次接近 O(1)。</p><p id="b371">复杂度由排序决定：O(m log m)。m = 2×10⁵ 时约 3.6×10⁶ 次比较，并查集部分几乎不耗时。</p><p id="b372">判不连通：最后选中的边数 cnt &lt; n−1，说明有的点始终连不进来，输出 orz。</p><p id="b373">边界：n = 1 时不需要任何边，cnt = 0 = n−1，输出 0；题目数据里 n ≥ 1。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b374">参考代码</div><pre id="b375"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">5005</span>, MAXM = <span class="n">200005</span>;
+<span class="k">int</span> n, m;
+<span class="k">struct</span> Edge { <span class="k">int</span> u, v, w; } e[MAXM];
+<span class="k">int</span> fa[MAXN];
+
+<span class="k">int</span> <span class="f">find</span>(<span class="k">int</span> x) {                       <span class="c">// 路径压缩，迭代写法</span>
+    <span class="k">while</span> (fa[x] != x) {
+        fa[x] = fa[fa[x]];
+        x = fa[x];
+    }
+    <span class="k">return</span> x;
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">scanf</span>(<span class="s">"%d%d"</span>, &amp;n, &amp;m);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; m; ++i) <span class="k">scanf</span>(<span class="s">"%d%d%d"</span>, &amp;e[i].u, &amp;e[i].v, &amp;e[i].w);
+
+    <span class="k">sort</span>(e, e + m, [](<span class="k">const</span> Edge &amp;a, <span class="k">const</span> Edge &amp;b) { <span class="k">return</span> a.w &lt; b.w; });
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) fa[i] = i;   <span class="c">// 每个点自成一个集合，不能省</span>
+
+    <span class="k">int</span> cnt = <span class="n">0</span>;
+    <span class="k">long</span> <span class="k">long</span> sum = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; m &amp;&amp; cnt &lt; n - <span class="n">1</span>; ++i) {
+        <span class="k">int</span> a = <span class="f">find</span>(e[i].u), b = <span class="f">find</span>(e[i].v);
+        <span class="k">if</span> (a == b) <span class="k">continue</span>;             <span class="c">// 已连通：加入就成环</span>
+        fa[a] = b;                        <span class="c">// 合并两个根</span>
+        sum += e[i].w;
+        ++cnt;
+    }
+
+    <span class="k">if</span> (cnt == n - <span class="n">1</span>) <span class="k">printf</span>(<span class="s">"%lld\n"</span>, sum);
+    <span class="k">else</span> <span class="f">puts</span>(<span class="s">"orz"</span>);                     <span class="c">// 不连通，按题目要求输出</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b376">关键片段拆解</div><table class="lines"><thead><tr><th id="b377">片段</th><th id="b378">作用</th></tr></thead><tbody><tr><td id="b379"><code>struct Edge { int u, v, w; } e[MAXM]</code></td><td id="b380">把一条边打包。排序时 u、v 跟着一起搬，不用开三个平行数组。</td></tr><tr><td id="b381"><code>sort(e, e + m, [](const Edge &amp;a, const Edge &amp;b) { return a.w &lt; b.w; })</code></td><td id="b382">只按权值升序。权值相同的边谁先谁后不影响最终结果——Kruskal 对同权边的顺序不敏感。</td></tr><tr><td id="b383"><code>for (int i = 1; i &lt;= n; ++i) fa[i] = i;</code></td><td id="b384">初始化。漏了这行，fa 全是 0，find 全部返回 0，每条边都被判成成环，最后输出 orz。</td></tr><tr><td id="b385"><code>if (a == b) continue;</code></td><td id="b386">Kruskal 唯一的「拒绝」条件：两端已连通。这是保证不出环的全部机制。</td></tr><tr><td id="b387"><code>fa[a] = b;</code></td><td id="b388">合并两个<b>根</b>。写成 <code>fa[e[i].u] = e[i].v</code> 会把树拆断，连通性判断随机出错，答案偏小。</td></tr><tr><td id="b389"><code>cnt &lt; n - 1</code></td><td id="b390">选满 n−1 条边就够，后面的边不必再看。写在循环条件里，顺便防止无谓扫描。</td></tr><tr><td id="b391"><code>puts("orz")</code></td><td id="b392">不连通的输出。三个小写字母，不要写成 ORZ、orz!、0 或 −1。</td></tr></tbody></table><div class="box warn"><div class="t" id="b393">这题最容易错的地方</div><ul><li id="b394">忘了 <code>fa[i] = i</code>：连通图也输出 orz（所有 find 都返回 0，每条边都被跳过）。</li><li id="b395">合并时写 <code>fa[e[i].u] = e[i].v</code>：树被拆断，可能加入成环的边，答案偏小。</li><li id="b396">不连通时输出 0 或 −1：题目要求 orz，写错就是 WA。</li><li id="b397">按 (u, v) 排序或忘了排序：Kruskal 必须按权值升序，顺序错则答案错。</li></ul></div></div></details></div><div class="challenge"><div class="ct" id="b398">大题 挑战题 5 · 最大食物链计数</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P4017</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P4017" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b399">给出一个食物网：n 个物种、m 条「吃与被吃」的关系。一条最大食物链，从<b>不会捕食其他生物的生产者</b>出发，到<b>不会被其他生物捕食的消费者</b>结束，链上每一步都是捕食关系。求这样的食物链条数，对 80112002 取模。</p><p id="b400">输入格式：第一行两个正整数 n、m（1 ≤ n ≤ 5×10³，1 ≤ m ≤ 5×10⁵）；接下来 m 行，每行两个正整数 A、B，表示 B 吃 A（A 被 B 捕食）。数据保证不会出现环。</p><p id="b401">输出格式：一行一个整数，食物链条数模 80112002 的结果。</p><p id="b402"><b>样例输入</b><br><code>5 7<br>1 2<br>1 3<br>2 3<br>3 5<br>2 5<br>4 5<br>3 4</code><br><b>样例输出</b><br><code>5</code><br>样例解释：5 条链分别是 1→2→3→5、1→2→5、1→3→5、1→2→3→4→5、1→3→4→5。1 是唯一的生产者（没有生物吃它），5 是唯一的顶级消费者（它不吃别的）。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b403">先把方向定死：B 吃 A，就把「A 被 B 吃」画成 A → B。那么一条食物链就是这张有向图里的一段路径。生产者和顶级消费者，在这个方向上分别有什么特征？</p><p id="b404">直接枚举所有路径会重复、会漏。换一个量：以 u 结尾的链有几条？把它记成 dp[u]，所有链都能按「最后一步从哪来」被唯一分解。</p><p id="b405">要让 dp 的递推一次算准，处理某个点时它所有的前驱必须都算完了。什么顺序能保证这件事？而这张图恰好没有环。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b406">建图：B 吃 A，就加有向边 A → B。于是「生产者」= 入度为 0 的点（它不吃任何别的生物），「顶级消费者」= 出度为 0 的点（没有生物吃它）。食物链 = 从入度 0 走到出度 0 的一条路径。</p><p id="b407">状态：dp[u] = 以 u 结尾的食物链条数。初值：入度为 0 的点 dp = 1，它自己就是一条链的开头。</p><p id="b408">转移：按拓扑序处理，每遇到边 u → v，就 <code>dp[v] += dp[u]</code>，随时对 80112002 取模。</p><p id="b409">答案：Σ dp[u]，只累加出度为 0 的点——链必须在顶级消费者结束，中途的点不能计入。</p><p id="b410">为什么拓扑序就够：处理到 u 时，所有能到达 u 的点都已经把贡献加进了 dp[u]，不会漏；u 只会被处理一次，不会重。</p><p id="b411">复杂度 O(n+m)。m = 5×10⁵、时限 1 秒，读入必须用 scanf；dp 的加法在 int 内完成（模数 8×10⁷，两数相加不超过 1.7×10⁸）。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b412">参考代码</div><pre id="b413"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">5005</span>;
+<span class="k">const</span> <span class="k">int</span> MOD = <span class="n">80112002</span>;
+<span class="k">int</span> n, m;
+<span class="k">vector</span>&lt;<span class="k">int</span>&gt; g[MAXN];
+<span class="k">int</span> indeg[MAXN], outdeg[MAXN];      <span class="c">// 入度 = 它吃几种；出度 = 几种吃它</span>
+<span class="k">int</span> dp[MAXN];                       <span class="c">// dp[u]：以 u 结尾的食物链条数</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">scanf</span>(<span class="s">"%d%d"</span>, &amp;n, &amp;m);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; m; ++i) {
+        <span class="k">int</span> a, b;
+        <span class="k">scanf</span>(<span class="s">"%d%d"</span>, &amp;a, &amp;b);      <span class="c">// B 吃 A</span>
+        g[a].<span class="k">push_back</span>(b);          <span class="c">// 链的方向：被吃者 -&gt; 捕食者</span>
+        ++indeg[b];
+        ++outdeg[a];
+    }
+
+    <span class="k">queue</span>&lt;<span class="k">int</span>&gt; q;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i)
+        <span class="k">if</span> (indeg[i] == <span class="n">0</span>) {        <span class="c">// 生产者：链的起点</span>
+            dp[i] = <span class="n">1</span>;
+            q.<span class="f">push</span>(i);
+        }
+
+    <span class="k">while</span> (!q.<span class="k">empty</span>()) {
+        <span class="k">int</span> u = q.<span class="f">front</span>(); q.<span class="f">pop</span>();
+        <span class="k">for</span> (<span class="k">int</span> v : g[u]) {
+            dp[v] = (dp[v] + dp[u]) % MOD;   <span class="c">// 所有以 u 结尾的链都能延长到 v</span>
+            <span class="k">if</span> (--indeg[v] == <span class="n">0</span>) q.<span class="f">push</span>(v);  <span class="c">// v 的全部前驱都处理完了</span>
+        }
+    }
+
+    <span class="k">int</span> ans = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i)
+        <span class="k">if</span> (outdeg[i] == <span class="n">0</span>)                  <span class="c">// 顶级消费者：链的终点</span>
+            ans = (ans + dp[i]) % MOD;
+    <span class="k">printf</span>(<span class="s">"%d\n"</span>, ans);
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b414">关键片段拆解</div><table class="lines"><thead><tr><th id="b415">片段</th><th id="b416">作用</th></tr></thead><tbody><tr><td id="b417"><code>g[a].push_back(b)</code></td><td id="b418">边的方向就是链的方向：被吃 → 吃。三处方向必须统一（建图、indeg、outdeg）。全反过来的话链首尾互换是一一对应，总数恰好不变；但混用（建图 A→B、入度却记在 A 上）就必错。</td></tr><tr><td id="b419"><code>dp[i] = 1</code></td><td id="b420">每个入度为 0 的点自成一链的开头，方案数 1。</td></tr><tr><td id="b421"><code>dp[v] = (dp[v] + dp[u]) % MOD</code></td><td id="b422">按拓扑序做加法：以 u 结尾的每一条链，都能接一步到 v，所以 v 的方案数加上 u 的方案数。边算边模，避免溢出。</td></tr><tr><td id="b423"><code>if (--indeg[v] == 0) q.push(v)</code></td><td id="b424">入度降到 0 才入队，保证 v 的所有前驱都已处理完，dp[v] 一次算定，不会漏加。</td></tr><tr><td id="b425"><code>if (outdeg[i] == 0) ans += dp[i]</code></td><td id="b426">只有出度为 0 的点才是链的终点。把所有点的 dp 都加上，答案会大很多。</td></tr><tr><td id="b427"><code>const int MOD = 80112002</code></td><td id="b428">模数不是 1e9+7。抄错一个数字就是 0 分。</td></tr></tbody></table><div class="box warn"><div class="t" id="b429">这题最容易错的地方</div><ul><li id="b430">答案把每个点的 dp 都累加：中途点也被当成终点，样例输出 11 而不是 5。（1+1+2+2+5 = 11；正确只算出度为 0 的点，即 dp[5] = 5。）</li><li id="b431">起点判据写成出度为 0（或终点写成入度为 0）：dp 从一个没有出边的点开始算，队列立刻空掉，样例输出 1。</li><li id="b432">不取模、只在最后取模：方案数指数级增长，long long 也会溢出。</li><li id="b433">用 cin 读 5×10⁵ 条边又没关同步：本题时限 1 秒，很容易 TLE。</li></ul></div></div></details></div><div class="box tip" style="margin:24px 0 -6px"><div class="t" id="b434">附加挑战 2（不计入限时）</div><p id="b435">做完上面的整套题还有余力，再啃这一道。它比本套题的平均难度高一级。</p></div><div class="challenge ch2"><div class="ct" id="b436">挑战 2 · 星球大战</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1197</span><span class="badge diff">提高-/提高</span><a href="https://www.luogu.com.cn/problem/P1197" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b437">星系里有 n 个星球，编号 0..n−1，某些星球之间由「以太隧道」直接相连。两个星球如果能通过若干条隧道直接或间接到达，就说它们在同一个连通块里。</p><p id="b438">帝国会按给定顺序摧毁 k 个星球（每个星球最多被摧毁一次，被摧毁的星球不再属于任何连通块）。求<b>开始时</b>以及<b>每次摧毁之后</b>，现存星球组成的连通块个数。</p><p id="b439">输入格式：第一行两个整数 n、m（1 ≤ n ≤ 4×10⁵，1 ≤ m ≤ 2×10⁵）；接下来 m 行，每行两个整数 x、y（x ≠ y），表示 x 与 y 之间有一条双向隧道；接下来一行一个整数 k，再接下来 k 行，每行一个整数，按顺序给出被摧毁的星球编号。</p><p id="b440">数据范围：1 ≤ m ≤ 2×10⁵，1 ≤ n ≤ 2m。</p><p id="b441">输出格式：共 k+1 行。第一行是开始时（一次打击都还没发生）的连通块个数，之后每行是第 i 次打击之后的连通块个数。</p><p id="b442"><b>样例输入</b><br><code>8 13<br>0 1<br>1 6<br>6 5<br>5 0<br>0 6<br>1 2<br>2 3<br>3 4<br>4 5<br>7 1<br>7 2<br>7 6<br>3 6<br>5<br>1<br>6<br>3<br>5<br>7</code><br><b>样例输出</b><br><code>1<br>1<br>1<br>2<br>3<br>3</code></p></div><div class="cap" id="b443">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+8 13
+0 1
+1 6
+6 5
+5 0
+0 6
+1 2
+2 3
+3 4
+4 5
+7 1
+7 2
+7 6
+3 6
+5
+1
+6
+3
+5
+7
+输出：
+1
+1
+1
+2
+3
+3</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b444">删点会让连通块数变多，而并查集只会合并、不会拆分——顺着做走不通。换个方向：如果<b>从所有打击都已发生</b>的残局出发，把星球一个个加回来呢？</p><p id="b445">加一个星球 = 把它放进并查集，再和所有还活着的邻居合并。这正好是并查集最擅长的操作。所以把打击顺序倒着扫一遍，把答案存起来，最后正序输出。</p><p id="b446">连通块个数不必每次重数：初始值取「还活着的星球数」，之后每成功合并一次就减 1。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b447"><b>① 为什么正着不行。</b>删点（以及连带的边）是「拆分」，并查集不支持拆分；而每次删完都重新 DFS 数一遍是 O(k(n+m))，k 能到 4×10⁵，必超时。</p><p id="b448"><b>② 离线倒做。</b>把所有打击都执行完之后的状态当作起点，然后按打击顺序的<b>逆序</b>把星球一个个加回来。「加一个点和它的边」是纯粹的合并操作。</p><p id="b449"><b>③ 初态。</b>把没被打掉的 n−k 个星球各自放进并查集，comp 记为 n−k；再扫所有边，两端都还活着的就合并，成功一次 comp 减 1。这就是第 k 次打击之后的状态。</p><p id="b450"><b>④ 逆序加回。</b>加回第 i 个被打掉的星球 u：先 comp += 1（它自己一块），再遍历 u 的每条边，对面 v 还活着且 find(u) ≠ find(v) 就合并、comp 减 1。此刻的 comp 就是第 i−1 次打击之后的状态，写进 ans[i−1]。</p><p id="b451"><b>⑤ 为什么对。</b>正着每一次打击是「删点 + 删边」，倒着每一步是「加点 + 加边」，两者经过的图序列完全相同，只是方向相反；倒序第 i 步结束时的图，正好就是正序第 i−1 次打击后的图。</p><p id="b452"><b>⑥ 复杂度。</b>每条边在初态扫一次、在端点被复活时再看一次，O((n+m)α(n))。n = 4×10⁵、m = 2×10⁵ 时不到 2×10⁶ 次操作，边用链式前向星存（2m 条弧）不超内存。</p><p id="b453"><b>⑦ 两个细节。</b>答案下标是 i−1 不是 i（输出共 k+1 行）；被摧毁的星球不能算进连通块。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b454">参考代码</div><pre id="b455"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">400005</span>, M = <span class="n">200005</span>;
+<span class="k">int</span> n, m, k;
+<span class="k">struct</span> Edge { <span class="k">int</span> u, v; } e[M];
+<span class="k">int</span> head[N], nxt[M * <span class="n">2</span>], to[M * <span class="n">2</span>], ecnt = <span class="n">0</span>;
+
+<span class="k">int</span> fa[N];
+<span class="k">int</span> <span class="f">find</span>(<span class="k">int</span> x) { <span class="k">return</span> fa[x] == x ? x : fa[x] = <span class="f">find</span>(fa[x]); }
+
+<span class="k">bool</span> dead[N];              <span class="c">// dead[x]：x 已经被摧毁</span>
+<span class="k">int</span> atk[N], ans[N];
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">scanf</span>(<span class="s">"%d%d"</span>, &amp;n, &amp;m);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= m; ++i) {
+        <span class="k">int</span> x, y;
+        <span class="k">scanf</span>(<span class="s">"%d%d"</span>, &amp;x, &amp;y);
+        e[i] = {x, y};
+        to[++ecnt] = y; nxt[ecnt] = head[x]; head[x] = ecnt;
+        to[++ecnt] = x; nxt[ecnt] = head[y]; head[y] = ecnt;
+    }
+    <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;k);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= k; ++i) { <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;atk[i]); dead[atk[i]] = <span class="k">true</span>; }
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; n; ++i) fa[i] = i;
+
+    <span class="k">int</span> comp = n - k;                       <span class="c">// 最终状态：只剩没被打掉的星球，各自一块</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= m; ++i) {          <span class="c">// 加边时必须两端都还活着</span>
+        <span class="k">if</span> (dead[e[i].u] || dead[e[i].v]) <span class="k">continue</span>;
+        <span class="k">int</span> a = <span class="f">find</span>(e[i].u), b = <span class="f">find</span>(e[i].v);
+        <span class="k">if</span> (a != b) { fa[a] = b; --comp; }
+    }
+    ans[k] = comp;
+
+    <span class="k">for</span> (<span class="k">int</span> i = k; i &gt;= <span class="n">1</span>; --i) {          <span class="c">// 倒着“复活”星球：删边变成加边</span>
+        <span class="k">int</span> u = atk[i];
+        dead[u] = <span class="k">false</span>;
+        ++comp;                             <span class="c">// 自己单独成一块</span>
+        <span class="k">for</span> (<span class="k">int</span> p = head[u]; p; p = nxt[p]) {
+            <span class="k">int</span> v = to[p];
+            <span class="k">if</span> (dead[v]) <span class="k">continue</span>;
+            <span class="k">int</span> a = <span class="f">find</span>(u), b = <span class="f">find</span>(v);
+            <span class="k">if</span> (a != b) { fa[a] = b; --comp; }
+        }
+        ans[i - <span class="n">1</span>] = comp;
+    }
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt;= k; ++i) <span class="k">printf</span>(<span class="s">"%d\n"</span>, ans[i]);
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b456">关键片段拆解</div><table class="lines"><thead><tr><th id="b457">片段</th><th id="b458">作用</th></tr></thead><tbody><tr><td id="b459"><code>dead[atk[i]] = true;</code></td><td id="b460">先把所有打击目标标成「已毁」，才能构造出「所有打击都发生之后」的残局。</td></tr><tr><td id="b461"><code>int comp = n - k;</code></td><td id="b462">残局里只有 n−k 个星球还活着，每个先自成一类——这就是连通块数的初值。</td></tr><tr><td id="b463"><code>if (dead[e[i].u] || dead[e[i].v]) continue;</code></td><td id="b464">初态建图只用两端都活着的边，跨过死星球的边等于不存在。</td></tr><tr><td id="b465"><code>dead[u] = false; ++comp;</code></td><td id="b466">复活：先把自己算成一个新连通块，后面每成功合并一次再减回去。</td></tr><tr><td id="b467"><code>ans[i - 1] = comp;</code></td><td id="b468">倒序第 i 步（刚加回 atk[i]）之后对应的是「第 i−1 次打击之后」，下标写成 i−1。</td></tr><tr><td id="b469"><code>for (int p = head[u]; p; p = nxt[p])</code></td><td id="b470">只扫 u 自己的边——其他边在残局里已经处理过，不用重做。链式前向星存 2m 条弧，省内存。</td></tr><tr><td id="b471"><code>for (int i = 0; i &lt;= k; ++i) printf("%d\n", ans[i]);</code></td><td id="b472">输出共 k+1 行，第一行是「开始时」。循环从 0 开始，别写成 1。</td></tr></tbody></table><div class="box warn"><div class="t" id="b473">这题最容易错的地方</div><ul><li id="b474">正着做：每次删点后重跑 DFS 数连通块，O(k(n+m)) → TLE。</li><li id="b475">下标或计数写错：答案存成 ans[i]（应为 ans[i−1]）会让整行错位、行数差一；漏了 <code>++comp</code> 或 <code>--comp</code> 会让数值整体偏移。两种都不报错，只能拿样例逐行核对。</li><li id="b476">把被摧毁的星球也当成一个连通块统计：它已经不属于任何连通块，答案偏大。</li><li id="b477">数组按 n ≤ 10⁵ 开：本题 n ≤ 2m ≤ 4×10⁵，开小了直接 RE。</li></ul></div></div></details></div><div class="box ok"><div class="t" id="b478">做完之后自问</div><ul><li id="b479">不看资料能写出邻接表建图 + DFS/BFS 两套模板，并说清「BFS 为什么入队即标记」。</li><li id="b480">能解释 P5318 为什么必须先排序，并说出不排序时 DFS 序会变成什么。</li><li id="b481">能默写堆优化 Dijkstra 的十来行，并说清 greater、懒删除、INF 三处各自防的是什么错。</li><li id="b482">能说清「反图」为什么把「i 回到 1」变成「1 到 i」，并指出本节哪两题用了它。</li><li id="b483">能写出 Kruskal 的排序 + 并查集骨架，并说清「两端已连通就跳过」为什么不会漏掉最优解。</li><li id="b484">能说出拓扑排序判环的判据，以及为什么按出队顺序 DP 不会漏算。</li><li id="b485">能在 20 分钟内做完 P3366，并自查 fa 初始化、orz 输出、答案类型三处。</li></ul></div><div class="box info"><div class="t" id="b486">延伸阅读</div><ul><li id="b487">《算法竞赛入门笔记》：图论、最短路与最小生成树相关章节</li><li id="b488">《算法竞赛进阶指南》：树与图的遍历、最短路、最小生成树三章</li><li id="b489">《算法竞赛试炼场：洛谷300题精析》：P5318、P3916、P4779、P1629、P3366、P4017 的题解</li><li id="b490">《算法竞赛黄金法则：提高算法和思考力的77项技巧》：「把问题反过来想」与「先排序再贪心」</li><li id="b491">想再练一道并查集：P1111 修复公路；想再练一道拓扑 DP：P1113 杂务（不计入本次限时）</li></ul></div>
+
+<footer>算竞教程 · 算竞教程 · 生成于自建课程体系，题目版权归洛谷及各命题方所有<br>
+转载请注明出处；模板代码可直接用于比赛</footer>

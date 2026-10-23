@@ -1,0 +1,243 @@
+
+<div class="box info"><div class="t" id="b0">本节出现的新函数 / 新语法（先看懂再用）</div><ul><li id="b1"><a href="#fn-0">区间 DP 的三层循环</a> —— len → l → k 的顺序不能换，这是区间 DP 的全部骨架</li><li id="b2"><a href="#fn-1">vector 邻接表（树的存法）</a> —— n 个 vector，每个装自己的邻居；无向树每条边存两次</li><li id="b3"><a href="#fn-2">树的 DFS（自底向上的顺序）</a> —— dfs(u, fa)：跳过父亲 → 递归儿子 → 合并到 u</li></ul></div><p id="b4">第 31 节的线性 DP 从左往右扫，第 32 节的背包按容量递增，顺序都由下标决定。这一节的两个结构没有现成的下标顺序可用：<b>区间</b>要从短往长算，<b>树</b>要等儿子算完再算父亲。规矩其实是同一条——<b>递推顺序必须和状态依赖关系一致：依赖谁，就先算谁</b>。</p><div class="quote" id="b5">区间 DP 的循环顺序不是风格问题，是正确性问题。<code>len</code> 一旦挪到内层，程序不报错、不崩，答案直接变成错的。</div><table><thead><tr><th id="b6"></th><th id="b7">区间 DP</th><th id="b8">树形 DP</th></tr></thead><tbody><tr><td id="b9">状态</td><td id="b10">f[l][r]：把第 l..r 个元素处理完的最优值</td><td id="b11">f[u][…]：以 u 为根的子树内部的最优值</td></tr><tr><td id="b12">依赖</td><td id="b13">两个更短的区间 [l,k]、[k+1,r]</td><td id="b14">所有儿子 v 的 f[v][…]</td></tr><tr><td id="b15">顺序</td><td id="b16">区间长度 len 从 2 到 n</td><td id="b17">DFS 后序：先递归儿子，回到 u 再合并</td></tr><tr><td id="b18">复杂度</td><td id="b19">状态 O(n²) × 转移 O(n) = O(n³)</td><td id="b20">每点算一次、每条边过一次 = O(n)</td></tr><tr><td id="b21">典型题</td><td id="b22">石子合并、能量项链、最长回文子序列</td><td id="b23">没有上司的舞会、最大子树和、树形背包</td></tr></tbody></table><p id="b24">先看清三块骨头：区间 DP 的三层循环、树的存法、树的遍历顺序。前两块是写法，第三块是这一节真正的思想。</p><div class="fn"><div class="fh" id="b25">新函数拆解 · 区间 DP 的三层循环</div><div class="fb"><div class="sig" id="b26">for (int len = 2; len &lt;= n; ++len)
+    for (int l = 1, r = len; r &lt;= n; ++l, ++r)
+        for (int k = l; k &lt; r; ++k)
+            f[l][r] = min(f[l][r], f[l][k] + f[k + 1][r] + cost(l, r));</div><table class="lines"><thead><tr><th id="b27">组成</th><th id="b28">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b29"><code>len</code></td><td id="b30">区间长度。必须是最外层：长度更小的区间先算完，长区间才拿得到子区间的值。</td></tr><tr><td id="b31"><code>l, r</code></td><td id="b32">左右端点，r 由 l + len − 1 推出。用一个变量加长度反推，别再单独写一层 r 的循环。</td></tr><tr><td id="b33"><code>k</code></td><td id="b34">分割点，范围 l ≤ k &lt; r。它把 [l,r] 切成 [l,k] 与 [k+1,r] 两段，对应“最后一次操作”。</td></tr><tr><td id="b35"><code>len 从 2 开始</code></td><td id="b36">长度 1 的区间不用合并，直接 f[i][i] = 0。从 1 开始只是白跑一层，不算错。</td></tr><tr><td id="b37"><code>f[l][k] 与 f[k+1][r]</code></td><td id="b38">两者长度都严格小于 len，走到外层 len 时它们一定已经算好——这就是 len 必须在最外面的唯一理由。</td></tr><tr><td id="b39"><code>cost(l, r)</code></td><td id="b40">把两段并成一段的额外代价，最常见是区间和 s[r] − s[l−1]，用前缀和 O(1) 取。</td></tr><tr><td id="b41"><code>答案在哪</code></td><td id="b42">线性题答 f[1][n]；环形题先把数组复制成 2n，答所有长度 n 的窗口 f[l][l+n−1] 里的最优值。</td></tr></tbody></table><div class="cap" id="b43">最小可运行示例</div><div class="cap" id="b44">示例</div><pre id="b45"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> n = <span class="n">5</span>, a[<span class="n">105</span>], s[<span class="n">105</span>];
+<span class="k">int</span> f[<span class="n">105</span>][<span class="n">105</span>];                 <span class="c">// f[l][r]：把 a[l..r] 合并成一堆的最小代价</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) { a[i] = i; s[i] = s[i - <span class="n">1</span>] + a[i]; }
+    <span class="k">memset</span>(f, <span class="n">0x3f</span>, <span class="k">sizeof</span> f);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) f[i][i] = <span class="n">0</span>;        <span class="c">// 长度 1：本来就是一堆，不需要合并</span>
+
+    <span class="k">for</span> (<span class="k">int</span> len = <span class="n">2</span>; len &lt;= n; ++len)               <span class="c">// ① 先短后长</span>
+        <span class="k">for</span> (<span class="k">int</span> l = <span class="n">1</span>, r = len; r &lt;= n; ++l, ++r)   <span class="c">// ② 再扫左端点</span>
+            <span class="k">for</span> (<span class="k">int</span> k = l; k &lt; r; ++k)              <span class="c">// ③ 最后枚举断点</span>
+                f[l][r] = <span class="k">min</span>(f[l][r], f[l][k] + f[k + <span class="n">1</span>][r] + s[r] - s[l - <span class="n">1</span>]);
+
+    <span class="k">cout</span> &lt;&lt; f[<span class="n">1</span>][n] &lt;&lt; <span class="s">"\n"</span>;                         <span class="c">// 1..5 合并的最小代价</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="box tip"><div class="t" id="b46">注意</div><p id="b47">把外层 len 换成“枚举 l，再枚举 r”，仍然是 r − l 递增；写成 l 从小到大、r 从 l 到 n 就用到未算的 f[k+1][r] → WA，而样例常常刚好能过，最难查。</p><p id="b48">求 min 的 f 必须初始化成大值（0x3f3f3f3f），求 max 初始化成 0 或 −INF。忘初始化 = 白送 WA。</p><p id="b49">n 到 1000 时 O(n³) = 1.7×10⁸ 且常数不小，先看数据范围，别硬刚。</p></div></div></div><div class="fn"><div class="fh" id="b50">新函数拆解 · vector 邻接表（树的存法）</div><div class="fb"><div class="sig" id="b51">vector&lt;int&gt; g[N];
+g[u].push_back(v);
+for (int v : g[u]) { ... }</div><table class="lines"><thead><tr><th id="b52">组成</th><th id="b53">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b54"><code>vector&lt;int&gt; g[N]</code></td><td id="b55">开 N 个 vector，第 u 个装 u 的所有邻居。读法：一个数组，每个元素是一条不定长表。</td></tr><tr><td id="b56"><code>g[u].push_back(v)</code></td><td id="b57">在 u 的表尾追加 v，O(1) 摊还。树有 n−1 条边，无向存两次 → 共 2(n−1) 次追加。</td></tr><tr><td id="b58"><code>g[u].size()</code></td><td id="b59">u 的邻居个数。树里就是度数：根的儿子数 = 度数，其它节点 = 度数 − 1。</td></tr><tr><td id="b60"><code>for (int v : g[u])</code></td><td id="b61">范围 for，依次取出邻居。等价于 <code>for (int i = 0; i &lt; (int)g[u].size(); ++i) { int v = g[u][i]; }</code>。</td></tr><tr><td id="b62"><code>有向还是无向</code></td><td id="b63">有向树（父→子）只 push 一次；无向树要 push 两次：<code>g[u].push_back(v); g[v].push_back(u);</code></td></tr><tr><td id="b64"><code>为什么不用邻接矩阵</code></td><td id="b65">n = 6000 的矩阵是 36 MB，遍历一个点还要扫 n 格；邻接表遍历一次只花 O(度数)。</td></tr></tbody></table><div class="cap" id="b66">最小可运行示例</div><div class="cap" id="b67">示例</div><pre id="b68"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">6005</span>;
+<span class="k">vector</span>&lt;<span class="k">int</span>&gt; g[N];                 <span class="c">// 全局：默认全是空表</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="c">// 无向树：1-2, 1-3, 3-4，每条边两个方向都要存</span>
+    g[<span class="n">1</span>].<span class="k">push_back</span>(<span class="n">2</span>); g[<span class="n">2</span>].<span class="k">push_back</span>(<span class="n">1</span>);
+    g[<span class="n">1</span>].<span class="k">push_back</span>(<span class="n">3</span>); g[<span class="n">3</span>].<span class="k">push_back</span>(<span class="n">1</span>);
+    g[<span class="n">3</span>].<span class="k">push_back</span>(<span class="n">4</span>); g[<span class="n">4</span>].<span class="k">push_back</span>(<span class="n">3</span>);
+
+    <span class="k">for</span> (<span class="k">int</span> v : g[<span class="n">1</span>]) <span class="k">cout</span> &lt;&lt; v &lt;&lt; <span class="s">' '</span>;    <span class="c">// 2 3</span>
+    <span class="k">cout</span> &lt;&lt; <span class="s">"\n"</span> &lt;&lt; g[<span class="n">1</span>].<span class="k">size</span>() &lt;&lt; <span class="s">"\n"</span>;    <span class="c">// 2</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="box tip"><div class="t" id="b69">注意</div><p id="b70"><code>vector&lt;int&gt; g[N]</code> 放全局才默认全空，且不占栈。放函数里是 n 个局部 vector，n 大时容易爆栈。</p><p id="b71">范围 for 里写 <code>int v</code> 是拷贝；要改表本身得写 <code>int &amp;v</code>。本节都只读。</p><p id="b72">边数记牢：树的边是 n−1 条，无向存两次，所以每个 vector 的总长度和是 2(n−1)。</p></div></div></div><div class="fn"><div class="fh" id="b73">新函数拆解 · 树的 DFS（自底向上的顺序）</div><div class="fb"><div class="sig" id="b74">void dfs(int u, int fa) {
+    for (int v : g[u]) {
+        if (v == fa) continue;   // 不走回头路
+        dfs(v, u);               // ① 先把儿子的答案算完
+        ...                      // ② 再用 f[v] 更新 f[u]
+    }
+}</div><table class="lines"><thead><tr><th id="b75">组成</th><th id="b76">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b77"><code>u</code></td><td id="b78">当前节点。dfs 的每一层只负责一棵子树，不关心兄弟。</td></tr><tr><td id="b79"><code>fa</code></td><td id="b80">u 的父亲。树存成无向图后，邻居里有一个是“来的路”，必须跳过，否则两点之间来回横跳。</td></tr><tr><td id="b81"><code>if (v == fa) continue;</code></td><td id="b82">这一行就是“不走回头路”。删掉它 → 无限递归 → 爆栈 RE，连输出都没有。</td></tr><tr><td id="b83"><code>dfs(v, u)</code></td><td id="b84">传的是 u，不是 fa：v 的父亲是 u。写成 dfs(v, fa) 会让 v 继续往上爬。</td></tr><tr><td id="b85"><code>①②的顺序</code></td><td id="b86">所有合并儿子的语句必须写在 dfs(v, u) <b>之后</b>。写在前面，f[v] 还是初始值，答案偏小且不报错。</td></tr><tr><td id="b87"><code>叶子节点</code></td><td id="b88">叶子没有任何邻居能通过 if，for 循环直接结束，函数返回——不需要单独写递归边界。</td></tr><tr><td id="b89"><code>根怎么选</code></td><td id="b90">无向树任选一个当根（常写 1）；有向树（父→子）要先找入度为 0 的点。</td></tr><tr><td id="b91"><code>深度</code></td><td id="b92">递归深度 = 树高，最坏是一条链、深度 n。n ≤ 2×10⁴ 时安全，到 10⁵ 要考虑手写栈。</td></tr></tbody></table><div class="cap" id="b93">最小可运行示例</div><div class="cap" id="b94">示例</div><pre id="b95"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">100005</span>;
+<span class="k">vector</span>&lt;<span class="k">int</span>&gt; g[N];
+<span class="k">int</span> sz[N], dep[N];
+
+<span class="k">void</span> <span class="f">dfs</span>(<span class="k">int</span> u, <span class="k">int</span> fa) {
+    sz[u] = <span class="n">1</span>;                        <span class="c">// 自己算一个点</span>
+    dep[u] = dep[fa] + <span class="n">1</span>;             <span class="c">// 深度可以顺着参数/父亲递推</span>
+    <span class="k">for</span> (<span class="k">int</span> v : g[u]) {
+        <span class="k">if</span> (v == fa) <span class="k">continue</span>;        <span class="c">// 父亲方向是来的路</span>
+        <span class="f">dfs</span>(v, u);                    <span class="c">// ★ 先递归：等 sz[v] 算完</span>
+        sz[u] += sz[v];               <span class="c">// ★ 再合并</span>
+    }
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    g[<span class="n">1</span>].<span class="k">push_back</span>(<span class="n">2</span>); g[<span class="n">2</span>].<span class="k">push_back</span>(<span class="n">1</span>);
+    g[<span class="n">1</span>].<span class="k">push_back</span>(<span class="n">3</span>); g[<span class="n">3</span>].<span class="k">push_back</span>(<span class="n">1</span>);
+    g[<span class="n">3</span>].<span class="k">push_back</span>(<span class="n">4</span>); g[<span class="n">4</span>].<span class="k">push_back</span>(<span class="n">3</span>);
+    dep[<span class="n">0</span>] = <span class="n">0</span>;
+    <span class="f">dfs</span>(<span class="n">1</span>, <span class="n">0</span>);                        <span class="c">// 0 是虚点，编号从 1 起，绝不会撞上</span>
+    <span class="k">cout</span> &lt;&lt; sz[<span class="n">1</span>] &lt;&lt; <span class="s">" "</span> &lt;&lt; sz[<span class="n">3</span>] &lt;&lt; <span class="s">" "</span> &lt;&lt; dep[<span class="n">4</span>] &lt;&lt; <span class="s">"\n"</span>;   <span class="c">// 4 2 3</span>
+}</code></pre><div class="box tip"><div class="t" id="b96">注意</div><p id="b97">fa 初值写 0、编号从 1 开始，0 一定不等于任何邻居——无向树靠这一手省掉 vis 数组。</p><p id="b98">把两个 ★ 交换顺序：sz[u] += sz[v] 时 sz[v] 还是 0，答案直接少一大截。这是树形 DP 第一大坑。</p><p id="b99">根取哪个不影响 sz[1] 之外的信息量，但答案若是“某个点”，要在 dfs 里顺手更新全局量。</p></div></div></div><p id="b100">第一道题是本节的模板：一条链上的合并，加上一个环的处理。先把它彻底做透，第二个例题才有参照物。</p><div class="prob"><div class="ph"><span class="pn" id="b101">例题 · 石子合并</span><span class="oi">洛谷 P1880</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P1880" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b102">在圆形操场四周摆了 N 堆石子，现要将石子有次序地合并成一堆。规定每次只能选<b>相邻</b>的两堆合并成新的一堆，并把新堆的石子数记为该次合并的得分。</p><p id="b103">求将 N 堆合并成 1 堆的<b>最小</b>得分与<b>最大</b>得分。</p><p id="b104">数据范围：1 ≤ N ≤ 100，0 ≤ aᵢ ≤ 20。</p><p id="b105">输入格式：第一行 N；第二行 N 个整数，第 i 个表示第 i 堆的石子数。<br>输出格式：两行，第一行最小得分，第二行最大得分。</p></div><div class="io" id="b106">输入：
+4
+4 5 9 4
+输出：
+43
+54</div></div><div class="step"><div class="sh" id="b107">把“合并顺序”换成“最后一步”</div><p id="b108"><b>顺序不是状态，最后一步才是。</b>不管前面怎么合，整个区间 [l,r] 合并成一堆的最后一步，一定是由两堆并成的：一堆来自 [l,k]，一堆来自 [k+1,r]。所以只要知道“这两段各自合成一堆的最小代价”，就能拼出整段的最小代价：</p><p id="b109"><code>f[l][r] = min(f[l][k] + f[k+1][r]) + sum(l..r)</code>，k 取遍 l..r−1。末尾加的区间和是这次合并的得分：新堆的重量就是两段之和。</p><p id="b110"><b>为什么这一步加法是对的。</b>最后一步的得分固定为 sum(l,r)，与切法无关；前面两段内部的合并互不干扰，各自独立取最优不会冲突。这就是最优子结构，也是这道题能用 DP 的唯一理由。</p><p id="b111"><b>环形怎么办。</b>环上有 n 种“从哪断开”的选择。暴力枚举断点各做一次 DP 是 O(n⁴)。标准做法：把数组复制一份接在后面，得到长度 2n 的链；环上任何一种断法，都对应这条链上一个长度为 n 的连续窗口。于是所有断法的答案就是 f[l][l+n−1]（1 ≤ l ≤ n）里的最优值。</p><p id="b112"><b>规模。</b>状态 2n × 2n = 4×10⁴，转移 n = 100，总共约 2×10⁶ 次加法取最值，一瞬间。最小和最大用同一个转移，只是 min 换成 max，所以两张表一起算，代码只多两行。</p></div><div class="cap" id="b113">完整可编译代码（C++17）</div><pre id="b114"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> INF = <span class="n">0x3f3f3f3f</span>;
+<span class="k">int</span> n, a[<span class="n">205</span>], s[<span class="n">205</span>];              <span class="c">// a 开两倍：破环成链</span>
+<span class="k">int</span> f[<span class="n">205</span>][<span class="n">205</span>], g[<span class="n">205</span>][<span class="n">205</span>];      <span class="c">// f 最小得分，g 最大得分</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">cin</span> &gt;&gt; n;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) { <span class="k">cin</span> &gt;&gt; a[i]; a[i + n] = a[i]; }   <span class="c">// 复制一份接在后面</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= <span class="n">2</span> * n; ++i) s[i] = s[i - <span class="n">1</span>] + a[i];          <span class="c">// 前缀和：O(1) 取区间和</span>
+
+    <span class="k">memset</span>(f, <span class="n">0x3f</span>, <span class="k">sizeof</span> f);     <span class="c">// 求最小：初值要足够大</span>
+    <span class="k">memset</span>(g, <span class="n">0</span>, <span class="k">sizeof</span> g);        <span class="c">// 求最大：得分非负，初值 0 就行</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= <span class="n">2</span> * n; ++i) f[i][i] = g[i][i] = <span class="n">0</span>;   <span class="c">// 单堆不用合并，得分 0</span>
+
+    <span class="k">for</span> (<span class="k">int</span> len = <span class="n">2</span>; len &lt;= n; ++len)                 <span class="c">// ① 长度从小到大</span>
+        <span class="k">for</span> (<span class="k">int</span> l = <span class="n">1</span>; l + len - <span class="n">1</span> &lt;= <span class="n">2</span> * n; ++l) {   <span class="c">// ② 左端点</span>
+            <span class="k">int</span> r = l + len - <span class="n">1</span>;
+            <span class="k">for</span> (<span class="k">int</span> k = l; k &lt; r; ++k) {              <span class="c">// ③ 断点：左段 [l,k]，右段 [k+1,r]</span>
+                <span class="k">int</span> add = s[r] - s[l - <span class="n">1</span>];             <span class="c">// 本次合并的得分 = 两段总重</span>
+                f[l][r] = <span class="k">min</span>(f[l][r], f[l][k] + f[k + <span class="n">1</span>][r] + add);
+                g[l][r] = <span class="k">max</span>(g[l][r], g[l][k] + g[k + <span class="n">1</span>][r] + add);
+            }
+        }
+
+    <span class="k">int</span> mn = INF, mx = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> l = <span class="n">1</span>; l &lt;= n; ++l) {                     <span class="c">// 枚举环的断点 = 长度 n 的每个窗口</span>
+        mn = <span class="k">min</span>(mn, f[l][l + n - <span class="n">1</span>]);
+        mx = <span class="k">max</span>(mx, g[l][l + n - <span class="n">1</span>]);
+    }
+    <span class="k">cout</span> &lt;&lt; mn &lt;&lt; <span class="s">"\n"</span> &lt;&lt; mx &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b115">逐行拆解</div><table class="lines"><thead><tr><th id="b116">代码片段</th><th id="b117">含义与理由</th></tr></thead><tbody><tr><td id="b118"><code>a[i + n] = a[i]</code></td><td id="b119">破环成链。原环上相邻的两堆，在复制后的链上仍然相邻；而任何一个长度为 n 的窗口都是环的一种“断开方式”。</td></tr><tr><td id="b120"><code>s[i] = s[i - 1] + a[i]</code></td><td id="b121">前缀和。区间和 s[r]−s[l−1] 是 O(1)，否则在 k 循环里再求和就多一层 O(n)，直接 O(n⁴)。</td></tr><tr><td id="b122"><code>memset(f, 0x3f, sizeof f)</code></td><td id="b123">0x3f3f3f3f ≈ 1.06×10⁹。每个字节都填 0x3f，int 四字节就得到这个数，是最常见的 INF 写法。</td></tr><tr><td id="b124"><code>for (int len = 2; len &lt;= n; ++len)</code></td><td id="b125">长度上限是 n 而不是 2n：只有长度 n 的窗口才对应一个完整的环，更长的区间没有意义。</td></tr><tr><td id="b126"><code>l + len - 1 &lt;= 2 * n</code></td><td id="b127">右端点不能越出复制后的数组。真正要用的最长区间是 [l, l+n−1]，l ≤ n 时右端点最远到 2n−1，所以开 2n 格刚好够。</td></tr><tr><td id="b128"><code>int add = s[r] - s[l - 1]</code></td><td id="b129">最后一个合并动作的得分。它与 k 无关，所以在 k 循环外算一次就够，省一点常数。</td></tr><tr><td id="b130"><code>f[l][k] + f[k + 1][r] + add</code></td><td id="b131">两段内部各自的最优代价 + 这一次合并的代价。k 取遍所有切法，min 就是最优断点。</td></tr><tr><td id="b132"><code>for (int l = 1; l &lt;= n; ++l)</code></td><td id="b133">环的断点等价于窗口起点。l 从 1 到 n 就把 n 种断法全试了一遍。</td></tr></tbody></table></div><p id="b134">第二道题把“区间”换成“子树”。注意这一次没有任何“区间长度”可以枚举，顺序完全由递归调用保证。</p><div class="prob"><div class="ph"><span class="pn" id="b135">例题 · 没有上司的舞会</span><span class="oi">洛谷 P1352</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P1352" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b136">某大学有 n 个职员，编号 1..n，他们的从属关系构成一棵以校长为根的树，父节点是子节点的直接上司。宴会每邀请一个职员都会增加快乐指数 rᵢ，但如果某职员的直接上司来了，这个职员就不肯来。</p><p id="b137">求邀请哪些职员能使快乐指数之和最大。</p><p id="b138">数据范围：1 ≤ n ≤ 6×10³，−128 ≤ rᵢ ≤ 127（可以为负）。</p><p id="b139">输入格式：第一行 n；接下来 n 行每行一个整数 rᵢ；再接下来 n−1 行，每行两个整数 l、k，表示 k 是 l 的直接上司。<br>输出格式：一行一个整数，最大快乐指数。</p></div><div class="io" id="b140">输入：
+7
+1 1 1 1 1 1 1
+1 3
+2 3
+6 4
+7 4
+4 5
+3 5
+输出：
+5</div></div><div class="step"><div class="sh" id="b141">状态就是“这个人来不来”</div><p id="b142"><b>约束只发生在直接父子之间。</b>一个职员来不来，只取决于他父亲来不来；爷爷来不来与他无关。所以处理完 u 的子树后，外界只需要知道一件事：u 来了没有。这就是状态的第二维，只有 0 和 1 两个取值。</p><p id="b143"><code>f[u][0]</code>：u 不来时，u 的子树能贡献的最大快乐值。<code>f[u][1]</code>：u 来时，u 的子树能贡献的最大快乐值。</p><p id="b144"><b>转移看着父子关系写。</b>u 不来 → 每个儿子 v 来不来都行，取 <code>max(f[v][0], f[v][1])</code>；u 来了 → 儿子一定不能来，只能加 <code>f[v][0]</code>。两句话就是全部转移。</p><p id="b145"><b>顺序。</b>f[u] 依赖所有 f[v]，而 f[v] 依赖 v 的子树——只能用 DFS 后序：先递归每个儿子，回到 u 再累加。这里没有“长度为 1、2、3”可枚举，顺序完全由递归结构给出。</p><p id="b146"><b>两个边界。</b>叶子没有儿子，求和为空：f[leaf][0] = 0，f[leaf][1] = r[leaf]。根要从入度为 0 的点里找——输入只告诉你“谁是上司”，不会直接告诉你谁是校长。</p><p id="b147"><b>要注意 r 可以是负数。</b>f[u][1] 直接以 r[u] 起头，不能“负的就不要”，因为选了 u 就是选了 u 这个前提。本题规定关系一定是一棵树，所以不需要判环。</p></div><div class="cap" id="b148">完整可编译代码（C++17）</div><pre id="b149"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> n, r[<span class="n">6005</span>];
+<span class="k">vector</span>&lt;<span class="k">int</span>&gt; g[<span class="n">6005</span>];        <span class="c">// g[u]：u 的所有直接下属（有向，父 → 子）</span>
+<span class="k">int</span> f[<span class="n">6005</span>][<span class="n">2</span>];             <span class="c">// f[u][0] u 不来；f[u][1] u 来</span>
+<span class="k">bool</span> hasFa[<span class="n">6005</span>];           <span class="c">// 用来找根：没有上司的人就是根</span>
+
+<span class="k">void</span> <span class="f">dfs</span>(<span class="k">int</span> u) {
+    f[u][<span class="n">1</span>] = r[u];         <span class="c">// u 来：先拿到自己的快乐值</span>
+    f[u][<span class="n">0</span>] = <span class="n">0</span>;            <span class="c">// u 不来：自己贡献 0</span>
+    <span class="k">for</span> (<span class="k">int</span> v : g[u]) {    <span class="c">// 有向树，边只从父指向子，不会走回头路</span>
+        <span class="f">dfs</span>(v);             <span class="c">// ★ 先把儿子的两个值算出来</span>
+        f[u][<span class="n">0</span>] += <span class="k">max</span>(f[v][<span class="n">0</span>], f[v][<span class="n">1</span>]);   <span class="c">// u 不来 → 儿子来不来都行</span>
+        f[u][<span class="n">1</span>] += f[v][<span class="n">0</span>];                 <span class="c">// u 来了 → 儿子一定不能来</span>
+    }
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">cin</span> &gt;&gt; n;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) <span class="k">cin</span> &gt;&gt; r[i];
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt; n; ++i) {
+        <span class="k">int</span> l, k;                  <span class="c">// k 是 l 的直接上司</span>
+        <span class="k">cin</span> &gt;&gt; l &gt;&gt; k;
+        g[k].<span class="k">push_back</span>(l);         <span class="c">// 加边 k → l</span>
+        hasFa[l] = <span class="k">true</span>;           <span class="c">// l 有上司，不可能是根</span>
+    }
+
+    <span class="k">int</span> root = <span class="n">1</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i)
+        <span class="k">if</span> (!hasFa[i]) { root = i; <span class="k">break</span>; }   <span class="c">// 入度为 0 的点</span>
+
+    <span class="f">dfs</span>(root);
+    <span class="k">cout</span> &lt;&lt; <span class="k">max</span>(f[root][<span class="n">0</span>], f[root][<span class="n">1</span>]) &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b150">逐行拆解</div><table class="lines"><thead><tr><th id="b151">代码片段</th><th id="b152">含义与理由</th></tr></thead><tbody><tr><td id="b153"><code>void dfs(int u)</code></td><td id="b154">只有一个参数：本题边是有向的父→子，从 u 出发只会往下走，不需要 fa 判回头。无向树才要 fa。</td></tr><tr><td id="b155"><code>f[u][1] = r[u]; f[u][0] = 0;</code></td><td id="b156">初始化写成“自己这一份”。r[u] 可能是负数，照样加进去，不能跳过。</td></tr><tr><td id="b157"><code>for (int v : g[u])</code></td><td id="b158">遍历所有直接下属。递归调用写在累加之前，是因为累加要用算好的 f[v]。</td></tr><tr><td id="b159"><code>f[u][0] += max(f[v][0], f[v][1])</code></td><td id="b160">u 不来时，儿子 v 没有任何限制，两种都合法，取大的。</td></tr><tr><td id="b161"><code>f[u][1] += f[v][0]</code></td><td id="b162">u 来了，v 一定不准来，所以只能加 v 不来的那一份。写成 max 是本题最典型的错。</td></tr><tr><td id="b163"><code>hasFa[l] = true</code></td><td id="b164">读边时顺手记下“谁有上司”，省掉一次入度统计。</td></tr><tr><td id="b165"><code>if (!hasFa[i]) { root = i; break; }</code></td><td id="b166">唯一没有上司的人就是校长。从别的点开始 dfs 会漏掉根之上的部分 → 答案偏小。</td></tr><tr><td id="b167"><code>max(f[root][0], f[root][1])</code></td><td id="b168">根来与不来都是合法方案，取大的。</td></tr></tbody></table></div><div class="step"><div class="sh" id="b169">这两个模板还能套在哪</div><p id="b170"><b>认区间 DP 的信号：</b>答案能由“最后一次操作把序列切成两半”描述；n 大概在 100~500；中间可以插一个断点 k。石子合并、能量项链（环形，同样复制 2n）、最长回文子序列（f[l][r] 看两端是否相等）、括号匹配类，都是这个骨架。</p><p id="b171"><b>认树形 DP 的信号：</b>答案在树上，子树之间互相独立，约束只在父子之间。这时一定有第二维表示“父/子选没选”，比如选或不选、来或不来、装多少件。没有这一维，父子约束就没法表达。</p><p id="b172"><b>环形问题的两套写法：</b>①复制成 2n，答案取窗口；②强行分类讨论“第一堆和最后一堆是否合并”，对区间 DP 也能用，但要加一维状态。前者代码短、后者有时更快，初学一律用前者。</p><p id="b173"><b>树形 DP 的通用写法：</b>先 dfs 儿子，回来再合并，最后更新全局答案。换题时通常只改三处：第二维的含义、初始化（f[u][…] 的起点）、以及儿子那一步怎么并进父亲。</p></div><div class="box warn"><div class="t" id="b174">这一节的 6 个坑，按症状记</div><p id="b175">区间 DP 写成 <code>for (l) for (r = l; r &lt;= n; ++r) for (k)</code>：用到还没算的 f[k+1][r] → <b>WA</b>，样例经常照样过，因为小数据正好被前几轮覆盖。</p><p id="b176">求最小却没给 f 初始化（全 0）→ 输出 0 或明显偏小的数 → <b>WA</b>。0x3f3f3f3f 是最稳的 INF。</p><p id="b177">环形题忘了复制成 2n，只在 1..n 上做：只算了一个断点 → <b>WA</b>，n 小的时候甚至可能蒙对。</p><p id="b178">树 DFS 漏了 <code>if (v == fa) continue;</code>：两个点互相调用 → 无限递归 → <b>RE</b>（爆栈），表现为进程直接退出、无任何输出。</p><p id="b179">合并儿子的语句写在 <code>dfs(v, u)</code> 之前：f[v] 还是初始值 → <b>WA</b>，答案恒定偏小，且能跑完不崩。</p><p id="b180">数组只按 n 开：n = 100 却开 f[105][105]，复制成 2n 后访问 f[200][…] → 越界 → <b>RE</b> 或随机 <b>WA</b>。习惯按“题目上界 × 2 再加几格”开。</p></div><div class="reproduce"><div class="rt" id="b181">自己动手复现</div><p id="b182">关掉页面，把 P1880 的完整代码从零敲一遍，交上去确认输出 43 和 54。</p><p id="b183">改一改①：把三层循环改成 l 从 1 到 2n、r 从 l 到 2n、k 在最里层（也就是不再按长度递增），再跑样例。第一行会输出 1061109567——那正是 INF 本身，说明 f 压根没算出来；程序却不报任何错。这就是“顺序即正确性”。</p><p id="b184">改一改②：拿 P1352 的代码，在 <code>dfs(u)</code> 开头加一句 <code>printf("进入 %d\n", u)</code>，在函数末尾加一句 <code>printf("离开 %d\n", u)</code>，观察“离开”总是先于父亲——后序就是这么来的。</p><p id="b185">改一改③：把 P1352 里 <code>f[u][1] += f[v][0]</code> 改成 <code>+= max(f[v][0], f[v][1])</code>，样例输出会从 5 变成 7，多出来的正是不该来的上级。</p></div><div class="mathcard"><div class="mt" id="b186">数学补给 · 区间 DP 的转移次数到底是多少</div><p id="b187">状态数是 n²，但真跑起来不是 n³ 次，而是少得多。数一数三层循环总共进多少次最内层。</p><p id="b188">固定长度 len，区间有 n − len + 1 个，每个区间的断点有 len − 1 个。总次数：</p><p id="b189">T(n) = Σ<sub>len=2..n</sub> (n − len + 1)(len − 1) = <b>C(n+1, 3)</b> = n(n−1)(n+1)/6</p><p id="b190">代入验证：n = 3 时 C(4,3) = 4；手算 (2)(1) + (1)(2) = 4 ✓。n = 4 时 C(5,3) = 10；手算 (3)(1)+(2)(2)+(1)(3) = 10 ✓。</p><table><thead><tr><th id="b191">n</th><th id="b192">C(n+1,3)</th><th id="b193">1 秒内可行？</th><th id="b194">说明</th></tr></thead><tbody><tr><td id="b195">100</td><td id="b196">166650</td><td id="b197">轻松</td><td id="b198">石子合并的实际量级</td></tr><tr><td id="b199">300</td><td id="b200">4499500</td><td id="b201">很轻松</td><td id="b202">P1775 弱化版的数据</td></tr><tr><td id="b203">500</td><td id="b204">20833250</td><td id="b205">可以</td><td id="b206">常数要小，别在 k 循环里做加法以外的操作</td></tr><tr><td id="b207">1000</td><td id="b208">166666500</td><td id="b209">勉强</td><td id="b210">1.7×10⁸，要压常数</td></tr><tr><td id="b211">2000</td><td id="b212">1.33×10⁹</td><td id="b213">不行</td><td id="b214">必须换四边形不等式或决策单调性优化</td></tr></tbody></table><p id="b215">所以“区间 DP 能过 n ≤ 500 左右”是个可以直接背的数字。环形题因为数组翻倍、len 只到 n，转移次数约是线性版的两倍，n = 100 时仍是 3×10⁵ 量级。</p><p id="b216">树形 DP 那边则是另一套账：每个节点进一次 dfs，每次把每条出边看一遍，全部加起来 2(n−1) 次循环体。<b>树的 DP 复杂度永远是 O(n)（或 O(n·状态数)），跟深度无关，跟形状也无关。</b></p></div><div class="think"><div class="tt" id="b217">举一反三 · 想清楚这些再往下走</div><div class="thint">先自己写出答案，再点开核对——方向对不对，比答案本身更重要</div><ol><li id="b218"><div class="tq">把石子合并的得分规则改成“两堆石子数之差”，区间 DP 还成立吗？“最后一步的代价固定为 sum(l,r)”这个性质还在不在？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">还成立，但“代价与 k 无关”这条性质没了：两堆之差是 |(s[k]−s[l−1]) − (s[r]−s[k])|，它随 k 变。好在它<b>只</b>由 (l,r,k) 决定，不依赖两段内部怎么合的，最优子结构还在，转移式照写，代价仍是 O(1)，总复杂度不变。常见错路：发现 add 不能提到 k 循环外，就断定“这题不能用区间 DP”；真正会崩的是得分依赖合并历史形状的规则，那时 f[l][r] 这一个数不够用。</div></details></li><li id="b219"><div class="tq">如果每次允许合并相邻的 3 堆，len 的起点、k 的含义、cost 各要怎么改？复杂度变了吗？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">k 从“一个断点”变成“两个断点”：枚举 l ≤ k1 &lt; k2 &lt; r，把区间切成三段，f[l][r] = min(f[l][k1] + f[k1+1][k2] + f[k2+1][r] + sum(l,r))，len 从 3 开始。复杂度从 O(n³) 涨到 O(n⁴)：状态 O(n²)、转移 O(n²)，n = 100 时约 4×10<sup>6</sup> 次，n = 500 时约 2.6×10<sup>9</sup> 次。常见错路：只把 len 的起点从 2 改成 3，却仍只枚举一个 k——那还是在合并两堆，转移式根本没变，答案必错。</div></details></li><li id="b220"><div class="tq">树形 DP 里“父亲来了儿子就不能来”是硬约束。若改成“父亲来了，儿子的快乐值减半”，状态还需要加维度吗？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">不用加维度。“减半”只作用在儿子自己那一份 r[v] 上，而 r[v] 和 f[v][1] 在父亲合并时都是已知的，u 来不来的信息也已经由 f[u][0]/f[u][1] 这一维区分开了，所以只要把 u 来时的转移改成 <code>f[u][1] += max(f[v][0], f[v][1] − r[v]/2)</code>。常见错路：继续写 <code>+= f[v][0]</code>（那是硬约束），把可以来的儿子全排除了；还容易忽略 r 可以是负数——−128 减半是 −64，反而变大，方向别想当然。</div></details></li><li id="b221"><div class="tq">求“树上一条路径的最大点权和（点权可负）”能不能复用 f[u][0/1]？第二维的含义要换成什么？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">不能直接复用“来/不来”。第二维要换成“从 u 往下走一条链的最大点权和”：down[u] = a[u] + max(0, max down[v])，再在 u 处把最大的两条正链和 a[u] 拼起来（答案 = a[u] + 最大的两个 max(0,down[v])），取全树最大值。常见错路：把 f[u][0] 与 f[u][1] 加起来当路径——那只保证“父子不同时选”，跟“连通的一条路径”没关系；只累加最大的一个儿子，得到的是从叶子到 u 的直链，跨两个方向的最优路径被漏掉。</div></details></li><li id="b222"><div class="tq">P1880 只要求得分。如果要求输出最优的合并顺序，你要多开一维数组，还是只记断点？空间差多少？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">只记断点就够，不用另开一维存方案。root[l][r] 存最优的 k，一张 int 表，复制成 2n 后是 (2n)² = 4×10⁴ 格，约 160 KB；而存每个区间的完整合并顺序要 O(n³) 个数（n = 100 时约 7×10<sup>5</sup> 个），还要为每个区间单独开 vector。为什么够：合并树被断点唯一确定——从 root[l][r] 递归查两个子区间就能还原整棵树，先序或后序输出就是合并顺序。常见错路：在 k 循环里比较或拼接字符串，复杂度直接多乘一个 len。</div></details></li><li id="b223"><div class="tq">环形问题的“复制成 2n”和“讨论首尾是否合并”两种写法，分别在什么时候更省时间和空间？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">复制成 2n 胜在代码短：不用分类，一次 DP 就把 n 种断点全算完，代价是表变成 (2n)²、有效区间约 2n² 个，转移次数约为线性版的 4 倍（n = 100 时 6.6×10<sup>5</sup> 对 1.7×10<sup>5</sup>）。首尾讨论法在 1..n 上做，只多一维“首尾合不合并”的状态，状态数和转移次数都只有前者的一半左右（约线性版的 2 倍），所以它其实更省时间和空间——代价是分类要想清楚，写错就整题全错，正文因此说“初学一律用前者”。常见错路：以为复制成 2n 只是多花点内存、时间差不多；或者反过来宣称它省空间——它省的是代码，费的是时间和空间。</div></details></li></ol></div><div class="box tip"><div class="t" id="b224">自测：能全部回答再进下一节</div><ul><li id="b225">能默写区间 DP 的三层循环，并说清 len 为什么必须最外层。</li><li id="b226">能手算 n = 4 的转移次数 10 次，并说出 n = 1000 时为什么撑不住。</li><li id="b227">能独立写出破环成链的 5 行代码，并解释答案为什么要取长度 n 的窗口。</li><li id="b228">能说清树形 DP 里 fa 参数的两个作用（防回头、传父亲），以及为什么本题不需要它。</li><li id="b229">能指出“先合并后递归”会错成什么样，以及为什么它不报错。</li><li id="b230">给定一道新题，能在 1 分钟内判断它该用区间 DP、树形 DP，还是线性 DP。</li></ul></div><div class="challenge"><div class="ct" id="b231">挑战题 · 最大子树和</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1122</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P1122" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b232">一株花上共连有 n 朵花，n−1 条枝干把它们连成一棵树。每朵花有一个“美丽指数”，可能是负数。</p><p id="b233">一次“修剪”指删掉一条枝干，于是整株花分成两株，扔掉其中一株。可以进行任意次修剪（也可以不剪），使最后剩下的那一株（也可能只剩一朵花）上所有花的美丽指数之和最大，求这个最大值。</p><p id="b234">输入格式：第一行一个整数 n（1 ≤ n ≤ 16000）；第二行 n 个整数，第 i 个表示第 i 朵花的美丽指数（|aᵢ| ≤ 10⁹）；接下来 n−1 行，每行两个整数 a、b，表示 a 与 b 之间有枝干相连。<br>输出格式：一行一个整数，表示最大美丽指数之和。</p><p id="b235">数据保证答案的绝对值不超过 2147483647。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b236">修剪之后剩下的东西一定是树上“连通的一块”，而且它可以看成某棵子树的一部分。</p><p id="b237">自己定一个根。对每个点问一句：如果剩下的这一块必须包含它，并且只能往它的子树里取，最多能拿多少？</p><p id="b238">子树里那些“拖后腿”的部分可以整块剪掉——修剪这个操作正好允许你这么做。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b239"><b>定根。</b>任取 1 号为根，把无向树变成有向的父子关系。</p><p id="b240"><b>状态。</b>f[u] = 以 u 为根、<b>必须包含 u</b>、且只在 u 的子树内取点的连通块的最大权值和。</p><p id="b241"><b>转移。</b>f[u] = a[u] + Σ<sub>v 是 u 的儿子</sub> max(0, f[v])。儿子那棵子树如果整体是负贡献，就连同这条边一起剪掉（这正是一次合法的修剪）；是正的才接上来。</p><p id="b242"><b>答案。</b>剩下的那一块总有一个“最靠上的点” u，它就是那一块在根意义下的最高点，所以它一定被某个 f[u] 算到过。取所有 f[u] 的最大值即可。答案允许只留一朵花，所以初始答案不能是 0 —— 必须从 -∞ 起，否则全是负数时会被 0 顶掉。</p><p id="b243"><b>复杂度。</b>每个点算一次，每条边过一次 → O(n)。n = 16000 时瞬间跑完。</p><p id="b244"><b>类型。</b>单点权值到 10⁹，n 到 16000，一块的权值和最大可达 1.6×10¹³，必须用 long long。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b245">参考代码</div><pre id="b246"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">16005</span>;
+<span class="k">int</span> n;
+<span class="k">long</span> <span class="k">long</span> w[N], f[N], ans = LLONG_MIN;   <span class="c">// f[u]：必须含 u 的连通块最大权值和</span>
+<span class="k">vector</span>&lt;<span class="k">int</span>&gt; g[N];
+
+<span class="k">void</span> <span class="f">dfs</span>(<span class="k">int</span> u, <span class="k">int</span> fa) {
+    f[u] = w[u];                         <span class="c">// 自己这一份先算上</span>
+    <span class="k">for</span> (<span class="k">int</span> v : g[u]) {
+        <span class="k">if</span> (v == fa) <span class="k">continue</span>;           <span class="c">// 父亲方向是来的路，跳过</span>
+        <span class="f">dfs</span>(v, u);                       <span class="c">// ★ 先递归：等 f[v] 算完</span>
+        <span class="k">if</span> (f[v] &gt; <span class="n">0</span>) f[u] += f[v];      <span class="c">// ★ 负贡献的子树整块剪掉（就是一次修剪）</span>
+    }
+    ans = <span class="k">max</span>(ans, f[u]);                <span class="c">// 每个点都可能是那一块的最高点</span>
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">cin</span> &gt;&gt; n;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) <span class="k">cin</span> &gt;&gt; w[i];
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt; n; ++i) {
+        <span class="k">int</span> a, b;
+        <span class="k">cin</span> &gt;&gt; a &gt;&gt; b;
+        g[a].<span class="k">push_back</span>(b);
+        g[b].<span class="k">push_back</span>(a);               <span class="c">// 无向树，两个方向都要存</span>
+    }
+
+    <span class="f">dfs</span>(<span class="n">1</span>, <span class="n">0</span>);                           <span class="c">// 0 是虚点，编号从 1 起</span>
+    <span class="k">cout</span> &lt;&lt; ans &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b247">关键片段拆解</div><table class="lines"><thead><tr><th id="b248">片段</th><th id="b249">作用</th></tr></thead><tbody><tr><td id="b250"><code>long long w[N], f[N], ans = LLONG_MIN</code></td><td id="b251">权值到 10⁹、点数到 16000，一块的和可达 1.6×10¹³，int 装不下。ans 用 −∞ 起头，保证全是负数时也能取到“最大的那个负数”。</td></tr><tr><td id="b252"><code>vector&lt;int&gt; g[N]</code></td><td id="b253">1.6 万个 vector，总边数 3.2 万条，内存不到 1 MB。</td></tr><tr><td id="b254"><code>dfs(int u, int fa)</code></td><td id="b255">无向树必须有 fa：否则 u→v→u 来回走，直接爆栈。</td></tr><tr><td id="b256"><code>f[u] = w[u]</code></td><td id="b257">初始化就是“只留自己这一朵”，这是一切连通块的起点。</td></tr><tr><td id="b258"><code>if (f[v] &gt; 0) f[u] += f[v]</code></td><td id="b259">正贡献接上，负贡献剪掉。这一行同时完成了“取或不取这棵子树”的决策，所以不需要再套一层 0/1 背包式的循环。</td></tr><tr><td id="b260"><code>ans = max(ans, f[u])</code></td><td id="b261">答案不是 f[1]：只留一朵花、或最高的那朵在中途时，最高点未必是根。</td></tr><tr><td id="b262"><code>g[a].push_back(b); g[b].push_back(a);</code></td><td id="b263">边是双向的。只存一次会有很多点根本走不到 → 答案偏小，且能跑完不报错。</td></tr></tbody></table><div class="box warn"><div class="t" id="b264">这题最容易错的地方</div><ul><li id="b265">f、w、ans 用 int：n = 16000 且权值都是 10⁹ 时和到 1.6×10¹³，溢出后变成负数 → 大测试点全挂（WA）。</li><li id="b266">ans 初始化为 0：所有花都难看（全负）时正确答案是最大的那个负数，0 会把它顶掉 → WA。</li><li id="b267">漏写 <code>if (v == fa) continue;</code>：无向树会两点之间来回递归 → RE（爆栈）。</li><li id="b268">无向边只 push 一次：树被当成有向图，一部分子树永远访问不到 → WA，且不崩不报错。</li></ul></div></div></details></div><div class="box tip" style="margin:22px 0 -6px"><div class="t" id="b269">挑战 2 · 难度高一级，允许组合多个已学算法</div><p id="b270">这题比上面的挑战题更难：它不只用本节一个算法，可能需要把前面几节的工具拼起来。独立做出来说明这一块真的过关了；做完记得在侧边栏勾上 🌟。</p></div><div class="challenge ch2"><div class="ct" id="b271">挑战 2 · 选课</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P2014</span><span class="badge diff">提高+/省选-</span><a href="https://www.luogu.com.cn/problem/P2014" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b272">大学里有 N 门课，第 i 门有 sᵢ 学分，并且最多有一门直接先修课 kᵢ；只有学完先修课才能学这门课，kᵢ = 0 表示没有先修课。</p><p id="b273">要从这 N 门课里选 M 门学习，求能获得的最大学分。</p><p id="b274">输入格式：第一行 N、M（1 ≤ N ≤ 300，1 ≤ M ≤ 300）。接下来 N 行，第 i 行两个整数 kᵢ、sᵢ（0 ≤ kᵢ ≤ N，1 ≤ sᵢ ≤ 20）。数据保证至少有一门 kᵢ = 0，且先修关系不冲突。</p><p id="b275">输出格式：一行一个整数，选 M 门课的最大学分。</p></div><div class="cap" id="b276">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+7 4
+2 2
+0 1
+0 4
+2 1
+7 1
+7 6
+2 2
+输出：
+13</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b277">每门课最多一门先修课、先修关系又没有环，所以这是一片森林。“选了儿子就必须选父亲”是关键约束。</p><p id="b278">森林不好做：加一个 0 号虚拟根，把 kᵢ = 0 的课全挂上去，问题变成“必选根，一共选 M+1 个点”。</p><p id="b279">在子树 u 里选 j 门，等于把 j−1 个名额分给各个儿子。这是第 32 节的背包，只是“物品”换成了儿子整棵子树。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b280">先建树：对每门课 i，g[kᵢ].push_back(i)，kᵢ = 0 的课成为虚拟根 0 的儿子。</p><p id="b281">状态 dp[u][j]：在 u 的子树里选 j 门课、且必选 u 时的最大学分。</p><p id="b282">转移：把每个儿子 v 看成一件物品——若在 v 的子树里选 t 门，得分是 dp[v][t]。合并是分组背包：dp[u][j] = max(dp[u][j], dp[u][j−t] + dp[v][t])，j 倒序、t 从 1 到 min(sz[v], j−1)。</p><p id="b283">j 倒序保证同一个儿子只被合并一次；t ≥ 1 是因为选 v 的子树必然包含 v 自己；j−t ≥ 1 是要给 u 留一个名额。</p><p id="b284">边界：dp[u][1] = s[u]，其余先置 −INF（不可达）。u = 0 时 s[0] = 0。</p><p id="b285">答案：dfs(0) 后输出 dp[0][M+1]——虚拟根占了 1 个名额，最后减掉。</p><p id="b286">为什么对：合法方案在树上是一个“含根、向下封闭”的点集。对 u 而言，各儿子方向选多少互相独立，只通过总名额耦合，所以逐个儿子做背包合并不重不漏。</p><p id="b287">复杂度：单个儿子合并 O(m·sz[v])，全树合计约 O(n·m²/2) = 300×300²/2 ≈ 1.4×10⁷，1 秒内；空间 O(n·m)。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b288">参考代码</div><pre id="b289"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> NEG = -<span class="n">1000000000</span>;
+<span class="k">int</span> n, m;
+<span class="k">vector</span>&lt;<span class="k">int</span>&gt; g[<span class="n">305</span>];            <span class="c">// 先修课 → 后续课，树（多棵树挂在虚拟根 0 上）</span>
+<span class="k">int</span> s[<span class="n">305</span>];                    <span class="c">// 学分</span>
+<span class="k">int</span> sz[<span class="n">305</span>];                   <span class="c">// 子树大小</span>
+<span class="k">int</span> dp[<span class="n">305</span>][<span class="n">305</span>];              <span class="c">// dp[u][j]：在 u 的子树里、必选 u，一共选 j 门课的最大学分</span>
+
+<span class="k">void</span> <span class="f">dfs</span>(<span class="k">int</span> u) {
+    sz[u] = <span class="n">1</span>;
+    <span class="k">for</span> (<span class="k">int</span> j = <span class="n">1</span>; j &lt;= m; ++j) dp[u][j] = NEG;
+    dp[u][<span class="n">1</span>] = s[u];                            <span class="c">// 只选 u 自己</span>
+    <span class="k">for</span> (<span class="k">int</span> v : g[u]) {
+        <span class="f">dfs</span>(v);                                 <span class="c">// 先算完儿子，再合并回 u</span>
+        <span class="k">for</span> (<span class="k">int</span> j = <span class="k">min</span>(m, sz[u] + sz[v]); j &gt;= <span class="n">1</span>; --j)      <span class="c">// 倒序：一个儿子只能合并一次</span>
+            <span class="k">for</span> (<span class="k">int</span> t = <span class="n">1</span>; t &lt;= <span class="k">min</span>(sz[v], j - <span class="n">1</span>); ++t) {
+                <span class="k">if</span> (dp[u][j - t] == NEG || dp[v][t] == NEG) <span class="k">continue</span>;
+                dp[u][j] = <span class="k">max</span>(dp[u][j], dp[u][j - t] + dp[v][t]);
+            }
+        sz[u] += sz[v];
+    }
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">scanf</span>(<span class="s">"%d %d"</span>, &amp;n, &amp;m);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        <span class="k">int</span> k;
+        <span class="k">scanf</span>(<span class="s">"%d %d"</span>, &amp;k, &amp;s[i]);
+        g[k].<span class="k">push_back</span>(i);                      <span class="c">// k = 0 的课挂在虚拟根 0 上</span>
+    }
+    <span class="k">if</span> (m &gt; n) m = n;
+    ++m;                                        <span class="c">// 虚拟根自己占掉一个名额，最后减掉</span>
+    <span class="f">dfs</span>(<span class="n">0</span>);
+    <span class="k">printf</span>(<span class="s">"%d\n"</span>, dp[<span class="n">0</span>][m]);
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b290">关键片段拆解</div><table class="lines"><thead><tr><th id="b291">片段</th><th id="b292">作用</th></tr></thead><tbody><tr><td id="b293"><code>g[k].push_back(i);</code></td><td id="b294">k = 0 的课挂到虚拟根 0，森林变一棵树，dfs 只有一个入口。</td></tr><tr><td id="b295"><code>dp[u][1] = s[u];</code></td><td id="b296">边界：只选 u 自己。u = 0 时学分 0，正好白占一个名额。</td></tr><tr><td id="b297"><code>for (int j = 1; j &lt;= m; ++j) dp[u][j] = NEG;</code></td><td id="b298">先全部设成不可达，再单独写边界。0 会被误当成“合法但很差”。</td></tr><tr><td id="b299"><code>for (int j = min(m, sz[u] + sz[v]); j &gt;= 1; --j)</code></td><td id="b300">j 倒序：dp[u][j−t] 必须是没合并 v 之前的旧值。</td></tr><tr><td id="b301"><code>for (int t = 1; t &lt;= min(sz[v], j - 1); ++t)</code></td><td id="b302">t 至少 1（选 v 必选自己），至多 j−1（给 u 留一个名额）。</td></tr><tr><td id="b303"><code>sz[u] += sz[v];</code></td><td id="b304">合并完再更新子树大小，它决定下一轮 j 的上界。</td></tr><tr><td id="b305"><code>++m; ... dp[0][m]</code></td><td id="b306">虚拟根也占一个名额；答案在根上，不是全表最大值。</td></tr></tbody></table><div class="box warn"><div class="t" id="b307">这题最容易错的地方</div><ul><li id="b308">j 写成正序：同一个儿子被反复合并，答案偏大，且没有任何报错。</li><li id="b309">dp 初值用 0 而不是 −INF：“不存在”的状态带着 0 分参与 max，答案偏大且查不出来。</li><li id="b310">忘了虚拟根 +1 名额：能选的门数少一，样例输出 7 而不是 13。</li><li id="b311">把合并语句写在 dfs(v) 之前：儿子的 dp 还没算，全是 −INF，整棵树答案都是 −INF。</li></ul></div></div></details></div><div class="box info"><div class="t" id="b312">延伸阅读 / 参考</div><ul><li id="b313">《算法竞赛进阶指南》区间 DP 与树形 DP 两节（环形处理、子树合并）</li><li id="b314">《算法竞赛试炼场：洛谷300题精析》DP 提高篇</li><li id="b315">洛谷 P1880、P1352、P1122 题解区的高赞实现</li></ul></div>
+
+<footer>算竞教程 · 算竞教程 · 生成于自建课程体系，题目版权归洛谷及各命题方所有<br>
+转载请注明出处；模板代码可直接用于比赛</footer>

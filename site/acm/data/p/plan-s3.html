@@ -1,0 +1,353 @@
+<section class="sec" id="s3" data-cat="入门" fold>
+  
+  <div class="secbody">
+    <div class="callout"><p>入门篇的十张卡不是十个算法，而是<b>十种思维动作</b>。它们会被后面每一个高级算法反复用到——贪心用在 Kruskal 里，二分用在「二分答案 + 最短路」里，递归是 DP、分治、搜索、树形结构的共同语言。</p></div>
+    <article class="algo" id="pl-31" data-cat="入门" data-name="3.1 枚举：把所有候选答案试过去 本质 把所有可能的答案候选一个个试过去。 难点从来不是「枚举」，而是枚举什么与如何压缩枚举量。 类比 宿舍 6 个人找钥匙，最简单的方法是每人抽屉都翻一遍——这比「推理钥匙应该在谁的桌上」更快，而且不会错。枚举就是「把抽屉全翻一遍」，但它要求你知道抽屉总共有几个。 怎么判断该不该枚举 看数据范围。看到下面这">
+      <div class="ah"><h4>3.1 枚举：把所有候选答案试过去</h4><span class="lv lv-b">基础</span><span class="st">★★★★</span><span class="tag">必考</span><a class="prac" href="practice.html#P1036" target="_blank" title="题单里的模板题">P1036</a><a class="prac" href="practice.html#P1008" target="_blank" title="题单里的模板题">P1008</a><a class="prac" href="practice.html#P1157" target="_blank" title="题单里的模板题">P1157</a></div>
+      <p class="idea"><b>本质</b>：<b>把所有可能的答案候选一个个试过去。</b> 难点从来不是「枚举」，而是<b>枚举什么</b>与<b>如何压缩枚举量</b>。</p>
+      <div class="box idea"><span class="t">🎨 生活类比</span><p>宿舍 6 个人找钥匙，最简单的方法是每人抽屉都翻一遍——这比「推理钥匙应该在谁的桌上」更快，而且不会错。枚举就是「把抽屉全翻一遍」，但它要求你知道<b>抽屉总共有几个</b>。</p></div>
+      <p><b>怎么判断该不该枚举</b></p>
+      <p>看数据范围。看到下面这些数字，就该条件反射式地想到枚举：</p>
+      <table>
+      <tr><th>范围</th><th>说明</th></tr>
+      <tr><td>n ≤ 10</td><td>10! = 3.6×10^6，全排列能过</td></tr>
+      <tr><td>n ≤ 20</td><td>2^20 approx 10^6，子集枚举能过</td></tr>
+      <tr><td>n ≤ 8</td><td>n^n 级别也能过</td></tr>
+      <tr><td>答案值域 ≤ 10^6</td><td>可以枚举所有可能答案再验证</td></tr>
+      </table>
+      <p><b>套路：三种枚举对象</b></p>
+      <ol class="tight"><li><b>枚举方案</b>：把所有组合/排列列出来（O(2^n) 或 O(n!)）。</li><li><b>枚举答案</b>：如果答案范围小，就枚举答案再验证（这就是「二分答案」的暴力版）。</li><li><b>枚举一个维度</b>：把问题固定在一维上，另一维交给前缀和/哈希降到 O(1)。</li></ol>
+      <p><b>示例：子集枚举（n ≤ 20）</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      // 枚举 [0, 2^n) 的所有子集，第 i 位为 1 表示选了第 i 个元素
+      for (int mask = 0; mask < (1 << n); ++mask) {
+          long long sum = 0;
+          for (int i = 0; i < n; ++i)
+              if (mask >> i & 1) sum += a[i];
+          // 用 sum 做判断
+      }
+      </script></div>
+      <p><b>例题思路：P1036 选数</b></p>
+      <p>从 n ≤ 20 个数里选 k 个，问有多少种选法使和为质数。2^20 approx 10^6 种选法，每种再花 O(√ s) 判质数——完全能过。<b>看到 n ≤ 20 就该想到 2^n 枚举</b>，这是入门阶段最可靠的信号。</p>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p>子集枚举时 <code>1 &lt;&lt; n</code> 在 n ≥ 31 时溢出（见 1.3 节）；候选答案重复时要注意去重。</p></div>
+      <div class="box ok"><span class="t">✅ 小结</span><p><b>枚举的敌人不是"想不到"，而是"枚举漏了"或"枚举太多"。</b> 写之前先算清「总共有多少种候选」，这个数必须小于 10^7。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P1008" target="_blank">P1008</a> 三连击　·　<a href="practice.html#P1036" target="_blank">P1036</a> 选数　·　<a href="practice.html#P1157" target="_blank">P1157</a> 组合的输出　·　<a href="practice.html#P1618" target="_blank">P1618</a> 三连击（升级版）　·　<a href="practice.html#P1706" target="_blank">P1706</a> 全排列问题</p>
+    </article>
+    <article class="algo" id="pl-32" data-cat="入门" data-name="3.2 模拟：把题目描述直译成代码 本质 把题目描述无损地直译成代码。 它考察的是「把自然语言规则翻译成状态机」的能力，是「代码量失败」（写了一大堆但全错）的主要来源。 类比 模拟题就像照菜谱做菜：菜谱说「水开后转小火炖 20 分钟」，你就得真的开火、看水、计时、转小火。漏了任何一步，菜就不对。 三步做法 1. 先用文字把规则列全（写在纸上，">
+      <div class="ah"><h4>3.2 模拟：把题目描述直译成代码</h4><span class="lv lv-b">基础</span><span class="st">★★★★</span><span class="tag">必考</span><a class="prac" href="practice.html#P1563" target="_blank" title="题单里的模板题">P1563</a><a class="prac" href="practice.html#P1042" target="_blank" title="题单里的模板题">P1042</a><a class="prac" href="practice.html#P1067" target="_blank" title="题单里的模板题">P1067</a></div>
+      <p class="idea"><b>本质</b>：<b>把题目描述无损地直译成代码。</b> 它考察的是「把自然语言规则翻译成状态机」的能力，是「代码量失败」（写了一大堆但全错）的主要来源。</p>
+      <div class="box idea"><span class="t">🎨 生活类比</span><p>模拟题就像照菜谱做菜：菜谱说「水开后转小火炖 20 分钟」，你就得真的开火、看水、计时、转小火。<b>漏了任何一步，菜就不对。</b></p></div>
+      <p><b>三步做法</b></p>
+      <ol class="tight"><li><b>先用文字把规则列全</b>（写在纸上，不要写在脑子里）。</li><li><b>明确状态变量的含义与初值</b>（<code>pos</code> 表示什么？下标从 0 还是 1？初始在哪？）。</li><li><b>按「事件」推进时间，而不是逐时刻模拟</b>——除非数据规模小到可以逐时刻。</li></ol>
+      <p><b>示例：环形位置取模（P1563 玩具谜题）</b></p>
+      <p>一圈小人，朝内/朝外 + 向左/向右，走若干步问你最后站在谁面前。核心就是两行取模：</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      // 朝内 + 向左 = 顺时针 = pos + step；朝外 + 向左 = 逆时针 = pos - step
+      if (direction == 0) pos = (pos + step) % n;          // 顺时针
+      else                pos = (pos - step % n + n) % n;  // 逆时针，注意 +n 防负数
+      </script></div>
+      <p><b>把四种组合列成一张表，代码就是抄表。</b> 这是模拟题的标准做法——先用表格把 8 种/16 种情况穷举清楚，再逐行翻译。</p>
+      <p><b>模拟题的四个高频坑</b></p>
+      <ul class="tight"><li><b>边界</b>：走到第 0 个人还是第 n-1 个人？取模后是 [0, n) 还是 [1, n]？</li><li><b>多测清空</b>：全局数组在下一组数据里还是脏的。</li><li><b>取模与整除的区别</b>：向下取整、向上取整、四舍五入，题目怎么说就怎么写。</li><li><b>代码量失控</b>：如果代码超过 100 行还在纠结，说明你还没把规则想清楚，回去画表。</li></ul>
+      <div class="box ok"><span class="t">✅ 小结</span><p><b>模拟题不快，是你没想清。</b> 先写表格，再写代码，代码量会缩短一半。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P1042" target="_blank">P1042</a> 乒乓球　·　<a href="practice.html#P1563" target="_blank">P1563</a> 玩具谜题　·　<a href="practice.html#P1067" target="_blank">P1067</a> 多项式输出　·　<a href="practice.html#P1328" target="_blank">P1328</a> 生活大爆炸版石头剪刀布　·　<a href="practice.html#P4924" target="_blank">P4924</a> 魔法少女小Scarlet</p>
+    </article>
+    <article class="algo" id="pl-33" data-cat="入门" data-name="3.3 递归：把大问题变成同样形状的小问题 本质 把规模为 n 的问题化为规模更小的同类问题。三要素：参数含义、边界条件、递推关系。 类比 俄罗斯套娃：打开一个，里面是小一号的同一个娃娃。你只要会「打开并处理一个娃娃」，剩下的都交给「小一号的自己」。「小一号」小到最后（最小的娃娃打不开）就是边界。 三要素模板 cpp int f(int n) {">
+      <div class="ah"><h4>3.3 递归：把大问题变成同样形状的小问题</h4><span class="lv lv-b">基础</span><span class="st">★★★★</span><span class="tag">必考</span><a class="prac" href="practice.html#P1255" target="_blank" title="题单里的模板题">P1255</a><a class="prac" href="practice.html#P1036" target="_blank" title="题单里的模板题">P1036</a><a class="prac" href="practice.html#P1464" target="_blank" title="题单里的模板题">P1464</a></div>
+      <p class="idea"><b>本质</b>：把规模为 n 的问题化为规模更小的同类问题。三要素：<b>参数含义、边界条件、递推关系</b>。</p>
+      <div class="box idea"><span class="t">🎨 生活类比</span><p>俄罗斯套娃：打开一个，里面是<b>小一号的同一个娃娃</b>。你只要会「打开并处理一个娃娃」，剩下的都交给「小一号的自己」。「小一号」小到最后（最小的娃娃打不开）就是边界。</p></div>
+      <p><b>三要素模板</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      int f(int n) {
+          if (n == 1) return 1;        // ① 边界条件：最小的情形，直接给出答案
+          return n * f(n - 1);         // ② 参数含义：f(n) = n 的阶乘
+      }                                // ③ 递推关系：f(n) 用 f(n-1) 表示
+      </script></div>
+      <p><b>写递归前先回答三个问题，缺一个都写不对：</b></p>
+      <table>
+      <tr><th>问题</th><th>例子（阶乘）</th></tr>
+      <tr><td><code>f(x)</code> 在语义上代表什么？</td><td><code>f(n)</code> 表示 n!</td></tr>
+      <tr><td>最小情形是什么？</td><td>n = 1 时是 1</td></tr>
+      <tr><td><code>f(n)</code> 怎么用 <code>f(n-1)</code> 表示？</td><td><code>f(n) = n * f(n-1)</code></td></tr>
+      </table>
+      <p><b>递归的三个必知风险</b></p>
+      <ol class="tight"><li><b>爆栈</b>：递归深度超过约 10^4 ~ 10^5 就会 RE（每次递归都占栈空间）。树有 10^5 层时必须改迭代或手动加栈。</li><li><b>重复计算</b>：<code>f(n) = f(n-1) + f(n-2)</code> 直接递归是 O(2^n)，加个记忆化数组就变成 O(n)。</li><li><b>忘记还原状态</b>：回溯类递归（八皇后、全排列）里，改了的标记必须改回来。</li></ol>
+      <p><b>记忆化：递归到 DP 的桥梁</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      long long memo[100];
+      bool vis[100];
+      
+      long long f(int n) {
+          if (n <= 2) return 1;
+          if (vis[n]) return memo[n];        // 算过就直接拿
+          vis[n] = true;
+          return memo[n] = f(n - 1) + f(n - 2);
+      }
+      </script></div>
+      <p><b>记忆化 = 给递归加一个「草稿本」。</b> 算过的答案写在本子上，下次先翻本子。这就是 DP 的本质，第 5 章会正式展开。</p>
+      <div class="box ok"><span class="t">✅ 小结</span><p><b>递归是最省代码的写法，也是最容易爆栈和重复计算的写法。</b> 深度过万先想迭代，状态重叠先想记忆化。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P1255" target="_blank">P1255</a> 数楼梯　·　<a href="practice.html#P1036" target="_blank">P1036</a> 选数　·　<a href="practice.html#P1464" target="_blank">P1464</a> Function（记忆化）　·　<a href="practice.html#P1028" target="_blank">P1028</a> 数的计算　·　<a href="practice.html#P1228" target="_blank">P1228</a> 地毯填补问题　·　<a href="practice.html#P1044" target="_blank">P1044</a> 栈（卡特兰数）</p>
+    </article>
+    <article class="algo" id="pl-34" data-cat="入门" data-name="3.4 前缀和与差分：区间操作的第一把钥匙 本质 前缀和把「区间求和」变成「两次单点查询」；差分把「区间修改」变成「两次单点修改」。二者互为逆运算。 类比 你要知道「从第 3 天到第 7 天一共花了多少钱」。笨办法是把这 5 天的账各抄一遍；聪明办法是查「前 7 天累计」和「前 2 天累计」，一减就出来了。而差分是反过来的：老板说「第 3 天到第 7 天">
+      <div class="ah"><h4>3.4 前缀和与差分：区间操作的第一把钥匙</h4><span class="lv lv-b">基础</span><span class="st">★★★★</span><span class="tag">必考</span><a class="prac" href="practice.html#P1114" target="_blank" title="题单里的模板题">P1114</a><a class="prac" href="practice.html#P1387" target="_blank" title="题单里的模板题">P1387</a><a class="prac" href="practice.html#P1719" target="_blank" title="题单里的模板题">P1719</a></div>
+      <p class="idea"><b>本质</b>：<b>前缀和把「区间求和」变成「两次单点查询」；差分把「区间修改」变成「两次单点修改」。二者互为逆运算。</b></p>
+      <div class="box idea"><span class="t">🎨 生活类比</span><p>你要知道「从第 3 天到第 7 天一共花了多少钱」。笨办法是把这 5 天的账各抄一遍；聪明办法是查「前 7 天累计」和「前 2 天累计」，一减就出来了。而差分是反过来的：老板说「第 3 天到第 7 天每人发 100 块」，你只需在账本上记两笔——第 3 天 +100、第 8 天 -100。</p></div>
+      <p><b>前缀和模板（一维）</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      long long pre[N];
+      pre[0] = 0;
+      for (int i = 1; i <= n; ++i) pre[i] = pre[i - 1] + a[i];
+      
+      // 区间 [l, r] 的和 = pre[r] - pre[l-1]，O(1)
+      </script></div>
+      <p><b>二维前缀和</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      // s[i][j] = 左上角 (1,1) 到 (i,j) 的矩形和
+      s[i][j] = s[i-1][j] + s[i][j-1] - s[i-1][j-1] + a[i][j];
+      
+      // 子矩形 (x1,y1)-(x2,y2) 的和
+      s[x2][y2] - s[x1-1][y2] - s[x2][y1-1] + s[x1-1][y1-1];
+      </script></div>
+      <p>记法：<b>「加左下、加右上、减左上」</b>（容斥原理，第 7 章会正式讲）。</p>
+      <p><b>差分模板</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      int d[N];   // d 是差分数组，a 是原数组
+      
+      // 区间 [l, r] 全部加 v
+      d[l] += v;
+      d[r + 1] -= v;
+      
+      // 还原原数组：对 d 做一次前缀和
+      int cur = 0;
+      for (int i = 1; i <= n; ++i) {
+          cur += d[i];
+          a[i] += cur;
+      }
+      </script></div>
+      <p><b>什么时候用</b></p>
+      <table>
+      <tr><th>场景</th><th>用什么</th><th>复杂度</th></tr>
+      <tr><td>多次询问区间和，<b>没有修改</b></td><td>前缀和</td><td>预处理 O(n)，查询 O(1)</td></tr>
+      <tr><td>多次区间修改，<b>最后统一查询</b></td><td>差分</td><td>修改 O(1)，还原 O(n)</td></tr>
+      <tr><td>区间修改 + 区间查询</td><td>树状数组 / 线段树</td><td>第 4 章</td></tr>
+      </table>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p>差分数组要开 <code>n+2</code> 大小（因为会写 <code>d[r+1]</code>，<code>r</code> 可能等于 <code>n</code>）；二维前缀和的下标从 1 开始，<code>s[0][*]</code> 和 <code>s[*][0]</code> 全为 0 是天然的哨兵。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P1114" target="_blank">P1114</a> 最大子段和变形　·　<a href="practice.html#P1387" target="_blank">P1387</a> 最大正方形　·　<a href="practice.html#P1719" target="_blank">P1719</a> 最大加权矩形　·　<a href="practice.html#P2367" target="_blank">P2367</a> 语文成绩　·　<a href="practice.html#P3406" target="_blank">P3406</a> 海底高铁　·　<a href="practice.html#P4231" target="_blank">P4231</a> 三步必杀（二阶差分）　·　<a href="practice.html#P3258" target="_blank">P3258</a> 松鼠的新家（树上差分）</p>
+    </article>
+    <article class="algo" id="pl-35" data-cat="入门" data-name="3.5 双指针与滑动窗口：把 O(n^2) 的枚举砍成 O(n) 本质 当区间的可行性关于包含关系单调时（右端点右移，只会让左端点单调右移），两个指针总共只走 O(n) 步。 类比 在书架上找一段「恰好包含所有 5 类书」的最短连续区间。你不会对每个起点都往后数一遍；你会从左往右推：右边不够就继续往右拿，够了就把左边一本本丢，直到不够为止。书不会回头拿第二遍——这就是双指针。">
+      <div class="ah"><h4>3.5 双指针与滑动窗口：把 O(n^2) 的枚举砍成 O(n)</h4><span class="lv lv-b">基础</span><span class="st">★★★★</span><span class="tag">必考</span><a class="prac" href="practice.html#P1638" target="_blank" title="题单里的模板题">P1638</a><a class="prac" href="practice.html#P1147" target="_blank" title="题单里的模板题">P1147</a><a class="prac" href="practice.html#P1381" target="_blank" title="题单里的模板题">P1381</a></div>
+      <p class="idea"><b>本质</b>：当<b>区间的可行性关于包含关系单调</b>时（右端点右移，只会让左端点单调右移），两个指针总共只走 O(n) 步。</p>
+      <div class="box idea"><span class="t">🎨 生活类比</span><p>在书架上找一段「恰好包含所有 5 类书」的最短连续区间。你不会对每个起点都往后数一遍；你会从左往右推：右边不够就继续往右拿，够了就把左边一本本丢，直到不够为止。<b>书不会回头拿第二遍</b>——这就是双指针。</p></div>
+      <p><b>前提：单调性（这是最常见误用）</b></p>
+      <p><b>必须验证</b>：「右端点往右移之后，满足条件的最优左端点只会往右移，不会往左移」。如果这个性质不成立，双指针就是错的。</p>
+      <p><b>同向双指针模板（最长/最短满足条件的子段）</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      // 例：最长的不含重复元素的子数组长度
+      int l = 1, ans = 0;
+      for (int r = 1; r <= n; ++r) {
+          ++cnt[a[r]];                       // 右端点进窗口
+          while (cnt[a[r]] > 1) --cnt[a[l++]];  // 左端点退出，直到窗口合法
+          ans = max(ans, r - l + 1);
+      }
+      </script></div>
+      <p><b>三行口诀：右端进、左端退、中间记答案。</b></p>
+      <p><b>相向双指针（有序数组两数之和）</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      int l = 1, r = n;
+      while (l < r) {
+          int s = a[l] + a[r];
+          if (s == target) { /* 找到 */ break; }
+          if (s < target) ++l;    // 太小，左端右移变大
+          else --r;               // 太大，右端左移变小
+      }
+      </script></div>
+      <p><b>前提：数组已排序。</b> 没排序就先排，O(nlog n)。</p>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p>左指针退出时忘记同步更新 <code>cnt</code>（漏了减）；<code>while</code> 条件写成 <code>if</code>（一次可能退不完）。</p></div>
+      <div class="box ok"><span class="t">✅ 小结</span><p><b>双指针不是技巧，是"单调性"的应用。</b> 用之前先问一句：左端点会不会往回退？</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P1638" target="_blank">P1638</a> 逛画展　·　<a href="practice.html#P1147" target="_blank">P1147</a> 连续自然数和　·　<a href="practice.html#P1381" target="_blank">P1381</a> 单词背诵　·　<a href="practice.html#P3143" target="_blank">P3143</a> Diamond Collector（排序 + 双指针）　·　<a href="practice.html#P1102" target="_blank">P1102</a> A-B 数对</p>
+    </article>
+    <article class="algo" id="pl-36" data-cat="入门" data-name="3.6 排序与自定义比较 本质 排序是用比较换信息。真正要掌握的不是会写快排，而是：稳定性、是否原地、比较次数下界 O(nlog n)、以及非比较排序（计数/基数/桶）何时能突破下界。 什么时候排序 排序本身就是一种「预处理」——排完序后，很多问题（去重、贪心、双指针、二分）才能做。看到题目要求&quot;最大/最小/第 k&quot;且数据无序，先想排">
+      <div class="ah"><h4>3.6 排序与自定义比较</h4><span class="lv lv-b">基础</span><span class="st">★★★★</span><span class="tag">必考</span><a class="prac" href="practice.html#P1177" target="_blank" title="题单里的模板题">P1177</a><a class="prac" href="practice.html#P1059" target="_blank" title="题单里的模板题">P1059</a><a class="prac" href="practice.html#P1093" target="_blank" title="题单里的模板题">P1093</a></div>
+      <p class="idea"><b>本质</b>：排序是<b>用比较换信息</b>。真正要掌握的不是会写快排，而是：稳定性、是否原地、比较次数下界 O(nlog n)、以及非比较排序（计数/基数/桶）何时能突破下界。</p>
+      <p><b>什么时候排序</b></p>
+      <p>排序本身就是一种「预处理」——排完序后，很多问题（去重、贪心、双指针、二分）才能做。<b>看到题目要求"最大/最小/第 k"且数据无序，先想排序。</b></p>
+      <p><b>必会的三件事</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      // ① 基础排序
+      sort(a + 1, a + 1 + n);                    // 升序
+      sort(a + 1, a + 1 + n, greater<int>());    // 降序
+      
+      // ② 多关键字：先按分数降序，相同按学号升序
+      sort(v.begin(), v.end(), [](const Node &x, const Node &y) {
+          if (x.score != y.score) return x.score > y.score;
+          return x.id < y.id;
+      });
+      
+      // ③ 求第 k 小（不需要全排）
+      nth_element(a + 1, a + k, a + 1 + n);      // a[k] 就是第 k 小，均摊 O(n)
+      </script></div>
+      <p><b>非比较排序：什么时候能突破 O(nlog n)</b></p>
+      <table>
+      <tr><th>算法</th><th>复杂度</th><th>前提</th></tr>
+      <tr><td>计数排序</td><td>O(n+V)</td><td>值域 V 很小（如分数 0~750）</td></tr>
+      <tr><td>桶排序</td><td>O(n) 期望</td><td>数据均匀分布</td></tr>
+      <tr><td>基数排序</td><td>O(nlog_10V)</td><td>整数</td></tr>
+      <tr><td>归并排序</td><td>O(nlog n)</td><td>无视前提，还能顺便求逆序对</td></tr>
+      </table>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p>比较函数必须满足严格弱序（不能有 <code>&lt;=</code>）；<code>sort</code> 对相等元素不保序（不稳定），需要稳定时用 <code>stable_sort</code>；对 <code>vector&lt;Node&gt;</code> 排序时比较函数参数一定要传引用 <code>const Node&amp;</code>，否则每次比较都复制，慢十倍。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P1177" target="_blank">P1177</a> 快速排序模板　·　<a href="practice.html#P1059" target="_blank">P1059</a> 明明的随机数（离散化）　·　<a href="practice.html#P1093" target="_blank">P1093</a> 奖学金（多关键字）　·　<a href="practice.html#P1923" target="_blank">P1923</a> 求第 k 小的数　·　<a href="practice.html#P1104" target="_blank">P1104</a> 生日　·　<a href="practice.html#P1908" target="_blank">P1908</a> 逆序对</p>
+    </article>
+    <article class="algo" id="pl-37" data-cat="入门" data-name="3.7 二分与二分答案 本质 二分 = 在单调的判定函数上找分界点。 写对二分的唯一诀窍是明确「check(mid) 为真时答案落在哪一半」，然后让循环不变式保持不变。 类比 猜数字游戏：1 到 100，你说 50，我说「大了」，你就知道答案在 1~49。每猜一次砍掉一半，7 次必然猜中。二分的全部威力来自「每次砍一半」。 两种写法">
+      <div class="ah"><h4>3.7 二分与二分答案</h4><span class="lv lv-b">基础</span><span class="st">★★★★</span><span class="tag">必考</span><a class="prac" href="practice.html#P1873" target="_blank" title="题单里的模板题">P1873</a><a class="prac" href="practice.html#P2249" target="_blank" title="题单里的模板题">P2249</a><a class="prac" href="practice.html#P1102" target="_blank" title="题单里的模板题">P1102</a></div>
+      <p class="idea"><b>本质</b>：<b>二分 = 在单调的判定函数上找分界点。</b> 写对二分的唯一诀窍是明确「<code>check(mid)</code> 为真时答案落在哪一半」，然后让循环不变式保持不变。</p>
+      <div class="box idea"><span class="t">🎨 生活类比</span><p>猜数字游戏：1 到 100，你说 50，我说「大了」，你就知道答案在 1~49。每猜一次砍掉一半，7 次必然猜中。<b>二分的全部威力来自「每次砍一半」。</b></p></div>
+      <p><b>两种写法（选一种，别混）</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      // 写法 A：答案区间 [lo, hi]，循环结束 lo == hi 就是答案
+      int lo = 1, hi = n;            // 保证答案一定在 [lo, hi] 内
+      while (lo < hi) {
+          int mid = lo + (hi - lo) / 2;     // 防溢出的写法
+          if (check(mid)) hi = mid;         // mid 可行 → 答案 ≤ mid（含 mid）
+          else lo = mid + 1;                // mid 不可行 → 答案 > mid
+      }
+      // 此时 lo 就是最小的可行解
+      </script></div>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      // 写法 B：答案区间 (lo, hi]，lo 是「不可行哨兵」
+      int lo = 0, hi = n;
+      while (lo + 1 < hi) {
+          int mid = (lo + hi) >> 1;
+          if (check(mid)) hi = mid;
+          else lo = mid;
+      }
+      </script></div>
+      <div class="box tip"><span class="t">💡 提示</span><p><b>两种写法选一种用到底。</b> 混用是二分写错的头号原因。新手推荐写法 A，因为它直接对应「答案区间」这个直觉。</p></div>
+      <p><b>二分答案：三要素</b></p>
+      <p>当题目问「<b>最小/最大的……</b>」且<b>判定某个答案是否可行很容易</b>时，就二分答案：</p>
+      <ol class="tight"><li><b>答案的单调性</b>：如果 x 可行，那么比 x 更宽松的所有值也可行（或都不可行）。</li><li><b><code>check(x)</code> 函数</b>：O(n) 或 O(nlog n) 判定「答案取 x 是否可行」。</li><li><b>答案范围</b>：从可能的上下界开始二分，通常要做 O(log V) 轮。</li></ol>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      // 例：P1873 砍树。求最大的 H，使砍下的木材总量 ≥ m
+      long long sum = 0;
+      for (int i = 1; i <= n; ++i) sum += max(0LL, a[i] - h);   // check(h)
+      return sum >= m;
+      </script></div>
+      <p>总复杂度 O(nlog(text{值域}))。值域 10^9 时只需 30 轮。</p>
+      <p><b>三分：在单峰函数上找极值</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      // 求单峰函数 f 的最大值（f 先升后降）
+      while (r - l > 1e-6) {
+          double m1 = l + (r - l) / 3, m2 = r - (r - l) / 3;
+          if (f(m1) < f(m2)) l = m1;    // 极大值在 m1 右边
+          else r = m2;
+      }
+      </script></div>
+      <p><b>二分要求单调，三分要求单峰</b>——这是两组完全不同的前提，别混。</p>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p><code>mid = (lo + hi) / 2</code> 在 lo, hi 都接近 2×10^9 时溢出，写成 <code>lo + (hi - lo) / 2</code>；<code>check</code> 里的答案也要用 <code>long long</code>；实数二分固定跑 100 次而不是比 <code>eps</code>。</p></div>
+      <div class="box ok"><span class="t">✅ 小结</span><p><b>二分不考脑子，考纪律。</b> 写完后拿「答案在边界上」的用例手推一遍循环。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P2249" target="_blank">P2249</a> 查找　·　<a href="practice.html#P1102" target="_blank">P1102</a> A-B 数对　·　<a href="practice.html#P1873" target="_blank">P1873</a> 砍树　·　<a href="practice.html#P1182" target="_blank">P1182</a> 数列分段 Section II　·　<a href="practice.html#P2678" target="_blank">P2678</a> 跳石头　·　<a href="practice.html#P1414" target="_blank">P1414</a> 又是毕业季II　·　<a href="practice.html#P3382" target="_blank">P3382</a> 三分法　·　<a href="practice.html#P1024" target="_blank">P1024</a> 一元三次方程求解　·　<a href="practice.html#P2440" target="_blank">P2440</a> 木材加工</p>
+    </article>
+    <article class="algo" id="pl-38" data-cat="入门" data-name="3.8 分治 本质 把问题切成互不相交的子问题分别求解再合并。复杂度由主定理给出：T(n) = aT(n/b) + f(n)。分治的难点在 merge，不在 divide。 类比 数一个体育场里的人数：你数左边看台，让朋友数右边看台，两人各数一半，最后相加。你不会一个人从头数到尾。 三个经典分治 问题 怎么分">
+      <div class="ah"><h4>3.8 分治</h4><span class="lv lv-b">基础</span><span class="st">★★★★</span><span class="tag">必考</span><a class="prac" href="practice.html#P1908" target="_blank" title="题单里的模板题">P1908</a><a class="prac" href="practice.html#P1010" target="_blank" title="题单里的模板题">P1010</a><a class="prac" href="practice.html#P1228" target="_blank" title="题单里的模板题">P1228</a></div>
+      <p class="idea"><b>本质</b>：把问题切成<b>互不相交</b>的子问题分别求解再合并。复杂度由主定理给出：T(n) = aT(n/b) + f(n)。<b>分治的难点在 merge，不在 divide。</b></p>
+      <div class="box idea"><span class="t">🎨 生活类比</span><p>数一个体育场里的人数：你数左边看台，让朋友数右边看台，两人各数一半，最后相加。你不会一个人从头数到尾。</p></div>
+      <p><b>三个经典分治</b></p>
+      <table>
+      <tr><th>问题</th><th>怎么分</th><th>怎么 merge</th><th>复杂度</th></tr>
+      <tr><td>归并排序</td><td>从中间切两半</td><td>双指针合并两个有序数组</td><td>O(nlog n)</td></tr>
+      <tr><td>快速幂</td><td>指数折半</td><td>偶数 a^n = a^n/2· a^n/2</td><td>O(log n)</td></tr>
+      <tr><td>逆序对</td><td>从中间切两半</td><td>合并时统计「左边比右边大」的对数</td><td>O(nlog n)</td></tr>
+      </table>
+      <p><b>归并求逆序对（必会）</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      long long merge_sort(int l, int r) {   // 返回 a[l..r] 内的逆序对数
+          if (l >= r) return 0;
+          int mid = (l + r) >> 1;
+          long long cnt = merge_sort(l, mid) + merge_sort(mid + 1, r);
+          int i = l, j = mid + 1, k = l;
+          while (i <= mid && j <= r) {
+              if (a[i] <= a[j]) tmp[k++] = a[i++];
+              else { cnt += mid - i + 1; tmp[k++] = a[j++]; }   // 关键的一行
+          }
+          while (i <= mid) tmp[k++] = a[i++];
+          while (j <= r)   tmp[k++] = a[j++];
+          for (int t = l; t <= r; ++t) a[t] = tmp[t];
+          return cnt;
+      }
+      </script></div>
+      <p><b><code>cnt += mid - i + 1</code> 的含义</b>：<code>a[j]</code> 比 <code>a[i..mid]</code> 都小，所以这一批全都构成逆序对。</p>
+      <div class="box tip"><span class="t">💡 提示</span><p>分治和递归的区别：<b>递归只是写法，分治是策略</b>。分治要求子问题「不相交且同类」，并且「合并」的代价可控。</p></div>
+      <div class="box ok"><span class="t">✅ 小结</span><p><b>先想清楚 merge 写什么，再动手。</b> merge 写不出来，说明这个分法不对。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P1908" target="_blank">P1908</a> 逆序对　·　<a href="practice.html#P1010" target="_blank">P1010</a> 幂次方　·　<a href="practice.html#P1228" target="_blank">P1228</a> 地毯填补问题　·　<a href="practice.html#P1966" target="_blank">P1966</a> 火柴排队（排序 + 逆序对）　·　<a href="practice.html#P1429" target="_blank">P1429</a> 平面最近点对</p>
+    </article>
+    <article class="algo" id="pl-39" data-cat="入门" data-name="3.9 贪心 本质 每步取局部最优，且能证明它不劣于任何最优解。常用的三种证明武器：交换论证、归纳法、反证 + 界。贪心没有通用模板，只有可证明的贪心才是贪心。 类比 找零钱时优先用大面额：凑 87 元先拿 50，再 20，再 10，再 5，再 2——因为人民币面额设计得「后一个都是前一个的因数或倍数」，贪心才对。如果换成">
+      <div class="ah"><h4>3.9 贪心</h4><span class="lv lv-b">基础</span><span class="st">★★★★</span><span class="tag">必考</span><a class="prac" href="practice.html#P1090" target="_blank" title="题单里的模板题">P1090</a><a class="prac" href="practice.html#P1223" target="_blank" title="题单里的模板题">P1223</a><a class="prac" href="practice.html#P1803" target="_blank" title="题单里的模板题">P1803</a></div>
+      <p class="idea"><b>本质</b>：每步取<b>局部最优</b>，且<b>能证明</b>它不劣于任何最优解。常用的三种证明武器：交换论证、归纳法、反证 + 界。<b>贪心没有通用模板，只有可证明的贪心才是贪心。</b></p>
+      <div class="box idea"><span class="t">🎨 生活类比</span><p>找零钱时优先用大面额：凑 87 元先拿 50，再 20，再 10，再 5，再 2——因为人民币面额设计得「后一个都是前一个的因数或倍数」，贪心才对。<b>如果换成 1、3、4 元面额，凑 6 元贪心会得 4+1+1 = 3 张，而最优是 3+3 = 2 张——贪心失效。</b></p></div>
+      <p><b>三种证明武器</b></p>
+      <table>
+      <tr><th>武器</th><th>怎么用</th><th>典型题</th></tr>
+      <tr><td><b>交换论证</b></td><td>设最优解与贪心解第一个不同处，交换后不会变差</td><td>区间调度、排队接水</td></tr>
+      <tr><td><b>归纳法</b></td><td>证明「前 i 步贪心不劣于任何最优解的前 i 步」</td><td>合并果子</td></tr>
+      <tr><td><b>反证 + 界</b></td><td>假设最优解更好，推出矛盾</td><td>国王游戏</td></tr>
+      </table>
+      <p><b>例题思路：P1090 合并果子</b></p>
+      <p>n 堆果子，每次合并两堆，代价为两堆之和，求最小总代价。<b>每次合并当前最小的两堆</b>——用小根堆实现 O(nlog n)。</p>
+      <p>为什么对？可以想成哈夫曼树：被合并得越早的果子，会被后面每一次合并重复计入代价，所以它应该尽量小。这就是「小者优先」。</p>
+      <p><b>贪心的两个陷阱</b></p>
+      <ol class="tight"><li><b>局部最优不等于全局最优</b>。0-1 背包用「单位价值贪心」是错的（换成「分数背包」才对）。</li><li><b>贪心的正确性必须能证</b>。证不出来时，先写对拍：造随机数据，和暴力比 1000 组。对拍过了再提交。</li></ol>
+      <div class="box ok"><span class="t">✅ 小结</span><p><b>先猜策略，再证正确，证不出就对拍。</b> 三步走不掉任何一步。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P1090" target="_blank">P1090</a> 合并果子　·　<a href="practice.html#P1223" target="_blank">P1223</a> 排队接水　·　<a href="practice.html#P1803" target="_blank">P1803</a> 线段覆盖　·　<a href="practice.html#P5019" target="_blank">P5019</a> 铺设道路　·　<a href="practice.html#P1080" target="_blank">P1080</a> 国王游戏　·　<a href="practice.html#P1094" target="_blank">P1094</a> 纪念品分组</p>
+    </article>
+    <article class="algo" id="pl-40" data-cat="入门" data-name="3.10 搜索：DFS 与 BFS 本质 搜索 = 枚举状态空间。DFS 用栈（递归）走到底再回头，适合求所有方案 / 判定存在性 / 需要维护路径；BFS 用队列逐层扩散，适合无权图最短路 / 最少步数 / 层序性质。核心是状态的表示 + 剪枝。 类比 - DFS：走迷宫时贴着右手边的墙一直走，走到死胡同就退回来换一条路。它的优点是「一条路走">
+      <div class="ah"><h4>3.10 搜索：DFS 与 BFS</h4><span class="lv lv-b">基础</span><span class="st">★★★★</span><span class="tag">必考</span><a class="prac" href="practice.html#P1219" target="_blank" title="题单里的模板题">P1219</a><a class="prac" href="practice.html#P1605" target="_blank" title="题单里的模板题">P1605</a><a class="prac" href="practice.html#P1443" target="_blank" title="题单里的模板题">P1443</a></div>
+      <p class="idea"><b>本质</b>：搜索 = 枚举状态空间。<b>DFS</b> 用栈（递归）走到底再回头，适合求所有方案 / 判定存在性 / 需要维护路径；<b>BFS</b> 用队列逐层扩散，适合无权图最短路 / 最少步数 / 层序性质。核心是<b>状态的表示 + 剪枝</b>。</p>
+      <p><b>类比</b></p>
+      <ul class="tight"><li><b>DFS</b>：走迷宫时<b>贴着右手边的墙一直走</b>，走到死胡同就退回来换一条路。它的优点是「一条路走到黑」，缺点是可能绕很远。</li><li><b>BFS</b>：往水里丢一颗石子，<b>波纹一圈一圈扩散</b>。第一次碰到的地方，一定是最短的路径。</li></ul>
+      <p><b>DFS 模板（求所有方案）</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      void dfs(int dep) {                 // dep 表示当前在填第几个位置
+          if (dep > n) { /* 输出方案 */ return; }
+          for (int i = 1; i <= n; ++i) {
+              if (used[i]) continue;      // 剪枝
+              used[i] = true;  path[dep] = i;
+              dfs(dep + 1);
+              used[i] = false;            // 回溯：一定要还原！
+          }
+      }
+      </script></div>
+      <p><b>BFS 模板（无权图最短路）</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      queue<int> q;
+      memset(dist, -1, sizeof dist);
+      dist[s] = 0; q.push(s);
+      while (!q.empty()) {
+          int u = q.front(); q.pop();
+          for (int v : g[u]) {
+              if (dist[v] != -1) continue;   // 访问标记：入队时就标记，别等到出队
+              dist[v] = dist[u] + 1;
+              q.push(v);
+          }
+      }
+      </script></div>
+      <div class="callout"><p>BFS 的访问标记必须在入队时打。如果等出队时才打，同一个点会被重复入队，队列爆炸（表现为 MLE 或 TLE）。</p></div>
+      <p><b>剪枝：把指数级压到能过的唯一办法</b></p>
+      <table>
+      <tr><th>剪枝类型</th><th>做法</th></tr>
+      <tr><td>可行性剪枝</td><td>当前状态已经不可能满足条件，直接 return</td></tr>
+      <tr><td>最优性剪枝</td><td>当前代价已经比已知最优解差，直接 return</td></tr>
+      <tr><td>排序 + 优先扩展</td><td>把更可能出解的分支排在前面（启发式）</td></tr>
+      <tr><td>去重</td><td>相同状态只搜一次（哈希/数组标记）</td></tr>
+      <tr><td>迭代加深</td><td>限制深度，逐步加深，兼顾 DFS 的空间和 BFS 的最优</td></tr>
+      </table>
+      <div class="box ok"><span class="t">✅ 小结</span><p><b>搜索题的分数几乎全部来自剪枝。</b> 先写出能跑的暴力，再一层层加剪枝，每加一层对拍一次。</p></div>
+      <p class="tl"><b>题单</b>　<a href="practice.html#P1219" target="_blank">P1219</a> 八皇后　·　<a href="practice.html#P1605" target="_blank">P1605</a> 迷宫　·　<a href="practice.html#P1443" target="_blank">P1443</a> 马的遍历　·　<a href="practice.html#P2404" target="_blank">P2404</a> 自然数的拆分　·　<a href="practice.html#P1019" target="_blank">P1019</a> 单词接龙　·　<a href="practice.html#P1032" target="_blank">P1032</a> 字串变换　·　<a href="practice.html#P1379" target="_blank">P1379</a> 八数码难题</p>
+    </article>
+    <article class="algo" id="pl-41" data-cat="入门" data-name="3.11 入门阶段通关自测 做完下面 5 件事，就可以进入第 4 章： - [ ] 看到任意一道题的数据范围，30 秒内说出允许的复杂度。 - [ ] 不看资料默写出：前缀和、差分、双指针、二分（写法 A）、DFS、BFS 六套模板。 - [ ] 独立写出归并求逆序对，并解释 cnt += mid - i + 1。 - [ ] 能用一个随机数">
+      <div class="ah"><h4>3.11 入门阶段通关自测</h4><span class="lv lv-b">基础</span><span class="st">★★★★</span><span class="tag">必考</span></div>
+      <p>做完下面 5 件事，就可以进入第 4 章：</p>
+      <ul class="tight"><li>☐ 看到任意一道题的数据范围，30 秒内说出允许的复杂度。</li><li>☐ 不看资料默写出：前缀和、差分、双指针、二分（写法 A）、DFS、BFS 六套模板。</li><li>☐ 独立写出归并求逆序对，并解释 <code>cnt += mid - i + 1</code>。</li><li>☐ 能用一个随机数据生成器 + 暴力程序，给任意一道题做对拍。</li><li>☐ 洛谷「入门」难度累计 AC 不少于 25 题。</li></ul>
+      <div class="callout"><p>入门篇结束的标志不是「学完十张卡」，而是<b>这六个模板闭着眼睛能写对</b>。写不对就回头重写，不要往下走。</p></div>
+    </article>
+  </div>
+</section>
+

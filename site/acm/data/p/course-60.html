@@ -1,0 +1,371 @@
+
+<p id="b0">最后一节，一场 120 分钟的模拟赛：5 道题，难度都在洛谷黄题到蓝题之间。这里不出现任何新算法——60 节的内容全部在第 1~59 节讲过。这一节只做两件事：把 60 节压成一张 12 行的覆盖表，让你知道每个知识点会以什么形式出现在题面里；再用 6 段代码把它们钉住。</p><div class="quote" id="b1">综合题从不考新东西。它考的是：读完题 60 秒内，你能不能说清「这题 = 第 X 节的模板 + 第 Y 节的判定 + 第 Z 节的数据结构」。</div><p id="b2">先把结论摆出来：这 5 题的正解加起来只有 6 段模板——<b>差分</b>（9 行）、<b>二分答案</b>（6 行）、<b>堆优化 Dijkstra</b>（20 行）、<b>树状数组</b>（10 行）、<b>LIS 的二分替换</b>（6 行）、<b>KMP 的 nxt 递推</b>（5 行）。剩下 54 节不是没用，而是以「判断」的形式出现：看到 n = 5×10<sup>5</sup> 就知道 O(n<sup>2</sup>) 必死，看到「最大值最小」就知道要二分，看到 2<sup>31</sup> 就知道中间量可能溢出 int。</p><table><thead><tr><th id="b3">组</th><th id="b4">节</th><th id="b5">核心工具</th><th id="b6">在本套里的落点</th></tr></thead><tbody><tr><td id="b7">一 · 起步</td><td id="b8">1–5</td><td id="b9">cin/cout、for、数组、整数范围</td><td id="b10">六段代码的读入输出；B 的 5×10<sup>5</sup> 数组；D 的 2<sup>31</sup> 边界</td></tr><tr><td id="b11">二 · 数组两种用法</td><td id="b12">6–10</td><td id="b13">桶计数、二维数组、字符串</td><td id="b14">A 的费用数组与邻接表；B 的离散化数组；D 的 10<sup>6</sup> 标记数组</td></tr><tr><td id="b15">三 · 函数与排序</td><td id="b16">11–15</td><td id="b17">sort/cmp、unique、离散化</td><td id="b18">B 的排序去重 + lower_bound；C 的排列映射</td></tr><tr><td id="b19">四 · 贪心与前缀和</td><td id="b20">16–20</td><td id="b21">交换论证、前缀和、差分</td><td id="b22">例题的差分 + 贪心；B 的树状数组就是「动态前缀和」</td></tr><tr><td id="b23">五 · 递归与搜索</td><td id="b24">21–25</td><td id="b25">递归出口、回溯、复杂度估算</td><td id="b26">B 的另一解：归并排序求逆序对（递归分治）</td></tr><tr><td id="b27">六 · BFS 与二分</td><td id="b28">26–30</td><td id="b29">BFS、二分查找、二分答案</td><td id="b30">A 的 check 单调性 + 二分；C 的 LIS 二分替换</td></tr><tr><td id="b31">七 · DP</td><td id="b32">31–35</td><td id="b33">状态定义、转移、边界</td><td id="b34">C 的 LIS 是 DP 的二分优化形态</td></tr><tr><td id="b35">八 · 数论</td><td id="b36">36–40</td><td id="b37">埃氏筛、gcd、快速幂、组合数</td><td id="b38">D 的埃氏筛 + 区间筛</td></tr><tr><td id="b39">九 · 图论</td><td id="b40">41–45</td><td id="b41">邻接表、Dijkstra、MST、拓扑</td><td id="b42">A 的建图与最短路</td></tr><tr><td id="b43">十 · 进阶数据结构</td><td id="b44">46–50</td><td id="b45">树状数组、单调队列、堆</td><td id="b46">B 的 bit；A 的 priority_queue</td></tr><tr><td id="b47">十一 · 字符串与倍增</td><td id="b48">51–55</td><td id="b49">哈希、Trie、KMP、ST 表</td><td id="b50">E 的前缀函数与匹配</td></tr><tr><td id="b51">十二 · 进阶专题</td><td id="b52">56–60</td><td id="b53">分治、根号分治、博弈、几何</td><td id="b54">B 的归并分治；D 的筛法复杂度 √R log log R</td></tr></tbody></table><p id="b55">五题覆盖不了每个角落。<b>概率与期望（39）、根号分治与莫队（57）、博弈（58）、计算几何（59）</b>这四块本套没有设题，考的是结论而不是代码：期望的线性性、块大小取 √n、SG 值异或、叉积判方向。考前各花 10 分钟扫一遍结论，不要在这个时候学新东西。</p><table><thead><tr><th id="b56">标记</th><th id="b57">题号</th><th id="b58">题目</th><th id="b59">主要考点</th><th id="b60">难度</th><th id="b61">建议用时</th></tr></thead><tbody><tr><td id="b62">A</td><td id="b63">P1462</td><td id="b64">通往奥格瑞玛的道路</td><td id="b65">二分答案 + 堆优化 Dijkstra</td><td id="b66">提高-</td><td id="b67">20 分钟</td></tr><tr><td id="b68">B</td><td id="b69">P1908</td><td id="b70">逆序对</td><td id="b71">普及/提高-</td><td id="b72">提高-</td><td id="b73">20 分钟</td></tr><tr><td id="b74">C</td><td id="b75">P1439</td><td id="b76">【模板】最长公共子序列</td><td id="b77">排列映射 + LIS 二分</td><td id="b78">提高-</td><td id="b79">20 分钟</td></tr><tr><td id="b80">D</td><td id="b81">P1835</td><td id="b82">素数密度</td><td id="b83">埃氏筛 + 区间筛</td><td id="b84">提高-</td><td id="b85">20 分钟</td></tr><tr><td id="b86">E</td><td id="b87">P3375</td><td id="b88">【模板】KMP 字符串匹配</td><td id="b89">普及/提高-</td><td id="b90">提高-</td><td id="b91">25 分钟</td></tr></tbody></table><p id="b92">下面四张卡不是新知识，是把这 5 题反复用到的四个动作各默写一遍。<b>赛场上默写不出来的模板，等于没学过</b>：先能一次写对，再谈限时。</p><div class="fn"><div class="fh" id="b93">新函数拆解 · 差分数组 d[i] = a[i] − a[i−1]</div><div class="fb"><div class="sig" id="b94">d[i] = a[i] - a[i-1];        // 求差分
+a[i] = a[i-1] + d[i];      // 还原（对 d 求前缀和）</div><table class="lines"><thead><tr><th id="b95">组成</th><th id="b96">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b97"><code>d 的定义</code></td><td id="b98">相邻两项之差。约定 a<sub>0</sub> = 0，于是 d<sub>1</sub> = a<sub>1</sub>。</td></tr><tr><td id="b99"><code>为什么有用</code></td><td id="b100">「对一段区间整体加 x」在差分里只改两个位置：d[l] += x、d[r+1] -= x。区间操作从 O(长度) 降到 O(1)。</td></tr><tr><td id="b101"><code>差分与前缀和互逆</code></td><td id="b102">对 d 求一次前缀和就回到 a。所以要「区间加 + 区间查」时，靠的是树状数组维护 d 的前缀和（第 46 节）。</td></tr><tr><td id="b103"><code>相邻比较</code></td><td id="b104">a[i] − a[i−1] 就是 d[i]。凡题面问「比前一段多多少」「新开了几段」，答案往往是 Σ max(0, d[i])。</td></tr><tr><td id="b105"><code>a[0] = 0 不能省</code></td><td id="b106">第一段的差分 d<sub>1</sub> = a<sub>1</sub> − a<sub>0</sub>。漏掉这个约定，第一项就没有基准，例题的天数会少算。</td></tr><tr><td id="b107"><code>下标统一</code></td><td id="b108">差分可以 0 起也可以 1 起，但同一个程序里必须一致；混用是这类题最常见的 WA。</td></tr></tbody></table><div class="cap" id="b109">最小可运行示例</div><div class="cap" id="b110">示例</div><pre id="b111"><code><span class="k">int</span> a[<span class="n">6</span>] = {<span class="n">4</span>, <span class="n">3</span>, <span class="n">2</span>, <span class="n">5</span>, <span class="n">3</span>, <span class="n">5</span>};
+<span class="k">int</span> pre = <span class="n">0</span>, ans = <span class="n">0</span>;
+<span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; <span class="n">6</span>; ++i) {
+    <span class="k">int</span> d = a[i] - pre;          <span class="c">// 差分：比前一段多（少）多少</span>
+    <span class="k">if</span> (d &gt; <span class="n">0</span>) ans += d;         <span class="c">// 只累加「变深」的部分</span>
+    pre = a[i];                  <span class="c">// 更新基准</span>
+}
+<span class="c">// 差分序列： 4 -1 -1 3 -2 2，求和 = 5 = 最后一段的深度</span>
+<span class="c">// ans = 4 + 3 + 2 = 9</span></code></pre><div class="box tip"><div class="t" id="b112">注意</div><p id="b113">差分只压缩「区间整体加减」。如果还要随时查询区间和，单靠差分不行，得配树状数组或线段树。</p><p id="b114">答案可能到 10<sup>9</sup>，累加统一用 long long，不要每道题都去算边界。</p></div></div></div><div class="fn"><div class="fh" id="b115">新函数拆解 · 二分答案：在候选集上找最小可行值</div><div class="fb"><div class="sig" id="b116">while (lo &lt; hi) {
+    int mid = (lo + hi) / 2;
+    if (check(mid)) hi = mid;      // 可行 → 答案不右于 mid
+    else            lo = mid + 1;  // 不可行 → 答案在 mid 右边
+}
+// 退出时 lo == hi，即最小可行下标</div><table class="lines"><thead><tr><th id="b117">组成</th><th id="b118">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b119"><code>前提：单调性</code></td><td id="b120">lim 可行，则更大的 lim 一定也可行。A 题里 lim 是「城市费用上界」，放宽上界只会多出能走的城市，最短路只会变短，所以可行域是一个后缀。</td></tr><tr><td id="b121"><code>lo / hi 是什么</code></td><td id="b122">候选集的下标，不是答案本身。A 题里候选集是「所有城市费用排序去重后的数组」。</td></tr><tr><td id="b123"><code>mid</code></td><td id="b124">(lo + hi) / 2 向下取整。担心 lo + hi 溢出时写 lo + (hi - lo) / 2；本题下标 ≤ 10<sup>4</sup>，不必。</td></tr><tr><td id="b125"><code>check 的代价</code></td><td id="b126">每次 check 跑一遍 Dijkstra，O(m log n)。log n ≈ 14 次，总共约 14 × 5×10<sup>4</sup> × 14 ≈ 10<sup>7</sup>。</td></tr><tr><td id="b127"><code>退出后再判一次</code></td><td id="b128">不可行时二分仍会停在最后一位。必须先 check 候选集的最大值，不可行就直接输出无解标记。</td></tr><tr><td id="b129"><code>为什么先排序去重</code></td><td id="b130">答案只可能是某个城市的费用。在 n 个候选值上二分比在 [0, 10<sup>9</sup>] 上二分少一半次数，也避免「答案不是任何城市费用」的尴尬。</td></tr></tbody></table><div class="cap" id="b131">最小可运行示例</div><div class="cap" id="b132">示例</div><pre id="b133"><code><span class="c">// val[0..m-1] 已升序去重；check(i) 表示「用 val[i] 作上界可行」</span>
+<span class="k">int</span> lo = <span class="n">0</span>, hi = m - <span class="n">1</span>;
+<span class="k">while</span> (lo &lt; hi) {
+    <span class="k">int</span> mid = (lo + hi) / <span class="n">2</span>;
+    <span class="k">if</span> (<span class="f">check</span>(mid)) hi = mid;
+    <span class="k">else</span>            lo = mid + <span class="n">1</span>;
+}
+<span class="c">// 循环结束 lo == hi，val[lo] 就是答案</span></code></pre><div class="box tip"><div class="t" id="b134">注意</div><p id="b135">check 的边界（写 ≤ 还是 &lt;）直接决定答案差一格。写完先用样例把「刚好可行」的那个值手动验一遍。</p><p id="b136">二分的是候选值集合的下标，不是值域。搞混了就会在 [0, 10<sup>9</sup>] 上多跑十几次 check。</p></div></div></div><div class="fn"><div class="fh" id="b137">新函数拆解 · 离散化 + 树状数组 bit</div><div class="fb"><div class="sig" id="b138">sort(v.begin(), v.end());
+v.erase(unique(v.begin(), v.end()), v.end());
+int rk = lower_bound(v.begin(), v.end(), x) - v.begin() + 1;   // 名次从 1 起
+
+void add(int i)   { for (; i &lt;= n; i += i &amp; -i) ++bit[i]; }
+int  query(int i) { int s = 0; for (; i &gt; 0; i -= i &amp; -i) s += bit[i]; return s; }</div><table class="lines"><thead><tr><th id="b139">组成</th><th id="b140">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b141"><code>为什么要离散化</code></td><td id="b142">B 题 a<sub>i</sub> 到 10<sup>9</sup>，而树状数组的下标必须落在 [1, n]。把「值」换成「它在所有值里排第几」，下标就能用了。</td></tr><tr><td id="b143"><code>为什么可以离散化</code></td><td id="b144">名次的大小关系与原值完全一致，所以逆序对的个数一个都不变。这是它唯一能用的理由，换成「求和」这种依赖具体数值的操作就不行了。</td></tr><tr><td id="b145"><code>unique 的语义</code></td><td id="b146">把相邻重复元素挪到末尾，返回新末尾的迭代器。它<b>不删除</b>元素，所以必须配 erase。</td></tr><tr><td id="b147"><code>lower_bound</code></td><td id="b148">返回第一个 ≥ x 的位置。减去 begin() 得 0 起下标，+1 才是树状数组要的 1 起下标。</td></tr><tr><td id="b149"><code>为什么从 1 起</code></td><td id="b150">i &amp; -i 取最低位的 1。i = 0 时 i &amp; -i = 0，add 会原地死循环——这就是名次必须 +1 的实际原因，不是「习惯」。</td></tr><tr><td id="b151"><code>从右往左扫</code></td><td id="b152">统计「右边比它小的」：query(rk − 1) 就是答案的那一份贡献，扫完加进 bit 即可。</td></tr></tbody></table><div class="cap" id="b153">最小可运行示例</div><div class="cap" id="b154">示例</div><pre id="b155"><code><span class="k">int</span> n = <span class="n">6</span>, a[<span class="n">7</span>] = {<span class="n">0</span>, <span class="n">5</span>, <span class="n">4</span>, <span class="n">2</span>, <span class="n">6</span>, <span class="n">3</span>, <span class="n">1</span>};      <span class="c">// 下标 1 起</span>
+<span class="k">int</span> bit[<span class="n">7</span>] = {<span class="n">0</span>};
+
+<span class="k">vector</span>&lt;<span class="k">int</span>&gt; <span class="f">v</span>(a + <span class="n">1</span>, a + n + <span class="n">1</span>);                <span class="c">// 复制一份</span>
+<span class="k">sort</span>(v.<span class="k">begin</span>(), v.<span class="k">end</span>());                       <span class="c">// 1 2 3 4 5 6</span>
+v.<span class="f">erase</span>(<span class="k">unique</span>(v.<span class="k">begin</span>(), v.<span class="k">end</span>()), v.<span class="k">end</span>());
+
+<span class="k">long</span> <span class="k">long</span> ans = <span class="n">0</span>;
+<span class="k">for</span> (<span class="k">int</span> i = n; i &gt;= <span class="n">1</span>; --i) {                  <span class="c">// 从右往左</span>
+    <span class="k">int</span> rk = <span class="k">lower_bound</span>(v.<span class="k">begin</span>(), v.<span class="k">end</span>(), a[i]) - v.<span class="k">begin</span>() + <span class="n">1</span>;
+    ans += <span class="f">query</span>(rk - <span class="n">1</span>);                       <span class="c">// 右边比它小的个数</span>
+    <span class="f">add</span>(rk);
+}
+<span class="c">// ans = 11</span></code></pre><div class="box tip"><div class="t" id="b156">注意</div><p id="b157">bit 数组开 n + 1：名次最大是 n，写成 bit[n] 会在 rk = n 时越界写。</p><p id="b158">逆序对最多 n(n−1)/2 = 1.25×10<sup>11</sup>，答案必须 long long。</p></div></div></div><div class="fn"><div class="fh" id="b159">新函数拆解 · 前缀函数 nxt[i]（KMP 的核心）</div><div class="fb"><div class="sig" id="b160">for (int i = 2, j = 0; i &lt;= m; ++i) {
+    while (j &amp;&amp; t[i] != t[j+1]) j = nxt[j];
+    if (t[i] == t[j+1]) ++j;
+    nxt[i] = j;
+}</div><table class="lines"><thead><tr><th id="b161">组成</th><th id="b162">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b163"><code>nxt[i] 的含义</code></td><td id="b164">t[1..i] 的最长 border 长度：既是前缀又是后缀、且不等于本身的最长子串。</td></tr><tr><td id="b165"><code>j 的含义</code></td><td id="b166">处理 i 时 j = nxt[i−1]，是「上一段已经配好的长度」。所以只需要比较 t[i] 与 t[j+1]。</td></tr><tr><td id="b167"><code>失配回跳</code></td><td id="b168">j = nxt[j]：放弃一部分已配好的前缀，退到「还可能是答案」的最长位置。这是全部技巧所在。</td></tr><tr><td id="b169"><code>为什么均摊 O(m)</code></td><td id="b170">每次成功匹配 j 加 1，每次回跳 j 至少减 1；j 总共只加 m 次，所以总共只减 m 次。</td></tr><tr><td id="b171"><code>1 起下标</code></td><td id="b172">字符串从 t + 1 开始存，nxt[1] 恒为 0（全局数组默认值正好对）。</td></tr><tr><td id="b173"><code>匹配时同一套循环</code></td><td id="b174">文本串上把 t 换成 s；j == m 时输出 i − m + 1，再 j = nxt[j] 继续找（允许重叠）。</td></tr></tbody></table><div class="cap" id="b175">最小可运行示例</div><div class="cap" id="b176">示例</div><pre id="b177"><code><span class="k">char</span> t[] = <span class="s">" ABA"</span>;              <span class="c">// t[1]='A' t[2]='B' t[3]='A'</span>
+<span class="k">int</span> nxt[<span class="n">4</span>] = {<span class="n">0</span>, <span class="n">0</span>, <span class="n">0</span>, <span class="n">0</span>};
+
+<span class="k">for</span> (<span class="k">int</span> i = <span class="n">2</span>, j = <span class="n">0</span>; i &lt;= <span class="n">3</span>; ++i) {
+    <span class="k">while</span> (j &amp;&amp; t[i] != t[j+<span class="n">1</span>]) j = nxt[j];
+    <span class="k">if</span> (t[i] == t[j+<span class="n">1</span>]) ++j;
+    nxt[i] = j;
+}
+<span class="c">// "ABA" -&gt; nxt[1]=0  nxt[2]=0  nxt[3]=1</span></code></pre><div class="box tip"><div class="t" id="b178">注意</div><p id="b179">nxt 存的是「border 长度」，不是「下一个该比的下标」。用的时候写成 t[nxt[j] + 1]，差 1 就全错。</p><p id="b180">把 nxt 初始化成 −1（有些人喜欢这么写）会让 while 条件变成两层判断，本套统一用 0。</p></div></div></div><p id="b181">先看一道正解只有 6 行的题。它不难，但它把「综合题」的本质演示得很干净：把操作翻译成柱状图，答案就变成相邻两项的差——<b>想清楚结构，代码自然只有一行</b>。</p><div class="prob"><div class="ph"><span class="pn" id="b182">例题 · 铺设道路</span><span class="oi">洛谷 P5019</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P5019" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b183">有一条长为 n 的路，第 i 段下陷了 d<sub>i</sub>。每天可以选一段<b>连续</b>的路段 [l, r]，把这段路上每一段的深度都减 1（减到 0 为止，不能减成负数）。求把所有下陷填平（全部变成 0）最少需要多少天。</p><p id="b184">输入格式：第一行一个整数 n（1 ≤ n ≤ 10<sup>5</sup>）；第二行 n 个整数 d<sub>1</sub>…d<sub>n</sub>（0 ≤ d<sub>i</sub> ≤ 10<sup>4</sup>）。</p><p id="b185">输出格式：一行一个整数，表示最少天数。</p></div><div class="io" id="b186">输入：
+6
+4 3 2 5 3 5
+输出：
+9</div></div><div class="step"><div class="sh" id="b187">例题怎么想：从「按天切」换成「按层切」</div><p id="b188"><b>① 把操作画出来。</b>把 d 画成柱状图：第 i 根柱子的高度是 d<sub>i</sub>。一次操作就是在某几根连续的柱子上横着切掉一层——被切的那几层在位置上必须连续、高度都 ≥ 1。</p><p id="b189"><b>② 按高度分层。</b>第 k 层 = 满足 d<sub>i</sub> ≥ k 的所有位置。这一层被「深度不到 k」的位置切成了若干段，每段连续、且必须单独用一天切掉——因为一次操作只能覆盖连续区间，中间有空洞就跨不过去。</p><p id="b190"><b>③ 数段数。</b>第 k 层在位置 i 处<b>新开一段</b>，当且仅当 d<sub>i</sub> ≥ k 而 d<sub>i−1</sub> &lt; k（约定 d<sub>0</sub> = 0）。固定 i，满足 d<sub>i−1</sub> &lt; k ≤ d<sub>i</sub> 的 k 恰好有 max(0, d<sub>i</sub> − d<sub>i−1</sub>) 个。</p><p id="b191"><b>④ 答案。</b>天数 = 所有层所有段的段数之和 = Σ<sub>i=1..n</sub> max(0, d<sub>i</sub> − d<sub>i−1</sub>)。上界：按层从低到高切，第 k 层有几段就切几天，正好填平。下界：对固定的 i，考察「覆盖了 i 却没有覆盖 i−1」的操作——位置 i 一共要被覆盖 d<sub>i</sub> 次，位置 i−1 一共 d<sub>i−1</sub> 次，被同一次操作同时覆盖的次数不超过 d<sub>i−1</sub>，所以这类操作至少 max(0, d<sub>i</sub> − d<sub>i−1</sub>) 次。对所有 i 求和，就是总天数的下界。</p><p id="b192"><b>⑤ 样例走一遍。</b>d<sub>0</sub> = 0，序列 4 3 2 5 3 5：4−0 = 4、3−4 &lt; 0 记 0、2−3 &lt; 0 记 0、5−2 = 3、3−5 &lt; 0 记 0、5−3 = 2，合计 4+3+2 = <b>9</b>。</p><p id="b193"><b>⑥ 复杂度。</b>一次线性扫描 O(n)，每段的贡献只与它的前一段有关，所以一个数组都不用开，空间 O(1)。答案上界是 Σd<sub>i</sub> ≤ 10<sup>5</sup> × 10<sup>4</sup> = 10<sup>9</sup>，卡在 int 上限的一半，但累加一律写 long long。</p></div><div class="cap" id="b194">完整代码 · 边读边算，O(n) 时间 O(1) 空间</div><pre id="b195"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> n;
+    <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;n);
+
+    <span class="k">long</span> <span class="k">long</span> ans = <span class="n">0</span>;              <span class="c">// 上界 1e9，int 勉强够；这类累加统一 long long</span>
+    <span class="k">int</span> pre = <span class="n">0</span>;                    <span class="c">// 约定 d[0] = 0：第一段之前没有路</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        <span class="k">int</span> d;
+        <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;d);
+        <span class="k">if</span> (d &gt; pre) ans += d - pre;  <span class="c">// 只有「比前一段深」的部分要新开一层</span>
+        pre = d;                      <span class="c">// 留给下一段比较</span>
+    }
+
+    <span class="k">printf</span>(<span class="s">"%lld\n"</span>, ans);
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b196">逐行拆解</div><table class="lines"><thead><tr><th id="b197">代码片段</th><th id="b198">含义与理由</th></tr></thead><tbody><tr><td id="b199"><code>long long ans = 0;</code></td><td id="b200">答案最多 10<sup>9</sup>，int 还剩一倍余量；但「求和」类变量统一 long long，这样题目把 d<sub>i</sub> 改成 10<sup>9</sup> 时不用回头改类型。</td></tr><tr><td id="b201"><code>int pre = 0;</code></td><td id="b202">给 a<sub>0</sub> 补一个 0。差分的第一项是 d<sub>1</sub> − d<sub>0</sub> = d<sub>1</sub>，所以第一段路该要的天数一分都不少。写成 pre = d（拿自己初始化）第一段就漏了。</td></tr><tr><td id="b203"><code>if (d &gt; pre) ans += d - pre;</code></td><td id="b204">整题唯一的核心。d ≤ pre 时这一段的高度已经被左边「顺带切掉」了，不需要新的天数；d > pre 时高出的每一层都要在 i 处新起一段。</td></tr><tr><td id="b205"><code>ans += d - pre</code></td><td id="b206">加的是差值，不是 d。写成 ans += d 会按「每段各自填平」算，样例输出变成 22。</td></tr><tr><td id="b207"><code>pre = d;</code></td><td id="b208">更新基准。写成 pre = max(pre, d) 就错了：后面要和「紧邻的前一段」比，不是和前缀最大值比；反例 5 1 5，正确答案 5 + 0 + 4 = 9，用 max 会变成 5 + 0 + 0 = 5。</td></tr><tr><td id="b209"><code>for (int i = 1; i &lt;= n; ++i)</code></td><td id="b210">从 1 数到 n，正好对应 d<sub>1..n</sub>；pre 里存的是 d<sub>i−1</sub>，循环开始时是 d<sub>0</sub> = 0。</td></tr><tr><td id="b211"><code>边读边算</code></td><td id="b212">每段的贡献只跟它的前一段有关，所以不需要把整个数组存下来。数据范围 10<sup>5</sup> 时开数组也没事，但能 O(1) 空间就不要 O(n)。</td></tr><tr><td id="b213"><code>printf("%lld\n", ans)</code></td><td id="b214">long long 必须用 %lld。写成 %d 时高 32 位被丢掉，输出一个随机数。</td></tr></tbody></table></div><div class="box info"><div class="t" id="b215">这 120 分钟怎么用</div><p id="b216"><b>0~10 分钟：只读题，不写代码。</b>给每题写三行：数据范围、要用的模板、最容易写错的一处。按「能立刻写 → 有思路 → 没思路」排序，不要按题号顺序做。</p><p id="b217"><b>10~30：A（二分 + Dijkstra）。</b>先写对 Dijkstra，再把二分套上去。反过来写会同时有两个未验证的部件。</p><p id="b218"><b>30~50：B（逆序对）。</b>离散化错一处全盘皆错；先用 n = 5、值很小的数据手算验证，再交。</p><p id="b219"><b>50~70：D（区间筛）。</b>重点只有两个：起点取 max(p<sup>2</sup>, ⌈L/p⌉p)、i × p 用 long long。</p><p id="b220"><b>70~90：C（LCS）。</b>想清「为什么排列可以映射成 LIS」再动手，这一步想不通就别写。</p><p id="b221"><b>90~115：E（KMP）。</b>写不出 nxt 就先在纸上把「ABA」的 nxt 算一遍，照着递推抄。</p><p id="b222"><b>115~120：只检查，不改算法。</b>按下面的清单过一遍，每项打勾。赛场上最后 5 分钟改崩的，比改对的多。</p></div><div class="box warn"><div class="t" id="b223">这 5 题最常丢的分，每种都写症状</div><p id="b224"><b>WA，答案刚好差一格</b>：二分的 check 边界没对齐。A 题里 check 的语义是 dist[n] ≤ b，写成 &lt; 时 dist[n] == b 会被误判不可行；写成 ≤ b + 1 又会在超一点时误判可行。</p><p id="b225"><b>RE / 数组越界</b>：B 题离散化后名次从 1 开始，bit 必须开 n + 1。开成 n 时 rk = n 会写越界，症状是小数据正常、大数据第 2 个点就 RE。</p><p id="b226"><b>WA，输出负数</b>：B 题答案到 1.25×10<sup>11</sup>，用 int 累加直接溢出成负数。C 题的 LIS 长度 ≤ n，用 int 没问题——所以类型要按题算，不能一刀切。</p><p id="b227"><b>TLE</b>：A 题用 O(n<sup>2</sup>) 的朴素 Dijkstra。n = 10<sup>4</sup> 时单次 10<sup>8</sup>，再乘 14 次二分，必死。二分答案的总代价是「check 的代价 × log」，check 里任何 O(n<sup>2</sup>) 都会被放大 14 倍。</p><p id="b228"><b>RE / 死循环</b>：D 题的 i × i、p × p 用 int 算。46341<sup>2</sup> = 2147488281，比 INT_MAX（2147483647）还大 4634，溢出成负数，循环下标变负 → RE 或卡死。</p><p id="b229"><b>WA，答案多 1</b>：D 题忘了 1 不是素数。L = 1 的测试点会多算一个，而样例不含 L = 1，本地看不出来。</p><p id="b230"><b>MLE</b>：D 题按 R 的大小开标记数组。R 到 2<sup>31</sup> 时开不出来；只能开 R − L + 1。</p><p id="b231"><b>WA，KMP 全乱</b>：E 题的 nxt 当成了「下一个比较位置」。nxt 存的是 border 长度，下一步永远比 t[nxt[j] + 1]，那个 +1 丢了就全错。</p><p id="b232"><b>格式错</b>：E 题先输出每个出现位置（各占一行），最后一行才是 nxt 数组；写成一行里混着输出必 WA。</p></div><div class="reproduce"><div class="rt" id="b233">自己动手复现</div><p id="b234">关掉页面，把例题 P5019 从空文件敲一遍并提交。</p><p id="b235">改一改①：把 <code>if (d &gt; pre) ans += d - pre;</code> 改成统计下降量 <code>if (d &lt; pre) ans += pre - d;</code>，样例跑出 4（1+1+0+2+0），而正确答案是 9。亲手确认「变深」才是新开层。</p><p id="b236">改一改②：把 long long 改回 int，构造 n = 10<sup>5</sup>、每段都是 10<sup>4</sup> 的数据，看 ans 会不会变成负数。这一步把「类型按数据范围定」变成肌肉记忆。</p><p id="b237">改一改③：先把差分存进数组 <code>d[i] = a[i] - a[i-1]</code>，再对 d 求前缀和还原 a，验证「差分 + 前缀和 = 原数组」，顺便确认 Σd = a<sub>n</sub>。</p><p id="b238">改一改④：输入 5 1 5，正确答案是 5 + 0 + 4 = 9。把 pre 改成 pre = max(pre, d) 再跑，结果变成 5——这就是「和前缀最大值比」与「和紧邻前一项比」的区别。</p></div><table><thead><tr><th id="b239">题面里的词</th><th id="b240">第一反应</th><th id="b241">本套哪题</th></tr></thead><tbody><tr><td id="b242">「最大值最小」「最小的最大值」</td><td id="b243">二分答案 + 单调性 check</td><td id="b244">A（P1462）</td></tr><tr><td id="b245">「有多少对 i &lt; j 且 a<sub>i</sub> &gt; a<sub>j</sub>」</td><td id="b246">逆序对：离散化 + 树状数组 / 归并</td><td id="b247">B（P1908）</td></tr><tr><td id="b248">「两个排列的最长公共子序列」</td><td id="b249">映射成位置序列，再求 LIS</td><td id="b250">C（P1439）</td></tr><tr><td id="b251">「区间内素数个数」「R 到 2<sup>31</sup>」</td><td id="b252">筛到 √R，再在区间上打标记</td><td id="b253">D（P1835）</td></tr><tr><td id="b254">「一个串在另一个串里的出现位置」</td><td id="b255">KMP：先 nxt 再匹配</td><td id="b256">E（P3375）</td></tr><tr><td id="b257">「比前一段多出的部分」「新开几段」</td><td id="b258">差分：Σ max(0, a<sub>i</sub> − a<sub>i−1</sub>)</td><td id="b259">例题（P5019）</td></tr><tr><td id="b260">「左边严格递增、右边严格递减，中间一个峰」</td><td id="b261">正着一遍、反着一遍，再枚举峰</td><td id="b262">第 31 节的合唱队形（P1091）</td></tr></tbody></table><div class="box ok"><div class="t" id="b263">交卷前 60 秒，只查这 7 项</div><p id="b264">数组大小 ≥ 数据范围上限 + 5；n、m 各开一个，别共用一个 MAXN 常量就以为够了。</p><p id="b265">long long：逆序对、最短路、所有求和；输入输出用 %lld。</p><p id="b266">离散化后名次从 1 开始了吗？树状数组的下标出现 0 了吗？</p><p id="b267">二分退出后，check 的可行性是否已验证（不可行要先输出无解标记）？</p><p id="b268">边界：n = 1、L = 1、全部相等、答案是 0，这四种输入跑过吗？</p><p id="b269">输出格式：几个数、一行还是一列、行末有没有多余空格。</p><p id="b270">样例逐字对过吗？不是「看起来一样」，是每一位都一样。</p></div><h2 id="b271">本次训练 · 共 5 题</h2><div class="box tip"><div class="t" id="b272">做题方式</div><p id="b273">限时 <b>100 分钟</b>。每题先自己写 20~25 分钟；写不出来先看提示，再给自己 10 分钟；还不行才点开思路。每题都独立限时，不要一题耗死。</p></div><div class="challenge"><div class="ct" id="b274">大题 挑战题 1 · 通往奥格瑞玛的道路</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1462</span><span class="badge diff">提高-</span><a href="https://www.luogu.com.cn/problem/P1462" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b275">有 n 个城市（编号 1…n）和 m 条双向道路。穿过第 i 条道路会失去 w<sub>i</sub> 点生命值；进入第 i 个城市要交 f<sub>i</sub> 点费用，起点和终点也要交。你从 1 号城市出发到 n 号城市，初始生命值 b。</p><p id="b276">一条路径的「花费」定义为：路径上所有城市费用的最大值。要求在沿途失去生命值总和不超过 b 的前提下，让这个最大值尽量小，输出最小值；若不存在这样的路径，输出 <code>AFK</code>（三个大写字母）。</p><p id="b277">输入格式：第一行三个整数 n、m、b（1 ≤ n ≤ 10<sup>4</sup>，1 ≤ m ≤ 5×10<sup>4</sup>，1 ≤ b ≤ 10<sup>9</sup>）；第二行 n 个整数 f<sub>1</sub>…f<sub>n</sub>（1 ≤ f<sub>i</sub> ≤ 10<sup>9</sup>）；接下来 m 行，每行三个整数 u、v、w（1 ≤ w ≤ 10<sup>9</sup>），表示 u、v 之间有一条双向道路。</p><p id="b278">输出格式：一行一个整数，或 <code>AFK</code>。</p><p id="b279"><b>样例输入</b><br><code>4 4 10<br>5 4 3 2<br>1 2 3<br>2 4 4<br>1 3 2<br>3 4 10</code><br><b>样例输出</b><br><code>5</code><br>样例解释：1→2→4 失去 3+4 = 7 点生命值，经过的城市费用最大是 max(5,4,2) = 5；1→3→4 虽然费用更小，但要失去 2+10 = 12 点，超过 b = 10。所以答案是 5。</p></div><div class="cap" id="b280">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+4 4 10
+5 4 3 2
+1 2 3
+2 4 4
+1 3 2
+3 4 10
+输出：
+5</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b281">这题有两个代价：生命值总和、路径上最贵的城市。它们不是同一个量，不能合成一次最短路。</p><p id="b282">先规定「只允许走费用 ≤ X 的城市」，剩下的就是一个纯粹的最短路问题。X 变大时能走的城市只多不少，最短距离只会变小——这个单调性说明了什么？</p><p id="b283">答案一定是某个城市的费用，候选只有 n 个。逐个试要跑 n 次最短路，但候选是有序的，能不能只试十几次？</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b284">把问题拆成两层：外层是对「路径上城市费用最大值」的二分，内层是普通的单源最短路。</p><p id="b285">判定问题：给定 lim，只保留费用 ≤ lim 的城市，跑 1 到 n 的最短路，若 dist[n] ≤ b 则 lim 可行。</p><p id="b286">单调性：lim 增大时可用城市集合只增不减，最短路只可能变短，所以可行 lim 构成一个后缀——可以二分。</p><p id="b287">候选集是所有城市费用排序去重后的数组。先判最大候选是否可行，不可行直接输出 AFK；否则二分出最小的可行下标。</p><p id="b288">细节：起点 1 和终点 n 也要交费，所以 f[1] > lim 或 f[n] > lim 时直接不可行。漏了这一句，当 lim 落在 f[1] 与 f[n] 之间时会输出一个实际上走不通的答案。</p><p id="b289">复杂度：离散化 O(n log n)；二分 log n ≈ 14 次，每次 Dijkstra O(m log n) ≈ 5×10<sup>4</sup> × 14，总计约 10<sup>7</sup> 次操作。最长简单路径不过 10<sup>4</sup> 条边，每条 10<sup>9</sup>，最短路最大 10<sup>13</sup>，dist 必须 long long。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b290">参考代码</div><pre id="b291"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">10005</span>;
+<span class="k">typedef</span> <span class="k">long</span> <span class="k">long</span> ll;
+<span class="k">typedef</span> <span class="k">pair</span>&lt;ll, <span class="k">int</span>&gt; pli;
+
+<span class="k">int</span> n, m;
+ll b;
+ll f[MAXN];                              <span class="c">// 每个城市的费用</span>
+<span class="k">vector</span>&lt;<span class="k">pair</span>&lt;<span class="k">int</span>,<span class="k">int</span>&gt;&gt; g[MAXN];           <span class="c">// (终点, 生命值消耗)</span>
+
+ll dist[MAXN];
+
+<span class="k">bool</span> <span class="f">check</span>(ll lim) {                     <span class="c">// 只允许走费用 &lt;= lim 的城市</span>
+    <span class="k">if</span> (f[<span class="n">1</span>] &gt; lim || f[n] &gt; lim) <span class="k">return</span> <span class="k">false</span>;   <span class="c">// 起终点也要交费</span>
+    <span class="k">const</span> ll INF = (ll)<span class="n">4e18</span>;
+    <span class="k">fill</span>(dist, dist + n + <span class="n">1</span>, INF);
+    dist[<span class="n">1</span>] = <span class="n">0</span>;
+
+    <span class="k">priority_queue</span>&lt;pli, <span class="k">vector</span>&lt;pli&gt;, <span class="k">greater</span>&lt;pli&gt;&gt; pq;   <span class="c">// 小根堆：(距离, 编号)</span>
+    pq.<span class="f">push</span>({<span class="n">0</span>, <span class="n">1</span>});
+    <span class="k">while</span> (!pq.<span class="k">empty</span>()) {
+        pli cur = pq.<span class="f">top</span>(); pq.<span class="f">pop</span>();
+        ll d = cur.<span class="k">first</span>;
+        <span class="k">int</span> u = cur.<span class="k">second</span>;
+        <span class="k">if</span> (d &gt; dist[u]) <span class="k">continue</span>;       <span class="c">// 过期版本</span>
+        <span class="k">if</span> (d &gt; b) <span class="k">continue</span>;             <span class="c">// 已经超过血量，再走只会更贵</span>
+        <span class="k">for</span> (<span class="k">auto</span> &amp;e : g[u]) {
+            <span class="k">int</span> v = e.<span class="k">first</span>, w = e.<span class="k">second</span>;
+            <span class="k">if</span> (f[v] &gt; lim) <span class="k">continue</span>;    <span class="c">// 这个城市太贵，不能进</span>
+            <span class="k">if</span> (dist[v] &gt; d + w) {
+                dist[v] = d + w;
+                pq.<span class="f">push</span>({dist[v], v});
+            }
+        }
+    }
+    <span class="k">return</span> dist[n] &lt;= b;
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">scanf</span>(<span class="s">"%d%d%lld"</span>, &amp;n, &amp;m, &amp;b);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) <span class="k">scanf</span>(<span class="s">"%lld"</span>, &amp;f[i]);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; m; ++i) {
+        <span class="k">int</span> u, v, w;
+        <span class="k">scanf</span>(<span class="s">"%d%d%d"</span>, &amp;u, &amp;v, &amp;w);
+        g[u].<span class="k">push_back</span>({v, w});
+        g[v].<span class="k">push_back</span>({u, w});          <span class="c">// 双向道路，两条边都要存</span>
+    }
+
+    <span class="k">vector</span>&lt;ll&gt; <span class="f">val</span>(f + <span class="n">1</span>, f + n + <span class="n">1</span>);    <span class="c">// 候选集：所有城市费用</span>
+    <span class="k">sort</span>(val.<span class="k">begin</span>(), val.<span class="k">end</span>());
+    val.<span class="f">erase</span>(<span class="k">unique</span>(val.<span class="k">begin</span>(), val.<span class="k">end</span>()), val.<span class="k">end</span>());
+
+    <span class="k">if</span> (!<span class="f">check</span>(val.<span class="f">back</span>())) {            <span class="c">// 最宽松的上界也不行 → 无解</span>
+        <span class="f">puts</span>(<span class="s">"AFK"</span>);
+        <span class="k">return</span> <span class="n">0</span>;
+    }
+
+    <span class="k">int</span> lo = <span class="n">0</span>, hi = (<span class="k">int</span>)val.<span class="k">size</span>() - <span class="n">1</span>;
+    <span class="k">while</span> (lo &lt; hi) {
+        <span class="k">int</span> mid = (lo + hi) / <span class="n">2</span>;
+        <span class="k">if</span> (<span class="f">check</span>(val[mid])) hi = mid;   <span class="c">// 可行：答案不右于 mid</span>
+        <span class="k">else</span>                 lo = mid + <span class="n">1</span>;
+    }
+    <span class="k">printf</span>(<span class="s">"%lld\n"</span>, val[lo]);
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b292">关键片段拆解</div><table class="lines"><thead><tr><th id="b293">片段</th><th id="b294">作用</th></tr></thead><tbody><tr><td id="b295"><code>if (f[1] &gt; lim || f[n] &gt; lim) return false;</code></td><td id="b296">起终点同样收费。少了这一句，lim 落在 f[1] 与 f[n] 之间时会把一条根本进不去的路径判成可行。</td></tr><tr><td id="b297"><code>const ll INF = (ll)4e18;</code></td><td id="b298">最短路最大 10<sup>13</sup>，INF 取 4×10<sup>18</sup> 既不溢出 long long，又远大于任何真实距离。</td></tr><tr><td id="b299"><code>if (d &gt; dist[u]) continue;</code></td><td id="b300">懒删除：堆里同一个点可能有好几份历史版本，取出时距离对不上就丢掉。</td></tr><tr><td id="b301"><code>if (d &gt; b) continue;</code></td><td id="b302">血量已经超了，继续扩展只会更长。剪掉它同时也保证了 d + w 不会溢出。</td></tr><tr><td id="b303"><code>if (f[v] &gt; lim) continue;</code></td><td id="b304">★ 二分的关键：不行就整条边跳过。这一步删掉，check 就与 lim 无关了。</td></tr><tr><td id="b305"><code>if (!check(val.back())) puts("AFK");</code></td><td id="b306">先判最宽松的上界。不判的话，不可行时二分仍会收敛到最后一个下标，程序会输出一个可行的假答案。</td></tr><tr><td id="b307"><code>if (check(val[mid])) hi = mid;</code></td><td id="b308">可行就往左收（mid 本身可能是答案，所以不是 mid − 1）。</td></tr><tr><td id="b309"><code>lo = mid + 1;</code></td><td id="b310">不可行就整段右移。写成 mid 会在不可行时原地打转，死循环。</td></tr><tr><td id="b311"><code>g[v].push_back({u, w});</code></td><td id="b312">双向道路必须存两条。只存一条时大量点不可达，样例就会输出 AFK。</td></tr></tbody></table><div class="box warn"><div class="t" id="b313">这题最容易错的地方</div><ul><li id="b314">忘了判 f[1]、f[n] 也要 ≤ lim：答案偏小，样例就会输出 4 而不是 5。</li><li id="b315">没有先判 val.back() 是否可行，输出一个假答案而不是 AFK。</li><li id="b316">用朴素 O(n<sup>2</sup>) Dijkstra：14 × 10<sup>8</sup> 次操作，必 TLE。</li><li id="b317">dist 用 int 或 INF 取 0x3f3f3f3f 再加边权：溢出成负数，不可达的点变成负距离。</li><li id="b318">输出写成 AKF / afk / -1：题目只要 AFK 三个大写字母。</li><li id="b319">双向边只加了一条：样例直接输出 AFK，看着像算法错，其实是建图错。</li></ul></div></div></details></div><div class="challenge"><div class="ct" id="b320">大题 挑战题 2 · 逆序对</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1908</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P1908" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b321">给定一个长度为 n 的序列 a，求逆序对的个数。逆序对指满足 i &lt; j 且 a<sub>i</sub> &gt; a<sub>j</sub> 的数对 (i, j)。</p><p id="b322">输入格式：第一行一个整数 n（1 ≤ n ≤ 5×10<sup>5</sup>）；第二行 n 个整数 a<sub>1</sub>…a<sub>n</sub>（1 ≤ a<sub>i</sub> ≤ 10<sup>9</sup>）。</p><p id="b323">输出格式：一行一个整数，表示逆序对个数。</p><p id="b324"><b>样例输入</b><br><code>6<br>5 4 2 6 3 1</code><br><b>样例输出</b><br><code>11</code><br>样例解释：以每个位置为右端点，左边比它大的个数依次是 0、1、2、0、3、5，合计 11。</p></div><div class="cap" id="b325">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+6
+5 4 2 6 3 1
+输出：
+11</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b326">暴力是 O(n<sup>2</sup>)：n = 5×10<sup>5</sup> 时有 1.25×10<sup>11</sup> 对，1 秒绝无可能。要把「数一遍右边比它小的」这一步压到 log。</p><p id="b327">a<sub>i</sub> 到 10<sup>9</sup>，当不了数组下标。但逆序对只关心大小关系，不关心具体数值——能不能只保留「排第几」？</p><p id="b328">从右往左扫，每读到一个数就查一次「已经加入的里面比它小的有几个」。什么东西能同时支持「单点加 1」和「前缀求和」，而且都是 log？</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b329">逆序对 = Σ<sub>i</sub>（i 右边比 a<sub>i</sub> 小的个数）。把统计对象从「数对」换成「每个位置的一份贡献」。</p><p id="b330">从右往左扫，维护一个集合 = 已经扫过的数（也就是 i 右边的数）。查询「比 a<sub>i</sub> 小的有几个」，就是一次前缀求和；把 a<sub>i</sub> 加入集合，就是一次单点加 1。树状数组两个操作都是 O(log n)。</p><p id="b331">下标问题：a<sub>i</sub> 到 10<sup>9</sup>，树状数组装不下。做离散化——把所有值排序去重，把 a<sub>i</sub> 换成它的名次 rk（1…n）。名次之间的大小关系与原值完全一致，所以逆序对个数不变。</p><p id="b332">于是 rk − 1 就是「严格小于」的范围：query(rk − 1) 天然排除了相等的情况，题目要的正是严格大于。</p><p id="b333">复杂度 O(n log n)：n = 5×10<sup>5</sup> 时约 5×10<sup>5</sup> × 19 × 2 ≈ 2×10<sup>7</sup> 次操作。</p><p id="b334">答案上界 n(n−1)/2 = 1.25×10<sup>11</sup>，必须 long long。另一条路是归并排序：合并两个有序段时，右段每个元素被取走前，左段剩下的元素都与它构成逆序对（第 21、56 节的递归分治）。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b335">参考代码</div><pre id="b336"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">500005</span>;
+<span class="k">int</span> n, a[MAXN], bit[MAXN];       <span class="c">// bit 存的是「名次 &lt;= i 的已出现个数」</span>
+
+<span class="k">void</span> <span class="f">add</span>(<span class="k">int</span> i) {                <span class="c">// 名次 i 上出现了一个数</span>
+    <span class="k">for</span> (; i &lt;= n; i += i &amp; -i) ++bit[i];
+}
+
+<span class="k">int</span> <span class="f">query</span>(<span class="k">int</span> i) {               <span class="c">// 名次 &lt;= i 的已出现个数，也就是前缀和</span>
+    <span class="k">int</span> s = <span class="n">0</span>;
+    <span class="k">for</span> (; i &gt; <span class="n">0</span>; i -= i &amp; -i) s += bit[i];
+    <span class="k">return</span> s;
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;n);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;a[i]);
+
+    <span class="k">vector</span>&lt;<span class="k">int</span>&gt; <span class="f">v</span>(a + <span class="n">1</span>, a + n + <span class="n">1</span>);          <span class="c">// 复制一份用来离散化</span>
+    <span class="k">sort</span>(v.<span class="k">begin</span>(), v.<span class="k">end</span>());
+    v.<span class="f">erase</span>(<span class="k">unique</span>(v.<span class="k">begin</span>(), v.<span class="k">end</span>()), v.<span class="k">end</span>());
+
+    <span class="k">long</span> <span class="k">long</span> ans = <span class="n">0</span>;                        <span class="c">// 最多 1.25e11，必须 long long</span>
+    <span class="k">for</span> (<span class="k">int</span> i = n; i &gt;= <span class="n">1</span>; --i) {            <span class="c">// 从右往左：集合里全是「右边」的数</span>
+        <span class="k">int</span> rk = <span class="k">lower_bound</span>(v.<span class="k">begin</span>(), v.<span class="k">end</span>(), a[i]) - v.<span class="k">begin</span>() + <span class="n">1</span>;
+        ans += <span class="f">query</span>(rk - <span class="n">1</span>);                 <span class="c">// 右边严格小于它的个数</span>
+        <span class="f">add</span>(rk);
+    }
+
+    <span class="k">printf</span>(<span class="s">"%lld\n"</span>, ans);
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b337">关键片段拆解</div><table class="lines"><thead><tr><th id="b338">片段</th><th id="b339">作用</th></tr></thead><tbody><tr><td id="b340"><code>vector&lt;int&gt; v(a + 1, a + n + 1);</code></td><td id="b341">把有效数据复制出来。a 是 1 起下标，所以区间是 [a+1, a+n+1)。</td></tr><tr><td id="b342"><code>sort + unique + erase</code></td><td id="b343">升序去重。unique 只是把重复元素挪到末尾，必须接 erase 才是真去重。</td></tr><tr><td id="b344"><code>... - v.begin() + 1</code></td><td id="b345">名次从 1 开始。树状数组的 i &amp; -i 在 i = 0 时等于 0，add(0) 会原地死循环——这个 +1 不是习惯，是必需。</td></tr><tr><td id="b346"><code>for (int i = n; i &gt;= 1; --i)</code></td><td id="b347">从右往左扫，保证 bit 里存的全是 i 右边的数。从左往右扫再查 query(rk−1)，数出来的是「顺序对」。</td></tr><tr><td id="b348"><code>ans += query(rk - 1);</code></td><td id="b349">rk − 1 是「严格小于它」的名次范围，相等的情况被排除，正好对应 a<sub>i</sub> &gt; a<sub>j</sub>。</td></tr><tr><td id="b350"><code>add(rk);</code></td><td id="b351">统计完再插入自己。顺序反了会把 a<sub>i</sub> 自己算进去，答案偏大。</td></tr><tr><td id="b352"><code>long long ans</code></td><td id="b353">最大 5×10<sup>5</sup> × 5×10<sup>5</sup> / 2 ≈ 1.25×10<sup>11</sup>，int 最多 2.1×10<sup>9</sup>。</td></tr><tr><td id="b354"><code>i += i &amp; -i / i -= i &amp; -i</code></td><td id="b355">上跳与下跳。i = 0 时 i &amp; -i 也是 0，add(0) 会原地打转，所以名次必须是 [1, n]。</td></tr></tbody></table><div class="box warn"><div class="t" id="b356">这题最容易错的地方</div><ul><li id="b357">bit 只开 n（不是 n+1）：rk = n 时写越界，大数据 RE 或答案错。</li><li id="b358">离散化后名次从 0 开始：add(0) 死循环，程序直接 TLE。</li><li id="b359">从左往右扫却查 query(rk − 1)：统计成了「左边比它小」，样例输出 4 而不是 11。</li><li id="b360">ans 用 int：输出负数，且小样例看不出来。</li><li id="b361">query(rk) 而不是 query(rk − 1)：把相等的数也算进去，有重复值时答案偏大。</li></ul></div></div></details></div><div class="challenge"><div class="ct" id="b362">大题 挑战题 3 · 【模板】最长公共子序列</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1439</span><span class="badge diff">提高-</span><a href="https://www.luogu.com.cn/problem/P1439" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b363">给出 1…n 的两个排列 P<sub>1</sub> 和 P<sub>2</sub>，求它们的最长公共子序列的长度。</p><p id="b364">输入格式：第一行一个整数 n（1 ≤ n ≤ 10<sup>5</sup>）；第二行 n 个整数，是 P<sub>1</sub>；第三行 n 个整数，是 P<sub>2</sub>。</p><p id="b365">输出格式：一行一个整数，表示最长公共子序列的长度。</p><p id="b366"><b>样例输入</b><br><code>5<br>3 2 1 4 5<br>1 2 3 4 5</code><br><b>样例输出</b><br><code>3</code><br>样例解释：2 4 5、3 4 5、1 4 5 都是公共子序列，最长长度为 3。</p></div><div class="cap" id="b367">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+5
+3 2 1 4 5
+1 2 3 4 5
+输出：
+3</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b368">普通 LCS 的 DP 是 O(n<sup>2</sup>)：10<sup>10</sup> 个状态，1 秒绝无可能。必须用上「两个都是排列」这个条件。</p><p id="b369">排列里每个数只出现一次，所以「这个数在 P<sub>1</sub> 里排第几位」是唯一确定的。把 P<sub>2</sub> 的每个数换成它的位置，会得到一串什么？</p><p id="b370">一个公共子序列在 P<sub>1</sub> 里的位置是递增的。那么这串位置里，公共子序列长什么样？</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b371">先建映射：pos[x] = x 在 P<sub>1</sub> 中出现的位置（1…n，每个 x 恰好一个）。</p><p id="b372">把 P<sub>2</sub> 逐项换成 pos 值，得到序列 c：c<sub>i</sub> = pos[P<sub>2,i</sub>]。</p><p id="b373">关键等价：P<sub>1</sub> 与 P<sub>2</sub> 的公共子序列，与 c 的上升子序列一一对应。因为一个子序列同时是 P<sub>1</sub> 的子序列，意味着它的元素在 P<sub>1</sub> 中的位置按顺序递增——而 c 的下标顺序就是它在 P<sub>2</sub> 中的顺序，c 的值就是它在 P<sub>1</sub> 中的位置。两个顺序都对上，长度自然相等。</p><p id="b374">于是问题变成「求 c 的最长上升子序列」，用 tail 数组 + 二分做 O(n log n)：tail[len] 记录「长度为 len 的上升子序列的最小结尾」，每个 c<sub>i</sub> 用 lower_bound 找到第一个 ≥ 它的位置替换掉。</p><p id="b375">为什么可以替换：结尾越小，后面能接的数越多，所以「最小结尾」这一状态足以代表全部长度为 len 的子序列。</p><p id="b376">c 是 1…n 的一个排列，元素互不相同，所以 lower_bound 与 upper_bound 结果一致；若换成有重复的序列求「不下降子序列」，就得用 upper_bound。复杂度 O(n log n)。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b377">参考代码</div><pre id="b378"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">100005</span>;
+<span class="k">int</span> pos[N], c[N], tail[N];   <span class="c">// tail[len]：长度为 len 的上升子序列的最小结尾</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> n;
+    <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;n);
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {      <span class="c">// 第一个排列：记下每个数在第几位</span>
+        <span class="k">int</span> x;
+        <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;x);
+        pos[x] = i;
+    }
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {      <span class="c">// 第二个排列：换成「在第一个排列里的位置」</span>
+        <span class="k">int</span> y;
+        <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;y);
+        c[i] = pos[y];
+    }
+
+    <span class="k">int</span> len = <span class="n">0</span>;                         <span class="c">// 当前 LIS 长度</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        <span class="c">// 找到第一个 tail &gt;= c[i] 的位置；tail[1..len] 是单调不减的</span>
+        <span class="k">int</span> p = (<span class="k">int</span>)(<span class="k">lower_bound</span>(tail + <span class="n">1</span>, tail + len + <span class="n">1</span>, c[i]) - tail);
+        tail[p] = c[i];                  <span class="c">// 用更小的结尾替换，给后面留更多余地</span>
+        <span class="k">if</span> (p == len + <span class="n">1</span>) ++len;         <span class="c">// 接到了末尾，长度加一</span>
+    }
+
+    <span class="k">printf</span>(<span class="s">"%d\n"</span>, len);
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b379">关键片段拆解</div><table class="lines"><thead><tr><th id="b380">片段</th><th id="b381">作用</th></tr></thead><tbody><tr><td id="b382"><code>pos[x] = i;</code></td><td id="b383">读第一个排列时就建好映射。之后每查一次「x 在 P<sub>1</sub> 的位置」都是 O(1)。</td></tr><tr><td id="b384"><code>c[i] = pos[y];</code></td><td id="b385">全题唯一的转化，写在两行里。转化完之后原题的两个排列都不再需要。</td></tr><tr><td id="b386"><code>lower_bound(tail + 1, tail + len + 1, c[i])</code></td><td id="b387">在 [1, len] 里找第一个 ≥ c[i] 的位置。区间右端是 tail + len + 1，别写成 tail + len。</td></tr><tr><td id="b388"><code>tail[p] = c[i];</code></td><td id="b389">替换而不是插入。同一个长度只保留最小结尾，状态数才是 O(n)。</td></tr><tr><td id="b390"><code>if (p == len + 1) ++len;</code></td><td id="b391">p 越过 len 说明 c[i] 比所有结尾都大，可以接在最长的后面，长度加一。</td></tr><tr><td id="b392"><code>int len = 0;</code></td><td id="b393">空序列的 LIS 长度是 0。tail 是全局数组，默认全 0，但只有 1…len 会被读到。</td></tr><tr><td id="b394"><code>printf("%d\n", len);</code></td><td id="b395">答案是长度，不是子序列本身。题目没要求输出方案。</td></tr></tbody></table><div class="box warn"><div class="t" id="b396">这题最容易错的地方</div><ul><li id="b397">照抄 O(n<sup>2</sup>) 的 LCS：n = 10<sup>5</sup> 时 10<sup>10</sup> 次比较，TLE。</li><li id="b398">映射建反：pos 存的是 P<sub>2</sub> 的位置却拿 P<sub>1</sub> 去查——样例恰好也能得 3，只有自己造一组数据才能发现。</li><li id="b399">把问题当成「求 c 的最长不下降子序列」：排列元素互不相同，这里两者等价，但换成有重复的数据就错。</li><li id="b400">lower_bound 的区间写成 tail + len：漏掉一个元素，答案偶尔偏小。</li><li id="b401">把 tail 当答案输出：tail[len] 是结尾值，不是长度。</li></ul></div></div></details></div><div class="challenge"><div class="ct" id="b402">大题 挑战题 4 · 素数密度</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1835</span><span class="badge diff">提高-</span><a href="https://www.luogu.com.cn/problem/P1835" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b403">给定区间 [L, R]，求这个区间内素数的个数。</p><p id="b404">输入格式：一行两个正整数 L、R（1 ≤ L ≤ R ≤ 2<sup>31</sup> − 1，且 R − L ≤ 10<sup>6</sup>）。</p><p id="b405">输出格式：一行一个整数，表示区间内素数的个数。</p><p id="b406"><b>样例输入</b><br><code>1 10</code><br><b>样例输出</b><br><code>4</code><br>样例解释：1 到 10 之间的素数是 2、3、5、7，共 4 个；1 不是素数。</p></div><div class="cap" id="b407">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+1 10
+输出：
+4</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b408">区间长度最多 10<sup>6</sup>，整段打标记完全放得下；但 L、R 本身到 2<sup>31</sup>，按 R 开数组是不可能的。注意区分「区间长度」和「数值大小」。</p><p id="b409">要判断 [L, R] 里每个数是不是素数，只需要知道它有没有不超过 √R 的因子。√(2<sup>31</sup>) ≈ 46341——这个范围内的素数筛得出来。</p><p id="b410">用每个小素数 p 去划掉 [L, R] 里 p 的倍数。起点从哪儿开始？如果从 L 开始，当 L ≤ p 时会把 p 自己也划掉。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b411">两步走：先筛出 [2, √R] 的全部素数（埃氏筛，√R ≤ 46341，数组几万个就够了）；再用这些小素数去「筛掉」[L, R] 里的合数。</p><p id="b412">第二步：对每个小素数 p，把 [L, R] 中 p 的倍数标记为合数。起点取 max(p<sup>2</sup>, ⌈L/p⌉·p)：从 p 开始是为了不划掉 p 本身，从 ⌈L/p⌉·p 开始是为了不划掉区间左边的数。</p><p id="b413">标记数组只需要 R − L + 1 个位置，用 x − L 当下标。这就是「区间筛」的全部内容。</p><p id="b414">为什么只筛到 √R：任何合数 x ≤ R 都有一个不超过 √x ≤ √R 的因子；这个因子对应的素数一定在筛出的表里。</p><p id="b415">边界：L = 1 时要把 1 单独标成非素数；L = R 时答案要么 1 要么 0。</p><p id="b416">溢出：p ≤ 46341，p × p 最大 46341<sup>2</sup> = 2147488281，比 INT_MAX（2147483647）还大 4634，用 int 算会变成负数，循环下标变负 → RE。所有涉及乘积的地方一律 long long。</p><p id="b417">复杂度：筛小素数 O(√R log log R)，标记区间 Σ (R−L)/p = O((R−L) log log R)，R = 2<sup>31</sup> 时约 4.6×10<sup>4</sup> + 10<sup>6</sup> × 3 次操作。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b418">参考代码</div><pre id="b419"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXS = <span class="n">1000005</span>;
+<span class="k">const</span> <span class="k">int</span> MAXP = <span class="n">50005</span>;         <span class="c">// sqrt(2^31 - 1) ≈ 46341</span>
+<span class="k">bool</span> isp[MAXP];                 <span class="c">// 小素数表</span>
+<span class="k">bool</span> mark[MAXS];                <span class="c">// mark[i] 表示 L + i 是合数</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">long</span> <span class="k">long</span> L, R;
+    <span class="k">scanf</span>(<span class="s">"%lld%lld"</span>, &amp;L, &amp;R);
+
+    <span class="k">int</span> lim = (<span class="k">int</span>)<span class="k">sqrt</span>((<span class="k">double</span>)R) + <span class="n">1</span>;     <span class="c">// 只需要筛到 sqrt(R)</span>
+
+    <span class="k">fill</span>(isp, isp + lim + <span class="n">1</span>, <span class="k">true</span>);
+    isp[<span class="n">0</span>] = isp[<span class="n">1</span>] = <span class="k">false</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">2</span>; i &lt;= lim; ++i)
+        <span class="k">if</span> (isp[i])
+            <span class="k">for</span> (<span class="k">long</span> <span class="k">long</span> j = <span class="n">1LL</span> * i * i; j &lt;= lim; j += i)  <span class="c">// i*i 用 long long 算</span>
+                isp[j] = <span class="k">false</span>;
+
+    <span class="k">long</span> <span class="k">long</span> len = R - L + <span class="n">1</span>;
+    <span class="k">if</span> (L == <span class="n">1</span>) mark[<span class="n">0</span>] = <span class="k">true</span>;             <span class="c">// 1 不是素数</span>
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">2</span>; i &lt;= lim; ++i) {
+        <span class="k">if</span> (!isp[i]) <span class="k">continue</span>;
+        <span class="k">long</span> <span class="k">long</span> p = i;
+        <span class="c">// 从 p 的平方 或 第一个 &gt;= L 的倍数 开始划；两者取大，避免划掉 p 自己</span>
+        <span class="k">long</span> <span class="k">long</span> st = <span class="k">max</span>(p * p, (L + p - <span class="n">1</span>) / p * p);
+        <span class="k">for</span> (<span class="k">long</span> <span class="k">long</span> x = st; x &lt;= R; x += p)
+            mark[x - L] = <span class="k">true</span>;
+    }
+
+    <span class="k">int</span> ans = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">long</span> <span class="k">long</span> i = <span class="n">0</span>; i &lt; len; ++i)
+        <span class="k">if</span> (!mark[i]) ++ans;
+
+    <span class="k">printf</span>(<span class="s">"%d\n"</span>, ans);
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b420">关键片段拆解</div><table class="lines"><thead><tr><th id="b421">片段</th><th id="b422">作用</th></tr></thead><tbody><tr><td id="b423"><code>const int MAXP = 50005;</code></td><td id="b424">46342 个位置就够，开 50005 留余量。写 46341 会差一点点就越界。</td></tr><tr><td id="b425"><code>fill(isp, isp + lim + 1, true);</code></td><td id="b426">初始化 [0, lim] 全部为 true，右端写 lim + 1。区间少一个，isp[lim] 就是 false，最后一段素数会被漏筛。</td></tr><tr><td id="b427"><code>1LL * i * i</code></td><td id="b428">★ i 到 46341 时 i*i 超过 INT_MAX，用 int 会溢出成负数，内层循环直接跑飞。</td></tr><tr><td id="b429"><code>if (L == 1) mark[0] = true;</code></td><td id="b430">1 不是素数。样例就是 L = 1，漏了这一行输出 5。</td></tr><tr><td id="b431"><code>long long p = i;</code></td><td id="b432">后面的 p*p 与 x 都要 long long，先在这里提上来，免得写成 (long long)i*i 到处都是。</td></tr><tr><td id="b433"><code>max(p * p, (L + p - 1) / p * p)</code></td><td id="b434">两个起点取大：p*p 保证不划掉 p 自己，⌈L/p⌉p 保证落在区间内。漏掉 p*p，L ≤ p 时答案会少 1。</td></tr><tr><td id="b435"><code>mark[x - L] = true;</code></td><td id="b436">下标平移。写成 mark[x] 需要 2<sup>31</sup> 个位置，直接 MLE 崩溃。</td></tr><tr><td id="b437"><code>for (long long x = st; x &lt;= R; x += p)</code></td><td id="b438">x 用 long long，否则 x += p 可能越过 2<sup>31</sup> 变成负数，死循环。</td></tr><tr><td id="b439"><code>if (!mark[i]) ++ans;</code></td><td id="b440">未被标记的就是素数。ans ≤ R − L + 1 ≤ 10<sup>6</sup> + 1，int 足够。</td></tr></tbody></table><div class="box warn"><div class="t" id="b441">这题最容易错的地方</div><ul><li id="b442">i × i 或 p × p 用 int：46341<sup>2</sup> = 2147488281 &gt; INT_MAX，溢出成负数，RE 或死循环。</li><li id="b443">起点只用 ⌈L/p⌉·p，漏了 max(p<sup>2</sup>, ...)：L ≤ p 时把 p 自己划掉，答案偏小。</li><li id="b444">忘了 1 不是素数：L = 1 的测试点答案多 1（样例就能暴露，别跳过样例）。</li><li id="b445">标记数组开成 R 大小：R = 2<sup>31</sup> 时是 2 GB，本地直接跑不起来，交上去 MLE。</li><li id="b446">统计时用 mark[x] 而不是 mark[x − L]：越界读，答案随机。</li><li id="b447">只筛到 sqrt(L) 而不是 sqrt(R)：区间右半部分的合数没被划掉，答案偏大。</li></ul></div></div></details></div><div class="challenge"><div class="ct" id="b448">大题 挑战题 5 · 【模板】KMP 字符串匹配</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P3375</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P3375" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b449">给出两个字符串 s<sub>1</sub> 和 s<sub>2</sub>。若 s<sub>1</sub> 的区间 [l, r] 子串与 s<sub>2</sub> 完全相同，则称 s<sub>2</sub> 在 s<sub>1</sub> 中出现，出现位置为 l。要求输出 s<sub>2</sub> 在 s<sub>1</sub> 中所有出现的位置。</p><p id="b450">另外定义：字符串 s 的 border 是 s 的一个不等于 s 本身的子串 t，满足 t 既是 s 的前缀又是 s 的后缀。对 s<sub>2</sub> 的每个前缀（长度为 1…|s<sub>2</sub>|），求出它最长 border 的长度。</p><p id="b451">输入格式：第一行一个字符串 s<sub>1</sub>，第二行一个字符串 s<sub>2</sub>（1 ≤ |s<sub>2</sub>| ≤ |s<sub>1</sub>| ≤ 10<sup>6</sup>，只含大小写字母）。</p><p id="b452">输出格式：若干行，每行一个整数，按从小到大输出 s<sub>2</sub> 在 s<sub>1</sub> 中的出现位置；最后一行输出 |s<sub>2</sub>| 个整数，第 i 个表示 s<sub>2</sub> 长度为 i 的前缀的最长 border 长度，相邻两个用一个空格隔开。</p><p id="b453"><b>样例输入</b><br><code>ABABABC<br>ABA</code><br><b>样例输出</b><br><code>1<br>3<br>0 0 1</code><br>样例解释：<code>ABA</code> 在 <code>ABABABC</code> 的第 1 位和第 3 位出现（允许重叠）；前缀 <code>A</code>、<code>AB</code> 没有非自身的 border，<code>ABA</code> 的 border 是 <code>A</code>，长度 1。</p></div><div class="cap" id="b454">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+ABABABC
+ABA
+输出：
+1
+3
+0 0 1</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b455">暴力是每个起点比 |s<sub>2</sub>| 个字符，最坏 10<sup>6</sup> × 10<sup>6</sup>。要压到线性，必须让「已经匹配上的那一段」在失配后不被浪费。</p><p id="b456">失配时，已经匹配的那一段文本，既是 s<sub>2</sub> 的某个前缀，又是刚读过的文本的后缀。如果知道 s<sub>2</sub> 每个前缀「最长的、既是前缀又是后缀的长度」，失配后应该退到哪？</p><p id="b457">这个长度可以递推：nxt[i] 只依赖 nxt[i−1] 和 t[i] 本身。为什么回跳的总次数是 O(m) 而不是 O(m<sup>2</sup>)？</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b458">定义 nxt[i] = s<sub>2</sub>[1..i] 的最长 border 长度（即最长的、既是前缀又是后缀、且不等于本身的长度）。</p><p id="b459">递推：假设 nxt[i−1] = j 已经算出。若 s<sub>2</sub>[i] == s<sub>2</sub>[j+1]，则 nxt[i] = j + 1；否则令 j = nxt[j] 继续试，直到 j = 0 或字符相等。这一步的依据是：i 位置的所有可行 border 长度，必然依次是 nxt[i−1]、nxt[nxt[i−1]]、…（border 链）。</p><p id="b460">匹配：在 s<sub>1</sub> 上维护 j = 「当前已匹配的长度」。s<sub>1</sub>[i] 与 s<sub>2</sub>[j+1] 相等则 ++j，否则 j = nxt[j] 回跳。j 达到 m 时输出起点 i − m + 1，然后令 j = nxt[j] 继续（允许重叠）。</p><p id="b461">复杂度：j 每次成功匹配加 1，总共只加 O(n) 次；每次回跳 j 至少减 1，所以回跳总次数也是 O(n)。均摊下来整个匹配 O(n + m)，10<sup>6</sup> 的规模毫无压力。</p><p id="b462">为什么不能 j = 0 直接重来：那样已经匹配的那一段信息全丢了，退化成暴力。</p><p id="b463">输出注意：位置从 1 开始数，所以起点是 i − m + 1；最后一行才是 nxt 数组，nxt[1] = 0 也要输出。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b464">参考代码</div><pre id="b465"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">1000005</span>;
+<span class="k">char</span> s[MAXN], t[MAXN];
+<span class="k">int</span> nxt[MAXN];
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">scanf</span>(<span class="s">"%s"</span>, s + <span class="n">1</span>);              <span class="c">// 从下标 1 开始存：位置直接是 i - m + 1</span>
+    <span class="k">scanf</span>(<span class="s">"%s"</span>, t + <span class="n">1</span>);
+    <span class="k">int</span> n = (<span class="k">int</span>)<span class="f">strlen</span>(s + <span class="n">1</span>), m = (<span class="k">int</span>)<span class="f">strlen</span>(t + <span class="n">1</span>);
+
+    <span class="c">// ① 求 t 的前缀函数：nxt[i] = t[1..i] 的最长 border 长度</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">2</span>, j = <span class="n">0</span>; i &lt;= m; ++i) {
+        <span class="k">while</span> (j &amp;&amp; t[i] != t[j + <span class="n">1</span>]) j = nxt[j];   <span class="c">// 失配：沿 border 链回退</span>
+        <span class="k">if</span> (t[i] == t[j + <span class="n">1</span>]) ++j;                  <span class="c">// 接上一位，匹配长度加一</span>
+        nxt[i] = j;
+    }
+
+    <span class="c">// ② 在 s 上匹配：j 是「当前已经匹配的长度」</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>, j = <span class="n">0</span>; i &lt;= n; ++i) {
+        <span class="k">while</span> (j &amp;&amp; s[i] != t[j + <span class="n">1</span>]) j = nxt[j];
+        <span class="k">if</span> (s[i] == t[j + <span class="n">1</span>]) ++j;
+        <span class="k">if</span> (j == m) {                               <span class="c">// 完整出现一次</span>
+            <span class="k">printf</span>(<span class="s">"%d\n"</span>, i - m + <span class="n">1</span>);              <span class="c">// 起点（1 起）</span>
+            j = nxt[j];                             <span class="c">// 允许重叠，继续找下一处</span>
+        }
+    }
+
+    <span class="c">// ③ 最后一行：nxt[1..m]</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= m; ++i) {
+        <span class="k">if</span> (i &gt; <span class="n">1</span>) <span class="f">putchar</span>(<span class="s">' '</span>);
+        <span class="k">printf</span>(<span class="s">"%d"</span>, nxt[i]);
+    }
+    <span class="f">putchar</span>(<span class="s">'\n'</span>);
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b466">关键片段拆解</div><table class="lines"><thead><tr><th id="b467">片段</th><th id="b468">作用</th></tr></thead><tbody><tr><td id="b469"><code>scanf("%s", s + 1);</code></td><td id="b470">从 1 起存。这样「起点」与「已匹配长度」的换算就是 i − m + 1，不用再 +1 修正。</td></tr><tr><td id="b471"><code>for (int i = 2, j = 0; i &lt;= m; ++i)</code></td><td id="b472">从 2 开始：nxt[1] 恒为 0（单个字符没有非自身的 border）。j 的初值 0 表示「还没有任何 border」。</td></tr><tr><td id="b473"><code>while (j &amp;&amp; t[i] != t[j + 1]) j = nxt[j];</code></td><td id="b474">★ 全题的核心。失配时放弃一部分前缀，退到下一个候选 border。while 而不是 if：一次退不够，可能连退好几次。</td></tr><tr><td id="b475"><code>t[j + 1]</code></td><td id="b476">要比较的位置是「当前匹配长度 + 1」。写成 t[j] 就整体错位一位，样例立刻错。</td></tr><tr><td id="b477"><code>nxt[i] = j;</code></td><td id="b478">把当前匹配长度记下来，它既是 border 长度，也是下一个 i 的回退起点。</td></tr><tr><td id="b479"><code>if (j == m) { ... }</code></td><td id="b480">匹配成功。先输出起点，再 j = nxt[j] 继续——写成 j = 0 会漏掉重叠的出现（样例的第 3 位就没了）。</td></tr><tr><td id="b481"><code>i - m + 1</code></td><td id="b482">起点。1 起下标下，终点是 i、长度是 m，起点自然是 i − m + 1。</td></tr><tr><td id="b483"><code>if (i &gt; 1) putchar(' ');</code></td><td id="b484">nxt 数组用空格分隔、行末只换行。多一个空格在严格评测里可能 WA。</td></tr><tr><td id="b485"><code>char s[MAXN], t[MAXN];</code></td><td id="b486">10<sup>6</sup> 的字符串用 char 数组 + scanf 最稳；string 也能过，但常数大一些。</td></tr></tbody></table><div class="box warn"><div class="t" id="b487">这题最容易错的地方</div><ul><li id="b488">字符串从 0 起存，输出却用 i − m + 1：所有位置都小 1（样例输出 0、2）。</li><li id="b489">匹配成功后 j = 0 而不是 j = nxt[j]：重叠出现被漏掉，样例只输出 1。</li><li id="b490">把 nxt 理解成「失配后从哪一位重新比较」，写成 t[nxt[j]]：差 1，全盘皆错。</li><li id="b491">while 写成 if：一次回退不够时不彻底，nxt 数组会偏大，后续匹配出错。</li><li id="b492">最后一行忘了输出 nxt[1] = 0，或者把 nxt 输出在位置之前。</li><li id="b493">用 cin &gt;&gt; string 读 10<sup>6</sup> 字符又不关同步：在时限边缘，用 scanf 更稳。</li></ul></div></div></details></div><div class="box tip" style="margin:24px 0 -6px"><div class="t" id="b494">附加挑战 2（不计入限时）</div><p id="b495">做完上面的整套题还有余力，再啃这一道。它比本套题的平均难度高一级。</p></div><div class="challenge ch2"><div class="ct" id="b496">挑战 2 · 愤怒的小鸟</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P2831</span><span class="badge diff">提高-/提高</span><a href="https://www.luogu.com.cn/problem/P2831" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b497">第一象限里有 n 只猪，第 i 只的坐标是 (x<sub>i</sub>, y<sub>i</sub>)。弹弓位于原点 (0,0)，每只鸟的轨迹都是形如 y = ax<sup>2</sup> + bx 的曲线，其中 a、b 由你指定且必须 a &lt; 0。轨迹经过的猪会全部被消灭，鸟会继续沿轨迹飞。问消灭所有猪最少要几只鸟。</p><p id="b498">输入：第一行一个正整数 T（T ≤ 30，关卡组数）；每组第一行两个非负整数 n、m（1 ≤ n ≤ 18，0 ≤ m ≤ 2，m 只是给部分分的指令类型，不影响答案）；接下来 n 行，每行两个实数 x<sub>i</sub>、y<sub>i</sub>（0 &lt; x<sub>i</sub>, y<sub>i</sub> &lt; 10，保留到小数点后两位，同一关内没有重合的点）。</p><p id="b499">输出：每组一行，一个正整数，表示该关最少需要的鸟数。</p><p id="b500">样例：第一关 2 只猪在 (1,3)、(3,3)，同在抛物线 y = −x<sup>2</sup> + 4x 上，1 只鸟够；第二关 5 只猪全在 y = −x<sup>2</sup> + 6x 上，也是 1 只。</p></div><div class="cap" id="b501">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+2
+2 0
+1.00 3.00
+3.00 3.00
+5 0
+1.00 5.00
+2.00 8.00
+3.00 9.00
+4.00 8.00
+5.00 5.00
+输出：
+1
+1</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b502">n ≤ 18：这个数字在提示用二进制位表示「哪些猪还活着」，第 34 节的状压 DP 就是干这个的。</p><p id="b503">一只鸟由 (a, b) 两个参数决定，而「它经过 (x, y)」正好给出一个关于 a、b 的方程。想让一只鸟经过两只猪，就是两个方程解两个未知数——注意什么情况下解不出来。</p><p id="b504">先预处理「过 i、j 的那条抛物线还能顺带打掉哪些猪」。之后每个状态只考虑第一只还活着的猪：它这一炮必须被打掉，于是只需枚举它和谁一起被打。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b505">状态压缩：mask 的第 i 位为 1 表示第 i 只猪已被消灭，dp[mask] = 打掉这些猪最少用几只鸟。答案就是 dp[2<sup>n</sup>−1]。</p><p id="b506">一只鸟经过 (x<sub>i</sub>,y<sub>i</sub>) 和 (x<sub>j</sub>,y<sub>j</sub>)（x<sub>i</sub> ≠ x<sub>j</sub>）时，由 y/x = ax + b 得两式相减消掉 b：a = (y<sub>i</sub>/x<sub>i</sub> − y<sub>j</sub>/x<sub>j</sub>) / (x<sub>i</sub> − x<sub>j</sub>)。若 a ≥ 0 则不合题意（轨迹开口向上），这条抛物线作废。</p><p id="b507">预处理 line[i][j] = 这条抛物线能打掉的猪的集合：把每只猪代回 y = ax<sup>2</sup>+bx 判是否落在曲线上。单只猪的 line[i][i] 只含 i。</p><p id="b508">转移：取 mask 里编号最小的活猪 low。打掉它的那一炮一定会同时打掉若干只猪，所以这一步只有两种选择：单打它（mask | 1&lt;&lt;low），或和某只活猪 j 一起打（mask | line[low][j]）。只需枚举 O(n) 种。</p><p id="b509">为什么只看 low：任何最优解里，打掉 low 的那一炮必然存在，把它挪到「当前这一步」不会改变总炮数，所以不会漏解；固定 low 又避免了同一种炮序被重复枚举。</p><p id="b510">顺序：所有转移都只把 0 变 1，mask 单调变大，所以从 0 到 2<sup>n</sup>−1 递推即可。</p><p id="b511">复杂度：预处理 O(n<sup>3</sup>) ≈ 6×10<sup>3</sup>，DP O(2<sup>n</sup>·n) ≈ 4.7×10<sup>6</sup>，T ≤ 5 时约 2.4×10<sup>7</sup>。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b512">参考代码</div><pre id="b513"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">double</span> x[<span class="n">19</span>], y[<span class="n">19</span>];
+<span class="k">int</span> line[<span class="n">19</span>][<span class="n">19</span>];            <span class="c">// line[i][j] = 过 i、j 的抛物线能打掉的猪的集合（位掩码）</span>
+<span class="k">int</span> dp[<span class="n">1</span> &lt;&lt; <span class="n">18</span>];
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> T;
+    <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;T);
+    <span class="k">while</span> (T--) {
+        <span class="k">int</span> n, m;
+        <span class="k">scanf</span>(<span class="s">"%d%d"</span>, &amp;n, &amp;m);   <span class="c">// m 只是指令类型，对答案没有影响</span>
+        <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; n; ++i) <span class="k">scanf</span>(<span class="s">"%lf%lf"</span>, &amp;x[i], &amp;y[i]);
+
+        <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; n; ++i)
+            <span class="k">for</span> (<span class="k">int</span> j = <span class="n">0</span>; j &lt; n; ++j) line[i][j] = <span class="n">1</span> &lt;&lt; i;   <span class="c">// 默认只能单打 i</span>
+
+        <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; n; ++i)
+            <span class="k">for</span> (<span class="k">int</span> j = i + <span class="n">1</span>; j &lt; n; ++j) {
+                <span class="k">if</span> (<span class="f">fabs</span>(x[i] - x[j]) &lt; <span class="n">1e</span>-<span class="n">8</span>) <span class="k">continue</span>;       <span class="c">// 两点同 x，解不出合法的 a</span>
+                <span class="k">double</span> a = (y[i] / x[i] - y[j] / x[j]) / (x[i] - x[j]);
+                <span class="k">if</span> (a &gt;= -<span class="n">1e</span>-<span class="n">8</span>) <span class="k">continue</span>;                     <span class="c">// 必须开口向下</span>
+                <span class="k">double</span> b = y[i] / x[i] - a * x[i];
+                <span class="k">int</span> mask = <span class="n">0</span>;
+                <span class="k">for</span> (<span class="k">int</span> k = <span class="n">0</span>; k &lt; n; ++k)
+                    <span class="k">if</span> (<span class="f">fabs</span>(a * x[k] * x[k] + b * x[k] - y[k]) &lt; <span class="n">1e</span>-<span class="n">6</span>) mask |= <span class="n">1</span> &lt;&lt; k;
+                line[i][j] = line[j][i] = mask;
+            }
+
+        <span class="k">int</span> full = (<span class="n">1</span> &lt;&lt; n) - <span class="n">1</span>;
+        <span class="k">for</span> (<span class="k">int</span> s = <span class="n">0</span>; s &lt;= full; ++s) dp[s] = <span class="n">1e9</span>;
+        dp[<span class="n">0</span>] = <span class="n">0</span>;
+        <span class="k">for</span> (<span class="k">int</span> s = <span class="n">0</span>; s &lt;= full; ++s) {
+            <span class="k">if</span> (dp[s] &gt;= <span class="n">1e9</span>) <span class="k">continue</span>;
+            <span class="k">int</span> low = -<span class="n">1</span>;                                     <span class="c">// 编号最小的活猪</span>
+            <span class="k">for</span> (<span class="k">int</span> k = <span class="n">0</span>; k &lt; n; ++k) <span class="k">if</span> (!(s &gt;&gt; k &amp; <span class="n">1</span>)) { low = k; <span class="k">break</span>; }
+            <span class="k">if</span> (low &lt; <span class="n">0</span>) <span class="k">continue</span>;
+            dp[s | (<span class="n">1</span> &lt;&lt; low)] = <span class="k">min</span>(dp[s | (<span class="n">1</span> &lt;&lt; low)], dp[s] + <span class="n">1</span>);   <span class="c">// 单打</span>
+            <span class="k">for</span> (<span class="k">int</span> k = <span class="n">0</span>; k &lt; n; ++k) {                              <span class="c">// 和 k 一起打</span>
+                <span class="k">if</span> (s &gt;&gt; k &amp; <span class="n">1</span>) <span class="k">continue</span>;
+                <span class="k">int</span> ns = s | line[low][k];
+                dp[ns] = <span class="k">min</span>(dp[ns], dp[s] + <span class="n">1</span>);
+            }
+        }
+        <span class="k">printf</span>(<span class="s">"%d\n"</span>, dp[full]);
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b514">关键片段拆解</div><table class="lines"><thead><tr><th id="b515">片段</th><th id="b516">作用</th></tr></thead><tbody><tr><td id="b517"><code>double a = (y[i]/x[i] - y[j]/x[j]) / (x[i] - x[j]);</code></td><td id="b518">★ 解方程：把 y/x = ax + b 当关于 a、b 的一次方程组，两式相减消掉 b。</td></tr><tr><td id="b519"><code>if (fabs(x[i] - x[j]) &lt; 1e-8) continue;</code></td><td id="b520">两点 x 相同则除零，必须先判掉。此时它们不可能同属一条抛物线。</td></tr><tr><td id="b521"><code>if (a &gt;= -1e-8) continue;</code></td><td id="b522">题目要求 a &lt; 0。留一点 eps，否则 a 恰好为负零附近时会把合法解丢掉。</td></tr><tr><td id="b523"><code>if (fabs(a*x[k]*x[k] + b*x[k] - y[k]) &lt; 1e-6) mask |= 1 &lt;&lt; k;</code></td><td id="b524">把每只猪代回抛物线，找同伙。容差取 1e-6 是本题最容易写崩的地方。</td></tr><tr><td id="b525"><code>int low = ...; if (!(s &gt;&gt; k &amp; 1)) { low = k; break; }</code></td><td id="b526">只枚举第一只活猪：它这一炮必须打掉它，这样同一组炮的排列不会被重复枚举。</td></tr><tr><td id="b527"><code>for (int s = 0; s &lt;= full; ++s)</code></td><td id="b528">mask 只增不减，从小到大递推就保证前驱已经算好。</td></tr><tr><td id="b529"><code>dp[s | line[low][k]]</code></td><td id="b530">line 里已经含 low，所以这一步必定消灭 low，状态不会原地打转。</td></tr></tbody></table><div class="box warn"><div class="t" id="b531">这题最容易错的地方</div><ul><li id="b532">容差取错：太大把不相干的猪算进同一条抛物线（答案偏小），太小把本该同组的猪判成不同组（答案偏大）。坐标只有两位小数，1e−6 是安全范围。</li><li id="b533">没判两点 x 相同：除以 0 得到 inf/nan，整份 DP 跟着崩。</li><li id="b534">dp 数组多组数据忘了重新初始化成 INF：上一关的答案污染这一关。</li><li id="b535">dp 初值写成 0 而不是正无穷：所有状态都是「0 只鸟」，答案恒为 0。</li></ul></div></div></details></div><div class="box ok"><div class="t" id="b536">做完之后自问</div><ul><li id="b537">能说出 60 节里哪四块本套没有设题，并各写出一条必须记住的结论。</li><li id="b538">能在 3 分钟内判断一道题该用二分答案、二分查找还是普通枚举，并说清单调性从哪来。</li><li id="b539">能默写树状数组的 add / query，并说清离散化为什么不会改变逆序对个数。</li><li id="b540">能说清「排列的 LCS」为什么等价于 LIS，以及 O(n<sup>2</sup>) 的 LIS 为什么必 TLE。</li><li id="b541">能说清区间筛的复杂度怎么算，以及 i × p 为什么必须用 long long。</li><li id="b542">能默写 KMP 的 nxt 递推与匹配循环，并解释 j = nxt[j] 为什么是均摊 O(m)。</li><li id="b543">能在 120 分钟内给 5 题各写出一份能过样例的代码，且每份都做过边界检查。</li><li id="b544">错题能归到具体一节：是模板没背下来，还是没认出该用哪个模板。</li></ul></div><div class="box info"><div class="t" id="b545">延伸阅读</div><ul><li id="b546">《算法竞赛进阶指南》0x21 树状数组、0x31 质数、0x34 KMP 三节的模板对照</li><li id="b547">《算法竞赛试炼场：洛谷300题精析》P1462、P1908、P1439、P1835、P3375 的精析</li><li id="b548">《算法竞赛入门笔记》二分答案、离散化、字符串匹配三章</li><li id="b549">《算法竞赛黄金法则：提高算法和思考力的77项技巧》第 12 条：先问「答案是否单调」</li></ul></div>
+
+<footer>算竞教程 · 算竞教程 · 生成于自建课程体系，题目版权归洛谷及各命题方所有<br>
+转载请注明出处；模板代码可直接用于比赛</footer>

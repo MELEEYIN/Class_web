@@ -1,0 +1,236 @@
+
+<div class="box info"><div class="t" id="b0">本节出现的新函数 / 新语法（先看懂再用）</div><ul><li id="b1"><a href="#fn-0">1 基下标读入：cin &gt;&gt; (s + 1)</a> —— 字符串算法的标准写法：下标从 1 开始，s[0] 空着</li><li id="b2"><a href="#fn-1">fail 数组（next 数组）：五行的递推</a> —— 五行求出每个前缀的最长 border，KMP 的全部预处理就这一件事</li><li id="b3"><a href="#fn-2">KMP 匹配：i 不回退的扫描</a> —— 扫一遍主串找出所有出现位置，i 不回退</li><li id="b4"><a href="#fn-3">Z 函数（另一种“与前缀的匹配长度”）</a> —— 盒子 [l,r] 里先抄再扩，O(n) 求出每个后缀与前缀的 LCP</li></ul></div><p id="b5">在长串 s1 里找模式串 s2 的所有出现位置，暴力做法是：把 s2 对到每个起点上，逐字符比。最坏 O(|s1|·|s2|)——s1 = s2 = 10<sup>6</sup> 个 <code>a</code> 时是 10<sup>12</sup> 次比较，必然超时。KMP 把“失配之后从哪一位重新开始比”预先算进一个数组，于是 s1 的指针永不回退，总时间 O(|s1| + |s2|)。</p><div class="quote" id="b6">失配时不需要把 s2 挪一格重来：已经匹配上的那一段，既等于 s2 的前一段，也等于 s1 的末尾，所以只要知道“s2 的这段前缀里，最长的、同时也是后缀的前缀有多长”——这个长度就是 fail。</div><table><thead><tr><th id="b7">任务</th><th id="b8">做法</th><th id="b9">复杂度</th><th id="b10">关键代码</th></tr></thead><tbody><tr><td id="b11">s2 是否出现在 s1（暴力）</td><td id="b12">每个起点逐字符比</td><td id="b13">O(|s1|·|s2|)</td><td id="b14">双层 for</td></tr><tr><td id="b15">s2 在 s1 的所有位置</td><td id="b16">KMP</td><td id="b17">O(|s1|+|s2|)</td><td id="b18">i 不回退，j = f[j]</td></tr><tr><td id="b19">每个前缀的最长 border</td><td id="b20">对自己做一次 KMP</td><td id="b21">O(|s2|)</td><td id="b22">f[i] = j</td></tr><tr><td id="b23">最短循环节</td><td id="b24">n − f[n]</td><td id="b25">O(n)</td><td id="b26">一行减法</td></tr><tr><td id="b27">所有 border</td><td id="b28">沿 f 链跳</td><td id="b29">O(链长)</td><td id="b30">j = f[j]</td></tr><tr><td id="b31">每个后缀与前缀的 LCP</td><td id="b32">Z 函数</td><td id="b33">O(n)</td><td id="b34">盒子 [l, r]</td></tr></tbody></table><p id="b35">先把这一节的 4 样新东西拆开。核心只有 5 行，但要把 5 行写对，得先知道每一行在维护什么。</p><div class="fn"><div class="fh" id="b36">新函数拆解 · 1 基下标读入：cin &gt;&gt; (s + 1)</div><div class="fb"><div class="sig" id="b37">cin &gt;&gt; (s + 1);
+int n = strlen(s + 1);</div><table class="lines"><thead><tr><th id="b38">组成</th><th id="b39">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b40"><code>为什么用 1 基</code></td><td id="b41">f[i] 的含义是“前 i 个字符”，下标天然从 1 数。用 0 基写要处处减一，border 题差一位就整题错。</td></tr><tr><td id="b42"><code>cin &gt;&gt; (s + 1)</code></td><td id="b43">读进以 s[1] 开头的位置，s[0] 空着不用。括号不能省：<code>cin &gt;&gt; s + 1</code> 会被解析成 <code>(cin &gt;&gt; s) + 1</code>。</td></tr><tr><td id="b44"><code>strlen(s + 1)</code></td><td id="b45">从 s[1] 数到 '\0'，得到的就是串长。数组至少开 maxlen + 2（留 s[0] 与结尾 '\0'）。</td></tr><tr><td id="b46"><code>1e6 的串</code></td><td id="b47">char s[1000005] 是 1 MB。全局数组在静态区，不占栈；写在 main 里是栈上 1 MB，容易爆栈。</td></tr><tr><td id="b48"><code>多组数据</code></td><td id="b49">记得清 f 数组。f 是按长度用的，只要重新算一遍 f[1..m] 就够，不必 memset 全部。</td></tr></tbody></table><div class="cap" id="b50">最小可运行示例</div><div class="cap" id="b51">示例</div><pre id="b52"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">1000005</span>;
+<span class="k">char</span> s[MAXN];                  <span class="c">// s[1] 是第一个字符，s[0] 闲置</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">cin</span> &gt;&gt; (s + <span class="n">1</span>);            <span class="c">// 读到 s[1] 起始的位置</span>
+    <span class="k">int</span> n = <span class="f">strlen</span>(s + <span class="n">1</span>);     <span class="c">// 串长</span>
+    <span class="k">cout</span> &lt;&lt; n &lt;&lt; <span class="s">" "</span> &lt;&lt; s[<span class="n">1</span>] &lt;&lt; <span class="s">" "</span> &lt;&lt; s[n] &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}
+<span class="c">// 输入 abcde → 输出 5 a e</span></code></pre><div class="box tip"><div class="t" id="b53">注意</div><p id="b54">1 基下循环写 <code>for (int i = 1; i &lt;= n; ++i)</code>，i 就是“第 i 个字符”，不需要在脑子里做 i−1 的换算。这是字符串算法最省心的写法。</p><p id="b55">数组开小了不一定报错：少 1 个字节时 '\0' 写到数组外，属于未定义行为，可能本地没事、交上去 RE。</p></div></div></div><div class="fn"><div class="fh" id="b56">新函数拆解 · fail 数组（next 数组）：五行的递推</div><div class="fb"><div class="sig" id="b57">f[1] = 0;
+for (int i = 2, j = 0; i &lt;= m; ++i) {
+    while (j &amp;&amp; s[i] != s[j + 1]) j = f[j];
+    if (s[i] == s[j + 1]) ++j;
+    f[i] = j;
+}</div><table class="lines"><thead><tr><th id="b58">组成</th><th id="b59">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b60"><code>f[i] 是什么</code></td><td id="b61">s 的前 i 个字符（记为 s[1..i]）的<b>最长 border 长度</b>。border = 既是真前缀又是真后缀的子串。</td></tr><tr><td id="b62"><code>f[1] = 0</code></td><td id="b63">单个字符没有非本身的 border。这是整条递推的起点，也是所有“回退到底”的终点。</td></tr><tr><td id="b64"><code>j 的含义</code></td><td id="b65">进入第 i 轮时 j = f[i−1]，并且 s[1..j] 与 s[i−j..i−1] 已经相等。这两段相等是“可以直接接着比”的全部依据。</td></tr><tr><td id="b66"><code>if (s[i] == s[j + 1])</code></td><td id="b67">已经对齐的两段后面再接一个相同字符，border 就延长一位：f[i] = j + 1。</td></tr><tr><td id="b68"><code>while (j &amp;&amp; s[i] != s[j + 1])</code></td><td id="b69">失配就往短里找下一个候选。候选只能是 f[j]、f[f[j]]……一路跳到 0，跳到底再比 s[1]。</td></tr><tr><td id="b70"><code>j 必须写在 for 的初始化里</code></td><td id="b71">写成 <code>for (int i = 2; i &lt;= m; ++i) { int j = 0; ... }</code> 每轮归零，f 全变 0。</td></tr><tr><td id="b72"><code>j 从哪来</code></td><td id="b73">循环开始时 j = 0 = f[1]，之后每轮结束 j = f[i]，正好是下一轮需要的值。</td></tr></tbody></table><div class="cap" id="b74">最小可运行示例</div><div class="cap" id="b75">示例</div><pre id="b76"><code><span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">1000005</span>;
+<span class="k">int</span> f[MAXN];
+
+<span class="c">// s 从 s[1] 开始，长度 m</span>
+<span class="k">void</span> <span class="f">buildFail</span>(<span class="k">const</span> <span class="k">char</span>* s, <span class="k">int</span> m) {
+    f[<span class="n">1</span>] = <span class="n">0</span>;                                  <span class="c">// 单个字符没有 border</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">2</span>, j = <span class="n">0</span>; i &lt;= m; ++i) {      <span class="c">// j 在这里声明：跨轮保留</span>
+        <span class="k">while</span> (j &amp;&amp; s[i] != s[j + <span class="n">1</span>]) j = f[j]; <span class="c">// 失配：跳到次长 border</span>
+        <span class="k">if</span> (s[i] == s[j + <span class="n">1</span>]) ++j;              <span class="c">// 匹配：border 延长 1</span>
+        f[i] = j;
+    }
+}
+
+<span class="c">// s = "aabaaab" → f[1..7] = 0 1 0 1 2 2 3</span></code></pre><div class="box tip"><div class="t" id="b77">注意</div><p id="b78"><b>f[i] 永远不会超过 f[i−1] + 1</b>。因为 f[i] 的 border 去掉最后一位就是 s[1..i−1] 的 border，长度必然 ≤ f[i−1]。这条性质决定了 while 里“往短跳”是唯一的出路。</p><p id="b79">多测题里 f 数组的元素会被逐个覆盖（i 从 1 到 m 全写一遍），所以不需要额外清空。</p></div></div></div><div class="fn"><div class="fh" id="b80">新函数拆解 · KMP 匹配：i 不回退的扫描</div><div class="fb"><div class="sig" id="b81">for (int i = 1, j = 0; i &lt;= n; ++i) {
+    while (j &amp;&amp; s1[i] != s2[j + 1]) j = f[j];
+    if (s1[i] == s2[j + 1]) ++j;
+    if (j == m) { /* 起点 i-m+1 */ j = f[j]; }
+}</div><table class="lines"><thead><tr><th id="b82">组成</th><th id="b83">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b84"><code>i</code></td><td id="b85">扫 s1 的指针，从左到右走一遍，永不回退。这是 O(n) 的来源。</td></tr><tr><td id="b86"><code>j</code></td><td id="b87">当前已经匹配的字符数。它同时是 s2 的下标：下一个要比的是 s2[j+1]。</td></tr><tr><td id="b88"><code>while (j &amp;&amp; ...)</code></td><td id="b89">与建 fail 时同一行代码。KMP 匹配就是“用 s2 的 fail 信息驱动 s1 的扫描”。</td></tr><tr><td id="b90"><code>if (j == m)</code></td><td id="b91">完整匹配一次，出现位置是 i − m + 1（1 基）。</td></tr><tr><td id="b92"><code>j = f[j]</code></td><td id="b93">★ 不能写 j = 0。s2 = <code>aa</code>、s1 = <code>aaa</code> 时，位置 1 和 2 都该输出。</td></tr><tr><td id="b94"><code>总复杂度</code></td><td id="b95">i 走 n 步；j 每步最多加 1，故 while 总次数 ≤ n，整体 O(n + m)。</td></tr></tbody></table><div class="cap" id="b96">最小可运行示例</div><div class="cap" id="b97">示例</div><pre id="b98"><code><span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>, j = <span class="n">0</span>; i &lt;= n; ++i) {
+    <span class="k">while</span> (j &amp;&amp; s1[i] != s2[j + <span class="n">1</span>]) j = f[j];   <span class="c">// 失配：沿 fail 后退</span>
+    <span class="k">if</span> (s1[i] == s2[j + <span class="n">1</span>]) ++j;                <span class="c">// 这一位对上了</span>
+    <span class="k">if</span> (j == m) {                               <span class="c">// 整串对上</span>
+        <span class="k">cout</span> &lt;&lt; i - m + <span class="n">1</span> &lt;&lt; <span class="s">"\n"</span>;              <span class="c">// 起点（1 基）</span>
+        j = f[j];                               <span class="c">// 允许重叠，继续找</span>
+    }
+}</code></pre><div class="box tip"><div class="t" id="b99">注意</div><p id="b100"><code>s2[j + 1]</code> 在 j = m 时会读到 s2[m+1] = '\0'——只有忘记在匹配后回退 j 才会发生。</p><p id="b101">整个算法不需要对 s1 做任何预处理，也不需要 s1 的 fail 数组。流式数据（边读边匹配）也能用。</p></div></div></div><div class="fn"><div class="fh" id="b102">新函数拆解 · Z 函数（另一种“与前缀的匹配长度”）</div><div class="fb"><div class="sig" id="b103">z[1] = n;
+for (int i = 2; i &lt;= n; ++i) {
+    z[i] = 0;
+    if (i &lt;= r) z[i] = min(z[i - l + 1], r - i + 1);
+    while (i + z[i] &lt;= n &amp;&amp; t[1 + z[i]] == t[i + z[i]]) ++z[i];
+    if (i + z[i] - 1 &gt; r) { l = i; r = i + z[i] - 1; }
+}</div><table class="lines"><thead><tr><th id="b104">组成</th><th id="b105">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b106"><code>z[i] 是什么</code></td><td id="b107">t[1..] 与 t[i..] 的最长公共前缀长度。z[1] = n（自己和自己）。</td></tr><tr><td id="b108"><code>l, r</code></td><td id="b109">当前“最靠右”的已知匹配段 [l, r]：t[l..r] 与 t[1..r−l+1] 相同。</td></tr><tr><td id="b110"><code>i ≤ r 时先抄</code></td><td id="b111">盒子内的部分已经对齐，所以 z[i] 至少是 min(z[i−l+1], r−i+1)。</td></tr><tr><td id="b112"><code>再暴力往外扩</code></td><td id="b113">抄完之后继续逐字符比。这一步看着像暴力，实际总代价是 O(n)。</td></tr><tr><td id="b114"><code>为什么是 O(n)</code></td><td id="b115">r 只增不减，每次 while 成功都让 r 右移，而 r ≤ n。总扩大次数 ≤ n。</td></tr><tr><td id="b116"><code>更新盒子</code></td><td id="b117">i + z[i] − 1 &gt; r 说明右边界推远了，换上新的 l、r。</td></tr></tbody></table><div class="cap" id="b118">最小可运行示例</div><div class="cap" id="b119">示例</div><pre id="b120"><code><span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">2000005</span>;
+<span class="k">int</span> z[MAXN];
+
+<span class="k">void</span> <span class="f">getZ</span>(<span class="k">const</span> <span class="k">char</span>* t, <span class="k">int</span> n) {          <span class="c">// t 从 t[1] 开始</span>
+    z[<span class="n">1</span>] = n;
+    <span class="k">int</span> l = <span class="n">1</span>, r = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">2</span>; i &lt;= n; ++i) {
+        z[i] = <span class="n">0</span>;                                      <span class="c">// 清掉上一次运行的值</span>
+        <span class="k">if</span> (i &lt;= r) z[i] = <span class="k">min</span>(z[i - l + <span class="n">1</span>], r - i + <span class="n">1</span>); <span class="c">// 盒子内先抄</span>
+        <span class="k">while</span> (i + z[i] &lt;= n &amp;&amp; t[<span class="n">1</span> + z[i]] == t[i + z[i]]) ++z[i];
+        <span class="k">if</span> (i + z[i] - <span class="n">1</span> &gt; r) { l = i; r = i + z[i] - <span class="n">1</span>; }
+    }
+}
+
+<span class="c">// t = "aaa" → z = 3 2 1</span></code></pre><div class="box tip"><div class="t" id="b121">注意</div><p id="b122"><code>min</code> 里的 <code>r − i + 1</code> 是“别抄出盒子”。少了它会用到还没验证的位置，答案偏大。</p><p id="b123">Z 函数配 <code>t = s2 + '#' + s1</code> 就能做匹配：z[i] ≥ |s2| 的位置就是一个出现。分隔符必须在字符集之外。</p></div></div></div><div class="prob"><div class="ph"><span class="pn" id="b124">例题 · 【模板】KMP</span><span class="oi">洛谷 P3375</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P3375" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b125">给出两个字符串 s<sub>1</sub>、s<sub>2</sub>。若 s<sub>1</sub> 的区间 [l, r] 子串与 s<sub>2</sub> 完全相同，则称 s<sub>2</sub> 在 s<sub>1</sub> 中出现了，出现位置为 l。求 s<sub>2</sub> 在 s<sub>1</sub> 中所有出现的位置。</p><p id="b126">另外，对 s<sub>2</sub> 的每个前缀，求出它的最长 border 长度（border 指“不是 s 本身”的、既是 s 的前缀又是 s 的后缀的子串）。</p><p id="b127">输入：第一行字符串 s<sub>1</sub>，第二行字符串 s<sub>2</sub>。</p><p id="b128">输出：先每行一个整数，按从小到大输出所有出现位置；最后一行输出 |s<sub>2</sub>| 个整数，第 i 个是 s<sub>2</sub> 长度为 i 的前缀的最长 border 长度。</p><p id="b129">数据范围：1 ≤ |s<sub>1</sub>|, |s<sub>2</sub>| ≤ 10<sup>6</sup>，只含大写英文字母。</p></div><div class="io" id="b130">输入：
+ABABABC
+ABA
+输出：
+1
+3
+0 0 1</div></div><div class="step"><div class="sh" id="b131">例题怎么想：先让 s2 认识自己</div><p id="b132">暴力匹配的浪费在哪：设 s2 已经和 s1 对上了 j 个字符，第 j+1 个失配。暴力会把 s1 的起点右移一格、j 清零重来，把刚刚确认过的 j 个字符又比一遍。n = m = 10<sup>6</sup>、s1 = s2 = 全是 a 时，浪费是 10<sup>12</sup> 级别的。</p><p id="b133">关键观察：失配那一刻，我们已知 s1[i−j..i−1] = s2[1..j]。新的对齐方式相当于问：s2 的前缀 s2[1..k] 能不能同时等于 s2[1..j] 的后缀？如果能，就让 k 个字符“自动对上”，从 k+1 继续比。</p><p id="b134">“既是 s2[1..j] 的前缀、又是它的后缀”就是 <b>border</b> 的定义。满足条件的 k 恰好是 j、f[j]、f[f[j]]……一条链。挑最大的那个 k，最省事，也不会漏解。所以失配后的动作是 <code>j = f[j]</code>，而不是 <code>j = 0</code>。</p><p id="b135">于是“跳到哪”只由 s2 自己决定，跟 s1 无关。把它预先算出来：让 s2 和自己做一次同样的匹配，得到 f[1..m]。这一步 O(m)。</p><p id="b136">正式匹配时 i 只管往前走，j 按 fail 调整，总调整次数不超过 n，整题 O(n + m)。匹配成功后写 <code>j = f[j]</code>（此时 j = m），因为“允许重叠”，下一次出现可能从当前位置往前一点点开始。</p><div class="cap" id="b137">两段几乎一样的循环</div><pre id="b138"><code><span class="n">①</span> 预处理：对 s2 做 KMP，得到 f[<span class="n">1..m</span>]
+     f[<span class="n">1</span>] = <span class="n">0</span>; j = <span class="n">0</span>
+     <span class="k">for</span> i = <span class="n">2..m</span>:
+         <span class="k">while</span> j &gt; <span class="n">0</span> 且 s2[i] != s2[j+<span class="n">1</span>]: j = f[j]
+         <span class="k">if</span> s2[i] == s2[j+<span class="n">1</span>]: j++
+         f[i] = j
+
+<span class="n">②</span> 匹配：扫一遍 s1
+     j = <span class="n">0</span>
+     <span class="k">for</span> i = <span class="n">1..n</span>:
+         <span class="k">while</span> j &gt; <span class="n">0</span> 且 s1[i] != s2[j+<span class="n">1</span>]: j = f[j]
+         <span class="k">if</span> s1[i] == s2[j+<span class="n">1</span>]: j++
+         <span class="k">if</span> j == m: 输出 i-m+<span class="n">1</span>;  j = f[j]
+
+<span class="n">③</span> 输出 f[<span class="n">1..m</span>]</code></pre><p id="b139">看清楚一件事：② 和 ① 是<b>同一段代码</b>，只是把“自己”换成了别的串。所以 KMP 只要写对一次，另一处照抄即可。</p></div><div class="cap" id="b140">完整代码</div><pre id="b141"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">1000005</span>;
+<span class="k">char</span> s1[MAXN], s2[MAXN];
+<span class="k">int</span> f[MAXN];                       <span class="c">// f[i]：s2 前 i 个字符的最长 border 长度</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">cin</span> &gt;&gt; (s1 + <span class="n">1</span>) &gt;&gt; (s2 + <span class="n">1</span>);   <span class="c">// 1 基下标</span>
+    <span class="k">int</span> n = <span class="f">strlen</span>(s1 + <span class="n">1</span>), m = <span class="f">strlen</span>(s2 + <span class="n">1</span>);
+
+    <span class="c">// ① 预处理：s2 匹配自己，求出 f[1..m]</span>
+    f[<span class="n">1</span>] = <span class="n">0</span>;                                  <span class="c">// 单字符没有非本身的 border</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">2</span>, j = <span class="n">0</span>; i &lt;= m; ++i) {
+        <span class="k">while</span> (j &amp;&amp; s2[i] != s2[j + <span class="n">1</span>]) j = f[j];   <span class="c">// 失配：沿 border 链后退</span>
+        <span class="k">if</span> (s2[i] == s2[j + <span class="n">1</span>]) ++j;                <span class="c">// 对上了：border 延长 1</span>
+        f[i] = j;
+    }
+
+    <span class="c">// ② 匹配：i 扫 s1，j 记录已匹配长度</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>, j = <span class="n">0</span>; i &lt;= n; ++i) {
+        <span class="k">while</span> (j &amp;&amp; s1[i] != s2[j + <span class="n">1</span>]) j = f[j];
+        <span class="k">if</span> (s1[i] == s2[j + <span class="n">1</span>]) ++j;
+        <span class="k">if</span> (j == m) {                          <span class="c">// 出现一次</span>
+            <span class="k">cout</span> &lt;&lt; i - m + <span class="n">1</span> &lt;&lt; <span class="s">"\n"</span>;
+            j = f[j];                          <span class="c">// 允许重叠，退到最长 border 继续</span>
+        }
+    }
+
+    <span class="c">// ③ 输出 f[1..m]，空格分隔，最后一个后换行</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= m; ++i) {
+        <span class="k">cout</span> &lt;&lt; f[i];
+        <span class="k">cout</span> &lt;&lt; (i == m ? <span class="s">"\n"</span> : <span class="s">" "</span>);
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b142">逐行拆解</div><table class="lines"><thead><tr><th id="b143">代码片段</th><th id="b144">含义与理由</th></tr></thead><tbody><tr><td id="b145"><code>cin &gt;&gt; (s1 + 1) &gt;&gt; (s2 + 1);</code></td><td id="b146">两个串都从下标 1 开始存。括号必须有，否则 &gt;&gt; 的优先级低于 +，意思就变了。</td></tr><tr><td id="b147"><code>int n = strlen(s1 + 1), m = strlen(s2 + 1);</code></td><td id="b148">1e6 的串求长度是 O(n)，只做一次。此后所有下标都用 1..n。</td></tr><tr><td id="b149"><code>f[1] = 0;</code></td><td id="b150">递推的起点。若忘了这一句，f[1] 保留旧值，第一轮 while 就会用错数字。</td></tr><tr><td id="b151"><code>for (int i = 2, j = 0; i &lt;= m; ++i)</code></td><td id="b152">j 写在初始化部分：它在轮与轮之间保留，正好承担“上一轮的 border 长度”。</td></tr><tr><td id="b153"><code>while (j &amp;&amp; s2[i] != s2[j + 1]) j = f[j];</code></td><td id="b154">★ 整题的核心。一次跳过一个候选，跳的步数是均摊 O(1) 的。</td></tr><tr><td id="b155"><code>if (s2[i] == s2[j + 1]) ++j;</code></td><td id="b156">注意比的是 s2[j+1] 而不是 s2[j]：j 是“已对齐的长度”，下一个待比的下标是 j+1。</td></tr><tr><td id="b157"><code>f[i] = j;</code></td><td id="b158">把这一轮的结果存下来。下一轮直接用，不用重算。</td></tr><tr><td id="b159"><code>for (int i = 1, j = 0; i &lt;= n; ++i)</code></td><td id="b160">匹配阶段。i 从 1 走到 n，一次也不回退。</td></tr><tr><td id="b161"><code>if (j == m) { cout &lt;&lt; i - m + 1 ...</code></td><td id="b162">起点 = 终点 − 长度 + 1。i 是 s1 里匹配段的最后一个字符。</td></tr><tr><td id="b163"><code>j = f[j];</code></td><td id="b164">★ 写成 j = 0 会漏掉重叠的出现。f[m] 是 s2 的最长 border，也是下一次可能的重叠长度。</td></tr><tr><td id="b165"><code>cout &lt;&lt; (i == m ? "\n" : " ");</code></td><td id="b166">最后一行 |s2| 个整数，行末换行、中间一个空格。格式错一样 WA。</td></tr></tbody></table></div><div class="step"><div class="sh" id="b167">fail 的递推为什么这么写</div><p id="b168">这是全节唯一需要动脑的地方。设 f[i−1] = j，含义是 <b>s[1..j] = s[i−j..i−1]</b>。要算 f[i]，只有三种情况。</p><ul><li id="b169"><b>情况 1：s[i] = s[j+1]</b>。把已经对齐的两段各延长一格，得到 s[1..j+1] = s[i−j..i]，于是 f[i] ≥ j+1。又 f[i] ≤ f[i−1] + 1 = j+1（理由见下），所以 f[i] = j+1。</li><li id="b170"><b>情况 2：s[i] ≠ s[j+1]</b>。这时 f[i] 不可能等于 j+1。设 f[i] = k ≤ j。因为 s[1..k] = s[i−k+1..i]，去掉最后一位得 s[1..k−1] = s[i−k+1..i−1]，而 s[i−k+1..i−1] 是 s[i−j..i−1] = s[1..j] 的一段后缀，所以 k−1 是 s[1..j] 的 border，即 k−1 ≤ f[j]。于是<b>候选 k 恰好落在 border 链上</b>，最大的那个就是 f[j]+1。</li><li id="b171"><b>情况 3：j 退到 0 仍不匹配</b>。此时没有任何非空 border，f[i] = 0。</li></ul><p id="b172"><b>“f[i] ≤ f[i−1] + 1”的理由</b>：若 s[1..k] 是 s[1..i] 的 border，去掉最后一位，s[1..k−1] 就是 s[1..i−1] 的 border，所以 k−1 ≤ f[i−1]，即 k ≤ f[i−1] + 1。这条性质说明“长度每轮最多加 1”，也说明失配时只可能往短里找。</p><p id="b173">所以 <code>while (j &amp;&amp; ...) j = f[j];</code> 不是“随便往回退一点”，而是<b>沿着 all-border 链按从大到小枚举候选</b>。链上的值恰好是 j, f[j], f[f[j]], …, 0，既不会漏，也不会重复。</p><table><thead><tr><th id="b174">i</th><th id="b175">s[1..i]</th><th id="b176">这一轮发生了什么</th><th id="b177">f[i]</th></tr></thead><tbody><tr><td id="b178">1</td><td id="b179">a</td><td id="b180">起点</td><td id="b181">0</td></tr><tr><td id="b182">2</td><td id="b183">aa</td><td id="b184">j=0，s[2]=s[1] → j=1</td><td id="b185">1</td></tr><tr><td id="b186">3</td><td id="b187">aab</td><td id="b188">j=1，s[3]≠s[2] → j=f[1]=0；s[3]≠s[1]</td><td id="b189">0</td></tr><tr><td id="b190">4</td><td id="b191">aaba</td><td id="b192">j=0，s[4]=s[1] → j=1</td><td id="b193">1</td></tr><tr><td id="b194">5</td><td id="b195">aabaa</td><td id="b196">j=1，s[5]=s[2] → j=2</td><td id="b197">2</td></tr><tr><td id="b198">6</td><td id="b199">aabaaa</td><td id="b200">j=2，s[6]≠s[3] → j=f[2]=1；s[6]=s[2] → j=2</td><td id="b201">2</td></tr><tr><td id="b202">7</td><td id="b203">aabaaab</td><td id="b204">j=2，s[7]=s[3] → j=3</td><td id="b205">3</td></tr></tbody></table><p id="b206">第 6 行是重点：j 从 2 跳到 1 不是“减一”，而是跳到 <b>f[2]</b>。如果这里写成 j−−，就退化成 O(nm)。</p></div><div class="step"><div class="sh" id="b207">对照上面那张表再看这三行</div><table class="lines"><thead><tr><th id="b208">代码片段</th><th id="b209">含义与理由</th></tr></thead><tbody><tr><td id="b210"><code>while (j &amp;&amp; s[i] != s[j + 1]) j = f[j];</code></td><td id="b211">情况 2：沿 border 链找下一个候选。j 变成 f[j] 之后，s[1..j] 仍然等于 s[i−j..i−1]，只是变短了，所以可以继续比 s[j+1]。</td></tr><tr><td id="b212"><code>if (s[i] == s[j + 1]) ++j;</code></td><td id="b213">情况 1：延长。注意此时若 j 曾跳到 0，比的是 s[1]，也就是从最小的 border 重来。</td></tr><tr><td id="b214"><code>f[i] = j;</code></td><td id="b215">情况 3 的出口：j 已经是 0 且 s[1] ≠ s[i] 时不再进入 if，f[i] = 0。</td></tr></tbody></table></div><p id="b216">fail 数组的第二大用途是<b>求周期</b>。一个串 s（长 n）的周期 p 指：对所有 i + p ≤ n 都有 s[i] = s[i+p]。等价说法是“s 有长度 n − p 的 border”。于是<b>最小周期 = n − f[n]</b>。</p><div class="quote" id="b217">周期与 border 是一一对应的：想让周期最小，就让 border 最长，而最长 border 就是 f[n]。</div><div class="cap" id="b218">周期、完整循环节、全部 border</div><pre id="b219"><code>    <span class="c">// 假设 s[1..n] 与 f[1..n] 已经算好</span>
+    <span class="k">int</span> p = n - f[n];                       <span class="c">// 最小周期</span>
+    <span class="c">// 完整循环节：n 能整除 p 时，s 由 n/p 个相同的块拼成</span>
+    <span class="k">int</span> blocks = (n % p == <span class="n">0</span>) ? n / p : <span class="n">0</span>;  <span class="c">// 0 表示“不完整周期”</span>
+    <span class="k">cout</span> &lt;&lt; p &lt;&lt; <span class="s">" "</span> &lt;&lt; blocks &lt;&lt; <span class="s">"\n"</span>;
+
+    <span class="c">// 全部 border 长度（从长到短）：沿 f 链走</span>
+    <span class="k">for</span> (<span class="k">int</span> k = f[n]; k &gt; <span class="n">0</span>; k = f[k])
+        <span class="k">cout</span> &lt;&lt; k &lt;&lt; <span class="s">" "</span>;</code></pre><div class="step"><div class="sh" id="b220">周期公式的三处用法</div><table class="lines"><thead><tr><th id="b221">代码片段</th><th id="b222">含义与理由</th></tr></thead><tbody><tr><td id="b223"><code>int p = n - f[n];</code></td><td id="b224">f[n] 是 s 的最长 border。去掉“最长 border 与前缀重合的那一段”，剩下的就是最小移动量 p。</td></tr><tr><td id="b225"><code>n % p == 0 ? n / p : 0</code></td><td id="b226">整除才是“若干个完整块”。如 abababa 的 p = 2，但 7 % 2 ≠ 0，它只是“不完整周期”——末尾被截断了。</td></tr><tr><td id="b227"><code>for (int k = f[n]; k &gt; 0; k = f[k])</code></td><td id="b228">border 链。f[k] &lt; k 恒成立，所以循环一定终止；但链长最坏是 n−1（全是同一字符时），别在每个位置都遍历整条链。</td></tr><tr><td id="b229"><code>为什么对应</code></td><td id="b230">若 p 是周期，则 s[1..n−p] = s[p+1..n]，即长度 n−p 的前缀等于同长度后缀——正是 border。反之亦然。</td></tr></tbody></table></div><p id="b231">Z 函数是 KMP 的“兄弟”：它直接给出“每个后缀与整个串前缀的最长公共前缀”。把模式串拼在主串前面、中间加一个不在字符集里的分隔符，一次 Z 就能得到所有匹配位置。</p><div class="cap" id="b232">Z 函数做匹配</div><pre id="b233"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">2000005</span>;              <span class="c">// |s1| + |s2| + 1 再留余量</span>
+<span class="k">char</span> t[MAXN];
+<span class="k">int</span> z[MAXN];
+
+<span class="k">void</span> <span class="f">getZ</span>(<span class="k">int</span> n) {                     <span class="c">// t 从 t[1] 开始</span>
+    z[<span class="n">1</span>] = n;
+    <span class="k">int</span> l = <span class="n">1</span>, r = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">2</span>; i &lt;= n; ++i) {
+        z[i] = <span class="n">0</span>;
+        <span class="k">if</span> (i &lt;= r) z[i] = <span class="k">min</span>(z[i - l + <span class="n">1</span>], r - i + <span class="n">1</span>);   <span class="c">// 盒子内先抄</span>
+        <span class="k">while</span> (i + z[i] &lt;= n &amp;&amp; t[<span class="n">1</span> + z[i]] == t[i + z[i]]) ++z[i];
+        <span class="k">if</span> (i + z[i] - <span class="n">1</span> &gt; r) { l = i; r = i + z[i] - <span class="n">1</span>; }
+    }
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">string</span> a, b;
+    <span class="k">cin</span> &gt;&gt; a &gt;&gt; b;                     <span class="c">// a 主串，b 模式串</span>
+    <span class="k">int</span> n = a.<span class="k">size</span>(), m = b.<span class="k">size</span>();
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= m; ++i) t[i] = b[i - <span class="n">1</span>];
+    t[m + <span class="n">1</span>] = <span class="s">'#'</span>;                    <span class="c">// 分隔符：不在字符集里，跨界的匹配立刻失败</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) t[m + <span class="n">1</span> + i] = a[i - <span class="n">1</span>];
+
+    <span class="k">int</span> N = m + <span class="n">1</span> + n;
+    <span class="f">getZ</span>(N);
+    <span class="k">for</span> (<span class="k">int</span> i = m + <span class="n">2</span>; i &lt;= N; ++i)
+        <span class="k">if</span> (z[i] &gt;= m) <span class="k">cout</span> &lt;&lt; i - m - <span class="n">1</span> &lt;&lt; <span class="s">"\n"</span>;   <span class="c">// 起点 = i - (m + 1)</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b234">盒子 [l, r] 里先抄再扩</div><table class="lines"><thead><tr><th id="b235">代码片段</th><th id="b236">含义与理由</th></tr></thead><tbody><tr><td id="b237"><code>t = b + '#' + a</code></td><td id="b238">分隔符保证“跨过分隔符的 LCP”不会虚增。于是 z[i] ≥ m 恰好等价于“b 在 a 的位置 i−(m+1) 出现”。</td></tr><tr><td id="b239"><code>z[i] = min(z[i - l + 1], r - i + 1)</code></td><td id="b240">盒子内 t[i−l+1..] 与 t[i..] 已经对齐，能抄 z[i−l+1] 这么多；但抄不能越过盒子右端，所以再取 r−i+1。</td></tr><tr><td id="b241"><code>while (i + z[i] &lt;= n &amp;&amp; ...)</code></td><td id="b242">从抄来的长度继续往外扩。边界条件 i + z[i] ≤ n 防越界。</td></tr><tr><td id="b243"><code>if (i + z[i] - 1 &gt; r)</code></td><td id="b244">只有右端被推远才换盒子。r 单调不减，所以总扩大次数 ≤ n，整体 O(n)。</td></tr><tr><td id="b245"><code>i - m - 1</code></td><td id="b246">1 基下 a 的第 pos 个字符在 t 中的下标是 m+1+pos，反过来 pos = i − (m+1)。</td></tr><tr><td id="b247"><code>为什么还学 Z</code></td><td id="b248">求“每个后缀与前缀的 LCP”Z 一步到位；求 border 链 fail 更直接。两个都写熟，按题目挑。</td></tr></tbody></table></div><div class="box warn"><div class="t" id="b249">KMP 的 6 种错法（带症状）</div><p id="b250"><b>WA，样例就错、fail 全为 0</b>。—— j 声明在循环体内（<code>for (int i = 2; ...) { int j = 0; ... }</code>），每轮归零，f 永远算不出非零值。</p><p id="b251"><b>RE / 越界</b>。—— 数组按 |s1| 开。1 基下标要额外留出 s[0] 和结尾 '\0'，必须开 |s1| + 2 以上；写 <code>char s1[1000000]</code> 装 10<sup>6</sup> 个字符一定爆。</p><p id="b252"><b>WA，漏掉重叠的出现</b>。—— 匹配成功后写 <code>j = 0</code>。s2 = <code>aa</code>、s1 = <code>aaa</code> 时应输出 1 和 2 两个位置，写 0 只出 1 个。正确写法是 <code>j = f[j]</code>。</p><p id="b253"><b>TLE</b>。—— 失配时写成 <code>--j</code> 或 <code>j = f[j-1]</code> 之类的“退一格”版本，退化成 O(nm)。10<sup>6</sup> 的对 a 串能跑出 10<sup>12</sup> 次比较。</p><p id="b254"><b>WA，答案整体差 1</b>。—— 0 基写法与 1 基写法混用。网上有 <code>nxt[i]</code> 表示 s[0..i] 的 border 的版本，含义与本节 <code>f[i]</code> 差一位，两套不能混。</p><p id="b255"><b>WA，格式错</b>。—— P3375 要求每个位置<b>单独一行</b>，最后一行才是 fail 数组；不少模板题是位置空格分隔在一行。先读输出格式再写输出。</p></div><div class="reproduce"><div class="rt" id="b256">自己动手复现</div><p id="b257">关掉页面，把 P3375 从空文件敲一遍并 AC。</p><p id="b258">改一改 ①：把 <code>while (j &amp;&amp; ...) j = f[j];</code> 换成 <code>if (j &amp;&amp; ...) --j;</code>，输入 s<sub>1</sub> 为 10<sup>6</sup> 个 a、s<sub>2</sub> 为 1000 个 a，用 time 看超时差多少。</p><p id="b259">改一改 ②：把 <code>j = f[j]</code> 改成 <code>j = 0</code>，输入 <code>aaa</code> 与 <code>aa</code>，位置从两个变成一个。</p><p id="b260">改一改 ③：用 <code>n − f[n]</code> 做周期题。输入 <code>cabcabca</code> 得 3；输入 <code>abababa</code> 得 2，且 7 % 2 ≠ 0——它是“不完整周期”。</p><p id="b261">改一改 ④：把 Z 函数的 <code>min(z[i-l+1], r-i+1)</code> 改成 <code>z[i-l+1]</code>，对拍 P3375 的输出，找出第一个出错的位置。</p></div><div class="mathcard"><div class="mt" id="b262">数学补给 · 均摊 O(n) 与 border 链</div><p id="b263">两个循环形状相同：j 每轮最多 +1，while 里每次至少 −1。设 j 的总增量 Δ<sub>+</sub>、总减少量 Δ<sub>−</sub>。因为 j ≥ 0 恒成立，有 Δ<sub>−</sub> ≤ Δ<sub>+</sub>；而 <code>++j</code> 每轮至多执行一次，故 Δ<sub>+</sub> ≤ n。于是 while 的总次数 ≤ n，整个匹配 O(n)。这种“把代价记到未来的增量上”的证明叫<b>势能分析</b>，j 就是势能。</p><p id="b264"><b>两个恒等式</b>，所有 border 题都从它们出发：</p><ul><li id="b265">p 是 s 的周期 ⟺ s 有长度 n − p 的 border。所以<b>最小周期 = n − f[n]</b>。</li><li id="b266">s[1..i] 的全部 border 长度恰好是 f[i]、f[f[i]]、f[f[f[i]]]……一直到 0。这条链叫 <b>border 链</b>。</li></ul><p id="b267"><b>border 链没有对数界</b>：s = a<sup>n</sup> 时链就是 n−1, n−2, …, 1，长度 n−1。所以不能靠“链短”来保证复杂度。KMP 的 O(n) 来自势能分析：整场扫描里 +1 至多 n 次，因此 −1 至多 n 次，与某一次跳多远无关。这也解释了为什么“沿链跳”本身很便宜，而在每个位置都重新遍历整条链（例如求所有前缀的全部 border）会变成 O(n<sup>2</sup>)。</p><p id="b268"><b>完整周期与不完整周期</b>：n % (n − f[n]) == 0 时 s 由 n/(n−f[n]) 个相同的块拼成；不整除时只是“不完整周期”，如 abababa 的最小周期是 2，但 7 不是 2 的倍数。题目问“循环节个数”还是“周期长度”，答案完全不同。</p><p id="b269"><b>Fine–Wilf 定理</b>：若 p、q 都是 s 的周期且 p + q − gcd(p, q) ≤ |s|，则 gcd(p, q) 也是 s 的周期。它说明“两个周期会互相挤压出更小的周期”，是很多周期结论的来源。</p><p id="b270"><b>Z 与 fail 的分工</b>：z[i] 回答“从 i 开始的后缀，与整串开头能对上多少位”；f[i] 回答“前 i 个字符这一段里，前缀与后缀最长能重合多少”。一个以“位置”为轴，一个以“长度”为轴。要“每个位置与前缀的匹配长度”用 Z 更直接；要“前缀的 border 链、周期”用 fail 更直接。</p></div><div class="think"><div class="tt" id="b271">举一反三 · 想清楚这些再往下走</div><div class="thint">先自己写出答案，再点开核对——方向对不对，比答案本身更重要</div><ol><li id="b272"><div class="tq">f 数组只存了“最长 border”。如果要 O(1) 回答“某个前缀的全部 border”，需要额外存什么？总空间是多少？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">不用存。<b>f 本身已经把全部 border 编码成了一条链</b>：前缀 i 的所有 border 长度就是 f[i]、f[f[i]]、f[f[f[i]]]……直到 0。但“O(1) 回答全部”做不到——答案本身可能有 i−1 个（s = a<sup>n</sup> 时链长 n−1），输出就至少要 Ω(n)。能 O(1) 的是“链上下一个是谁”（一次查表），走完整条链要 O(链长)；若只问<b>个数或总和</b>，可以 O(n) 预处理 <code>cnt[i] = cnt[f[i]] + 1</code>，此后 O(1)；若要在 O(log n) 内跳到“链上第一个 ≤ k 的位置”，就得存倍增表 f[i][t]，空间 O(n log n)。常见错路是以为 f[i] 是“第二长 border”（第二长是 f[f[i]]），或者想给每个前缀存一份 border 列表，那是 O(n²) 空间，10<sup>6</sup> 直接开不出来。</div></details></li><li id="b273"><div class="tq">把 s<sub>2</sub> + '#' + s<sub>1</sub> 拼起来求一次 fail，能不能直接读出所有匹配位置？和“边扫边匹配”比，代价差在哪？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">能。设 t = s2 + '#' + s1（'#' 不在字符集里），对 t 求一遍 f，s1 的第 pos 个字符对应 t 的下标 m+1+pos；若 <code>f[m+1+pos] == m</code>，说明以这个位置结尾的长度为 m 的段就是 s2，出现起点 pos = (m+1+pos) − 2m。之所以判等而不是判 ≥：'#' 的唯一性保证了 f 的值永远不超过 m（更长的 border 会要求后缀里也出现 '#'，前后位置对不上）。代价差在两处：<b>空间</b>从 O(m)（fail 数组）变成 O(n+m)（还要存整段拼串和它的 fail），<b>时间</b>多算一遍长度 n+m 的 fail；复杂度同为 O(n+m)，但常数更大，而且“边扫边匹配”是流式的，不需要先读完整段 s1。常见错路是分隔符取成字符集里的字符（比如 'a'），跨界的 border 立刻虚增，答案偏多；另一条是位置换算差一个 m+1——1 基下标下这里是 pos = p − 2m，写成 p − m 就差了一整段。</div></details></li><li id="b274"><div class="tq">求 s 的所有循环节长度。为什么它们一定是 n − f[n] 的倍数？给出证明或反例。</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">这句话在一般意义下<b>不成立</b>，只在“q 整除 n”时成立。反例：s = <code>abcdabcdabcd</code>（n = 12，f[12] = 8，p = 4），q = 9 也是周期——因为周期 9 只要求 s[1..3] = s[10..12]，而 <code>abc</code> 确实等于 <code>abc</code>；可 9 不是 4 的倍数。更小的反例是 s = <code>aabaa</code>：p = 5 − 2 = 3，q = 4 也是周期（只需 s[1] = s[5]，都是 a），4 不是 3 的倍数。证明（限 q | n）：q 是周期且 q 整除 n、q &lt; n 时 q ≤ n/2，又 p ≤ q，于是 <code>p + q − gcd(p,q) ≤ p + q − 1 ≤ n − 1 &lt; n</code>，由 Fine–Wilf 知 gcd(p,q) 也是周期；而 p 是最小周期，只能 gcd(p,q) = p，即 p | q。所以完整循环节的长度集合（n 的因数里那些是周期的）必定是 p 的倍数；不完整的“周期”则不受此限。常见错路是把周期和循环节混为一谈，然后拿 q = n−1 之类的数据验证，发现结论崩了却以为是自己算错。</div></details></li><li id="b275"><div class="tq">给一个串 s，最少补几个字符能让它变成“某个串重复至少两次”？先用 n − f[n]，再想整除条件该怎么接。</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">p = n − f[n]。然后分两种：<b>n % p == 0</b> 时 s 已经是 p 的整数次重复——块数 n/p ≥ 2 答案就是 0，块数 = 1（即 p = n，s 没有 border）就得再补 n 个字符，把它复制一遍变成 ss；<b>n % p ≠ 0</b> 时补 <code>p − n % p</code> 个字符，让总长凑成 p 的倍数，补完正好是那个长度 p 的块重复若干次。合起来可以写成 <code>ans = (p − n % p) % p</code>，再单独补一句“若 ans == 0 且 n/p == 1 则 ans = p”。例：<code>abcab</code> 的 p = 5 − 2 = 3，补 1 个得 <code>abcabc</code>；<code>aabaa</code> 的 p = 3，补 1 个得 <code>aabaab</code>。常见错路是直接把 n − f[n] 当答案（那是周期长度，不是要补的字符数）；另一条是漏了“至少两次”的条件，对 <code>abc</code> 这种 p = n 的串算出 0。</div></details></li><li id="b276"><div class="tq">怎么用 KMP 求“每个前缀在 s 中作为子串出现了多少次”？提示：建 fail 树，从长到短把计数累加到 f[i] 上。</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">建 fail 树：把每个 i ≥ 2 的父亲设为 f[i]，根是 0。先给每个点置 <code>cnt[i] = 1</code>（前缀 s[1..i] 自己至少出现一次，就在位置 1），然后<b>按 i 从 n 到 1 倒序</b>执行 <code>cnt[f[i]] += cnt[i]</code>，最后 cnt[i] 就是 s[1..i] 在 s 中作为子串的出现次数（含重叠）。为什么对：某次出现让匹配长度到了 j，沿 fail 链往上跳，j 一定会经过 i 的某个祖先，倒序累加相当于把这个计数沿链推给所有祖先；而每个点只把自己的值推给父亲一次，总代价 O(n)。常见错路是正序累加（从 1 到 n），父节点还没攒齐就往上推，结果系统偏小；另一条是忘了初值 1，只把“子串匹配”的位置算进去，漏掉前缀本身；还有人把它建在 <code>s + '#' + s</code> 上，跨界的匹配被算进来，计数直接翻倍。</div></details></li><li id="b277"><div class="tq">Z 函数和 KMP 都能做匹配。举一个 Z 更顺手、一个 fail 更顺手的例子，并说明为什么。</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">Z 更顺手的场合：求“每个后缀与整个串的 LCP”（Z 的定义就是它）；求“主串每个位置往前能与模式串匹配多长”——拼成 <code>s2 + '#' + s1</code> 一次 Z 全给出，不用维护 j；还有“所有 border 长度”，判 <code>z[i] == n − i + 1</code> 即可。fail 更顺手的场合：求最小周期 / 循环节（<code>n − f[n]</code> 一行）；求 border 链；以及多模式匹配的 AC 自动机——它的骨架就是 fail 树。根子在两者的“轴”不同：Z 以<b>位置</b>为轴（从 i 开始能对上开头多少位），fail 以<b>长度</b>为轴（前 i 个字符里前缀与后缀重合多少），所以问“某个位置”用 Z，问“某个长度、周期、border”用 fail。常见错路是硬把两者互换：用 fail 求“每个位置的匹配长度”要自己维护 j 和输出，还容易漏掉重叠；用 Z 求最小周期则要额外推一遍下标关系。另一个坑是 Z 拼串忘了加字符集外的分隔符，跨界 LCP 虚增。</div></details></li></ol></div><div class="box tip"><div class="t" id="b278">自测：能全部回答再进下一节</div><ul><li id="b279">能用一句话说出 f[i] 的定义，并手算任意短串的 fail 数组（例如 aabaaab → 0 1 0 1 2 2 3）。</li><li id="b280">能默写 fail 递推的两行核心，并解释失配时为什么是 j = f[j] 而不是 j = j−1。</li><li id="b281">能证明 KMP 匹配是 O(n + m)（用势能论证），并说清 j 的增量从哪来。</li><li id="b282">知道最小周期 = n − f[n]，并能判断它是“完整循环节”还是“不完整周期”。</li><li id="b283">能写 Z 函数，并说清盒子 [l, r] 里 z[i] 为什么可以先抄再扩、为什么要取 min。</li><li id="b284">知道匹配成功后必须写 j = f[j] 才能找出重叠出现。</li></ul></div><div class="challenge"><div class="ct" id="b285">挑战题 · Radio Transmission 无线传输</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P4391</span><span class="badge diff">提高-</span><a href="https://www.luogu.com.cn/problem/P4391" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b286">电台把一条信息 S′ 反复拼接后循环播放：S′S′S′……。你收到的是其中一段连续的字符序列 S，长度 L 保证不小于 |S′|。求 S′ 的最小可能长度。</p><p id="b287">形式化地说：求 S 的最短子串 S′，使得 S 本身是无限串 S′S′S′…… 的一个子串。</p><p id="b288">输入：第一行一个整数 L（1 ≤ L ≤ 10<sup>6</sup>）；第二行恰好 L 个小写字母，即序列 S。</p><p id="b289">输出：一行一个整数，表示 S′ 的最小长度。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b290">“S 是 S′ 无限重复的一段”等价于：存在 p，使得对每个满足 i + p ≤ L 的 i 都有 S[i] = S[i+p]。这个 p 有个名字，叫周期。</p><p id="b291">周期的“补集”是 border：p 是周期，当且仅当 S 有长度 L − p 的 border。想让 p 最小，就要让 border 最长。</p><p id="b292">先手算样例 cabcabca：最长的、既是前缀又是后缀的真前缀有多长？把它从 L 里减掉，得到什么？再想想为什么不需要判断整除。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b293">记 p 为 S 的一个周期：S[i] = S[i+p] 对所有合法 i 成立。那么 S 去掉最后 p 个字符得到的前缀，与去掉最前 p 个字符得到的后缀完全相同，即 S 有长度 L−p 的 border。反过来，有长度 b 的 border 就等价于有周期 L−b。</p><p id="b294">所以“最小周期” ⟺ “最长 border”。最长 border 就是 fail 数组的最后一项 f[L]。答案 = L − f[L]。</p><p id="b295">为什么不需要整除判断：题目允许最后一段 S′ 被截断。样例 cabcabca 的 p = 3，8 不是 3 的倍数，但它确实是 abcabcabcabc 的一段子串。若要求“完整循环节个数”，才需要额外判 L % p == 0。</p><p id="b296">复杂度：只需求一次 f[1..L]，O(L) 时间、O(L) 空间，L = 10<sup>6</sup> 轻松通过。</p><p id="b297">边界：L = 1 时 f[1] = 0，答案 1；S 全为同一字符时 f[L] = L−1，答案 1。两端都对。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b298">参考代码</div><pre id="b299"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">1000005</span>;
+<span class="k">char</span> s[MAXN];
+<span class="k">int</span> f[MAXN];
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">int</span> L;
+    <span class="k">cin</span> &gt;&gt; L;
+    <span class="k">cin</span> &gt;&gt; (s + <span class="n">1</span>);                    <span class="c">// 1 基</span>
+
+    f[<span class="n">1</span>] = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">2</span>, j = <span class="n">0</span>; i &lt;= L; ++i) {
+        <span class="k">while</span> (j &amp;&amp; s[i] != s[j + <span class="n">1</span>]) j = f[j];   <span class="c">// 沿 border 链后退</span>
+        <span class="k">if</span> (s[i] == s[j + <span class="n">1</span>]) ++j;
+        f[i] = j;
+    }
+
+    <span class="c">// 最小周期 = 长度 - 最长 border</span>
+    <span class="k">cout</span> &lt;&lt; L - f[L] &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b300">关键片段拆解</div><table class="lines"><thead><tr><th id="b301">片段</th><th id="b302">作用</th></tr></thead><tbody><tr><td id="b303"><code>cin &gt;&gt; (s + 1);</code></td><td id="b304">题目先给长度 L 再给串，读到 s[1] 起始位置，后面所有下标都是 1 基，与 f 的定义对齐。</td></tr><tr><td id="b305"><code>f[1] = 0;</code></td><td id="b306">单字符没有非本身的 border。L = 1 时答案就是 1 − 0 = 1。</td></tr><tr><td id="b307"><code>for (int i = 2, j = 0; i &lt;= L; ++i)</code></td><td id="b308">j 写在初始化里，跨轮保留 f[i−1] 的值，这是递推能接上的关键。</td></tr><tr><td id="b309"><code>while (j &amp;&amp; s[i] != s[j + 1]) j = f[j];</code></td><td id="b310">失配跳 border 链。整段均摊 O(L)，不会退化。</td></tr><tr><td id="b311"><code>cout &lt;&lt; L - f[L] &lt;&lt; "\n";</code></td><td id="b312">★ 全部答案。最长 border 越长，周期越短；不判整除，因为末段允许被截断。</td></tr></tbody></table><div class="box warn"><div class="t" id="b313">这题最容易错的地方</div><ul><li id="b314">加了 <code>if (L % (L - f[L]) == 0)</code> 才输出，样例之外的数据全错——本题允许不完整周期。</li><li id="b315">数组开成 <code>char s[1000000]</code>：1 基下标 + 结尾 '\0' 需要 10<sup>6</sup>+2 个字节，会越界 RE。</li><li id="b316">把答案写成 <code>L - f[L - 1]</code>：f 的下标是“前几个字符”，最后一项必须是 f[L]。</li><li id="b317">用 0 基读入（<code>cin &gt;&gt; s</code>）却照抄 1 基的递推，整题位移一位。</li><li id="b318">把 f[i] 算成“包含本身的 border”（f[L] = L）：答案会变成 0。border 必须是真子串，递推里 <code>f[1] = 0</code> 就是这条约束的起点。</li></ul></div></div></details></div><div class="box tip" style="margin:22px 0 -6px"><div class="t" id="b319">挑战 2 · 难度高一级，允许组合多个已学算法</div><p id="b320">这题比上面的挑战题更难：它不只用本节一个算法，可能需要把前面几节的工具拼起来。独立做出来说明这一块真的过关了；做完记得在侧边栏勾上 🌟。</p></div><div class="challenge ch2"><div class="ct" id="b321">挑战 2 · Censoring S</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P4824</span><span class="badge diff">提高-/提高</span><a href="https://www.luogu.com.cn/problem/P4824" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b322">给两个由小写字母组成的字符串 S 与 T（|T| ≤ |S| ≤ 10<sup>6</sup>）。反复执行下面的操作：在当前 S 中找到 T 的<b>第一次</b>出现，把这一段删掉；删除后左右两边拼接起来，可能拼出新的 T。直到 S 中不再含有 T 为止。输出处理完的 S。</p><p id="b323">输入：第一行 S，第二行 T。保证两串都只含小写字母，且 |T| ≤ |S|。题目保证删除过程中 S 不会变成空串。</p><p id="b324">输出：一行，处理完成的字符串 S。</p><p id="b325">样例：S = whatthemomooofun，T = moo。先删掉中间那个 moo，拼出 whatthemoofun；此时又出现 moo，再删，剩下 whatthefun。</p></div><div class="cap" id="b326">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+whatthemomooofun
+moo
+输出：
+whatthefun</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b327">先估暴力：每次删完都从头重新找一遍 T，最坏要扫多少次字符？|T| = 1 时这个数字是多少？</p><p id="b328">一次删除只影响被删位置附近的那几个字符，前面已经确认过的匹配不该重算。第 29 节有个结构天生适合「把最近加进来的东西拿掉」。</p><p id="b329">KMP 里那个「当前已匹配 T 的多长前缀」的指针，在字符被删之后应该退到多少？你需要在 O(1) 内查到「删之前那个位置」的匹配长度——把它和字符一起存起来。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b330">暴力：反复 find 出 T、erase 掉，再从头找。string::erase 单次 O(|S|)，最坏删 10<sup>6</sup> 次 → 10<sup>12</sup> 次字符搬动。</p><p id="b331">换存储：用栈保存「当前还活着的字符」，栈里的内容就是答案的前缀。删除一段 = 弹出最近压入的若干个字符。</p><p id="b332">压入字符 c 时，KMP 的匹配长度 j 不能从 0 开始，而要从「栈中前一个位置存下来的值」开始——栈里前几个字符正是 c 左边紧邻的内容，匹配必须接着它算。</p><p id="b333">然后照抄 KMP 的两行：沿 fail 链跳，再看能否 +1，把结果存进 len[栈顶]。</p><p id="b334">当 j 达到 |T| 时，栈顶 |T| 个字符恰好是 T：整段弹出。弹完之后，下一个字符要继承的匹配长度就是新栈顶存的值——这就是「删完从哪继续」的 O(1) 答案。</p><p id="b335">为什么正确：栈里的字符序列与被删改后的字符串完全相同，len[] 记录的正是「在原串上跑到这一步时」的匹配长度。被删掉的那些字符不会再影响后续匹配，所以直接丢弃它们的 len 是对的。</p><p id="b336">复杂度：对 T 求 fail O(|T|)；主过程每个字符压一次、弹一次，j 的推进总量 O(|S|)。总 O(|S|+|T|)。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b337">参考代码</div><pre id="b338"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">1000005</span>;
+<span class="k">int</span> fail_[MAXN];              <span class="c">// fail_[i] = T[0..i] 的最长 border 长度</span>
+<span class="k">char</span> stk[MAXN];               <span class="c">// 栈 = 当前还没被删掉的字符</span>
+<span class="k">int</span> len[MAXN];                <span class="c">// len[k] = 栈的前 k 个字符里，结尾能与 T 匹配上的长度</span>
+<span class="k">int</span> top = <span class="n">0</span>;
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">string</span> s, t;
+    <span class="k">cin</span> &gt;&gt; s &gt;&gt; t;
+    <span class="k">int</span> n = s.<span class="k">size</span>(), m = t.<span class="k">size</span>();
+
+    <span class="c">// 1) 只对模式串自身求 fail，O(m)</span>
+    fail_[<span class="n">0</span>] = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt; m; ++i) {
+        <span class="k">int</span> j = fail_[i - <span class="n">1</span>];
+        <span class="k">while</span> (j &amp;&amp; t[i] != t[j]) j = fail_[j - <span class="n">1</span>];
+        <span class="k">if</span> (t[i] == t[j]) ++j;
+        fail_[i] = j;
+    }
+
+    <span class="c">// 2) 主串逐字符压栈，失配沿 fail 跳，凑满 |T| 就弹栈</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; n; ++i) {
+        stk[++top] = s[i];
+        <span class="k">int</span> j = (top &gt; <span class="n">1</span>) ? len[top - <span class="n">1</span>] : <span class="n">0</span>;   <span class="c">// 继承栈里前一个位置的匹配长度</span>
+        <span class="k">while</span> (j &amp;&amp; s[i] != t[j]) j = fail_[j - <span class="n">1</span>];
+        <span class="k">if</span> (s[i] == t[j]) ++j;
+        len[top] = j;
+        <span class="k">if</span> (j == m) top -= m;                   <span class="c">// 整段 T 弹出，指针自动回到删除前的位置</span>
+    }
+
+    stk[top + <span class="n">1</span>] = <span class="s">'\0'</span>;
+    <span class="k">cout</span> &lt;&lt; (stk + <span class="n">1</span>) &lt;&lt; <span class="s">'\n'</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b339">关键片段拆解</div><table class="lines"><thead><tr><th id="b340">片段</th><th id="b341">作用</th></tr></thead><tbody><tr><td id="b342"><code>int j = (top &gt; 1) ? len[top - 1] : 0;</code></td><td id="b343">★ 本题唯一的新东西：j 从栈里前一个位置的值出发，而不是从 0 重来；弹栈之后这个值依然有效。</td></tr><tr><td id="b344"><code>while (j &amp;&amp; s[i] != t[j]) j = fail_[j - 1];</code></td><td id="b345">标准 KMP 失配跳转，主串指针 i 永不回退。</td></tr><tr><td id="b346"><code>if (j == m) top -= m;</code></td><td id="b347">凑满整段就弹，弹的是 m 个字符而不是 1 个；弹完不用重扫。</td></tr><tr><td id="b348"><code>fail_[0] = 0; for (int i = 1; i &lt; m; ++i)</code></td><td id="b349">fail 只依赖模式串，算一次就能反复用——这正是 KMP 相对暴力的优势所在。</td></tr><tr><td id="b350"><code>stk[top + 1] = '\0';</code></td><td id="b351">把栈当字符串直接输出：末尾补 0，从 stk+1 开始打印。</td></tr><tr><td id="b352"><code>(top &gt; 1) ? ... : 0</code></td><td id="b353">栈里只剩 1 个字符时没有「前一个位置」，只能从 0 起。漏掉这个判断会读到 len[0]。</td></tr></tbody></table><div class="box warn"><div class="t" id="b354">这题最容易错的地方</div><ul><li id="b355">每删一次就重新 KMP 一遍：|T| = 1 时退化成 O(|S|²) = 10<sup>12</sup>，必 TLE。</li><li id="b356">len[] 按字符在原串中的下标记：删除会让下标错位，必须按栈下标记录。</li><li id="b357">删除时只 pop 掉一个字符：一次要弹 |T| 个，少弹答案会变长。</li><li id="b358">用 string::erase 实现删除：单次 O(|S|) 的搬移，最坏是 10<sup>6</sup>×10<sup>6</sup> 次字符复制。</li></ul></div></div></details></div><div class="box info"><div class="t" id="b359">延伸阅读 / 参考</div><ul><li id="b360">《算法竞赛进阶指南》0x15 字符串：KMP 与最小表示法</li><li id="b361">《算法竞赛入门笔记》字符串匹配章节：border 与周期</li><li id="b362">《算法竞赛试炼场：洛谷300题精析》P3375、P4391 两题的精析</li><li id="b363">《算法竞赛黄金法则：提高算法和思考力的77项技巧》中“用势能分析估复杂度”的思路</li></ul></div>
+
+<footer>算竞教程 · 算竞教程 · 生成于自建课程体系，题目版权归洛谷及各命题方所有<br>
+转载请注明出处；模板代码可直接用于比赛</footer>

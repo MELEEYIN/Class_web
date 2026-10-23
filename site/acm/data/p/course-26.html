@@ -1,0 +1,227 @@
+
+<div class="box info"><div class="t" id="b0">本节出现的新函数 / 新语法（先看懂再用）</div><ul><li id="b1"><a href="#fn-0">queue（队列）</a> —— 先进先出，BFS 的发动机</li><li id="b2"><a href="#fn-1">pair 与 make_pair（把两个值绑成一个）</a> —— 把 (行, 列) 打包成一个元素塞进队列</li><li id="b3"><a href="#fn-2">memset（把数组的每个字节设成同一个值）</a> —— 一行把 int 数组刷成 −1 或 0</li></ul></div><p id="b4">第 24 节的 DFS 回答的是“能不能走到”。这一节回答“最少几步”。两个问法只差一个字，算法完全不同：DFS 一次沿一条路走到黑，要比较“最少”就得把所有路径长度都试一遍，棋盘上路径数是指数级的；BFS 换一种走法，把距离相同的点攒成一批一起处理，谁先被算出来，谁的答案就是最短的。</p><div class="quote" id="b5">BFS 只做一件事：把距离为 k 的点全部处理完，再处理距离为 k+1 的点。队列的先进先出，就是这个顺序的物理实现。</div><table><thead><tr><th id="b6"></th><th id="b7">DFS</th><th id="b8">BFS</th></tr></thead><tbody><tr><td id="b9">数据结构</td><td id="b10">栈（递归调用）</td><td id="b11">队列 queue</td></tr><tr><td id="b12">访问顺序</td><td id="b13">一条路走到底，退回来再换</td><td id="b14">按距离一圈一圈往外扩</td></tr><tr><td id="b15">第一次到某点</td><td id="b16">不一定是最短路</td><td id="b17">一定是最短路（边权全为 1 时）</td></tr><tr><td id="b18">擅长</td><td id="b19">连通性、枚举所有方案、回溯</td><td id="b20">无权最短路、最少步数、扩散类问题</td></tr><tr><td id="b21">复杂度</td><td id="b22">O(V + E)</td><td id="b23">O(V + E)</td></tr></tbody></table><ul><li id="b24"><b>队列</b>：先进先出。近的点排在前面，这就是“分层”。</li><li id="b25"><b>入队即标记</b>：<code>q.push(v)</code> 的下一句（甚至同一句）就写 <code>dis[v] = dis[u] + 1</code>。等出队才标记，同一个点会被好几个前驱各塞一次。</li><li id="b26"><b>dis 初值 −1</b>：−1 同时表示“没到过”。初值用 0 的话，源点（距离 0）和没访问的点分不清。</li></ul><p id="b27">这一节要新增三样东西：一个容器、一个打包工具、一行批量初始化。先把结构看清楚。</p><div class="fn"><div class="fh" id="b28">新函数拆解 · queue（队列）</div><div class="fb"><div class="sig" id="b29">queue&lt;类型&gt; q;   q.push(v);   q.front();   q.pop();   q.empty();</div><table class="lines"><thead><tr><th id="b30">组成</th><th id="b31">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b32"><code>queue&lt;int&gt; q;</code></td><td id="b33">声明一个放 int 的队列。尖括号里可以是任何类型：pair、结构体、string。</td></tr><tr><td id="b34"><code>q.push(v)</code></td><td id="b35">把 v 放到队尾。返回 void。</td></tr><tr><td id="b36"><code>q.front()</code></td><td id="b37">只看队首，不删除。要用的值必须先取出来存进变量。</td></tr><tr><td id="b38"><code>q.pop()</code></td><td id="b39">删除队首。<b>它不返回被删的元素</b>，所以 front 和 pop 必须成对写，顺序不能反。</td></tr><tr><td id="b40"><code>q.empty()</code></td><td id="b41">队列空返回 true。取 front 之前必须确认它不空。</td></tr><tr><td id="b42"><code>q.size()</code></td><td id="b43">当前元素个数。</td></tr><tr><td id="b44"><code>没有 clear、不能下标</code></td><td id="b45">queue 不支持 <code>q.clear()</code>，也不支持 <code>q[i]</code>。多测要清空就重新声明一个，或者 <code>while (!q.empty()) q.pop();</code>。</td></tr></tbody></table><div class="cap" id="b46">最小可运行示例</div><div class="cap" id="b47">示例</div><pre id="b48"><code><span class="k">queue</span>&lt;<span class="k">int</span>&gt; q;
+q.<span class="f">push</span>(<span class="n">1</span>); q.<span class="f">push</span>(<span class="n">2</span>); q.<span class="f">push</span>(<span class="n">3</span>);      <span class="c">// 从队尾进</span>
+
+<span class="k">while</span> (!q.<span class="k">empty</span>()) {
+    <span class="k">int</span> u = q.<span class="f">front</span>();                <span class="c">// ① 先取队首</span>
+    q.<span class="f">pop</span>();                          <span class="c">// ② 再删掉它</span>
+    <span class="k">cout</span> &lt;&lt; u &lt;&lt; <span class="s">" "</span>;                 <span class="c">// 输出 1 2 3：先进先出</span>
+}</code></pre><div class="box tip"><div class="t" id="b49">注意</div><p id="b50"><code>int u = q.pop();</code> 编译不过：pop() 的返回类型是 void。</p><p id="b51">空队列上取 front / pop 是未定义行为，本地可能返回垃圾，线上直接 RE。</p></div></div></div><div class="fn"><div class="fh" id="b52">新函数拆解 · pair 与 make_pair（把两个值绑成一个）</div><div class="fb"><div class="sig" id="b53">pair&lt;int,int&gt; p = make_pair(x, y);   p.first;   p.second;</div><table class="lines"><thead><tr><th id="b54">组成</th><th id="b55">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b56"><code>pair&lt;A,B&gt;</code></td><td id="b57">把两个值（类型可以不同）打包成一个整体。BFS 里用它同时存行和列。</td></tr><tr><td id="b58"><code>make_pair(x, y)</code></td><td id="b59">按 x、y 的类型自动造一个 pair，不用手写尖括号里的类型。</td></tr><tr><td id="b60"><code>p.first / p.second</code></td><td id="b61">取第一个、第二个分量。它们是成员变量，不是函数，不加括号。</td></tr><tr><td id="b62"><code>{x, y}</code></td><td id="b63">C++11 起可以直接用花括号构造，<code>q.push({nx, ny})</code> 与 make_pair 等价。</td></tr><tr><td id="b64"><code>自带比较</code></td><td id="b65">pair 按字典序比较：先比 first，相等再比 second。所以能直接放进 set / map / sort。</td></tr><tr><td id="b66"><code>嵌套写法</code></td><td id="b67">queue&lt;pair&lt;int,int&gt;&gt; 在 C++11 之前要写成 &gt; &gt; 中间留空格，现在直接写即可。</td></tr></tbody></table><div class="cap" id="b68">最小可运行示例</div><div class="cap" id="b69">示例</div><pre id="b70"><code><span class="k">pair</span>&lt;<span class="k">int</span>,<span class="k">int</span>&gt; s = <span class="f">make_pair</span>(<span class="n">3</span>, <span class="n">5</span>);
+<span class="k">cout</span> &lt;&lt; s.<span class="k">first</span> &lt;&lt; <span class="s">" "</span> &lt;&lt; s.<span class="k">second</span> &lt;&lt; <span class="s">"\n"</span>;     <span class="c">// 3 5</span>
+
+<span class="k">queue</span>&lt;<span class="k">pair</span>&lt;<span class="k">int</span>,<span class="k">int</span>&gt;&gt; q;                 <span class="c">// 存坐标的队列</span>
+q.<span class="f">push</span>(<span class="f">make_pair</span>(<span class="n">1</span>, <span class="n">2</span>));
+q.<span class="f">push</span>({<span class="n">3</span>, <span class="n">4</span>});                         <span class="c">// C++11 写法，等价</span>
+
+<span class="k">pair</span>&lt;<span class="k">int</span>,<span class="k">int</span>&gt; cur = q.<span class="f">front</span>();
+<span class="k">int</span> x = cur.<span class="k">first</span>, y = cur.<span class="k">second</span>;      <span class="c">// 拆开用，比每次写 cur.first 清楚</span></code></pre><div class="box tip"><div class="t" id="b71">注意</div><p id="b72">pair 没有下标，<code>p[0]</code> 编译不过。</p><p id="b73">pair 的两个 int 各存什么全靠你自己的约定。在注释里写死“first 是行、second 是列”，能省一半调试时间。</p></div></div></div><div class="fn"><div class="fh" id="b74">新函数拆解 · memset（把数组的每个字节设成同一个值）</div><div class="fb"><div class="sig" id="b75">memset(dis, -1, sizeof(dis));      // 每一项变成 -1</div><table class="lines"><thead><tr><th id="b76">组成</th><th id="b77">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b78"><code>首地址</code></td><td id="b79">数组名 dis 会自动退化成指针。只对真正的数组有效；如果传的是函数参数（指针），sizeof 会变成 8 字节，只填了开头一点。</td></tr><tr><td id="b80"><code>第二个参数</code></td><td id="b81">要填的<b>字节</b>，不是 int 值。它逐字节覆盖，所以只有 0、−1 这类“四个字节全一样”的数值才填得出想要的 int。</td></tr><tr><td id="b82"><code>sizeof(dis)</code></td><td id="b83">总字节数。数组必须在这一层作用域可见，否则算错。</td></tr><tr><td id="b84"><code>为什么 −1 可以</code></td><td id="b85">−1 的补码是 32 个 1，拆成 4 个字节是 FF FF FF FF，逐字节填 FF 拼回来仍然是 −1。</td></tr><tr><td id="b86"><code>为什么 1 不行</code></td><td id="b87">填 1 得到 0x01010101 = 16843009，不是 1。这是 memset 最经典的坑。</td></tr><tr><td id="b88"><code>替代写法</code></td><td id="b89"><code>int dis[N][M] = {};</code> 只能全 0。要全 −1 又不想 memset，就另开一个 vis 数组记“到过没有”。</td></tr></tbody></table><div class="cap" id="b90">最小可运行示例</div><div class="cap" id="b91">示例</div><pre id="b92"><code><span class="k">int</span> dis[<span class="n">405</span>][<span class="n">405</span>];
+<span class="k">memset</span>(dis, -<span class="n">1</span>, <span class="k">sizeof</span>(dis));     <span class="c">// 全变成 -1：没到过</span>
+<span class="k">memset</span>(dis, <span class="n">0</span>,  <span class="k">sizeof</span>(dis));     <span class="c">// 全变成 0</span>
+<span class="c">// memset(dis, 1, sizeof(dis));   // ✗ 每一项会变成 16843009</span></code></pre><div class="box tip"><div class="t" id="b93">注意</div><p id="b94"><code>memset(dis, 0x3f, sizeof dis)</code> 得到 1061109567，常当“无穷大”：它小于 INT_MAX，两个相加也不溢出。</p><p id="b95">多测时 memset 必须放在每组数据的开头，不能放在读入之后。</p></div></div></div><div class="prob"><div class="ph"><span class="pn" id="b96">例题 · 回家</span><span class="oi">洛谷 P2802</span><span class="badge diff">普及-</span><a href="https://www.luogu.com.cn/problem/P2802" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b97">小 H 在一个 n×m 的方格地图上，格子含义：<code>0</code> 障碍、<code>1</code> 空地、<code>2</code> 小 H 的出发点（也是空地）、<code>3</code> 家、<code>4</code> 有鼠标的空地。</p><p id="b98">小 H 初始有 6 点血量，每移动一格（上下左右）消耗 1 点；血量降到 0 就死了，即使这一格上有鼠标也救不回来。走到有鼠标的格子上会立刻把血量补满到 6（经过几次补几次）。</p><p id="b99">求回到家所需的最短时间（步数）；回不去输出 -1。</p><p id="b100">输入格式：第一行两个整数 n、m（1 ≤ n, m ≤ 9）；接下来 n 行，每行 m 个数字，数字之间没有空格。</p><p id="b101">输出格式：一行一个整数，最短步数；无法回家输出 -1。</p></div><div class="io" id="b102">输入：
+5 5
+21111
+10101
+11411
+10111
+11113
+输出：
+8</div></div><div class="step"><div class="sh" id="b103">例题怎么想：先写熟模板，再想清楚“状态里该放什么”</div><p id="b104">先按第 26 节的标准模板问两句话。<b>状态是什么？</b>——这个问题不好答：只记 (行, 列) 不够。同一个格子，用 5 点血走到和用 2 点血走到，接下来能走的路完全不同。所以状态必须带上血量：<b>(行, 列, 剩余血量)</b>。</p><p id="b105"><b>从状态能到哪些状态？</b>——上下左右四个方向。走到 (nx, ny) 时血量 −1；若 −1 之后血量变成 0，这一步本身就不合法；若目标格是鼠标，血量立刻变回 6。每一步代价都是 1，所以用 BFS。</p><p id="b106">为什么不能只用 <code>dis[x][y] = 步数</code> 判重：那样第二次、第三次走到同一格都会被当成“到过了”而剪掉，可它们可能带着更多血量。正确做法是把“到过没到过”换成“<b>到过时最多剩多少血</b>”：<code>best[x][y]</code> 记到达这一格时见过的最大血量，新状态若血量不更大就剪掉。</p><div class="cap" id="b107">带状态的 BFS 骨架</div><pre id="b108"><code><span class="k">memset</span>(best, -<span class="n">1</span>, <span class="k">sizeof</span>(best));      <span class="c">// ① -1 表示没到过</span>
+q.<span class="f">push</span>({sx, sy, <span class="n">6</span>});  best[sx][sy] = <span class="n">6</span>;
+<span class="k">while</span> (!q.<span class="k">empty</span>()) {                 <span class="c">// ③ 一层一层往外扩</span>
+    <span class="k">auto</span> u = q.<span class="f">front</span>(); q.<span class="f">pop</span>();     <span class="c">//    u 里带 (x, y, hp, step)</span>
+    <span class="k">for</span> (四个方向) {
+        <span class="k">int</span> hp = u.hp - <span class="n">1</span>;
+        <span class="k">if</span> (格子是障碍 || hp &lt;= <span class="n">0</span>) <span class="k">continue</span>;   <span class="c">// ② 转移的合法性</span>
+        <span class="k">if</span> (格子是鼠标) hp = <span class="n">6</span>;                <span class="c">//    补满</span>
+        <span class="k">if</span> (格子是家) 输出 u.step + <span class="n">1</span> 并结束;
+        <span class="k">if</span> (hp &lt;= best[nx][ny]) <span class="k">continue</span>;      <span class="c">// ④ 剪掉“血更少或相同”的重复状态</span>
+        best[nx][ny] = hp;  q.<span class="f">push</span>({nx, ny, hp, u.step + <span class="n">1</span>});
+    }
+}</code></pre><p id="b109">为什么这一步剪枝是安全的：同一格、步数更多、血量还更少的状态，在任何后续走法下都不可能更优——它被另一个状态全面压制。而“第一次走到家”依然是最短步数，因为 BFS 按步数非降地扩展。</p><p id="b110">规模：n, m ≤ 9，状态数 ≤ 81 × 7 种血量 = 567 个，BFS 秒出。真正难的不是复杂度，而是“想到把血量放进状态”。</p></div><div class="cap" id="b111">完整代码</div><pre id="b112"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> n, m, g[<span class="n">15</span>][<span class="n">15</span>];
+<span class="k">int</span> best[<span class="n">15</span>][<span class="n">15</span>];                    <span class="c">// best[x][y]：到达 (x,y) 时能保留的最大血量，-1 表示没到过</span>
+<span class="k">int</span> dx[<span class="n">4</span>] = {-<span class="n">1</span>, <span class="n">1</span>, <span class="n">0</span>, <span class="n">0</span>};
+<span class="k">int</span> dy[<span class="n">4</span>] = {<span class="n">0</span>, <span class="n">0</span>, -<span class="n">1</span>, <span class="n">1</span>};
+
+<span class="k">struct</span> State { <span class="k">int</span> x, y, hp, step; };
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; m;
+    <span class="k">int</span> sx = <span class="n">0</span>, sy = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i)
+        <span class="k">for</span> (<span class="k">int</span> j = <span class="n">1</span>; j &lt;= m; ++j) {
+            <span class="k">char</span> c; <span class="k">cin</span> &gt;&gt; c;
+            g[i][j] = c - <span class="s">'0'</span>;
+            <span class="k">if</span> (g[i][j] == <span class="n">2</span>) { sx = i; sy = j; }
+            best[i][j] = -<span class="n">1</span>;
+        }
+
+    <span class="k">queue</span>&lt;State&gt; q;
+    q.<span class="f">push</span>({sx, sy, <span class="n">6</span>, <span class="n">0</span>});
+    best[sx][sy] = <span class="n">6</span>;                <span class="c">// ★ 入队的同一时刻标记，别等出队</span>
+
+    <span class="k">while</span> (!q.<span class="k">empty</span>()) {
+        State u = q.<span class="f">front</span>(); q.<span class="f">pop</span>();
+        <span class="k">for</span> (<span class="k">int</span> k = <span class="n">0</span>; k &lt; <span class="n">4</span>; ++k) {
+            <span class="k">int</span> nx = u.x + dx[k], ny = u.y + dy[k];
+            <span class="k">if</span> (nx &lt; <span class="n">1</span> || nx &gt; n || ny &lt; <span class="n">1</span> || ny &gt; m) <span class="k">continue</span>;   <span class="c">// 先判越界</span>
+            <span class="k">if</span> (g[nx][ny] == <span class="n">0</span>) <span class="k">continue</span>;                          <span class="c">// 障碍</span>
+            <span class="k">int</span> hp = u.hp - <span class="n">1</span>;                                     <span class="c">// 走一格的代价</span>
+            <span class="k">if</span> (hp &lt;= <span class="n">0</span>) <span class="k">continue</span>;                                 <span class="c">// 死在半路，这一步不合法</span>
+            <span class="k">if</span> (g[nx][ny] == <span class="n">4</span>) hp = <span class="n">6</span>;                            <span class="c">// 鼠标：瞬间补满</span>
+            <span class="k">if</span> (g[nx][ny] == <span class="n">3</span>) { <span class="k">cout</span> &lt;&lt; u.step + <span class="n">1</span> &lt;&lt; <span class="s">"\n"</span>; <span class="k">return</span> <span class="n">0</span>; }  <span class="c">// 第一次到家即最短</span>
+            <span class="k">if</span> (hp &lt;= best[nx][ny]) <span class="k">continue</span>;                      <span class="c">// 血不更多 → 被别的状态压制</span>
+            best[nx][ny] = hp;
+            q.<span class="f">push</span>({nx, ny, hp, u.step + <span class="n">1</span>});
+        }
+    }
+    <span class="k">cout</span> &lt;&lt; -<span class="n">1</span> &lt;&lt; <span class="s">"\n"</span>;              <span class="c">// 队列空了还没到家</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b113">逐行拆解</div><table class="lines"><thead><tr><th id="b114">代码片段</th><th id="b115">含义与理由</th></tr></thead><tbody><tr><td id="b116"><code>int best[15][15];</code></td><td id="b117">判重数组换成了“最大血量”。值域是 1..6，用 −1 表示没到过，正好和血量不冲突。</td></tr><tr><td id="b118"><code>struct State { int x, y, hp, step; };</code></td><td id="b119">队列元素带四个量。BFS 的“层”信息靠 step 显式带着，比额外维护一层循环更好写。</td></tr><tr><td id="b120"><code>q.push({sx, sy, 6, 0}); best[sx][sy] = 6;</code></td><td id="b121">入队与标记必须紧挨着。若漏了标记，起点会被反复入队。</td></tr><tr><td id="b122"><code>if (g[nx][ny] == 0) continue;</code></td><td id="b123">障碍不可通行。注意 0 也用来表示“空格子以外”的一切，先把地图读成数字，判断只需一次比较。</td></tr><tr><td id="b124"><code>int hp = u.hp - 1;  if (hp &lt;= 0) continue;</code></td><td id="b125">代价在“进入下一格”时结算，而且必须在补血之前判死：题面说死在鼠标格上也不能补。</td></tr><tr><td id="b126"><code>if (g[nx][ny] == 4) hp = 6;</code></td><td id="b127">鼠标补满。因为每次路过都补，所以同一格可以多次经过——这正是不能简单用“到过没”判重的原因。</td></tr><tr><td id="b128"><code>if (g[nx][ny] == 3) { ... return 0; }</code></td><td id="b129">第一次到达家就是最短步数：BFS 按步数非降扩展，更短的走法一定先被生成。</td></tr><tr><td id="b130"><code>if (hp &lt;= best[nx][ny]) continue;</code></td><td id="b131">核心剪枝。等于也剪——血一样多、步数更多，同样是被压制。</td></tr><tr><td id="b132"><code>best[nx][ny] = hp;</code></td><td id="b133">更新“见过的最大血”。注意它是贪心地取最大，不需要存整张血量表。</td></tr></tbody></table></div><p id="b134">把“一个源点”改成“很多个源点”，代码只改一处：初始时把所有源点都 push 进队列、dis 都设 0，之后的过程一个字不动。</p><p id="b135">为什么这样是对的？想象棋盘外有一个虚拟的超级源点 S，它到每个真源点都有一条权为 1 的边。从 S 出发做 BFS，第一层恰好是全部真源点，第二层是“离某个源点 1 步”的格子……把 S 那一层去掉，剩下的就是多源 BFS。所以“每个格子到最近源点的距离”一次 BFS 就能算完，不需要对每个源点各跑一遍。</p><div class="cap" id="b136">多源 BFS：只改初始化</div><pre id="b137"><code><span class="c">// k 个源点，一次 BFS 求出每个格子到最近源点的距离</span>
+<span class="k">memset</span>(dis, -<span class="n">1</span>, <span class="k">sizeof</span>(dis));
+<span class="k">while</span> (k--) {
+    <span class="k">int</span> x, y;
+    <span class="k">cin</span> &gt;&gt; x &gt;&gt; y;
+    dis[x][y] = <span class="n">0</span>;
+    q.<span class="f">push</span>(<span class="f">make_pair</span>(x, y));      <span class="c">// ★ 所有源点一起入队，不是只 push 第一个</span>
+}
+<span class="c">// 下面的 while (!q.empty()) 与单源 BFS 完全一样</span></code></pre><div class="box tip"><div class="t" id="b138">怎么判断该用多源</div><p id="b139">题目问的是“到<b>最近的</b>某个东西的距离”，而不是“到<b>指定的</b>那个东西的距离”。</p><p id="b140">典型场景：每个格子离最近的火源要烧多久、离最近的出口多远、多个起点的队伍同时出发什么时候会合。</p><p id="b141">如果对每个源点各跑一次 BFS，复杂度是 k × nm，k 一多就 TLE——这正是多源 BFS 存在的理由。</p></div><p id="b142">BFS 的三条铁律里，没有一条要求状态必须是格子。只要满足两件事就能用 BFS：<b>状态数量有限</b>、<b>任意两个状态之间的转移代价都是 1</b>。</p><p id="b143">比如电梯问题：状态是楼层号，转移只有“上 K[u] 层”和“下 K[u] 层”两条。把坐标 + 8 个方向换成楼层 + 2 个方向，模板一个字都不用改。</p><div class="cap" id="b144">同一套骨架，换个状态</div><pre id="b145"><code><span class="k">queue</span>&lt;<span class="k">int</span>&gt; q;                       <span class="c">// 状态只是一个整数，队列就存 int</span>
+q.<span class="f">push</span>(A);
+dis[A] = <span class="n">0</span>;
+
+<span class="k">while</span> (!q.<span class="k">empty</span>()) {
+    <span class="k">int</span> u = q.<span class="f">front</span>(); q.<span class="f">pop</span>();
+    <span class="k">int</span> nxt[<span class="n">2</span>] = { u + K[u], u - K[u] };        <span class="c">// 两条出边</span>
+    <span class="k">for</span> (<span class="k">int</span> t = <span class="n">0</span>; t &lt; <span class="n">2</span>; ++t) {
+        <span class="k">int</span> v = nxt[t];
+        <span class="k">if</span> (v &lt; <span class="n">1</span> || v &gt; N) <span class="k">continue</span>;           <span class="c">// 出界：这个按钮失灵</span>
+        <span class="k">if</span> (dis[v] != -<span class="n">1</span>) <span class="k">continue</span>;             <span class="c">// 已经用更少的步数到过</span>
+        dis[v] = dis[u] + <span class="n">1</span>;
+        q.<span class="f">push</span>(v);
+    }
+}</code></pre><p id="b146">这就是 BFS 模板的价值：写熟一遍，之后每道题只填两件事——<b>状态是什么</b>、<b>从状态能到哪些状态</b>。其余部分（队列、标记、距离 +1）永远相同。</p><table><thead><tr><th id="b147">题目</th><th id="b148">状态</th><th id="b149">转移</th></tr></thead><tbody><tr><td id="b150">回家</td><td id="b151">(行, 列) + 剩余血量</td><td id="b152">4 个方向，每步 −1 血，踩到鼠标补满</td></tr><tr><td id="b153">迷宫最短路</td><td id="b154">(行, 列)</td><td id="b155">上下左右 4 个方向</td></tr><tr><td id="b156">机器人搬重物</td><td id="b157">(行, 列, 朝向)</td><td id="b158">转向 90° / 前进 1~3 格，各花 1 秒</td></tr><tr><td id="b159">倒水问题</td><td id="b160">(A 杯水量, B 杯水量)</td><td id="b161">倒满 / 倒空 / 互相倒，共 6 种</td></tr><tr><td id="b162">单词接龙</td><td id="b163">当前单词</td><td id="b164">改一个字母，要求在词典里</td></tr></tbody></table><div class="box warn"><div class="t" id="b165">BFS 的 7 种典型错法（含症状）</div><p id="b166"><b>WA：除源点外全是 −1</b>。—— dis 没置 −1（全局数组默认 0），判重条件 <code>dis != -1</code> 对所有格子都成立，第一次扩展就全被跳过。</p><p id="b167"><b>WA：答案偏大</b>。—— 在出队时才标记。同一个格子被多个前驱各 push 一次，队列膨胀；如果 dis 又在 push 时被无条件覆盖，后写入的较大距离会盖掉先写入的最小值。标记要和 push 同时发生。</p><p id="b168"><b>RE（内存吃光）或 TLE 死循环</b>。—— 删掉判重那一行。棋盘有环，A→B→A 会无限入队，几秒内队列吃掉几十 MB 然后 RE。</p><p id="b169"><b>RE：数组越界</b>。—— 棋盘是 1-based 却写成 <code>nx &lt; 0</code>，或者根本不判越界。数组开 405 时 n = 400 读到 dis[401][*] 不会立刻崩，症状是随机 WA。</p><p id="b170"><b>WA：大片格子变成 −1</b>。—— 方向数组少写了几组，或者 dx/dy 的正负号没配对（<code>dx[k]</code> 与 <code>dy[k]</code> 必须同属一个方向）。</p><p id="b171"><b>TLE：多源题写成了单源循环</b>。—— 对每个源点各跑一次 BFS，复杂度 k × nm。多源 BFS 只跑一次。</p><p id="b172"><b>WA：每个格子都比正确答案少 1，源点变成 −1</b>。—— push 了源点却忘了写 <code>dis[sx][sy] = 0</code>，于是第一层算出的是 −1 + 1 = 0，整张表跟着错位。</p></div><div class="box warn"><div class="t" id="b173">多源与状态抽象的 3 个坑</div><p id="b174">只 push 了第一个源点，后面的都当成普通点：答案只对第一个源点正确。</p><p id="b175">多源时忘了先 <code>memset(dis, -1, ...)</code>：dis 全是 0，判重把所有格子都当成“已到过”，BFS 一步都扩不出去，输出全 0。</p><p id="b176">状态维度估少了。若状态是 (行, 列, 朝向)，dis 必须开三维；只开二维会让不同朝向互相覆盖，答案偏小。</p></div><div class="reproduce"><div class="rt" id="b177">自己动手复现</div><p id="b178">关掉页面，从空文件把 P2802 敲一遍并提交，样例必须输出 8。</p><p id="b179">改一改 ①：把 <code>if (hp &lt;= best[nx][ny]) continue;</code> 换成简单的“到过就不再走”（<code>if (best[nx][ny] != -1) continue;</code>），输入样例，看答案会变成多少——这一行就是“状态里必须带血量”的最直接证据。</p><p id="b180">改一改 ②：把 <code>if (hp &lt;= 0) continue;</code> 和补血那行交换顺序（先补血再判死），造一组“最后一步踩在鼠标上”的数据，看答案会不会变成一个不存在的解。</p><p id="b181">改一改 ③：删掉 <code>best[sx][sy] = 6;</code>，输入样例，看程序会不会变慢或输出错——这就是“入队与标记必须同时”的老坑。</p><p id="b182">改一改 ④：把队列元素换成只存 (x, y)，用一层 for 循环数步数，对着样例验证两种写法答案一致——顺便体会为什么“层”要显式带在状态里。</p></div><div class="mathcard"><div class="mt" id="b183">数学补给 · 队列里永远只有两种距离</div><p id="b184">BFS 的正确性可以压缩成两条断言，每条两三行就能证完。</p><p id="b185"><b>断言 1</b>：任意时刻，队列中元素的 dis 值单调不降，且最多只有两种取值：t 和 t+1。</p><p id="b186"><b>证明</b>：初始时队列里只有源点，dis = 0，成立。设当前队首 dis = t。出队后，我们把所有新点按 <code>dis = t+1</code> 压到队尾。原来队里的元素 dis ∈ {t, t+1}，新压入的是 t+1，所以队里仍是非降的，取值仍是至多两种。∎</p><p id="b187"><b>断言 2</b>：点 v 第一次被写入的 dis 值，就是 v 到源点的最短距离 d(v)。</p><p id="b188"><b>证明（对 d 归纳）</b>：d = 0 时只有源点，显然。设所有 d &lt; k 的点都写对了，考察 d = k 的点 v。取最短路上紧挨着 v 的前驱 u，有 d(u) = k−1，由归纳假设 dis(u) 已正确写成 k−1。u 出队时会尝试扩展 v：若 v 还没被写过，就写入 k。若 v 在此之前已被某个点 w 写过，则 w 出队早于 u，由断言 1（队列非降）得 dis(w) ≤ k−1，所以写入值 ≤ k；另一方面，任何能到达 v 的点 x 都有 d(x) ≥ k−1（否则 v 的最短距离还能更小），所以写入值 ≥ k。两边夹住，dis(v) = k。∎</p><p id="b189"><b>推论（复杂度）</b>：每个状态最多入队一次、出队一次，每条转移边只被检查一次，所以是 O(V + E)。本题 V = n·m ≤ 160000，E = 8V，约 1.28×10⁶ 次检查。</p><p id="b190"><b>边界在哪</b>：断言 1 的归纳只用到“每次新增的距离恰好是 t+1”。若某条边权是 2，队列里就会出现 t+2，取值超过两种，“最近的一批先出队”不再成立，第一次到达也不再是最短。边权不全为 1 时要用 Dijkstra（第 42 节），只有 0 和 1 两种权时用 0-1 BFS（第 28 节）。</p><p id="b191"><b>顺带一个字节运算</b>：<code>memset(dis, -1, ...)</code> 之所以成立，是因为 −1 的补码是 32 个 1，4 个字节完全相同；<code>0x3f3f3f3f</code> = 1061109567 也满足“四字节相同”，而且它小于 2³⁰，两个相加不超过 int 上限，所以常被当无穷大用。</p></div><div class="think"><div class="tt" id="b192">举一反三 · 想清楚这些再往下走</div><div class="thint">先自己写出答案，再点开核对——方向对不对，比答案本身更重要</div><ol><li id="b193"><div class="tq">把“马走日”换成“只能上下左右走”：没有障碍时，BFS 算出来的答案正好等于曼哈顿距离 |Δx| + |Δy|。那么这题还需要 BFS 吗？如果棋盘上加了若干不能通过的格子，直接套公式还成立吗？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">不需要 BFS：没有障碍时最短步数就是 |Δx| + |Δy|，O(1) 算，BFS 只是把同一个公式重复验证很多遍。加了障碍公式立刻失效——最短路径可能被迫“往回走”（绕凹形墙），步数等于曼哈顿距离加上两倍的绕行量，而“该绕多远”没有任何闭式能表达，只能 BFS。常见错路：先算曼哈顿距离，再检查“那条直线上的格子是不是都是空地”，是就输出公式值——反例很好造（墙斜着放，直线全通但两条单调路线都被挡），而且这种错只在特定数据上 WA。</div></details></li><li id="b194"><div class="tq">如果棋盘上有障碍格不能通过，BFS 只需要改哪两行代码？如果障碍是“可以炸开一次”的墙，状态要怎么加一维，dis 数组的维度会变成什么？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">要改的就是“能不能进入这一格”的判断：扩展前加一条 <code>if (g[nx][ny] == 障碍) continue;</code>，队列与标记逻辑一个字不动（若把地图直接当 vis，就是建图时把障碍标成不可入队）。如果障碍“可以炸开一次”，状态要加一维 <code>(x, y, used)</code>，used ∈ {0,1} 表示炸弹用了没有，<code>dis</code> 变成 <code>dis[n][m][2]</code>；转移时“走进墙格”只允许 used = 0 并把它改成 1，草地格保持 used 不变。常见错路：dis 只开二维，于是“炸过”和“没炸过”被当成同一状态，答案偏小（炸弹被重复使用）；另一种是忘了把 used 一起入队，出队时读的是已经过期的 flag。</div></details></li><li id="b195"><div class="tq">要求“从起点到终点的不同最短路径条数”，应该在 BFS 的哪一步累加？为什么不能简单地把邻居的 dis 相加？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">在“扩展出一条边 u→v”时累加：若 v 还没被访问，<code>cnt[v] = cnt[u]</code>；若 v 已被访问且 <code>dis[v] == dis[u] + 1</code>，再 <code>cnt[v] += cnt[u]</code>。不能把邻居的 dis 相加——要加的是“到达邻居的最短路径条数”，而且必须限定这条边确实在最短路上，否则绕远的路径也会被算进来。常见错路：在出队时统计（此时 v 的 cnt 还没累加完，会少算）；以及忘了把源点的 cnt 初始化为 1（全 0 传下去，答案恒 0）。</div></details></li><li id="b196"><div class="tq">如果边权只有 1 和 2 两种，BFS 还成立吗？上面断言 1 的归纳坏在哪一步？如果只有 0 和 1 两种呢，能不能用一个双端队列救回来？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">边权 1 和 2 时普通 BFS 不成立。断言 1 的归纳坏在“新压入的距离恰好是 t + 1”这一步：权 2 的边会产生 t + 2，队列里出现三种取值，队头不再是最小，某个点可能先被 t + 2 标上、之后才被 t + 1 找到，第一次写入就不是最短路。两种补救：用 Dijkstra（优先队列），或者“拆点”——在权 2 的边中间插一个虚拟点、拆成两条权 1 边，普通 BFS 又成立。只有 0 和 1 时用双端队列就行：0 权 push_front、1 权 push_back，队列里的距离仍然只有 d 和 d+1 两种且非降，队头最小。常见错路：给权 2 的边也 push_back，以为“多走一步会自然修正”——不会，它直接破坏了队列的分层性质。</div></details></li><li id="b197"><div class="tq">多源 BFS 与“从超级源点出发的 BFS”为什么等价？如果各个源点的初始距离不是 0 而是各不相同的值，还能一次 BFS 算完吗？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">等价性靠“虚拟超级源点”：加一个 S，S 到每个真源点连一条权 1 的边，从 S 做 BFS 时第一层恰好是全部真源点，所以“把它们全部入队、dis 置 0”就等价于删掉 S 那一层，一次 BFS 得到“到最近源点的距离”。若各源点的初始距离不同（源点 i 的初始代价是 c_i），就不再等价——多源 BFS 要求所有源点在同一层；这时要用 Dijkstra（把 (c_i, i) 全部压进优先队列），或者把权值拆成 0/1 用双端队列。常见错路：把不同初始距离的源点一起 push 却不排序，离得近的源点反而后处理，答案偏大。</div></details></li><li id="b198"><div class="tq">怎么在 BFS 里还原出一条具体的最短路径，而不只是它的长度？需要额外记录什么，从哪个点开始倒推？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">多记一个 <code>pre[x][y]</code>：BFS 第一次访问 v 时把 u 的坐标写进去（单位权 BFS 里 dis 一旦确定就不会再变，不必更新）。走完后从终点沿 pre 一路倒推到起点，把坐标压栈再反转输出，就是一条最短路径；pre 指向的正是最短路上的前驱，因为 v 第一次被访问就是从最短路来的。常见错路：在 0-1 BFS 或 Dijkstra 里也照抄“只在第一次访问时写 pre”——那里的距离会被松弛改小，前驱必须跟着更新，否则还原出来的路径不是最短；另一种是倒推时忘了把起点也压进栈，输出少一个点。</div></details></li></ol></div><div class="box tip"><div class="t" id="b199">自测：能全部回答再进下一节</div><ul><li id="b200">能不看资料默写 BFS 骨架：建队列、源点入队并标记、while 非空、出队、扩邻点、判重入队。</li><li id="b201">能说清为什么标记必须在入队时做，而不是出队时做——并给出一个具体的错误结果。</li><li id="b202">能解释 dis 初始化为 −1 的两个作用，并说清用 0 初始化会得到什么输出。</li><li id="b203">能说清“血量”为什么必须进状态，并写出 (行, 列, 朝向) 这类三维状态的转移。</li><li id="b204">拿到一道新题，能在 1 分钟内指出它的“状态”和“转移”，并判断代价是否全为 1。</li><li id="b205">知道多源 BFS 只改初始化那一段，能写出这段代码。</li></ul></div><div class="challenge"><div class="ct" id="b206">挑战题 · 机器人搬重物</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1126</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P1126" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b207">储藏室是一个 N×M 的网格，每个格子 0 表示空地、1 表示障碍。机器人的形状是一个直径 1.6 米的球，它的<b>中心永远停在格点上</b>；因为直径比格子边长（1 米）大，所以它同时占着以该格点为中心的 4 个格子。</p><p id="b208">它接受的指令只有五种，每条指令都花 1 秒：向前移动 1 格（Creep）、2 格（Walk）、3 格（Run）、向左转 90°、向右转 90°。移动过程中不能撞到障碍，也不能离开储藏室。</p><p id="b209">给定起点坐标、起点朝向（N 北 / S 南 / E 东 / W 西）和终点坐标，求到达终点的最少秒数。终点的朝向任意。</p><p id="b210">输入格式：第一行 N、M（1 ≤ N, M ≤ 50）；接下来 N 行，每行 M 个 0/1，空格分隔；最后一行四个整数和一个字母，依次是起点的行、列、终点的行、列和起点朝向。</p><p id="b211">输出格式：一行一个整数，最少秒数；无法到达输出 -1。（坐标指的是格子坐标，机器人的中心在它的左上角格点上。）</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b212">先算清楚“机器人站在哪个格点上是合法的”：它占着 4 个格子，这 4 个格子必须都是空地、而且都在储藏室里。</p><p id="b213">同一点朝不同方向，后续能做的事完全不同。所以状态不是“格点”，而是“格点 + 朝向”；把距离数组开成三维。</p><p id="b214">每条指令的代价都是 1 秒，所以是普通的 BFS，不是带权最短路。注意“走 2 格 / 3 格”也是 1 秒，但中间经过的格点必须全部合法。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b215"><b>第一步：把“格点是否合法”预处理出来。</b>格点 (i,j) 的合法性 = 它的 4 个相邻格子 (i,j)、(i+1,j)、(i,j+1)、(i+1,j+1) 都在 1..N × 1..M 内且都为空地。于是合法的 i 只能到 N−1、j 只能到 M−1——机器人永远碰不到最后一行、最后一列，因为它的“身体”伸不过去。</p><p id="b216"><b>第二步：状态。</b><code>(i, j, d)</code>，d = 0/1/2/3 表示东、南、西、北。距离数组开 <code>dist[55][55][4]</code>，初值 −1。为什么必须带方向：站在同一点朝东和朝南，“左转之后能去哪”完全不同，用二维数组会把它们错误地合并。</p><p id="b217"><b>第三步：转移（每条代价都是 1 秒）。</b>① 左转 <code>(i,j,(d+3)%4)</code>；② 右转 <code>(i,j,(d+1)%4)</code>；③ 前进 k = 1,2,3 步，落点必须合法，而且中途经过的格点也必须合法——走到第 2 步就撞墙时，第 3 步根本无从谈起，所以 <code>break</code> 而不是 <code>continue</code>。</p><p id="b218"><b>第四步：BFS 与答案。</b>所有边权都是 1，一层一层扩就是最短路。答案要取 <code>min(dist[tx][ty][0..3])</code>；如果终点合法但四个方向都是 −1，说明到不了。</p><p id="b219"><b>为什么“3 步只花 1 秒”不会破坏 BFS。</b>BFS 只要求边权相等，不要求状态之间只差一格。把“前进 1/2/3 步”看成三条并列的边，它们的权都是 1，BFS 仍然正确。</p><p id="b220"><b>量级。</b>状态数 = 50×50×4 = 10⁴，每个状态最多 5 条出边，总操作 5×10⁴，同层 BFS 一次扫完，用时可以忽略。</p><p id="b221"><b>易错的物理细节。</b>起点和终点给的是“格子的左上角”，所以机器人中心就是 (sx, sy) 这个格点；而终点的朝向任意，所以要在四个方向里取最小。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b222">参考代码</div><pre id="b223"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> n, m, a[<span class="n">55</span>][<span class="n">55</span>];
+<span class="k">int</span> dist[<span class="n">55</span>][<span class="n">55</span>][<span class="n">4</span>];                 <span class="c">// 三维：格点 (i,j) + 朝向 d</span>
+<span class="k">int</span> dx[<span class="n">4</span>] = {<span class="n">0</span>, <span class="n">1</span>, <span class="n">0</span>, -<span class="n">1</span>};           <span class="c">// 0 东、1 南、2 西、3 北</span>
+<span class="k">int</span> dy[<span class="n">4</span>] = {<span class="n">1</span>, <span class="n">0</span>, -<span class="n">1</span>, <span class="n">0</span>};
+
+<span class="k">bool</span> <span class="f">ok</span>(<span class="k">int</span> x, <span class="k">int</span> y) {              <span class="c">// 机器人中心在格点 (x,y) 是否合法</span>
+    <span class="k">if</span> (x &lt; <span class="n">1</span> || x &gt;= n || y &lt; <span class="n">1</span> || y &gt;= m) <span class="k">return</span> <span class="k">false</span>;   <span class="c">// 身体必须完全在室内</span>
+    <span class="k">return</span> !a[x][y] &amp;&amp; !a[x + <span class="n">1</span>][y] &amp;&amp; !a[x][y + <span class="n">1</span>] &amp;&amp; !a[x + <span class="n">1</span>][y + <span class="n">1</span>];
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; m;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i)
+        <span class="k">for</span> (<span class="k">int</span> j = <span class="n">1</span>; j &lt;= m; ++j) <span class="k">cin</span> &gt;&gt; a[i][j];
+
+    <span class="k">int</span> sx, sy, tx, ty; <span class="k">char</span> c;
+    <span class="k">cin</span> &gt;&gt; sx &gt;&gt; sy &gt;&gt; tx &gt;&gt; ty &gt;&gt; c;
+    <span class="k">int</span> d0 = (c == <span class="s">'E'</span> ? <span class="n">0</span> : c == <span class="s">'S'</span> ? <span class="n">1</span> : c == <span class="s">'W'</span> ? <span class="n">2</span> : <span class="n">3</span>);
+
+    <span class="k">if</span> (sx == tx &amp;&amp; sy == ty) { <span class="k">cout</span> &lt;&lt; <span class="n">0</span> &lt;&lt; <span class="s">"\n"</span>; <span class="k">return</span> <span class="n">0</span>; }
+    <span class="k">if</span> (!<span class="f">ok</span>(sx, sy)) { <span class="k">cout</span> &lt;&lt; -<span class="n">1</span> &lt;&lt; <span class="s">"\n"</span>; <span class="k">return</span> <span class="n">0</span>; }
+
+    <span class="k">memset</span>(dist, -<span class="n">1</span>, <span class="k">sizeof</span> dist);
+    <span class="k">queue</span>&lt;array&lt;<span class="k">int</span>, <span class="n">3</span>&gt;&gt; q;
+    dist[sx][sy][d0] = <span class="n">0</span>;
+    q.<span class="f">push</span>({sx, sy, d0});
+
+    <span class="k">while</span> (!q.<span class="k">empty</span>()) {
+        <span class="k">auto</span> u = q.<span class="f">front</span>(); q.<span class="f">pop</span>();
+        <span class="k">int</span> x = u[<span class="n">0</span>], y = u[<span class="n">1</span>], d = u[<span class="n">2</span>];
+        <span class="k">if</span> (x == tx &amp;&amp; y == ty) { <span class="k">cout</span> &lt;&lt; dist[x][y][d] &lt;&lt; <span class="s">"\n"</span>; <span class="k">return</span> <span class="n">0</span>; }
+
+        <span class="c">// 转向：每条 1 秒</span>
+        <span class="k">for</span> (<span class="k">int</span> nd : {(d + <span class="n">1</span>) % <span class="n">4</span>, (d + <span class="n">3</span>) % <span class="n">4</span>})
+            <span class="k">if</span> (dist[x][y][nd] == -<span class="n">1</span>) {
+                dist[x][y][nd] = dist[x][y][d] + <span class="n">1</span>;
+                q.<span class="f">push</span>({x, y, nd});
+            }
+
+        <span class="c">// 前进 1~3 步：中间任何一步不合法就 break</span>
+        <span class="k">for</span> (<span class="k">int</span> k = <span class="n">1</span>; k &lt;= <span class="n">3</span>; ++k) {
+            <span class="k">int</span> nx = x + dx[d] * k, ny = y + dy[d] * k;
+            <span class="k">if</span> (!<span class="f">ok</span>(nx, ny)) <span class="k">break</span>;                       <span class="c">// 中途撞墙，更远的也走不到</span>
+            <span class="k">if</span> (dist[nx][ny][d] == -<span class="n">1</span>) {
+                dist[nx][ny][d] = dist[x][y][d] + <span class="n">1</span>;
+                q.<span class="f">push</span>({nx, ny, d});
+            }
+        }
+    }
+    <span class="k">cout</span> &lt;&lt; -<span class="n">1</span> &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b224">关键片段拆解</div><table class="lines"><thead><tr><th id="b225">片段</th><th id="b226">作用</th></tr></thead><tbody><tr><td id="b227"><code>bool ok(int x, int y)</code></td><td id="b228">整个问题的“物理”就压在这一个函数里：中心在格点上时占 4 个格子，必须全部为空且都在室内。把它写成函数，后面每一处判断都只调它，不会漏掉某个角。</td></tr><tr><td id="b229"><code>if (x &lt; 1 || x &gt;= n || y &lt; 1 || y &gt;= m)</code></td><td id="b230">注意是 <code>&gt;= n</code> 而不是 <code>&gt; n</code>：中心在第 n 行时，它的身体要占到第 n+1 行，而那一行不存在。所以合法格点只到 (N−1, M−1)。</td></tr><tr><td id="b231"><code>int dist[55][55][4];</code></td><td id="b232">第三维是朝向。用二维数组会把这个信息丢掉，导致“朝东的最短路”被拿去当作“朝北的最短路”，答案偏小。</td></tr><tr><td id="b233"><code>int d0 = (c == 'E' ? 0 : ... );</code></td><td id="b234">把字母映射成 0~3，和 dx/dy 的顺序严格对齐。写错一处顺序，转向和前进会整体错位。</td></tr><tr><td id="b235"><code>for (int nd : {(d + 1) % 4, (d + 3) % 4})</code></td><td id="b236">左右转各 90°。用 <code>(d+3)%4</code> 而不是 <code>d-1</code>，避免出现负数下标。</td></tr><tr><td id="b237"><code>if (!ok(nx, ny)) break;</code></td><td id="b238">必须是 <code>break</code> 而不是 <code>continue</code>：往前第 2 步撞墙时，第 3 步同样到不了，继续试只是白跑。</td></tr><tr><td id="b239"><code>if (x == tx &amp;&amp; y == ty) { ... return 0; }</code></td><td id="b240">出队时判终点，天然取到四个方向里的最小值——第一次弹出终点状态时，它的 dist 就是答案。</td></tr><tr><td id="b241"><code>if (sx == tx &amp;&amp; sy == ty) { cout &lt;&lt; 0; }</code></td><td id="b242">起点就是终点的特判。少了它，程序会去 BFS 并可能输出 −1 或非 0。</td></tr></tbody></table><div class="box warn"><div class="t" id="b243">这题最容易错的地方</div><ul><li id="b244">忘了把“占 4 个格子”写进合法性判断：机器人会贴着障碍穿过去，答案偏小。</li><li id="b245">距离数组只开二维：不同朝向互相覆盖，答案偏小或直接 −1。</li><li id="b246">前进时用 <code>continue</code> 而不是 <code>break</code>：虽然不影响正确性，但会多算一批非法落点；反过来，若把 <code>ok</code> 只判落点、不判中途，答案就会错。</li><li id="b247">朝向映射与 dx/dy 的顺序不一致（比如把 N 映射成 0）：所有移动方向整体错位。</li></ul></div></div></details></div><div class="box tip" style="margin:22px 0 -6px"><div class="t" id="b248">挑战 2 · 难度高一级，允许组合多个已学算法</div><p id="b249">这题比上面的挑战题更难：它不只用本节一个算法，可能需要把前面几节的工具拼起来。独立做出来说明这一块真的过关了；做完记得在侧边栏勾上 🌟。</p></div><div class="challenge ch2"><div class="ct" id="b250">挑战 2 · Corn Maze S</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1825</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P1825" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b251">一个 N×M 的玉米迷宫，格子的含义是：<code>#</code> 玉米（不可通行）、<code>.</code> 草地、<code>@</code> 起点、<code>=</code> 出口、大写字母 <code>A</code>~<code>Z</code> 表示滑梯端点。</p><p id="b252">滑梯是<b>成对</b>的：两个相同字母的格子互为两端，踩到任意一端都会被瞬间送到另一端（传送本身不花时间，花时间的是“走进那一格”的 1 步）。</p><p id="b253">规矩：踩到滑梯就必须使用它；但<b>不能连续使用两次</b>——传送之后必须先用普通移动走至少一步，才能再次使用滑梯。所有草地移动各花 1 个时间单位。</p><p id="b254">输入格式：第一行 N、M（2 ≤ N, M ≤ 300）；接下来 N 行，每行 M 个字符，字符之间没有空格。</p><p id="b255">输出格式：一行一个整数，从起点到出口的最短时间。</p><p id="b256">样例：下面的迷宫最优解是先向右走上滑梯 W（1 秒），被传送到 (2,3)，再向右、向上两步到达出口，共 3 秒。<code>###=## / #.W.## / #.#### / #.@W## / ######</code></p></div><div class="cap" id="b257">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+5 6
+###=##
+#.W.##
+#.####
+#.@W##
+######
+输出：
+3</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b258">每条普通移动花 1 个时间单位，滑梯不花额外时间——先按“无权最短路”想。</p><p id="b259">麻烦在于“传送后不能再传送”。光记 (行, 列) 不够，因为你站在滑梯端点时“刚刚传送过”和“走过来的”是两种不同的处境。</p><p id="b260">把“上一步是不是传送”也放进状态，距离数组就变成三维了。另外注意：站在滑梯端点上不能停留，踩到的瞬间就被送走。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b261"><b>状态。</b><code>(x, y, flag)</code>：站在 (x,y)，flag = 1 表示“我是刚被传送过来的”，flag = 0 表示“我是走过来的”。<code>dist[x][y][2]</code> 记最短时间。</p><p id="b262"><b>为什么必须加 flag。</b>题面规定传送之后必须走一步才能再传送。若状态只有 (x,y)，“刚传送过来”和“走过来”就无法区分，程序会让奶牛连续两次穿滑梯，答案偏小。</p><p id="b263"><b>转移。</b>从 (x,y,flag) 出发走四个方向：</p><p id="b264">{'kind': 'list', 'ordered': False, 'items': ['目标格是 <code>#</code> 或越界 → 跳过；', '目标格是 <code>=</code> → 答案 = 当前时间 + 1，直接结束（第一次到达即最短）；', '目标格是滑梯端点：若 flag == 1（刚传送过）→ 这一步不合法，跳过；否则先花 1 秒走进去，再瞬间到另一端，得到状态 (另一端, 1)，时间 +1；', '其余格子（草地、起点）→ 状态 (nx, ny, 0)，时间 +1。']}</p><p id="b265"><b>为什么不用把滑梯端点当普通格子入队。</b>题面说“踩到滑梯必须使用”，所以滑梯格不是可停留的状态；能落脚的只有它的另一端，并且必须打上 flag = 1。</p><p id="b266"><b>答案。</b>BFS 按时间非降扩展，第一次生成 <code>=</code> 的那一步就是最短时间。所有边权都是 1（传送不额外花时间），所以普通队列就够，不需要优先队列。</p><p id="b267"><b>复杂度。</b>状态数 ≤ 2NM ≤ 1.8×10⁵，每个状态 4 条出边，总操作约 7×10⁵，N, M ≤ 300 时毫秒级。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b268">参考代码</div><pre id="b269"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> n, m, sx, sy;
+<span class="k">char</span> g[<span class="n">305</span>][<span class="n">305</span>];
+<span class="k">int</span> dist[<span class="n">305</span>][<span class="n">305</span>][<span class="n">2</span>];                 <span class="c">// 第三维：上一步是不是传送</span>
+<span class="k">int</span> a1x[<span class="n">26</span>], a1y[<span class="n">26</span>], a2x[<span class="n">26</span>], a2y[<span class="n">26</span>];  <span class="c">// 每个字母两端的坐标，0 表示还没出现</span>
+<span class="k">int</span> dx[<span class="n">4</span>] = {-<span class="n">1</span>, <span class="n">1</span>, <span class="n">0</span>, <span class="n">0</span>};
+<span class="k">int</span> dy[<span class="n">4</span>] = {<span class="n">0</span>, <span class="n">0</span>, -<span class="n">1</span>, <span class="n">1</span>};
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; m;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i)
+        <span class="k">for</span> (<span class="k">int</span> j = <span class="n">1</span>; j &lt;= m; ++j) {
+            <span class="k">cin</span> &gt;&gt; g[i][j];
+            <span class="k">if</span> (g[i][j] == <span class="s">'@'</span>) { sx = i; sy = j; }
+            <span class="k">else</span> <span class="k">if</span> (g[i][j] &gt;= <span class="s">'A'</span> &amp;&amp; g[i][j] &lt;= <span class="s">'Z'</span>) {
+                <span class="k">int</span> c = g[i][j] - <span class="s">'A'</span>;
+                <span class="k">if</span> (a1x[c] == <span class="n">0</span>) { a1x[c] = i; a1y[c] = j; }   <span class="c">// 第一次见：记第一端</span>
+                <span class="k">else</span>            { a2x[c] = i; a2y[c] = j; }     <span class="c">// 第二次见：记第二端</span>
+            }
+        }
+
+    <span class="k">memset</span>(dist, -<span class="n">1</span>, <span class="k">sizeof</span> dist);
+    <span class="k">queue</span>&lt;array&lt;<span class="k">int</span>, <span class="n">3</span>&gt;&gt; q;              <span class="c">// (x, y, flag)</span>
+    dist[sx][sy][<span class="n">0</span>] = <span class="n">0</span>;
+    q.<span class="f">push</span>({sx, sy, <span class="n">0</span>});
+
+    <span class="k">while</span> (!q.<span class="k">empty</span>()) {
+        <span class="k">auto</span> u = q.<span class="f">front</span>(); q.<span class="f">pop</span>();
+        <span class="k">int</span> x = u[<span class="n">0</span>], y = u[<span class="n">1</span>], flag = u[<span class="n">2</span>];
+
+        <span class="k">for</span> (<span class="k">int</span> k = <span class="n">0</span>; k &lt; <span class="n">4</span>; ++k) {
+            <span class="k">int</span> nx = x + dx[k], ny = y + dy[k];
+            <span class="k">if</span> (nx &lt; <span class="n">1</span> || nx &gt; n || ny &lt; <span class="n">1</span> || ny &gt; m) <span class="k">continue</span>;
+            <span class="k">if</span> (g[nx][ny] == <span class="s">'#'</span>) <span class="k">continue</span>;
+
+            <span class="k">if</span> (g[nx][ny] == <span class="s">'='</span>) { <span class="k">cout</span> &lt;&lt; dist[x][y][flag] + <span class="n">1</span> &lt;&lt; <span class="s">"\n"</span>; <span class="k">return</span> <span class="n">0</span>; }
+
+            <span class="k">if</span> (g[nx][ny] &gt;= <span class="s">'A'</span> &amp;&amp; g[nx][ny] &lt;= <span class="s">'Z'</span>) {
+                <span class="k">if</span> (flag) <span class="k">continue</span>;                       <span class="c">// 刚传送过，不能再传</span>
+                <span class="k">int</span> c = g[nx][ny] - <span class="s">'A'</span>;
+                <span class="k">int</span> ox = (nx == a1x[c] &amp;&amp; ny == a1y[c]) ? a2x[c] : a1x[c];
+                <span class="k">int</span> oy = (nx == a1x[c] &amp;&amp; ny == a1y[c]) ? a2y[c] : a1y[c];
+                <span class="k">if</span> (dist[ox][oy][<span class="n">1</span>] == -<span class="n">1</span>) {              <span class="c">// 落在另一端，flag 置 1</span>
+                    dist[ox][oy][<span class="n">1</span>] = dist[x][y][flag] + <span class="n">1</span>;
+                    q.<span class="f">push</span>({ox, oy, <span class="n">1</span>});
+                }
+                <span class="k">continue</span>;
+            }
+
+            <span class="k">if</span> (dist[nx][ny][<span class="n">0</span>] == -<span class="n">1</span>) {                  <span class="c">// 普通格子：flag 清 0</span>
+                dist[nx][ny][<span class="n">0</span>] = dist[x][y][flag] + <span class="n">1</span>;
+                q.<span class="f">push</span>({nx, ny, <span class="n">0</span>});
+            }
+        }
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b270">关键片段拆解</div><table class="lines"><thead><tr><th id="b271">片段</th><th id="b272">作用</th></tr></thead><tbody><tr><td id="b273"><code>int a1x[26], a1y[26], a2x[26], a2y[26];</code></td><td id="b274">读入时就把每个字母的两端坐标存好。坐标从 1 开始，所以 0 天然可以当“还没出现过”的标记。</td></tr><tr><td id="b275"><code>if (a1x[c] == 0) { ... } else { ... }</code></td><td id="b276">同一个字母一定出现且只出现两次，第一次见记第一端，第二次见记第二端。这样查“另一端在哪”就是两次数组访问。</td></tr><tr><td id="b277"><code>int dist[305][305][2];</code></td><td id="b278">第三维是 flag。少了它，“刚传送过来”和“走过来”被当成同一个状态，奶牛会连续穿两次滑梯。</td></tr><tr><td id="b279"><code>if (g[nx][ny] == '=') { ... return 0; }</code></td><td id="b280">第一次能走到出口就立刻输出。BFS 按时间非降扩展，这个值一定是最小值。</td></tr><tr><td id="b281"><code>if (flag) continue;</code></td><td id="b282">flag = 1 时踩上滑梯是违规动作。这一行就是“不能连续传送”这条规则的全部实现。</td></tr><tr><td id="b283"><code>int ox = (nx == a1x[c] &amp;&amp; ny == a1y[c]) ? a2x[c] : a1x[c];</code></td><td id="b284">判断踩到的是哪一端，跳到另一端。两个坐标要分开算，写成一个表达式容易错。</td></tr><tr><td id="b285"><code>dist[ox][oy][1] = dist[x][y][flag] + 1;</code></td><td id="b286">时间只加 1：花时间的是“走进滑梯那一格”，传送本身不花时间。落点状态必须带 flag = 1。</td></tr><tr><td id="b287"><code>dist[nx][ny][0] = ...</code></td><td id="b288">普通格子把 flag 清 0。注意同一格 (nx,ny) 有两种 flag，各自记最短时间，互不覆盖。</td></tr></tbody></table><div class="box warn"><div class="t" id="b289">这题最容易错的地方</div><ul><li id="b290">只开二维距离数组：连续传送无法禁止，答案偏小。</li><li id="b291">把滑梯端点当普通格子入队：奶牛会“站在滑梯上不动”，违反“踩到就必须使用”的规则。</li><li id="b292">传送时忘了把落点的 flag 置 1：下一个状态又允许传送，等于没有限制。</li><li id="b293">把传送也算 1 秒：答案整体偏大。题面说移动一步花 1 个时间单位，传送是 0。</li></ul></div></div></details></div><div class="box info"><div class="t" id="b294">延伸阅读 / 参考</div><ul><li id="b295">《算法竞赛入门笔记》搜索章节：BFS 的分层思想</li><li id="b296">《算法竞赛进阶指南》广搜一章：状态设计与判重</li><li id="b297">洛谷 P2802、P1126、P1825 题解区关于“状态设计与 BFS 变形”的讨论</li></ul></div>
+
+<footer>算竞教程 · 算竞教程 · 生成于自建课程体系，题目版权归洛谷及各命题方所有<br>
+转载请注明出处；模板代码可直接用于比赛</footer>

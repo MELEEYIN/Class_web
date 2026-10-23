@@ -1,0 +1,251 @@
+
+<div class="box info"><div class="t" id="b0">本节出现的新函数 / 新语法（先看懂再用）</div><ul><li id="b1"><a href="#fn-0">priority_queue::emplace</a> —— 原地构造，省一次临时对象，pair 元素尤其顺手</li><li id="b2"><a href="#fn-1">priority_queue::swap</a> —— O(1) 交换两个同类型堆，启发式合并的关键一行</li><li id="b3"><a href="#fn-2">左偏树 merge（可并堆）</a> —— 可并堆：O(log n) 合并两个堆，只沿右路径递归</li></ul></div><p id="b4">堆只有三条命令：push、pop、top，每次 O(log n)。第 17 节的贪心题里就用它挑最大 / 最小，这一节把它当积木：<b>两块拼成对顶堆求中位数</b>，<b>多块拼起来时讨论怎么合并最省</b>，最后看一眼支持 O(log n) 合并的左偏树。</p><div class="quote" id="b5">对顶堆的不变式只有一句：大根堆的元素个数 = 小根堆的元素个数，或比它多 1。于是中位数永远是大根堆的堆顶。</div><table><thead><tr><th id="b6">任务</th><th id="b7">做法</th><th id="b8">单次代价</th><th id="b9">总代价</th></tr></thead><tbody><tr><td id="b10">动态中位数：插入 + 查询</td><td id="b11">对顶堆（大根堆 + 小根堆）</td><td id="b12">O(log n)</td><td id="b13">n 次操作 O(n log n)</td></tr><tr><td id="b14">合并两个 priority_queue</td><td id="b15">没有 merge，只能 pop 出来再 push</td><td id="b16">O(m log(n+m))</td><td id="b17">—</td></tr><tr><td id="b18">N 个集合反复两两合并</td><td id="b19">启发式合并：小的并进大的</td><td id="b20">搬一个元素 O(log n)</td><td id="b21">O(n log² n)</td></tr><tr><td id="b22">同上，改用可并堆</td><td id="b23">左偏树 merge</td><td id="b24">O(log n)</td><td id="b25">O(n log n)</td></tr><tr><td id="b26">子树信息合并</td><td id="b27">DSU on tree：重儿子保留</td><td id="b28">—</td><td id="b29">O(n log n)</td></tr></tbody></table><div class="prob"><div class="ph"><span class="pn" id="b30">例题 · 中位数</span><span class="oi">洛谷 P1168</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P1168" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b31">给出一个长度为 N 的非负整数序列 A<sub>1..N</sub>。对于所有 1 ≤ k ≤ (N+1)/2，输出 A<sub>1</sub>, A<sub>3</sub>, …, A<sub>2k−1</sub> 的中位数——也就是前 1、3、5、… 个数的中位数。</p><p id="b32">输入：第一行一个整数 N（N ≤ 10<sup>5</sup>）；第二行 N 个整数 A<sub>i</sub>（0 ≤ A<sub>i</sub> ≤ 10<sup>9</sup>）。</p><p id="b33">输出：共 (N+1)/2 行，每行一个整数，表示对应的中位数。</p></div><div class="io" id="b34">输入：
+7
+1 3 5 7 9 11 6
+输出：
+1
+3
+5
+6</div></div><p id="b35">例题里真正要维护的是“第 k 小”。先看两个这一节才会用到的成员函数，后面的合并与对顶堆都靠它们。</p><div class="fn"><div class="fh" id="b36">新函数拆解 · priority_queue::emplace</div><div class="fb"><div class="sig" id="b37">pq.emplace(构造参数...);      // 等价于 pq.push(元素类型(构造参数...))</div><table class="lines"><thead><tr><th id="b38">组成</th><th id="b39">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b40"><code>emplace(args...)</code></td><td id="b41">把参数直接转给元素类型的构造函数，在容器内部原地构造，省掉“先造临时对象、再拷贝/移动进去”这两步。</td></tr><tr><td id="b42"><code>push 需要先有对象</code></td><td id="b43"><code>push(make_pair(x, y))</code> 或 <code>push({x, y})</code>：先造一个临时 pair，再搬进去。</td></tr><tr><td id="b44"><code>和 pair 搭配最顺手</code></td><td id="b45"><code>priority_queue&lt;pair&lt;int,int&gt;&gt;</code> 里写 <code>emplace(x, y)</code>，直接构造出 <code>pair&lt;int,int&gt;(x, y)</code>，比较时先比 first 再比 second。</td></tr><tr><td id="b46"><code>参数必须能造出元素</code></td><td id="b47"><code>priority_queue&lt;pair&lt;int,int&gt;&gt;</code> 里写 <code>emplace(1)</code> 编译失败——pair 没有只接受一个 int 的构造函数。参数个数 / 类型不对时，报错信息埋在 construct 的模板里，读不懂先数参数个数。</td></tr><tr><td id="b48"><code>没有返回值</code></td><td id="b49">返回 void，别写 <code>x = pq.emplace(...)</code>。</td></tr><tr><td id="b50"><code>相等元素的顺序不确定</code></td><td id="b51">堆只保证堆顶是极值；值相等的元素谁先出堆由内部结构决定，别依赖它。</td></tr></tbody></table><div class="cap" id="b52">最小可运行示例</div><div class="cap" id="b53">示例</div><pre id="b54"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">priority_queue</span>&lt;<span class="k">pair</span>&lt;<span class="k">int</span>, <span class="k">int</span>&gt;&gt; pq;    <span class="c">// 先比 first，first 相同再比 second</span>
+
+    pq.<span class="f">emplace</span>(<span class="n">3</span>, <span class="n">7</span>);                     <span class="c">// 原地构造 pair(3, 7)</span>
+    pq.<span class="f">push</span>(<span class="f">make_pair</span>(<span class="n">4</span>, <span class="n">1</span>));             <span class="c">// 老写法：先造对象再搬进去</span>
+    pq.<span class="f">push</span>({<span class="n">5</span>, <span class="n">0</span>});                      <span class="c">// 花括号也行</span>
+
+    <span class="k">cout</span> &lt;&lt; pq.<span class="f">top</span>().<span class="k">first</span> &lt;&lt; <span class="s">" "</span> &lt;&lt; pq.<span class="f">top</span>().<span class="k">second</span> &lt;&lt; <span class="s">"\n"</span>;   <span class="c">// 5 0</span>
+    <span class="k">cout</span> &lt;&lt; pq.<span class="k">size</span>() &lt;&lt; <span class="s">"\n"</span>;                                  <span class="c">// 3</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="box tip"><div class="t" id="b55">注意</div><p id="b56">emplace 的参数个数、类型必须能匹配元素类型的某个构造函数，否则编译期报错——这是它比 push 唯一“难一点”的地方。</p><p id="b57">速度差距在常数级（省一次拷贝），10<sup>6</sup> 次插入大约省几十毫秒；写起来更短才是主要收益。</p></div></div></div><div class="fn"><div class="fh" id="b58">新函数拆解 · priority_queue::swap</div><div class="fb"><div class="sig" id="b59">a.swap(b);          // 交换两个同类型堆的全部内容，O(1)
+swap(a, b);        // 同上，std::swap 走移动，也是 O(1) 级</div><table class="lines"><thead><tr><th id="b60">组成</th><th id="b61">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b62"><code>O(1)</code></td><td id="b63">只交换底层容器（vector/deque）的指针，一个元素都不搬。10<sup>6</sup> 个元素的堆互换也是常数时间。</td></tr><tr><td id="b64"><code>两个堆必须是同一类型</code></td><td id="b65"><code>priority_queue&lt;int&gt;</code>（大根堆）和 <code>priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt;</code>（小根堆）是<b>不同类型</b>，swap 直接编译失败。</td></tr><tr><td id="b66"><code>用途 1：启发式合并</code></td><td id="b67"><code>if (a.size() &lt; b.size()) a.swap(b);</code> 保证永远把小的往大的里搬。</td></tr><tr><td id="b68"><code>用途 2：O(1) 清空</code></td><td id="b69">造一个空堆再 swap 进去，比 <code>while (!q.empty()) q.pop()</code> 的 O(n log n) 快得多。</td></tr><tr><td id="b70"><code>用 std::swap 也一样</code></td><td id="b71">对容器来说 std::swap 内部就是三次移动构造，同样不搬元素。成员 swap 语义更直白。</td></tr><tr><td id="b72"><code>swap 之后比较器不变</code></td><td id="b73">比较器是类型的一部分，跟着类型走，不会因为交换对象而改变。</td></tr></tbody></table><div class="cap" id="b74">最小可运行示例</div><div class="cap" id="b75">示例</div><pre id="b76"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">priority_queue</span>&lt;<span class="k">int</span>&gt; a, b;
+    a.<span class="f">push</span>(<span class="n">1</span>); a.<span class="f">push</span>(<span class="n">2</span>);          <span class="c">// a = {1, 2}，堆顶 2</span>
+    b.<span class="f">push</span>(<span class="n">9</span>);                     <span class="c">// b = {9}</span>
+
+    a.<span class="k">swap</span>(b);                     <span class="c">// O(1)：现在 a = {9}，b = {1, 2}</span>
+    <span class="k">cout</span> &lt;&lt; a.<span class="f">top</span>() &lt;&lt; <span class="s">"\n"</span>;       <span class="c">// 9</span>
+
+    <span class="k">priority_queue</span>&lt;<span class="k">int</span>&gt; <span class="k">empty</span>;
+    a.<span class="k">swap</span>(<span class="k">empty</span>);                 <span class="c">// 也是 O(1) 清空</span>
+
+    <span class="c">// 大根堆和小根堆是两个类型，下面这行编译不过：</span>
+    <span class="c">// priority_queue&lt;int&gt; big;</span>
+    <span class="c">// priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; small;</span>
+    <span class="c">// big.swap(small);            // error: no matching function for call to swap</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="box tip"><div class="t" id="b77">注意</div><p id="b78">swap 只能交换“同一个模板实例”的对象。要对顶堆那样一大一小两个堆，只能老实 push/pop 搬元素。</p><p id="b79">多测题里用一个空堆 swap 是最干净的重置方式，比重新声明局部变量更省事（尤其是全局堆）。</p></div></div></div><div class="step"><div class="sh" id="b80">例题怎么想：把有序数组从中间掰成两半</div><p id="b81">中位数的定义：i 个数从小到大排好后第 (i+1)/2 个（i 为奇数时唯一）。朴素做法是每来一个数就 sort 一遍，N = 10<sup>5</sup> 时约 10<sup>10</sup> 次比较，必然 TLE。</p><p id="b82">换个角度：不需要全序，只需要<b>中间那一个</b>。把已读入的数分成两半——小的那一半放<b>大根堆 big</b>（堆顶是这半边的最大值），大的那一半放<b>小根堆 small</b>（堆顶是这半边的最小值）。两个堆顶正好卡在有序数组的中间。</p><p id="b83">只要维持一条不变式：<b>big 的大小 = small 的大小，或比它多 1</b>，那么 big 里恰好是最小的 (i+1)/2 个数，堆顶就是第 (i+1)/2 小——也就是中位数。</p><p id="b84">每次插入做两件事：① 看新数和 big 堆顶的大小关系，决定进哪边；② 若不变式被破坏，把某一边的堆顶挪到另一边。一次插入最多挪一个元素，所以单次 O(log n)。</p><div class="cap" id="b85">三步维护</div><pre id="b86"><code><span class="c">// ① 按大小关系归类</span>
+<span class="k">if</span> (big.<span class="k">empty</span>() || x &lt;= big.<span class="f">top</span>()) big.<span class="f">push</span>(x); <span class="k">else</span> small.<span class="f">push</span>(x);
+
+<span class="c">// ② 按数量关系拉平：big 的大小只能是 small 或 small + 1</span>
+<span class="k">if</span> ((<span class="k">int</span>)big.<span class="k">size</span>() &gt; (<span class="k">int</span>)small.<span class="k">size</span>() + <span class="n">1</span>) { small.<span class="f">push</span>(big.<span class="f">top</span>()); big.<span class="f">pop</span>(); }
+<span class="k">else</span> <span class="k">if</span> (big.<span class="k">size</span>() &lt; small.<span class="k">size</span>())          { big.<span class="f">push</span>(small.<span class="f">top</span>()); small.<span class="f">pop</span>(); }
+
+<span class="c">// ③ 第奇数个数读完后，堆顶就是中位数</span>
+<span class="k">if</span> (i &amp; <span class="n">1</span>) <span class="k">printf</span>(<span class="s">"%d\n"</span>, big.<span class="f">top</span>());</code></pre><p id="b87">为什么不会连续挪多个：插入前不变式成立，插入后两边大小差最多变成 2，挪一次就恢复。这也是“对顶堆”能 O(log n) 的原因——它从不重排，只搬运一个堆顶。</p></div><div class="cap" id="b88">完整代码</div><pre id="b89"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> n;
+    <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;n);
+
+    <span class="k">priority_queue</span>&lt;<span class="k">int</span>&gt; big;                                 <span class="c">// 大根堆：存较小的一半</span>
+    <span class="k">priority_queue</span>&lt;<span class="k">int</span>, <span class="k">vector</span>&lt;<span class="k">int</span>&gt;, <span class="k">greater</span>&lt;<span class="k">int</span>&gt;&gt; small;     <span class="c">// 小根堆：存较大的一半</span>
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        <span class="k">int</span> x; <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;x);
+
+        <span class="c">// ① 先按大小关系决定去左边还是右边</span>
+        <span class="k">if</span> (big.<span class="k">empty</span>() || x &lt;= big.<span class="f">top</span>()) big.<span class="f">push</span>(x);
+        <span class="k">else</span> small.<span class="f">push</span>(x);
+
+        <span class="c">// ② 再按数量关系拉平：big 的大小只能是 small 或 small + 1</span>
+        <span class="k">if</span> ((<span class="k">int</span>)big.<span class="k">size</span>() &gt; (<span class="k">int</span>)small.<span class="k">size</span>() + <span class="n">1</span>) {
+            small.<span class="f">push</span>(big.<span class="f">top</span>()); big.<span class="f">pop</span>();
+        } <span class="k">else</span> <span class="k">if</span> (big.<span class="k">size</span>() &lt; small.<span class="k">size</span>()) {
+            big.<span class="f">push</span>(small.<span class="f">top</span>()); small.<span class="f">pop</span>();
+        }
+
+        <span class="c">// ③ 第奇数个数读完后总数为奇数，big 比 small 多一个，堆顶即中位数</span>
+        <span class="k">if</span> (i &amp; <span class="n">1</span>) <span class="k">printf</span>(<span class="s">"%d\n"</span>, big.<span class="f">top</span>());
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b90">逐行拆解</div><table class="lines"><thead><tr><th id="b91">代码片段</th><th id="b92">含义与理由</th></tr></thead><tbody><tr><td id="b93"><code>priority_queue&lt;int&gt; big;</code></td><td id="b94">默认是大根堆：堆顶是最大值。它存“较小的一半”，所以堆顶是这半边的最大值，正是中位数。</td></tr><tr><td id="b95"><code>priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; small;</code></td><td id="b96">小根堆要写全三个模板参数：元素类型、底层容器、比较器。greater&lt;int&gt; 表示“小的优先”，堆顶变成最小值。</td></tr><tr><td id="b97"><code>x &lt;= big.top()</code></td><td id="b98">比中位数小就归左半边。用 ≤ 还是 &lt; 都不影响正确性，关键是与后面平衡条件配套、前后一致。</td></tr><tr><td id="b99"><code>(int)big.size() &gt; (int)small.size() + 1</code></td><td id="b100">big 最多比 small 多 1 个。多到 2 个说明左边太重，把堆顶（左半边最大的）挪到右边。size() 是无符号数，要和 −1 之类的式子混算必须先转 int，否则空堆时会绕成巨大正数。</td></tr><tr><td id="b101"><code>big.size() &lt; small.size()</code></td><td id="b102">左边比右边少，把右边最小的挪过来。只可能差 1，所以一次就够。</td></tr><tr><td id="b103"><code>if (i &amp; 1)</code></td><td id="b104">题目只问前 1、3、5… 个数的中位数。总数为奇数时 big 恰好 (i+1)/2 个，堆顶就是第 (i+1)/2 小。</td></tr><tr><td id="b105"><code>printf("%d\n", big.top())</code></td><td id="b106">每行一个。用 \n 而不是 endl：N = 10<sup>5</sup> 时能省下十万次强制刷新。</td></tr></tbody></table></div><p id="b107">priority_queue <b>没有 merge，也没有迭代器</b>，两个堆的内部数组不能直接拼（拼完不是堆）。想合并只有一条路：把一个堆的元素 pop 出来、push 进另一个。</p><p id="b108">单次合并的代价是 O(m log(n+m))，m 是较小堆的大小。只合一次的话这样足够。真正的麻烦是“N 个集合反复两两合并”——这时<b>合并顺序</b>决定复杂度。</p><div class="cap" id="b109">启发式合并：小并大</div><pre id="b110"><code><span class="c">// 把 b 的全部元素搬进 a，并保证搬的是较小的那一堆</span>
+<span class="k">void</span> <span class="f">mergeInto</span>(<span class="k">priority_queue</span>&lt;<span class="k">int</span>&gt;&amp; a, <span class="k">priority_queue</span>&lt;<span class="k">int</span>&gt;&amp; b) {
+    <span class="k">if</span> (a.<span class="k">size</span>() &lt; b.<span class="k">size</span>()) a.<span class="k">swap</span>(b);      <span class="c">// ★ O(1)：只交换两个底层容器</span>
+    <span class="k">while</span> (!b.<span class="k">empty</span>()) {                     <span class="c">// 现在 b 一定是小的</span>
+        a.<span class="f">push</span>(b.<span class="f">top</span>());
+        b.<span class="f">pop</span>();
+    }
+}</code></pre><div class="step"><div class="sh" id="b111">三处关键</div><table class="lines"><thead><tr><th id="b112">代码片段</th><th id="b113">含义与理由</th></tr></thead><tbody><tr><td id="b114"><code>a.swap(b)</code></td><td id="b115">O(1) 交换整个容器，等价于“让 a 指向大的那堆”。没有它，就得手动判断方向、写两个分支。</td></tr><tr><td id="b116"><code>while (!b.empty()) { a.push(b.top()); b.pop(); }</code></td><td id="b117">只能这样搬：priority_queue 不暴露内部数组，也没有 merge 接口。</td></tr><tr><td id="b118"><code>为什么总代价 O(n log² n)</code></td><td id="b119">元素 x 每被搬一次，它所在集合的大小至少翻倍（因为它是从小的那边搬进大的）。所以 x 一生最多被搬 log₂ n 次；每次 push 是 O(log n)。合计 n log n 次 push，每次 log n。</td></tr><tr><td id="b120"><code>为什么不直接拼底层数组</code></td><td id="b121">即使能拿到两段有序数据，拼起来也不是堆结构，还得花 O(n) 重建；而 push 已经有 O(log n) 的增量维护。</td></tr><tr><td id="b122"><code>大根堆不能 swap 进小根堆</code></td><td id="b123">两个类型不同，编译期就报错。想让对顶堆的两边互换，只能一个个 pop/push。</td></tr></tbody></table></div><p id="b124">同一个“小并大”的思想搬到树上，就是 <b>DSU on tree</b>（树上启发式合并）。它解决的问题很固定：<b>对每个点 u，回答一个只与 u 的子树有关的问题</b>，而这个问题支持“加点、删点、随时取答案”这三种操作。</p><p id="b125">做法四步：① 求子树大小与重儿子；② 先递归所有<b>轻儿子</b>，算完把它们的贡献<b>清空</b>；③ 再递归<b>重儿子</b>，算完<b>保留</b>它的贡献；④ 把轻儿子的子树暴力加回来，加上自己，此时的答案就是 u 的答案；若 u 是轻儿子，用完再清空。</p><p id="b126">复杂度 O(n log n)：一个点被“暴力加入”的次数，等于它到根路径上轻边的条数；走一条轻边意味着父的子树大小至少是子的两倍，所以轻边不超过 log₂ n 条。每次加入是 O(1)（桶计数），合计 n log₂ n。</p><div class="cap" id="b127">DSU on tree：求每个子树中出现次数最多的颜色编号之和（n ≤ 10⁵，颜色编号 1..n）</div><pre id="b128"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">100005</span>;
+
+<span class="k">int</span> n, c[MAXN];                     <span class="c">// c[u] = 点 u 的颜色</span>
+<span class="k">vector</span>&lt;<span class="k">int</span>&gt; g[MAXN];
+<span class="k">int</span> sz[MAXN], son[MAXN];            <span class="c">// 子树大小、重儿子</span>
+<span class="k">int</span> cnt[MAXN], mx;                  <span class="c">// cnt[颜色] 出现次数；mx = 当前最大出现次数</span>
+<span class="k">long</span> <span class="k">long</span> sum, ans[MAXN];           <span class="c">// sum = 出现次数等于 mx 的颜色编号之和</span>
+
+<span class="k">void</span> <span class="f">dfs1</span>(<span class="k">int</span> u, <span class="k">int</span> p) {           <span class="c">// 第一遍：子树大小与重儿子</span>
+    sz[u] = <span class="n">1</span>;
+    <span class="k">for</span> (<span class="k">int</span> v : g[u]) <span class="k">if</span> (v != p) {
+        <span class="f">dfs1</span>(v, u);
+        sz[u] += sz[v];
+        <span class="k">if</span> (sz[v] &gt; sz[son[u]]) son[u] = v;   <span class="c">// sz[0] = 0，所以 son 初值 0 也能比</span>
+    }
+}
+
+<span class="k">void</span> <span class="f">add</span>(<span class="k">int</span> u, <span class="k">int</span> p, <span class="k">int</span> d) {     <span class="c">// 把 u 子树的颜色整体加进 / 移出桶</span>
+    cnt[c[u]] += d;
+    <span class="k">if</span> (d &gt; <span class="n">0</span>) {                    <span class="c">// 只加的时候维护答案，清空时不用管</span>
+        <span class="k">if</span> (cnt[c[u]] &gt; mx) { mx = cnt[c[u]]; sum = c[u]; }
+        <span class="k">else</span> <span class="k">if</span> (cnt[c[u]] == mx) sum += c[u];
+    }
+    <span class="k">for</span> (<span class="k">int</span> v : g[u]) <span class="k">if</span> (v != p) <span class="f">add</span>(v, u, d);
+}
+
+<span class="k">void</span> <span class="f">dfs2</span>(<span class="k">int</span> u, <span class="k">int</span> p, <span class="k">bool</span> keep) {
+    <span class="k">for</span> (<span class="k">int</span> v : g[u]) <span class="k">if</span> (v != p &amp;&amp; v != son[u]) <span class="f">dfs2</span>(v, u, <span class="k">false</span>);   <span class="c">// 轻儿子：算完清空</span>
+    <span class="k">if</span> (son[u]) <span class="f">dfs2</span>(son[u], u, <span class="k">true</span>);                                 <span class="c">// 重儿子：算完保留</span>
+    <span class="k">for</span> (<span class="k">int</span> v : g[u]) <span class="k">if</span> (v != p &amp;&amp; v != son[u]) <span class="f">add</span>(v, u, <span class="n">1</span>);        <span class="c">// 轻儿子暴力补回来</span>
+
+    cnt[c[u]]++;                                                       <span class="c">// 加上自己</span>
+    <span class="k">if</span> (cnt[c[u]] &gt; mx) { mx = cnt[c[u]]; sum = c[u]; }
+    <span class="k">else</span> <span class="k">if</span> (cnt[c[u]] == mx) sum += c[u];
+    ans[u] = sum;
+
+    <span class="k">if</span> (!keep) { <span class="f">add</span>(u, p, -<span class="n">1</span>); mx = <span class="n">0</span>; sum = <span class="n">0</span>; }                     <span class="c">// 用完清空并复位</span>
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>); <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+    <span class="k">cin</span> &gt;&gt; n;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) <span class="k">cin</span> &gt;&gt; c[i];
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt; n; ++i) {
+        <span class="k">int</span> u, v; <span class="k">cin</span> &gt;&gt; u &gt;&gt; v;
+        g[u].<span class="k">push_back</span>(v); g[v].<span class="k">push_back</span>(u);
+    }
+    <span class="f">dfs1</span>(<span class="n">1</span>, <span class="n">0</span>);
+    <span class="f">dfs2</span>(<span class="n">1</span>, <span class="n">0</span>, <span class="k">false</span>);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) <span class="k">cout</span> &lt;&lt; ans[i] &lt;&lt; <span class="s">" "</span>;
+    <span class="k">cout</span> &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b129">四步与四个数组</div><table class="lines"><thead><tr><th id="b130">代码片段</th><th id="b131">含义与理由</th></tr></thead><tbody><tr><td id="b132"><code>dfs1 求 sz 与 son</code></td><td id="b133">重儿子 = 子树最大的儿子。所有“保留”都发生在重儿子上，所以它必须先算出来。</td></tr><tr><td id="b134"><code>dfs2(v, u, false) 轻儿子</code></td><td id="b135">第三个参数 keep 表示“算完要不要保留贡献”。轻儿子一律 false，算完就清空。</td></tr><tr><td id="b136"><code>dfs2(son[u], u, true) 重儿子</code></td><td id="b137">保留。重儿子那一大坨不用重新加，省下的正是 O(n log n) 里最贵的部分。</td></tr><tr><td id="b138"><code>add(v, u, 1) 把轻儿子加回来</code></td><td id="b139">此时桶里已有重儿子的全部信息，只补轻儿子，代价 = 轻子树大小之和。</td></tr><tr><td id="b140"><code>cnt[c[u]]++ 与自己这一句</code></td><td id="b141">别漏掉 u 自己。它不属于任何儿子，要单独加一次。</td></tr><tr><td id="b142"><code>if (!keep) { add(u, p, -1); mx = 0; sum = 0; }</code></td><td id="b143">清空整棵 u 子树，并把 mx / sum 复位。漏了复位，下一棵子树会沿用上一棵的最大值，答案全错。</td></tr></tbody></table></div><div class="box tip"><div class="t" id="b144">DSU on tree 的适用判定</div><p id="b145">问题只与「子树」有关，且不强制在线（可以先把所有答案算完再输出）。</p><p id="b146">信息支持「加一个点 / 删一个点 / 取答案」三种操作，且加删都是 O(1) 级（桶计数、出现次数、颜色和这类）。</p><p id="b147">如果信息不支持删除（比如最大值且要求精确回滚），就换线段树合并，或按 DFS 序整体离线处理。</p><p id="b148">递归深度可能到 10<sup>5</sup>（树退化成链）。若 RE，先确认是不是爆栈，再考虑把递归改成手工栈。</p></div><p id="b149">启发式合并的 O(n log² n) 里，多出来的那个 log 是“每个元素都要 push 一次”。如果能<b>直接合并两个堆</b>、每次只走 O(log n) 步，总代价就降到 O(n log n)。这就是<b>可并堆</b>：左偏树是最常用的实现。</p><p id="b150">左偏树用 ls[]、rs[] 两个数组表示二叉树，另外记一个 dist。它只保证一件事：<b>每个点的左子树 dist ≥ 右子树 dist</b>。于是从根一路往右走的“右路径”很短，merge 只沿右路径递归，自然 O(log n)——而右路径长度不超过 log₂(n+1)，这一点在数学补给里证。</p><div class="fn"><div class="fh" id="b151">新函数拆解 · 左偏树 merge（可并堆）</div><div class="fb"><div class="sig" id="b152">int merge(int x, int y);      // 合并两棵左偏树，返回新根；0 表示空树</div><table class="lines"><thead><tr><th id="b153">组成</th><th id="b154">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b155"><code>x, y</code></td><td id="b156">两棵左偏树的根。要求它们各自已经是合法的大根堆 + 左偏结构。</td></tr><tr><td id="b157"><code>if (!x || !y) return x + y;</code></td><td id="b158">有一边为空就返回另一边。只有一个非零时 x + y 正好等于那个非零值。</td></tr><tr><td id="b159"><code>if (val[x] &lt; val[y]) swap(x, y);</code></td><td id="b160">让 x 当根。大根堆用 &lt;，小根堆把符号改成 &gt;。</td></tr><tr><td id="b161"><code>rs[x] = merge(rs[x], y);</code></td><td id="b162">只往右子树递归——这是 O(log n) 的来源，也是它区别于普通堆的关键。</td></tr><tr><td id="b163"><code>if (dist[ls[x]] &lt; dist[rs[x]]) swap(ls[x], rs[x]);</code></td><td id="b164">维持左偏：左子树的 dist 不能小于右子树。</td></tr><tr><td id="b165"><code>dist[x] = dist[rs[x]] + 1;</code></td><td id="b166">dist 定义成“到最近空节点的边数”，空节点 dist = 0，所以叶子 dist = 1。</td></tr><tr><td id="b167"><code>dist[0] = 0，其余点 dist 初值必须是 1</code></td><td id="b168">下标 0 是空节点，dist 恒为 0（全局数组默认值正好对）；但每个真实节点单独成堆时 <b>必须手动置 1</b>。忘了这一步，叶子会被算成 dist = 0，左偏性质失效，复杂度退化成 O(n)。</td></tr></tbody></table><div class="cap" id="b169">最小可运行示例</div><div class="cap" id="b170">示例</div><pre id="b171"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">100005</span>;
+<span class="k">int</span> ls[MAXN], rs[MAXN], dist[MAXN], val[MAXN];
+
+<span class="c">// 合并两棵左偏树（大根堆），返回新根</span>
+<span class="k">int</span> <span class="f">merge</span>(<span class="k">int</span> x, <span class="k">int</span> y) {
+    <span class="k">if</span> (!x || !y) <span class="k">return</span> x + y;
+    <span class="k">if</span> (val[x] &lt; val[y]) <span class="k">swap</span>(x, y);                     <span class="c">// x 当根</span>
+    rs[x] = <span class="f">merge</span>(rs[x], y);                             <span class="c">// 只递归右子树</span>
+    <span class="k">if</span> (dist[ls[x]] &lt; dist[rs[x]]) <span class="k">swap</span>(ls[x], rs[x]);   <span class="c">// 维持左偏</span>
+    dist[x] = dist[rs[x]] + <span class="n">1</span>;
+    <span class="k">return</span> x;
+}
+
+<span class="c">// 删除堆顶：合并根的左右子树即可，O(log n)</span>
+<span class="k">int</span> <span class="f">pop</span>(<span class="k">int</span> x) { <span class="k">return</span> <span class="f">merge</span>(ls[x], rs[x]); }
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> n; <span class="k">cin</span> &gt;&gt; n;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) { <span class="k">cin</span> &gt;&gt; val[i]; dist[i] = <span class="n">1</span>; }  <span class="c">// ★ 每个点单独成堆：dist = 1</span>
+    <span class="k">int</span> root = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) root = <span class="f">merge</span>(root, i);           <span class="c">// 全部并成一个大根堆</span>
+    <span class="k">while</span> (root) { <span class="k">cout</span> &lt;&lt; val[root] &lt;&lt; <span class="s">" "</span>; root = <span class="f">pop</span>(root); }  <span class="c">// 降序输出</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="box tip"><div class="t" id="b172">注意</div><p id="b173">左偏树没有「按下标访问」「随机删除」这些能力，它存在的唯一理由是 merge 便宜。不要拿它当通用容器用。</p><p id="b174">dist 只在 merge 里维护。如果手动改结构（比如直接修改 ls/rs），dist 会失效，复杂度立刻退化。</p><p id="b175">想做模板去洛谷 P3377【模板】左偏树（可并堆），那里还要求判断两个元素是否已在同一堆里，需要并查集配合。</p></div></div></div><p id="b176">三者的取舍：<b>只合一次</b>——直接 pop/push 搬，代码最短；<b>反复合并但不要求最优</b>——启发式合并，用 STL 就够；<b>合并次数多、常数敏感</b>——左偏树。选哪个看合并次数和常数，不看理论复杂度好不好看。</p><div class="box warn"><div class="t" id="b177">这一节的 8 种典型错法（含症状）</div><p id="b178"><b>WA，中位数整体偏小</b>。—— 平衡漏了一个方向：只写了“big 太多就往 small 挪”，没写“big 太少就从 small 补”。插入一个很大的数后 big 会比 small 少 1 个，之后每个奇数位置输出的都是第 (i−1)/2 小，比正确答案小一位。</p><p id="b179"><b>TLE</b>。—— 每读一个数就 sort 一遍。N = 10<sup>5</sup> 时是 10<sup>10</sup> 量级次比较，对顶堆只有 10<sup>5</sup> 次 O(log n)。</p><p id="b180"><b>RE / 答案随机</b>。—— 在空的 priority_queue 上调用 <code>top()</code>。std::priority_queue 对空堆取 top 是未定义行为，常见表现是读到垃圾值或 0。每次 top() 前都要保证非空。</p><p id="b181"><b>CE</b>。—— 想让大根堆和小根堆互换内容而写 <code>big.swap(small)</code>：两者模板参数不同、类型不同，编译期就报错。</p><p id="b182"><b>WA，DSU on tree 从第二棵子树开始全错</b>。—— 清空时忘了 <code>mx = 0; sum = 0;</code>，下一棵子树沿用上一棵的最大出现次数。</p><p id="b183"><b>RE，DSU on tree 在链状数据上崩</b>。—— 递归深度 10<sup>5</sup> 爆栈。开大栈或改成手工栈。</p><p id="b184"><b>TLE，启发式合并反而更慢</b>。—— 忘了 <code>if (a.size() &lt; b.size()) a.swap(b);</code>，每次都把大堆往小堆里塞，一个元素可能被搬 O(n) 次，总代价退化成 O(n² log n)。</p><p id="b185"><b>TLE，左偏树和普通堆一样慢</b>。—— merge 里写成 <code>ls[x] = merge(ls[x], y)</code>，左偏性质被破坏，右路径可能长达 O(n)，单次合并退化成 O(n)。</p></div><div class="reproduce"><div class="rt" id="b186">自己动手复现</div><p id="b187">关掉页面，从空文件把 P1168 的代码敲一遍并提交到洛谷。</p><p id="b188">改一改 ①：把「左边比右边少就挪」的那段 <code>else if (big.size() &lt; small.size())</code> 整段删掉，输入 <code>3
+1 5 3</code>。正确输出是 <code>1 / 3</code>，删掉后第二个数会输出 1——亲手看到不变式被破坏的后果。</p><p id="b189">改一改 ②：把 <code>if (i &amp; 1)</code> 改成 <code>if (!(i &amp; 1))</code>，输入 <code>4
+1 2 3 4</code>，看看偶数位置输出的是哪两个数的哪一个。再想：要输出「下中位数」和「上中位数」，平衡条件该怎么改？</p><p id="b190">改一改 ③：造一个只有 1 个元素的小根堆和一个 10<sup>5</sup> 元素的大根堆，先用 <code>a.swap(b)</code> 计时，再改成把 10<sup>5</sup> 个元素逐个 push 计时——两者的差距就是“搬元素”和“换指针”的差距。</p><p id="b191">改一改 ④：在 DSU on tree 的代码里只删掉 <code>mx = 0; sum = 0;</code> 这两句（保留清空），造一棵有多个轻儿子的树，观察 ans[] 从哪个点开始变错。</p></div><div class="mathcard"><div class="mt" id="b192">数学补给 · 势能分析：合并的账怎么算</div><p id="b193"><b>堆有多高。</b>n 个元素的完全二叉树高度是 ⌊log₂ n⌋ + 1。n = 10<sup>6</sup> 时 20 层，push / pop 只走一条“叶子到根”的路径，交换次数 ≤ 20。这就是 O(log n) 的具体数字——所以堆操作在 10<sup>6</sup> 规模上几乎免费，真正的代价在搬元素的次数。</p><p id="b194"><b>中位数的位置。</b>i 个数从小到大排好，中间那个是第 ⌈i/2⌉ 个；i 为奇数时它等于 (i+1)/2。对顶堆让 big 恰好装最小的 (i+1)/2 个，于是 big 的堆顶就是第 (i+1)/2 小。这条“位置 = 大小”的对应关系，就是对顶堆全部正确性的来源。</p><p id="b195"><b>启发式合并的势能账。</b>设元素 x 当前所在集合大小为 s。x 被搬动，只可能是因为它属于较小的那一半；搬完后新集合大小 ≥ 2s。于是 s 每被搬一次就翻倍，x 一生最多被搬 ⌊log₂ n⌋ 次。总搬动次数 ≤ n log₂ n，每次 push 是 O(log n)，合计 <b>O(n log² n)</b>。</p><p id="b196"><b>为什么左偏树能省掉一个 log。</b>它不搬元素，只改指针：merge 沿两棵树的右路径走，每步 O(1)，总 O(log n) 次比较。合并 n 次就是 O(n log n)。这就是“可并堆”三个字的全部价值。</p><p id="b197"><b>右路径为什么不超过 log₂(n+1)。</b>dist(x) 定义成“x 到最近空节点的边数”，空节点 dist = 0，叶子 dist = 1。左偏性质保证 dist(ls) ≥ dist(rs)，且 dist(x) = dist(rs) + 1。归纳可得：dist(x) = d 的子树至少有 2<sup>d</sup> − 1 个节点。所以 d ≤ log₂(n+1)。而右路径的边数恰好是 dist(root) − 1，于是 merge 的递归深度 ≤ log₂(n+1)。</p><p id="b198"><b>DSU on tree 的账。</b>一个点被“暴力加入”的次数 = 它到根路径上的轻边条数。轻边的定义是“父的 sz ≥ 2 × 子的 sz”（否则它就是重儿子），所以每走一条轻边，所在子树大小至少减半，轻边不超过 log₂ n 条。每次加入 O(1)，合计 <b>O(n log n)</b>。</p><table><thead><tr><th id="b199">结构</th><th id="b200">单次操作</th><th id="b201">总代价</th><th id="b202">什么时候用</th></tr></thead><tbody><tr><td id="b203">priority_queue</td><td id="b204">O(log n)</td><td id="b205">—</td><td id="b206">只要极值，不合并</td></tr><tr><td id="b207">对顶堆</td><td id="b208">O(log n)</td><td id="b209">O(n log n)</td><td id="b210">动态中位数、动态第 k 小</td></tr><tr><td id="b211">启发式合并</td><td id="b212">搬一个 O(log n)</td><td id="b213">O(n log² n)</td><td id="b214">合并次数多，能接受一个 log</td></tr><tr><td id="b215">左偏树</td><td id="b216">merge O(log n)</td><td id="b217">O(n log n)</td><td id="b218">合并次数多且常数敏感</td></tr><tr><td id="b219">DSU on tree</td><td id="b220">加一个点 O(1)</td><td id="b221">O(n log n)</td><td id="b222">子树统计、可离线</td></tr></tbody></table></div><div class="think"><div class="tt" id="b223">举一反三 · 想清楚这些再往下走</div><div class="thint">先自己写出答案，再点开核对——方向对不对，比答案本身更重要</div><ol><li id="b224"><div class="tq">对顶堆的平衡条件改成「big 的大小 = small 的大小，或比它少 1」，输出会变成什么？要同时支持「下中位数」和「上中位数」，条件该怎么写？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">平衡条件一反过来（big 比 small 少 1），中位数就跑到 small 的堆顶去了：i 为奇数时 big 只有 (i−1)/2 个，big.top() 是第 (i−1)/2 小，比正确答案小一位，必须改成输出 <code>small.top()</code>。要同时给两个中位数，一个对顶堆就够，不变式仍是 big ∈ {small, small+1}：i 为偶数时 下中位数 = big.top()、上中位数 = small.top()；i 为奇数时两者是同一个数，都是 big.top()。常见错路是只改平衡条件、不改输出语句，于是奇数位置全部偏小一位，而样例若是从 1 开始恰好会暴露；另一条是偶数长度时直接写 <code>(big.top()+small.top())/2</code>，本题要的是整数中位数，这个平均值既不是下中位数也不是上中位数。</div></details></li><li id="b225"><div class="tq">要动态维护中位数，还要能<b>删除</b>任意一个已知元素，对顶堆还够用吗？需要补什么结构？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">不够。priority_queue 只给 push / pop / top，<b>没有按值删除</b>，也没有迭代器能定位那个元素。补法有两种：① 惰性删除——再开一个“待删除堆”，删除时把值丢进去；每次取 top 前比较两边堆顶，相同就一起弹，等于让被删元素在自己冒到堆顶时自然消失；② 干脆把两边换成 multiset，用 <code>erase(find(x))</code> 真正删掉，再按大小重新平衡。两者都是 O(log n)，但惰性删除要额外维护“两堆的有效个数”，否则平衡条件会被幽灵元素带偏。常见错路是以为对顶堆天然支持删除——std::priority_queue 没有 erase，硬写只能重建；另一条是换成 set 而不是 multiset，重复元素被去重吞掉，删除一次把同值的几个全算错。</div></details></li><li id="b226"><div class="tq">把启发式合并里的 priority_queue 换成 set，同样的题还能做吗？代价从 O(n log² n) 变成了什么？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">能做，但复杂度没有本质改善：还是把小集合的元素逐个 insert 进大集合，单次插入 O(log n)、一个元素最多被搬 log₂ n 次，合计仍是 <b>O(n log² n)</b>。set 真正的收益不在复杂度，而在它支持按值删除、找前驱后继——这些是 priority_queue 给不了的。想省掉那个 log，就得换“不搬值、只改指针”的结构：左偏树一次 merge 只沿右路径走 O(log n) 步，总代价从 O(n log² n) 掉到 O(n log n)；C++17 的 <code>set::merge</code> 能把节点整体摘过去、省掉重新分配，但它本质仍是“逐个找位置插入”，渐进复杂度救不回来。代价是常数和内存：set 每个元素要三个指针加颜色位，10<sup>5</sup> 个元素比 priority_queue 的 int 数组大好几倍，同样的搬运次数会更慢。常见错路是以为“换了 set 就自动变 O(n log n)”；另一条是忘了 set 会去重，这类题一律要用 multiset。</div></details></li><li id="b227"><div class="tq">DSU on tree 里如果不用重儿子、对所有儿子一视同仁地保留，复杂度会变成多少？举一棵树说明。</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">会退化到最坏 <b>O(n²)</b>。没有重儿子，“保留”就只是个愿望：父节点算第二个儿子时，桶里还留着第一个儿子的数据，必须先按 sz 清掉它，才能得到干净的状态；于是每个点会在每个分叉处被整棵加入、整棵清空各一次。反例是“扫帚树”：一条长 n/2 的链，每个链上结点再挂一个叶子。每层都要把下面那棵大子树整棵加一遍、再整棵清一遍，代价 Θ(n)，一共 Θ(n) 层，总计 <b>Θ(n²)</b>——n = 10<sup>5</sup> 时约 5×10<sup>9</sup> 次加点，必 TLE。常见错路是只拿一条纯链测试：纯链上每个点只有一个儿子，“一视同仁”和“选重儿子”没有差别，怎么测都是 O(n)；另一条是以为保留所有儿子能省掉清空的开销——省一次清空，赔上 depth 次重复加入。</div></details></li><li id="b228"><div class="tq">左偏树怎么删除堆顶？怎么插入一个新元素？为什么它做不到 priority_queue 的「随机访问」？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">删堆顶：<code>root = merge(ls[root], rs[root])</code>，两个儿子各自还是合法左偏树，合一下就是 O(log n)。插入：让新元素单独成堆（<code>dist = 1</code>、<code>ls = rs = 0</code>），再 <code>root = merge(root, newnode)</code>，同样 O(log n)。做不到随机访问，是因为左偏树只维护“父子偏序”：<code>ls[]</code>、<code>rs[]</code> 里存的是散乱的下标，既没有按值排好的序列，也没有按位置排好的序列，第 k 小只能靠额外结构（权值线段树 / 平衡树）去找。常见错路是把二叉堆数组的写法搬过来——“把根改成 −∞ 再下沉”——左偏树根本没有“下标 = 位置”这层关系，改了值只会破坏堆序；另一条是以为插入要重建整棵树，其实它和合并是同一个操作。</div></details></li><li id="b229"><div class="tq">如果问题是「给一段区间，问它的中位数」，多组询问，对顶堆还能用吗？你会想到什么结构？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">对顶堆只能增量维护“前缀”，做不到对任意区间 O(log n) 查询——每个询问都重建就是 O(len log len)，多组询问直接爆。标准解法是<b>可持久化权值线段树</b>（主席树）：按前缀建 n 个版本，区间 [l, r] 用版本 r 减版本 l−1，在树上二分找第 k 小，每次 O(log n)。另外三条路：整体二分（离线，O((n+m) log n log V)）、莫队 + 值域分块（O(n√n)）、分块后二分答案（O(√n log n log V)）。常见错路是以为“对顶堆加个回滚就行”——对顶堆只有增量，删元素得靠惰性删除再恢复平衡，区间两端同时移动时会退化成 O(√n) 甚至更差；另一条是把区间中位数当成“两个前缀中位数相减”，中位数没有可减性，这个式子根本不成立。</div></details></li><li id="b230"><div class="tq">为什么 priority_queue 的 swap 是 O(1)，而「把 b 的全部元素 push 进 a」是 O(m log(n+m))？差在哪一步？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">差的只有一步：<b>要不要维护堆序</b>。swap 交换的是底层容器的三个指针（begin / end / capacity），元素一个都不搬，交换后两边各自内部的相对顺序完全没变，堆序天然还在，所以 O(1)。而 push 必须把元素放到容器末尾再一路向上 sift-up，最多 log(n+m) 次比较与交换；m 个元素各走一遍，就是 m·log(n+m)。顺带一提，push 还可能触发 vector 扩容拷贝，虽然均摊 O(1)，但常数是真的。常见错路是以为 swap 是“逐元素交换”所以也是 O(n)——这正是它值钱的地方；另一条是以为 push 是 O(1)（只有末尾插入那一步是 O(1)，修复堆序才是 log）。</div></details></li></ol></div><div class="box tip"><div class="t" id="b231">自测：能全部回答再进下一节</div><ul><li id="b232">能默写对顶堆的归类与平衡两段代码，并说清「奇数个时答案是大根堆堆顶」的理由。</li><li id="b233">能说出 emplace 与 push 的区别，并用 emplace 往 priority_queue&lt;pair&lt;int,int&gt;&gt; 里塞元素。</li><li id="b234">能写出 a.swap(b) 版的启发式合并，并解释它为什么必须是 O(1)。</li><li id="b235">能独立推导启发式合并的 O(n log² n)：搬动次数 ≤ log₂ n，每次 push 又是 log。</li><li id="b236">能复述 DSU on tree 的四步，并说清复杂度为什么是 O(n log n) 而不是 O(n log² n)。</li><li id="b237">能写出左偏树 merge 的五行，并说清 dist 的定义与右路径 ≤ log₂(n+1) 的理由。</li><li id="b238">知道 priority_queue 没有 merge，也知道大根堆和小根堆为什么不能 swap。</li></ul></div><div class="challenge"><div class="ct" id="b239">挑战题 · 黑匣子</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1801</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P1801" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b240">Black Box 是一种原始的数据库。它能存一个整数数组，还有一个特殊的变量 i（初始为 0）。它支持两种操作：</p><p id="b241"><b>ADD(x)</b>：把 x 放进数组；<b>GET</b>：先把 i 加 1，然后输出数组中第 i 小的数。</p><p id="b242">给定一个操作序列：先做 M 次 ADD，每次 ADD 之后可能紧跟若干次 GET。现在按顺序给出这 M 个被 ADD 的数，以及每次 GET 发生在第几次 ADD 之后，要求按顺序输出每次 GET 的结果。</p><p id="b243">输入：第一行两个整数 M、N（1 ≤ N ≤ M ≤ 2×10<sup>5</sup>），分别是 ADD 的次数与 GET 的次数。第二行 M 个整数，依次是每次 ADD 的数（|x| ≤ 2×10<sup>9</sup>）。第三行 N 个整数 u<sub>1</sub> ≤ u<sub>2</sub> ≤ … ≤ u<sub>N</sub>（1 ≤ u<sub>j</sub> ≤ M），表示第 j 次 GET 紧跟在第 u<sub>j</sub> 次 ADD 之后。数据保证每次 GET 时数组里至少有 i 个数。</p><p id="b244">输出：共 N 行，每行一个整数，依次是每次 GET 的答案。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b245">GET 要的是「第 i 小」，而 i 每次只加 1。这和例题里「前 i 个数的中位数」几乎是同一个问题。</p><p id="b246">对顶堆的不变式可以推广：让大根堆里<b>恰好</b>放 i 个元素，它就是最小的 i 个，堆顶自然是第 i 小。</p><p id="b247">ADD 时先随便塞进某一边并保持堆的性质；等到 GET 再按 i 调整两边的数量。x 可能为负，读入用 int，答案也用 int。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b248">把例题的不变式换掉：例题固定「big 的大小 = small 或 small + 1」，本题改成「<b>big 的大小恰好等于当前 GET 序号 i</b>」。这样 big 里就是最小的 i 个数，堆顶即第 i 小。</p><p id="b249">ADD 阶段：x 比 big 堆顶小就进 big，否则进 small。此时 big 的大小可能大于或小于 i，先不管。</p><p id="b250">GET 阶段：i 自增 1 之后调整——big 太小就从 small 的堆顶补，太大就把自己的堆顶送过去，直到 size(big) == i，输出 big.top()。</p><p id="b251">为什么调整是 O(log n)：ADD 只做一次 push，GET 的调整次数等于 |size(big) − i|，而每次 GET 只让 i 加 1，累计的调整总量是 O(M)，摊到每次操作是 O(log n)。</p><p id="b252">细节：u<sub>j</sub> 可以相等（同一次 ADD 后连续 GET），所以判断条件用 u[q] ≤ i 而不是 == i，并用 while 把这次 ADD 后面的所有 GET 都处理完。</p><p id="b253">边界：只有 i 不超过已 ADD 个数时才会去 small 里取元素，所以 small 不会空——前提是 u 的含义没读错。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b254">参考代码</div><pre id="b255"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> m, n;
+    <span class="k">scanf</span>(<span class="s">"%d%d"</span>, &amp;m, &amp;n);
+
+    <span class="k">vector</span>&lt;<span class="k">int</span>&gt; <span class="f">a</span>(m + <span class="n">1</span>), <span class="f">u</span>(n + <span class="n">1</span>);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= m; ++i) <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;a[i]);
+    <span class="k">for</span> (<span class="k">int</span> j = <span class="n">1</span>; j &lt;= n; ++j) <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;u[j]);
+
+    <span class="k">priority_queue</span>&lt;<span class="k">int</span>&gt; big;                                  <span class="c">// 存最小的 i 个数</span>
+    <span class="k">priority_queue</span>&lt;<span class="k">int</span>, <span class="k">vector</span>&lt;<span class="k">int</span>&gt;, <span class="k">greater</span>&lt;<span class="k">int</span>&gt;&gt; small;      <span class="c">// 存剩下的</span>
+    <span class="k">int</span> q = <span class="n">1</span>;                                                 <span class="c">// 下一次要处理的 GET 编号</span>
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= m; ++i) {
+        <span class="c">// ADD a[i]</span>
+        <span class="k">if</span> (big.<span class="k">empty</span>() || a[i] &lt;= big.<span class="f">top</span>()) big.<span class="f">push</span>(a[i]);
+        <span class="k">else</span> small.<span class="f">push</span>(a[i]);
+
+        <span class="c">// 第 i 次 ADD 之后可能有若干次 GET（u 可能重复）</span>
+        <span class="k">while</span> (q &lt;= n &amp;&amp; u[q] &lt;= i) {
+            <span class="k">while</span> ((<span class="k">int</span>)big.<span class="k">size</span>() &lt; q) { big.<span class="f">push</span>(small.<span class="f">top</span>()); small.<span class="f">pop</span>(); }  <span class="c">// 补到 q 个</span>
+            <span class="k">while</span> ((<span class="k">int</span>)big.<span class="k">size</span>() &gt; q) { small.<span class="f">push</span>(big.<span class="f">top</span>()); big.<span class="f">pop</span>(); }    <span class="c">// 多的送回右边</span>
+            <span class="k">printf</span>(<span class="s">"%d\n"</span>, big.<span class="f">top</span>());     <span class="c">// 第 q 小</span>
+            ++q;
+        }
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b256">关键片段拆解</div><table class="lines"><thead><tr><th id="b257">片段</th><th id="b258">作用</th></tr></thead><tbody><tr><td id="b259"><code>if (big.empty() || a[i] &lt;= big.top())</code></td><td id="b260">归类：比当前「第 i 小」还小的进左边。这里用 ≤ 是为了让相等的元素也进 big，保持 big 里存的东西“够小”。</td></tr><tr><td id="b261"><code>while ((int)big.size() &lt; q)</code></td><td id="b262">big 不够 q 个，就从右边最小的（small 堆顶）补进来。补一次 size 加 1，最多补到 q。</td></tr><tr><td id="b263"><code>while ((int)big.size() &gt; q)</code></td><td id="b264">big 超过 q 个，把左边最大的（big 堆顶）送到右边。这两个 while 合起来保证 size(big) 最终恰好等于 q。</td></tr><tr><td id="b265"><code>u[q] &lt;= i</code></td><td id="b266">u 可能重复（同一次 ADD 后连续 GET），所以用 while + ≤ 一次处理干净。写成 == i 且用 if 会漏掉后面的 GET。</td></tr><tr><td id="b267"><code>printf("%d\n", big.top())</code></td><td id="b268">size(big) = q 时，big 就是最小的 q 个数，堆顶是第 q 小。</td></tr><tr><td id="b269"><code>vector&lt;int&gt; a(m + 1), u(n + 1)</code></td><td id="b270">1 基下标，和 u<sub>j</sub> 的定义直接对应，省掉减一的换算。</td></tr></tbody></table><div class="box warn"><div class="t" id="b271">这题最容易错的地方</div><ul><li id="b272">GET 的调整只写了「补」没写「送」：x 特别小时一堆元素挤进 big，size(big) 会超过 q，big.top() 变成比第 q 小更小的数。</li><li id="b273">把 <code>u[q] &lt;= i</code> 写成 <code>u[q] == i</code> 并用 if 判断：u 有重复值时漏掉 GET，输出行数不够。</li><li id="b274">在 small 为空时调用 <code>small.top()</code>：只有 i 超过已 ADD 个数时才可能发生，也就是把 u 的定义读错（比如当成「第几次 GET 之后」）。</li><li id="b275">x 用 int 读、答案用 int 输出是对的（|x| ≤ 2×10<sup>9</sup>），但若题目把范围放宽到 10<sup>18</sup> 就必须换 long long。</li><li id="b276">读入格式：u 在第三行，别和 a 混着读。</li></ul></div></div></details></div><div class="box tip" style="margin:22px 0 -6px"><div class="t" id="b277">挑战 2 · 难度高一级，允许组合多个已学算法</div><p id="b278">这题比上面的挑战题更难：它不只用本节一个算法，可能需要把前面几节的工具拼起来。独立做出来说明这一块真的过关了；做完记得在侧边栏勾上 🌟。</p></div><div class="challenge ch2"><div class="ct" id="b279">挑战 2 · 操作系统</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P2278</span><span class="badge diff">提高-/提高</span><a href="https://www.luogu.com.cn/problem/P2278" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b280">模拟一个单 CPU 的进程调度。每个进程的<b>进程号、到达时间、执行时间、运行优先级</b>都已知，优先级是自然数，数字越大优先级越高。调度规则是：</p><ul><li id="b281">进程到达时若 CPU 空闲，它就一直占用 CPU 直到运行结束；</li><li id="b282">运行途中如果有<b>优先级更高</b>的进程到达，新进程抢占 CPU，被抢占的进程等以后继续；</li><li id="b283">新进程到达时若 CPU 正在处理一个优先级<b>不低于</b>它的进程，则新进程排队等待；</li><li id="b284">一旦 CPU 空闲，若有进程在等待，选优先级最高的运行；优先级相同则选到达时间最早的。</li></ul><p id="b285">输入格式：若干行（读到文件结束），每行四个自然数：进程号、到达时间、执行时间、优先级，均不超过 10⁸。进程号互不相同，输入已按到达时间从小到大排序，且不会有两个相同优先级的进程同时到达；任意时刻等待队列中的进程不超过 15000 个。</p><p id="b286">输出格式：按进程<b>结束时间</b>的先后，每行输出两个整数：进程号与结束时刻。</p><p id="b287"><b>样例输入</b><br><code>1 1 10 1<br>2 2 3 5<br>3 3 1 4</code><br><b>样例输出</b><br><code>2 5<br>3 6<br>1 15</code><br>样例解释：1 号在 t=1 开始跑；t=2 时 2 号（优先级 5）抢占；2 号跑到 t=5 结束；t=3 时 3 号（优先级 4）已在等待，t=5 时 CPU 空出来就让优先级更高的 3 号先跑，t=6 结束；最后 1 号只剩 9 个单位，跑到 t=15。</p></div><div class="cap" id="b288">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+1 1 10 1
+2 2 3 5
+3 3 1 4
+输出：
+2 5
+3 6
+1 15</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b289">时间值最大到 10⁸，进程一多，逐秒模拟就是 10¹² 次循环——必 TLE。把时间当成「事件」跳着走：只在<b>进程到达</b>和<b>进程结束</b>这两个时刻改变状态。</p><p id="b290">任何时刻 CPU 上最多一个进程在跑，其余全在等待。等待集合要能 O(log n) 取出「优先级最高、同优先级里到达最早」的那个——想想哪个容器天生干这个。</p><p id="b291">读入一个进程时，先把 CPU 从「现在」推进到它的到达时刻：途中可能跑完若干个排队的进程，每跑完一个就立刻输出它的结束时刻。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b292"><b>① 事件驱动。</b>用 now 表示当前时刻，cur 表示正在跑的进程（只记「还要跑多久」），等待集合用 priority_queue。时间只在事件处跳，不做逐秒循环。</p><p id="b293"><b>② 读入一个进程 (id, arr, len, pri) 时先推进时间。</b>若 now + cur.len ≤ arr，说明 cur 会在 arr 之前（含等于）跑完：now 加上 cur.len、输出 cur，再从等待集合取下一位接着跑；重复直到「cur 跑不完」或「没人可跑」。</p><p id="b294"><b>③ 被打断怎么办。</b>循环停下时若还有进程在跑，说明它只跑了 arr − now 这么久：把它的剩余时间减掉、now 置成 arr。若本来就空闲，now 也置成 arr。</p><p id="b295"><b>④ 新进程放哪。</b>CPU 空闲 → 它就地上机；正在跑 → 只有 pri 严格更大才抢占（题目说优先级相同则新来的等待），被打断的入队，新的上机；否则直接入队。</p><p id="b296"><b>⑤ 堆的关键字。</b>第一关键字优先级<b>大</b>优先，第二关键字到达时间<b>小</b>优先。（题面保证同优先级不会同时到达，所以这样排序没有歧义。）</p><p id="b297"><b>⑥ 读完之后。</b>把当前进程和等待队列里剩下的进程依次跑完，同样每完成一个就输出。</p><p id="b298"><b>⑦ 数值。</b>进程数与执行时间都可能很大，结束时刻能到 10¹² 以上，now 必须 long long。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b299">参考代码</div><pre id="b300"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">struct</span> Proc {
+    <span class="k">long</span> <span class="k">long</span> id, arr, len, pri;   <span class="c">// len 在这里表示“还要跑多久”</span>
+};
+
+<span class="k">struct</span> Cmp {                        <span class="c">// 堆顶：优先级最高；同优先级取到达最早的</span>
+    <span class="k">bool</span> <span class="k">operator</span>()(<span class="k">const</span> Proc &amp;x, <span class="k">const</span> Proc &amp;y) <span class="k">const</span> {
+        <span class="k">if</span> (x.pri != y.pri) <span class="k">return</span> x.pri &lt; y.pri;
+        <span class="k">return</span> x.arr &gt; y.arr;
+    }
+};
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">priority_queue</span>&lt;Proc, <span class="k">vector</span>&lt;Proc&gt;, Cmp&gt; pq;   <span class="c">// 就绪队列</span>
+    <span class="k">long</span> <span class="k">long</span> now = <span class="n">0</span>;
+    <span class="k">bool</span> busy = <span class="k">false</span>;
+    Proc cur{};
+
+    <span class="k">long</span> <span class="k">long</span> id, arr, len, pri;
+    <span class="k">while</span> (<span class="k">scanf</span>(<span class="s">"%lld%lld%lld%lld"</span>, &amp;id, &amp;arr, &amp;len, &amp;pri) == <span class="n">4</span>) {
+        <span class="c">// 让 CPU 从 now 跑到 arr，途中结束的进程依次出结果</span>
+        <span class="k">while</span> (busy &amp;&amp; now + cur.len &lt;= arr) {
+            now += cur.len;
+            <span class="k">printf</span>(<span class="s">"%lld %lld\n"</span>, cur.id, now);
+            busy = <span class="k">false</span>;
+            <span class="k">if</span> (!pq.<span class="k">empty</span>()) { cur = pq.<span class="f">top</span>(); pq.<span class="f">pop</span>(); busy = <span class="k">true</span>; }
+        }
+        <span class="k">if</span> (busy) { cur.len -= (arr - now); now = arr; }   <span class="c">// 被打断，只跑了 arr-now 这么久</span>
+        <span class="k">else</span> now = arr;                                    <span class="c">// 空闲到 arr</span>
+
+        Proc np{id, arr, len, pri};
+        <span class="k">if</span> (!busy) { cur = np; busy = <span class="k">true</span>; }              <span class="c">// 空闲：直接开始</span>
+        <span class="k">else</span> <span class="k">if</span> (np.pri &gt; cur.pri) { pq.<span class="f">push</span>(cur); cur = np; }   <span class="c">// 严格更高才抢 CPU</span>
+        <span class="k">else</span> pq.<span class="f">push</span>(np);                                  <span class="c">// 否则排队</span>
+    }
+
+    <span class="k">while</span> (busy) {                       <span class="c">// 输入读完，把剩下的跑完</span>
+        now += cur.len;
+        <span class="k">printf</span>(<span class="s">"%lld %lld\n"</span>, cur.id, now);
+        busy = <span class="k">false</span>;
+        <span class="k">if</span> (!pq.<span class="k">empty</span>()) { cur = pq.<span class="f">top</span>(); pq.<span class="f">pop</span>(); busy = <span class="k">true</span>; }
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b301">关键片段拆解</div><table class="lines"><thead><tr><th id="b302">片段</th><th id="b303">作用</th></tr></thead><tbody><tr><td id="b304"><code>while (busy &amp;&amp; now + cur.len &lt;= arr)</code></td><td id="b305">cur 会在 arr 之前（含恰好等于）跑完：先把它跑完、出结果，再从就绪队列取下一位。这一行等价于「时间跳跃」，把 O(时间) 的模拟压成 O(事件数)。</td></tr><tr><td id="b306"><code>cur.len -= (arr - now); now = arr;</code></td><td id="b307">被打断：只跑了 arr − now 这么久。改的是「剩余时间」而不是原长——写成原长会让它多跑一遍。</td></tr><tr><td id="b308"><code>if (np.pri &gt; cur.pri) { pq.push(cur); cur = np; }</code></td><td id="b309">严格大于才抢占。题目说「优先级相同则新来的必须等待」，所以这里不能写 &gt;=。</td></tr><tr><td id="b310"><code>return x.arr &gt; y.arr;</code></td><td id="b311">同优先级时让到达早的排堆顶。比较器的方向与 sort 的 cmp 相反，这是 priority_queue 的老规矩。</td></tr><tr><td id="b312"><code>while (scanf(...) == 4)</code></td><td id="b313">进程条数没给，读到文件结束为止。返回值等于 4 才说明这一行四个数都读到了。</td></tr><tr><td id="b314"><code>printf("%lld %lld\n", cur.id, now);</code></td><td id="b315">按进程<b>结束</b>时间输出，所以每完成一个就立刻输出一次，不能攒到最后按进程号排。</td></tr></tbody></table><div class="box warn"><div class="t" id="b316">这题最容易错的地方</div><ul><li id="b317">逐秒模拟：时间值到 10⁸，进程一多就是 10¹² 次循环 → TLE。</li><li id="b318">比较规则写反：抢占条件用 <code>&gt;=</code> 会让同优先级的新进程抢占 CPU；比较器第二关键字写成 <code>x.arr &lt; y.arr</code> 会让到达早的反而排在后面。</li><li id="b319">用 int 存 now 和 len：结束时刻能到 10¹² 以上，溢出后输出负数。</li><li id="b320">把被打断进程的剩余时间记成原长：它会多跑一遍，后面所有结束时刻全错。</li></ul></div></div></details></div><div class="box info"><div class="t" id="b321">延伸阅读 / 参考</div><ul><li id="b322">《算法竞赛进阶指南》0x14：堆与可并堆、0x16：树上启发式合并</li><li id="b323">《算法竞赛入门笔记》：优先队列与对顶堆</li><li id="b324">《算法竞赛试炼场：洛谷300题精析》P1168、P1801 两题的精析</li><li id="b325">《算法竞赛黄金法则：提高算法和思考力的77项技巧》：把合并的代价摊到“集合大小翻倍”上</li></ul></div>
+
+<footer>算竞教程 · 算竞教程 · 生成于自建课程体系，题目版权归洛谷及各命题方所有<br>
+转载请注明出处；模板代码可直接用于比赛</footer>

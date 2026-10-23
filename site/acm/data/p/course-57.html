@@ -1,0 +1,260 @@
+
+<div class="box info"><div class="t" id="b0">本节出现的新函数 / 新语法（先看懂再用）</div><ul><li id="b1"><a href="#fn-0">阈值 T 与两套分支</a> —— 小的预处理、大的现场算，阈值取 √n</li><li id="b2"><a href="#fn-1">莫队的四个指针移动</a> —— 离线排序后暴力挪区间，总步数 O(n√m)</li><li id="b3"><a href="#fn-2">奇偶排序（莫队的常数优化）</a> —— 奇数块 r 倒序，省掉块间回程，常数减半</li></ul></div><p id="b4">这一节的两件事看上去无关：一件是“把能整除的小模数全部预处理”，一件是“把询问排序后暴力挪指针”。它们的共同动作是<b>往复杂度里塞一个 √n</b>——用 √n 次廉价操作，换掉一次昂贵操作。</p><div class="quote" id="b5">根号分治的本质是<b>给暴力划一条线</b>：线以下的预处理，线以上的现场算，两边的代价都压到 √n 量级。</div><table><thead><tr><th id="b6">做法</th><th id="b7">P3396 哈希冲突（n = m = 1.5×10⁵）</th><th id="b8">P2709 莫队（n = m = 10⁵）</th></tr></thead><tbody><tr><td id="b9">纯暴力</td><td id="b10">每次询问 O(n) → 2.3×10¹⁰，TLE</td><td id="b11">每个询问 O(n) → 1×10¹⁰，TLE</td></tr><tr><td id="b12">全部预处理</td><td id="b13">O(n²) 张表，空间放不下</td><td id="b14">O(n²) 前缀表，空间放不下</td></tr><tr><td id="b15">根号分治 / 莫队</td><td id="b16">O((n+m)√n) ≈ 1.2×10⁸</td><td id="b17">O(n√m) ≈ 6.3×10⁷</td></tr></tbody></table><p id="b18"><b>形态一：按参数大小分治。</b>以 P3396 为例。询问参数是模数 x：x 小的组合少（x ≤ T 时一共只有 Σx ≈ T²/2 张表），可以全部预存；x 大的时候池子里的数少（最多 n/x 个），现场跳着扫也不贵。取 T = √n，两种分支的代价都是 √n：查询 O(1) 或 O(√n)，修改 O(√n)。</p><p id="b19"><b>形态二：按规模分治。</b>信这句话：<b>一个长度为 n 的序列里，出现次数 &gt; T 的值至多 n/T 个</b>。于是把出现多的叫“重值”，只给重值做预处理（前缀出现次数表，代价 O(n·n/T)），出现少的“轻值”整串不超过 T 次，询问时直接枚举它的出现位置。树上同理：度数 &gt; √m 的点至多 √m 个，这是虚树、分块图的第一步。</p><p id="b20">形态二和莫队是同一件事的两种外壳：都在用“总量有限”来给最坏情况封顶。形态一说“小的种类少”，形态二说“大的个数少”，两者相乘一定不超过 n。</p><p id="b21">先把三个语法零件拆开：<b>阈值与两套分支</b>、<b>四个指针的移动</b>、<b>带奇偶优化的排序</b>。</p><div class="fn"><div class="fh" id="b22">新函数拆解 · 阈值 T 与两套分支</div><div class="fb"><div class="sig" id="b23">const int T = 400;   // ≈ √n
+if (x &lt;= T) { /* 查预处理表 */ }
+else { /* 现场暴力 */ }</div><table class="lines"><thead><tr><th id="b24">组成</th><th id="b25">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b26"><code>T 怎么定</code></td><td id="b27">T = (int)sqrt(n) + 1，或直接写常数。n ≤ 1.5×10⁵ 时 √n ≈ 387，写 400 更好记也更快（省掉一次开方）。</td></tr><tr><td id="b28"><code>表要开多大</code></td><td id="b29"><code>s[T+1][T+1]</code>：第一维是模数，第二维是余数（最大 T−1）。400×400×4 字节 ≈ 640 KB，随便开。</td></tr><tr><td id="b30"><code>小参数分支</code></td><td id="b31">必须 O(1) 查表，所以预处理要覆盖<b>所有</b>可能出现的小参数，不能等询问来了才算。</td></tr><tr><td id="b32"><code>大参数分支</code></td><td id="b33">项数是 O(n/T)，循环写成 <code>for (i = 起点; i &lt;= n; i += x)</code>，绝不能写成枚举 1..n 再判断 <code>i % x == y</code>——那是没优化。</td></tr><tr><td id="b34"><code>代价交换</code></td><td id="b35">预处理 O(nT)，每次修改 O(T)，每次大查询 O(n/T)。三条加起来才是要控制的量。</td></tr><tr><td id="b36"><code>修改怎么维护</code></td><td id="b37">改 <code>a[x]</code> 时，对所有 t ≤ T 把 <code>s[t][x % t]</code> 加上增量；大参数分支不用管，它每次现算。</td></tr></tbody></table><div class="cap" id="b38">最小可运行示例</div><div class="cap" id="b39">示例</div><pre id="b40"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">150005</span>, T = <span class="n">400</span>;
+<span class="k">int</span> n = <span class="n">10</span>, a[N], s[T + <span class="n">5</span>][T + <span class="n">5</span>];
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) a[i] = i;          <span class="c">// 假装输入是 1 2 3 ... 10</span>
+
+    <span class="k">for</span> (<span class="k">int</span> x = <span class="n">1</span>; x &lt;= T; ++x)                    <span class="c">// 建表：只给小模数建</span>
+        <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i)
+            s[x][i % x] += a[i];
+
+    <span class="k">int</span> x = <span class="n">2</span>, y = <span class="n">1</span>, ans = <span class="n">0</span>;                      <span class="c">// 询问：模 2 余 1 的池子和</span>
+    <span class="k">if</span> (x &lt;= T) ans = s[x][y];                      <span class="c">// 小模数：O(1)</span>
+    <span class="k">else</span> <span class="k">for</span> (<span class="k">int</span> i = y ? y : x; i &lt;= n; i += x) ans += a[i];   <span class="c">// 大模数：O(n/T)</span>
+
+    <span class="k">cout</span> &lt;&lt; ans &lt;&lt; <span class="s">"\n"</span>;                            <span class="c">// 1+3+5+7+9 = 25</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="box tip"><div class="t" id="b41">注意</div><p id="b42"><code>y = 0</code> 时起点是 x 而不是 0：下标从 1 开始，0 号位不存在。</p><p id="b43">两重循环是 nT ≈ 6×10⁷ 次加法，比每次询问现算 O(n) 划算得多——这就是“预处理换查询”。</p><p id="b44">T 取得太大，预处理和修改会变慢；T 取得太小，大查询变慢。最优值解方程得到，见数学补给。</p></div></div></div><div class="fn"><div class="fh" id="b45">新函数拆解 · 莫队的四个指针移动</div><div class="fb"><div class="sig" id="b46">while (L &gt; q[i].l) add(--L);
+while (R &lt; q[i].r) add(++R);
+while (L &lt; q[i].l) del(L++);
+while (R &gt; q[i].r) del(R--);</div><table class="lines"><thead><tr><th id="b47">组成</th><th id="b48">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b49"><code>L, R 初值</code></td><td id="b50"><code>L = 1, R = 0</code>，表示当前维护的区间为空。写成 <code>L = 0</code> 会去 add 一个不存在的 a[0]。</td></tr><tr><td id="b51"><code>维护的是闭区间</code></td><td id="b52">四个 while 走完后必然 L == l 且 R == r，此时 cur 就是这一问的答案。</td></tr><tr><td id="b53"><code>四条语句的顺序</code></td><td id="b54">只要 add / del 一一对应，顺序无所谓；习惯先扩后缩，能一眼看出区间在怎么变。</td></tr><tr><td id="b55"><code>add / del 必须互为逆操作</code></td><td id="b56">add 一个元素与 del 同一个元素的效果要正好抵消，写不对称就会永久偏移。</td></tr><tr><td id="b57"><code>为什么这样能快</code></td><td id="b58">按块排序后，同一块内的询问 L 只在 B 范围内晃、R 单调推进，所以指针总步数是 mB + n²/B，而不是 m·n。</td></tr><tr><td id="b59"><code>前提：add / del 是 O(1)</code></td><td id="b60">维护的量必须能在加入/删除一个元素时 O(1) 更新（cnt、cnt²、重复值个数）。像“区间最大值”这种删除后无法还原的量，普通莫队做不了。</td></tr></tbody></table><div class="cap" id="b61">最小可运行示例</div><div class="cap" id="b62">示例</div><pre id="b63"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> a[<span class="n">9</span>] = {<span class="n">0</span>, <span class="n">1</span>, <span class="n">2</span>, <span class="n">2</span>};                        <span class="c">// 只用 1..3 号位置，值域 1..2</span>
+<span class="k">int</span> cnt[<span class="n">9</span>];
+<span class="k">long</span> <span class="k">long</span> cur = <span class="n">0</span>;                              <span class="c">// 维护 Σ cnt²</span>
+
+<span class="k">void</span> <span class="f">add</span>(<span class="k">int</span> p) { cur += <span class="n">2LL</span> * cnt[a[p]] + <span class="n">1</span>; ++cnt[a[p]]; }
+<span class="k">void</span> <span class="f">del</span>(<span class="k">int</span> p) { cur -= <span class="n">2LL</span> * cnt[a[p]] - <span class="n">1</span>; --cnt[a[p]]; }
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> L = <span class="n">1</span>, R = <span class="n">0</span>;                           <span class="c">// 空区间</span>
+    <span class="k">int</span> l = <span class="n">1</span>, r = <span class="n">3</span>;                           <span class="c">// 目标区间 [1, 3] = {1, 2, 2}</span>
+    <span class="k">while</span> (L &gt; l) <span class="f">add</span>(--L);
+    <span class="k">while</span> (R &lt; r) <span class="f">add</span>(++R);
+    <span class="k">while</span> (L &lt; l) <span class="f">del</span>(L++);
+    <span class="k">while</span> (R &gt; r) <span class="f">del</span>(R--);
+    <span class="k">cout</span> &lt;&lt; cur &lt;&lt; <span class="s">"\n"</span>;                        <span class="c">// 1² + 2² = 5</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="box tip"><div class="t" id="b64">注意</div><p id="b65">四个 while 总共走 O(n√m) 步，每步只做 O(1) 的 add/del，所以总复杂度就是这个步数。</p><p id="b66">对每题都从空区间出发，看起来笨，实际上是“让相邻询问的区间尽量接近”，这个笨办法就是莫队的全部思想。</p></div></div></div><div class="fn"><div class="fh" id="b67">新函数拆解 · 奇偶排序（莫队的常数优化）</div><div class="fb"><div class="sig" id="b68">bool cmp(const Query &amp;x, const Query &amp;y) {
+    int bx = x.l / B, by = y.l / B;
+    if (bx != by) return bx &lt; by;
+    return (bx &amp; 1) ? x.r &gt; y.r : x.r &lt; y.r;
+}</div><table class="lines"><thead><tr><th id="b69">组成</th><th id="b70">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b71"><code>x.l / B</code></td><td id="b72">左端点落在第几块。B 是块长，取 n/√m（n = m 时就是 √n）。</td></tr><tr><td id="b73"><code>块号不同</code></td><td id="b74">按块号升序，保证 L 只在块内移动，这是 mB 那一项的来源。</td></tr><tr><td id="b75"><code>同一块内 r 升序</code></td><td id="b76">块内 r 单调推进，整块只走 O(n) 步。</td></tr><tr><td id="b77"><code>bx &amp; 1 的奇偶翻转</code></td><td id="b78">奇数块让 r 降序。这样一块结束时 r 停在高端，下一块从高端接着往下走，省掉每块之间整整一次 n 的回程，实测常数接近减半。</td></tr><tr><td id="b79"><code>为什么只翻转 r</code></td><td id="b80">翻转 l 会破坏“L 只在块内移动”的性质；r 不受块限制，可以随便调头。</td></tr><tr><td id="b81"><code>必须严格弱序</code></td><td id="b82">两个询问同块同 r 时返回 false，sort 不会崩。写成 &lt;= 会让 sort 越界，症状是 RE。</td></tr></tbody></table><div class="cap" id="b83">最小可运行示例</div><div class="cap" id="b84">示例</div><pre id="b85"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">struct</span> Query { <span class="k">int</span> l, r, id; } q[<span class="n">6</span>];
+<span class="k">int</span> B = <span class="n">2</span>;                                   <span class="c">// 块长：n/√m 的简化演示</span>
+
+<span class="k">bool</span> <span class="f">cmp</span>(<span class="k">const</span> Query &amp;x, <span class="k">const</span> Query &amp;y) {
+    <span class="k">int</span> bx = x.l / B, by = y.l / B;
+    <span class="k">if</span> (bx != by) <span class="k">return</span> bx &lt; by;             <span class="c">// 先按块</span>
+    <span class="k">return</span> (bx &amp; <span class="n">1</span>) ? x.r &gt; y.r : x.r &lt; y.r;  <span class="c">// 块内 r 的方向按块号奇偶翻转</span>
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> L[<span class="n">6</span>] = {<span class="n">0</span>, <span class="n">1</span>, <span class="n">1</span>, <span class="n">3</span>, <span class="n">4</span>, <span class="n">5</span>};
+    <span class="k">int</span> R[<span class="n">6</span>] = {<span class="n">0</span>, <span class="n">5</span>, <span class="n">2</span>, <span class="n">6</span>, <span class="n">4</span>, <span class="n">8</span>};
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= <span class="n">5</span>; ++i) { q[i].l = L[i]; q[i].r = R[i]; q[i].id = i; }
+    <span class="k">sort</span>(q + <span class="n">1</span>, q + <span class="n">6</span>, cmp);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= <span class="n">5</span>; ++i) <span class="k">cout</span> &lt;&lt; q[i].l &lt;&lt; <span class="s">" "</span> &lt;&lt; q[i].r &lt;&lt; <span class="s">"\n"</span>;
+    <span class="c">// 1 2 / 1 5 / 3 6 / 4 4 / 5 8：第 1、2 块 r 递增，第 3 块（奇数块）r 递减</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="box tip"><div class="t" id="b86">注意</div><p id="b87">这是排序里唯一需要动脑的地方；写错方向不影响正确性，只影响常数，所以症状是 TLE 而不是 WA。</p><p id="b88">块长 B 与排序规则必须配套：改了 B 就要重新分析 mB + n²/B，别照抄 n = m 时的 316。</p></div></div></div><div class="prob"><div class="ph"><span class="pn" id="b89">例题 · 哈希冲突</span><span class="oi">洛谷 P3396</span><span class="badge diff">提高-</span><a href="https://www.luogu.com.cn/problem/P3396" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b90">B 君有一个正整数序列 value[1..n]。value[k] 会被存进 (k mod p) 这个池子，下文把模数统一记作 x。给出 m 次操作：</p><p id="b91"><b>A x y</b>：询问在模 x 时，y 池内所有数的总和，即所有满足 k mod x = y 的 value[k] 之和。<br><b>C x y</b>：把 value[x] 改成 y，立即生效。</p><p id="b92">输入格式：第一行两个整数 n、m；第二行 n 个正整数；接下来 m 行，每行一个字符 cmd 和两个整数 x、y。<br>输出格式：每个 A 操作输出一行一个正整数。</p><p id="b93">数据范围：n, m ≤ 1.5×10⁵，1 ≤ valueᵢ ≤ 1000，修改后的值同样不超过 1000。</p></div><div class="io" id="b94">输入：
+10 5
+1 2 3 4 5 6 7 8 9 10
+A 2 1
+C 1 20
+A 3 1
+C 5 1
+A 5 0
+
+输出：
+25
+41
+11</div></div><div class="step"><div class="sh" id="b95">模数小就存，模数大就跳</div><p id="b96">暴力：每次询问扫一遍 1..n，判断 i mod x 是否为 y，O(n)。n = m = 1.5×10⁵ 时是 <b>2.25×10¹⁰</b> 次取模，必然 TLE。</p><p id="b97">全部预处理：给每个 (x, y) 存一张表。x 有 n 种、y 有 x 种，合计 O(n²) —— 空间先炸。所以“存或不存”不能一刀切。</p><p id="b98"><b>分治点：</b>x 小的时候 (x, y) 组合少。x ≤ T 时只有 Σx ≈ T²/2 个格子，T = 387 时约 7.5×10⁴ 个，随便存；x 大的时候池子里的数少，模 x 余 y 的下标最多 n/x 个，跳着扫反而是 O(√n)。</p><p id="b99"><b>于是：</b>预处理所有 x ≤ T 的表 s[x][y]；查询时 x ≤ T 直接查表，x &gt; T 现场按 i += x 跳着扫。取 T = √n，两条分支的代价都是 √n 量级。</p><p id="b100"><b>修改怎么办。</b>改 <code>a[x]</code> 会影响所有小模数的表：对每个 t ≤ T 把 <code>s[t][x % t]</code> 加上增量 <code>y − a[x]</code>。大模数不需要维护，因为每次查询都是现算的。</p><p id="b101"><b>总账。</b>预处理 O(nT) ≈ 5.8×10⁷，m 次操作各 O(T) 或 O(n/T) ≈ 387，合计约 1.2×10⁸ 次简单加法。</p><p id="b102"><b>数值。</b>最大的池子和 = 1.5×10⁵ × 1000 = 1.5×10⁸，int 绰绰有余。写成 int 而不是 long long，表的内存直接减半，也在缓存里待得更久。</p></div><div class="cap" id="b103">完整可编译代码（C++17）：根号分治</div><pre id="b104"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">150005</span>, T = <span class="n">400</span>;         <span class="c">// T ≈ √150000 ≈ 387，取整到 400</span>
+<span class="k">int</span> n, m, a[N];
+<span class="k">int</span> s[T + <span class="n">5</span>][T + <span class="n">5</span>];                   <span class="c">// s[x][y]：所有 i ≡ y (mod x) 的 a[i] 之和，只存 x ≤ T</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; m;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) <span class="k">cin</span> &gt;&gt; a[i];
+
+    <span class="k">for</span> (<span class="k">int</span> x = <span class="n">1</span>; x &lt;= T; ++x)                    <span class="c">// 建表：nT ≈ 6×10⁷ 次加法</span>
+        <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i)
+            s[x][i % x] += a[i];
+
+    <span class="k">while</span> (m--) {
+        <span class="k">char</span> op; <span class="k">int</span> x, y;
+        <span class="k">cin</span> &gt;&gt; op &gt;&gt; x &gt;&gt; y;
+        <span class="k">if</span> (op == <span class="s">'A'</span>) {
+            <span class="k">if</span> (x &lt;= T) {
+                <span class="k">cout</span> &lt;&lt; s[x][y] &lt;&lt; <span class="s">"\n"</span>;            <span class="c">// 小模数：查表 O(1)</span>
+            } <span class="k">else</span> {
+                <span class="k">int</span> r = <span class="n">0</span>;                          <span class="c">// 大模数：池内最多 n/x 个数，跳着扫</span>
+                <span class="k">for</span> (<span class="k">int</span> i = y ? y : x; i &lt;= n; i += x) r += a[i];
+                <span class="k">cout</span> &lt;&lt; r &lt;&lt; <span class="s">"\n"</span>;
+            }
+        } <span class="k">else</span> {
+            <span class="k">for</span> (<span class="k">int</span> t = <span class="n">1</span>; t &lt;= T; ++t)            <span class="c">// 改一个数，所有小模数的表都要动</span>
+                s[t][x % t] += y - a[x];
+            a[x] = y;                               <span class="c">// 最后再改原数组，否则增量算错</span>
+        }
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b105">逐行拆解</div><table class="lines"><thead><tr><th id="b106">代码片段</th><th id="b107">含义与理由</th></tr></thead><tbody><tr><td id="b108"><code>int s[T + 5][T + 5]</code></td><td id="b109">第一维是模数 x（只到 T），第二维是余数 y（最大 T−1）。400×400 个 int 约 640 KB。</td></tr><tr><td id="b110"><code>for (x = 1; x &lt;= T; ++x)</code></td><td id="b111">只给“小模数”建表。大模数的表不建——建了也存不下 n² 个格子。</td></tr><tr><td id="b112"><code>s[x][i % x] += a[i]</code></td><td id="b113">把每个元素放进它对应的 (模数, 余数) 格子。nT 次加法换后面每次查询 O(1)。</td></tr><tr><td id="b114"><code>if (x &lt;= T)</code></td><td id="b115">分治的那条线。线以下查表，线以上暴力，两条分支的代价都 ≤ √n。</td></tr><tr><td id="b116"><code>for (i = y ? y : x; i &lt;= n; i += x)</code></td><td id="b117">大模数分支的关键：直接按步长 x 跳，次数是 n/x 而不是 n。y = 0 时从 x 开始，因为下标是 1-based。</td></tr><tr><td id="b118"><code>s[t][x % t] += y - a[x]</code></td><td id="b119">用增量更新 T 张表，比“重新建表”便宜 T 倍。注意是 y − a[x]，不是 y。</td></tr><tr><td id="b120"><code>a[x] = y 放在最后</code></td><td id="b121">若先改 a[x]，<code>y − a[x]</code> 就变成 0，所有小表全部不更新 → WA。</td></tr><tr><td id="b122"><code>T 写成常数 400</code></td><td id="b123">省掉运行时开方，也让数组大小能写成编译期常量；n 变化时重新算一次即可。</td></tr></tbody></table></div><p id="b124">现在换一个角度。前面是“按参数大小分工”，莫队是“按询问顺序分工”：<b>把所有询问排个序，让相邻两个询问的区间尽量接近，然后暴力挪指针。</b>单次询问是 O(n)，但相邻两次之间只挪一小段，总步数被摊平到 O(n√m)。</p><p id="b125">莫队有三个硬性前提，缺一不可：<b>①</b> 能离线（询问的答案与顺序无关）；<b>②</b> 维护的量在加入/删除一个元素时能 O(1) 更新；<b>③</b> 区间能“增删元素”地维护，而不是只能整段重算。</p><div class="prob"><div class="ph"><span class="pn" id="b126">例题 · 【模板】莫队 / 小 B 的询问</span><span class="oi">洛谷 P2709</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P2709" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b127">小 B 有一个长为 n 的整数序列 a，值域为 [1, k]。他一共有 m 个询问，每个询问给定区间 [l, r]，求：</p><p id="b128"><b>Σ<sub>i=1..k</sub> cᵢ²</b>，其中 cᵢ 表示数字 i 在 a[l..r] 中出现的次数。</p><p id="b129">输入格式：第一行三个整数 n、m、k；第二行 n 个整数；接下来 m 行，每行两个整数 l、r。<br>输出格式：输出 m 行，每行一个整数，对应一个询问的答案。</p><p id="b130">数据范围：1 ≤ n, m, k ≤ 10⁵。</p></div></div><div class="step"><div class="sh" id="b131">增量公式 + 排序，就是莫队的全部</div><p id="b132">暴力：每个询问重扫一遍区间，O(nm) = 10¹⁰，TLE。</p><p id="b133"><b>关键是增量公式。</b>设当前某个值出现了 c 次，贡献是 c²。再放进一个它，贡献变成 (c+1)²，增量是 <b>(c+1)² − c² = 2c + 1</b>；删掉一个，减少 <b>c² − (c−1)² = 2c − 1</b>。两个都是 O(1)，这就是莫队能成立的地基。</p><p id="b134"><b>然后只管挪指针。</b>维护当前区间 [L, R] 和答案 cur。要让 [L, R] 变成 [l, r]，左右端点各自往里收或往外扩，每挪一格调用一次 add 或 del。全部挪完，cur 就是答案。</p><p id="b135"><b>排序决定快慢。</b>按 l 所在块排序，块内按 r 排序。于是同一块内 r 单调推进（整块只走 O(n) 步），而 l 只在块内晃（每个询问至多 O(B) 步）。总步数 mB + n²/B，取 B = n/√m 得 <b>2n√m</b>。</p><p id="b136"><b>取 2c+1 时先算再改 cnt。</b><code>cur += 2*cnt[v] + 1</code> 用的是旧次数，写完才 <code>++cnt[v]</code>。顺序颠倒就变成用新次数算增量，答案系统性偏大。</p><p id="b137"><b>奇偶优化。</b>块内 r 单调时，每换一块 r 都要从一段跑回另一端，白走一整趟 n。让奇数块 r 倒序，回程就变成顺路，常数接近减半。这只是常数优化，不影响正确性。</p><p id="b138"><b>答案规模。</b>最坏情况所有数相同，Σcᵢ² = n² = 10¹⁰，必须 long long。这是本题唯一的数值陷阱。</p></div><div class="cap" id="b139">完整可编译代码（C++17）：莫队算法</div><pre id="b140"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">100005</span>;
+<span class="k">int</span> n, m, k, B;
+<span class="k">int</span> a[N], cnt[N];                  <span class="c">// cnt[v]：值 v 在当前区间里出现几次</span>
+<span class="k">long</span> <span class="k">long</span> cur, ans[N];             <span class="c">// cur = Σ cnt[v]²，最大 1e10，必须 long long</span>
+
+<span class="k">struct</span> Query { <span class="k">int</span> l, r, id; } q[N];
+
+<span class="k">bool</span> <span class="f">cmp</span>(<span class="k">const</span> Query &amp;x, <span class="k">const</span> Query &amp;y) {
+    <span class="k">int</span> bx = x.l / B, by = y.l / B;
+    <span class="k">if</span> (bx != by) <span class="k">return</span> bx &lt; by;                     <span class="c">// 先按左端点所在块</span>
+    <span class="k">return</span> (bx &amp; <span class="n">1</span>) ? x.r &gt; y.r : x.r &lt; y.r;          <span class="c">// 块内 r 单调，奇偶块方向相反</span>
+}
+
+<span class="k">void</span> <span class="f">add</span>(<span class="k">int</span> p) { cur += <span class="n">2LL</span> * cnt[a[p]] + <span class="n">1</span>; ++cnt[a[p]]; }   <span class="c">// (c+1)² − c² = 2c + 1</span>
+<span class="k">void</span> <span class="f">del</span>(<span class="k">int</span> p) { cur -= <span class="n">2LL</span> * cnt[a[p]] - <span class="n">1</span>; --cnt[a[p]]; }   <span class="c">// c² − (c−1)² = 2c − 1</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; m &gt;&gt; k;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) <span class="k">cin</span> &gt;&gt; a[i];
+    B = <span class="k">max</span>(<span class="n">1</span>, (<span class="k">int</span>)(n / <span class="k">sqrt</span>(m)));            <span class="c">// 理论最优块长 n/√m</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= m; ++i) { <span class="k">cin</span> &gt;&gt; q[i].l &gt;&gt; q[i].r; q[i].id = i; }
+    <span class="k">sort</span>(q + <span class="n">1</span>, q + m + <span class="n">1</span>, cmp);
+
+    <span class="k">int</span> L = <span class="n">1</span>, R = <span class="n">0</span>;                          <span class="c">// 当前维护的区间为空</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= m; ++i) {
+        <span class="k">while</span> (L &gt; q[i].l) <span class="f">add</span>(--L);           <span class="c">// 左端点外扩</span>
+        <span class="k">while</span> (R &lt; q[i].r) <span class="f">add</span>(++R);           <span class="c">// 右端点外扩</span>
+        <span class="k">while</span> (L &lt; q[i].l) <span class="f">del</span>(L++);           <span class="c">// 左端点内收</span>
+        <span class="k">while</span> (R &gt; q[i].r) <span class="f">del</span>(R--);           <span class="c">// 右端点内收</span>
+        ans[q[i].id] = cur;                    <span class="c">// 此刻 [L, R] == [l, r]</span>
+    }
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= m; ++i) <span class="k">cout</span> &lt;&lt; ans[i] &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b141">逐行拆解</div><table class="lines"><thead><tr><th id="b142">代码片段</th><th id="b143">含义与理由</th></tr></thead><tbody><tr><td id="b144"><code>B = max(1, (int)(n / sqrt(m)))</code></td><td id="b145">块长按 n/√m 取。n = m = 10⁵ 时约 316。用 max 防 m 很大时算出 0。</td></tr><tr><td id="b146"><code>bx != by → 按块号升序</code></td><td id="b147">同一块的询问连在一起处理，L 才不会跨块乱跳。</td></tr><tr><td id="b148"><code>(bx &amp; 1) ? x.r &gt; y.r : x.r &lt; y.r</code></td><td id="b149">奇数块让 r 倒序，省掉块与块之间的一整趟回程。写反只是变慢，不会错。</td></tr><tr><td id="b150"><code>cur += 2LL * cnt[a[p]] + 1</code></td><td id="b151">用<b>旧</b>次数算增量。写 2LL 是为了让整个表达式的类型变成 long long——cur 最大 10¹⁰，int 只有 2.1×10⁹。</td></tr><tr><td id="b152"><code>++cnt[a[p]] 在增量之后</code></td><td id="b153">顺序不能换。先改 cnt 再算增量，等于用 (c+1) 代 c，每步都多算 2 → WA。</td></tr><tr><td id="b154"><code>while (L &gt; q[i].l) add(--L)</code></td><td id="b155">先减指针再加元素。写成 add(L--) 会把旧位置算进去，还漏掉新位置。</td></tr><tr><td id="b156"><code>while (L &lt; q[i].l) del(L++)</code></td><td id="b157">先删再减。del 完再 L++ 才对应“区间左端右移一格”。</td></tr><tr><td id="b158"><code>ans[q[i].id] = cur</code></td><td id="b159">排序打乱了询问顺序，答案必须按原编号回填，最后再按 1..m 输出。</td></tr><tr><td id="b160"><code>cin &gt;&gt; n &gt;&gt; m &gt;&gt; k</code></td><td id="b161">k 只是值域上界，用来给 cnt 定大小：cnt 的下标是数值本身，值域是 [1, k]，所以按 k 开而不是按 n 开。</td></tr></tbody></table></div><div class="box warn"><div class="t" id="b162">这一节的坑，按症状记</div><p id="b163">莫队按 l、r 双关键字排序（不按块）：小样例全对，大数据必 <b>TLE</b>——L、R 各自乱跳，总步数退化回 O(nm)。</p><p id="b164">块长取 1 或取 n：B = 1 时 R 每块都要重走一趟 n，总步数 O(n²)；B = n 时等于完全没排序。两种都是 <b>TLE</b>，而且 n 较小时看起来还挺快。</p><p id="b165">add / del 的增量写成同一个式子（都用 2c+1）：只有“只扩不缩”的数据能碰对；正常数据 <b>WA</b>，且答案忽大忽小。</p><p id="b166">先 <code>++cnt</code> 再算增量：每步系统性多算 2，答案单调偏大 → <b>WA</b>。</p><p id="b167"><code>cur</code> 用 int：最坏 Σcᵢ² = 10¹⁰，溢出成负数 → <b>WA</b>，小数据完全正常。</p><p id="b168">根号分治里大参数写成 <code>for (i = 1; i &lt;= n; ++i) if (i % x == y)</code>：等于没优化，n = m = 1.5×10⁵ 时 <b>TLE</b>。必须用 <code>i += x</code> 跳。</p><p id="b169">P3396 里先改 <code>a[x]</code> 再更新小表：增量 <code>y − a[x]</code> 变成 0，小模数分支全错 → <b>WA</b>，而大模数分支（现算）却是对的，查错时会被这个“一半对”误导。</p><p id="b170">cnt 按 n 开而值域是 k（本题 k 与 n 无关，k 可以大于 n）：越界写 → <b>RE</b> 或随机 WA。数组按 <b>值域</b>开。</p></div><div class="reproduce"><div class="rt" id="b171">自己动手复现</div><p id="b172">关掉页面，把 P2709 的莫队从零敲一遍，提交确认能过（这道题是洛谷的莫队模板题）。</p><p id="b173">改一改①：把 <code>cmp</code> 里的奇偶翻转删掉（两个分支都写 <code>x.r &lt; y.r</code>），在 n = m = 10⁵ 的随机数据上比较运行时间——答案不变，只是变慢。</p><p id="b174">改一改②：把 <code>B</code> 依次改成 1、316、100000，用同一份数据测时，对照数学补给里那张表：两头最慢，中间最快。</p><p id="b175">改一改③：把 <code>add</code> 里的 <code>2LL * cnt[a[p]] + 1</code> 改成 <code>1</code>，观察小数据下答案如何偏离 n 的平方和。</p></div><div class="mathcard"><div class="mt" id="b176">数学补给 · 两个复杂度是怎么解出来的</div><p id="b177"><b>一、莫队：mB + n²/B 的最小值。</b>块长 B 是唯一能调的量。同一块内 r 单调，整块至多走 n 步，共 n/B 块 → R 的总位移 ≤ n²/B；每个询问的 l 在同一块内差不超过 B，共 m 个 → L 的总位移 ≤ mB。</p><p id="b178">由均值不等式：mB + n²/B ≥ 2√(mB · n²/B) = <b>2n√m</b>，取等号当且仅当 mB = n²/B，即 <b>B = n/√m</b>。n = m 时就是 B = √n。</p><p id="b179">注意 B 依赖 m，不依赖 n 单独：m 比 n 大很多时块长要变小（m ≫ n 时 B 可以到 1 附近），m ≪ n 时块长变大。所以别把 316 当常数抄。</p><table><thead><tr><th id="b180">块长 B</th><th id="b181">L 总位移 ≤ mB</th><th id="b182">R 总位移 ≤ n²/B</th><th id="b183">合计（n = m = 10⁵）</th></tr></thead><tbody><tr><td id="b184">1</td><td id="b185">1×10⁵</td><td id="b186">1×10¹⁰</td><td id="b187">约 1×10¹⁰，TLE</td></tr><tr><td id="b188">100</td><td id="b189">1×10⁷</td><td id="b190">1×10⁸</td><td id="b191">1.1×10⁸</td></tr><tr><td id="b192">316</td><td id="b193">3.2×10⁷</td><td id="b194">3.2×10⁷</td><td id="b195">6.3×10⁷，最优</td></tr><tr><td id="b196">1000</td><td id="b197">1×10⁸</td><td id="b198">1×10⁷</td><td id="b199">1.1×10⁸</td></tr><tr><td id="b200">100000</td><td id="b201">1×10¹⁰</td><td id="b202">1×10⁵</td><td id="b203">约 1×10¹⁰，TLE</td></tr></tbody></table><p id="b204"><b>二、根号分治：T 取 √n。</b>预处理 O(nT)，每次操作 O(T)（修改）或 O(n/T)（大参数查询）。最坏情况每一种操作都可能拉满，所以看 max(T, n/T)：两者相等时取最小，T² = n，<b>T = √n</b>，代价 O((n+m)√n)。</p><p id="b205">代入 n = m = 1.5×10⁵、T = 387：预处理 5.8×10⁷，m 次操作各 387 → 5.8×10⁷，合计约 1.2×10⁸ 次加法。C++ 里一次简单加法约 1~2 ns，总时间 0.2 s 量级。</p><p id="b206"><b>三、别只看渐进次数，还要看常数。</b>莫队的每一步都要读写数组、比较下标，实际代价是纯加法的 2~3 倍。经验值：6×10⁷ 步莫队 ≈ 0.3~0.6 s；10⁸ 次纯加法 ≈ 0.2 s；而 10⁹ 次无论怎么优化都会超 1 s。</p><p id="b207"><b>四、阈值不一定是 √n。</b>若修改 O(T) 很贵而查询便宜（比如修改要动 T 张表），就设“修改次数 m₁、查询次数 m₂”，对 nT + m₁T + m₂·n/T 求导，得 <b>T = √(m₂n / (n + m₁))</b>。先写出代价函数再解，永远比背 √n 可靠。</p></div><div class="think"><div class="tt" id="b208">举一反三 · 想清楚这些再往下走</div><div class="thint">先自己写出答案，再点开核对——方向对不对，比答案本身更重要</div><ol><li id="b209"><div class="tq">莫队必须是离线算法。如果询问强制在线（每问的输入依赖上一问的答案），莫队还能用吗？替代方案是什么？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">不能用了。莫队的全部前提是“能按某种顺序重排询问”，强制在线时下一问的 l、r 由上一问的答案算出来，根本没法预先排序，四个 while 就退化成每次各走 O(n)，总代价 O(nm)。替代方案按“每次询问能忍多贵”排：<b>分块</b>（预处理每块的信息，单次 O(√n)，最通用）、<b>可持久化线段树</b>（区间第 k 小、区间不同数，单次 O(log n)，但只能做可减的信息）、<b>树套树 / 二维数据结构</b>（单次 O(log²n)）。常见错路是“先把询问读进来排个序再按 id 输出”——在线时连询问都读不齐；另一条是给莫队加个“上一问的答案”当参数，那只是把无法排序的问题藏起来，复杂度一点没变。</div></details></li><li id="b210"><div class="tq">如果 add 是 O(1) 但 del 是 O(log n)（比如维护区间内不同数的和），块长还取 n/√m 吗？代价函数该怎么写？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">代价函数要写得比正课更细：<code>T = mB·c<sub>L</sub> + (n²/B)·c<sub>R</sub></code>，其中 c<sub>L</sub>、c<sub>R</sub> 是 L 路径、R 路径上“平均每步”的成本，每步可能是 add 也可能是 del。如果两条路径上 add 与 del 的比例相同，就有 c<sub>L</sub> = c<sub>R</sub> = (c<sub>add</sub>+c<sub>del</sub>)/2，这个公共因子不影响极值点，<b>块长仍是 B = n/√m</b>，只是总时间乘上 (1+log n)/2。只有当两条路径的 add/del 比例明显不同时（例如 L 只增不减、R 只减不增），最优块长才会偏移成 <code>B = n·√(c<sub>R</sub>/(m·c<sub>L</sub>))</code>。真要让 del 变贵的情况彻底消失，办法不是调块长，而是换<b>回滚莫队</b>——只加不删，把删除那一半成本整个砍掉。常见错路是直接把“每步 O(log n)”乘进总步数，得出“块长要乘 log n”的结论：那是个与 B 无关的常数因子，对极值点没有影响。</div></details></li><li id="b211"><div class="tq">带修改的莫队（三维莫队）多一维“时间”，三个指针怎么排序？复杂度会从 O(n√m) 变成多少？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">三个指针 (l, r, t)，t 是“当前已经应用了几次修改”。排序关键字是 <code>(l/块, r/块, t)</code>，块长取 <b>n<sup>2/3</sup></b>：这样 l 只在小范围晃、r 只在块内推进、t 单调右移（修改只增不减）。挪 t 指针时，把一次修改“应用”或“撤销”回去（记下旧值，正反各做一次）。复杂度从 O(n√m) 涨到 <b>O(n<sup>5/3</sup>)</b>（n = m 时）：l 的位移 mB = n·n<sup>2/3</sup>，r 与之同阶，t 最多走 n 次而每次都要重走一遍块内，合起来就是这个量级。常见错路是块长仍取 √n——那三个指针互相牵制，复杂度会退化到接近 O(n²)；另一条是排序只用 (l, r) 两个关键字、忘了 t，修改顺序错乱，答案直接错而不是慢。</div></details></li><li id="b212"><div class="tq">区间最大值能不能用普通莫队？“只加不删”的回滚莫队是怎么绕开这个限制的？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">不能。普通莫队要求 add 和 del 都是 O(1)，而 max 删除后<b>无法还原</b>：删掉当前最大值后，谁是新最大值不知道，只能重扫区间，单步就退化成 O(区间长)。（这也是第 46 节说的“max 没有逆运算”。）回滚莫队的办法是<b>绕开删除</b>：仍按 l 所在块排序，块内把 L 固定在“块右端 + 1”、R 从块右端开始单调向右扩（只 add）；对每个询问先把 R 扩到 r，再把 [l, 块右端] 这一段临时 add 上去得到答案，然后<b>按记录回滚</b>这些临时加法——回滚靠的是“记住加之前的 cur”，不是真的删除，所以 max 也能用。l、r 同块的询问直接暴力扫 O(B)，不影响总复杂度，整体仍是 O(n√m)。常见错路是“用 multiset 维护最大值就不用 del 了”——那是 O(log n) 的删除，能过但慢一个 log；另一条是回滚时只撤销了计数、忘了把 cur 恢复成旧值，答案会一路偏大。</div></details></li><li id="b213"><div class="tq">根号分治的两种形态（按参数、按出现次数）分别适合什么样的题干信号？各举一个你能想到的场景。</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">按参数大小的信号：题干里出现<b>模数、除数、步长、差值、gcd 的 d</b> 这类参数，且参数小的时候“组合数少、能全部预存”，参数大的时候“池子里的项少、现场枚举也便宜”。典型场景就是本节的 P3396（模数 x）、以及“求 gcd 恰好为 d 的数对个数”（按 d 分治：d 小就预存倍数和，d 大就枚举倍数）。按出现次数的信号：题干里出现<b>出现次数、度数、集合大小、颜色种数</b>，并且总量有界（加起来是 n）。典型场景是“区间众数”（出现超过 √n 的值最多 √n 个，只给它们做前缀表）、树上度数大的点至多 √m 个（虚树的第一步）。常见错路是把“分块”和“根号分治”混为一谈——分块是一种数据结构，根号分治是“按参数分类讨论”的思路；另一条是把阈值固定成 √n，实际应该写出代价函数再解（有修改时阈值可能是 √(m₂n/(n+m₁))）。</div></details></li><li id="b214"><div class="tq">树上路径的颜色种数问题，怎么把“树上的路径”变成“序列上的区间”，从而直接套莫队？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">用<b>欧拉序（括号序）</b>：DFS 时每个点进栈记一次位置 st[u]、出栈再记一次 ed[u]，得到长度 2n 的序列，每个点出现两次。设 st[u] &lt; st[v]：若 u 是 v 的祖先，路径就对应区间 [st[u], st[v]]；否则对应 [ed[u], st[v]] 再<b>单独补上 LCA(u,v)</b> 这一个点。这样区间里出现两次的点都不在路径上、出现一次的正好是路径上的点，于是莫队的 add/del 改成“切换这个点的存在状态”，维护“当前在路径上的颜色种数”，复杂度 O(n√m)。常见错路是直接用 DFS 序（每个点只出现一次）——那是子树区间，根本拼不出路径；另一条是 u 不是 v 的祖先时忘了补 LCA，路径上最高那个点永远数不到。</div></details></li></ol></div><div class="box tip"><div class="t" id="b215">自测：能全部回答再进下一节</div><ul><li id="b216">能不看资料写出莫队的排序 + 四个 while，并说清 L、R 为什么初值是 1 和 0。</li><li id="b217">能推出 add 时 Σcᵢ² 的增量是 2c+1，并写出对称的 del。</li><li id="b218">能解释块长为什么取 n/√m，并说出 m ≫ n 时块长会怎么变。</li><li id="b219">能说清奇偶优化省的是哪一段位移，以及写反了会有什么症状。</li><li id="b220">能在 P3396 里说清 T 为什么取 √n，修改时为什么要动全部 T 张小表。</li><li id="b221">能说出根号分治两种形态各按什么分治，以及各自的复杂度来源。</li></ul></div><div class="challenge"><div class="ct" id="b222">挑战题 · 数列找不同</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P3901</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P3901" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b223">给定长度为 N 的数列 A₁…A_N，以及 Q 个询问 (Lᵢ, Rᵢ)，每次询问 A[Lᵢ..Rᵢ] 这一段是否<b>互不相同</b>。</p><p id="b224">输入格式：第一行两个整数 N、Q；第二行 N 个整数；接下来 Q 行，每行两个整数 Lᵢ、Rᵢ。<br>输出格式：每个询问输出一行，<code>Yes</code> 或 <code>No</code>。</p><p id="b225">数据范围：1 ≤ N, Q ≤ 10⁵，1 ≤ Aᵢ ≤ N，1 ≤ Lᵢ ≤ Rᵢ ≤ N。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b226">“互不相同”不需要知道每个数出现几次，只需要知道一件事：有没有哪个值出现了两次以上。</p><p id="b227">维护一个计数器 bad，表示“当前区间里出现次数 ≥ 2 的值有几个”。区间合法 ⟺ bad == 0。</p><p id="b228">加入一个值时 bad 什么时候加 1？删除一个值时 bad 什么时候减 1？想清楚这两个临界点（都是 1 和 2 之间），剩下全是模板。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b229"><b>为什么可以直接用普通莫队。</b>需要维护的量是“有多少个值重复了”，它在加入/删除一个元素时只可能变化 1，O(1) 更新，满足莫队的前提。</p><p id="b230"><b>状态。</b><code>cnt[v]</code>：值 v 在当前区间的出现次数；<code>bad</code>：满足 cnt[v] ≥ 2 的 v 的个数。</p><p id="b231"><b>add(p)。</b>先 <code>++cnt[a[p]]</code>；若恰好变成 2，说明这个值刚刚跨过“只出现一次”的界线，<code>++bad</code>。次数从 2 变 3 时 bad 不变——它数的是“重复的值有几个”，不是“重复的对有几对”。</p><p id="b232"><b>del(p)。</b>先判断 <code>cnt[a[p]] == 2</code>：若成立，删掉它之后这个值不再重复，<code>--bad</code>；再 <code>--cnt[a[p]]</code>。顺序不能反，减完就分不清 1 和 2 了。</p><p id="b233"><b>答案。</b><code>bad == 0 ? Yes : No</code>。按块排序 + 四个 while 挪指针，总移动 O(N√Q) ≈ 6×10⁷，每次 O(1)。</p><p id="b234"><b>另解。</b>离线按右端点排序 + 树状数组可以做到 O((N+Q) log N)，更快但要另想一层；本题用莫队练手正好。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b235">参考代码</div><pre id="b236"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">100005</span>;
+<span class="k">int</span> n, m, B;
+<span class="k">int</span> a[N], cnt[N];
+<span class="k">int</span> bad;                                    <span class="c">// 出现次数 &gt;= 2 的值的个数</span>
+<span class="k">int</span> ans[N];
+
+<span class="k">struct</span> Query { <span class="k">int</span> l, r, id; } q[N];
+
+<span class="k">bool</span> <span class="f">cmp</span>(<span class="k">const</span> Query &amp;x, <span class="k">const</span> Query &amp;y) {
+    <span class="k">int</span> bx = x.l / B, by = y.l / B;
+    <span class="k">if</span> (bx != by) <span class="k">return</span> bx &lt; by;
+    <span class="k">return</span> (bx &amp; <span class="n">1</span>) ? x.r &gt; y.r : x.r &lt; y.r;     <span class="c">// 奇数块 r 倒序，省一趟回程</span>
+}
+
+<span class="k">void</span> <span class="f">add</span>(<span class="k">int</span> p) {
+    <span class="k">if</span> (++cnt[a[p]] == <span class="n">2</span>) ++bad;             <span class="c">// 1 -&gt; 2：这个值开始重复</span>
+}
+
+<span class="k">void</span> <span class="f">del</span>(<span class="k">int</span> p) {
+    <span class="k">if</span> (cnt[a[p]] == <span class="n">2</span>) --bad;               <span class="c">// 2 -&gt; 1：删掉后不再重复</span>
+    --cnt[a[p]];
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; m;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) <span class="k">cin</span> &gt;&gt; a[i];
+    B = <span class="k">max</span>(<span class="n">1</span>, (<span class="k">int</span>)(n / <span class="k">sqrt</span>(m)));          <span class="c">// 理论最优块长 n/√m</span>
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= m; ++i) { <span class="k">cin</span> &gt;&gt; q[i].l &gt;&gt; q[i].r; q[i].id = i; }
+    <span class="k">sort</span>(q + <span class="n">1</span>, q + m + <span class="n">1</span>, cmp);
+
+    <span class="k">int</span> L = <span class="n">1</span>, R = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= m; ++i) {
+        <span class="k">while</span> (L &gt; q[i].l) <span class="f">add</span>(--L);
+        <span class="k">while</span> (R &lt; q[i].r) <span class="f">add</span>(++R);
+        <span class="k">while</span> (L &lt; q[i].l) <span class="f">del</span>(L++);
+        <span class="k">while</span> (R &gt; q[i].r) <span class="f">del</span>(R--);
+        ans[q[i].id] = (bad == <span class="n">0</span>);
+    }
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= m; ++i) <span class="k">cout</span> &lt;&lt; (ans[i] ? <span class="s">"Yes"</span> : <span class="s">"No"</span>) &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b237">关键片段拆解</div><table class="lines"><thead><tr><th id="b238">片段</th><th id="b239">作用</th></tr></thead><tbody><tr><td id="b240"><code>if (++cnt[a[p]] == 2) ++bad;</code></td><td id="b241">只在 1 → 2 这一刻计数。bad 记“重复的值有几个”，不是“重复的对有几对”。</td></tr><tr><td id="b242"><code>if (cnt[a[p]] == 2) --bad;</code></td><td id="b243">必须在 <code>--cnt</code> 之前判断：减完就再也分不清 1 和 2 了。</td></tr><tr><td id="b244"><code>ans[q[i].id] = (bad == 0)</code></td><td id="b245">区间互不相同 ⟺ 没有任何值的出现次数达到 2。存 0/1 便于最后输出。</td></tr><tr><td id="b246"><code>B = max(1, (int)(n / sqrt(m)))</code></td><td id="b247">N = Q = 10⁵ 时约 316。取 max 是为了防 B 算成 0——B = 0 会让 <code>x.l / B</code> 直接除零崩掉。</td></tr><tr><td id="b248"><code>sort 后再回填 ans</code></td><td id="b249">排序打乱了询问顺序，答案必须按原编号存回，否则输出顺序全错。</td></tr><tr><td id="b250"><code>四个 while 的顺序</code></td><td id="b251">先扩后缩只是习惯；真正要求的是 add/del 与指针移动方向严格对应，写错会统计到区间外的元素。</td></tr></tbody></table><div class="box warn"><div class="t" id="b252">这题最容易错的地方</div><ul><li id="b253">把 bad 记成“重复对数”（每次 add 都加 cnt−1）：删除时无法对称还原 → WA，而且 bad 会到 O(N²) 级别。</li><li id="b254">del 里先 <code>--cnt</code> 再判断是否等于 2：临界点永远碰不到，bad 只增不减 → 从某个询问开始全输出 No。</li><li id="b255">块长取 1 或取 N：总移动退化到 O(N²) → TLE，小数据却看不出问题。</li><li id="b256">答案按排序后的顺序输出而不是按 id 回填 → WA，而且错得很隐蔽：数值全对，只有顺序错。</li><li id="b257">cnt 数组按“最大询问长度”开而不是按值域开：Aᵢ 可以等于 N，必须开 N+1。</li></ul></div></div></details></div><div class="box tip" style="margin:22px 0 -6px"><div class="t" id="b258">挑战 2 · 难度高一级，允许组合多个已学算法</div><p id="b259">这题比上面的挑战题更难：它不只用本节一个算法，可能需要把前面几节的工具拼起来。独立做出来说明这一块真的过关了；做完记得在侧边栏勾上 🌟。</p></div><div class="challenge ch2"><div class="ct" id="b260">挑战 2 · 小 Z 的袜子</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1494</span><span class="badge diff">提高-/提高</span><a href="https://www.luogu.com.cn/problem/P1494" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b261">有 N 只袜子，第 i 只的颜色是 C<sub>i</sub>。小 Z 提出 M 个询问，每个询问给一段 [L, R]：从编号 L..R 的袜子里随机抽出两只，求这两只<b>颜色相同</b>的概率，以最简分数 A/B 输出。</p><p id="b262">若概率为 0（包括 L = R 无法抽出两只的情况），输出 <code>0/1</code>。</p><p id="b263">输入：第一行两个正整数 N、M（1 ≤ N, M ≤ 5×10<sup>4</sup>）；第二行 N 个正整数 C<sub>i</sub>（1 ≤ C<sub>i</sub> ≤ N）；接下来 M 行，每行两个正整数 L、R（1 ≤ L ≤ R ≤ N）。</p><p id="b264">输出：M 行，每行一个最简分数 A/B。</p><p id="b265">样例：颜色 1 2 3 3 3 2，询问 [2,6] 里有 2,3,3,3,2（长度 5），同色对 1+3 = 4 对，总对数 C(5,2) = 10，概率 4/10 = 2/5。</p></div><div class="cap" id="b266">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+6 4
+1 2 3 3 3 2
+2 6
+1 3
+3 5
+1 6
+输出：
+2/5
+0/1
+1/1
+4/15</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b267">概率 = 同色的对数 / 所有对数。分母只跟区间长度有关，是 C(len,2)；分子是 Σ C(cnt<sub>c</sub>, 2)，只跟每种颜色出现几次有关。</p><p id="b268">区间端点只挪一格时，那个和怎么变？写出 C(c+1,2) − C(c,2)，只要一个 O(1) 的增量。</p><p id="b269">M 个询问各自扫一遍是 5×10<sup>4</sup>×5×10<sup>4</sup> = 2.5×10<sup>9</sup>。本节正课的莫队能把指针的总移动量压到多少？块大小该取多少，从代价函数解出来。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b270">答案 = Σ<sub>c</sub> C(cnt<sub>c</sub>, 2) / C(len, 2)，其中 cnt<sub>c</sub> 是颜色 c 在区间内的出现次数。分母 O(1) 就能算，全部难点在分子。</p><p id="b271">莫队：把所有询问排个序，让相邻两次的区间尽量接近，然后只挪指针暴力维护分子。</p><p id="b272">增量公式：新加入一个颜色 c，贡献从 C(cnt,2) 变成 C(cnt+1,2)，差是 cnt。所以 add 时 <code>cur += cnt[c]</code>，用旧计数算完再 ++。删除对称：先 --cnt，再 <code>cur -= cnt[c]</code>。</p><p id="b273">排序：按 l 所在块排序、块内按 r 升序。同一块内 r 总共只推进 O(n) 步，l 每次至多动 O(B) 步，总移动量 O(mB + n²/B)。</p><p id="b274">对 B 求极值：B = n/√m 时总代价 O(n√m)。本题 n = m = 5×10<sup>4</sup>，约 1.1×10<sup>7</sup> 步。</p><p id="b275">奇偶优化：相邻块让 r 反向排序，省掉每换一块时「从右端跑回左端」的白跑一趟 n。</p><p id="b276">最后约分：分子分母同除 gcd；分子为 0 时直接输出 0/1（L = R 时分母也是 0，必须一起特判）。</p><p id="b277">复杂度 O(n√m)，n = m = 5×10<sup>4</sup> 时约 1.1×10<sup>7</sup> 次指针移动，远低于 10<sup>8</sup>。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b278">参考代码</div><pre id="b279"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> MAXN = <span class="n">50005</span>;
+<span class="k">int</span> col[MAXN], cnt[MAXN], blk;
+<span class="k">long</span> <span class="k">long</span> cur = <span class="n">0</span>;            <span class="c">// 当前区间里 Σ C(cnt[颜色], 2)</span>
+<span class="k">long</span> <span class="k">long</span> num[MAXN], den[MAXN];
+<span class="k">int</span> n, m;
+
+<span class="k">struct</span> Q { <span class="k">int</span> l, r, id; } q[MAXN];
+
+<span class="k">inline</span> <span class="k">void</span> <span class="f">addPos</span>(<span class="k">int</span> i) { cur += cnt[col[i]]; ++cnt[col[i]]; }   <span class="c">// 增量 = 旧次数</span>
+<span class="k">inline</span> <span class="k">void</span> <span class="f">delPos</span>(<span class="k">int</span> i) { --cnt[col[i]]; cur -= cnt[col[i]]; }   <span class="c">// 减量 = 新次数</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">scanf</span>(<span class="s">"%d%d"</span>, &amp;n, &amp;m);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;col[i]);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; m; ++i) { <span class="k">scanf</span>(<span class="s">"%d%d"</span>, &amp;q[i].l, &amp;q[i].r); q[i].id = i; }
+
+    blk = <span class="k">max</span>(<span class="n">1</span>, (<span class="k">int</span>)(n / <span class="k">sqrt</span>((<span class="k">double</span>)<span class="k">max</span>(<span class="n">1</span>, m))));       <span class="c">// 块大小 = n / √m</span>
+    <span class="k">sort</span>(q, q + m, [](<span class="k">const</span> Q&amp; x, <span class="k">const</span> Q&amp; y) {
+        <span class="k">int</span> bx = x.l / blk, by = y.l / blk;
+        <span class="k">if</span> (bx != by) <span class="k">return</span> bx &lt; by;
+        <span class="k">return</span> (bx &amp; <span class="n">1</span>) ? x.r &gt; y.r : x.r &lt; y.r;            <span class="c">// 奇数块 r 倒序，少走一趟</span>
+    });
+
+    <span class="k">int</span> L = <span class="n">1</span>, R = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; m; ++i) {
+        <span class="k">while</span> (L &gt; q[i].l) <span class="f">addPos</span>(--L);
+        <span class="k">while</span> (R &lt; q[i].r) <span class="f">addPos</span>(++R);
+        <span class="k">while</span> (L &lt; q[i].l) <span class="f">delPos</span>(L++);
+        <span class="k">while</span> (R &gt; q[i].r) <span class="f">delPos</span>(R--);
+        <span class="k">long</span> <span class="k">long</span> len = q[i].r - q[i].l + <span class="n">1</span>;
+        num[q[i].id] = cur;
+        den[q[i].id] = len * (len - <span class="n">1</span>) / <span class="n">2</span>;                 <span class="c">// 总方案数 C(len, 2)</span>
+    }
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; m; ++i) {
+        <span class="k">if</span> (num[i] == <span class="n">0</span>) { <span class="f">puts</span>(<span class="s">"0/1"</span>); <span class="k">continue</span>; }
+        <span class="k">long</span> <span class="k">long</span> g = <span class="f">__gcd</span>(num[i], den[i]);
+        <span class="k">printf</span>(<span class="s">"%lld/%lld\n"</span>, num[i] / g, den[i] / g);
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b280">关键片段拆解</div><table class="lines"><thead><tr><th id="b281">片段</th><th id="b282">作用</th></tr></thead><tbody><tr><td id="b283"><code>cur += cnt[col[i]]; ++cnt[col[i]];</code></td><td id="b284">★ 增量公式：C(c+1,2) − C(c,2) = c。用<b>旧</b>计数算增量，顺序反了就变成用新计数，答案系统性偏大。</td></tr><tr><td id="b285"><code>--cnt[col[i]]; cur -= cnt[col[i]];</code></td><td id="b286">删除对称：先减计数，再减去新计数（= 旧计数 − 1）。</td></tr><tr><td id="b287"><code>blk = max(1, (int)(n / sqrt(m)));</code></td><td id="b288">块大小来自代价函数 mB + n²/B 的极值点 B = n/√m，不是随手取的常数。</td></tr><tr><td id="b289"><code>return (bx &amp; 1) ? x.r &gt; y.r : x.r &lt; y.r;</code></td><td id="b290">奇偶优化：奇数块 r 倒序，换块时不再白跑一整趟。</td></tr><tr><td id="b291"><code>den[i] = len * (len - 1) / 2;</code></td><td id="b292">分母是组合数，不是 len²；len = 1 时它等于 0，必须走 0/1 分支。</td></tr><tr><td id="b293"><code>__gcd(num[i], den[i])</code></td><td id="b294">最简分数。分子为 0 时 gcd 等于分母，所以 0 要单独输出 0/1。</td></tr></tbody></table><div class="box warn"><div class="t" id="b295">这题最容易错的地方</div><ul><li id="b296">增量写成 2c+1（那是平方和版本）：本题是 C(c,2)，差是 c。</li><li id="b297">分母写成 len*(len-1) 不除 2：把有序对也数进去了，答案整体偏小一半。</li><li id="b298">cur 用 int：最坏 C(5×10<sup>4</sup>,2) ≈ 1.25×10<sup>9</sup>，超出 int。</li><li id="b299">L = R 时没走特判：分母为 0，__gcd 除零直接崩。</li></ul></div></div></details></div><div class="box info"><div class="t" id="b300">延伸阅读 / 参考</div><ul><li id="b301">《算法竞赛进阶指南》0x40 分块与莫队</li><li id="b302">《算法竞赛黄金法则：提高算法和思考力的 77 项技巧》关于“均摊与分块”的章节</li><li id="b303">洛谷 P3396、P2709 题解区的高赞实现</li></ul></div>
+
+<footer>算竞教程 · 算竞教程 · 生成于自建课程体系，题目版权归洛谷及各命题方所有<br>
+转载请注明出处；模板代码可直接用于比赛</footer>

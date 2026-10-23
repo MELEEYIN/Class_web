@@ -1,0 +1,251 @@
+
+<div class="box info"><div class="t" id="b0">本节出现的新函数 / 新语法（先看懂再用）</div><ul><li id="b1"><a href="#fn-0">入度表与 Kahn 算法</a> —— 入度减到 0 就入队；出队顺序是拓扑序，cnt 判环</li><li id="b2"><a href="#fn-1">小根堆拓扑序（字典序最小）</a> —— 把 queue 换成小根堆，得到字典序最小的拓扑序</li><li id="b3"><a href="#fn-2">拓扑序上的 DP（最长路 / 方案数）</a> —— 出队时把 f[u] 往前推，max 求最长路、+= 求方案数</li></ul></div><p id="b4">有些事必须按顺序做：先和面才能擀皮，先擀皮才能包饺子。把每件事看成一个点，把“A 必须在 B 之前完成”看成一条有向边 A→B，整张图就必须无环——有环意味着“A 在 B 前”和“B 在 A 前”同时成立，这要求本身自相矛盾。</p><p id="b5">无环的有向图叫 <b>DAG</b>。把 DAG 的所有点排成一列，使每条边都从前指向后，这个排列就叫<b>拓扑序</b>。拓扑排序本身不是目的，它的价值是：<b>把 DAG 变成一条可以从左往右扫的序列</b>——扫到某个点时，它的所有前驱都已经处理完了。于是“必须先算谁”这个依赖问题被彻底消掉，剩下的事就是在一条链上做 DP。</p><div class="quote" id="b6">拓扑序的全部意义就一句话：它给不出唯一答案，但它给出一个所有依赖都成立的顺序。有了这个顺序，DAG 上的 DP 就是线性 DP。</div><table><thead><tr><th id="b7">问法</th><th id="b8">在拓扑序上做什么</th><th id="b9">复杂度</th></tr></thead><tbody><tr><td id="b10">有没有环</td><td id="b11">数出队点数 cnt 是否等于 n</td><td id="b12">O(n + m)</td></tr><tr><td id="b13">最早完成时间 / 最长路</td><td id="b14">f[v] = max(f[v], f[u] + w)</td><td id="b15">O(n + m)</td></tr><tr><td id="b16">路径条数 / 方案数</td><td id="b17">f[v] += f[u]，源点置 1</td><td id="b18">O(n + m)</td></tr><tr><td id="b19">字典序最小的拓扑序</td><td id="b20">把 queue 换成小根堆</td><td id="b21">O((n + m) log n)</td></tr><tr><td id="b22">DAG 上最短路（可有负权）</td><td id="b23">f[v] = min(f[v], f[u] + w)</td><td id="b24">O(n + m)</td></tr></tbody></table><p id="b25">三块骨头：<b>入度表 + Kahn 算法</b>（求出拓扑序、顺带判环）、<b>小根堆</b>（把拓扑序压成字典序最小）、<b>拓扑序上的 DP</b>（在出队时把信息往后推）。第三块是这一节真正的重点，前两块是把图变成序列的工具。</p><div class="fn"><div class="fh" id="b26">新函数拆解 · 入度表与 Kahn 算法</div><div class="fb"><div class="sig" id="b27">int in[N];                       // in[v]：还有多少条边指向 v
+queue&lt;int&gt; q;
+for (int i = 1; i &lt;= n; ++i)
+    if (in[i] == 0) q.push(i);   // 没有前驱的点先入队
+
+int cnt = 0;
+while (!q.empty()) {
+    int u = q.front(); q.pop();
+    ++cnt;                       // 出队顺序就是一个拓扑序
+    for (int v : g[u])
+        if (--in[v] == 0) q.push(v);
+}
+if (cnt &lt; n) /* 有环 */;</div><table class="lines"><thead><tr><th id="b28">组成</th><th id="b29">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b30"><code>in[v]</code></td><td id="b31">v 的入度 = 有多少条边指向 v = 还有多少个前驱没处理。每读一条边 u→v 就 ++in[v]。</td></tr><tr><td id="b32"><code>in[i] == 0 的点</code></td><td id="b33">没有任何前驱，第一步就能做。它们是拓扑序的“第一层”，必须全部入队——漏一个就少一串点。</td></tr><tr><td id="b34"><code>queue</code></td><td id="b35">存“前驱都已完成、但还没输出”的点。用 queue、stack、priority_queue 都合法，区别只在得到哪一个拓扑序。</td></tr><tr><td id="b36"><code>--in[v] == 0</code></td><td id="b37">u 出队意味着 u 已完成，v 少了一个未完成的前驱。减到 0 说明 v 的前驱全齐了，可以入队。</td></tr><tr><td id="b38"><code>必须先减再判</code></td><td id="b39">写成 <code>in[v] == 0</code>（忘了自减）→ v 永远不入队，算法只输出第一层；写成 <code>in[v]-- &gt; 0</code> → 入队时机全部推迟一层。两种都不报错，只是答案错。</td></tr><tr><td id="b40"><code>cnt</code></td><td id="b41">出队的点数。cnt == n 说明所有点都被排进了序列；cnt &lt; n 说明剩下的点互相牵制，它们一定落在某个环上。</td></tr><tr><td id="b42"><code>为什么 cnt &lt; n 就是有环</code></td><td id="b43">环上每个点的入度里至少有一条来自环内，永远不会减到 0；反之无环时总能不断找到入度为 0 的点（证明见数学补给）。</td></tr><tr><td id="b44"><code>复杂度</code></td><td id="b45">每个点入队出队各一次，每条边被看一次：O(n + m)。m = 5×10⁵ 也就几毫秒。</td></tr><tr><td id="b46"><code>自环</code></td><td id="b47">u→u 让 in[u] ≥ 1，u 永远进不了队列，最终 cnt &lt; n → 判成有环。这个结论是对的。</td></tr></tbody></table><div class="cap" id="b48">最小可运行示例</div><div class="cap" id="b49">示例</div><pre id="b50"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">10</span>;
+<span class="k">vector</span>&lt;<span class="k">int</span>&gt; g[N];                  <span class="c">// g[u]：u 的所有后继</span>
+<span class="k">int</span> in[N];
+
+<span class="k">void</span> <span class="f">add</span>(<span class="k">int</span> u, <span class="k">int</span> v) { g[u].<span class="k">push_back</span>(v); ++in[v]; }
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="f">add</span>(<span class="n">1</span>, <span class="n">2</span>); <span class="f">add</span>(<span class="n">1</span>, <span class="n">3</span>); <span class="f">add</span>(<span class="n">2</span>, <span class="n">4</span>); <span class="f">add</span>(<span class="n">3</span>, <span class="n">4</span>); <span class="f">add</span>(<span class="n">4</span>, <span class="n">5</span>);
+
+    <span class="k">queue</span>&lt;<span class="k">int</span>&gt; q;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= <span class="n">5</span>; ++i)
+        <span class="k">if</span> (in[i] == <span class="n">0</span>) q.<span class="f">push</span>(i);       <span class="c">// 只有 1 号没有前驱</span>
+
+    <span class="k">int</span> cnt = <span class="n">0</span>;
+    <span class="k">while</span> (!q.<span class="k">empty</span>()) {
+        <span class="k">int</span> u = q.<span class="f">front</span>(); q.<span class="f">pop</span>();
+        <span class="k">cout</span> &lt;&lt; u &lt;&lt; <span class="s">' '</span>;                <span class="c">// 出队即输出，天然是一个拓扑序</span>
+        ++cnt;
+        <span class="k">for</span> (<span class="k">int</span> v : g[u])
+            <span class="k">if</span> (--in[v] == <span class="n">0</span>) q.<span class="f">push</span>(v);
+    }
+    <span class="k">cout</span> &lt;&lt; <span class="s">"\n"</span> &lt;&lt; cnt &lt;&lt; <span class="s">"\n"</span>;         <span class="c">// 1 2 3 4 5 / 5</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="box tip"><div class="t" id="b51">注意</div><p id="b52">拓扑序一般<b>不唯一</b>：本例 2 和 3 的顺序可以互换，queue 的先来先服务决定了你拿到哪一个。</p><p id="b53">要保存拓扑序就开一个 ord[]，在 ++cnt 的地方写 ord[cnt] = u。后面做 DP 时直接扫 ord 也行，边扫边推也行。</p></div></div></div><div class="fn"><div class="fh" id="b54">新函数拆解 · 小根堆拓扑序（字典序最小）</div><div class="fb"><div class="sig" id="b55">priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; pq;
+for (int i = 1; i &lt;= n; ++i) if (in[i] == 0) pq.push(i);
+while (!pq.empty()) {
+    int u = pq.top(); pq.pop();      // 每次取当前可选的最小点
+    for (int v : g[u]) if (--in[v] == 0) pq.push(v);
+}</div><table class="lines"><thead><tr><th id="b56">组成</th><th id="b57">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b58"><code>priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt;</code></td><td id="b59">小根堆。三个模板参数依次是元素类型、底层容器、比较器。</td></tr><tr><td id="b60"><code>greater&lt;int&gt;</code></td><td id="b61">比较器：greater(a,b) 表示 a 的优先级比 b 低，所以堆顶是<b>最小</b>的那个。默认的 less&lt;int&gt; 堆顶是最大值。</td></tr><tr><td id="b62"><code>为什么换成它就能字典序最小</code></td><td id="b63">queue 是先进先出，谁先入队谁先出（跟编号无关）；小根堆每次弹“当前所有可选项里编号最小”的那个。</td></tr><tr><td id="b64"><code>正确性（交换论证）</code></td><td id="b65">设当前可选取集合是 S，其中最小的是 x。任何一个合法拓扑序的这一位若不是 x，就把它挪到这里并把 x 提前：x 此刻没有未完成的前驱，前移不会违反任何约束，其余点相对顺序不变，字典序只会变小。所以每次取最小不吃亏。</td></tr><tr><td id="b66"><code>复杂度</code></td><td id="b67">n 次入堆、n 次出堆，每次 O(log n)；每条边看一次。总计 O((n + m) log n)，n = 10⁵ 也轻松。</td></tr><tr><td id="b68"><code>和 sort 的 cmp 方向相反</code></td><td id="b69">sort 的 cmp 返回 true 表示 a 排在 b 前面；堆的比较器返回 true 表示 a 的优先级<b>更低</b>。写反了就变成大根堆。</td></tr><tr><td id="b70"><code>换自定义类型</code></td><td id="b71">要按多个关键字排时，写一个重载了 operator() 的结构体当第三个参数；元素是 int 时无需定义结构体。</td></tr></tbody></table><div class="cap" id="b72">最小可运行示例</div><div class="cap" id="b73">示例</div><pre id="b74"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">10</span>;
+<span class="k">vector</span>&lt;<span class="k">int</span>&gt; g[N];
+<span class="k">int</span> in[N];
+
+<span class="k">void</span> <span class="f">add</span>(<span class="k">int</span> u, <span class="k">int</span> v) { g[u].<span class="k">push_back</span>(v); ++in[v]; }
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="f">add</span>(<span class="n">1</span>, <span class="n">3</span>); <span class="f">add</span>(<span class="n">1</span>, <span class="n">2</span>);            <span class="c">// 注意：3 先入队</span>
+    <span class="f">add</span>(<span class="n">2</span>, <span class="n">4</span>); <span class="f">add</span>(<span class="n">3</span>, <span class="n">4</span>); <span class="f">add</span>(<span class="n">4</span>, <span class="n">5</span>);
+
+    <span class="k">priority_queue</span>&lt;<span class="k">int</span>, <span class="k">vector</span>&lt;<span class="k">int</span>&gt;, <span class="k">greater</span>&lt;<span class="k">int</span>&gt;&gt; pq;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= <span class="n">5</span>; ++i)
+        <span class="k">if</span> (in[i] == <span class="n">0</span>) pq.<span class="f">push</span>(i);
+
+    <span class="k">while</span> (!pq.<span class="k">empty</span>()) {
+        <span class="k">int</span> u = pq.<span class="f">top</span>(); pq.<span class="f">pop</span>();
+        <span class="k">cout</span> &lt;&lt; u &lt;&lt; <span class="s">' '</span>;
+        <span class="k">for</span> (<span class="k">int</span> v : g[u])
+            <span class="k">if</span> (--in[v] == <span class="n">0</span>) pq.<span class="f">push</span>(v);
+    }
+    <span class="k">cout</span> &lt;&lt; <span class="s">"\n"</span>;                    <span class="c">// 1 2 3 4 5（用 queue 会得到 1 3 2 4 5）</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="box tip"><div class="t" id="b75">注意</div><p id="b76">“字典序最小”指整个序列按位比较最小，不是“编号 1 尽量靠前、再让 2 尽量靠前”。这两个目标<b>不是</b>一回事，遇到“让 1 最早、再让 2 最早”的问法，小根堆正着贪心不一定对，要另想办法。</p><p id="b77">priority_queue 不支持遍历和删除任意元素，需要时改用 multiset 或手写堆。</p></div></div></div><div class="fn"><div class="fh" id="b78">新函数拆解 · 拓扑序上的 DP（最长路 / 方案数）</div><div class="fb"><div class="sig" id="b79">// 前提：图是 DAG，in[] 已统计好，q 里是全部入度为 0 的点
+while (!q.empty()) {
+    int u = q.front(); q.pop();
+    for (int v : g[u]) {
+        f[v] = max(f[v], f[u] + w);      // 最长路：取更好的
+      //f[v] = (f[v] + f[u]) % MOD;      // 方案数：加法原理
+        if (--in[v] == 0) q.push(v);
+    }
+}</div><table class="lines"><thead><tr><th id="b80">组成</th><th id="b81">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b82"><code>为什么 DAG 上能 DP</code></td><td id="b83">拓扑序保证所有能到达 v 的点都排在 v 之前，算出队到 v 时，它需要的所有 f 值都已经定稿。这就是“无后效性”的具体形态。</td></tr><tr><td id="b84"><code>和 Dijkstra 的区别</code></td><td id="b85">DAG 上不需要优先队列：拓扑序本身就是正确的松弛顺序，O(n + m)，而且<b>负权也照样正确</b>。</td></tr><tr><td id="b86"><code>更新时机</code></td><td id="b87">必须在 <code>--in[v] == 0</code> 判定的<b>前面</b>。那条边无论 v 是否刚好可以入队，都要贡献一次。写在 if 里面就漏了。</td></tr><tr><td id="b88"><code>最长路取 max</code></td><td id="b89">f[v] 表示“到 v 为止的最优值”，每来一个前驱就试着用它更新一次。初值按题意定：−∞、0，或“自己的耗时”。</td></tr><tr><td id="b90"><code>方案数用加法</code></td><td id="b91">f[v] = Σ f[p]（对所有边 p→v）。源点置 1，其余置 0；每次加法后立刻 % MOD，别攒到最后。</td></tr><tr><td id="b92"><code>多个源点</code></td><td id="b93">入度为 0 的点全都是源点。判题时要按题意决定“全部当起点”还是“只认某一个源点，其余置无效值”。</td></tr><tr><td id="b94"><code>出边时加自己</code></td><td id="b95">没有边权、只有点权时，写成 <code>f[v] = max(f[v], f[u] + t[v])</code>，把“自己的耗时”放在出边这一步加，源点只需初值 f[i] = t[i]。</td></tr><tr><td id="b96"><code>反向图</code></td><td id="b97">递推方向反了（要的是“从 v 出发”的值）就把图反向存一遍再拓扑排序，不要试图倒着扫拓扑序——倒序扫只对“所有前驱值已知”有效。</td></tr></tbody></table><div class="cap" id="b98">最小可运行示例</div><div class="cap" id="b99">示例</div><pre id="b100"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">10</span>;
+<span class="k">vector</span>&lt;<span class="k">int</span>&gt; g[N];
+<span class="k">int</span> in[N], t[N] = {<span class="n">0</span>, <span class="n">5</span>, <span class="n">3</span>, <span class="n">2</span>, <span class="n">4</span>, <span class="n">1</span>}, f[N];
+
+<span class="k">void</span> <span class="f">add</span>(<span class="k">int</span> u, <span class="k">int</span> v) { g[u].<span class="k">push_back</span>(v); ++in[v]; }
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="f">add</span>(<span class="n">1</span>, <span class="n">2</span>); <span class="f">add</span>(<span class="n">1</span>, <span class="n">3</span>); <span class="f">add</span>(<span class="n">2</span>, <span class="n">4</span>); <span class="f">add</span>(<span class="n">3</span>, <span class="n">4</span>); <span class="f">add</span>(<span class="n">4</span>, <span class="n">5</span>);
+
+    <span class="k">queue</span>&lt;<span class="k">int</span>&gt; q;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= <span class="n">5</span>; ++i) {
+        f[i] = t[i];                       <span class="c">// 初值：只做自己</span>
+        <span class="k">if</span> (in[i] == <span class="n">0</span>) q.<span class="f">push</span>(i);
+    }
+
+    <span class="k">int</span> ans = <span class="n">0</span>;
+    <span class="k">while</span> (!q.<span class="k">empty</span>()) {
+        <span class="k">int</span> u = q.<span class="f">front</span>(); q.<span class="f">pop</span>();
+        ans = <span class="k">max</span>(ans, f[u]);
+        <span class="k">for</span> (<span class="k">int</span> v : g[u]) {
+            f[v] = <span class="k">max</span>(f[v], f[u] + t[v]); <span class="c">// v 要等所有前驱，取最晚的那个</span>
+            <span class="k">if</span> (--in[v] == <span class="n">0</span>) q.<span class="f">push</span>(v);
+        }
+    }
+    <span class="k">cout</span> &lt;&lt; ans &lt;&lt; <span class="s">"\n"</span>;                   <span class="c">// 13：串行是 15，并行省了 2</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="box tip"><div class="t" id="b101">注意</div><p id="b102">f 的初值决定一切：最长路用 −∞ 或“自己的耗时”，方案数用 0/1。写错初值不会崩，只会安静地输出错数。</p><p id="b103">把更新写进 <code>if (--in[v] == 0)</code> 的大括号里是本节最高频的错法：只有“最后一个前驱”的那次更新生效，f[v] 变成“最后一个前驱的答案”而不是“所有前驱的最大值”。</p></div></div></div><div class="prob"><div class="ph"><span class="pn" id="b104">例题 · 杂务</span><span class="oi">洛谷 P1113</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P1113" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b105">有 n 项杂务要完成，每项杂务需要一定的时间。杂务之间有先后关系：某些杂务必须在另一些杂务完成之后才能开始。</p><p id="b106">不违反先后关系的多个杂务可以同时进行，人手不限。求完成全部杂务所需的最短时间。</p><p id="b107">输入格式：第一行一个整数 n（n ≤ 10000）。<br>接下来 n 行，每行描述一项杂务：第一个数是杂务编号 i，第二个数是完成它需要的时间 lenᵢ，后面跟着若干整数，是这项杂务的全部前置杂务编号，以 0 结束。</p><p id="b108">输出格式：一行一个整数，表示完成所有杂务所需的最短时间。</p><p id="b109">数据保证先后关系不构成环，且每个杂务的时间是不超过 10⁴ 的正整数。</p></div></div><div class="step"><div class="sh" id="b110">把“最短时间”翻译成“最晚的前驱”</div><p id="b111"><b>先看一遍题目在问什么。</b>问的是“全部完成的最短时间”，而人手不限，所以限制时间的只有依赖关系：一项杂务不能早于它所有前置杂务的最晚完成时间开始。</p><p id="b112"><b>状态。</b>令 f[u] 表示杂务 u 的<b>最早完成时刻</b>（从 0 时刻开始计时）。它只可能由两件事决定：自己的耗时 len[u]，以及所有前置杂务里完成得最晚的那一个。</p><p id="b113"><code>f[u] = len[u] + max{ f[p] : p 是 u 的前置杂务 }</code>；没有前置时 f[u] = len[u]。<b>是 max 不是 sum</b>：前置可以并行，u 只需要等最慢的那个，其它人早就做完了。</p><p id="b114"><b>顺序。</b>f[u] 依赖所有前驱，所以必须按拓扑序算。Kahn 的出队顺序恰好满足“前驱先出”：u 能入队，说明它的入度已经被减到 0，也就是所有前驱都已经出队、f 值定稿。这就是“无后效性”落到代码上的样子。</p><p id="b115"><b>答案。</b>是所有 f[u] 的最大值，<b>不是 f[n]</b>。可以并行的图里，最后完成的不一定是编号最大的那项杂务。样例分叉成两支、两支又汇合，就是专门用来打这个坑的。</p><p id="b116"><b>转移怎么写最省事。</b>把初值设成 f[i] = len[i]（“只做自己”），然后在处理边 u→v 时写 <code>f[v] = max(f[v], f[u] + len[v])</code>。因为 len[v] 是常数，它可以从 max 里提出来：max(f[u] + len[v]) = len[v] + max(f[u])，正好是我们要的式子。</p><p id="b117"><b>复杂度。</b>每个点出队一次、每条边看一次，O(n + m)。n ≤ 10⁴ 时不到 0.1 ms，瓶颈在读入。</p></div><div class="cap" id="b118">完整可编译代码（C++17）</div><pre id="b119"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">10005</span>;
+
+<span class="k">vector</span>&lt;<span class="k">int</span>&gt; g[N];          <span class="c">// g[p] 存 p 的所有后继：p 做完才能做它们</span>
+<span class="k">int</span> in[N];                 <span class="c">// 入度 = 还有多少个前置杂务没完成</span>
+<span class="k">int</span> len[N];                <span class="c">// 每项杂务自己的耗时</span>
+<span class="k">int</span> f[N];                  <span class="c">// f[u]：u 的最早完成时刻</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">int</span> n;
+    <span class="k">cin</span> &gt;&gt; n;
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        <span class="k">int</span> id, t, p;
+        <span class="k">cin</span> &gt;&gt; id &gt;&gt; t;                  <span class="c">// 用 id 而不是 i：编号以行首为准更稳</span>
+        len[id] = t;
+        <span class="k">while</span> (<span class="k">cin</span> &gt;&gt; p, p) {            <span class="c">// 读到 0 为止</span>
+            g[p].<span class="k">push_back</span>(id);          <span class="c">// p 是 id 的前置 → 边 p → id</span>
+            ++in[id];                    <span class="c">// id 多了一个前置</span>
+        }
+    }
+
+    <span class="k">queue</span>&lt;<span class="k">int</span>&gt; q;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        f[i] = len[i];                   <span class="c">// 初值：没有前置时，做完自己就完事</span>
+        <span class="k">if</span> (in[i] == <span class="n">0</span>) q.<span class="f">push</span>(i);       <span class="c">// 没有前置的杂务立刻可以开工</span>
+    }
+
+    <span class="k">int</span> ans = <span class="n">0</span>;
+    <span class="k">while</span> (!q.<span class="k">empty</span>()) {
+        <span class="k">int</span> u = q.<span class="f">front</span>();
+        q.<span class="f">pop</span>();
+        ans = <span class="k">max</span>(ans, f[u]);            <span class="c">// 每个点都可能是“最后完成的那个”</span>
+        <span class="k">for</span> (<span class="k">int</span> v : g[u]) {
+            f[v] = <span class="k">max</span>(f[v], f[u] + len[v]);   <span class="c">// v 要等所有前置，取最晚的</span>
+            <span class="k">if</span> (--in[v] == <span class="n">0</span>) q.<span class="f">push</span>(v);       <span class="c">// 前置全齐，v 可以开工了</span>
+        }
+    }
+
+    <span class="k">cout</span> &lt;&lt; ans &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b120">逐行拆解</div><table class="lines"><thead><tr><th id="b121">代码片段</th><th id="b122">含义与理由</th></tr></thead><tbody><tr><td id="b123"><code>vector&lt;int&gt; g[N]; int in[N];</code></td><td id="b124">邻接表存后继，入度数组单独一个。存后继而不是存前驱，是因为 DP 的方向是“从已完成推到未完成”。</td></tr><tr><td id="b125"><code>cin &gt;&gt; id &gt;&gt; t;</code></td><td id="b126">读编号和时间。用编号当下标而不是循环变量 i：题目每行第一个数就是编号，直接用它，行号与编号是否一致就不用关心了。</td></tr><tr><td id="b127"><code>len[id] = t;</code></td><td id="b128">时间跟着编号存。这样后面出边时可以直接用 len[v]，不必再翻回来找。</td></tr><tr><td id="b129"><code>while (cin &gt;&gt; p, p)</code></td><td id="b130">逗号表达式：先执行 cin &gt;&gt; p，再拿 p 当循环条件。读到 0 就停，读入失败也停。</td></tr><tr><td id="b131"><code>g[p].push_back(id); ++in[id];</code></td><td id="b132">边的方向由“谁必须先完成”决定：前置 p 在后继 id 之前。存反了整个 DP 会倒着算，答案错。</td></tr><tr><td id="b133"><code>f[i] = len[i];</code></td><td id="b134">初值的含义是“假设没有任何前置”。有了它，转移里就不用再判“有没有前置”。</td></tr><tr><td id="b135"><code>if (in[i] == 0) q.push(i);</code></td><td id="b136">入度为 0 = 没有前置 = 第 0 时刻就能开工。它们全部入队，不是只入一个。</td></tr><tr><td id="b137"><code>ans = max(ans, f[u]);</code></td><td id="b138">答案在这里取最大，而不是取 f[n]。这是本题最容易错的一行。</td></tr><tr><td id="b139"><code>f[v] = max(f[v], f[u] + len[v]);</code></td><td id="b140">v 必须等完所有前驱才能开始，所以对每个前驱 u 算一次“等完 u 才开工”的完成时刻，取最大。</td></tr><tr><td id="b141"><code>if (--in[v] == 0) q.push(v);</code></td><td id="b142">这一行和上一行是并列关系，不是包含关系：无论 v 是否入队，上面那句都要执行。</td></tr><tr><td id="b143"><code>while (!q.empty())</code></td><td id="b144">队列空了但还有点没出队，说明有环。本题保证无环，所以省掉了 cnt 判环；通用模板要留。</td></tr></tbody></table></div><div class="step"><div class="sh" id="b145">同一套骨架，换一个问法只改两三行</div><p id="b146"><b>判环。</b>加一个 cnt，出队时 ++，结束时 <code>if (cnt &lt; n)</code> 就是有环。三行代码，不用额外的数组。</p><p id="b147"><b>最长路。</b>把 <code>max</code> 留着，把“自己的耗时”换成边权即可。若边权存在结构体里，就写 <code>f[v] = max(f[v], f[u] + e.w)</code>。</p><p id="b148"><b>方案数。</b><code>f[v] = (f[v] + f[u]) % MOD</code>，源点 f = 1。注意<b>重边要小心</b>：两条 u→v 的重边代表两条不同的路径，会被加两次，这是对的；但如果题目把重边当成一条，就得先去重。</p><p id="b149"><b>字典序最小。</b>queue 换小根堆。反过来要字典序最大就换回 <code>priority_queue&lt;int&gt;</code>（默认大根堆）。</p><p id="b150"><b>DAG 上最短路。</b>把 max 换成 min，初值换成 INF。负权边也照样对，这是它比 Dijkstra 强的地方——Dijkstra 的正确性依赖“边权非负”，拓扑序不依赖。</p><p id="b151"><b>判环的第二种写法：DFS 三色。</b>白 = 没访问，灰 = 在递归栈里，黑 = 已结束。搜到一个灰点就说明回到了当前路径上，即找到环。优点是能顺手把环上的点输出；缺点是要递归，n = 10⁵ 的链可能爆栈。Kahn 不递归、还免费送你拓扑序，判环首选它。</p></div><div class="box warn"><div class="t" id="b152">这一节的 6 个坑，按症状记</div><p id="b153">把 <code>if (--in[v] == 0)</code> 写成 <code>if (in[v] == 0)</code>：入度从不减少，只有第一层能入队 → cnt 极小、答案只有第一层 → <b>WA</b>，而且输出看着“很合理”，最难查。</p><p id="b154">初始入队写成 <code>for (i = 0; i &lt; n; ++i)</code>：编号是 1..n 的话，这样只扫了 0..n−1，漏掉 n 号点、又凭空多算一个不存在的 0 号点 → <b>WA</b>。下标从 1 开始就必须写 <code>i = 1; i &lt;= n</code>。</p><p id="b155">边存反了（该 <code>g[v].push_back(u)</code> 却写成 <code>g[u].push_back(v)</code>）：拓扑序整个倒过来 → <b>WA</b>。症状是“样例能过、稍大的数据全挂”，因为对称的图恰好对。</p><p id="b156">答案取 <code>f[n]</code> 而不是所有 f 的最大值：编号最大的杂务未必最后完成 → <b>WA</b>。</p><p id="b157">把 DP 更新写进 <code>if (--in[v] == 0)</code> 的括号里：只有最后一个前驱的那次更新生效 → <b>WA</b>，答案恒定偏小，且程序完全正常。</p><p id="b158">用邻接矩阵存边：n = 5000 时 25×10⁶ 个 int = 100 MB，加上别的开销直接 <b>MLE</b>；遍历一个点还要扫 n 格，m 小的时候反而更慢 → <b>TLE</b>。邻接表是唯一选择。</p></div><div class="reproduce"><div class="rt" id="b159">自己动手复现</div><p id="b160">关掉页面，把 P1113 的 40 行从零敲一遍。用这组数据验证：1 5 0 / 2 3 1 0 / 3 2 1 0 / 4 4 2 3 0 / 5 1 4 0，答案应该是 13。</p><p id="b161">改一改①：换一组数据 <code>1 5 0 / 2 3 1 0 / 3 9 1 0 / 4 2 2 0</code>，正确答案是 14。把 <code>ans = max(ans, f[u])</code> 删掉，循环后改成 <code>ans = f[n]</code>，重跑得到 10——f[n] 只是“编号最大的那项杂务”，不是全局最晚。</p><p id="b162">改一改②：回到第一组数据，把 <code>if (--in[v] == 0)</code> 改成 <code>if (in[v] == 0)</code>。程序不崩，但只有 1 号点出队，ans 变成 5。这就是“忘了自减”的症状。</p><p id="b163">改一改③：把 <code>queue</code> 换成 <code>stack</code>（<code>front</code> 改 <code>top</code>），出队顺序会变（合并点被提前处理），但 ans 仍然是 13——只要顺序合法，最长路的值与拓扑序的选取无关。</p><p id="b164">改一改④：把第一行改成 <code>1 5 4 0</code>（让 1 号依赖 4 号），图里就有环了。补上 cnt 判环，确认程序报“有环”，而不是输出一个偏小的数或死循环。</p></div><div class="mathcard"><div class="mt" id="b165">数学补给 · 无环、拓扑序、最长路：三件同一件事</div><p id="b166"><b>引理一：有向图有拓扑序 ⟺ 无环。</b></p><p id="b167">（⇒）若有环 x₁→x₂→…→xₖ→x₁，拓扑序要求 x₁ 在 x₂ 前、x₂ 在 x₃ 前……、xₖ 在 x₁ 前，串起来得到“x₁ 在 x₁ 之前”，矛盾。</p><p id="b168">（⇐）反设图无环但每个点入度都 ≥ 1。任取一点，沿入边往回走：每一步都有入边，走 n 步必然重复经过某个点，重复的那一段就是环，矛盾。所以无环图必存在入度为 0 的点。删掉它（连同它的出边），剩下的图仍无环，归纳即得拓扑序。<b>这段证明就是 Kahn 算法本身</b>——它每一步都在执行“找出入度为 0 的点”。</p><p id="b169"><b>引理二：拓扑序一般不唯一。</b>个数可以差得极远：</p><table><thead><tr><th id="b170">图（n 个点）</th><th id="b171">拓扑序个数</th><th id="b172">原因</th></tr></thead><tbody><tr><td id="b173">链 1→2→…→n</td><td id="b174">1</td><td id="b175">每对相邻点都被约束定死</td></tr><tr><td id="b176">无边（n 个孤立点）</td><td id="b177">n!</td><td id="b178">任意排列都合法；n = 10 时是 3 628 800</td></tr><tr><td id="b179">1→3、2→3</td><td id="b180">2</td><td id="b181">1 和 2 谁先都行</td></tr><tr><td id="b182">完全 DAG（i→j 对所有 i&lt;j）</td><td id="b183">1</td><td id="b184">任意两点都有约束，只剩自然序</td></tr></tbody></table><p id="b185">两个可以直接用的推论：① <b>n ≥ 21 时 n! 已超出 long long</b>（20! ≈ 2.43×10¹⁸，21! ≈ 5.11×10¹⁹），所以“数拓扑序个数”绝不能靠枚举，要用<b>状压 DP</b>（第 34 节），n ≤ 20 时才做得了。② 判断“能否确定唯一顺序”，就是看每一轮入度为 0 的点是否<b>恰好只有一个</b>。</p><p id="b186"><b>引理三：DAG 上的最长路 = 无限并行下的最短完工时间。</b>这条把抽象的最长路和现实的时间挂上了钩。</p><p id="b187">取本节的例子：5 项杂务，耗时分别是 5、3、2、4、1，边为 1→2、1→3、2→4、3→4、4→5。f₁ = 5，f₂ = 8，f₃ = 7，f₄ = max(8, 7) + 4 = 12，f₅ = 13。</p><p id="b188">串行做完的总耗时是 5+3+2+4+1 = <b>15</b>；如果人多到可以无限并行，总耗时是最长路 <b>13</b>——省下来的 2 正是 3 号杂务与 2 号杂务并行掉的那一段。最长路就是这条依赖链上的“关键路径”，它一秒都省不掉。</p><p id="b189">反过来也要警惕：一旦限制“同一时刻最多 k 个人干活”，问题立刻从 O(n+m) 变成 NP-hard 的调度问题，赛题不会这么出。看到“k 台机器 / k 个人 / k 条流水线”这类字眼，先想清楚它是不是改变了问题类型。</p></div><div class="think"><div class="tt" id="b190">举一反三 · 想清楚这些再往下走</div><div class="thint">先自己写出答案，再点开核对——方向对不对，比答案本身更重要</div><ol><li id="b191"><div class="tq">把 queue 换成 stack，得到的序列还是拓扑序吗？为什么？它有没有可能是字典序最小的那个？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">还是拓扑序。合法性只依赖“出队时所有前驱都已出队”，而这由入度减到 0 保证，跟容器是队列还是栈无关——栈是后进先出，但只有入度为 0 的点才能进栈，所以弹出的点前驱一定都处理完了。但它一般不是字典序最小：反例 1→2、1→3，1 出栈时先压 2 再压 3，栈顶是 3，序列变成 1 3 2，而最小是 1 2 3。常见错路：以为换容器会破坏拓扑序；或者以为栈恰好给字典序最小——要最小必须用小根堆。</div></details></li><li id="b192"><div class="tq">题目要求“让 1 号尽量早完成，然后在满足这一点的前提下让 2 号尽量早完成……”——这和“序列字典序最小”是同一件事吗？造一个 3 个点的反例。</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">不是同一件事。反例：3 个点、只有一条边 3→1。“让 1 尽量早”给出 <b>3 1 2</b>（1 在第二位）；而字典序最小是 <b>2 3 1</b>——它为了让第二位更小，把 1 推到了第三位。差别在优先级：字典序逐位比较，“第二位是 2”比“1 提前一位”更重要；而题目规则是先优化 1 的位置、再优化 2 的位置。常见错路：直接用小根堆正着贪心，P3243 的样例第一组立刻输出 2 3 4 1 而不是 3 4 1 2。</div></details></li><li id="b193"><div class="tq">DAG 上求最短路，为什么不建反图也能做？如果是有环图且没有负权，为什么必须用 Dijkstra？Dijkstra 到底用到了“边权非负”的哪一步？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">因为拓扑序本身就是合法的松弛顺序：所有指向 v 的边都来自排在 v 前面的点，扫到 v 时 dist 已经定稿，直接写 <code>f[v] = min(f[v], f[u] + w)</code> 即可，不需要“取最小即确定”这一步，所以也不用堆、不用反图。有环时拓扑序不存在，只能每步取当前 dist 最小的点并断言它已定稿，这就是 Dijkstra；它用到“边权非负”的正是证明里的 <code>d(y) ≤ d(u)</code>——沿最短路距离不减。常见错路：以为 DAG 上求最短路也要建反图；或者在带环图上随便按 DFS 顺序松弛，答案错但不崩。</div></details></li><li id="b194"><div class="tq">如果要求“最长路的条数”（不是路径条数，而是所有最长路里有几条），状态要加什么？两条最长路在中间合并后再分开，会被重复计数吗？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">加一个与 f 平行的 cnt[v] = 到达 v 的最长路的条数，转移分两支：<code>f[u]+w &gt; f[v]</code> 时 <code>f[v] = f[u]+w; cnt[v] = cnt[u];</code>（旧计数作废）；相等时 <code>cnt[v] += cnt[u];</code>（同样的最长长度又多了一条路）。两条最长路在中间合并再分开<b>不会</b>被重复计数：汇合点的 cnt 已经是两条前缀之和，之后它作为一个整体往前推，每条路径由“到汇合点的前缀 + 之后公共段”唯一确定。常见错路：只写 <code>cnt[v] += cnt[u]</code> 不分大小，把更短的路也算进来；或者忘了取模，条数很快溢出。</div></details></li><li id="b195"><div class="tq">一个 DAG 再加一条边 u→v，怎么 O(n+m) 判断是否出现环？提示：先想“u 能不能从 v 走到”。</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">成环 ⟺ 原图里 v 能走到 u：新增的 u→v 加上 v⇝u 正好闭成一个环。所以从 v 出发做一次 DFS/BFS，看能不能到达 u，O(n+m)。注意只是询问时别把边真加进去，否则图就有环，之后的拓扑排序失去前提。常见错路：反过来从 u 找 v——加了 u→v 之后 u 当然能到 v，这个判定与环无关；或者对每条待加的边都跑一遍，退化成 O(m(n+m))。</div></details></li><li id="b196"><div class="tq">如果图的规模是 n = 10⁵、m = 10⁶，Kahn 的队列里最多同时存多少个点？什么形状的图会让它最大？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">最多同时存 n 个点，不是 m 个。最坏的形状是“一个源点扇出到其余所有点”的星形：初始队列只有 1 个点，弹出它的一瞬间把 n−1 个点全压进来，队列达到 n−1 ≈ 10⁵；无边图（n 个孤立点）一开始就是 n 个，也是这个量级。所以队列只占 O(n) = 0.4 MB，不是内存瓶颈；真正吃内存的是邻接表——m = 10⁶ 条边光存边就要 4 MB 起，再加 10⁵ 个 vector 对象（每个 24 B）约 2.4 MB。</div></details></li></ol></div><div class="box tip"><div class="t" id="b197">自测：能全部回答再进下一节</div><ul><li id="b198">能默写 Kahn 的完整框架，并说清 cnt &lt; n 为什么等价于有环。</li><li id="b199">能说清 <code>--in[v] == 0</code> 里“先减再判”的顺序为什么不能反，反了会错成什么样。</li><li id="b200">能解释 P1113 的转移为什么是 max 而不是 sum，答案为什么不是 f[n]。</li><li id="b201">能把最长路模板改成方案数模板，并说出初值与取模位置分别要改哪里。</li><li id="b202">能说清小根堆拓扑序为什么给出字典序最小，以及它和“编号小的点尽量靠前”的区别。</li><li id="b203">能说清 DAG 上最短路为什么不需要堆、为什么负权也成立。</li></ul></div><div class="challenge"><div class="ct" id="b204">挑战题 · 最大食物链计数</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P4017</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P4017" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b205">生态系统中有 n 种生物，它们构成一张食物网：若生物 a 被生物 b 吃，则有一条从 a 指向 b 的边。</p><p id="b206">一条“最大食物链”指从<b>生产者</b>（入度为 0 的生物）出发，到<b>最高级消费者</b>（出度为 0 的生物）结束的一条有向路径。</p><p id="b207">求这张食物网中最大食物链的条数，答案对 80112002 取模。</p><p id="b208">输入格式：第一行两个整数 n、m（1 ≤ n ≤ 5000，1 ≤ m ≤ 500000）。<br>接下来 m 行，每行两个整数 a、b，表示 a 被 b 吃（即存在边 a→b）。</p><p id="b209">输出格式：一行一个整数，表示最大食物链的条数 mod 80112002。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b210">链条数 = 从所有入度为 0 的点出发、到所有出度为 0 的点结束的路径总数。起点和终点都可能有很多个。</p><p id="b211">对每个点记录“有多少条路径能到达它”。一条边 u→v 会把 u 的数目整个加到 v 上——这是加法原理。</p><p id="b212">拓扑序保证你算到 v 时，所有能到 v 的点都已经算完了；最后把所有出度为 0 的点的数目加起来。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b213"><b>状态。</b>f[u] = 从任意生产者出发、走到 u 的路径条数。</p><p id="b214"><b>初值。</b>每个入度为 0 的点（生产者）自己算一条“长度为 0 的前缀”，f = 1。注意是<b>所有</b>生产者，不是某一个。</p><p id="b215"><b>转移。</b>由加法原理，到达 v 的路径 = 所有前驱 u 的路径各自拼上边 u→v。所以对每条边 u→v 做一次 f[v] += f[u]。拓扑序保证算 f[v] 时每个 f[u] 都已经定稿。</p><p id="b216"><b>答案。</b>最大食物链必须以最高级消费者（出度为 0）结束，所以把<b>所有</b>出度为 0 的点的 f 加起来，边加边取模。</p><p id="b217"><b>为什么不能直接 DFS 数路径。</b>路径数可能是指数级，DFS 会重复走同一批子路径；记忆化能救，但拓扑 DP 更直接：每个点的 f 只算一次，O(n+m)。</p><p id="b218"><b>规模。</b>n ≤ 5000、m ≤ 5×10⁵，邻接表存 5×10⁵ 条边约 2 MB；拓扑排序 + 一次 DP，总操作不到 10⁶。</p><p id="b219"><b>取模。</b>MOD = 80112002，不是常见的 10⁹+7。<b>每次加法后立刻取模</b>，别攒到最后，否则 int 溢出。</p><p id="b220"><b>边界。</b>只有一个点、没有边时（若数据允许），它是生产者也是消费者，按 out == 0 统计会把它算成一条链；本题数据不出现这种孤立生物，换个题面时要留意。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b221">参考代码</div><pre id="b222"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">5005</span>, MOD = <span class="n">80112002</span>;
+
+<span class="k">vector</span>&lt;<span class="k">int</span>&gt; g[N];       <span class="c">// 邻接表：m 最大 5×10^5，绝不能开矩阵</span>
+<span class="k">int</span> in[N], out[N];      <span class="c">// 入度用于拓扑排序，出度用于找终点</span>
+<span class="k">int</span> f[N];               <span class="c">// f[u]：到达 u 的路径条数</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">int</span> n, m;
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; m;
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= m; ++i) {
+        <span class="k">int</span> a, b;
+        <span class="k">cin</span> &gt;&gt; a &gt;&gt; b;                 <span class="c">// a 被 b 吃</span>
+        g[a].<span class="k">push_back</span>(b);             <span class="c">// 边 a → b</span>
+        ++in[b];                       <span class="c">// b 多了一个前驱</span>
+        ++out[a];                      <span class="c">// a 有一个后继，不再是最高级消费者</span>
+    }
+
+    <span class="k">queue</span>&lt;<span class="k">int</span>&gt; q;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i)
+        <span class="k">if</span> (in[i] == <span class="n">0</span>) {              <span class="c">// 所有生产者都是起点</span>
+            f[i] = <span class="n">1</span>;
+            q.<span class="f">push</span>(i);
+        }
+
+    <span class="k">while</span> (!q.<span class="k">empty</span>()) {
+        <span class="k">int</span> u = q.<span class="f">front</span>();
+        q.<span class="f">pop</span>();
+        <span class="k">for</span> (<span class="k">int</span> v : g[u]) {
+            f[v] = (f[v] + f[u]) % MOD;    <span class="c">// 加法原理，边加边取模</span>
+            <span class="k">if</span> (--in[v] == <span class="n">0</span>) q.<span class="f">push</span>(v);
+        }
+    }
+
+    <span class="k">int</span> ans = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i)
+        <span class="k">if</span> (out[i] == <span class="n">0</span>)                   <span class="c">// 出度为 0：最高级消费者</span>
+            ans = (ans + f[i]) % MOD;
+
+    <span class="k">cout</span> &lt;&lt; ans &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b223">关键片段拆解</div><table class="lines"><thead><tr><th id="b224">片段</th><th id="b225">作用</th></tr></thead><tbody><tr><td id="b226"><code>++in[b]; ++out[a];</code></td><td id="b227">读一条边同时统计入度和出度。入度给拓扑排序用，出度给最后找终点用，两个都不能少。</td></tr><tr><td id="b228"><code>if (in[i] == 0) { f[i] = 1; q.push(i); }</code></td><td id="b229">所有生产者都是起点，各自算一条“空前缀”。只把某一个点当起点是本题最常见的错。</td></tr><tr><td id="b230"><code>f[v] = (f[v] + f[u]) % MOD;</code></td><td id="b231">到达 v 的路径 = 每个前驱 u 的路径拼上 u→v，直接相加。写成 max 就变成求最长路，全错。</td></tr><tr><td id="b232"><code>if (--in[v] == 0) q.push(v);</code></td><td id="b233">前驱全部处理完才能轮到 v，这样 f[v] 在入队时已经收集完所有前驱的贡献。</td></tr><tr><td id="b234"><code>if (out[i] == 0) ans += f[i]</code></td><td id="b235">终点可能有很多个，必须全部累加。只加“编号最大的那个点”或只加 f[n] 都会漏。</td></tr><tr><td id="b236"><code>const int MOD = 80112002;</code></td><td id="b237">题目指定的模数，不是 1e9+7。抄错模数 = 全篇 WA。</td></tr><tr><td id="b238"><code>vector&lt;int&gt; g[N];</code></td><td id="b239">m ≤ 5×10⁵，邻接表存 2 MB 左右；换成 5000×5000 的 int 矩阵就是 100 MB，直接 MLE。</td></tr></tbody></table><div class="box warn"><div class="t" id="b240">这题最容易错的地方</div><ul><li id="b241">只把 1 号点当起点：生产者有很多个，漏掉的起点的所有链条全部丢 → WA。</li><li id="b242">答案只取 f[n]：最高级消费者有很多个，而且编号最大的那一个 f 可能为 0 → WA。</li><li id="b243">模数写成 1000000007 或 998244353：与题目要求不符 → WA。</li><li id="b244">把所有加法攒到最后才取模：f 会超过 int 范围变成负数 → WA（而且样例很小，照样能过）。</li><li id="b245">用邻接矩阵存 n = 5000、m = 5×10⁵：内存 100 MB 起，再加重边开销 → MLE。</li><li id="b246">把边存成 b→a：拓扑序方向反了，f 全为 0，答案恒为 0 → WA。</li></ul></div></div></details></div><div class="box tip" style="margin:22px 0 -6px"><div class="t" id="b247">挑战 2 · 难度高一级，允许组合多个已学算法</div><p id="b248">这题比上面的挑战题更难：它不只用本节一个算法，可能需要把前面几节的工具拼起来。独立做出来说明这一块真的过关了；做完记得在侧边栏勾上 🌟。</p></div><div class="challenge ch2"><div class="ct" id="b249">挑战 2 · 菜肴制作</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P3243</span><span class="badge diff">提高-/提高</span><a href="https://www.luogu.com.cn/problem/P3243" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b250">有 n 道菜肴，编号 1..n，编号越小表示质量预估越高。另有 m 条限制，每条写成 (x, y)，表示「x 号菜肴必须先于 y 号菜肴制作」。</p><p id="b251">要求给出一个最优的制作顺序，使小 A 尽量先吃到高质量的菜。具体规则是：</p><ul><li id="b252">在满足所有限制的前提下，让 1 号菜尽量早出现；</li><li id="b253">在满足所有限制且 1 号尽量早的前提下，让 2 号菜尽量早出现；</li><li id="b254">在满足前两条的前提下，让 3 号尽量早出现；……以此类推。</li></ul><p id="b255">输入格式：第一行一个整数 t（1 ≤ t ≤ 3），表示数据组数。每组数据第一行两个整数 n、m（n, m ≤ 10⁵），接下来 m 行每行两个整数 x、y，表示 x 必须先于 y 制作。限制中可能有完全相同的条目。</p><p id="b256">输出格式：共 t 行，每行 n 个整数，表示最优制作顺序；若无解（限制成环），该行输出 <code>Impossible!</code>（首字母大写，末尾有感叹号）。</p><p id="b257"><b>样例输入</b><br><code>2<br>4 2<br>3 1<br>4 1<br>5 2<br>5 2<br>4 3</code><br><b>样例输出</b><br><code>3 4 1 2<br>1 5 2 4 3</code><br>样例解释：第一组里 1 号必须等 3、4 都做完，而 3 又该比 4 优先，所以是 3 4 1 2；第二组 1 号没有任何前置，直接先做。</p></div><div class="cap" id="b258">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+2
+4 2
+3 1
+4 1
+5 2
+5 2
+4 3
+输出：
+3 4 1 2
+1 5 2 4 3</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b259">先把限制画成边：x 必须先于 y，就是 x → y。要求的顺序是所有合法拓扑序里的某一个，但它要的<b>不是</b>字典序最小——本题的样例第一组就是反例。</p><p id="b260">试着正着贪心一次：所有入度为 0 的点里取编号最小的那个。n = 4、限制 3→1、4→1 时，你会得到 2 3 4 1，而标准答案是 3 4 1 2。差在哪一步？</p><p id="b261">正着取最小会失败，那就反过来问：怎样让小编号<b>尽量晚</b>被取走？把整个序列倒过来构造，你会发现需要的还是本节那套拓扑排序，只是取谁、往哪边放都变了。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b262"><b>① 为什么不能正着小根堆贪心。</b>「1 尽量靠前」不等于「每一步都取当前可用的最小点」：正着取最小会先把孤立的小编号消耗掉，反过来把 1 挤到后面。样例第一组里先取 2 就是这个错误。</p><p id="b263"><b>② 把问题翻过来。</b>设正序答案是 F，把 F 倒着读得到 R。「F 里 1 的位置尽量小」等价于「R 里 1 的位置尽量大」，也就是<b>让小编号尽量晚出现</b>。而 x 必须先于 y 的约束在 R 上正好变成「y 出现在 x 之前」，即反图（边 y → x）的拓扑序。</p><p id="b264"><b>③ 反图上怎么贪心。</b>每一步在反图当前入度为 0 的点里取<b>编号最大</b>的那个放到 R 的末尾——编号小的只要还有别的选择就继续往后拖。做完把 R 倒过来输出。</p><p id="b265"><b>④ 正确性（交换论证）。</b>设当前反图可选集合是 S，x = max S。任何合法的 R 的最后一位 y 必属于 S；若 y ≠ x，把 x 移到末尾、y 及中间的点整体前移一位，仍然是一个合法拓扑序（x 此刻没有未处理的前驱），而 x 更大、放到末尾只会让小编号更靠前。所以取最大不吃亏。</p><p id="b266"><b>⑤ 判无解。</b>反图出队点数 &lt; n 即有环，输出 <code>Impossible!</code>。这一条和本节例题的 cnt 判环完全一样。</p><p id="b267"><b>⑥ 复杂度。</b>每组 O((n+m) log n)：n、m ≤ 10⁵、t ≤ 3，最坏约 3×10⁵ 次堆操作，稳过。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b268">参考代码</div><pre id="b269"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">100005</span>;
+<span class="k">int</span> n, m;
+<span class="k">vector</span>&lt;<span class="k">int</span>&gt; rg[N];        <span class="c">// 反图：限制 x 先于 y，就在反图里存 y -&gt; x</span>
+<span class="k">int</span> indeg[N], ans[N];
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> T;
+    <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;T);
+    <span class="k">while</span> (T--) {
+        <span class="k">scanf</span>(<span class="s">"%d%d"</span>, &amp;n, &amp;m);
+        <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) { rg[i].<span class="f">clear</span>(); indeg[i] = <span class="n">0</span>; }
+        <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; m; ++i) {
+            <span class="k">int</span> x, y;
+            <span class="k">scanf</span>(<span class="s">"%d%d"</span>, &amp;x, &amp;y);      <span class="c">// x 必须先于 y</span>
+            rg[y].<span class="k">push_back</span>(x);         <span class="c">// 反图边 y -&gt; x</span>
+            ++indeg[x];
+        }
+
+        <span class="k">priority_queue</span>&lt;<span class="k">int</span>&gt; pq;          <span class="c">// 反图上每次取编号最大的</span>
+        <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i)
+            <span class="k">if</span> (indeg[i] == <span class="n">0</span>) pq.<span class="f">push</span>(i);
+
+        <span class="k">int</span> tot = <span class="n">0</span>;
+        <span class="k">while</span> (!pq.<span class="k">empty</span>()) {
+            <span class="k">int</span> u = pq.<span class="f">top</span>(); pq.<span class="f">pop</span>();
+            ans[++tot] = u;              <span class="c">// 反图的拓扑序</span>
+            <span class="k">for</span> (<span class="k">int</span> v : rg[u])
+                <span class="k">if</span> (--indeg[v] == <span class="n">0</span>) pq.<span class="f">push</span>(v);
+        }
+
+        <span class="k">if</span> (tot &lt; n) { <span class="f">puts</span>(<span class="s">"Impossible!"</span>); <span class="k">continue</span>; }   <span class="c">// 有环</span>
+        <span class="k">for</span> (<span class="k">int</span> i = n; i &gt;= <span class="n">1</span>; --i)     <span class="c">// 倒着输出就是正序答案</span>
+            <span class="k">printf</span>(<span class="s">"%d%c"</span>, ans[i], i == <span class="n">1</span> ? <span class="s">'\n'</span> : <span class="s">' '</span>);
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b270">关键片段拆解</div><table class="lines"><thead><tr><th id="b271">片段</th><th id="b272">作用</th></tr></thead><tbody><tr><td id="b273"><code>rg[y].push_back(x);</code></td><td id="b274">整题唯一「反」的地方：正图边 x→y，反图存 y→x。后面的拓扑排序一行都不用改。</td></tr><tr><td id="b275"><code>priority_queue&lt;int&gt; pq;</code></td><td id="b276">默认大根堆 = 每次取编号最大的。这里换成小根堆就退化成「最小字典序拓扑序」，样例第一组会输出 2 3 4 1。</td></tr><tr><td id="b277"><code>ans[++tot] = u;</code></td><td id="b278">先把反图的拓扑序整段存下来。倒序输出时下标从 n 开始，所以 tot 必须正好等于 n。</td></tr><tr><td id="b279"><code>for (int i = n; i &gt;= 1; --i) printf(...);</code></td><td id="b280">倒着输出才是答案。正序答案是反图拓扑序的逆序——这一句是全题最容易写反的地方。</td></tr><tr><td id="b281"><code>if (tot &lt; n) { puts("Impossible!"); continue; }</code></td><td id="b282">出队点数不足 n 即有环。注意大小写和感叹号，评测是逐字符比对的。</td></tr><tr><td id="b283"><code>for (int i = 1; i &lt;= n; ++i) { rg[i].clear(); indeg[i] = 0; }</code></td><td id="b284">多组数据必须清空。只清到 n 就够，别 memset 整个 10⁵ 的数组（t ≤ 3，但也没必要）。</td></tr></tbody></table><div class="box warn"><div class="t" id="b285">这题最容易错的地方</div><ul><li id="b286">把大根堆写成小根堆（或直接用 queue）：求出来的是最小字典序拓扑序，样例第一组立刻不对。</li><li id="b287">在正图上直接做大根堆拓扑排序：边和输出方向反了两次，结果是另一回事，照样 WA。</li><li id="b288"><code>Impossible!</code> 写成 <code>Impossible</code> / <code>impossible!</code>：逐字符比对，直接判错。</li><li id="b289">多组数据忘清 rg 与 indeg：第二组会读到上一组残留的边，输出长度都不对。</li></ul></div></div></details></div><div class="box info"><div class="t" id="b290">延伸阅读 / 参考</div><ul><li id="b291">《算法竞赛进阶指南》拓扑排序与 DAG 上的 DP（关键路径、方案计数）</li><li id="b292">《算法竞赛黄金法则》第 4 部分：把偏序关系变成线性顺序</li><li id="b293">洛谷 P1113、P4017、P1347 题解区的高赞实现</li></ul></div>
+
+<footer>算竞教程 · 算竞教程 · 生成于自建课程体系，题目版权归洛谷及各命题方所有<br>
+转载请注明出处；模板代码可直接用于比赛</footer>

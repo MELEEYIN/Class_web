@@ -1,0 +1,272 @@
+
+<div class="box info"><div class="t" id="b0">本节出现的新函数 / 新语法（先看懂再用）</div><ul><li id="b1"><a href="#fn-0">lowbit（取最低位的 1）</a> —— 返回二进制最低位 1 的权值，树状数组的节拍器</li><li id="b2"><a href="#fn-1">树状数组（add / sum 两个函数）</a> —— 12 行的核心：add 往右上跳，sum 往左上跳</li></ul></div><p id="b3">第 18 节的前缀和有个硬伤：<b>改一个数，后面所有 s[i] 全部作废</b>，重建一次 O(n)。而比赛中“单点修改 + 区间询问”的组合出现得极频繁——数据在变，问题却还是那一个。这一节解决的就是这个矛盾：让<b>改一个点</b>和<b>查一段和</b>都只要 O(log n)，代价是 12 行代码。</p><div class="quote" id="b4">树状数组的全部秘密在一句话里：<b>t[i] 管辖的区间长度恰好是 lowbit(i)</b>。看不懂这句话，就只是在背模板。</div><table><thead><tr><th id="b5">操作</th><th id="b6">朴素数组</th><th id="b7">前缀和</th><th id="b8">树状数组</th></tr></thead><tbody><tr><td id="b9">单点修改 a[i] += v</td><td id="b10">O(1)</td><td id="b11">O(n) 重建</td><td id="b12">O(log n)</td></tr><tr><td id="b13">前缀和 a[1..i]</td><td id="b14">O(n)</td><td id="b15">O(1)</td><td id="b16">O(log n)</td></tr><tr><td id="b17">区间和 a[l..r]</td><td id="b18">O(n)</td><td id="b19">O(1)</td><td id="b20">O(log n)</td></tr><tr><td id="b21">区间加 + 单点查</td><td id="b22">O(n)</td><td id="b23">O(n)</td><td id="b24">O(log n)（差分）</td></tr><tr><td id="b25">区间最大值</td><td id="b26">O(n)</td><td id="b27">不支持</td><td id="b28">不支持</td></tr><tr><td id="b29">代码量</td><td id="b30">3 行</td><td id="b31">5 行</td><td id="b32">12 行</td></tr></tbody></table><p id="b33">前缀和的思路是“把 a[1..i] 压成一个数”，一旦中间某个值变了，这个压缩就废了。树状数组换了一种压法：<b>按 i 的二进制位来压</b>，每个二进制位对应一段。于是改一个点只会动到 O(log n) 段，求一个前缀和也只需要拼 O(log n) 段。以 n = 8 为例：<code>t[1]=a[1]</code>，<code>t[2]=a[1..2]</code>，<code>t[3]=a[3]</code>，<code>t[4]=a[1..4]</code>，<code>t[6]=a[5..6]</code>，<code>t[8]=a[1..8]</code>。那么 <code>sum(6) = t[6] + t[4] = a[5..6] + a[1..4]</code>，两段拼完，一步没多。</p><p id="b34">先看清两块骨头：<b>lowbit</b>（怎么算管辖长度）和<b>三个函数的骨架</b>（怎么跳下标）。这两块想通了，后面四种用法只是换一下“下标代表什么”。</p><div class="fn"><div class="fh" id="b35">新函数拆解 · lowbit（取最低位的 1）</div><div class="fb"><div class="sig" id="b36">int lowbit(int x) { return x &amp; -x; }</div><table class="lines"><thead><tr><th id="b37">组成</th><th id="b38">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b39"><code>x &amp; -x</code></td><td id="b40">把 x 与它的相反数按位与。结果是 x 的二进制里<b>最低位那个 1</b>所代表的值。</td></tr><tr><td id="b41"><code>-x 从哪来</code></td><td id="b42">补码：-x = ~x + 1，先把 x 每一位取反，再 +1，于是最低位的 1 被完整保留下来。</td></tr><tr><td id="b43"><code>三个例子</code></td><td id="b44">lowbit(6) = lowbit(110₂) = 10₂ = 2；lowbit(8) = 8；lowbit(7) = 1。</td></tr><tr><td id="b45"><code>x 必须 ≥ 1</code></td><td id="b46">x = 0 时 x & -x = 0，<code>i += lowbit(i)</code> 就变成原地踏步 → 死循环 TLE。</td></tr><tr><td id="b47"><code>在树状数组里的两个用途</code></td><td id="b48">① t[i] 的管辖长度 = lowbit(i)；② i += lowbit(i) 跳到“下一个管着我的节点”，i -= lowbit(i) 跳到“左边还没累加的那一段的右端”。</td></tr></tbody></table><div class="cap" id="b49">最小可运行示例</div><div class="cap" id="b50">示例</div><pre id="b51"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">for</span> (<span class="k">int</span> x = <span class="n">1</span>; x &lt;= <span class="n">10</span>; ++x)
+        <span class="k">cout</span> &lt;&lt; x &lt;&lt; <span class="s">" -&gt; "</span> &lt;&lt; (x &amp; -x) &lt;&lt; <span class="s">"\n"</span>;
+    <span class="c">// 1-&gt;1  2-&gt;2  3-&gt;1  4-&gt;4  5-&gt;1  6-&gt;2  7-&gt;1  8-&gt;8  9-&gt;1  10-&gt;2</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="box tip"><div class="t" id="b52">注意</div><p id="b53">规律：2 的幂返回自己，奇数返回 1，其余返回“最低位 1 的权值”。</p><p id="b54">别自己造写法（比如 x - (x & (x - 1)) 虽然也对），标准写法就这一个，读别人代码也认这个。</p></div></div></div><div class="fn"><div class="fh" id="b55">新函数拆解 · 树状数组（add / sum 两个函数）</div><div class="fb"><div class="sig" id="b56">void add(int i, int v);
+int sum(int i);</div><table class="lines"><thead><tr><th id="b57">组成</th><th id="b58">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b59"><code>int t[N]</code></td><td id="b60">树状数组本体，放全局（自动清零、不占栈）。<b>t[i] 存 a[i−lowbit(i)+1 .. i] 的和</b>。</td></tr><tr><td id="b61"><code>add(i, v)</code></td><td id="b62">执行 a[i] += v。从 i 出发，每次 i += lowbit(i)，把 v 加到每一个“管着 i”的节点上。</td></tr><tr><td id="b63"><code>sum(i)</code></td><td id="b64">返回 a[1]+...+a[i]。从 i 出发，每次 i -= lowbit(i)，把沿途的 t[i] 全部累加。</td></tr><tr><td id="b65"><code>区间和</code></td><td id="b66">sum(r) − sum(l−1)，和前缀和一模一样：两个前缀相减。</td></tr><tr><td id="b67"><code>下标从 1 开始</code></td><td id="b68">lowbit(0) = 0 会让循环停不下来。题目是 1-based 就直接用；0-based 要整体 +1。</td></tr><tr><td id="b69"><code>复杂度</code></td><td id="b70">两个函数都是 O(log n)：下标每走一步，二进制里至少少一个 1 或多进一位。</td></tr></tbody></table><div class="cap" id="b71">最小可运行示例</div><div class="cap" id="b72">示例</div><pre id="b73"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> n = <span class="n">8</span>, t[<span class="n">10</span>];                                 <span class="c">// t[i] 管 lowbit(i) 个位置</span>
+<span class="k">int</span> a[<span class="n">9</span>] = {<span class="n">0</span>, <span class="n">3</span>, <span class="n">1</span>, <span class="n">4</span>, <span class="n">1</span>, <span class="n">5</span>, <span class="n">9</span>, <span class="n">2</span>, <span class="n">6</span>};
+
+<span class="k">int</span> <span class="f">lowbit</span>(<span class="k">int</span> x) { <span class="k">return</span> x &amp; -x; }
+
+<span class="k">void</span> <span class="f">add</span>(<span class="k">int</span> i, <span class="k">int</span> v) {
+    <span class="k">for</span> (; i &lt;= n; i += <span class="f">lowbit</span>(i)) t[i] += v;      <span class="c">// 所有管着 i 的节点都要改</span>
+}
+
+<span class="k">int</span> <span class="f">sum</span>(<span class="k">int</span> i) {
+    <span class="k">int</span> s = <span class="n">0</span>;
+    <span class="k">for</span> (; i &gt; <span class="n">0</span>; i -= <span class="f">lowbit</span>(i)) s += t[i];       <span class="c">// 一路往左上跳，把大段拼起来</span>
+    <span class="k">return</span> s;
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) <span class="f">add</span>(i, a[i]);     <span class="c">// 建树：n 次单点加</span>
+    <span class="k">cout</span> &lt;&lt; <span class="f">sum</span>(<span class="n">5</span>) &lt;&lt; <span class="s">"\n"</span>;                        <span class="c">// 3+1+4+1+5 = 14</span>
+    <span class="k">cout</span> &lt;&lt; <span class="f">sum</span>(<span class="n">7</span>) - <span class="f">sum</span>(<span class="n">2</span>) &lt;&lt; <span class="s">"\n"</span>;               <span class="c">// a[3..7] = 4+1+5+9+2 = 21</span>
+    <span class="f">add</span>(<span class="n">3</span>, <span class="n">10</span>);                                    <span class="c">// a[3] 从 4 变成 14</span>
+    <span class="k">cout</span> &lt;&lt; <span class="f">sum</span>(<span class="n">5</span>) &lt;&lt; <span class="s">"\n"</span>;                        <span class="c">// 24</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="box tip"><div class="t" id="b74">注意</div><p id="b75">t 的意义是“和”，所以 add 里是 +=；如果维护的是“出现次数”，add(i, 1) 就够。</p><p id="b76">建树也可以 O(n)：先 t[i] = a[i]，再让 i 从 1 到 n 执行 t[i + lowbit(i)] += t[i]。n 大时省一个 log，但 n 次 add 在 5×10⁵ 下也只要 10⁷ 次加法。</p><p id="b77">add 和 sum 的循环条件完全不同：add 往上（i 变大），sum 往左上（i 变小）。写反了必然错。</p></div></div></div><p id="b78">先拿洛谷的模板题把它跑起来。这道题把“单点修改”和“区间求和”放在一起，正好对上树状数组的两个函数。</p><div class="prob"><div class="ph"><span class="pn" id="b79">例题 · 【模板】树状数组 1</span><span class="oi">洛谷 P3374</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P3374" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b80">给定一个长度为 n 的数列，需要进行 m 次操作，操作有两种：</p><p id="b81"><b>1 x k</b>：把第 x 个数加上 k；<b>2 x y</b>：输出区间 [x, y] 内每个数的和。</p><p id="b82">数据范围：1 ≤ n, m ≤ 5×10⁵，数列中的数与 k 的绝对值不超过 10⁵。</p><p id="b83">输入格式：第一行两个整数 n、m；第二行 n 个整数；接下来 m 行，每行三个整数，表示一次操作。<br>输出格式：对每个操作 2，输出一行一个整数。</p></div><div class="io" id="b84">输入：
+5 5
+1 5 4 2 3
+1 1 3
+2 2 5
+1 3 -1
+1 4 2
+2 1 4
+
+输出：
+14
+16</div></div><div class="step"><div class="sh" id="b85">先算清楚暴力为什么会死</div><p id="b86">最朴素的写法：数组存原值。修改 O(1)，查询把 [x,y] 扫一遍 O(n)。最坏情况 m 次全是查询，n = m = 5×10⁵ 时是 <b>2.5×10¹¹</b> 次加法，几十秒起步，直接 TLE。</p><p id="b87">换成前缀和：查询 O(1)，但每次修改都要把 s[x..n] 重算一遍，还是 O(n)，一样死。两种做法的毛病是同一个——<b>它们把“一段”压成了“一个数”，改一点就得整体重来</b>。</p><p id="b88">树状数组的做法：不再压成一个数，而是压成 <b>log n 个数</b>。<code>sum(5)</code> 只拼 <code>t[5] + t[4]</code>（因为 5 = 101₂，去掉最低位 1 得 4，再去掉得 0）；<code>add(5, v)</code> 只改 <code>t[5]、t[6]、t[8]、t[16]…</code>（5 → 6 → 8 → 16，每次进位）。两头都只碰 log n 个位置，总复杂度 <b>O(m log n) ≈ 5×10⁵ × 19 ≈ 10⁷</b>，稳过。</p><p id="b89">为什么这样切一定能覆盖完整？因为二进制分解是唯一的：i 减去 lowbit(i) 相当于删掉最低位的 1，反复做就得到 i 的二进制各位，而每一位恰好对应一段连续区间，这些区间首尾相接、正好拼成 [1, i]，既不漏也不重。</p><p id="b90">建树别忘：代码里用 n 次 add 建树，是 O(n log n)；n = 5×10⁵ 时约 10⁷ 次加法，可以接受。要更快就线性建树（见上一张函数卡的注意）。</p><p id="b91">数值：本题答案在 int 内，但把 t 和 sum 写成 long long 也只占 4 MB（比 int 多 2 MB），以后遇到大数值不用再回来改一遍。</p></div><div class="cap" id="b92">完整可编译代码（C++17）</div><pre id="b93"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">500005</span>;
+<span class="k">int</span> n, m;
+<span class="k">long</span> <span class="k">long</span> t[N];                       <span class="c">// t[i] 管 a[i-lowbit(i)+1 .. i] 这一段</span>
+
+<span class="k">int</span> <span class="f">lowbit</span>(<span class="k">int</span> x) { <span class="k">return</span> x &amp; -x; }
+
+<span class="k">void</span> <span class="f">add</span>(<span class="k">int</span> i, <span class="k">long</span> <span class="k">long</span> v) {
+    <span class="k">for</span> (; i &lt;= n; i += <span class="f">lowbit</span>(i))    <span class="c">// 往上跳：把所有"管着 i"的节点都改掉</span>
+        t[i] += v;
+}
+
+<span class="k">long</span> <span class="k">long</span> <span class="f">sum</span>(<span class="k">int</span> i) {
+    <span class="k">long</span> <span class="k">long</span> s = <span class="n">0</span>;
+    <span class="k">for</span> (; i &gt; <span class="n">0</span>; i -= <span class="f">lowbit</span>(i))     <span class="c">// 往左上跳：把几个大段拼成前缀</span>
+        s += t[i];
+    <span class="k">return</span> s;
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; m;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {    <span class="c">// 建树：读一个数就当成一次单点加</span>
+        <span class="k">int</span> x;
+        <span class="k">cin</span> &gt;&gt; x;
+        <span class="f">add</span>(i, x);
+    }
+
+    <span class="k">while</span> (m--) {
+        <span class="k">int</span> op, x, y;
+        <span class="k">cin</span> &gt;&gt; op &gt;&gt; x &gt;&gt; y;
+        <span class="k">if</span> (op == <span class="n">1</span>) <span class="f">add</span>(x, y);                    <span class="c">// 第 x 个数加 y</span>
+        <span class="k">else</span> <span class="k">cout</span> &lt;&lt; <span class="f">sum</span>(y) - <span class="f">sum</span>(x - <span class="n">1</span>) &lt;&lt; <span class="s">"\n"</span>;  <span class="c">// 区间和 = 两个前缀之差</span>
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b94">逐行拆解</div><table class="lines"><thead><tr><th id="b95">代码片段</th><th id="b96">含义与理由</th></tr></thead><tbody><tr><td id="b97"><code>long long t[N]</code></td><td id="b98">全局数组自动清零。开 5×10⁵ 个 long long 是 4 MB，任何题都不会超内存。</td></tr><tr><td id="b99"><code>for (; i &lt;= n; i += lowbit(i))</code></td><td id="b100">add 的循环。i 从待改位置往上爬，爬到的每一个 i 都有一段包含原位置，所以都要改。</td></tr><tr><td id="b101"><code>i += lowbit(i) 走一遍 5</code></td><td id="b102">5 → 6 → 8 → 16 → … 每次把最低位的 1 往上进一位，最多 log₂n 步就超过 n。</td></tr><tr><td id="b103"><code>for (; i &gt; 0; i -= lowbit(i))</code></td><td id="b104">sum 的循环。i 每次删掉最低位的 1，把 t[i] 这一段拿走，剩下的交给更小的 i。</td></tr><tr><td id="b105"><code>i -= lowbit(i) 走一遍 6</code></td><td id="b106">6 → 4 → 0。对应 a[5..6] + a[1..4]，正好是 a[1..6]。</td></tr><tr><td id="b107"><code>sum(y) - sum(x - 1)</code></td><td id="b108">区间和转成两个前缀和相减。为什么是 x−1 不是 x：sum(x) 包含 a[x]，而 a[x] 在答案里。</td></tr><tr><td id="b109"><code>add(i, x) 建树</code></td><td id="b110">读入 a[i] 时直接在 i 位置做一次单点加，树就建好了，不需要额外的 build 函数。</td></tr><tr><td id="b111"><code>while (m--)</code></td><td id="b112">循环 m 次，m 归零后自动结束。注意 m 被用掉了，后面不能再当数据范围的界。</td></tr></tbody></table></div><p id="b113">第二种用法只改一件事：<b>让树状数组去管差分数组</b>。于是“区间加”变成两次单点加，“单点查”变成一个前缀和——正好是 add 和 sum。</p><div class="prob"><div class="ph"><span class="pn" id="b114">例题 · 【模板】树状数组 2</span><span class="oi">洛谷 P3368</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P3368" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b115">给定一个长度为 n 的数列，需要进行 m 次操作，操作有两种：</p><p id="b116"><b>1 x y k</b>：把区间 [x, y] 内每个数加上 k；<b>2 x</b>：输出第 x 个数的值。</p><p id="b117">数据范围：1 ≤ n, m ≤ 5×10⁵，所有输入与答案都在 64 位整数范围内。</p><p id="b118">输入格式：第一行两个整数 n、m；第二行 n 个整数，表示初始数列；接下来 m 行，每行为上述两种操作之一。<br>输出格式：对每个操作 2，输出一行一个整数。</p></div><div class="io" id="b119">输入：
+5 5
+1 5 4 2 3
+1 2 4 2
+2 3
+1 1 5 -1
+1 3 5 7
+2 4
+
+输出：
+6
+10</div></div><div class="step"><div class="sh" id="b120">把“区间加”翻译成“两次单点加”</div><p id="b121">差分数组的定义：<code>d[1] = a[1]</code>，<code>d[i] = a[i] − a[i−1]</code>。它的好处是 <b>a[x] = d[1] + d[2] + … + d[x]</b>——原数组的值就是差分数组的前缀和。</p><p id="b122">于是区间加 [l, r] 全部加 k，在差分里只动两个位置：<code>d[l] += k</code>（从此往后都多了 k），<code>d[r+1] −= k</code>（从 r+1 起把多出来的还回去）。中间那些 d 值全不变。</p><p id="b123">这样一来，两个操作正好对上树状数组的两个函数：<b>区间加 = 两次 add</b>，<b>单点查 = 一次 sum</b>。都是 O(log n)。</p><p id="b124">边界：<code>r = n</code> 时 <code>d[n+1]</code> 根本不会被任何前缀和用到，而 <code>add(n+1, −k)</code> 的循环条件 <code>i &lt;= n</code> 立刻不成立，什么也不做。所以那句越界判断<b>可以不写</b>——但你要知道它为什么安全。</p><p id="b125">建树：把 <code>d[i] = a[i] − a[i−1]</code> 逐个 add 进去，就完成了初值。</p><p id="b126">数值：差分值带负号，k 也可能很大，<code>t</code>、<code>add</code> 的参数、<code>sum</code> 的返回值统一用 long long。</p></div><div class="cap" id="b127">完整可编译代码（C++17）</div><pre id="b128"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">500005</span>;
+<span class="k">int</span> n, m;
+<span class="k">long</span> <span class="k">long</span> a[N], t[N];                 <span class="c">// t 维护的是差分数组 d</span>
+
+<span class="k">int</span> <span class="f">lowbit</span>(<span class="k">int</span> x) { <span class="k">return</span> x &amp; -x; }
+
+<span class="k">void</span> <span class="f">add</span>(<span class="k">int</span> i, <span class="k">long</span> <span class="k">long</span> v) {
+    <span class="k">for</span> (; i &lt;= n; i += <span class="f">lowbit</span>(i)) t[i] += v;
+}
+
+<span class="k">long</span> <span class="k">long</span> <span class="f">sum</span>(<span class="k">int</span> i) {
+    <span class="k">long</span> <span class="k">long</span> s = <span class="n">0</span>;
+    <span class="k">for</span> (; i &gt; <span class="n">0</span>; i -= <span class="f">lowbit</span>(i)) s += t[i];
+    <span class="k">return</span> s;
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">cin</span> &gt;&gt; n &gt;&gt; m;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        <span class="k">cin</span> &gt;&gt; a[i];
+        <span class="f">add</span>(i, a[i] - a[i - <span class="n">1</span>]);      <span class="c">// 差分 d[i] 直接进树状数组</span>
+    }
+
+    <span class="k">while</span> (m--) {
+        <span class="k">int</span> op;
+        <span class="k">cin</span> &gt;&gt; op;
+        <span class="k">if</span> (op == <span class="n">1</span>) {
+            <span class="k">int</span> l, r;
+            <span class="k">long</span> <span class="k">long</span> k;
+            <span class="k">cin</span> &gt;&gt; l &gt;&gt; r &gt;&gt; k;
+            <span class="f">add</span>(l, k);                <span class="c">// 从 l 起，后面都多 k</span>
+            <span class="f">add</span>(r + <span class="n">1</span>, -k);           <span class="c">// 从 r+1 起还回去（r=n 时这行自动空转）</span>
+        } <span class="k">else</span> {
+            <span class="k">int</span> x;
+            <span class="k">cin</span> &gt;&gt; x;
+            <span class="k">cout</span> &lt;&lt; <span class="f">sum</span>(x) &lt;&lt; <span class="s">"\n"</span>;   <span class="c">// 原数组第 x 个值 = 差分的前缀和</span>
+        }
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b129">逐行拆解</div><table class="lines"><thead><tr><th id="b130">代码片段</th><th id="b131">含义与理由</th></tr></thead><tbody><tr><td id="b132"><code>add(i, a[i] - a[i - 1])</code></td><td id="b133">读入时就地差分。a[0] 默认为 0，所以 a[1] − a[0] = a[1]，正好是 d[1] 的定义。</td></tr><tr><td id="b134"><code>add(l, k)</code></td><td id="b135">差分数组第 l 位加 k，含义是“a[l..n] 都加 k”。</td></tr><tr><td id="b136"><code>add(r + 1, -k)</code></td><td id="b137">第 r+1 位减 k，把上面多加的那部分收回去，于是实际生效的只有 [l, r]。</td></tr><tr><td id="b138"><code>r = n 时为什么安全</code></td><td id="b139">add 的循环条件是 <code>i &lt;= n</code>，传入 n+1 时条件一开始就不成立，函数直接返回，不会碰 t[n+1]。</td></tr><tr><td id="b140"><code>sum(x)</code></td><td id="b141">d[1..x] 的和 = a[x]。这就是“单点查询”，一次前缀和搞定。</td></tr><tr><td id="b142"><code>long long a[N]</code></td><td id="b143">a[i] 在修改后可能很大，虽然本题只用来算初值，统一用 long long 免掉类型转换的坑。</td></tr></tbody></table></div><p id="b144">第三种用法最反直觉：<b>让树状数组的下标不是位置，而是数值本身</b>。这时 t 存的是“某个值出现了几次”，前缀和 sum(v) 就是“值 ≤ v 的元素有多少个”。一旦有了这个能力，逆序对就变成了一行加法。</p><div class="step"><div class="sh" id="b145">逆序对：从左往右扫，问“前面有多少个比我大”</div><p id="b146">逆序对是满足 <code>i &lt; j</code> 且 <code>a[i] &gt; a[j]</code> 的有序对。换个说法：把每个数当成主角，数一数<b>它前面有多少个数比它大</b>，全部加起来，就是答案。</p><p id="b147">扫到第 i 个数时，前面有 i−1 个数。其中 ≤ a[i] 的有 <code>sum(a[i])</code> 个（因为 sum(v) 数的是“值 ≤ v 的出现次数”），剩下的自然全都严格大于 a[i]，就是这一位的贡献：<code>(i − 1) − sum(a[i])</code>。</p><p id="b148">所以每读一个数，做两件事：<b>先查</b> <code>sum(a[i])</code> 算贡献，<b>再改</b> <code>add(a[i], 1)</code> 把“这个值出现过一次”记进去。查询和修改各 O(log n)，总共 O(n log n)。</p><p id="b149">顺序不能反：先 add 再 sum，会把自己算进“前面”，答案偏大。</p><p id="b150">下标要求：树状数组的下标必须是 1..n 的整数，所以这个写法只在 <b>1 ≤ a[i] ≤ n</b> 时能直接用。值域到 10⁹ 时必须先离散化（把数值换成名次），节末的挑战题就是这件事。</p><p id="b151">答案规模：最坏情况下所有数两两构成逆序对，共 n(n−1)/2 个。n = 5×10⁵ 时约 1.25×10¹¹，int 装不下，必须是 long long。</p></div><div class="cap" id="b152">逆序对（值域 ≤ n 的版本）</div><pre id="b153"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">500005</span>;
+<span class="k">int</span> n, a[N], t[N];                    <span class="c">// t 的下标是"值"，不是"位置"</span>
+
+<span class="k">int</span> <span class="f">lowbit</span>(<span class="k">int</span> x) { <span class="k">return</span> x &amp; -x; }
+
+<span class="k">void</span> <span class="f">add</span>(<span class="k">int</span> i, <span class="k">int</span> v) {
+    <span class="k">for</span> (; i &lt;= n; i += <span class="f">lowbit</span>(i)) t[i] += v;
+}
+
+<span class="k">int</span> <span class="f">sum</span>(<span class="k">int</span> i) {
+    <span class="k">int</span> s = <span class="n">0</span>;
+    <span class="k">for</span> (; i &gt; <span class="n">0</span>; i -= <span class="f">lowbit</span>(i)) s += t[i];
+    <span class="k">return</span> s;
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">cin</span> &gt;&gt; n;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) <span class="k">cin</span> &gt;&gt; a[i];   <span class="c">// 保证 1 &lt;= a[i] &lt;= n</span>
+
+    <span class="k">long</span> <span class="k">long</span> ans = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        ans += (i - <span class="n">1</span>) - <span class="f">sum</span>(a[i]);   <span class="c">// 前面 i-1 个里，≤ a[i] 的有 sum(a[i]) 个</span>
+        <span class="f">add</span>(a[i], <span class="n">1</span>);                 <span class="c">// 再把 a[i] 记进去：这个值多出现了一次</span>
+    }
+    <span class="k">cout</span> &lt;&lt; ans &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b154">逐行拆解</div><table class="lines"><thead><tr><th id="b155">代码片段</th><th id="b156">含义与理由</th></tr></thead><tbody><tr><td id="b157"><code>int n, a[N], t[N]</code></td><td id="b158">这里的 n 同时是“元素个数”和“值域上界”，所以 t 的下标范围刚好够。</td></tr><tr><td id="b159"><code>ans += (i - 1) - sum(a[i])</code></td><td id="b160">i−1 是前面已有的元素个数，sum(a[i]) 是其中 ≤ a[i] 的个数，相减就是严格大于的个数。</td></tr><tr><td id="b161"><code>为什么用 sum(a[i]) 不是 sum(a[i] - 1)</code></td><td id="b162">sum(a[i]) 把“等于 a[i]”的也扣掉了，剩下来的才是严格大于，正好符合逆序对的定义。</td></tr><tr><td id="b163"><code>add(a[i], 1)</code></td><td id="b164">把“值 a[i] 出现了一次”写进树状数组。维护的是计数，所以加 1。</td></tr><tr><td id="b165"><code>先 sum 后 add</code></td><td id="b166">自己此刻还没进树，不会被 sum 数到。顺序颠倒会让每个数至少多算一次。</td></tr><tr><td id="b167"><code>long long ans</code></td><td id="b168">答案上限 n(n−1)/2 ≈ 1.25×10¹¹，远超 int 的 2.1×10⁹。</td></tr></tbody></table></div><p id="b169">第四种用法把树状数组当成一棵“二叉搜索树”：在 <b>O(log n)</b> 内找到<b>最小的 p 使 sum(p) ≥ k</b>。答案如果靠二分，就是 O(log²n)，而树状数组自己就能二分。</p><p id="b170">原理：树状数组的节点正好构成一棵“按二进制分段”的树。从 p = 0 出发，从大到小试 <code>step = 2²⁰, 2¹⁹, …, 1</code>：如果 <code>t[p + step] &lt; k</code>，说明前 p+step 个数的和还不够 k，答案在右边，就跳过去，并把 k 减去这一段的和；否则停在原地。走完 log n 步，p 就是“最后一个前缀和 &lt; k 的位置”，答案是 p+1。</p><div class="cap" id="b171">树状数组上二分（前提：所有数非负，前缀和单调）</div><pre id="b172"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> n = <span class="n">8</span>, t[<span class="n">10</span>];                       <span class="c">// 用 t 记"每个位置出现了几次"</span>
+
+<span class="k">int</span> <span class="f">lowbit</span>(<span class="k">int</span> x) { <span class="k">return</span> x &amp; -x; }
+<span class="k">void</span> <span class="f">add</span>(<span class="k">int</span> i, <span class="k">int</span> v) { <span class="k">for</span> (; i &lt;= n; i += <span class="f">lowbit</span>(i)) t[i] += v; }
+
+<span class="k">int</span> <span class="f">kth</span>(<span class="k">int</span> k) {                        <span class="c">// 最小的 p，使 sum(p) &gt;= k</span>
+    <span class="k">int</span> p = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> step = <span class="n">1</span> &lt;&lt; <span class="n">20</span>; step; step &gt;&gt;= <span class="n">1</span>)      <span class="c">// 起点取一个不小于 n 的 2 的幂</span>
+        <span class="k">if</span> (p + step &lt;= n &amp;&amp; t[p + step] &lt; k) {     <span class="c">// 这一段还不够，就整段吃掉</span>
+            p += step;
+            k -= t[p];                              <span class="c">// t[p] 正是刚吃掉那一段的和</span>
+        }
+    <span class="k">return</span> p + <span class="n">1</span>;
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="f">add</span>(<span class="n">2</span>, <span class="n">1</span>); <span class="f">add</span>(<span class="n">5</span>, <span class="n">2</span>); <span class="f">add</span>(<span class="n">7</span>, <span class="n">1</span>);                <span class="c">// 位置 2 一个、位置 5 两个、位置 7 一个</span>
+    <span class="k">for</span> (<span class="k">int</span> k = <span class="n">1</span>; k &lt;= <span class="n">4</span>; ++k) <span class="k">cout</span> &lt;&lt; <span class="f">kth</span>(k) &lt;&lt; <span class="s">" "</span>;   <span class="c">// 2 5 5 7</span>
+    <span class="k">cout</span> &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b173">逐行拆解</div><table class="lines"><thead><tr><th id="b174">代码片段</th><th id="b175">含义与理由</th></tr></thead><tbody><tr><td id="b176"><code>step 从 2²⁰ 开始</code></td><td id="b177">必须从“不小于 n 的 2 的幂”开始：整段跳跃靠的就是二进制拼位，起点换成 n（n 未必是 2 的幂）就拼不回去了。</td></tr><tr><td id="b178"><code>p + step &lt;= n</code></td><td id="b179">越界保护。step 一开始远大于 n，这个判断会把它挡掉。</td></tr><tr><td id="b180"><code>t[p + step] &lt; k</code></td><td id="b181">t[p+step] 存的是 (p+step−lowbit, p+step] 这一段的和。它 &lt; k 意味着答案不在这段左边。</td></tr><tr><td id="b182"><code>k -= t[p]</code></td><td id="b183">把刚跨过的这一段和从 k 里扣掉，问题变成“在剩下的后缀里找第 k 个”。</td></tr><tr><td id="b184"><code>return p + 1</code></td><td id="b185">循环结束时 p 是最后一个 <code>sum(p) &lt; k</code> 的位置，所以第一个够 k 的位置是 p+1。</td></tr><tr><td id="b186"><code>所有数必须非负</code></td><td id="b187">前缀和单调才有“第一个 ≥ k 的位置”这种说法。有负数时这个二分直接失效，不是慢，是错。</td></tr></tbody></table></div><div class="step"><div class="sh" id="b188">四种用法，其实是同一份代码</div><p id="b189"><b>树状数组唯一不变的是骨架</b>：lowbit、add 往上跳、sum 往左上跳。变的是<b>下标代表什么</b>，以及<b>t 里存什么</b>。四种用法对照如下。</p><table><thead><tr><th id="b190">用法</th><th id="b191">下标代表</th><th id="b192">t 存什么</th><th id="b193">查询是什么</th></tr></thead><tbody><tr><td id="b194">单点改 + 区间和</td><td id="b195">位置</td><td id="b196">一段位置的和</td><td id="b197">前缀和相减</td></tr><tr><td id="b198">区间加 + 单点查</td><td id="b199">位置</td><td id="b200">差分数组的一段和</td><td id="b201">前缀和 = 原值</td></tr><tr><td id="b202">逆序对 / 计数</td><td id="b203">数值（名次）</td><td id="b204">该值出现的次数</td><td id="b205">前缀和 = 值 ≤ v 的个数</td></tr><tr><td id="b206">上二分</td><td id="b207">位置</td><td id="b208">一段位置的和</td><td id="b209">不用 sum，直接跳</td></tr></tbody></table><p id="b210"><b>什么时候别用树状数组。</b>它只能维护<b>可差分</b>的运算：加法（有相反数）、异或（自己是自己的逆）、模意义下的乘法（有逆元）。区间最值不行——max(1..r) 没法“减掉” max(1..l−1) 还原出 max(l..r)，因为求最大值没有逆运算。要区间最值就得上线段树，下一节。</p><p id="b211"><b>逆序对还有一个等价身份：</b>冒泡排序的交换次数、插入排序的元素移动次数、把序列排成升序所需的最少相邻交换次数，三者都等于逆序对数。看到“相邻交换”四个字要想得起这一行。</p><p id="b212"><b>反过来扫也一样。</b>求“每个数右边比它小的个数”，从右往左扫：每步贡献是 <code>已插入个数 − sum(a[i] − 1)</code>，再把 a[i] 记进树里。</p></div><div class="box warn"><div class="t" id="b213">这一节的 6 个坑，按症状记</div><p id="b214">下标从 0 开始：<code>lowbit(0) = 0</code>，<code>add</code> 里 <code>i += 0</code> 永远不动 → <b>TLE</b>，表现为程序卡死、一个字符都不输出。原题 1-based 就直接用，0-based 记得整体 +1。</p><p id="b215">差分区间加漏了 <code>add(r + 1, -k)</code>，或者把 +k 和 −k 写反 → <b>WA</b>。症状很典型：前几个数对，从 l 之后全部偏大（或偏小），而且差值恰好是 k 的倍数。</p><p id="b216">逆序对的 <code>ans</code> 用 int：n = 5×10⁵ 时答案可达 1.25×10¹¹，溢出后变成负数 → <b>WA</b>，而且小数据完全正常，只有大测试点挂。</p><p id="b217">把 <code>ans += (i-1) - sum(a[i])</code> 写成 <code>ans += i - sum(a[i])</code>：多算了自己 → <b>WA</b>，答案恰比如正确答案大 n。</p><p id="b218">用树状数组求区间最大值：<code>sum(r) - sum(l-1)</code> 那套逻辑对 max 不成立，代码能编译能跑，样例甚至可能过 → <b>WA</b>。这类“逻辑不成立”的错最难查，因为不报错。</p><p id="b219">多组数据忘记清空 t：第 2 组开始答案全错 → <b>WA</b>。只要 t 是全局数组，多测就在每组开头 <code>memset(t, 0, sizeof t)</code>。</p></div><div class="reproduce"><div class="rt" id="b220">自己动手复现</div><p id="b221">关掉页面，把 P3374 的 30 行从零敲一遍（不看书），提交确认样例输出 14 和 16。</p><p id="b222">改一改①：把 <code>add</code> 的循环改成 <code>for (; i &gt; 0; i -= lowbit(i))</code>，先预测再跑。你会发现 add(1, x) 只改了很少几个位置，sum(5) 立刻不对——上行下行的方向不能反。</p><p id="b223">改一改②：在 <code>add</code> 里加一句 <code>cout &lt;&lt; i &lt;&lt; ' ';</code>，调用 <code>add(5, 1)</code>，看到 5 6 8 16，这就是“进位”的形状。</p><p id="b224">改一改③：在 P3368 里删掉 <code>add(r + 1, -k)</code>，用样例跑一遍，观察第 2 个输出的变化——一半的区间被多加了，这正是“忘记减回去”。</p></div><div class="mathcard"><div class="mt" id="b225">数学补给 · lowbit 与 log n 到底从哪来</div><p id="b226">把 n = 8 时每个节点的管辖范围列出来，规律一眼可见：</p><table><thead><tr><th id="b227">i</th><th id="b228">二进制</th><th id="b229">lowbit(i)</th><th id="b230">t[i] 管辖</th><th id="b231">下一个管 i 的节点 i+lowbit(i)</th></tr></thead><tbody><tr><td id="b232">1</td><td id="b233">1</td><td id="b234">1</td><td id="b235">a[1..1]</td><td id="b236">2</td></tr><tr><td id="b237">2</td><td id="b238">10</td><td id="b239">2</td><td id="b240">a[1..2]</td><td id="b241">4</td></tr><tr><td id="b242">3</td><td id="b243">11</td><td id="b244">1</td><td id="b245">a[3..3]</td><td id="b246">4</td></tr><tr><td id="b247">4</td><td id="b248">100</td><td id="b249">4</td><td id="b250">a[1..4]</td><td id="b251">8</td></tr><tr><td id="b252">5</td><td id="b253">101</td><td id="b254">1</td><td id="b255">a[5..5]</td><td id="b256">6</td></tr><tr><td id="b257">6</td><td id="b258">110</td><td id="b259">2</td><td id="b260">a[5..6]</td><td id="b261">8</td></tr><tr><td id="b262">7</td><td id="b263">111</td><td id="b264">1</td><td id="b265">a[7..7]</td><td id="b266">8</td></tr><tr><td id="b267">8</td><td id="b268">1000</td><td id="b269">8</td><td id="b270">a[1..8]</td><td id="b271">16</td></tr></tbody></table><p id="b272"><b>为什么 <code>x &amp; -x</code> 能取出最低位的 1。</b>补码下 <code>-x = ~x + 1</code>：取反把最低位 1 变成 0、把它右边的 0 全变成 1，再 +1 让右边的 1 全部进位回 0，只有最低位那个 1 被完整地还原。所以 <code>x &amp; -x</code> 只留下它，其余全 0。</p><p id="b273"><b>sum 为什么是 O(log n)。</b>每步 <code>i -= lowbit(i)</code> 至少消掉一个二进制 1。2¹⁸ = 262144 ≤ n &lt; 2¹⁹ = 524288 时，i 最多 19 位，所以最多 19 步。n = 5×10⁵ 落在这一档，<b>一次 sum 最多 19 次加法</b>。</p><p id="b274"><b>add 为什么也是 O(log n)。</b><code>i += lowbit(i)</code> 是把最低位的 1 往前推一位，下标最多涨到 2 倍，19 步之内必定超过 n。一次 add 也是最多 19 次加法。</p><p id="b275">两边合起来：一次操作 ≤ 19 次加法，5×10⁵ 次操作 ≈ 10⁷ 次，实际运行 0.1 秒量级。这就是为什么树状数组的常数比线段树小得多——它连一次递归都没有。</p><p id="b276"><b>不能做最值的根源是“没有逆运算”。</b>sum 能相减是因为加法有相反数；max 若要“相减”，等于要从 max(l..r) 和 max(1..l−1) 反推出 max(1..r)，信息不足。所以区间最值必须让每个节点存“自己那一段的最值”，查询时把 O(log n) 段的答案合并——这正是线段树。</p></div><div class="think"><div class="tt" id="b277">举一反三 · 想清楚这些再往下走</div><div class="thint">先自己写出答案，再点开核对——方向对不对，比答案本身更重要</div><ol><li id="b278"><div class="tq">把维护的信息从“和”换成“异或”，<code>add</code> 和 <code>sum</code> 各改哪几处？为什么异或可以而 max 不行？（提示：异或的“逆运算”是谁？）</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">只改两个运算符：<code>t[i] += v</code> 换成 <code>t[i] ^= v</code>，<code>s += t[i]</code> 换成 <code>s ^= t[i]</code>，lowbit、跳跃方向、边界一个都不用动。能换是因为异或是<b>自己的逆运算</b>（<code>x ^ x = 0</code>），所以 <code>a[l..r] = sum(r) ^ sum(l-1)</code> 照样成立，和减法只差一个符号。<code>max</code> 没有逆运算，从 max(1..r) 和 max(1..l−1) 反推不出 max(l..r)，所以换不了。<br>最容易走的错路是“异或没有减法，所以只能求前缀不能求区间”——其实 <code>sum(r) ^ sum(l-1)</code> 正是区间异或；另一个错路是 add 里保留 <code>+=</code>、只把 sum 改成 <code>^=</code>，两边不配套，答案必错。</div></details></li><li id="b279"><div class="tq">逆序对那一题，如果要输出“每个位置 i 左边比它大的个数”而不是总和，代码要改哪一行？空间要不要多加一个数组？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">只改一行：把 <code>ans += (i-1) - sum(a[i]);</code> 改成 <code>cnt[i] = (i-1) - sum(a[i]);</code>，或者直接把这一项 <code>cout</code> 出来。扫描本来就是 i 从小到大，所以<b>不必多加数组</b>，边算边输出就是 O(1) 额外空间；只有题目要求先攒着、或后面还要用这些数时，才需要 <code>int cnt[N]</code>（5×10⁵ 个 int = 2 MB）。顺带一句：单看某一项最多 n−1 ≈ 5×10⁵，int 就够，真正需要 long long 的是把它们累加起来的那个总和。常见错路是顺手改成从右往左扫——那统计的是“右边比它小”，不是题目要的东西。</div></details></li><li id="b280"><div class="tq">二维版：n × m 的网格，支持单点加和子矩阵求和。t 该开成几维？add 和 sum 各有几层循环？复杂度是多少？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">t 开成二维 <code>t[N][M]</code>；add 和 sum 各是<b>两层</b>循环，<code>for (i=x; i&lt;=n; i+=lowbit(i)) for (j=y; j&lt;=m; j+=lowbit(j))</code>，单次操作 O(log n · log m)。子矩阵查询用四次二维前缀和容斥：sum(x2,y2)−sum(x1−1,y2)−sum(x2,y1−1)+sum(x1−1,y1−1)。真正的门槛是内存：5000×5000 的 long long 就是 5000×5000×8 = 2×10⁸ 字节 = 200 MB，直接 MLE，所以二维题的值域通常只到 2000 上下（2000×2000×8 ≈ 32 MB）。常见错路是把 (i,j) 压成 <code>i*m+j</code> 当一维下标——lowbit 跳跃的语义当场就丢了；或者以为复杂度是 O(log(nm))，其实两个 log 是相乘的。</div></details></li><li id="b281"><div class="tq">树状数组上二分的 <code>step</code> 为什么必须从“≥ n 的 2 的幂”开始？如果从 n 开始，第一个被尝试的位置是 n，会漏掉或重复哪一段？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">因为 kth 靠“二进制拼位”：每一步都要求 p 是 2·step 的倍数，这样 <code>t[p+step]</code> 管的才恰好是 (p, p+step]。起点取 ≥ n 的 2 的幂，这个不变量从 p = 0 起就成立，step 一路右移，正好把 p 的每一位从高到低定下来。换成 n 就破了前提：n = 6 时第一步试的是 t[6]，而 t[6] 只管 a[5..6]，代码却当成 a[1..6] 整段吃掉，只要 <code>t[6] &lt; k</code> 成立，p 就直接跳到 6、函数返回 7，越界；就算不成立，后面的拼位顺序也已经乱了。n = 8 时换成 8 碰巧还对（8 本身就是 2 的幂），所以这个错只在部分 n 上暴露，更难查。另一个错路是从 step = 1 往上乘 2：此时 p 不再是 2·step 的倍数，<code>t[p+step]</code> 取的段和 p 对不上，同样是错。</div></details></li><li id="b282"><div class="tq">区间加 <b>并且</b> 区间求和，能不能只用树状数组做？需要几个？（提示：把 sum(l..r) 用差分的前缀和展开成两个可维护的量）</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">能，要<b>两个</b>树状数组。设差分 d，则 <code>Σ(i=1..x) a[i] = (x+1)·Σd[j] − Σ j·d[j]</code>，所以 t1 存 d[j]、t2 存 j·d[j]；区间加 [l,r] += k 就是 t1 上 add(l,k)、add(r+1,−k)，t2 上 add(l, l·k)、add(r+1, −(r+1)·k)，前缀和用上面那个式子拼，区间和再相减，仍是 O(log n)。代价在数值：t2 里存 j·d[j]，j 到 5×10⁵、k 到 10⁵，单次就能到 5×10¹⁰，累加后更大，必须 long long。常见错路是只开一个树状数组维护 d，然后拿 sum(x) 当区间和——那只是第 x 个数的值；或者忘了 t2 里要乘 l，直接把 k 塞进 t2，公式对不上。</div></details></li><li id="b283"><div class="tq">如果一道题有 5×10⁵ 次单点修改，但只有 10 次区间查询，你还会用树状数组吗？用什么更划算？反过来呢？</div><details class="ta"><summary>想好了？点开核对思路与解析</summary><div class="dc">不会。10 次查询用 O(n) 暴力扫，5×10⁵ × 10 = 5×10⁶ 次加法，比树状数组光建树（n 次 add ≈ 10⁷）还便宜，代码只有几行。反过来，5×10⁵ 次查询只有 10 次修改时，就用前缀和：每次修改后整体重建一次，10 次重建 = 5×10⁶ 次运算，查询 O(1)。判据不是“要修改就用树状数组”，而是<b>贵的操作出现了多少次</b>：总代价 = 修改次数×修改代价 + 查询次数×查询代价，三种做法各算一遍取小的。常见错路是看到“单点修改 + 区间查询”就条件反射写树状数组，多写 20 行还白搭一个 log；另一种是把前缀和当成“不能修改”而排除掉，忘了修改次数少时重建是允许的。</div></details></li></ol></div><div class="box tip"><div class="t" id="b284">自测：能全部回答再进下一节</div><ul><li id="b285">能默写 lowbit、add、sum 三个函数，并说出每个的复杂度。</li><li id="b286">能说出 n = 8 时 t[6] 管辖哪一段，以及 add(6, v) 会改到哪些位置。</li><li id="b287">能解释区间加为什么只改 l 和 r+1 两处，并说明 r = n 时为什么不写越界判断也安全。</li><li id="b288">能用树状数组求逆序对，并说清 <code>(i-1) - sum(a[i])</code> 里每一项的含义。</li><li id="b289">能说出树状数组不能维护区间最值的原因，以及该换成什么结构。</li><li id="b290">能手写树状数组上二分的 6 行，并解释 <code>k -= t[p]</code> 在做什么。</li></ul></div><div class="challenge"><div class="ct" id="b291">挑战题 · 逆序对</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1908</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P1908" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b292">给定一个长度为 n 的正整数序列。若 i &lt; j 且 aᵢ &gt; aⱼ，则称 (i, j) 是一个逆序对。求序列中逆序对的个数。</p><p id="b293">输入格式：第一行一个整数 n；第二行 n 个整数，表示序列。<br>输出格式：一行一个整数，表示逆序对个数。</p><p id="b294">数据范围：1 ≤ n ≤ 5×10⁵，1 ≤ aᵢ ≤ 10⁹。答案最大约 n(n−1)/2 ≈ 1.25×10¹¹，需用 64 位整数。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b295">值到 10⁹，下标放不下；但 n 只有 5×10⁵——能当下标的只有“排名”，不是数值本身。</p><p id="b296">从左往右扫。读到第 i 个数时，只需要回答一句：前面已经出现过的数里，有多少个严格比它大？</p><p id="b297">把“某个排名出现了几次”存进树状数组，前缀和就是“不超过某排名的元素个数”。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b298"><b>离散化。</b>把 a 拷贝一份排序去重，再用 <code>lower_bound</code> 把每个 a[i] 换成它在去重数组里的名次 1..tot。大小关系不变，而值域被压到 n 以内，可以当下标。O(n log n)。</p><p id="b299"><b>树状数组的含义换成计数。</b>下标是名次，t 里存“这个名次出现了几次”。于是 <code>sum(rk)</code> = 已经出现过的、名次 ≤ rk 的元素个数。</p><p id="b300"><b>逐位统计。</b>扫到第 i 个数时，前面已经有 i−1 个；其中 ≤ a[i] 的有 sum(rk) 个，剩下 (i−1) − sum(rk) 个都严格大于它，每一个都构成逆序对，累加。</p><p id="b301"><b>然后把它记进去。</b><code>add(rk, 1)</code>。先查后改，不能颠倒。</p><p id="b302"><b>复杂度与数值。</b>离散化 O(n log n)，统计 O(n log n)，n = 5×10⁵ 时约 2×10⁷ 次操作。ans 用 long long：最坏 1.25×10¹¹。相同元素不会互相构成逆序对，所以查的是 sum(rk)（含等号）。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b303">参考代码</div><pre id="b304"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">500005</span>;
+<span class="k">int</span> n, a[N], b[N], t[N];              <span class="c">// t 的下标是"名次"</span>
+
+<span class="k">int</span> <span class="f">lowbit</span>(<span class="k">int</span> x) { <span class="k">return</span> x &amp; -x; }
+
+<span class="k">void</span> <span class="f">add</span>(<span class="k">int</span> i) {                     <span class="c">// 名次 i 的出现次数 +1</span>
+    <span class="k">for</span> (; i &lt;= n; i += <span class="f">lowbit</span>(i)) ++t[i];
+}
+
+<span class="k">int</span> <span class="f">sum</span>(<span class="k">int</span> i) {                      <span class="c">// 名次 &lt;= i 的元素出现了几个</span>
+    <span class="k">int</span> s = <span class="n">0</span>;
+    <span class="k">for</span> (; i &gt; <span class="n">0</span>; i -= <span class="f">lowbit</span>(i)) s += t[i];
+    <span class="k">return</span> s;
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">cin</span> &gt;&gt; n;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) { <span class="k">cin</span> &gt;&gt; a[i]; b[i] = a[i]; }
+
+    <span class="k">sort</span>(b + <span class="n">1</span>, b + n + <span class="n">1</span>);                          <span class="c">// 离散化：排序</span>
+    <span class="k">int</span> tot = <span class="k">unique</span>(b + <span class="n">1</span>, b + n + <span class="n">1</span>) - b - <span class="n">1</span>;      <span class="c">// 去重后值域缩到 1..tot</span>
+
+    <span class="k">long</span> <span class="k">long</span> ans = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        <span class="k">int</span> rk = <span class="k">lower_bound</span>(b + <span class="n">1</span>, b + tot + <span class="n">1</span>, a[i]) - b;   <span class="c">// a[i] 的名次</span>
+        ans += (i - <span class="n">1</span>) - <span class="f">sum</span>(rk);    <span class="c">// 前面 ≤ 它的有 sum(rk) 个，其余都严格大于它</span>
+        <span class="f">add</span>(rk);                     <span class="c">// 再把它的名次记进去</span>
+    }
+    <span class="k">cout</span> &lt;&lt; ans &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b305">关键片段拆解</div><table class="lines"><thead><tr><th id="b306">片段</th><th id="b307">作用</th></tr></thead><tbody><tr><td id="b308"><code>b[i] = a[i]; sort(b + 1, b + n + 1)</code></td><td id="b309">拷贝一份排序，原数组 a 不能动，后面还要按原顺序扫。</td></tr><tr><td id="b310"><code>unique(b + 1, b + n + 1) - b - 1</code></td><td id="b311">去重后返回到新末尾的迭代器，减去首地址 b 再 −1 就是不同值的个数 tot。重复值共用一个名次，正好符合逆序对“严格大于”的语义。</td></tr><tr><td id="b312"><code>lower_bound(b + 1, b + tot + 1, a[i]) - b</code></td><td id="b313">找 a[i] 在去重数组里的位置，得到 1..tot 的名次。注意右端是 b + tot + 1，区间左闭右开。</td></tr><tr><td id="b314"><code>ans += (i - 1) - sum(rk)</code></td><td id="b315">把“前面有多少个比我大”算出来。sum(rk) 数的是名次 ≤ rk 的，含相等元素。</td></tr><tr><td id="b316"><code>add(rk)</code></td><td id="b317">计数型树状数组：只 +1，不传 v。先查后改，自己不会被算进 sum。</td></tr><tr><td id="b318"><code>i &lt;= n 的循环上界</code></td><td id="b319">名次只到 tot ≤ n，用 n 当上界完全安全，t 不会越界。</td></tr></tbody></table><div class="box warn"><div class="t" id="b320">这题最容易错的地方</div><ul><li id="b321">离散化时忘记去重，直接用 <code>lower_bound</code> 在未去重的数组里查：名次不唯一，重复元素的计数会错 → WA。</li><li id="b322"><code>ans</code> 用 int：答案到 10¹¹，溢出成负数 → WA，小数据全对，大数据全挂。</li><li id="b323">把 <code>sum(rk)</code> 改成 <code>sum(rk - 1)</code>：相等的元素被算成“比它大”，有重复值时答案偏大。</li><li id="b324">先 <code>add(rk)</code> 再统计：自己也被数进去，每个数贡献少 1 或不稳定 → WA。</li><li id="b325">数组只开到 10⁵（看 n 是 5×10⁵ 却没改）：越界 → RE 或随机 WA。三个数组都要 5×10⁵ 以上。</li></ul></div></div></details></div><div class="box tip" style="margin:22px 0 -6px"><div class="t" id="b326">挑战 2 · 难度高一级，允许组合多个已学算法</div><p id="b327">这题比上面的挑战题更难：它不只用本节一个算法，可能需要把前面几节的工具拼起来。独立做出来说明这一块真的过关了；做完记得在侧边栏勾上 🌟。</p></div><div class="challenge ch2"><div class="ct" id="b328">挑战 2 · 火柴排队</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1966</span><span class="badge diff">提高-/提高</span><a href="https://www.luogu.com.cn/problem/P1966" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b329">两盒火柴各 n 根，每根有一个高度。同一列火柴的高度互不相同。两列火柴的距离定义为 Σ(aᵢ − bᵢ)²（aᵢ 是第一列第 i 根的高度，bᵢ 是第二列第 i 根的高度）。</p><p id="b330">每列火柴中<b>相邻两根</b>都可以交换位置。请通过交换使两列火柴的距离最小，求达到最小距离所需的最少交换次数；如果这个数太大，输出它对 10⁸−3 = <b>99999997</b> 取模的结果。</p><p id="b331">输入格式：第一行一个整数 n（1 ≤ n ≤ 10⁵）；第二行 n 个整数，表示第一列火柴的高度；第三行 n 个整数，表示第二列火柴的高度。0 ≤ aᵢ, bᵢ &lt; 2³¹，同一列内高度互不相同。</p><p id="b332">输出格式：一行一个整数，表示最少交换次数对 99999997 取模的结果。</p><p id="b333"><b>样例输入</b><br><code>4<br>2 3 1 4<br>3 2 1 4</code><br><b>样例输出</b><br><code>1</code><br>样例解释：最小距离是 0（两列排到同样顺序即可），交换第一列的前两根就做到了，只需 1 次。</p></div><div class="cap" id="b334">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+4
+2 3 1 4
+3 2 1 4
+输出：
+1</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b335">先不管交换次数，只问最小距离怎么达到：把两列都从小到大排序，再「第 k 小配第 k 小」，这正是排序不等式取等号的情形。所以真正要做的是把两列按同一套大小顺序对齐。</p><p id="b336">把「第 k 小配第 k 小」写成一个排列：记 pa[k] = 第一列第 k 小所在的位置，pb[k] = 第二列第 k 小所在的位置。于是问题变成「把一个排列变成 1 2 … n 最少要几次相邻交换」。</p><p id="b337">相邻交换的最少次数等于排列里的逆序对个数。n ≤ 10⁵，用树状数组 O(n log n) 数出来，最后对 99999997 取模。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b338"><b>① 最小距离的形态。</b>排序不等式：两列都升序对齐时 Σ(aᵢ−bᵢ)² 最小。证明是一步交换论证：若某处 a₁ &lt; a₂ 却配了 b₁ &gt; b₂，交换后差值平方和不会变大。</p><p id="b339"><b>② 把「配对」写成排列。</b>pa[k] = 第一列第 k 小的位置，pb[k] = 第二列第 k 小的位置。最优状态要求「位置 pb[k] 上放的东西，和位置 pa[k] 上放的东西是同一名次」。于是定义 c[pb[k]] = pa[k]，c 是一个 1..n 的排列，把 c 排成 1,2,…,n 就等价于把两列都对齐了。</p><p id="b340"><b>③ 相邻交换 = 逆序对。</b>一次相邻交换只能让逆序对数变化 1，而冒泡排序每次恰好消掉一个逆序对，所以最少交换次数正好等于 c 的逆序对数。</p><p id="b341"><b>④ 用树状数组数逆序对。</b>从右往左扫 c：扫到 c[i] 时树里是「右边已经出现过的秩」，<code>sum(c[i]−1)</code> 就是右边比它小的个数，累加即可；随后 <code>add(c[i])</code>。</p><p id="b342"><b>⑤ 数值。</b>逆序对最多 n(n−1)/2 ≈ 5×10⁹，超过 int，用 long long 存精确值，最后再对 99999997 取模（先算后模才不会错）。</p><p id="b343"><b>⑥ 复杂度。</b>两次排序 O(n log n)，逆序对 O(n log n)，n = 10⁵ 时约 3×10⁶ 次操作。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b344">参考代码</div><pre id="b345"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">100005</span>, MOD = <span class="n">99999997</span>;
+<span class="k">int</span> n;
+<span class="k">long</span> <span class="k">long</span> a[N], b[N];
+<span class="k">int</span> pa[N], pb[N], c[N], t[N];      <span class="c">// t：树状数组，下标是“秩”</span>
+
+<span class="k">int</span> <span class="f">lowbit</span>(<span class="k">int</span> x) { <span class="k">return</span> x &amp; -x; }
+<span class="k">void</span> <span class="f">add</span>(<span class="k">int</span> i) { <span class="k">for</span> (; i &lt;= n; i += <span class="f">lowbit</span>(i)) ++t[i]; }
+<span class="k">int</span> <span class="f">sum</span>(<span class="k">int</span> i) { <span class="k">int</span> s = <span class="n">0</span>; <span class="k">for</span> (; i &gt; <span class="n">0</span>; i -= <span class="f">lowbit</span>(i)) s += t[i]; <span class="k">return</span> s; }
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;n);
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) { <span class="k">scanf</span>(<span class="s">"%lld"</span>, &amp;a[i]); pa[i] = i; }
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) { <span class="k">scanf</span>(<span class="s">"%lld"</span>, &amp;b[i]); pb[i] = i; }
+
+    <span class="c">// pa[k]：第一列第 k 小的火柴所在的位置；pb 同理</span>
+    <span class="k">sort</span>(pa + <span class="n">1</span>, pa + n + <span class="n">1</span>, [](<span class="k">int</span> i, <span class="k">int</span> j) { <span class="k">return</span> a[i] &lt; a[j]; });
+    <span class="k">sort</span>(pb + <span class="n">1</span>, pb + n + <span class="n">1</span>, [](<span class="k">int</span> i, <span class="k">int</span> j) { <span class="k">return</span> b[i] &lt; b[j]; });
+
+    <span class="c">// 把“第 k 小配第 k 小”翻译成排列：第二列位置 pb[k] 上要放第一列的位置 pa[k]</span>
+    <span class="k">for</span> (<span class="k">int</span> k = <span class="n">1</span>; k &lt;= n; ++k) c[pb[k]] = pa[k];
+
+    <span class="k">long</span> <span class="k">long</span> inv = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = n; i &gt;= <span class="n">1</span>; --i) {   <span class="c">// 逆序对：右边比 c[i] 小的个数</span>
+        inv += <span class="f">sum</span>(c[i] - <span class="n">1</span>);
+        <span class="f">add</span>(c[i]);
+    }
+    <span class="k">printf</span>(<span class="s">"%lld\n"</span>, inv % MOD);
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b346">关键片段拆解</div><table class="lines"><thead><tr><th id="b347">片段</th><th id="b348">作用</th></tr></thead><tbody><tr><td id="b349"><code>sort(pa + 1, pa + n + 1, [](int i, int j) { return a[i] &lt; a[j]; });</code></td><td id="b350">排的是<b>下标</b>不是数值——我们要的是「第 k 小在哪一格」。直接排 a 就把位置信息丢了。</td></tr><tr><td id="b351"><code>for (int k = 1; k &lt;= n; ++k) c[pb[k]] = pa[k];</code></td><td id="b352">全题的核心一行：把两列的排名对应关系压成一个排列。c 的逆序对数就是答案。</td></tr><tr><td id="b353"><code>for (int i = n; i &gt;= 1; --i)</code></td><td id="b354">从右往左扫，树状数组里正好是「i 右边已经出现过的秩」，于是 sum 查出来的就是右边的逆序贡献。</td></tr><tr><td id="b355"><code>inv += sum(c[i] - 1);</code></td><td id="b356">右边比 c[i] 小的个数。用 c[i]−1 排除相等——排列里不会有相等，但写成 −1 能避免把自己算进去。</td></tr><tr><td id="b357"><code>add(c[i]);</code></td><td id="b358">把自己记进树状数组，供更左边查询。漏了这一句答案恒为 0。</td></tr><tr><td id="b359"><code>printf("%lld\n", inv % MOD);</code></td><td id="b360">MOD = 99999997，就是题面的 10⁸−3。先算精确逆序对再取模，因为上界 5×10⁹ 在 long long 内。</td></tr></tbody></table><div class="box warn"><div class="t" id="b361">这题最容易错的地方</div><ul><li id="b362">把树状数组下标用 0 开始：lowbit(0) = 0，add 里 i += 0 原地踏步 → TLE。秩从 1 开始。</li><li id="b363">取模取成 1e9+7 / 998244353：本题是 10⁸−3 = 99999997，抄错就是 0 分。</li><li id="b364">逆序对用 int：最坏 5×10⁹，溢出成负数，而样例只有 1，本地完全看不出来。</li><li id="b365">读入用 int：aᵢ 可以到 2³¹−1，虽然刚好在 int 内，但比较与拷贝时统一 long long 更省心。</li></ul></div></div></details></div><div class="box info"><div class="t" id="b366">延伸阅读 / 参考</div><ul><li id="b367">《算法竞赛进阶指南》0x40 数据结构进阶：树状数组</li><li id="b368">《算法竞赛入门笔记》树状数组与逆序对一节</li><li id="b369">洛谷 P3374、P3368、P1908 题解区的高赞实现</li></ul></div>
+
+<footer>算竞教程 · 算竞教程 · 生成于自建课程体系，题目版权归洛谷及各命题方所有<br>
+转载请注明出处；模板代码可直接用于比赛</footer>

@@ -1,0 +1,243 @@
+
+<p id="b0">第 31~39 节是九节：DP 四类（线性、背包、区间/树形、状压/数位）、一场模拟赛，数论四块（质数、gcd 与同余、组合计数、期望）。它们训练的是同一个动作——<b>先把问题压成一张表或一个式子，再动键盘</b>。DP 的表是 dp 数组，数论的式子要取模；错法也一样：不是编译错误，而是答案差 1、差一个模数、差一次初始化。</p><div class="quote" id="b1">DP 的分不在转移方程里，在状态定义和初始化里；数论的分不在推导里，在边界和取模里。</div><p id="b2">先看九节的判据表。复习不是重读，是<b>遮住右边一列，自己先说一遍</b>，说不出来才回去补那一节。</p><table><thead><tr><th id="b3">节</th><th id="b4">内容</th><th id="b5">一句话判据（读完题先问自己）</th></tr></thead><tbody><tr><td id="b6">31</td><td id="b7">线性 DP 四步法</td><td id="b8">答案能写成“前 i 个里选、末尾状态是 j”吗？能就设 f[i]（或 f[i][j]），从“最后一步”倒推</td></tr><tr><td id="b9">32</td><td id="b10">0/1 与完全背包</td><td id="b11">每种物品只能选一次 → 容量<b>倒序</b>；能选无限次 → 容量<b>正序</b>。记反这条，样例常能过、大数据全错</td></tr><tr><td id="b12">33</td><td id="b13">区间 DP 与树形 DP</td><td id="b14">答案由“最后一次把区间切成两半”决定 → 枚举断点 k；环形就复制一倍，答案取遍所有长度 n 的区间</td></tr><tr><td id="b15">34</td><td id="b16">状压 DP 与数位 DP</td><td id="b17">状态要记“哪些已经选过” → 用二进制整数当数组下标；问“1~n 里某数字出现几次” → 按位拆</td></tr><tr><td id="b18">35</td><td id="b19">模拟赛一（120 分钟 4 题）</td><td id="b20">先暴力拿分再想正解；最后 15 分钟只查数组大小、long long、多测清空</td></tr><tr><td id="b21">36</td><td id="b22">质数与整除</td><td id="b23">判一堆素数且上界 ≤ 10⁷ → 埃氏筛；单个数分解 → 试除到 √n，剩下的 &gt; 1 必是素数</td></tr><tr><td id="b24">37</td><td id="b25">gcd、同余与快速幂</td><td id="b26">P·Q = gcd(P,Q)·lcm(P,Q)；a<sup>b</sup> mod p 按二进制拆，每乘一次就取模</td></tr><tr><td id="b27">38</td><td id="b28">组合计数与容斥</td><td id="b29">C(n,m) 用杨辉三角或阶乘逆元；“至少一个”一律转成“总数 − 一个都不满足”</td></tr><tr><td id="b30">39</td><td id="b31">概率与期望</td><td id="b32">E(X+Y) = E(X) + E(Y) 恒成立，不需要独立；但每走一步要乘概率，漏乘就是 WA</td></tr></tbody></table><p id="b33">这一节 95 分钟：前 25 分钟跟着一道题走完 DP 的完整思考链，后 70 分钟做 5 道题，每题 14 分钟。顺序建议就按表里的顺序：背包 → 区间 DP → 筛法 → gcd → 组合计数，前面的题给后面的题热身。</p><div class="prob"><div class="ph"><span class="pn" id="b34">例题 · 合唱队形</span><span class="oi">洛谷 P1091</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P1091" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b35">n 位同学站成一排，第 i 位身高 T<sub>i</sub>。音乐老师要请其中的 n − k 位同学出列，使剩下的 k 位同学排成合唱队形：存在一个人，他左边身高严格递增、右边身高严格递减。</p><p id="b36">输入格式：第一行一个整数 n（2 ≤ n ≤ 100）；第二行 n 个整数 T<sub>i</sub>（130 ≤ T<sub>i</sub> ≤ 230）。</p><p id="b37">输出格式：一行一个整数，表示最少需要几位同学出列。</p></div><div class="io" id="b38">输入：
+8
+186 186 150 200 160 130 197 200
+
+输出：
+4</div></div><div class="step"><div class="sh" id="b39">例题怎么想：把“出列最少”换成“留下最多”</div><p id="b40">题目问“出列最少”，等价于“留下最多”。设最多留下 k 人，答案就是 n − k，于是整题变成求最长的合唱队形。</p><p id="b41">合唱队形有一个<b>唯一的最高点</b> i：i 左边严格递增，i 右边严格递减。枚举这个 i，左边的最长上升子序列长度 f[i] 与右边的最长下降子序列长度 g[i] 分别算出来，拼起来是 f[i] + g[i] − 1（i 被算了两次）。</p><p id="b42">于是问题拆成两个同一个模子的小问题：<b>以 i 结尾的最长上升子序列</b>。f[i] = 1 + max{ f[j] : j &lt; i 且 a[j] &lt; a[i] }，没有合法 j 时 f[i] = 1。</p><p id="b43">右边不用另写一套：把数组从右往左扫，判据仍然是 a[j] &lt; a[i]，得到的 g[i] 就是“以 i 开头的最长下降子序列”。方向变了，不等式没变——这是本题最省脑子的地方。</p><div class="cap" id="b44">同一个模子扫两遍</div><pre id="b45"><code><span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {              <span class="c">// f：从左往右扫</span>
+    f[i] = <span class="n">1</span>;                                <span class="c">// 只留自己也算一种队形</span>
+    <span class="k">for</span> (<span class="k">int</span> j = <span class="n">1</span>; j &lt; i; ++j)
+        <span class="k">if</span> (a[j] &lt; a[i]) f[i] = <span class="k">max</span>(f[i], f[j] + <span class="n">1</span>);
+}
+<span class="k">for</span> (<span class="k">int</span> i = n; i &gt;= <span class="n">1</span>; --i) {              <span class="c">// g：从右往左扫，判据不变</span>
+    g[i] = <span class="n">1</span>;
+    <span class="k">for</span> (<span class="k">int</span> j = n; j &gt; i; --j)
+        <span class="k">if</span> (a[j] &lt; a[i]) g[i] = <span class="k">max</span>(g[i], g[j] + <span class="n">1</span>);
+}</code></pre></div><div class="cap" id="b46">完整代码：两遍 LIS，O(n²)</div><pre id="b47"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> n, a[<span class="n">105</span>];
+<span class="k">int</span> f[<span class="n">105</span>], g[<span class="n">105</span>];        <span class="c">// f[i]：以 i 结尾的最长上升子序列长度</span>
+                           <span class="c">// g[i]：以 i 开头的最长下降子序列长度</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">cin</span> &gt;&gt; n;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) <span class="k">cin</span> &gt;&gt; a[i];
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) {
+        f[i] = <span class="n">1</span>;                          <span class="c">// 自己单独站，长度是 1</span>
+        <span class="k">for</span> (<span class="k">int</span> j = <span class="n">1</span>; j &lt; i; ++j)
+            <span class="k">if</span> (a[j] &lt; a[i]) f[i] = <span class="k">max</span>(f[i], f[j] + <span class="n">1</span>);   <span class="c">// 把 a[i] 接在 a[j] 后面</span>
+    }
+
+    <span class="k">for</span> (<span class="k">int</span> i = n; i &gt;= <span class="n">1</span>; --i) {         <span class="c">// 倒着扫：右边的人先算好</span>
+        g[i] = <span class="n">1</span>;
+        <span class="k">for</span> (<span class="k">int</span> j = n; j &gt; i; --j)
+            <span class="k">if</span> (a[j] &lt; a[i]) g[i] = <span class="k">max</span>(g[i], g[j] + <span class="n">1</span>);
+    }
+
+    <span class="k">int</span> best = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i)
+        best = <span class="k">max</span>(best, f[i] + g[i] - <span class="n">1</span>); <span class="c">// i 在 f、g 里各算了一次，减掉一次</span>
+
+    <span class="k">cout</span> &lt;&lt; n - best &lt;&lt; <span class="s">"\n"</span>;              <span class="c">// 题目问的是出列人数</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="step"><div class="sh" id="b48">逐行拆解</div><table class="lines"><thead><tr><th id="b49">代码片段</th><th id="b50">含义与理由</th></tr></thead><tbody><tr><td id="b51"><code>#include &lt;bits/stdc++.h&gt;</code></td><td id="b52">一个头文件包含全部标准库。竞赛里省的不是这几个字符，是忘记 include 的那几分钟。</td></tr><tr><td id="b53"><code>int f[105], g[105];</code></td><td id="b54">n ≤ 100，开 105。开成 100 而循环写到 i = 100 就越界——习惯上多开 5 个格子。</td></tr><tr><td id="b55"><code>f[i] = 1;</code></td><td id="b56">初始化不能省。LIS 的答案至少是 1，漏了这一句 f[i] 从 0 起，best 偏小、输出偏大。</td></tr><tr><td id="b57"><code>if (a[j] &lt; a[i])</code></td><td id="b58">严格递增用 &lt;。本题写了“严格”，用 &lt;= 会把 186 186 也算成递增，答案变小。</td></tr><tr><td id="b59"><code>f[i] = max(f[i], f[j] + 1);</code></td><td id="b60">枚举“i 的前一个是谁”，取最长的那个接上。f[i] 只表示以 i 结尾，中途不能当答案。</td></tr><tr><td id="b61"><code>for (int i = n; i &gt;= 1; --i)</code></td><td id="b62">倒序扫、j 也从 n 往 i 走，算的是“i 往右能下降多长”。依赖的 g[j] 已经算好。</td></tr><tr><td id="b63"><code>best = max(best, f[i] + g[i] - 1);</code></td><td id="b64">i 是最高点，左右拼起来。漏减 1 就把最高点算了两遍，答案偏大 1。</td></tr><tr><td id="b65"><code>cout &lt;&lt; n - best &lt;&lt; "\n";</code></td><td id="b66">做一次“留下最多 → 出列最少”的转换。这一步写在纸上，别只在脑子里转。</td></tr></tbody></table></div><p id="b67">上面这道题没有新语法，但接下来的 5 道题会反复用到下面两个东西。先看清它们的格式，再往下做。</p><div class="fn"><div class="fh" id="b68">新函数拆解 · __gcd / std::gcd（最大公约数）</div><div class="fb"><div class="sig" id="b69">int __gcd(int a, int b);        // C++17 也可以写 std::gcd(a, b)</div><table class="lines"><thead><tr><th id="b70">组成</th><th id="b71">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b72"><code>a, b</code></td><td id="b73">两个整数。类型必须一致：<code>__gcd(3, 4LL)</code> 在老版本 g++ 上编译失败。</td></tr><tr><td id="b74"><code>返回值</code></td><td id="b75">最大公约数，正整数。gcd(a, 0) = a，所以“一边是 0”这种边界不用特判。</td></tr><tr><td id="b76"><code>复杂度</code></td><td id="b77">欧几里得算法（辗转相除），O(log min(a, b))。10¹⁸ 的数也只要几十步。</td></tr><tr><td id="b78"><code>lcm 怎么算</code></td><td id="b79">lcm(a, b) = a / gcd(a, b) * b。<b>先除后乘</b>，先乘就溢出。</td></tr><tr><td id="b80"><code>需要 include</code></td><td id="b81">bits/stdc++.h 已经包含，using namespace std 后可直接用。</td></tr></tbody></table><div class="cap" id="b82">最小可运行示例</div><div class="cap" id="b83">示例</div><pre id="b84"><code><span class="k">int</span> a = <span class="n">12</span>, b = <span class="n">18</span>;
+<span class="k">cout</span> &lt;&lt; <span class="f">__gcd</span>(a, b) &lt;&lt; <span class="s">"\n"</span>;             <span class="c">// 6</span>
+<span class="k">cout</span> &lt;&lt; a / <span class="f">__gcd</span>(a, b) * b &lt;&lt; <span class="s">"\n"</span>;     <span class="c">// 36：先除后乘，不溢出</span>
+
+<span class="k">long</span> <span class="k">long</span> g = <span class="f">__gcd</span>(<span class="n">6LL</span>, <span class="n">15LL</span>);          <span class="c">// 3，参数同为 long long</span></code></pre><div class="box tip"><div class="t" id="b85">注意</div><p id="b86">不要写 a * b / gcd(a, b) 求 lcm：a = b = 10⁹ 时 a*b 已经溢出，得到的是垃圾值，而且不会报错。</p><p id="b87">gcd 为 1 是两个数互质的充要条件，数论题里这句判据出现频率极高。</p></div></div></div><div class="fn"><div class="fh" id="b88">新函数拆解 · memset(dp, -1, sizeof dp)</div><div class="fb"><div class="sig" id="b89">memset(数组名, 填充值, sizeof 数组名);</div><table class="lines"><thead><tr><th id="b90">组成</th><th id="b91">含义 / 格式要求</th></tr></thead><tbody><tr><td id="b92"><code>第 1 个参数</code></td><td id="b93">数组名（首地址）。二维数组直接写 dp，不要写 dp[0]。</td></tr><tr><td id="b94"><code>第 2 个参数</code></td><td id="b95">只有“四个字节都相同”的值才安全：0、-1、0x3f（INF 常用）。它按<b>字节</b>填充，写 1 会得到 0x01010101 = 16843009。</td></tr><tr><td id="b96"><code>第 3 个参数</code></td><td id="b97">sizeof dp。写成 sizeof(dp) 等价；写成 n 是经典错误——只清了前 n 个字节。</td></tr><tr><td id="b98"><code>为什么用 -1</code></td><td id="b99">int 的 -1 正好是“没算过”的标记：合法答案可以是 0，用 0 当初值就分不清“算过且为 0”和“没算”。</td></tr><tr><td id="b100"><code>要填别的值</code></td><td id="b101">用 fill(f, f + n, 值)，或者写循环。fill 不要求值是字节可重复的。</td></tr></tbody></table><div class="cap" id="b102">最小可运行示例</div><div class="cap" id="b103">示例</div><pre id="b104"><code><span class="k">int</span> dp[<span class="n">15</span>][<span class="n">15</span>];
+<span class="k">memset</span>(dp, -<span class="n">1</span>, <span class="k">sizeof</span> dp);              <span class="c">// 全部 -1，当“没算过”</span>
+
+<span class="k">long</span> <span class="k">long</span> f[<span class="n">1005</span>];
+<span class="k">fill</span>(f, f + <span class="n">1005</span>, <span class="n">1LL</span> &lt;&lt; <span class="n">60</span>);          <span class="c">// 求最小值时的 INF</span>
+
+<span class="k">if</span> (dp[x][y] != -<span class="n">1</span>) <span class="k">return</span> dp[x][y];    <span class="c">// 记忆化搜索的标准判据</span></code></pre><div class="box tip"><div class="t" id="b105">注意</div><p id="b106">多测题每个 case 都要重新 memset，漏一次就把上一组的答案带进这一组。</p><p id="b107">memset 只对 POD 数组安全；vector 用 assign 或 fill。</p></div></div></div><div class="step"><div class="sh" id="b108">DP 四类：三句话问出状态</div><p id="b109">回顾章的 DP 不该再背模板，而应该能用三句话把状态问出来。问完这三句，转移方程几乎是照着写：</p><ol><li id="b110"><b>答案的“最后一步”是什么？</b>最后一步选不选第 i 个物品（背包）、最后一步把区间切成哪两半（区间）、最后一步填哪一位（数位）。</li><li id="b111"><b>做完最后一步，剩下的是什么？</b>剩下的必须是同一类问题的更小规模，这就是“无后效性”。</li><li id="b112"><b>要记住哪些信息才能接上最后一步？</b>记住的信息就是状态。记多了 MLE，记少了算错。</li></ol><table><thead><tr><th id="b113">类型</th><th id="b114">状态写法</th><th id="b115">转移骨架</th><th id="b116">本节对应的题</th></tr></thead><tbody><tr><td id="b117">线性 DP</td><td id="b118">f[i]：前 i 个 / 以 i 结尾</td><td id="b119">f[i] = max(f[j]) + 1（j &lt; i）</td><td id="b120">例题 P1091</td></tr><tr><td id="b121">背包</td><td id="b122">f[j]：容量 j 的最大价值</td><td id="b123">0/1 倒序 j；完全背包正序 j</td><td id="b124">挑战 1 P1048</td></tr><tr><td id="b125">区间 DP</td><td id="b126">f[i][j]：区间 [i,j] 的答案</td><td id="b127">枚举断点 k，f[i][k] + f[k+1][j] + 代价</td><td id="b128">挑战 2 P1063</td></tr><tr><td id="b129">状压 / 数位</td><td id="b130">f[S] 或 f[pos][cnt]</td><td id="b131">枚举这一位填什么，把新状态累加进去</td><td id="b132">下方 30 行的数位统计</td></tr></tbody></table><p id="b133">表里第四行本节没有配题，但它和第 38 节的组合计数共用一个动作：<b>按位统计贡献</b>。看到“1 到 n 中数字 d 出现了多少次”，先想“固定某一位是 d，这一位贡献几次”，再想“高位有哪些限制”。限制想得清，就是 O(log n) 的数学；想不清，就退回数位 DP 的记忆化框架，别在考场上硬推。下一块把这条路走完。</p></div><div class="step"><div class="sh" id="b134">第 34 节没配题：三十行补完数位统计</div><p id="b135">数位题的框架只有一句话：<b>把数字一位一位填，记录“这一位能不能随便填”</b>。如果限制只跟某一位有关，不必写记忆化搜索，直接数每一位的贡献更快、更短。</p><p id="b136">以“1 到 x 中数字 d 出现了几次”为例。固定一个位权 p（1、10、100…），把 x 拆成高位 high、当前位 cur、低位 low。这一位填 d 的取法分三类：</p><table><thead><tr><th id="b137">当前位与 d 的关系</th><th id="b138">这一位的贡献</th><th id="b139">理由</th></tr></thead><tbody><tr><td id="b140">cur &gt; d</td><td id="b141">(high + 1) × p</td><td id="b142">高位取 0~high 都能填 d，低位 p 种随便填</td></tr><tr><td id="b143">cur == d</td><td id="b144">high × p + low + 1</td><td id="b145">高位取 0~high−1 时低位随便填；高位取 high 时低位只能 0~low</td></tr><tr><td id="b146">cur &lt; d</td><td id="b147">high × p</td><td id="b148">高位最多取到 high−1，低位随便填</td></tr></tbody></table><p id="b149">d = 0 要单独处理：最高位不可能是 0，所以 cur == 0 时贡献是 (high − 1) × p + low + 1，其余情况是 high × p；high == 0 说明已经数到最高位，直接退出。这一条漏了，前导零会被当成真的 0 计进去，答案偏大。</p><div class="cap" id="b150">P2602 数字计数的 O(log n) 写法</div><pre id="b151"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">long</span> <span class="k">long</span> <span class="f">countDigit</span>(<span class="k">long</span> <span class="k">long</span> x, <span class="k">int</span> d) {      <span class="c">// 统计 1..x 中数字 d 出现的次数</span>
+    <span class="k">long</span> <span class="k">long</span> res = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">long</span> <span class="k">long</span> p = <span class="n">1</span>; p &lt;= x; p *= <span class="n">10</span>) {    <span class="c">// p 是当前处理的位权</span>
+        <span class="k">long</span> <span class="k">long</span> high = x / (p * <span class="n">10</span>);
+        <span class="k">int</span> cur = (<span class="k">int</span>)(x / p % <span class="n">10</span>);
+        <span class="k">long</span> <span class="k">long</span> low = x % p;
+
+        <span class="k">if</span> (d == <span class="n">0</span>) {                           <span class="c">// 0 不能出现在最高位，单独算</span>
+            <span class="k">if</span> (high == <span class="n">0</span>) <span class="k">break</span>;
+            <span class="k">if</span> (cur == <span class="n">0</span>) res += (high - <span class="n">1</span>) * p + low + <span class="n">1</span>;
+            <span class="k">else</span>          res += high * p;
+        } <span class="k">else</span> {
+            <span class="k">if</span> (cur &gt; d)       res += (high + <span class="n">1</span>) * p;
+            <span class="k">else</span> <span class="k">if</span> (cur == d) res += high * p + low + <span class="n">1</span>;
+            <span class="k">else</span>               res += high * p;
+        }
+    }
+    <span class="k">return</span> res;
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">long</span> <span class="k">long</span> a, b;
+    <span class="k">cin</span> &gt;&gt; a &gt;&gt; b;                              <span class="c">// 输出 [a,b] 中 0~9 各出现几次</span>
+    <span class="k">for</span> (<span class="k">int</span> d = <span class="n">0</span>; d &lt;= <span class="n">9</span>; ++d)
+        <span class="k">cout</span> &lt;&lt; <span class="f">countDigit</span>(b, d) - <span class="f">countDigit</span>(a - <span class="n">1</span>, d) &lt;&lt; (d == <span class="n">9</span> ? <span class="s">"\n"</span> : <span class="s">" "</span>);
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><p id="b152">输入 <code>1 99</code>，输出 <code>9 20 20 20 20 20 20 20 20 20 20</code>：0 出现 9 次（10、20、…、90），1~9 各 20 次（个位 10 次 + 十位 10 次）。这份输出就是自测数据；数位 DP 版和这一版都过，才算真懂。</p></div><p id="b153">数论那四块的知识点都是单行公式，考前扫一遍比读十页推导有用：</p><table><thead><tr><th id="b154">考点</th><th id="b155">必背式子</th><th id="b156">用错会怎样</th></tr></thead><tbody><tr><td id="b157">gcd / lcm</td><td id="b158">gcd(a,b) · lcm(a,b) = a · b</td><td id="b159">直接写 a*b/g 求 lcm，10⁹ 就溢出成负数</td></tr><tr><td id="b160">快速幂</td><td id="b161">a<sup>b</sup> = (a<sup>b/2</sup>)² · a<sup>b mod 2</sup>，每步 % p</td><td id="b162">循环 b 次，b = 10⁹ 时 TLE</td></tr><tr><td id="b163">组合数</td><td id="b164">C(n,m) = C(n−1,m) + C(n−1,m−1)</td><td id="b165">用阶乘硬算，n = 2000 就溢出</td></tr><tr><td id="b166">容斥</td><td id="b167">|A∪B∪C| = Σ|A| − Σ|A∩B| + |A∩B∩C|</td><td id="b168">符号不交替，答案偏大</td></tr><tr><td id="b169">期望</td><td id="b170">E(X+Y) = E(X) + E(Y)</td><td id="b171">以为必须独立才能相加，白推一小时</td></tr></tbody></table><div class="box warn"><div class="t" id="b172">DP 的 4 个高频失分点（按症状找病因）</div><p id="b173"><b>WA，答案恰好差 1</b>：初始化漏了。LIS 的 f[i] 忘了赋 1、背包忘了 f[0] = 0、区间 DP 忘了 f[i][i] = 0。</p><p id="b174"><b>WA，小数据对、大数据偏大</b>：0/1 背包把容量写成正序。正序时同一件物品被反复选，样例常常看不出来。</p><p id="b175"><b>RE（段错误）</b>：区间 DP 断环复制后数组只开了 n，实际要访问到 2n；或第二维写成了 n 而不是 2n。</p><p id="b176"><b>TLE</b>：区间 DP 写成了 O(n⁴)（枚举 i、j、k 之外又套一层扫描），或者把 10⁷ 的筛法写成对每个数试除到 √n。</p></div><div class="box warn"><div class="t" id="b177">数论的 4 个高频失分点</div><p id="b178"><b>WA，只有大样例错</b>：乘法没开 long long。a、b 都是 10⁹ 时 a*b 已经溢出，取模后是负数。写法固定成 <code>1LL * a * b % p</code>。</p><p id="b179"><b>WA，答案差一个</b>：区间端点。求 [a,b] 用 solve(b) − solve(a−1)，写成 solve(b) − solve(a) 会少算 a 本身。</p><p id="b180"><b>WA，n = 1 或全是 0 时错</b>：筛法边界。i 从 2 开始、comp[1] 当非素数；分解时试除到 i*i ≤ n，结束后若 n &gt; 1，它本身就是一个素数因子。</p><p id="b181"><b>RE / MLE</b>：筛到 10⁸ 还开 int 数组（400 MB）。布尔筛用 bool，10⁸ 只要 100 MB；能筛到 10⁷ 就别筛到 10⁸。</p></div><div class="reproduce"><div class="rt" id="b182">自己动手复现</div><p id="b183">关掉这一页，把 P1091 的代码手敲一遍提交。卡住的那一行，就是你没真懂的地方。</p><p id="b184">然后把 <code>a[j] &lt; a[i]</code> 改成 <code>a[j] &lt;= a[i]</code>，用样例再交一次。答案从 4 变成了几？想清楚为什么是变小而不是变大。</p><p id="b185">最后把 f、g 两遍扫描塞进同一个 for：第 t 次迭代用 i = t 算 f，再用 i = n − t + 1 算 g。为什么这样两个方向都能满足？</p></div><div class="step"><div class="sh" id="b186">从暴力到正解：固定五步</div><ol><li id="b187"><b>写暴力</b>：先写 O(2ⁿ) 或 O(n³) 的枚举，确保小样例过。暴力是正解的对照组，也是部分分的保险。</li><li id="b188"><b>数状态</b>：暴力里哪些参数在变？把它们写成数组下标。参数超过两个，先想能不能砍掉一个。</li><li id="b189"><b>定转移</b>：从“最后一步”倒推，写出 f[...] 由哪些更小的 f[...] 拼成。写完先手算一组小数据。</li><li id="b190"><b>定顺序</b>：转移依赖的下标必须先算。背包靠倒序保证“只用一次”，区间 DP 靠长度从小到大保证子区间已算。</li><li id="b191"><b>对拍</b>：暴力 + 正解 + 随机数据，跑 100 组。这一步能抓住九成的初始化与边界错误。</li></ol><p id="b192">数论题的版本是：<b>先枚举</b>（O(n) 或 O(√n)）→ <b>找等价式</b>（gcd·lcm = P·Q、C(n,m) 的递推）→ <b>算复杂度</b>（能不能过 10⁷）→ <b>查 long long 与取模</b>。四步都在纸上完成，键盘只负责翻译。</p></div><h2 id="b193">本次训练 · 共 5 题</h2><div class="box tip"><div class="t" id="b194">做题方式</div><p id="b195">限时 <b>100 分钟</b>。每题先自己写 20~25 分钟；写不出来先看提示，再给自己 10 分钟；还不行才点开思路。每题都独立限时，不要一题耗死。</p></div><div class="challenge"><div class="ct" id="b196">大题 挑战题 1 · 采药</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1048</span><span class="badge diff">普及-</span><a href="https://www.luogu.com.cn/problem/P1048" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b197">山洞里有 M 株草药，采第 i 株需要 t<sub>i</sub> 的时间，能得到 v<sub>i</sub> 的价值。总时间只有 T，每株草药最多采一次，求能采到的最大总价值。</p><p id="b198">输入格式：第一行两个整数 T、M（1 ≤ T ≤ 1000，1 ≤ M ≤ 100）；接下来 M 行，每行两个整数 t<sub>i</sub>、v<sub>i</sub>（1 ≤ t<sub>i</sub> ≤ T，1 ≤ v<sub>i</sub> ≤ 100）。</p><p id="b199">输出格式：一行一个整数，表示最大总价值。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b200">每株草药只有“采”和“不采”两种选择，而且每株最多一次——这是哪种背包？</p><p id="b201">把“时间”当容量，“价值”当物品价值，dp 数组只要一维就够。</p><p id="b202">一维数组的关键是循环方向：想清楚更新 f[j] 时，f[j − t] 是本轮的还是上一轮的。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b203">设 f[j] = 用不超过 j 的时间能拿到的最大价值，初值全 0（什么都不采，价值 0）。</p><p id="b204">对每株草药 i：不采它，f[j] 不变；采它，f[j] = f[j − t[i]] + v[i]。两者取大。</p><p id="b205">容量必须<b>倒序</b>枚举。正序时 f[j − t[i]] 已经被第 i 株更新过，等于允许同一株采两次，答案偏大。</p><p id="b206">答案就是 f[T]，复杂度 O(M·T) = 10⁵，时间与空间都宽松。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b207">参考代码</div><pre id="b208"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> T, M;
+<span class="k">int</span> t[<span class="n">105</span>], v[<span class="n">105</span>];
+<span class="k">int</span> f[<span class="n">1005</span>];                        <span class="c">// f[j]：时间不超过 j 时的最大价值</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">cin</span> &gt;&gt; T &gt;&gt; M;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= M; ++i) <span class="k">cin</span> &gt;&gt; t[i] &gt;&gt; v[i];
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= M; ++i)
+        <span class="k">for</span> (<span class="k">int</span> j = T; j &gt;= t[i]; --j)          <span class="c">// 倒序：保证每株草药只用一次</span>
+            f[j] = <span class="k">max</span>(f[j], f[j - t[i]] + v[i]);
+
+    <span class="k">cout</span> &lt;&lt; f[T] &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b209">关键片段拆解</div><table class="lines"><thead><tr><th id="b210">片段</th><th id="b211">作用</th></tr></thead><tbody><tr><td id="b212"><code>int f[1005];</code></td><td id="b213">T ≤ 1000，开 1005。一维数组是“滚动掉物品维”的结果：第 i 轮覆盖第 i−1 轮。</td></tr><tr><td id="b214"><code>for (int j = T; j &gt;= t[i]; --j)</code></td><td id="b215">倒序是 0/1 背包的全部秘密。j 从大到小，f[j − t[i]] 还没被本轮改过。</td></tr><tr><td id="b216"><code>f[j] = max(f[j], f[j - t[i]] + v[i]);</code></td><td id="b217">不采（f[j]）与采（f[j−t[i]] + v[i]）取大。</td></tr><tr><td id="b218"><code>cout &lt;&lt; f[T];</code></td><td id="b219">f[T] 是“时间不超过 T”的最优值，不必再扫一遍 max。</td></tr></tbody></table><div class="box warn"><div class="t" id="b220">这题最容易错的地方</div><ul><li id="b221">容量写成正序 → 变成完全背包，样本能过、大数据偏大。</li><li id="b222">把 t[i] 和 v[i] 读反（题目先时间后价值）。</li><li id="b223">f 数组按物品数开成 105，越界或 RE。</li></ul></div></div></details></div><div class="challenge"><div class="ct" id="b224">大题 挑战题 2 · 能量项链</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1063</span><span class="badge diff">提高-</span><a href="https://www.luogu.com.cn/problem/P1063" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b225">项链由 n 颗珠子串成一圈。第 i 颗珠子有头标记 a<sub>i</sub>、尾标记 a<sub>i+1</sub>（第 n 颗的尾标记是 a<sub>1</sub>）。相邻两颗可以合并：若前一颗是 (a, b)、后一颗是 (b, c)，合并后得到 (a, c)，同时释放 a × b × c 点能量。</p><p id="b226">求把整圈合并成一颗珠子，最多能释放多少能量。</p><p id="b227">输入格式：第一行一个整数 n（4 ≤ n ≤ 100）；第二行 n 个正整数 a<sub>i</sub>（1 ≤ a<sub>i</sub> ≤ 10⁴）。</p><p id="b228">输出格式：一行一个整数，表示最大总能量。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b229">合并只能在相邻的两颗之间发生，而且最后一次合并一定把“环上的某一段”切成两半。</p><p id="b230">把环拉直的做法是把数组复制一份接在后面，然后只看长度为 n 的区间。</p><p id="b231">区间 DP 的枚举顺序是：长度从小到大 → 区间起点 → 断点。想清楚为什么长度必须在最外层。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b232">断环成链：把 a 复制一份，a[i + n] = a[i]。于是任何长度为 n 的连续区间都对应环上的一种合并顺序。</p><p id="b233">设 f[i][j] 表示把第 i..j 颗珠子合并成一颗的最大能量。最后一次合并把区间分成 [i,k] 与 [k+1,j]，合并后的左块是 (a[i], a[k+1])，右块是 (a[k+1], a[j+1])，释放 a[i] × a[k+1] × a[j+1]。</p><p id="b234">转移：枚举断点 k，f[i][j] = max( f[i][k] + f[k+1][j] + a[i]·a[k+1]·a[j+1] )。</p><p id="b235">答案 = max f[i][i+n−1]（i = 1…n），因为环有 n 种断法。复杂度 O(n³) = 10⁶。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b236">参考代码</div><pre id="b237"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> n, a[<span class="n">205</span>];
+<span class="k">long</span> <span class="k">long</span> f[<span class="n">205</span>][<span class="n">205</span>];      <span class="c">// f[i][j]：把第 i..j 颗珠子合成一颗的最大能量</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">cin</span> &gt;&gt; n;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) { <span class="k">cin</span> &gt;&gt; a[i]; a[i + n] = a[i]; }  <span class="c">// 断环成链</span>
+
+    <span class="k">for</span> (<span class="k">int</span> len = <span class="n">2</span>; len &lt;= n; ++len)                  <span class="c">// 长度从小到大，保证小区间先算</span>
+        <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i + len - <span class="n">1</span> &lt; <span class="n">2</span> * n; ++i) {     <span class="c">// 右端点 j &lt;= 2n-1：能量要用 a[j+1]，j = 2n 就越界</span>
+            <span class="k">int</span> j = i + len - <span class="n">1</span>;
+            <span class="k">for</span> (<span class="k">int</span> k = i; k &lt; j; ++k)                 <span class="c">// 最后一次合并的断点</span>
+                f[i][j] = <span class="k">max</span>(f[i][j],
+                              f[i][k] + f[k + <span class="n">1</span>][j] + <span class="n">1LL</span> * a[i] * a[k + <span class="n">1</span>] * a[j + <span class="n">1</span>]);
+        }
+
+    <span class="k">long</span> <span class="k">long</span> ans = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= n; ++i) ans = <span class="k">max</span>(ans, f[i][i + n - <span class="n">1</span>]);   <span class="c">// n 种断法</span>
+    <span class="k">cout</span> &lt;&lt; ans &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b238">关键片段拆解</div><table class="lines"><thead><tr><th id="b239">片段</th><th id="b240">作用</th></tr></thead><tbody><tr><td id="b241"><code>a[i + n] = a[i];</code></td><td id="b242">环形问题第一步：复制一份接在后面，任何长度 n 的区间都对应环上的一种合并顺序。</td></tr><tr><td id="b243"><code>long long f[205][205];</code></td><td id="b244">一次合并最多释放 10¹²（三个 10⁴ 相乘），n−1 次累加可到 10¹⁴，int 装不下。</td></tr><tr><td id="b245"><code>for (int len = 2; len &lt;= n; ++len)</code></td><td id="b246">按长度从小到大：算长度 len 时，所有更短的子区间已经算好。</td></tr><tr><td id="b247"><code>for (int k = i; k &lt; j; ++k)</code></td><td id="b248">枚举最后一次合并的分界：左边合成 (a[i], a[k+1])，右边合成 (a[k+1], a[j+1])。</td></tr><tr><td id="b249"><code>1LL * a[i] * a[k + 1] * a[j + 1]</code></td><td id="b250">合并释放的能量。三个 10⁴ 相乘是 10¹²，int 直接溢出。</td></tr><tr><td id="b251"><code>ans = max(ans, f[i][i + n - 1]);</code></td><td id="b252">长度为 n 的区间有 n 个起点，正好对应环的 n 种断法，取最大。</td></tr></tbody></table><div class="box warn"><div class="t" id="b253">这题最容易错的地方</div><ul><li id="b254">数组只开 n 而不是 2n，复制后越界，RE。</li><li id="b255">循环写成 <code>i + len - 1 &lt;= 2 * n</code>，右端点取到 2n 时 a[j+1] 读到空白值，答案偏小且不报错。</li><li id="b256">len 从 1 开始：长度为 1 不需要合并，硬算会读到 f[i][i−1] 这种空白区域。</li><li id="b257">能量用 int 存，a<sub>i</sub> = 10⁴ 时乘积 10¹² 溢出成负数。</li><li id="b258">答案只取 f[1][n]，漏掉“从别处断开”的更优解。</li></ul></div></div></details></div><div class="challenge"><div class="ct" id="b259">大题 挑战题 3 · 回文质数</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1217</span><span class="badge diff">普及-</span><a href="https://www.luogu.com.cn/problem/P1217" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b260">回文质数是指既是质数、又是回文数的整数（回文数指正着读反着读一样）。给定 a、b，按从小到大输出 [a, b] 内所有回文质数，每行一个。</p><p id="b261">输入格式：一行两个整数 a、b（5 ≤ a ≤ b ≤ 10⁸）。</p><p id="b262">输出格式：每行一个回文质数，按升序输出。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b263">要输出区间内所有满足条件的数，意味着你得先有一个“谁是质数”的表，而不是对每个数单独判。</p><p id="b264">回文数有一个性质：偶数位的回文数一定能被 11 整除。想一想这对 10⁸ 的范围意味着什么。</p><p id="b265">标记倍数时从 i × i 开始——更小的倍数已经被更小的质数标记过了。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b266">先筛出 b 以内的所有质数（埃氏筛），再对每个质数判回文。</p><p id="b267">关键剪枝：偶数位的回文数一定能被 11 整除，所以 8 位数的回文数全都不是质数；b ≤ 10⁸ 时 9 位数只有 100000000，它不是回文。于是 b 可以直接截到 9999999，1 亿的筛法变成 1 千万，时间空间都省一个量级。</p><p id="b268">筛法：comp[i] 表示 i 被标记为合数；i 未标记就是素数，把 i²、i²+i、… 全部标记。内层循环的起点必须是 i²，否则 10⁷ 的筛法会退化成 O(n log n) 且常数很大。</p><p id="b269">判回文用整数翻转：把 x 的十进制位翻过来，和原数比较，空间 O(1)，比转字符串快。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b270">参考代码</div><pre id="b271"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">10000005</span>;
+<span class="k">bool</span> comp[N];                       <span class="c">// comp[i] = true 表示 i 是合数</span>
+
+<span class="k">bool</span> <span class="f">pal</span>(<span class="k">int</span> x) {                   <span class="c">// 判回文：翻过来看是否相等</span>
+    <span class="k">int</span> t = x, r = <span class="n">0</span>;
+    <span class="k">while</span> (t) { r = r * <span class="n">10</span> + t % <span class="n">10</span>; t /= <span class="n">10</span>; }
+    <span class="k">return</span> r == x;
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> a, b;
+    <span class="k">cin</span> &gt;&gt; a &gt;&gt; b;
+    b = <span class="k">min</span>(b, <span class="n">9999999</span>);            <span class="c">// 8 位回文数必被 11 整除，截掉它们不丢答案</span>
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">2</span>; i &lt;= b; ++i) {
+        <span class="k">if</span> (!comp[i]) {             <span class="c">// i 没被标记 → i 是素数</span>
+            <span class="k">if</span> (i &gt;= a &amp;&amp; <span class="f">pal</span>(i)) <span class="k">cout</span> &lt;&lt; i &lt;&lt; <span class="s">"\n"</span>;
+            <span class="k">for</span> (<span class="k">long</span> <span class="k">long</span> j = <span class="n">1LL</span> * i * i; j &lt;= b; j += i)
+                comp[j] = <span class="k">true</span>;     <span class="c">// 从 i*i 开始标记，更小的倍数早被筛过</span>
+        }
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b272">关键片段拆解</div><table class="lines"><thead><tr><th id="b273">片段</th><th id="b274">作用</th></tr></thead><tbody><tr><td id="b275"><code>b = min(b, 9999999);</code></td><td id="b276">偶数位回文数必被 11 整除，8 位数的回文数都不是质数，所以截到 9999999 不丢答案。</td></tr><tr><td id="b277"><code>if (!comp[i])</code></td><td id="b278">埃氏筛的核心：从小到大，没被标记过的就是素数。</td></tr><tr><td id="b279"><code>for (long long j = 1LL * i * i; ...)</code></td><td id="b280">j 必须是 long long：i 接近 10⁷ 时 i*i 溢出 int，变成负数后死循环。</td></tr><tr><td id="b281"><code>if (i &gt;= a &amp;&amp; pal(i))</code></td><td id="b282">先筛出素数再判回文，比“枚举回文再判素数”省事：素数表已经给全了。</td></tr><tr><td id="b283"><code>r = r * 10 + t % 10;</code></td><td id="b284">整数翻转。回文判据是 r == x，不需要字符串，也没有前导零问题。</td></tr></tbody></table><div class="box warn"><div class="t" id="b285">这题最容易错的地方</div><ul><li id="b286">写成 for (int j = i * i; ...)，i &gt; 46340 后 i*i 溢出，RE 或死循环。</li><li id="b287">筛到 10⁸ 还用 int 数组，400 MB 直接 MLE；bool 只要 100 MB，能筛到 10⁷ 就别筛 10⁸。</li><li id="b288">忘记 b 可能大于 10⁷，不做截断，时间翻几倍。</li><li id="b289">把 1 当成素数输出。i 从 2 开始就不会有这个问题。</li></ul></div></div></details></div><div class="challenge"><div class="ct" id="b290">大题 挑战题 4 · 最大公约数和最小公倍数问题</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1029</span><span class="badge diff">普及-</span><a href="https://www.luogu.com.cn/problem/P1029" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b291">已知两个正整数 P、Q 的最大公约数是 x<sub>0</sub>，最小公倍数是 y<sub>0</sub>。求满足条件的 (P, Q) 有多少对，其中 (P, Q) 与 (Q, P) 算两对。</p><p id="b292">输入格式：一行两个正整数 x<sub>0</sub>、y<sub>0</sub>。</p><p id="b293">输出格式：一行一个整数，表示满足条件的对数；不存在时输出 0。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b294">先用一个等式把 P、Q 的关系压缩成两个数之间的关系，再想枚举什么。</p><p id="b295">P 和 Q 都是 x<sub>0</sub> 的倍数，把它们写成 x<sub>0</sub>·i 和 x<sub>0</sub>·j，代进等式看看。</p><p id="b296">枚举 n 的因子只需要到 √n，再检查这两个因子是否互质。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b297">由 gcd(P,Q) · lcm(P,Q) = P · Q 得 P·Q = x<sub>0</sub>·y<sub>0</sub>。x<sub>0</sub> 不整除 y<sub>0</sub> 时无解。</p><p id="b298">令 P = x<sub>0</sub>·i、Q = x<sub>0</sub>·j，代入 P·Q = x<sub>0</sub>·y<sub>0</sub> 得 i·j = y<sub>0</sub>/x<sub>0</sub> = n。</p><p id="b299">gcd(P,Q) = x<sub>0</sub>·gcd(i,j)，要求等于 x<sub>0</sub>，所以 gcd(i,j) = 1。于是问题变成：枚举 n 的因子对 (i, j)，数其中互质的有几对。</p><p id="b300">枚举到 √n 即可：每找到一个因子 i 就得到一对 (i, n/i)，互质则答案加 2（(i,j) 和 (j,i)）；i == n/i 时只加 1，避免重复。复杂度 O(√n)。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b301">参考代码</div><pre id="b302"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">long</span> <span class="k">long</span> x, y;
+    <span class="k">cin</span> &gt;&gt; x &gt;&gt; y;
+
+    <span class="k">if</span> (y % x) { <span class="k">cout</span> &lt;&lt; <span class="n">0</span> &lt;&lt; <span class="s">"\n"</span>; <span class="k">return</span> <span class="n">0</span>; }   <span class="c">// x 不整除 y，无解</span>
+    <span class="k">long</span> <span class="k">long</span> n = y / x, ans = <span class="n">0</span>;
+
+    <span class="k">for</span> (<span class="k">long</span> <span class="k">long</span> i = <span class="n">1</span>; i * i &lt;= n; ++i) {
+        <span class="k">if</span> (n % i) <span class="k">continue</span>;                     <span class="c">// i 不是 n 的因子</span>
+        <span class="k">long</span> <span class="k">long</span> j = n / i;
+        <span class="k">if</span> (<span class="f">__gcd</span>(i, j) == <span class="n">1</span>)                    <span class="c">// i、j 互质，还原出的 P、Q 的 gcd 才恰好是 x</span>
+            ans += (i == j) ? <span class="n">1</span> : <span class="n">2</span>;             <span class="c">// 有序对：(i,j) 与 (j,i) 各算一次</span>
+    }
+
+    <span class="k">cout</span> &lt;&lt; ans &lt;&lt; <span class="s">"\n"</span>;
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b303">关键片段拆解</div><table class="lines"><thead><tr><th id="b304">片段</th><th id="b305">作用</th></tr></thead><tbody><tr><td id="b306"><code>if (y % x)</code></td><td id="b307">P、Q 都是 x 的倍数，所以 x 必须整除 y；不整除时答案直接是 0。</td></tr><tr><td id="b308"><code>n = y / x;</code></td><td id="b309">把 x 从两个数里约掉：i、j 满足 i·j = n 且 gcd(i,j) = 1。枚举范围从 y 降到 √n。</td></tr><tr><td id="b310"><code>for (i = 1; i * i &lt;= n; ++i)</code></td><td id="b311">枚举因子只到 √n，n 再大也只要几万次。i 用 long long 防 i*i 溢出。</td></tr><tr><td id="b312"><code>__gcd(i, j) == 1</code></td><td id="b313">互质是“gcd(P,Q) 恰好为 x”的充要条件。不互质说明还有公因子，gcd 会更大。</td></tr><tr><td id="b314"><code>ans += (i == j) ? 1 : 2;</code></td><td id="b315">(i,j) 与 (j,i) 是两个不同的有序解，各算一次；i == j 时只有一个解，只算一次。</td></tr></tbody></table><div class="box warn"><div class="t" id="b316">这题最容易错的地方</div><ul><li id="b317">漏了 i == j 的特判，把 (i,i) 算成两对。</li><li id="b318">用 int 存 P·Q：x·y 一超过 2×10⁹ 就溢出，直接 long long 省心。</li><li id="b319">从 1 枚举到 y 逐个检查 gcd，O(y) 超时。</li><li id="b320">忘记 gcd·lcm = P·Q 这条关系，直接两重循环。</li></ul></div></div></details></div><div class="challenge"><div class="ct" id="b321">大题 挑战题 5 · 组合数问题</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P2822</span><span class="badge diff">普及/提高-</span><a href="https://www.luogu.com.cn/problem/P2822" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b322">组合数 C(i,j) 表示从 i 个不同物品中选出 j 个的方案数，规定 j &gt; i 时 C(i,j) = 0。给定 k 和 t 组询问，每组给出 n、m，求有多少对 (i, j) 满足 0 ≤ i ≤ n、0 ≤ j ≤ min(i, m)，且 C(i,j) 是 k 的倍数。</p><p id="b323">输入格式：第一行两个整数 t、k（1 ≤ t ≤ 10⁴，2 ≤ k ≤ 10⁹）；接下来 t 行，每行两个整数 n、m（0 ≤ n, m ≤ 2000）。</p><p id="b324">输出格式：t 行，每行一个整数，表示该组询问的答案。</p></div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b325">C(i,j) 可以用杨辉三角 O(n²) 全算出来，但真值有几百位，存不下——你只需要知道它是不是 k 的倍数。</p><p id="b326">每个询问问的是一块区域里有多少个满足条件的位置，位置总数是 n² 级别，逐组统计一定超时。</p><p id="b327">把每个位置标成 0/1 之后，询问就变成了区域求和。第 18 节学过一个工具，能让区域求和做到 O(1)。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b328">杨辉三角只保留模 k 的余数：C[i][j] = (C[i−1][j−1] + C[i−1][j]) % k。余数为 0 就是 k 的倍数。</p><p id="b329">把“C[i][j] 是 k 的倍数”记成 0/1 矩阵 bad[i][j]，并把 j &gt; i 的格子强制置 0。这样矩形 [0..n] × [0..min(n,m)] 的和就恰好是答案——多出来的 j &gt; i 格子贡献为 0。</p><p id="b330">对 bad 做二维前缀和：s[i][j] = bad[i][j] + s[i−1][j] + s[i][j−1] − s[i−1][j−1]。每次询问 O(1)。</p><p id="b331">预处理 O(N²) ≈ 4×10⁶，询问 O(1)，总复杂度由预处理决定，完全够用。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b332">参考代码</div><pre id="b333"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">const</span> <span class="k">int</span> N = <span class="n">2005</span>;
+<span class="k">int</span> t, k;
+<span class="k">int</span> C[N][N];        <span class="c">// 杨辉三角模 k 的余数</span>
+<span class="k">int</span> s[N][N];        <span class="c">// bad 的二维前缀和</span>
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">ios</span>::<span class="k">sync_with_stdio</span>(<span class="k">false</span>);
+    <span class="k">cin</span>.<span class="k">tie</span>(<span class="k">nullptr</span>);
+
+    <span class="k">cin</span> &gt;&gt; t &gt;&gt; k;
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; N; ++i) {
+        C[i][<span class="n">0</span>] = C[i][i] = <span class="n">1</span> % k;              <span class="c">// 两条边界：C(i,0) = C(i,i) = 1</span>
+        <span class="k">for</span> (<span class="k">int</span> j = <span class="n">1</span>; j &lt; i; ++j)
+            C[i][j] = (C[i - <span class="n">1</span>][j - <span class="n">1</span>] + C[i - <span class="n">1</span>][j]) % k;   <span class="c">// 只要余数</span>
+    }
+
+    <span class="k">for</span> (<span class="k">int</span> i = <span class="n">0</span>; i &lt; N; ++i)
+        <span class="k">for</span> (<span class="k">int</span> j = <span class="n">0</span>; j &lt; N; ++j) {
+            <span class="k">int</span> bad = (j &lt;= i &amp;&amp; C[i][j] == <span class="n">0</span>) ? <span class="n">1</span> : <span class="n">0</span>;      <span class="c">// j &gt; i 不是合法组合数</span>
+            s[i][j] = bad;
+            <span class="k">if</span> (i) s[i][j] += s[i - <span class="n">1</span>][j];
+            <span class="k">if</span> (j) s[i][j] += s[i][j - <span class="n">1</span>];
+            <span class="k">if</span> (i &amp;&amp; j) s[i][j] -= s[i - <span class="n">1</span>][j - <span class="n">1</span>];          <span class="c">// 二维容斥</span>
+        }
+
+    <span class="k">while</span> (t--) {
+        <span class="k">int</span> n, m;
+        <span class="k">cin</span> &gt;&gt; n &gt;&gt; m;
+        <span class="k">if</span> (m &gt; n) m = n;                       <span class="c">// 题目要求 j &lt;= min(i, m)</span>
+        <span class="k">cout</span> &lt;&lt; s[n][m] &lt;&lt; <span class="s">"\n"</span>;
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b334">关键片段拆解</div><table class="lines"><thead><tr><th id="b335">片段</th><th id="b336">作用</th></tr></thead><tbody><tr><td id="b337"><code>C[i][0] = C[i][i] = 1 % k;</code></td><td id="b338">杨辉三角的两条边界都是 1。写 1 % k 是防御写法：k 整除 1 时也不会错。</td></tr><tr><td id="b339"><code>C[i][j] = (C[i-1][j-1] + C[i-1][j]) % k;</code></td><td id="b340">只要余数：C(2000,1000) 有 600 位，存不下；判断倍数只看余数。</td></tr><tr><td id="b341"><code>int bad = (j &lt;= i &amp;&amp; C[i][j] == 0);</code></td><td id="b342">j > i 的格子不是合法组合数，必须置 0，否则前缀和会把空白区算进去。</td></tr><tr><td id="b343"><code>s[i][j] = bad + s[i-1][j] + s[i][j-1] - s[i-1][j-1];</code></td><td id="b344">二维前缀和：以 (i,j) 为右下角的矩形里有多少个 bad。</td></tr><tr><td id="b345"><code>if (m &gt; n) m = n;</code></td><td id="b346">要求 j ≤ min(i, m)。m 超过 n 时直接截到 n，否则会查到无意义的区域。</td></tr><tr><td id="b347"><code>cout &lt;&lt; s[n][m];</code></td><td id="b348">查询 O(1)。预处理 4×10⁶ 次，1 万组询问也不会超时。</td></tr></tbody></table><div class="box warn"><div class="t" id="b349">这题最容易错的地方</div><ul><li id="b350">用 int 存真实组合数，n = 2000 就溢出，答案全错。</li><li id="b351">忘了把 j &gt; i 的格子置 0，前缀和把下三角以外算进去，答案偏大。</li><li id="b352">每组询问都重新递推杨辉三角，O(t·n²) 超时。</li><li id="b353">数组只开 2000 而 n 能取到 2000：下标 2000 越界，必须开 2005。</li></ul></div></div></details></div><div class="box tip" style="margin:24px 0 -6px"><div class="t" id="b354">附加挑战 2（不计入限时）</div><p id="b355">做完上面的整套题还有余力，再啃这一道。它比本套题的平均难度高一级。</p></div><div class="challenge ch2"><div class="ct" id="b356">挑战 2 · Hankson 的趣味题</div><div class="ph" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="oi" style="font-size:13px;color:#5b6577;background:#eef3fb;border-radius:6px;padding:2px 8px">洛谷 P1072</span><span class="badge diff">提高+/省选-</span><a href="https://www.luogu.com.cn/problem/P1072" target="_blank" rel="noopener">去洛谷做这题 ↗</a></div><div class="st"><p id="b357">已知正整数 a₀、a₁、b₀、b₁，求满足下面两条的正整数 x 的个数：</p><p id="b358">① gcd(x, a₀) = a₁；② lcm(x, b₀) = b₁。若不存在这样的 x，输出 0。</p><p id="b359">输入格式：第一行一个正整数 n（n ≤ 2000），表示数据组数。接下来 n 行，每行四个正整数 a₀、a₁、b₀、b₁，保证 a₀ 能被 a₁ 整除、b₁ 能被 b₀ 整除。</p><p id="b360">输出格式：每组数据输出一行一个整数，即满足条件的 x 的个数。</p><p id="b361">数据范围：1 ≤ a₀, a₁, b₀, b₁ ≤ 2×10⁹。</p></div><div class="cap" id="b362">样例</div><div style="white-space:pre-wrap;background:#f8fafc;border:1px dashed #d7dfeb;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Consolas,monospace;font-size:13px">输入：
+2
+41 1 96 288
+95 1 37 1776
+输出：
+6
+2</div><div class="hintbox"><div class="ht">引导性提示（先只看这里）</div><p id="b363">看第二个条件：lcm(x, b₀) = b₁，而 lcm 一定是 x 的倍数，所以 x 必须是 b₁ 的约数。</p><p id="b364">看第一个条件：gcd(x, a₀) = a₁，所以 a₁ 必须是 x 的因数。两个条件一夹，候选范围小得可怜。</p><p id="b365">b₁ ≤ 2×10⁹，枚举它的约数只要 √b₁ ≈ 4.5×10⁴ 次循环；每个候选 O(log) 验证一次就够。</p></div><details><summary>想看思路了？点开完整思路</summary><div class="dc"><p id="b366">先收紧候选集合：x | b₁（由 lcm 条件）且 a₁ | x（由 gcd 条件），所以只需在 b₁ 的约数里找。</p><p id="b367">枚举 i = 1..⌊√b₁⌋，若 i | b₁，则 i 与 b₁/i 都是一对约数，分别验证；i = b₁/i（完全平方数）时只验一次。</p><p id="b368">验证两条：gcd(x, a₀) == a₁；以及 x / gcd(x, b₀) * b₀ == b₁（lcm 先除后乘，防溢出）。</p><p id="b369">为什么这两个判据就是全部：题目给的两条约束互相独立，没有任何隐含条件，满足即合法，不需要再检查别的。</p><p id="b370">复杂度：O(n√b₁) ≈ 2000 × 4.5×10⁴ ≈ 9×10⁷ 次取模，1 秒内可过；gcd 只在约数上调用，次数极少。</p><p id="b371">小优化：先判 x % a₁ != 0 再算 gcd，能省掉绝大多数无用的 gcd 调用——这是本题卡不卡时限的关键。</p></div></details><details><summary>还是不会？点开题解代码与拆解</summary><div class="dc"><div class="cap" id="b372">参考代码</div><pre id="b373"><code><span class="k">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">typedef</span> <span class="k">long</span> <span class="k">long</span> ll;
+
+ll <span class="f">gcd</span>(ll a, ll b) { <span class="k">return</span> b ? <span class="f">gcd</span>(b, a % b) : a; }
+
+ll a0, a1, b0, b1;
+
+<span class="c">// 检查候选 x 是否同时满足两个条件</span>
+<span class="k">bool</span> <span class="f">good</span>(ll x) {
+    <span class="k">if</span> (x % a1) <span class="k">return</span> <span class="k">false</span>;                       <span class="c">// gcd(x, a0) = a1 要求 a1 | x</span>
+    <span class="k">if</span> (<span class="f">gcd</span>(x, a0) != a1) <span class="k">return</span> <span class="k">false</span>;
+    <span class="k">return</span> x / <span class="f">gcd</span>(x, b0) * b0 == b1;               <span class="c">// lcm(x, b0) = b1，先除后乘防溢出</span>
+}
+
+<span class="k">int</span> <span class="f">main</span>() {
+    <span class="k">int</span> T;
+    <span class="k">scanf</span>(<span class="s">"%d"</span>, &amp;T);
+    <span class="k">while</span> (T--) {
+        <span class="k">scanf</span>(<span class="s">"%lld %lld %lld %lld"</span>, &amp;a0, &amp;a1, &amp;b0, &amp;b1);
+        <span class="k">int</span> ans = <span class="n">0</span>;
+        <span class="k">for</span> (ll x = <span class="n">1</span>; x * x &lt;= b1; ++x) {
+            <span class="k">if</span> (b1 % x) <span class="k">continue</span>;                   <span class="c">// 只枚举 b1 的约数：x | lcm(x, b0) = b1</span>
+            <span class="k">if</span> (<span class="f">good</span>(x)) ++ans;
+            ll y = b1 / x;
+            <span class="k">if</span> (y != x &amp;&amp; <span class="f">good</span>(y)) ++ans;           <span class="c">// 成对出现的另一个约数，完全平方数不重复算</span>
+        }
+        <span class="k">printf</span>(<span class="s">"%d\n"</span>, ans);
+    }
+    <span class="k">return</span> <span class="n">0</span>;
+}</code></pre><div class="cap" id="b374">关键片段拆解</div><table class="lines"><thead><tr><th id="b375">片段</th><th id="b376">作用</th></tr></thead><tbody><tr><td id="b377"><code>for (ll x = 1; x * x &lt;= b1; ++x)</code></td><td id="b378">只枚举到 √b₁：约数成对出现，另一半用 b1/x 拿到。</td></tr><tr><td id="b379"><code>if (b1 % x) continue;</code></td><td id="b380">一次取模就筛掉绝大多数候选，这是 9×10⁷ 次循环能过的原因。</td></tr><tr><td id="b381"><code>if (y != x &amp;&amp; good(y)) ++ans;</code></td><td id="b382">完全平方数时 y == x，不加这个判断就会重复计数。</td></tr><tr><td id="b383"><code>if (x % a1) return false;</code></td><td id="b384">a₁ | x 是必要条件，它比 gcd 便宜得多，放在最前面。</td></tr><tr><td id="b385"><code>if (gcd(x, a0) != a1) return false;</code></td><td id="b386">条件①，gcd 是 O(log)，只在约数上调用。</td></tr><tr><td id="b387"><code>x / gcd(x, b0) * b0 == b1</code></td><td id="b388">条件②。先除后乘，避免 x·b₀ 逼近 long long 上限。</td></tr></tbody></table><div class="box warn"><div class="t" id="b389">这题最容易错的地方</div><ul><li id="b390">直接枚举 1..b₁ 逐个验证：b₁ 到 2×10⁹，一秒要做 2×10⁹ 次 gcd，必然 TLE。</li><li id="b391">完全平方数重复计数：b₁ = 4 时约数 2 会被 i 和 b₁/i 各算一次。</li><li id="b392">lcm 写成 x * b0 / gcd(x, b0)：x·b₀ 最大 4×10¹⁸，逼近 long long 上限，稍大一点就溢出。</li><li id="b393">中间量用 int：x·b₀ 或 (dᵢ+1)·cᵢ 这类乘法一溢出，答案就随机了。</li></ul></div></div></details></div><div class="box ok"><div class="t" id="b394">做完之后自问</div><ul><li id="b395">说到“0/1 背包”，能立刻答出容量必须倒序，并说出正序错在哪一步。</li><li id="b396">能不看代码写出区间 DP 的三层循环顺序（长度 → 起点 → 断点），并解释为什么长度要在最外层。</li><li id="b397">看到“1~n 中数字 d 出现几次”，能说出按位统计与数位 DP 两种做法，并判断哪个更快。</li><li id="b398">能背出 gcd 与 lcm 的关系式，并说明为什么算 lcm 要先除后乘。</li><li id="b399">能用一句话说清“总数 − 一个都不满足”这个容斥转化，并举一个 C(n,m) 之外的例子。</li><li id="b400">能说出期望的线性性为什么不需要独立性，并给出“E(XY) = E(X)E(Y) 需要独立”的反例。</li></ul></div><div class="box info"><div class="t" id="b401">延伸阅读</div><ul><li id="b402">《算法竞赛入门笔记》：动态规划四步法、数论基础两章</li><li id="b403">《算法竞赛进阶指南》：数学知识（质数、约数、同余）与动态规划（背包、区间 DP）两章</li><li id="b404">《算法竞赛试炼场：洛谷300题精析》：P1048、P1063、P2822 三题的多解对比</li><li id="b405">《算法竞赛黄金法则：提高算法和思考力的77项技巧》：先写暴力再压缩状态；把边界写成清单</li><li id="b406">洛谷 P1091、P1063 题解区关于“两遍 LIS”与“断环成链”的讨论</li></ul></div>
+
+<footer>算竞教程 · 算竞教程 · 生成于自建课程体系，题目版权归洛谷及各命题方所有<br>
+转载请注明出处；模板代码可直接用于比赛</footer>

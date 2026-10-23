@@ -1,0 +1,1095 @@
+<section class="sec" id="s1" data-cat="语法" fold>
+  
+  <div class="secbody">
+    <div class="callout"><p>本章目标：把竞赛真正会用到的 C++ 语法补到「够用」，并提前排掉 8 个最容易让新手爆零的语法坑。 已经熟悉的同学可以跳读，但 <b>1.2（头文件）、1.3（类型宽度）、1.6（数组与内存）、1.12（位运算）</b> 四节建议必读。</p></div>
+    <article class="algo" id="pl-7" data-cat="语法" data-name="1.1 竞赛程序长什么样 本质 竞赛程序 = 几行 #include + 一个 main + 「从 cin 读进来，算完，从 cout 写出去」。结构比课本上见的任何程序都简单，唯一的门槛是每个标准名字都得先说明它在哪个头文件里。 一个最简的竞赛程序，骨架永远是这样。注意 #include 是按需写的——下面两行分别解决了 cin/co">
+      <div class="ah"><h4>1.1 竞赛程序长什么样</h4><span class="lv lv-e">入门</span><span class="st">★★★</span><span class="tag">打地基</span></div>
+      <p class="idea"><b>本质</b>：竞赛程序 = 几行 <code>#include</code> + 一个 <code>main</code> + 「从 <code>cin</code> 读进来，算完，从 <code>cout</code> 写出去」。结构比课本上见的任何程序都简单，唯一的门槛是<b>每个标准名字都得先说明它在哪个头文件里</b>。</p>
+      <p>一个最简的竞赛程序，骨架永远是这样。注意 <code>#include</code> 是<b>按需</b>写的——下面两行分别解决了 <code>cin</code>/<code>cout</code> 和 <code>sort</code>：</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      #include <iostream>   // cin / cout / '\n' 这一套
+      #include <algorithm>  // sort / max / min
+      
+      using namespace std;
+      
+      int main() {
+          int n;
+          cin >> n;
+          int ans = 0;
+          for (int i = 1; i <= n; ++i) {
+              int x;
+              cin >> x;
+              ans += x;
+          }
+          cout << ans << '\n';   // 用 '\n' 而不是 endl
+          return 0;
+      }
+      </script></div>
+      <p>把它补成真正能上场的骨架，只多四样东西：常量、全局数组、多组数据循环、读写加速。</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      #include <iostream>
+      #include <algorithm>
+      
+      using namespace std;
+      
+      const int N = 100005;
+      
+      int n, a[N];          // 大数组放全局（见 1.6）
+      
+      void solve() {
+          cin >> n;
+          for (int i = 1; i <= n; ++i) cin >> a[i];
+          sort(a + 1, a + 1 + n);
+          for (int i = 1; i <= n; ++i) cout << a[i] << " \n"[i == n];
+      }
+      
+      int main() {
+          ios::sync_with_stdio(false);   // 关同步：cin 提速 2~5 倍
+          cin.tie(nullptr);              // 解绑：不再每次 cin 前 flush cout
+          int T = 1;
+          cin >> T;                      // 单组数据的题，删掉这一行
+          while (T--) solve();
+          return 0;
+      }
+      </script></div>
+      <p><b>四个必须记住的点</b></p>
+      <ol class="tight"><li><b><code>#include</code> 是「按需」的，不是仪式。</b> 用 <code>cin</code>/<code>cout</code> 就必须有 <code>&lt;iostream&gt;</code>；用 <code>sort</code>/<code>max</code>/<code>lower_bound</code> 就必须有 <code>&lt;algorithm&gt;</code>；用 <code>vector</code> 就必须有 <code>&lt;vector&gt;</code>。漏了的唯一表现是编译报 <code>'sort' was not declared in this scope</code>——报错停在调用处，病因却在文件开头。</li><li><b><code>using namespace std;</code></b> 只是让你写 <code>cin</code> 而不是 <code>std::cin</code>。代价是自建的名字可能和标准库撞车（你自己写了个 <code>abs</code>，就会和 <code>std::abs</code> 打架），竞赛场景下基本可以不管。</li><li><b><code>endl</code> 会强制刷新缓冲区</b>，<code>'\n'</code> 不会。输出 10^6 行时 <code>endl</code> 触发 10^6 次系统调用，<b>TLE 往往就是这么来的</b>，而不是算法慢。</li><li><b><code>return 0;</code> 别省。</b> 评测不看返回值，但少了它会有「main 没有返回」的警告，顺手写上只多 9 个字符。</li></ol>
+      <p><b>一个程序是怎么变成 AC 的</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-bash">
+      g++ a.cpp -o a -O2 -std=c++17 -Wall   # 编译：源码 → 可执行文件（-Wall 打开全部警告）
+      ./a < in.txt                          # 本地跑：用输入重定向喂数据
+      diff out.txt ans.txt                  # 对比：和标准答案逐字节比
+      </script></div>
+      <p>提交之后，服务器上跑的也是同一条 <code>g++</code>，差别只在版本、优化级别和栈大小。所以「本地过样例」只说明语法没错，<b>不说明算法对</b>——见第 2.5 节对拍。</p>
+      <p><b>为什么这份资料一律不用「万能头」</b></p>
+      <p>网上绝大多数竞赛代码第一行都是 <code>#include &lt;bits/stdc++.h&gt;</code>，它一次引入 GCC 标准库的几乎所有头文件。<b>本文全篇禁用</b>，四个理由：</p>
+      <table>
+      <tr><th>理由</th><th>说明</th></tr>
+      <tr><td>它不是标准 C++</td><td><code>bits/stdc++.h</code> 是 libstdc++（GCC 自带）的私有实现，C++ 标准里根本没有这个头文件</td></tr>
+      <tr><td>换个编译器就不存在</td><td>MSVC（Visual Studio、CLion 默认工具链）、Apple Clang 都没有它，本地写作业、课程实验里写它直接 CE</td></tr>
+      <tr><td>编译明显变慢</td><td>它把三百多个头文件全部展开，一个空程序的编译从 0.2 秒变成 1 秒以上；模板越写越多，差距越大</td></tr>
+      <tr><td>看不出依赖</td><td>别人（以及三个月后的你）无法从代码看出这个程序到底用了哪些库，改一行还得先猜</td></tr>
+      </table>
+      <p>也要承认现实：洛谷、Codeforces、AtCoder 的 GCC 环境都支持它，机房里很多人也在用。<b>会用不等于该依赖</b>——真正省时间的是「一份固定 13 行的头文件模板」，而不是一个只在特定编译器上成立的技巧。第 1.2 节把这张表补齐，配好模板之后，你写 <code>#include</code> 的速度和写万能头没有区别。</p>
+      <div class="box tip"><span class="t">💡 提示</span><p>本地编译建议：<code>g++ a.cpp -o a -O2 -std=c++17 -Wall</code>。<code>-O2</code> 开优化（评测机也开），<code>-Wall</code> 打开所有警告，<code>-std=c++17</code> 支持结构化绑定等新语法。</p></div>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p>「本地能编、交上去 CE」有九成是两件事：用了非标准扩展（<code>&lt;conio.h&gt;</code>、<code>getch()</code>），或者用了比评测机更新的标准（C++20 的写法）。本地永远显式写 <code>-std=c++17</code>，把环境和评测机对齐。</p></div>
+      <div class="box ok"><span class="t">✅ 小结</span><p>先抄骨架，再谈算法。骨架里唯一需要动脑的地方是 <code>#include</code> 那几行——下一节就是为了让它变成肌肉记忆。</p></div>
+    </article>
+    <article class="algo" id="pl-8" data-cat="语法" data-name="1.2 头文件对照表 本质 C++ 没有「默认可用」的标准库名字。sort、vector、max、memset、sqrt 这些名字全都住在某个头文件里，#include 做的事就是把那个头文件的内容抄到你的代码最前面。所以漏头文件的报错永远长这样：&#x27;sort&#x27; was not declared in this scope——名字不存在">
+      <div class="ah"><h4>1.2 头文件对照表</h4><span class="lv lv-e">入门</span><span class="st">★★★</span><span class="tag">打地基</span></div>
+      <p class="idea"><b>本质</b>：C++ 没有「默认可用」的标准库名字。<code>sort</code>、<code>vector</code>、<code>max</code>、<code>memset</code>、<code>sqrt</code> 这些名字全都住在某个头文件里，<code>#include</code> 做的事就是把那个头文件的内容抄到你的代码最前面。所以漏头文件的报错永远长这样：<b><code>'sort' was not declared in this scope</code></b>——名字不存在，不是你不会用。</p>
+      <div class="box idea"><span class="t">🎨 生活类比</span><p>头文件就是厨房的抽屉标签。你不知道打蛋器在哪个抽屉，就只能在厨房里瞎翻；报错 <code>not declared</code> 不是打蛋器坏了，是你还没打开那个抽屉。抽屉只有十几个，贴一次标签能用一辈子。</p></div>
+      <p>这一节把「什么名字住在哪个头」整理成可直接查的表。<b>这张表比背算法有用</b>：算法可以查书，漏一行 <code>#include</code> 就是 0 分。</p>
+      <p><b>A. 竞赛必备的头文件（先记这 15 个）</b></p>
+      <table>
+      <tr><th>头文件</th><th>提供哪些常用名字</th><th>什么时候必须写</th><th>易错点</th></tr>
+      <tr><td><code>&lt;iostream&gt;</code></td><td><code>cin</code> <code>cout</code> <code>cerr</code> <code>clog</code> <code>endl</code></td><td>几乎所有程序</td><td><code>cerr</code> 不缓冲，崩溃前也能看到；<code>endl</code> 每次都 flush</td></tr>
+      <tr><td><code>&lt;algorithm&gt;</code></td><td><code>sort</code> <code>stable_sort</code> <code>partial_sort</code> <code>nth_element</code> <code>reverse</code> <code>unique</code> <code>lower_bound</code> <code>upper_bound</code> <code>binary_search</code> <code>max</code> <code>min</code> <code>swap</code> <code>fill</code> <code>count</code> <code>find</code> <code>max_element</code> <code>min_element</code> <code>next_permutation</code> <code>clamp</code>（C++17）</td><td>排序 / 二分 / 去重 / 最值</td><td>名字最多、最容易漏；<code>unique</code> 必须先 <code>sort</code></td></tr>
+      <tr><td><code>&lt;vector&gt;</code></td><td><code>vector</code></td><td>用动态数组时</td><td><code>vector</code> 不是内建类型，漏了是「未声明」，不是「语法错」</td></tr>
+      <tr><td><code>&lt;string&gt;</code></td><td><code>string</code> <code>getline</code> <code>stoi</code> <code>stoll</code> <code>stod</code> <code>to_string</code> <code>string::npos</code> <code>substr</code> <code>find</code></td><td>字符串题</td><td><code>s.size()</code> 是无符号，别和 <code>-1</code> 比</td></tr>
+      <tr><td><code>&lt;cstdio&gt;</code></td><td><code>printf</code> <code>scanf</code> <code>freopen</code> <code>puts</code> <code>getchar</code> <code>putchar</code> <code>sscanf</code> <code>sprintf</code></td><td>格式化输出、卡常、文件重定向</td><td><code>long long</code> 必须 <code>%lld</code>；<code>scanf</code> 读 <code>double</code> 必须 <code>%lf</code></td></tr>
+      <tr><td><code>&lt;cstring&gt;</code></td><td><code>memset</code> <code>memcpy</code> <code>memmove</code> <code>memcmp</code> <code>strlen</code> <code>strcmp</code> <code>strcpy</code> <code>strstr</code></td><td>清数组、C 风格字符串</td><td><code>memset</code> 只能填 0、-1、0x3f；填 1 得到 16843009</td></tr>
+      <tr><td><code>&lt;cmath&gt;</code></td><td><code>sqrt</code> <code>fabs</code> <code>pow</code> <code>floor</code> <code>ceil</code> <code>round</code> <code>log</code> <code>log2</code> <code>exp</code> <code>hypot</code> <code>atan2</code></td><td>浮点运算、几何</td><td>全部返回 <code>double</code>，别拿来算整数</td></tr>
+      <tr><td><code>&lt;climits&gt;</code></td><td><code>INT_MAX</code> <code>INT_MIN</code> <code>LLONG_MAX</code> <code>LLONG_MIN</code> <code>UINT_MAX</code> <code>CHAR_BIT</code></td><td>用最值常量时</td><td>别用 <code>1e9</code> 当 <code>INF</code>，它是 <code>double</code></td></tr>
+      <tr><td><code>&lt;cstdlib&gt;</code></td><td><code>abs</code>（整数版）<code>rand</code> <code>srand</code> <code>RAND_MAX</code> <code>atoi</code> <code>atoll</code> <code>strtol</code> <code>qsort</code> <code>exit</code></td><td>随机数、整数绝对值</td><td>浮点 <code>abs</code> 要用 <code>&lt;cmath&gt;</code>，混用会触发重载解析问题</td></tr>
+      <tr><td><code>&lt;queue&gt;</code></td><td><code>queue</code> <code>priority_queue</code></td><td>BFS、堆、单调队列</td><td><code>priority_queue</code> 在这里，不在 <code>&lt;algorithm&gt;</code></td></tr>
+      <tr><td><code>&lt;stack&gt;</code></td><td><code>stack</code></td><td>栈、单调栈</td><td>—</td></tr>
+      <tr><td><code>&lt;set&gt;</code></td><td><code>set</code> <code>multiset</code></td><td>有序集合、去重</td><td><code>unordered_set</code> 在另一个头；<code>erase(x)</code> 删掉<b>所有</b>等于 x 的元素</td></tr>
+      <tr><td><code>&lt;map&gt;</code></td><td><code>map</code> <code>multimap</code></td><td>键值对、离散化</td><td><code>mp[key]</code> 会顺手插入新键，判存在用 <code>count</code></td></tr>
+      <tr><td><code>&lt;numeric&gt;</code></td><td><code>accumulate</code> <code>partial_sum</code> <code>adjacent_difference</code> <code>iota</code> <code>gcd</code> <code>lcm</code>（后两个 C++17）</td><td>区间求和、序列初始化、gcd</td><td><code>accumulate(a, a + n, 0)</code> 的初值 <code>0</code> 是 <code>int</code>，求和溢出就全错</td></tr>
+      <tr><td><code>&lt;utility&gt;</code></td><td><code>pair</code> <code>make_pair</code> <code>swap</code> <code>move</code></td><td>存坐标对、<code>pair</code> 排序</td><td><code>pair</code> 比较是字典序，先比 <code>first</code></td></tr>
+      </table>
+      <p><b>B. 按「我想干什么」反查</b></p>
+      <table>
+      <tr><th>想做的事</th><th>要写的头文件</th><th>具体调用</th></tr>
+      <tr><td>排序</td><td><code>&lt;algorithm&gt;</code></td><td><code>sort(a + 1, a + 1 + n)</code></td></tr>
+      <tr><td>结构体按自定义规则排序</td><td><code>&lt;algorithm&gt;</code></td><td><code>sort(v.begin(), v.end(), cmp)</code></td></tr>
+      <tr><td>只要第 k 小，不要求全序</td><td><code>&lt;algorithm&gt;</code></td><td><code>nth_element(a, a + k, a + n)</code></td></tr>
+      <tr><td>找第一个大于等于 x 的位置</td><td><code>&lt;algorithm&gt;</code></td><td><code>lower_bound(a + 1, a + 1 + n, x) - a</code></td></tr>
+      <tr><td>排序后去重</td><td><code>&lt;algorithm&gt;</code></td><td><code>sort(...)</code> 之后 <code>m = unique(...) - a</code></td></tr>
+      <tr><td>求最值</td><td><code>&lt;algorithm&gt;</code></td><td><code>max(a, b)</code>、<code>max_element(a, a + n)</code></td></tr>
+      <tr><td>反转 / 填充</td><td><code>&lt;algorithm&gt;</code></td><td><code>reverse(...)</code>、<code>fill(a, a + n, 0)</code></td></tr>
+      <tr><td>枚举全排列</td><td><code>&lt;algorithm&gt;</code></td><td><code>next_permutation(a, a + n)</code></td></tr>
+      <tr><td>随机打乱</td><td><code>&lt;algorithm&gt;</code> + <code>&lt;random&gt;</code></td><td><code>shuffle(a, a + n, rng)</code></td></tr>
+      <tr><td>区间求和</td><td><code>&lt;numeric&gt;</code></td><td><code>accumulate(a, a + n, 0LL)</code></td></tr>
+      <tr><td>最大公约数</td><td><code>&lt;numeric&gt;</code></td><td><code>gcd(a, b)</code>（C++17）；GCC 另有 <code>__gcd</code></td></tr>
+      <tr><td>整数绝对值</td><td><code>&lt;cstdlib&gt;</code></td><td><code>abs(x)</code></td></tr>
+      <tr><td>浮点绝对值 / 开方</td><td><code>&lt;cmath&gt;</code></td><td><code>fabs(x)</code>、<code>sqrt(x)</code></td></tr>
+      <tr><td>保留 2 位小数</td><td><code>&lt;iomanip&gt;</code></td><td><code>cout &lt;&lt; fixed &lt;&lt; setprecision(2)</code></td></tr>
+      <tr><td>输出 <code>long long</code></td><td><code>&lt;cstdio&gt;</code></td><td><code>printf("%lld\n", x)</code></td></tr>
+      <tr><td>清空数组</td><td><code>&lt;cstring&gt;</code></td><td><code>memset(a, 0, sizeof a)</code></td></tr>
+      <tr><td>读一整行（含空格）</td><td><code>&lt;string&gt;</code> + <code>&lt;iostream&gt;</code></td><td><code>getline(cin, line)</code></td></tr>
+      <tr><td>字符串转数字</td><td><code>&lt;string&gt;</code></td><td><code>stoi(s)</code>、<code>stoll(s)</code>、<code>stod(s)</code></td></tr>
+      <tr><td>数字转字符串</td><td><code>&lt;string&gt;</code></td><td><code>to_string(x)</code></td></tr>
+      <tr><td>文件重定向</td><td><code>&lt;cstdio&gt;</code></td><td><code>freopen("in.txt", "r", stdin)</code></td></tr>
+      <tr><td>随机数（旧）</td><td><code>&lt;cstdlib&gt;</code></td><td><code>srand(time(0))</code>、<code>rand()</code></td></tr>
+      <tr><td>高质量随机（对拍）</td><td><code>&lt;random&gt;</code></td><td><code>mt19937 rng(seed)</code></td></tr>
+      <tr><td>小根堆</td><td><code>&lt;queue&gt;</code> + <code>&lt;functional&gt;</code></td><td><code>priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt;</code></td></tr>
+      <tr><td>按空格拆字符串</td><td><code>&lt;sstream&gt;</code></td><td><code>stringstream ss(s)</code></td></tr>
+      <tr><td>定长位集</td><td><code>&lt;bitset&gt;</code></td><td><code>bitset&lt;1000&gt; bs; bs.count();</code></td></tr>
+      <tr><td>判字符类型</td><td><code>&lt;cctype&gt;</code></td><td><code>isdigit(c)</code>、<code>toupper(c)</code></td></tr>
+      <tr><td>测时间</td><td><code>&lt;chrono&gt;</code></td><td><code>chrono::steady_clock::now()</code></td></tr>
+      <tr><td>断言</td><td><code>&lt;cassert&gt;</code></td><td><code>assert(x &gt;= 0)</code></td></tr>
+      <tr><td>统计二进制 1 的个数</td><td>GCC 内建，不用头文件</td><td><code>__builtin_popcount(x)</code>、<code>__builtin_popcountll(x)</code></td></tr>
+      </table>
+      <p><b>C. 最容易记错的 20 个归属</b></p>
+      <table>
+      <tr><th>名字</th><th>在哪个头文件</th><th>常见误解</th></tr>
+      <tr><td><code>abs</code></td><td>整数在 <code>&lt;cstdlib&gt;</code>，浮点在 <code>&lt;cmath&gt;</code></td><td>以为都在一个地方</td></tr>
+      <tr><td><code>max</code> / <code>min</code></td><td><code>&lt;algorithm&gt;</code></td><td>以为语言内建</td></tr>
+      <tr><td><code>swap</code></td><td><code>&lt;utility&gt;</code>，<code>&lt;algorithm&gt;</code> 也带</td><td>以为要自己写</td></tr>
+      <tr><td><code>pow</code></td><td><code>&lt;cmath&gt;</code></td><td>以为能算整数快速幂（<code>pow(2, 10)</code> 返回 <code>double</code>）</td></tr>
+      <tr><td><code>sqrt</code></td><td><code>&lt;cmath&gt;</code></td><td>以为返回整数，<code>(int)sqrt(1e18)</code> 可能差 1</td></tr>
+      <tr><td><code>gcd</code></td><td><code>&lt;numeric&gt;</code>（C++17），GCC 另有 <code>__gcd</code></td><td>以为在 <code>&lt;algorithm&gt;</code></td></tr>
+      <tr><td><code>accumulate</code></td><td><code>&lt;numeric&gt;</code></td><td>以为在 <code>&lt;algorithm&gt;</code></td></tr>
+      <tr><td><code>iota</code></td><td><code>&lt;numeric&gt;</code></td><td>不知道有它，手写循环初始化</td></tr>
+      <tr><td><code>memset</code></td><td><code>&lt;cstring&gt;</code></td><td>以为在 <code>&lt;cstdio&gt;</code></td></tr>
+      <tr><td><code>memcpy</code></td><td><code>&lt;cstring&gt;</code></td><td>以为在 <code>&lt;cstdlib&gt;</code></td></tr>
+      <tr><td><code>strlen</code> / <code>strcmp</code></td><td><code>&lt;cstring&gt;</code></td><td>和 <code>std::string</code> 的 <code>.size()</code> 搞混</td></tr>
+      <tr><td><code>printf</code> / <code>scanf</code></td><td><code>&lt;cstdio&gt;</code></td><td>以为有 <code>&lt;iostream&gt;</code> 就够</td></tr>
+      <tr><td><code>INT_MAX</code></td><td><code>&lt;climits&gt;</code></td><td>以为在 <code>&lt;cstdint&gt;</code></td></tr>
+      <tr><td><code>int64_t</code> / <code>INT64_MAX</code></td><td><code>&lt;cstdint&gt;</code></td><td>以为在 <code>&lt;climits&gt;</code></td></tr>
+      <tr><td><code>setprecision</code> / <code>setw</code></td><td><code>&lt;iomanip&gt;</code></td><td>以为在 <code>&lt;iostream&gt;</code></td></tr>
+      <tr><td><code>rand</code> / <code>srand</code> / <code>RAND_MAX</code></td><td><code>&lt;cstdlib&gt;</code></td><td>以为在 <code>&lt;random&gt;</code></td></tr>
+      <tr><td><code>to_string</code> / <code>stoi</code></td><td><code>&lt;string&gt;</code></td><td>以为在 <code>&lt;cstdlib&gt;</code>（那是 <code>atoi</code>）</td></tr>
+      <tr><td><code>clamp</code></td><td><code>&lt;algorithm&gt;</code>（C++17）</td><td>以为在 <code>&lt;cmath&gt;</code></td></tr>
+      <tr><td><code>pair</code></td><td><code>&lt;utility&gt;</code></td><td>以为在 <code>&lt;algorithm&gt;</code></td></tr>
+      <tr><td><code>tuple</code></td><td><code>&lt;tuple&gt;</code></td><td>以为和 <code>pair</code> 同头</td></tr>
+      <tr><td><code>greater&lt;int&gt;</code></td><td><code>&lt;functional&gt;</code></td><td>以为有 <code>&lt;queue&gt;</code> 就够</td></tr>
+      <tr><td><code>deque</code></td><td><code>&lt;deque&gt;</code></td><td>以为 <code>&lt;queue&gt;</code> 里一定有——实现上常被带进来，但标准不保证</td></tr>
+      </table>
+      <p><b>D. 其余的常用头（用到再查）</b></p>
+      <table>
+      <tr><th>头文件</th><th>内容</th><th>竞赛会不会用</th></tr>
+      <tr><td><code>&lt;array&gt;</code></td><td><code>array&lt;int, 10&gt;</code> 定长容器</td><td>偶尔，<code>vector</code> 更常用</td></tr>
+      <tr><td><code>&lt;bitset&gt;</code></td><td>位集，支持整体位运算和 <code>count()</code></td><td>状压、卡常时偶尔用</td></tr>
+      <tr><td><code>&lt;tuple&gt;</code></td><td><code>tuple</code> <code>make_tuple</code> <code>get&lt;i&gt;</code></td><td>存三元组时可用</td></tr>
+      <tr><td><code>&lt;sstream&gt;</code></td><td><code>stringstream</code>，按空格拆字符串</td><td>解析不规整输入时</td></tr>
+      <tr><td><code>&lt;iomanip&gt;</code></td><td><code>setprecision</code> <code>setw</code> <code>setfill</code> <code>fixed</code></td><td>输出小数</td></tr>
+      <tr><td><code>&lt;functional&gt;</code></td><td><code>greater&lt;int&gt;</code> <code>less&lt;int&gt;</code> <code>function</code></td><td>小根堆必须写 <code>greater&lt;int&gt;</code></td></tr>
+      <tr><td><code>&lt;iterator&gt;</code></td><td><code>back_inserter</code> <code>next</code> <code>advance</code></td><td>偶尔</td></tr>
+      <tr><td><code>&lt;memory&gt;</code></td><td><code>unique_ptr</code> <code>shared_ptr</code></td><td>竞赛基本不用</td></tr>
+      <tr><td><code>&lt;limits&gt;</code></td><td><code>numeric_limits&lt;int&gt;::max()</code></td><td>偶尔</td></tr>
+      <tr><td><code>&lt;chrono&gt;</code></td><td>计时</td><td>本地测速</td></tr>
+      <tr><td><code>&lt;random&gt;</code></td><td><code>mt19937</code> <code>uniform_int_distribution</code></td><td>对拍、随机化</td></tr>
+      <tr><td><code>&lt;cstdint&gt;</code></td><td><code>int64_t</code> <code>uint64_t</code> <code>INT64_MAX</code></td><td>想固定宽度时</td></tr>
+      <tr><td><code>&lt;cctype&gt;</code></td><td><code>isdigit</code> <code>isalpha</code> <code>toupper</code> <code>tolower</code></td><td>字符分类</td></tr>
+      <tr><td><code>&lt;cassert&gt;</code></td><td><code>assert</code></td><td>调试</td></tr>
+      <tr><td><code>&lt;ctime&gt;</code></td><td><code>time(0)</code> <code>clock()</code></td><td>随机种子、计时</td></tr>
+      <tr><td><code>&lt;deque&gt;</code></td><td><code>deque</code> 双端队列</td><td>单调队列多用数组模拟，反而更快</td></tr>
+      <tr><td><code>&lt;type_traits&gt;</code></td><td><code>is_same</code> 等</td><td>竞赛不用</td></tr>
+      <tr><td><code>&lt;optional&gt;</code> <code>&lt;string_view&gt;</code> <code>&lt;variant&gt;</code></td><td>C++17 新类型</td><td>偶尔，注意评测机标准</td></tr>
+      </table>
+      <p><b>E. 版本问题：C++11 / 14 / 17 / 20</b></p>
+      <p>评测机常见的是 <code>g++ -O2 -std=c++14</code> 或 <code>-std=c++17</code>，个别老题还停在 <code>c++11</code>。</p>
+      <table>
+      <tr><th>特性</th><th>最低标准</th><th>头文件</th><th>考场能不能用</th></tr>
+      <tr><td><code>auto</code>、范围 for、<code>nullptr</code>、<code>to_string</code>、<code>stoi</code></td><td>C++11</td><td><code>&lt;string&gt;</code></td><td>能，放心用</td></tr>
+      <tr><td>泛型 lambda、<code>make_unique</code>、二进制字面量 <code>0b1010</code>、数字分隔符 <code>1'000'000</code></td><td>C++14</td><td>—</td><td>能</td></tr>
+      <tr><td><code>gcd</code> / <code>lcm</code>、<code>clamp</code>、结构化绑定 <code>auto [x, y] = p</code>、<code>if constexpr</code>、<code>optional</code> <code>string_view</code></td><td>C++17</td><td><code>&lt;numeric&gt;</code> <code>&lt;algorithm&gt;</code> <code>&lt;optional&gt;</code></td><td>基本能，先确认题目页面写的标准</td></tr>
+      <tr><td><code>popcount</code> / <code>countl_zero</code>、<code>&lt;=&gt;</code>、<code>ranges</code>、<code>std::format</code></td><td>C++20</td><td><code>&lt;bit&gt;</code> <code>&lt;format&gt;</code></td><td><b>不要用</b>，多数评测机是 C++14/17</td></tr>
+      </table>
+      <p>反例：本地最新 g++ 默认标准可能是 C++17 甚至更高，你顺手写了 <code>std::popcount(x)</code>——本地编译通过，交上去 <code>'popcount' is not a member of 'std'</code>。<b>考场上一律写 <code>__builtin_popcount</code> / <code>__builtin_popcountll</code></b>，它们在 GCC 下从 C++98 到 C++20 都能用。</p>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p>本地用最新 g++ 默认标准编过、交上去 CE，八成是用了比评测机更新的写法。<b>本地编译永远显式加 <code>-std=c++17</code></b>，让环境和评测机对齐。</p></div>
+      <p><b>F. 怎么确认自己没漏头文件</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-bash">
+      g++ a.cpp -o a -std=c++17                  # 漏了的唯一表现就是 'xxx' was not declared in this scope
+      g++ -H a.cpp -o a 2>&1 | head -20          # 看实际包含了哪些头文件，第一层就是你写的那几行
+      g++ a.cpp -o a -std=c++17 -fmax-errors=5   # 一次看 5 条错误，别被第一条挡住视线
+      </script></div>
+      <p>把报错里的名字和下面的表对一下，基本一眼定位：</p>
+      <table>
+      <tr><th>报错里出现的名字</th><th>缺的头文件</th></tr>
+      <tr><td><code>cin</code> <code>cout</code> <code>endl</code> <code>ios</code></td><td><code>&lt;iostream&gt;</code></td></tr>
+      <tr><td><code>sort</code> <code>max</code> <code>unique</code> <code>lower_bound</code> <code>reverse</code> <code>next_permutation</code></td><td><code>&lt;algorithm&gt;</code></td></tr>
+      <tr><td><code>vector</code></td><td><code>&lt;vector&gt;</code></td></tr>
+      <tr><td><code>string</code> <code>getline</code> <code>stoi</code> <code>to_string</code></td><td><code>&lt;string&gt;</code></td></tr>
+      <tr><td><code>memset</code> <code>strlen</code> <code>memcpy</code></td><td><code>&lt;cstring&gt;</code></td></tr>
+      <tr><td><code>sqrt</code> <code>pow</code> <code>fabs</code> <code>floor</code></td><td><code>&lt;cmath&gt;</code></td></tr>
+      <tr><td><code>INT_MAX</code> <code>LLONG_MAX</code></td><td><code>&lt;climits&gt;</code></td></tr>
+      <tr><td><code>printf</code> <code>scanf</code> <code>getchar</code> <code>freopen</code></td><td><code>&lt;cstdio&gt;</code></td></tr>
+      <tr><td><code>queue</code> <code>priority_queue</code></td><td><code>&lt;queue&gt;</code></td></tr>
+      <tr><td><code>stack</code></td><td><code>&lt;stack&gt;</code></td></tr>
+      <tr><td><code>set</code> / <code>map</code></td><td><code>&lt;set&gt;</code> / <code>&lt;map&gt;</code></td></tr>
+      <tr><td><code>pair</code> / <code>make_pair</code></td><td><code>&lt;utility&gt;</code></td></tr>
+      <tr><td><code>deque</code></td><td><code>&lt;deque&gt;</code></td></tr>
+      <tr><td><code>greater</code> / <code>less</code></td><td><code>&lt;functional&gt;</code></td></tr>
+      <tr><td><code>setprecision</code></td><td><code>&lt;iomanip&gt;</code></td></tr>
+      <tr><td><code>accumulate</code> / <code>iota</code></td><td><code>&lt;numeric&gt;</code></td></tr>
+      <tr><td><code>gcd</code> is not a member of <code>std</code></td><td><code>&lt;numeric&gt;</code>，或者评测机标准低于 C++17</td></tr>
+      </table>
+      <p>三种典型报错形态，对应三种病因：</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-plain">
+      'x' was not declared in this scope      → 头文件没包含，或变量拼错（见 1.3）
+      'x' is not a type                        → 类型名所属头文件没包含
+      no matching function for call to 'max'   → 头文件有了，实参类型不一致（int 和 long long 混着传）
+      </script></div>
+      <p><b>G. 抄这一套当模板</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      #include <iostream>
+      #include <algorithm>
+      #include <vector>
+      #include <string>
+      #include <cstring>
+      #include <cmath>
+      #include <climits>
+      #include <cstdio>
+      #include <queue>
+      #include <stack>
+      #include <set>
+      #include <map>
+      #include <numeric>
+      
+      using namespace std;
+      
+      int main() {
+          ios::sync_with_stdio(false);
+          cin.tie(nullptr);
+      
+          // 你的代码
+      
+          return 0;
+      }
+      </script></div>
+      <p>上面是 <b>13 行 include</b>，覆盖 90% 的题。按需再加四个：<code>&lt;bitset&gt;</code>（状压）、<code>&lt;tuple&gt;</code>（三元组）、<code>&lt;unordered_map&gt;</code>（哈希表）、<code>&lt;deque&gt;</code>（要写 <code>deque</code> 时）。</p>
+      <p><code>pair</code> 理论上住在 <code>&lt;utility&gt;</code>，<code>&lt;map&gt;</code> 和 <code>&lt;algorithm&gt;</code> 的实现会把它带进来——<b>但那是实现细节，不是标准保证</b>。想零风险就在 <code>numeric</code> 后面补一行 <code>&lt;utility&gt;</code>，变成 14 行，代价是零。</p>
+      <p>把它存成编辑器的 snippet（VS Code 里 <code>File → Preferences → Configure User Snippets</code>，键名敲 <code>acm</code> 一次展开），比每次重新想头文件快得多。</p>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p>不要「一半 <code>cin</code>、一半 <code>printf</code>」还开着 <code>ios::sync_with_stdio(false)</code>。关同步后两套缓冲区不再互通，读入会错位、输出顺序会乱，见第 1.4 节。</p></div>
+      <div class="box ok"><span class="t">✅ 小结</span><p><code>#include</code> 的规则只有一条：<b>用到哪个名字，就包含它住的那个头文件</b>。报 <code>not declared in this scope</code> 时，先想头文件，再想拼写，最后想作用域。<b>固定一套 13 行的模板</b>，比背三百个头文件实用得多。</p></div>
+    </article>
+    <article class="algo" id="pl-9" data-cat="语法" data-name="1.3 变量、类型宽度与溢出 本质 int 是 32 位，能装到 2.1×10^9 左右；long long 是 64 位，能装到 9.2×10^18。int 溢出不报错，直接回绕成负数——这是竞赛第一号爆零原因。 类型 字节 范围 什么时候用 --- --- --- --- int 4">
+      <div class="ah"><h4>1.3 变量、类型宽度与溢出</h4><span class="lv lv-e">入门</span><span class="st">★★★</span><span class="tag">打地基</span></div>
+      <p class="idea"><b>本质</b>：<code>int</code> 是 32 位，能装到 2.1×10^9 左右；<code>long long</code> 是 64 位，能装到 9.2×10^18。<code>int</code> 溢出<b>不报错</b>，直接回绕成负数——这是竞赛第一号爆零原因。</p>
+      <table>
+      <tr><th>类型</th><th>字节</th><th>范围</th><th>什么时候用</th></tr>
+      <tr><td><code>int</code></td><td>4</td><td>约 -2.1×10^9 ~ 2.1×10^9</td><td>下标、计数器、答案不超过 10^9 时</td></tr>
+      <tr><td><code>long long</code></td><td>8</td><td>约 -9.2×10^18 ~ 9.2×10^18</td><td>求和、乘法、答案可能超过 2×10^9</td></tr>
+      <tr><td><code>unsigned int</code> / <code>size_t</code></td><td>4 / 8</td><td>只含非负</td><td><code>size()</code> 返回值，<b>不要和负数比较</b></td></tr>
+      <tr><td><code>short</code></td><td>2</td><td>约 ± 3.2×10^4</td><td>省内存的二维数组（见 1.6）</td></tr>
+      <tr><td><code>char</code></td><td>1</td><td>通常是 -128 ~ 127</td><td>字符、小整数</td></tr>
+      <tr><td><code>double</code></td><td>8</td><td>15~16 位有效数字</td><td>竞赛默认浮点类型</td></tr>
+      <tr><td><code>float</code></td><td>4</td><td>6~7 位有效数字</td><td>一般不用于计算</td></tr>
+      </table>
+      <p><b>坑一：先溢出，再赋值</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      int a = 1000000000, b = 1000000000;
+      long long c = a * b;              // ✗ 错！a*b 先按 int 算，已经溢出了
+      long long d = 1LL * a * b;        // ✓ 对：1LL 把整个表达式提升为 long long
+      </script></div>
+      <p><code>a * b</code> 在 <code>int</code> 里算出来是 -1486618624 之类的垃圾，再赋给 <code>long long</code> 也救不回来。<b>规则：只要两个可能超过 2×10^9 的数要相乘，就写 <code>1LL *</code>。</b> 这是竞赛里最便宜的保险。</p>
+      <p><b>坑二：<code>1 &lt;&lt; n</code> 也会溢出</b></p>
+      <p><code>1</code> 是 <code>int</code>，所以 <code>1 &lt;&lt; 31</code> 已经是未定义行为（UB），<code>1 &lt;&lt; 32</code> 更离谱。要做位运算时养成习惯：</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      long long full = 1LL << n;    // n 可能 ≥ 31 时必须带 LL
+      </script></div>
+      <p><b>坑三：负数取模结果也是负的</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      -1 % 5 == -1        // C++ 里取模符号跟被除数走，不是 4
+      (x % m + m) % m     // ✓ 想要非负结果就写这个
+      </script></div>
+      <p><b>坑四：无符号数会把负数变成天文数字</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      vector<int> v;
+      for (int i = 0; i < v.size() - 1; ++i) { }        // ✗ v 为空时 v.size()-1 是超大正数，死循环
+      for (int i = 0; i + 1 < (int)v.size(); ++i) { }   // ✓ 转成 int 再算
+      </script></div>
+      <p><b>坑五：<code>long</code> 是个陷阱</b></p>
+      <p><code>long</code> 在 Windows（MinGW）上是 <b>4 字节</b>，在 Linux 上是 <b>8 字节</b>。同一份代码本地过、评测机溢出，是最难查的一类 bug。<b>结论：永远不写 <code>long</code>，要么 <code>int</code>，要么 <code>long long</code>。</b></p>
+      <p><b>坑六：有符号溢出是「未定义行为」，不是「回绕」</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      int x;
+      if (x + 1 < x) { /* 想检测溢出 */ }   // ✗ 编译器可以假设「不会溢出」，把整个判断删掉
+      </script></div>
+      <p><code>-O2</code> 下 GCC 会基于「有符号溢出不会发生」做优化，这段代码可能被优化成恒假。<b>别用溢出后的值去判断溢出，直接用 <code>long long</code>。</b></p>
+      <p><b>坑七：<code>char</code> 有没有符号，标准没规定</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      char c = 200;           // ✗ 某些平台上 c 变成 -56
+      unsigned char u = 200;  // ✓ 明确要存 0~255 就用 unsigned char
+      </script></div>
+      <p>竞赛里 <code>char</code> 只用来存 ASCII（0~127），超出这个范围就该换类型。</p>
+      <div class="box warn"><span class="t">⚠️ 注意</span><p>一句话规则：<b>看到「求和 / 乘积 / 答案上界不确定」就用 <code>long long</code>，看到「两个大数相乘」就加 <code>1LL</code>。</b></p></div>
+      <div class="box tip"><span class="t">💡 提示</span><p>写 <code>2e9</code> 这种字面量时注意：<code>2e9</code> 是 <code>double</code>，<code>const int INF = 2e9;</code> 会触发 narrowing 警告（列表初始化时是错误）。要整数常量就写 <code>2000000000</code>。</p></div>
+    </article>
+    <article class="algo" id="pl-10" data-cat="语法" data-name="1.4 输入输出 本质 cin 是「读到下一个空白为止」的格式化读取；getline 是「读到换行」；scanf/printf 是按格式符搬运。三套机制各有缓冲，混着用就会打架。 基础用法 cpp int n; cin n; double x; cin x; string s; cin">
+      <div class="ah"><h4>1.4 输入输出</h4><span class="lv lv-e">入门</span><span class="st">★★★</span><span class="tag">打地基</span></div>
+      <p class="idea"><b>本质</b>：<code>cin &gt;&gt;</code> 是「读到下一个空白为止」的格式化读取；<code>getline</code> 是「读到换行」；<code>scanf</code>/<code>printf</code> 是按格式符搬运。三套机制各有缓冲，混着用就会打架。</p>
+      <p><b>基础用法</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      int n;      cin >> n;
+      double x;   cin >> x;
+      string s;   cin >> s;     // 读到空白为止，不含空格
+      char c;     cin >> c;     // 跳过前面的空白，读第一个非空白字符
+      </script></div>
+      <p><b>加速（第一次用就要写）</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      ios::sync_with_stdio(false);
+      cin.tie(nullptr);
+      </script></div>
+      <p>第一行关掉 C 与 C++ 流的同步，第二行解除 <code>cin</code> 与 <code>cout</code> 的绑定（否则每次 <code>cin</code> 前都会 flush 一次 <code>cout</code>）。输入 10^6 个数时，这两行能把 <code>cin</code> 从 1 秒级压到 0.1 秒级。</p>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p>这两行必须写在<b>任何输入输出之前</b>（<code>main</code> 开头第一句）。写在读了几个数之后，行为是未定义的——有时有效，有时把已缓冲的数据丢掉一半。</p></div>
+      <p><b>格式符总表（<code>printf</code> / <code>scanf</code> 都要背）</b></p>
+      <table>
+      <tr><th>你要处理</th><th><code>printf</code> 写法</th><th><code>scanf</code> 写法</th><th>写错的代价</th></tr>
+      <tr><td><code>int</code></td><td><code>%d</code></td><td><code>%d</code></td><td>—</td></tr>
+      <tr><td><code>long long</code></td><td><code>%lld</code></td><td><code>%lld</code></td><td>用 <code>%d</code> 只打印低 32 位：<code>1e10</code> 输出 <code>1410065408</code></td></tr>
+      <tr><td><code>unsigned</code></td><td><code>%u</code></td><td><code>%u</code></td><td>用 <code>%d</code> 输出超过 2^31 的数是负数</td></tr>
+      <tr><td><code>double</code></td><td><code>%f</code></td><td><code>%lf</code></td><td><code>scanf</code> 写 <code>%f</code> 会写坏内存（<code>%f</code> 只填 4 字节，<code>double</code> 要 8 字节）</td></tr>
+      <tr><td><code>float</code></td><td><code>%f</code></td><td><code>%f</code></td><td>—</td></tr>
+      <tr><td><code>char</code></td><td><code>%c</code></td><td><code>%c</code></td><td><code>scanf</code> 的 <code>%c</code> <b>会读空格和换行</b>，前面常要 <code>getchar()</code> 吃掉</td></tr>
+      <tr><td>C 字符串</td><td><code>%s</code></td><td><code>%s</code></td><td><code>std::string</code> 直接传 <code>%s</code> 是 UB，必须 <code>.c_str()</code></td></tr>
+      <tr><td><code>size_t</code></td><td><code>%zu</code></td><td><code>%zu</code></td><td>64 位下用 <code>%d</code> 会输出错位</td></tr>
+      <tr><td>十六进制</td><td><code>%x</code> / <code>%X</code></td><td><code>%x</code></td><td>—</td></tr>
+      <tr><td>指针</td><td><code>%p</code></td><td>—</td><td>—</td></tr>
+      <tr><td>百分号本身</td><td><code>%%</code></td><td>—</td><td>—</td></tr>
+      </table>
+      <p><code>printf</code> 还能顺手控制排版，省掉一堆 <code>if</code>：</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      printf("%5d\n",   42);      // "   42"，右对齐宽度 5
+      printf("%-5d|\n", 42);      // "42   |"，左对齐
+      printf("%05d\n",  42);      // "00042"，补零
+      printf("%.2f\n",  3.14159); // "3.14"
+      printf("%.3e\n",  12345.6); // "1.235e+04"
+      </script></div>
+      <p><b>传错类型：最贵的一类静默错误</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      double x = 3.9;
+      printf("%d\n", x);        // ✗ 输出 0 或一个垃圾整数——不报错、不警告（除非 -Wall）
+      int n = 7;
+      printf("%f\n", n);        // ✗ 输出 0.000000
+      long long big = 1e10;
+      printf("%d\n", big);      // ✗ 输出 1410065408
+      string s = "abc";
+      printf("%s\n", s);        // ✗ 直接段错误，要写 s.c_str()
+      </script></div>
+      <p>这四处都<b>编译通过</b>（<code>-Wall</code> 只能抓到一部分），交上去就是 WA 或 RE。<b>结论：<code>printf</code> 的格式符和变量类型必须严格配对，<code>long long</code> 一律 <code>%lld</code>。</b></p>
+      <p><b><code>scanf</code> 与 <code>cin</code> 混用：三条铁律</b></p>
+      <ol class="tight"><li><b>默认状态下可以混用</b>，因为 <code>cin</code> 和 <code>scanf</code> 共享同一个缓冲区（<code>sync_with_stdio</code> 为真）。代价是两边都慢。</li><li><b>一旦关了同步，绝对不能混用。</b> 关掉之后 <code>cin</code> 有自己的缓冲区，可能一次从文件里抢走 4KB，<code>scanf</code> 再去读就只能读到后面的数据——读入整体错位，而程序不报任何错。</li></ol>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      ios::sync_with_stdio(false);
+      int a, b;
+      cin >> a;
+      scanf("%d", &b);       // ✗ b 拿到的不是下一个数，可能整个错位
+      </script></div>
+      <ol class="tight"><li><b><code>printf</code> 与 <code>cout</code> 交替输出</b>时，缓冲区各自独立，顺序会乱（<code>cout</code> 的还没 flush，<code>printf</code> 的先出去了）。要么全用一套，要么手动 <code>cout.flush(); fflush(stdout);</code>——但读入那半边仍然坏着。</li></ol>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p>调试时用 <code>cerr</code> 打印中间变量是安全的：<code>cerr</code> 不缓冲、不参与 <code>sync_with_stdio</code>，任何时候都能立刻看到。这也是为什么第 1.15 节推荐 <code>cerr</code> 而不是 <code>cout</code> 做调试输出。</p></div>
+      <p><b>读到 EOF 为止（多组数据、不定组数）</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      int n;
+      while (cin >> n) { solve(n); }              // ✓ cin 在 EOF 处转成 false
+      
+      while (scanf("%d", &n) == 1) { solve(n); }  // ✓ 更稳：既能判 EOF，也能判「读到非数字」
+      while (~scanf("%d", &n))     { solve(n); }  // ✓ 惯用写法：EOF 是 -1，按位取反是 0
+      </script></div>
+      <p>三种写法都行，<b>但 <code>while (!feof(stdin))</code> 是错的</b>：</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      while (!feof(stdin)) {          // ✗ 会多循环一次：EOF 标志要等「读失败之后」才置位
+          fscanf(stdin, "%d", &n);
+          solve(n);                   // 最后一次拿 n 的旧值又算了一遍
+      }
+      </script></div>
+      <p>给定组数 <code>T</code> 的题更简单：</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      int T;
+      cin >> T;
+      while (T--) solve();     // 注意：循环结束时 T 是 -1，循环体里不要再拿 T 当「第几组」
+      </script></div>
+      <div class="box warn"><span class="t">⚠️ 注意</span><p>多组数据必须<b>清空全局数组/容器</b>。这是「多测不清空，爆零两行泪」的来源：上一组数据的残留会让这一组的答案莫名其妙地偏大。</p></div>
+      <p><b>读整行（含空格）：<code>getline</code> 的经典坑</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      int n;
+      cin >> n;                  // 这时缓冲区里还剩一个 '\n'
+      string line;
+      getline(cin, line);        // ✗ line 是空串！getline 读到了那个换行
+      </script></div>
+      <p>三种修法，任选一种：</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      cin.ignore();                                          // 吃掉一个字符（就是那个换行）
+      cin.ignore(numeric_limits<streamsize>::max(), '\n');    // 更稳，吃掉整行剩余
+      getline(cin >> ws, line);                               // 最简洁：ws 先吞掉所有前导空白
+      </script></div>
+      <p>不定长整行用：</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      string line;
+      while (getline(cin, line)) {    // 读到文件结束
+          if (line.empty()) continue;
+          // 处理这一行
+      }
+      </script></div>
+      <p><b>输出：<code>endl</code> 的代价是可以量化的</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      for (int i = 0; i < 1000000; ++i) cout << a[i] << endl;   // ✗ 100 万次 flush，通常 2~5 秒
+      for (int i = 0; i < 1000000; ++i) cout << a[i] << '\n';   // ✓ 0.1 秒级
+      </script></div>
+      <p><code>endl</code> = 换行 + <code>flush()</code>。<code>flush()</code> 是一次系统调用，10^6 次就是 10^6 次系统调用。<b>除了交互题（必须 flush 才能让评测机看到你的输出）和调试，永远写 <code>'\n'</code>。</b></p>
+      <p><b>格式化输出：<code>fixed</code> 不能忘</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      double x = 3.14159;
+      cout << setprecision(2) << x << '\n';              // ✗ 输出 "3.1"——这是 2 位有效数字
+      cout << fixed << setprecision(2) << x << '\n';     // ✓ 输出 "3.14"——这才是 2 位小数
+      </script></div>
+      <p><code>setprecision(n)</code> 单独用时是「有效数字位数」，配合 <code>fixed</code> 才是「小数点后位数」。<b>这是输出格式 WA 的第一名。</b> 需要 <code>&lt;iomanip&gt;</code>，见第 1.2 节。</p>
+      <div class="box tip"><span class="t">💡 提示</span><p>需要极致速度时换快读，见第 2.4 节。但先确认真的 TLE 了再用——<code>cin</code> 关同步后已经足够快，绝大多数题用不上 <code>getchar</code> 逐字符读。</p></div>
+      <div class="box ok"><span class="t">✅ 小结</span><p>输入输出只有四句话要记：<b>关同步就一条路走到底</b>；<b><code>long long</code> 用 <code>%lld</code>、<code>scanf</code> 读 <code>double</code> 用 <code>%lf</code></b>；<b><code>getline</code> 前面有 <code>cin &gt;&gt;</code> 就先 <code>ignore</code></b>；<b>除交互题外，<code>'\n'</code> 不用 <code>endl</code></b>。</p></div>
+    </article>
+    <article class="algo" id="pl-11" data-cat="语法" data-name="1.5 分支与循环的竞赛写法 本质 循环只有两件事要决定：下标从 0 还是从 1 开始，以及边界是 &lt; 还是 &lt;=。这两件事在写下第一行时定死，中途不改。 cpp // 循环边界永远先写下标从 0 还是从 1 开始，中途不要改 for (int i = 1; i &lt;= n; ++i) { } // 1-based，最常用（前缀">
+      <div class="ah"><h4>1.5 分支与循环的竞赛写法</h4><span class="lv lv-e">入门</span><span class="st">★★★</span><span class="tag">打地基</span></div>
+      <p class="idea"><b>本质</b>：循环只有两件事要决定：<b>下标从 0 还是从 1 开始</b>，以及<b>边界是 <code>&lt;</code> 还是 <code>&lt;=</code></b>。这两件事在写下第一行时定死，中途不改。</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      // 循环边界永远先写下标从 0 还是从 1 开始，中途不要改
+      for (int i = 1; i <= n; ++i) { }        // 1-based，最常用（前缀和必须这样）
+      for (int i = 0; i < n; ++i)  { }        // 0-based，配合 vector/string
+      
+      // 提前退出：比一堆嵌套 if 干净得多
+      if (flag) { cout << "-1\n"; return 0; }
+      
+      // 三元运算符，写短表达式时省行
+      int mx = (a > b) ? a : b;
+      </script></div>
+      <p><b>坑一：无符号循环变量</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      for (unsigned i = n - 1; i >= 0; --i) { }   // ✗ i >= 0 永远成立，死循环
+      for (int i = n - 1; i >= 0; --i) { }        // ✓ 用 int
+      </script></div>
+      <p><b>坑二：浮点当循环变量</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      for (double x = 0; x != 1.0; x += 0.1) { }            // ✗ 0.1 不能精确表示，永远到不了 1.0
+      for (int i = 0; i <= 10; ++i) { double x = i / 10.0; }  // ✓ 用整数控制循环次数
+      </script></div>
+      <p><b>坑三：<code>while (T--)</code> 之后 <code>T</code> 是 -1</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      int T; cin >> T;
+      while (T--) { /* 循环体里 T 已经是「剩下组数」，不是「第几组」 */ }
+      // 循环结束时 T == -1，不是 0
+      </script></div>
+      <p>如果循环体里还要用「第几组」，写成 <code>for (int tc = 1; tc &lt;= T; ++tc)</code> 更安全。</p>
+      <p><b>坑四：多重循环提前跳出</b></p>
+      <p><code>break</code> 只跳一层。三层循环里想一次跳出，三种写法：</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      // 写法一：加标志
+      bool done = false;
+      for (int i = 0; i < n && !done; ++i)
+          for (int j = 0; j < m && !done; ++j)
+              if (ok(i, j)) done = true;
+      
+      // 写法二：goto（竞赛里完全可以接受，比标志干净）
+      for (int i = 0; i < n; ++i)
+          for (int j = 0; j < m; ++j)
+              if (ok(i, j)) goto out;
+      out: ;
+      
+      // 写法三：把内层抽成函数，直接 return
+      </script></div>
+      <div class="box tip"><span class="t">💡 提示</span><p><b>一个实用习惯</b>：算法题里数组一律从下标 1 开始用（<code>a[1]</code> 到 <code>a[n]</code>），把 <code>a[0]</code> 当哨兵。原因是前缀和、树状数组、并查集、线段树的公式里处处有 <code>i-1</code>，从 1 开始能省掉一大半越界判断。代价是数组要多开一格（见 1.6）。</p></div>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p><code>++i</code> 与 <code>i++</code> 在 <code>for</code> 里对 <code>int</code> 没有性能差别（编译器会优化），别为了「更快」把可读性搞乱；但在<b>迭代器</b>上 <code>++it</code> 确实更快，因为 <code>it++</code> 要复制一个临时对象。</p></div>
+    </article>
+    <article class="algo" id="pl-12" data-cat="语法" data-name="1.6 数组：开多大、开在哪 本质 数组有两件事必须提前想清楚：放在哪（全局/静态区 还是 栈）和开多大（内存预算）。这两件事错了，编译器不报错，评测机给你 RE 或莫名其妙的 WA。 放哪：全局 vs 局部 cpp int a[1000005]; // ✓ 全局：放在静态区，自动清零，空间大（几百 MB） int m">
+      <div class="ah"><h4>1.6 数组：开多大、开在哪</h4><span class="lv lv-e">入门</span><span class="st">★★★</span><span class="tag">打地基</span></div>
+      <p class="idea"><b>本质</b>：数组有两件事必须提前想清楚：<b>放在哪</b>（全局/静态区 还是 栈）和<b>开多大</b>（内存预算）。这两件事错了，编译器不报错，评测机给你 RE 或莫名其妙的 WA。</p>
+      <p><b>放哪：全局 vs 局部</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      int a[1000005];          // ✓ 全局：放在静态区，自动清零，空间大（几百 MB）
+      
+      int main() {
+          int b[1000005];      // ✗ 局部：放在栈上，直接爆栈 RE
+      }
+      </script></div>
+      <table>
+      <tr><th>位置</th><th>上限（典型）</th><th>是否自动清零</th><th>说明</th></tr>
+      <tr><td>全局 / <code>static</code></td><td>跟内存限制走，几百 MB</td><td>是</td><td>大数组一律放这里</td></tr>
+      <tr><td>栈（函数内局部）</td><td>Windows 默认 1~2 MB，Linux 默认 8 MB</td><td>否，内容是垃圾</td><td>只放小数组（&lt; 10^4）和普通变量</td></tr>
+      <tr><td>堆（<code>vector</code> / <code>new</code>）</td><td>跟内存限制走</td><td>否</td><td>大小要运行时才知道时用</td></tr>
+      </table>
+      <p><b>规则：</b></p>
+      <ul class="tight"><li>大数组（超过 10^5 个元素）<b>一律定义在全局</b>，顺便得到自动清零的好处。</li><li>必须用大局部数组时，加 <code>static</code>（移到静态区）或用 <code>vector</code>（堆上）。</li><li>递归函数里的局部数组 = 爆栈加速器：深度 10^5 的 DFS，每层一个 <code>int b[1000]</code>，直接在几 MB 处崩。</li></ul>
+      <p><b>内存预算：先算，再开</b></p>
+      <table>
+      <tr><th>类型</th><th>每元素字节</th><th>10^5 个</th><th>10^6 个</th><th>10^7 个</th></tr>
+      <tr><td><code>char</code> / <code>bool</code></td><td>1</td><td>0.1 MB</td><td>1 MB</td><td>10 MB</td></tr>
+      <tr><td><code>short</code></td><td>2</td><td>0.2 MB</td><td>2 MB</td><td>20 MB</td></tr>
+      <tr><td><code>int</code></td><td>4</td><td>0.4 MB</td><td>4 MB</td><td>40 MB</td></tr>
+      <tr><td><code>long long</code> / <code>double</code></td><td>8</td><td>0.8 MB</td><td>8 MB</td><td>80 MB</td></tr>
+      <tr><td><code>set&lt;int&gt;</code> 的一个节点</td><td>约 48</td><td>—</td><td>约 48 MB</td><td>约 480 MB</td></tr>
+      </table>
+      <p>常见内存限制：洛谷多数题 125 MB，Codeforces 256 MB，AtCoder 1024 MB。<b>按 128 MB 做预算最保险</b>，也就是「所有数组加起来不超过 3×10^7 个 <code>int</code>」。</p>
+      <p>二维数组直接乘：</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      int g[1005][1005];       // 1000×1000 的 int ≈ 4MB，还好
+      int f[5005][5005];       // 5000×5000 的 int ≈ 100MB，128MB 限制下必死
+      </script></div>
+      <p>判断方法：<code>行数 × 列数 × 4 字节</code>。超过 10^8 字节（100 MB）就要考虑降维、滚动数组或换做法。真要存 5000×5000 的 0/1 矩阵，用 <code>bitset&lt;5000&gt; f[5000]</code> 只要 3 MB——<b>这是最容易被忽略的省内存手段</b>。</p>
+      <p><b>开多大：永远多开 5~10 个</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      const int N = 100005;
+      int a[N];                 // n ≤ 100000 时
+      int d[N + 5];             // 差分要多开一格，因为会写 d[r + 1]
+      int t[N << 2];            // 线段树要 4n
+      int bit[N + 1];           // 树状数组下标从 1 开始，开 N + 1
+      int head[N], nxt[N << 1]; // 链式前向星：边数是点数的 2 倍
+      char s[N + 5];            // 字符串留出 '\0' 的位置
+      </script></div>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p><code>int a[100000]</code> 存 n=100000 个元素（下标 0~99999）是对的；但如果你习惯从 1 开始用，<code>a[100000]</code> 就正好越界。<b><code>N + 5</code> 这 5 个位置是买保险的，不是浪费。</b></p></div>
+      <p><b>越界是 UB，不是「报错」</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      int a[10];
+      a[10] = 1;        // ✗ 编译器不报错，运行时可能：什么都没发生 / 改掉旁边的变量 / 段错误
+      </script></div>
+      <p>最恶心的情况是「改了旁边的变量」——程序照跑，答案错一点，你查两小时。用 <code>-fsanitize=address</code> 或 <code>-D_GLIBCXX_DEBUG</code>（见 1.15）能让它在越界那行直接停下。</p>
+      <p><b><code>memset</code> 的三个坑</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      int a[100005];
+      memset(a, 0, sizeof a);            // ✓ 全 0
+      memset(a, -1, sizeof a);           // ✓ 全 -1（每个字节 0xFF）
+      memset(a, 0x3f, sizeof a);         // ✓ 全 1061109567（INF 惯用值，见 1.14）
+      memset(a, 1, sizeof a);            // ✗ 每个字节都是 0x01，int 变成 16843009
+      
+      void f(int a[]) {
+          memset(a, 0, sizeof a);        // ✗ sizeof 退化成指针大小 = 8，只清了 2 个 int
+      }
+      </script></div>
+      <p><code>memset</code> 按<b>字节</b>填充。想给 <code>int</code> 数组赋任意值，用 <code>fill(a, a + n, v)</code>（<code>&lt;algorithm&gt;</code>）或手写循环。</p>
+      <div class="box ok"><span class="t">✅ 小结</span><p><b>大数组放全局，<code>N</code> 后面加 5，二维先算 <code>行×列×4</code>，清空用 <code>memset</code> 只填 0/-1/0x3f。</b> 这四句话能挡掉第 1 章一半的运行错误。</p></div>
+    </article>
+    <article class="algo" id="pl-13" data-cat="语法" data-name="1.7 函数与引用 本质 值传递复制一份，引用传递传地址。大结构体值传递 = 每次调用复制一遍，是 TLE 的隐形来源。 cpp // 值传递：改不了外面的变量 int add(int a, int b) { return a + b; } // 引用传递：能改外面的变量，且不复制 void swap2(int &amp;a, int">
+      <div class="ah"><h4>1.7 函数与引用</h4><span class="lv lv-e">入门</span><span class="st">★★★</span><span class="tag">打地基</span></div>
+      <p class="idea"><b>本质</b>：值传递复制一份，引用传递传地址。大结构体值传递 = 每次调用复制一遍，是 TLE 的隐形来源。</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      // 值传递：改不了外面的变量
+      int add(int a, int b) { return a + b; }
+      
+      // 引用传递：能改外面的变量，且不复制
+      void swap2(int &a, int &b) { int t = a; a = b; b = t; }
+      
+      // 常量引用：不复制也不许改，读大 vector 时必用
+      long long sum(const vector<int> &v) {
+          long long s = 0;
+          for (int x : v) s += x;
+          return s;
+      }
+      </script></div>
+      <p><b>代价对比（结构体里带一个 100 个 <code>int</code> 的数组）</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      struct Node { int a[100]; };
+      void f(Node x)        { }    // ✗ 每次调用复制 400 字节；调用 1e6 次 = 400MB 的内存搬运
+      void g(const Node &x) { }    // ✓ 只传 8 字节地址
+      </script></div>
+      <p><b>为什么要有函数？</b> 因为算法题里你会反复用到同一个逻辑（<code>check(mid)</code>、<code>dfs(u)</code>、<code>find(x)</code>）。把它单独拎出来，代码才读得动、改得动。<b>判据：一段逻辑你写了第二遍，就该抽成函数。</b></p>
+      <p><b>函数里的三个坑</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      int cnt = 0;
+      void dfs(int u) {
+          static int vis[N];      // ✓ static 局部：只初始化一次，等价于全局，但作用域干净
+          int tmp[N];             // ✗ 每层递归都开一份，深度 100 就爆栈
+      }
+      </script></div>
+      <ol class="tight"><li><b>数组参数会退化成指针</b>：<code>void f(int a[100])</code> 里的 <code>a</code> 其实是 <code>int*</code>，<code>sizeof a</code> 是 8，不是 400。要传长度就显式加参数 <code>void f(int a[], int n)</code>。</li><li><b>递归函数别返回大对象</b>：返回 <code>vector&lt;int&gt;</code> 会触发复制（虽然编译器有 RVO，但别赌）。</li><li><b>全局变量能省参数，但会让调试变难</b>：竞赛里适度使用，一个 <code>dfs</code> 用到几个全局数组是正常的。</li></ol>
+      <div class="box tip"><span class="t">💡 提示</span><p><code>&amp;</code> 在这里是「引用」，不是「取地址」。你在第 1.10 节会看到它的两种含义。</p></div>
+    </article>
+    <article class="algo" id="pl-14" data-cat="语法" data-name="1.8 结构体与自定义排序 本质 sort 只要求你提供一个「谁在前」的判据——比较函数或 operator&lt;。写错这个判据，sort 的行为是未定义的，可能 RE 也可能乱序。 cpp struct Node { int id, score; string name; }; // 按 score 降序，score 相同">
+      <div class="ah"><h4>1.8 结构体与自定义排序</h4><span class="lv lv-e">入门</span><span class="st">★★★</span><span class="tag">打地基</span></div>
+      <p class="idea"><b>本质</b>：<code>sort</code> 只要求你提供一个「谁在前」的判据——比较函数或 <code>operator&lt;</code>。写错这个判据，<code>sort</code> 的行为是未定义的，可能 RE 也可能乱序。</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      struct Node {
+          int id, score;
+          string name;
+      };
+      
+      // 按 score 降序，score 相同按 id 升序
+      bool cmp(const Node &x, const Node &y) {
+          if (x.score != y.score) return x.score > y.score;
+          return x.id < y.id;
+      }
+      
+      vector<Node> v;
+      sort(v.begin(), v.end(), cmp);
+      </script></div>
+      <p>也可以用「重载小于号」让 <code>sort(v.begin(), v.end())</code> 自动按你的规则排（<code>pair</code>、<code>set</code>、<code>map</code> 也认这个）：</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      struct Node {
+          int id, score;
+          bool operator<(const Node &o) const {     // 末尾的 const 不能省
+              if (score != o.score) return score > o.score;  // 降序
+              return id < o.id;                              // 相同则 id 升序
+          }
+      };
+      </script></div>
+      <p><b>严格弱序：唯一必须记住的规则</b></p>
+      <p>比较函数必须满足三条，最直观的一条是：<b><code>cmp(a, a)</code> 必须为 <code>false</code></b>。</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      bool bad(const Node &x, const Node &y) { return x.score <= y.score; }   // ✗
+      sort(v.begin(), v.end(), bad);      // 未定义行为：可能 RE，可能部分有序，可能把元素弄丢
+      </script></div>
+      <p>写成 <code>&lt;=</code> 或 <code>&gt;=</code> 时，<code>cmp(a, a) == true</code>，<code>sort</code> 的内部假设被破坏。<b>代价</b>：n 小的时候看起来「排好了」，n = 10^5 时直接段错误——这是最难复现的一类 bug。</p>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p>多关键字排序时，<b>一旦发现第一关键字相等，必须立刻 <code>return</code> 第二关键字的比较</b>。漏了 <code>if</code> 直接写两行 <code>return</code>，第二行的比较永远不会执行。</p></div>
+      <p><b><code>stable_sort</code>：需要「相等元素保持原顺序」时用</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      stable_sort(v.begin(), v.end(), cmp);
+      </script></div>
+      <p>代价是慢一点、多一倍内存。只有题目明确要求「成绩相同按输入顺序输出」时才需要。</p>
+      <p><b>lambda 写法（C++11 起，考场上完全可用）</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      sort(v.begin(), v.end(), [](const Node &a, const Node &b) {
+          return a.score > b.score;
+      });
+      </script></div>
+      <div class="box tip"><span class="t">💡 提示</span><p><code>sort</code> 是 O(nlog n)，常数很小（10^6 个 <code>int</code> 约 0.1 秒）。<b>能排序就别手写排序</b>——手写冒泡是 O(n^2)，n=10^5 时是 100 亿次操作，必 TLE。</p></div>
+    </article>
+    <article class="algo" id="pl-15" data-cat="语法" data-name="1.9 字符与字符串 本质 char 是 1 字节整数，&#x27;a&#x27; 就是 97；std::string 是变长字节数组，s[i] 返回 char，s.size() 返回无符号数。 cpp char c = &#x27;a&#x27;; c = &#x27;a&#x27; &amp;&amp; c &lt;= &#x27;z&#x27; // 判小写字母 c - &#x27;a&#x27;">
+      <div class="ah"><h4>1.9 字符与字符串</h4><span class="lv lv-e">入门</span><span class="st">★★★</span><span class="tag">打地基</span></div>
+      <p class="idea"><b>本质</b>：<code>char</code> 是 1 字节整数，<code>'a'</code> 就是 97；<code>std::string</code> 是变长字节数组，<code>s[i]</code> 返回 <code>char</code>，<code>s.size()</code> 返回<b>无符号</b>数。</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      char c = 'a';
+      c >= 'a' && c <= 'z'        // 判小写字母
+      c - 'a'                     // 字母转 0~25 的下标（比 c - 96 更好记）
+      char d = 'A' + 2;           // 'C'
+      </script></div>
+      <p><b>必须知道的 ASCII 值</b></p>
+      <table>
+      <tr><th>字符</th><th>值</th><th>用途</th></tr>
+      <tr><td><code>'0'</code></td><td>48</td><td>数字字符转整数：<code>c - '0'</code></td></tr>
+      <tr><td><code>'A'</code></td><td>65</td><td>大写转小写：<code>c - 'A' + 'a'</code></td></tr>
+      <tr><td><code>'a'</code></td><td>97</td><td>小写转大写：<code>c - 'a' + 'A'</code></td></tr>
+      <tr><td><code>'\n'</code></td><td>10</td><td>换行</td></tr>
+      <tr><td><code>'\0'</code></td><td>0</td><td>C 字符串结束符</td></tr>
+      <tr><td><code>' '</code></td><td>32</td><td>空格；<code>'A' + 32 == 'a'</code></td></tr>
+      </table>
+      <p><b><code>string</code> 的常用操作</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      string s = "hello";
+      s.size();  s.length();      // 长度（两者等价，都返回 size_t）
+      s.empty();                  // 是否为空
+      s[i];                       // 取第 i 个字符（不检查越界）
+      s.at(i);                    // 检查越界并抛异常（慢，竞赛少用）
+      s += "world";               // 拼接，均摊 O(1)
+      s.push_back('!');           // 追加一个字符
+      s.pop_back();               // 删最后一个字符
+      s.substr(pos, len);         // 取子串，O(len)
+      s.find("ll");               // 找子串，返回下标；找不到返回 string::npos
+      s.find('l', 3);             // 从下标 3 开始找字符
+      s.rfind("l");               // 从右往左找
+      s.compare(t);               // 字典序比较，返回负/0/正
+      s.c_str();                  // 转成 const char*，给 printf 用
+      </script></div>
+      <p><b>坑一：<code>npos</code> 不能和整数随便比</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      if (s.find("x") == -1) { }              // ✗ npos 是无符号的极大值，和 -1 比较会隐式转换，容易踩坑
+      if (s.find("x") == string::npos) { }    // ✓ 唯一正确写法
+      </script></div>
+      <p><b>坑二：<code>s.size() - 1</code> 在空串上是天文数字</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      string s = "";
+      for (int i = 0; i < s.size() - 1; ++i) { }    // ✗ 死循环（后者是无符号极大值）
+      </script></div>
+      <p><b>坑三：<code>s = s + c</code> 是 O(n)</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      string s;
+      for (int i = 0; i < 1000000; ++i) s = s + 'a';   // ✗ 每次复制整个串，总复杂度 O(n^2)
+      for (int i = 0; i < 1000000; ++i) s += 'a';      // ✓ 均摊 O(1)，总复杂度 O(n)
+      </script></div>
+      <p><code>s += c</code> 均摊 O(1)（容量不够时按倍数扩容），<code>s = s + c</code> 每次都要新建一个字符串再复制。</p>
+      <p><b>坑四：<code>cctype</code> 的函数参数必须是 <code>unsigned char</code></b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      char c = s[i];
+      isdigit(c);                          // ✗ c 为负（比如 0x80 以上的字节）时是 UB
+      isdigit((unsigned char)c);           // ✓ 高位字节、中文环境下必须强转
+      </script></div>
+      <p><b>读整行（含空格）</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      string line;
+      getline(cin, line);
+      </script></div>
+      <div class="box warn"><span class="t">⚠️ 注意</span><p>如果前面用过 <code>cin &gt;&gt;</code>，缓冲区里还留着一个换行符，第一次 <code>getline</code> 会读到空串。修法：<code>cin.ignore()</code> 或 <code>getline(cin &gt;&gt; ws, line)</code>，详见第 1.4 节。</p></div>
+      <p><b>字符串 ↔ 数字</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      int x = stoi("123");             // 越界会抛 out_of_range，题目保证范围时可以直接用
+      long long y = stoll("123456789012");
+      double z = stod("3.14");
+      string t = to_string(42);        // "42"
+      int w = atoi("123");             // C 风格，出错返回 0，不抛异常
+      </script></div>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p><code>stoi</code> 在数超过 <code>int</code> 范围时<b>抛异常</b>，程序直接 RE 而不是给出错误答案。读 10^18 级的数一律用 <code>stoll</code> 或直接 <code>cin &gt;&gt; long long</code>。</p></div>
+    </article>
+    <article class="algo" id="pl-16" data-cat="语法" data-name="1.10 指针与引用：够用版 本质 竞赛里指针只有两个用处：数组名当指针用（给 sort/lower_bound 传区间），以及用下标代替指针（数组模拟链表/树）。真正 new 出来的指针基本不用。 cpp // 场景一：数组名就是指针，a + i 等价于 &amp;a[i] int a[10]; int *p = a; // p">
+      <div class="ah"><h4>1.10 指针与引用：够用版</h4><span class="lv lv-e">入门</span><span class="st">★★★</span><span class="tag">打地基</span></div>
+      <p class="idea"><b>本质</b>：竞赛里指针只有两个用处：<b>数组名当指针用</b>（给 <code>sort</code>/<code>lower_bound</code> 传区间），以及<b>用下标代替指针</b>（数组模拟链表/树）。真正 <code>new</code> 出来的指针基本不用。</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      // 场景一：数组名就是指针，a + i 等价于 &a[i]
+      int a[10];
+      int *p = a;          // p 指向 a[0]
+      *(p + 3) == a[3];    // true
+      sort(a + 1, a + 1 + n);   // 传的就是「指针区间」：[a+1, a+1+n)
+      
+      // 场景二：链表/树节点用「数组模拟」而不是 new
+      int nxt[100005];     // 代替 new Node*
+      nxt[3] = 7;          // 3 号节点后面接 7 号
+      </script></div>
+      <p><b>为什么不 <code>new</code></b></p>
+      <table>
+      <tr><th>做法</th><th>速度</th><th>内存管理</th><th>竞赛评价</th></tr>
+      <tr><td><code>new Node</code></td><td>慢（每次一次分配器调用）</td><td>要手动 <code>delete</code>，漏了就泄漏</td><td>✗ 不用</td></tr>
+      <tr><td>数组 + 下标</td><td>快（连续内存，缓存友好）</td><td>自动回收</td><td>✓ 一律这样写</td></tr>
+      <tr><td><code>vector</code></td><td>中（均摊扩容）</td><td>自动回收</td><td>✓ 大小不定时用</td></tr>
+      </table>
+      <div class="box tip"><span class="t">💡 提示</span><p><b>结论：竞赛里几乎不用 <code>new</code> 和 <code>delete</code>。</b> 一切「动态结构」都写成数组 + 下标（静态链表、链式前向星）。原因是 <code>new</code> 慢，还容易内存泄漏；而且评测机对「泄漏」不宽容——多测不清空就是 MLE。</p></div>
+      <p><b>引用做输出参数</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      bool check(int mid, long long &ans) {   // 想把结果带出去又不想 return 结构体
+          // ...
+          return true;
+      }
+      </script></div>
+      <p><b>迭代器 = 泛化指针</b></p>
+      <p><code>vector&lt;int&gt;::iterator</code> 用起来和 <code>int*</code> 一样：<code>*it</code> 取值，<code>++it</code> 后移，<code>v.end() - v.begin()</code> 得长度。这是理解第 1.11 节 <code>lower_bound(v.begin(), v.end(), x)</code> 的前提——<b>STL 的算法全用「指针区间」的写法</b>，数组和容器因此能用同一套函数。</p>
+    </article>
+    <article class="algo" id="pl-17" data-cat="语法" data-name="1.11 STL 速览（竞赛三大件） 本质 容器 = 一种数据布局 + 一套操作代价。选容器就是选「哪个操作是热点」，热点操作必须是 O(1) 或 O(log n)，冷操作 O(n) 无所谓。 容器 底层结构 随机访问 查找 尾部插入 中间插入 删除 额外内存 --- --- --- ---">
+      <div class="ah"><h4>1.11 STL 速览（竞赛三大件）</h4><span class="lv lv-e">入门</span><span class="st">★★★</span><span class="tag">打地基</span></div>
+      <p class="idea"><b>本质</b>：容器 = 一种数据布局 + 一套操作代价。选容器就是选「哪个操作是热点」，热点操作必须是 O(1) 或 O(log n)，冷操作 O(n) 无所谓。</p>
+      <table>
+      <tr><th>容器</th><th>底层结构</th><th>随机访问</th><th>查找</th><th>尾部插入</th><th>中间插入</th><th>删除</th><th>额外内存</th></tr>
+      <tr><td><code>vector</code></td><td>连续数组</td><td>O(1)</td><td>O(n)（排序后二分 O(log n)）</td><td>均摊 O(1)</td><td>O(n)</td><td>O(n)</td><td>容量可能冗余一倍</td></tr>
+      <tr><td><code>deque</code></td><td>分段数组</td><td>O(1)</td><td>O(n)</td><td>O(1)</td><td>O(n)</td><td>O(n)</td><td>少量</td></tr>
+      <tr><td><code>list</code></td><td>双向链表</td><td>不支持</td><td>O(n)</td><td>O(1)</td><td>O(1)</td><td>O(1)</td><td>每节点 16 字节</td></tr>
+      <tr><td><code>stack</code> / <code>queue</code></td><td>适配器（默认基于 <code>deque</code>）</td><td>不支持</td><td>不支持</td><td>O(1)</td><td>—</td><td>O(1)</td><td>—</td></tr>
+      <tr><td><code>priority_queue</code></td><td>二叉堆</td><td>只看 <code>top()</code> O(1)</td><td>—</td><td>O(log n)</td><td>—</td><td>O(log n)</td><td>—</td></tr>
+      <tr><td><code>set</code> / <code>map</code></td><td>红黑树</td><td>不支持</td><td>O(log n)</td><td>O(log n)</td><td>O(log n)</td><td>O(log n)</td><td>每节点约 48 字节</td></tr>
+      <tr><td><code>unordered_set</code> / <code>unordered_map</code></td><td>哈希桶</td><td>不支持</td><td>平均 O(1)，最坏 O(n)</td><td>平均 O(1)</td><td>—</td><td>平均 O(1)</td><td>每节点约 32 字节 + 桶数组</td></tr>
+      <tr><td><code>bitset</code></td><td>位数组</td><td>按位 O(1)</td><td>—</td><td>—</td><td>—</td><td>—</td><td>0</td></tr>
+      </table>
+      <p><b>vector：动态数组</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      vector<int> v;
+      v.push_back(3);       // 尾部插入，均摊 O(1)
+      v.pop_back();         // 尾部删除
+      v.size();
+      v[i];
+      v.clear();            // 清空，容量不变
+      v.resize(n, 0);       // 改成 n 个元素，多出来的填 0
+      v.reserve(n);         // 预分配容量，避免反复扩容（1e6 次 push_back 能快 30%）
+      sort(v.begin(), v.end());
+      </script></div>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p><code>push_back</code> 触发扩容时，<b>所有旧迭代器、指针、引用全部失效</b>。<code>int *p = &amp;v[0]; v.push_back(1); *p = 5;</code> 是 UB。要长期持有就提前 <code>reserve</code>，或者干脆用下标。</p></div>
+      <p><b>stack / queue / deque</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      stack<int> st;  st.push(1); st.top(); st.pop(); st.empty();   // 后进先出
+      queue<int> q;   q.push(1); q.front(); q.pop(); q.empty();     // 先进先出
+      deque<int> dq;  dq.push_front(1); dq.push_back(2); dq.front(); dq.back();
+      </script></div>
+      <p><code>deque</code> 要 <code>#include &lt;deque&gt;</code>。单调队列多数人直接用数组 + 两个指针模拟，比 <code>deque</code> 快 2~3 倍。</p>
+      <p><b>priority_queue：堆（默认大根堆）</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      priority_queue<int> pq;                                     // 大根堆，top() 是最大值
+      priority_queue<int, vector<int>, greater<int>> minq;         // 小根堆（需要 <functional>）
+      pq.push(5); pq.top(); pq.pop();                             // O(log n)
+      
+      // 存 pair：先比 first，再比 second
+      priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int,int>>> q2;
+      </script></div>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p><code>priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt;</code> 里<b>三个模板参数一个都不能少</b>，而且 C++11 起 <code>&gt;&gt;</code> 不用加空格。<code>greater</code> 在 <code>&lt;functional&gt;</code> 里，只 include <code>&lt;queue&gt;</code> 可能报未声明。</p></div>
+      <p><b>set / map：有序容器</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      set<int> s;                 // 自动去重、自动排序
+      s.insert(3);
+      s.count(3);                 // 存在返回 1
+      s.erase(3);
+      *s.begin();                 // 最小值
+      *s.rbegin();                // 最大值
+      auto it = s.lower_bound(3); // 第一个 ≥ 3 的位置（前驱后继就用它）
+      
+      map<string, int> mp;        // 键值对，按键排序
+      mp["abc"] = 1;              // 注意：这个操作会「顺手创建」不存在的键
+      mp.count("abc");            // 判断存不存在用 count，别用 mp["abc"]
+      </script></div>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p><code>multiset</code> 的 <code>erase(x)</code> 会删掉<b>所有</b>等于 <code>x</code> 的元素；只删一个要写 <code>s.erase(s.find(x))</code>。这是「删一个结果少了一半」的经典来源。</p></div>
+      <p><b>algorithm 里的常用函数</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      sort(a + 1, a + 1 + n);                          // O(n log n)
+      reverse(a + 1, a + 1 + n);
+      unique(a + 1, a + 1 + n);                        // 去重（要求先排序），返回新结尾
+      int m = unique(a + 1, a + 1 + n) - (a + 1);      // 去重后的元素个数
+      lower_bound(a + 1, a + 1 + n, x) - a;            // 第一个 ≥ x 的下标，O(log n)
+      upper_bound(a + 1, a + 1 + n, x) - a;            // 第一个 > x 的下标
+      max(a, b); min(a, b); swap(a, b);
+      max_element(a + 1, a + 1 + n);                   // 返回指针，要减 a 得下标
+      __gcd(a, b);                                     // GCC 扩展，接受 long long
+      next_permutation(a + 1, a + 1 + n);              // 下一个排列
+      </script></div>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p><code>unique</code> 只是把重复元素挪到后面，<b>不会真的删除</b>，必须配合 <code>erase</code> 或截断长度使用。<code>lower_bound</code> 必须在<b>已排序</b>区间上用，否则二分出来的位置是垃圾。</p></div>
+      <p><b>选型决策表（这张表比背复杂度有用）</b></p>
+      <table>
+      <tr><th>你的需求</th><th>选它</th><th>别选</th><th>代价</th></tr>
+      <tr><td>下标随机访问 + 尾部增删</td><td><code>vector</code></td><td><code>list</code></td><td><code>list</code> 每节点多 16 字节，遍历慢 5~10 倍</td></tr>
+      <tr><td>两端都要增删</td><td><code>deque</code></td><td><code>vector</code></td><td><code>vector</code> 头部插入是 O(n)</td></tr>
+      <tr><td>反复取最大/最小</td><td><code>priority_queue</code></td><td><code>set</code></td><td><code>set</code> 常数大 3~5 倍，还要多 40 字节</td></tr>
+      <tr><td>需要前驱/后继/排名</td><td><code>set</code> 或树状数组</td><td><code>unordered_set</code></td><td>哈希容器做不到 <code>lower_bound</code></td></tr>
+      <tr><td>只要「在不在」</td><td><code>unordered_set</code></td><td><code>set</code></td><td>10^6 次查询，<code>set</code> 要多花约 2×10^7 次比较</td></tr>
+      <tr><td>键是 1 ~ n 的整数</td><td>数组 / <code>vector</code></td><td><code>map</code></td><td>10^6 条 <code>map</code> 约 50 MB，还慢 20 倍</td></tr>
+      <tr><td>字符串集合</td><td><code>unordered_set&lt;string&gt;</code> 或 Trie</td><td><code>set&lt;string&gt;</code></td><td>每次比较是 O(L)</td></tr>
+      <tr><td>大数据量判重（10^7）</td><td>手写哈希 / 离散化 + 数组</td><td><code>unordered_map</code></td><td>哈希容器节点开销会让你 MLE</td></tr>
+      </table>
+      <div class="box ok"><span class="t">✅ 小结</span><p><b>能用数组就别用容器，能用 <code>vector</code> 就别用 <code>set</code>。</b> 90% 的 STL 性能问题来自「用一个 O(log n) 的容器去替代本该 O(1) 的数组」。选之前先问：我的热点操作是什么？</p></div>
+    </article>
+    <article class="algo" id="pl-18" data-cat="语法" data-name="1.12 位运算基础 本质 把一个整数看成 32 个独立的开关。位运算就是批量操作这些开关，所以它天然适合「表示一个集合」「表示若干状态」「批量判断」。 运算 写法 含义 例子 --- --- --- --- 与 a &amp; b 两位都是 1 才得 1 6 &amp; 3 = 2（110">
+      <div class="ah"><h4>1.12 位运算基础</h4><span class="lv lv-e">入门</span><span class="st">★★★</span><span class="tag">打地基</span></div>
+      <p class="idea"><b>本质</b>：把一个整数看成 32 个独立的开关。位运算就是批量操作这些开关，所以它天然适合「表示一个集合」「表示若干状态」「批量判断」。</p>
+      <table>
+      <tr><th>运算</th><th>写法</th><th>含义</th><th>例子</th></tr>
+      <tr><td>与</td><td><code>a &amp; b</code></td><td>两位都是 1 才得 1</td><td><code>6 &amp; 3 = 2</code>（110 与 011 得 010）</td></tr>
+      <tr><td>或</td><td><code>a | b</code></td><td>有一位是 1 就得 1</td><td><code>6 | 3 = 7</code></td></tr>
+      <tr><td>异或</td><td><code>a ^ b</code></td><td>两位不同得 1</td><td><code>6 ^ 3 = 5</code></td></tr>
+      <tr><td>取反</td><td><code>~a</code></td><td>0 变 1，1 变 0</td><td><code>~0 = -1</code>，<code>~x = -x - 1</code></td></tr>
+      <tr><td>左移</td><td><code>a &lt;&lt; k</code></td><td>乘 2^k</td><td><code>1 &lt;&lt; 10 = 1024</code></td></tr>
+      <tr><td>右移</td><td><code>a &gt;&gt; k</code></td><td>除以 2^k（向下取整）</td><td><code>7 &gt;&gt; 1 = 3</code>，<code>-7 &gt;&gt; 1 = -4</code></td></tr>
+      </table>
+      <p><b>优先级：位运算是「低优先级」的，必须加括号</b></p>
+      <p>C++ 的优先级从高到低（只列相关的）：</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-plain">
+      ! ~ ++ --          一元
+      * / %              乘除
+      + -                加减
+      << >>              移位
+      < <= > >=          比较
+      == !=              相等
+      &                  按位与
+      ^                  按位异或
+      |                  按位或
+      && ||              逻辑
+      </script></div>
+      <p>注意 <code>&amp;</code>、<code>^</code>、<code>|</code> 全都<b>排在 <code>==</code> 之后</b>，所以：</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      if (a & 1 == 1)       // ✗ 实际是 a & (1 == 1) = a & 1，碰巧对，但别这么写
+      if (a & 1)            // ✓ 最省事
+      if ((a & 1) == 1)     // ✓ 想写全就加括号
+      
+      3 << 1 + 1            // ✗ 是 3 << 2 = 12，不是 8（+ 优先于 <<）
+      x & y == 0            // ✗ 是 x & (y == 0)，完全不是「判断与的结果是否为 0」
+      </script></div>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p><b>位运算外面一律加括号。</b> <code>a &amp; 1 == 1</code> 恰好碰巧能跑（因为 <code>1 == 1</code> 是 <code>true</code> 即 <code>1</code>），但 <code>x &amp; y == 0</code> 就彻底错了——这类 bug 编译器不会提醒你。</p></div>
+      <p><b>必背技巧</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      x & 1                 // 判奇偶：1 是奇数，0 是偶数
+      x & (x - 1)           // 把最低位的 1 变成 0 —— 可用来数 1 的个数
+      x & -x                // 取出最低位的 1（lowbit）—— 树状数组的核心
+      x >> i & 1            // 取第 i 位（第 0 位是最低位）
+      x | (1 << i)          // 把第 i 位置 1
+      x & ~(1 << i)         // 把第 i 位置 0
+      x ^ (1 << i)          // 翻转第 i 位
+      x > 0 && !(x & (x - 1))   // 判 x 是不是 2 的幂（先排除 x == 0）
+      </script></div>
+      <p><b><code>__builtin</code> 系列：比自己写循环快 10 倍</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      __builtin_popcount(x);        // int 里 1 的个数
+      __builtin_popcountll(x);      // long long 里 1 的个数（1e18 必须用这个）
+      __builtin_ctz(x);             // 末尾 0 的个数（x=0 时 UB）
+      __builtin_clz(x);             // 前导 0 的个数（x=0 时 UB）
+      __builtin_ffs(x);             // 最低位 1 的位置（从 1 开始，x=0 返回 0）
+      __builtin_parity(x);          // 1 的个数奇偶性
+      </script></div>
+      <p>这些是 GCC 内建函数，<b>不用任何头文件</b>。C++20 的 <code>std::popcount</code> 在 <code>&lt;bit&gt;</code> 里，但多数评测机是 C++14/17，<b>考场一律写 <code>__builtin_</code> 版本</b>。</p>
+      <p><b>子集枚举（状压 DP 的基础）</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      // 枚举 {0,1,...,n-1} 的所有子集
+      for (int s = 0; s < (1 << n); ++s) { }
+      
+      // 枚举 mask 的所有子集（含空集），总复杂度 O(3^n)
+      for (int sub = mask; ; sub = (sub - 1) & mask) {
+          // 处理 sub
+          if (sub == 0) break;
+      }
+      </script></div>
+      <p>n ≤ 20 时 <code>1 &lt;&lt; n</code> 是 10^6，可以枚举；n = 25 时是 3.3×10^7，勉强；n ≥ 31 时 <code>1 &lt;&lt; n</code> 直接溢出，要 <code>1LL &lt;&lt; n</code>（见 1.3）。</p>
+      <p><b>五个必须记住的坑</b></p>
+      <ol class="tight"><li><b><code>1 &lt;&lt; 31</code> 是 int 溢出</b>，要写 <code>1LL &lt;&lt; 31</code>。<code>1 &lt;&lt; 32</code> 是 UB（移位位数 ≥ 类型宽度）。</li><li><b><code>x &gt;&gt; k</code> 对负数是算术右移</b>，等于向下取整：<code>-3 &gt;&gt; 1 == -2</code>，而 <code>-3 / 2 == -1</code>。<b>这两者不相等</b>，涉及负数时不要互相替换。</li><li><b><code>x % 2^k</code> 和 <code>x &amp; (2^k - 1)</code> 只在非负时相等</b>：<code>-5 % 4 == -1</code>，但 <code>-5 &amp; 3 == 3</code>。</li><li><b><code>~x</code> 不是「相反数」</b>，<code>~x == -x - 1</code>；想要相反数写 <code>-x</code>。</li><li><b><code>__builtin_ctz(0)</code> / <code>__builtin_clz(0)</code> 是 UB</b>，返回什么都不保证。用之前先判 <code>x != 0</code>。</li></ol>
+      <p><b>位运算的三大用途</b></p>
+      <ul class="tight"><li><b>压状态</b>：用一个整数的二进制位表示「哪些元素被选中」——这是状压 DP 的基础（第 5.7 节）。</li><li><b>压常数</b>：用 <code>x &gt;&gt; 1</code> 代替 <code>x / 2</code>（非负时结果相同，编译器其实也会自动做）。</li><li><b>提供数学性质</b>：异或的自反性（<code>a ^ a = 0</code>，<code>a ^ 0 = a</code>）能解决一大类「找落单」问题；前缀异或能解决「区间异或」。</li></ul>
+      <div class="box ok"><span class="t">✅ 小结</span><p>位运算只有三件事要记：<b>加括号</b>、<b><code>1LL</code></b>、<b>负数别用移位代替除法</b>。</p></div>
+    </article>
+    <article class="algo" id="pl-19" data-cat="语法" data-name="1.13 浮点数与精度 本质 double 是二进制浮点，只能精确表示「分母是 2 的幂」的分数。0.1 表示不了，所以 0.1 + 0.2 != 0.3。竞赛里浮点题的原则是：能用整数就不用浮点，非用不可就固定误差。 cpp double x; // 15~16 位有效数字，竞赛默认用 d">
+      <div class="ah"><h4>1.13 浮点数与精度</h4><span class="lv lv-e">入门</span><span class="st">★★★</span><span class="tag">打地基</span></div>
+      <p class="idea"><b>本质</b>：<code>double</code> 是二进制浮点，只能精确表示「分母是 2 的幂」的分数。<code>0.1</code> 表示不了，所以 <code>0.1 + 0.2 != 0.3</code>。竞赛里浮点题的原则是：<b>能用整数就不用浮点，非用不可就固定误差</b>。</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      double x;                       // 15~16 位有效数字，竞赛默认用 double 而不是 float
+      
+      // 判等：永远不要写 a == b
+      if (fabs(a - b) < 1e-9) { }     // 通用写法
+      
+      // 输出
+      printf("%.6f\n", ans);
+      </script></div>
+      <p><b>有效数字对比</b></p>
+      <table>
+      <tr><th>类型</th><th>字节</th><th>十进制有效数字</th><th>竞赛用途</th></tr>
+      <tr><td><code>float</code></td><td>4</td><td>6~7</td><td>基本不用（精度不够，还容易和 <code>%f</code> 混淆）</td></tr>
+      <tr><td><code>double</code></td><td>8</td><td>15~16</td><td>默认选择</td></tr>
+      <tr><td><code>long double</code></td><td>12/16</td><td>18~19</td><td>精度要求极高的几何、大数运算</td></tr>
+      </table>
+      <p><b>三条实用规则</b></p>
+      <ol class="tight"><li><b>几何题尽量不碰浮点。</b> 点在线段哪一侧、线段是否相交、凸包转向——全部用叉积的整数符号判断，零误差。反例：用 <code>double</code> 算叉积判共线，坐标是 10^9 时乘积到 10^18，<code>double</code> 已经丢精度，共线判错。</li><li><b>实数二分固定跑 100 次</b>，比写 <code>while (r - l &gt; eps)</code> 安全（<code>eps</code> 选多小都不稳，选大了精度不够）。100 次迭代把区间缩到 2^-100，早就超过 <code>double</code> 的分辨率。</li><li><b>大数相减会丢精度。</b> <code>1e18 - 1e18 + 1</code> 这类运算在 <code>double</code> 下直接失效：<code>1e18</code> 的精度间隔已经是 128，加 1 完全没反应。</li></ol>
+      <p><b>四个常见翻车点</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      // 坑一：输出 -0.000000
+      printf("%.6f\n", -1e-12);              // ✗ 输出 "-0.000000"，评测机判错
+      if (fabs(x) < 5e-7) x = 0;             // ✓ 先抹掉
+      
+      // 坑二：setprecision 不是小数位数（见 1.4）
+      cout << fixed << setprecision(6) << x;
+      
+      // 坑三：整数开方后用 (int) 直接截断
+      int r = (int)sqrt(x);                       // ✗ x=1e18 时 sqrt 可能返回 999999999.9999
+      while (1LL * (r + 1) * (r + 1) <= x) ++r;   // ✓ 修正
+      while (1LL * r * r > x) --r;
+      
+      // 坑四：用 double 存 1e18 级的整数
+      double d = 1000000000000000001.0;      // ✗ 存进去变成 1e18
+      </script></div>
+      <p><b>判 NaN</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      if (x != x) { /* x 是 NaN */ }         // 唯一可靠的判法
+      </script></div>
+      <p>NaN 会污染整个 <code>sort</code>：比较函数遇到 NaN 时既不返回 true 也不返回 false，严格弱序被破坏，结果未定义。</p>
+      <div class="box tip"><span class="t">💡 提示</span><p>圆周率写 <code>const double PI = acos(-1.0);</code>，比手打 <code>3.14159265358979</code> 少错一位。</p></div>
+    </article>
+    <article class="algo" id="pl-20" data-cat="语法" data-name="1.14 常用常量与模板骨架 本质 常量是「一次定义、全文复用、改一处全改」的东西。竞赛里真正需要预定义的只有四个：数组上界、无穷大、取模数、精度。 cpp const int N = 100005; const int INF = 0x3f3f3f3f; // = 1061109567，比 INT_MAX 小一半，两个相加不">
+      <div class="ah"><h4>1.14 常用常量与模板骨架</h4><span class="lv lv-e">入门</span><span class="st">★★★</span><span class="tag">打地基</span></div>
+      <p class="idea"><b>本质</b>：常量是「一次定义、全文复用、改一处全改」的东西。竞赛里真正需要预定义的只有四个：数组上界、无穷大、取模数、精度。</p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      const int N = 100005;
+      const int INF = 0x3f3f3f3f;        // = 1061109567，比 INT_MAX 小一半，两个相加不会溢出
+      const long long INFF = 0x3f3f3f3f3f3f3f3fLL;
+      const int MOD = 1000000007;        // 常用取模数
+      const double EPS = 1e-9;
+      </script></div>
+      <p><b>为什么 INF 用 <code>0x3f3f3f3f</code> 而不是 <code>INT_MAX</code>？</b></p>
+      <p>最短路松弛时要算 <code>dist[u] + w</code>。如果用 <code>INT_MAX</code>（2147483647），加上任何正数就溢出成负数，<code>dist[v] &gt; dist[u] + w</code> 这个判断立刻失效，直接得到错误答案。</p>
+      <p><code>0x3f3f3f3f</code> 约 1.06×10^9，两个相加约 2.1×10^9，刚好还在 <code>int</code> 范围内。而且它有个额外好处：<code>memset(a, 0x3f, sizeof a)</code> 能一次性把整个 <code>int</code> 数组填成这个值（每个字节都是 <code>0x3f</code>），不用循环。</p>
+      <p><b>取模的三个细节</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      const int MOD = 1000000007;        // 写成 1e9+7 是 double 再截断，别依赖这种运气
+      // 另一个常用：998244353（NTT 友好，2^23 的倍数加 1）
+      
+      (a + b) % MOD;                     // ✓ 两个都 < MOD 时不会溢出
+      a * b % MOD;                       // ✗ a,b 到 1e9 时乘积 1e18，int 溢出
+      1LL * a * b % MOD;                 // ✓
+      
+      // 减法取模要补正
+      (a - b + MOD) % MOD;               // ✓ 直接 (a-b)%MOD 可能得到负数
+      </script></div>
+      <p><b><code>const int MOD = 1e9 + 7;</code> 是错的吗？</b></p>
+      <p><code>1e9</code> 是 <code>double</code>，<code>1e9 + 7</code> 也是 <code>double</code>，赋给 <code>const int</code> 会被截断成 <code>1000000007</code>——<b>碰巧对</b>。但这是运气，不是规则；写 <code>1000000007</code> 才是明确意图。</p>
+      <p><b>完整模板：13 行 include（见 1.2）+ 常量 + <code>solve</code> 结构</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      #include <iostream>
+      #include <algorithm>
+      #include <cstring>
+      #include <cstdio>
+      #include <queue>
+      
+      using namespace std;
+      
+      const int N = 100005;
+      const int INF = 0x3f3f3f3f;
+      typedef long long ll;
+      
+      int n, m, a[N];
+      
+      void solve() {
+          cin >> n;
+          for (int i = 1; i <= n; ++i) cin >> a[i];
+          // 你的逻辑
+      }
+      
+      int main() {
+          ios::sync_with_stdio(false);
+          cin.tie(nullptr);
+          int T = 1;
+          cin >> T;              // 单组数据就删掉这行
+          while (T--) solve();
+          return 0;
+      }
+      </script></div>
+      <div class="box tip"><span class="t">💡 提示</span><p>多组数据的题，<code>solve()</code> 开头第一件事是<b>清空全局数组</b>。用 <code>memset(a, 0, sizeof a)</code>，或者干脆每次重新赋值。忘了清空 = 上一组数据的答案混进这一组。</p></div>
+    </article>
+    <article class="algo" id="pl-21" data-cat="语法" data-name="1.15 本地编译与调试 本质 调试不是「盯着代码看」，是「让程序自己说出哪里不对」。编译器警告、sanitizer、cerr、对拍，这四样覆盖了 95% 的 bug。 编译开关：每个都有明确用途 开关 作用 什么时候用 --- --- --- -O2 开优化（评测机也开） 永远加，否则本地">
+      <div class="ah"><h4>1.15 本地编译与调试</h4><span class="lv lv-e">入门</span><span class="st">★★★</span><span class="tag">打地基</span></div>
+      <p class="idea"><b>本质</b>：调试不是「盯着代码看」，是「让程序自己说出哪里不对」。编译器警告、sanitizer、<code>cerr</code>、对拍，这四样覆盖了 95% 的 bug。</p>
+      <p><b>编译开关：每个都有明确用途</b></p>
+      <table>
+      <tr><th>开关</th><th>作用</th><th>什么时候用</th></tr>
+      <tr><td><code>-O2</code></td><td>开优化（评测机也开）</td><td>永远加，否则本地测的速度没有参考价值</td></tr>
+      <tr><td><code>-Wall</code></td><td>打开常用警告</td><td>永远加，能抓到格式符不匹配、未使用变量</td></tr>
+      <tr><td><code>-Wextra</code></td><td>更多警告（含符号比较）</td><td>推荐</td></tr>
+      <tr><td><code>-std=c++17</code></td><td>指定标准</td><td>永远加，和评测机对齐</td></tr>
+      <tr><td><code>-g</code></td><td>保留调试信息</td><td>需要 gdb 时</td></tr>
+      <tr><td><code>-fsanitize=address,undefined</code></td><td>抓越界、有符号溢出、空指针</td><td>调试期必用</td></tr>
+      <tr><td><code>-D_GLIBCXX_DEBUG</code></td><td>STL 容器越界检查</td><td><code>vector</code>/<code>set</code> 的 <code>[]</code> 越界时用</td></tr>
+      <tr><td><code>-Wl,--stack,67108864</code></td><td>把栈调到 64MB（MinGW）</td><td>递归深度大时本地测试</td></tr>
+      </table>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-bash">
+      g++ a.cpp -o a -O2 -std=c++17 -Wall                  # 正常编译
+      g++ a.cpp -o a -g -fsanitize=address,undefined       # 调试编译：自动抓越界和溢出
+      </script></div>
+      <p><code>-fsanitize</code> 打开后，数组越界、有符号溢出、空指针会立刻报错并指出行号——<b>这是新手最快的找 bug 工具</b>，比单步调试快十倍。注意加了它之后程序会慢 2~5 倍，<b>提交前一定要用不带它的版本编译</b>。</p>
+      <div class="box tip"><span class="t">💡 提示</span><p>Windows 上的 MinGW 常常不支持 <code>-fsanitize=address</code>，编译直接报错。替代方案：<code>-D_GLIBCXX_DEBUG</code>（抓 STL 越界）+ 手写 <code>assert</code> + <code>-Wall -Wextra</code>。WSL 或 Linux 环境下 ASan 完整可用。</p></div>
+      <p><b>五个调试手法</b></p>
+      <ol class="tight"><li><b>输出中间变量</b>：在关键位置 <code>cerr &lt;&lt; "i=" &lt;&lt; i &lt;&lt; " ans=" &lt;&lt; ans &lt;&lt; '\n';</code>（<code>cerr</code> 不缓冲，崩溃前也能看到输出）。</li><li><b>二分注释法</b>：把后半段代码整段注释掉，看前半段是否正确——快速定位是哪一半出错。</li><li><b>小数据手推</b>：自己造 n=3 的数据，在纸上一格一格走一遍，和程序的中间输出对照。</li><li><b>对拍</b>：见第 2.5 节，这是最可靠的验证手段。</li><li><b>提交前删掉所有 <code>cerr</code>、<code>assert</code> 和调试输出</b>——忘了删是经典爆零原因。</li></ol>
+      <p><b><code>assert</code> 的正确用法</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      #include <cassert>
+      assert(0 <= u && u < n);        // 条件为假时立刻中止，并打印文件名和行号
+      </script></div>
+      <p>评测机如果定义了 <code>NDEBUG</code>，<code>assert</code> 会被整个删掉（所以它不影响速度，但也不保护你）。<b>本地调试期用它抓「不该发生」的情况</b>，比等到输出错误再去倒推快得多。</p>
+      <p><b>计时：确认自己真的没超时</b></p>
+      <div class="codebox"><button class="cp">复制</button><pre><code></code></pre><script type="text/x-cpp">
+      #include <chrono>
+      auto st = chrono::steady_clock::now();
+      // ... 被测代码 ...
+      auto ed = chrono::steady_clock::now();
+      cerr << chrono::duration<double>(ed - st).count() << " s\n";
+      </script></div>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p>本地跑 0.9 秒不代表能过——评测机可能慢一倍，而且 <code>-O2</code> 的优化效果和你本地不一定一致。<b>经验值：本地超过时限 50% 就要优化。</b></p></div>
+    </article>
+    <article class="algo" id="pl-22" data-cat="语法" data-name="1.16 编译/运行错误对照表 本质 评测结果只有几类：CE（编不过）、RE（跑崩）、WA（答案错）、TLE（太慢）、MLE（内存超）、PE（格式错）。每一类都有固定的排查顺序，先分类再定位，比盲目看代码快十倍。 第一类：CE（编译错误）→ 看第一条 error 提示 原因 怎么改 --- --- ---">
+      <div class="ah"><h4>1.16 编译/运行错误对照表</h4><span class="lv lv-e">入门</span><span class="st">★★★</span><span class="tag">打地基</span></div>
+      <p class="idea"><b>本质</b>：评测结果只有几类：CE（编不过）、RE（跑崩）、WA（答案错）、TLE（太慢）、MLE（内存超）、PE（格式错）。<b>每一类都有固定的排查顺序</b>，先分类再定位，比盲目看代码快十倍。</p>
+      <p><b>第一类：CE（编译错误）→ 看第一条 error</b></p>
+      <table>
+      <tr><th>提示</th><th>原因</th><th>怎么改</th></tr>
+      <tr><td><code>'x' was not declared in this scope</code></td><td>变量名打错 / 作用域外 / <b>漏头文件</b></td><td>先查头文件（见 1.2），再查拼写与花括号范围</td></tr>
+      <tr><td><code>'sort' was not declared in this scope</code></td><td>漏 <code>&lt;algorithm&gt;</code></td><td>见 1.2 的 F 表</td></tr>
+      <tr><td><code>'vector' is not a type</code></td><td>漏 <code>&lt;vector&gt;</code></td><td>同上</td></tr>
+      <tr><td><code>expected ';' before ...</code></td><td>上一行漏分号</td><td>往上一行找，别在当前行找</td></tr>
+      <tr><td><code>expected '}' at end of input</code></td><td>少一个右花括号</td><td>用编辑器的高亮配对</td></tr>
+      <tr><td><code>redefinition of 'x'</code></td><td>同名变量定义了两次（常见于全局与局部重名）</td><td>改名</td></tr>
+      <tr><td><code>no matching function for call to 'max(int, long long)'</code></td><td>参数类型不一致</td><td><code>max(1LL * a, b)</code> 或统一类型</td></tr>
+      <tr><td><code>invalid types 'int[int]' for array subscript</code></td><td>把数组名当变量用了 / 少写一维</td><td>检查 <code>a[i][j]</code> 的层数</td></tr>
+      <tr><td><code>lvalue required as left operand of assignment</code></td><td>给表达式赋值，如 <code>a + b = c</code></td><td>检查赋值左边</td></tr>
+      <tr><td><code>cannot convert 'std::string' to 'const char*'</code></td><td>用 <code>printf</code> 打了 <code>string</code></td><td>写 <code>s.c_str()</code></td></tr>
+      <tr><td><code>'INT_MAX' was not declared</code></td><td>漏 <code>&lt;climits&gt;</code></td><td>见 1.2</td></tr>
+      <tr><td><code>'gcd' is not a member of 'std'</code></td><td>漏 <code>&lt;numeric&gt;</code>，或标准低于 C++17</td><td>加头，或改 <code>__gcd</code></td></tr>
+      <tr><td><code>comparison of integer expressions of different signedness</code>（警告）</td><td><code>int</code> 和 <code>size_t</code> 比较</td><td>加 <code>(int)</code> 转换</td></tr>
+      <tr><td>本地能跑，评测 CE</td><td>用了非标准扩展，或 C++ 版本不同</td><td>本地加 <code>-std=c++17 -Wall</code> 复现</td></tr>
+      </table>
+      <p><b>第二类：RE（运行错误）→ 先想越界和爆栈</b></p>
+      <table>
+      <tr><th>提示</th><th>原因</th><th>怎么改</th></tr>
+      <tr><td><code>Segmentation fault (core dumped)</code></td><td>数组越界写、空指针、栈溢出</td><td>用 <code>-fsanitize=address</code> 重编</td></tr>
+      <tr><td><code>stack overflow</code> / 递归直接崩</td><td>递归太深，或每层开了大局部数组</td><td>大数组移全局；递归改宽搜；本地调大栈</td></tr>
+      <tr><td><code>Floating point exception</code></td><td>整数除以 0，或对 0 取模</td><td>检查除数，特判 <code>n == 0</code></td></tr>
+      <tr><td><code>free(): invalid pointer</code> / <code>double free</code></td><td>对同一块内存 <code>delete</code> 两次</td><td>竞赛里不用 <code>new</code>/<code>delete</code>（见 1.10）</td></tr>
+      <tr><td><code>std::bad_alloc</code></td><td>申请内存失败</td><td>数组开太大（见 1.6 预算表）</td></tr>
+      <tr><td><code>terminate called after throwing ... out_of_range</code></td><td><code>stoi</code>/<code>s.at()</code> 越界</td><td>换 <code>stoll</code>、改用 <code>[]</code> 并自己判边界</td></tr>
+      <tr><td>输出一堆乱码 / 中途崩溃</td><td>数组越界、爆栈、除零</td><td>用 <code>-fsanitize</code> 重编</td></tr>
+      <tr><td>结果诡异但程序不崩</td><td>负数取模（见 1.3）</td><td><code>(x % m + m) % m</code></td></tr>
+      </table>
+      <p><b>第三类：WA（答案错误）→ 按顺序排查这六条</b></p>
+      <ol class="tight"><li><b>没开 <code>long long</code></b>：求和、乘积、答案超过 2×10^9（见 1.3）。</li><li><b>多测没清空</b>：全局数组、<code>vector</code>、<code>map</code> 上一组的数据还在（见 1.14）。</li><li><b>边界没判</b>：n=1、空串、全相同、全不同、0 或负数。</li><li><b>格式符错</b>：<code>%d</code> 打了 <code>long long</code>，<code>%.2f</code> 忘了 <code>fixed</code>（见 1.4）。</li><li><b>取模出错</b>：减法没补正、乘法没 <code>1LL</code>（见 1.14）。</li><li><b><code>sort</code> 比较函数不满足严格弱序</b>：用了 <code>&lt;=</code>（见 1.8）。</li></ol>
+      <p><b>第四类：TLE（超时）→ 先算复杂度，再看常数</b></p>
+      <ul class="tight"><li>先按第 2.2 节算：n=10^5 的 O(n^2) 是 10^10，必超。</li><li>常数问题：<code>endl</code>（见 1.4）、没关同步、<code>map</code> 查 10^6 次（见 1.11）、<code>vector</code> 反复扩容没 <code>reserve</code>。</li><li>递归函数返回值是大对象（每次复制一个 <code>vector</code>）。</li></ul>
+      <p><b>第五类：MLE（内存超限）→ 看三个地方</b></p>
+      <ul class="tight"><li>数组开太大（10^8 个 <code>int</code> = 400MB）。</li><li><code>set</code>/<code>map</code> 节点开销（10^6 个约 50MB，见 1.11）。</li><li>递归里开了局部数组，或者 <code>vector</code> 嵌套层数太多。</li></ul>
+      <p><b>第六类：PE（格式错误）→ 只看两个地方</b></p>
+      <ul class="tight"><li>行末多了一个空格（<code>cout &lt;&lt; a[i] &lt;&lt; " "</code> 在最后一个元素也加了空格）。</li><li>少/多了空行。惯用写法：<code>cout &lt;&lt; a[i] &lt;&lt; " \n"[i == n];</code>——最后一个元素输出换行，其余输出空格。</li></ul>
+      <div class="box warn"><span class="t">⚠️ 易错</span><p>评测机只告诉你「WA on test 3」，不告诉你测试点内容。<b>所以本地必须学会自己造数据、自己对拍</b>（第 2.5 节）——这是唯一能在提交前发现问题的手段。</p></div>
+      <div class="box ok"><span class="t">✅ 小结</span><p>第 1 章不需要背，需要<b>用到时能查回来</b>。真正要刻进肌肉记忆的只有四件事——<b>13 行 include 模板（不用万能头）、<code>1LL</code> 防溢出、大数组放全局、位运算加括号</b>。</p></div>
+    </article>
+  </div>
+</section>
+
