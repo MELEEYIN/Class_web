@@ -545,8 +545,8 @@ html[data-theme="light"] .doc-lesson {
 /* --------------------------------------------------------------------------
    C2 · 正文排版基线（两个作用域共用）
    -------------------------------------------------------------------------- */
-.doc { color: var(--ink); font-size: 15.2px; line-height: 1.8; }
-.doc p { margin: 12px 0; }
+.doc { color: var(--ink); font-size: 16.2px; line-height: 1.84; }
+.doc p { margin: 13px 0; }
 .doc a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color .15s; }
 .doc a:hover { border-bottom-color: currentColor; }
 .doc strong, .doc b { color: var(--ink); font-weight: 650; }
@@ -558,7 +558,7 @@ html[data-theme="light"] .doc-lesson {
 .doc img, .doc svg { max-width: 100%; }
 
 .doc h2 {
-  margin: 40px 0 14px; font-size: 20.5px; font-weight: 700; letter-spacing: -.012em;
+  margin: 42px 0 16px; font-size: 21.6px; font-weight: 700; letter-spacing: -.012em;
   padding-bottom: 9px; border-bottom: 1px solid var(--line); line-height: 1.4;
 }
 .doc h2::before {
@@ -566,8 +566,8 @@ html[data-theme="light"] .doc-lesson {
   border-radius: 2px; background: linear-gradient(180deg, var(--accent), var(--teal));
   vertical-align: -2px;
 }
-.doc h3 { margin: 28px 0 10px; font-size: 16.6px; font-weight: 700; letter-spacing: -.008em; line-height: 1.5; }
-.doc h4 { margin: 20px 0 8px; font-size: 14.8px; font-weight: 650; color: var(--ink-2); }
+.doc h3 { margin: 30px 0 11px; font-size: 17.6px; font-weight: 700; letter-spacing: -.008em; line-height: 1.5; }
+.doc h4 { margin: 21px 0 9px; font-size: 15.5px; font-weight: 650; color: var(--ink-2); }
 .doc > .docbody > h2:first-child, .doc > h2:first-child { margin-top: 6px; }
 
 .doc code {
@@ -579,7 +579,7 @@ html[data-theme="light"] .doc-lesson {
   position: relative; margin: 14px 0; padding: 14px 16px; overflow-x: auto;
   background: var(--code-bg); color: var(--code-text);
   border: 1px solid rgba(148, 163, 184, .16); border-radius: 11px;
-  font-family: var(--mono); font-size: 12.7px; line-height: 1.66; tab-size: 4;
+  font-family: var(--mono); font-size: 13.2px; line-height: 1.68; tab-size: 4;
 }
 .doc pre .cp2 {
   position: absolute; top: 8px; right: 8px; z-index: 3;
@@ -593,7 +593,7 @@ html[data-theme="light"] .doc-lesson {
 
 .doc table {
   width: 100%; border-collapse: separate; border-spacing: 0; margin: 16px 0;
-  font-size: 13.2px; border: 1px solid var(--line); border-radius: 11px; overflow: hidden;
+  font-size: 13.8px; border: 1px solid var(--line); border-radius: 11px; overflow: hidden;
 }
 .doc th, .doc td { padding: 8px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
 .doc th {
@@ -624,9 +624,9 @@ html[data-theme="light"] .doc-lesson {
 
 /* 上层小标签（学习手册卡片头） */
 .doc .ah { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin-bottom: 8px; }
-.doc .ah h4 { margin: 0; font-size: 15.4px; color: var(--ink); font-weight: 650; }
+.doc .ah h4 { margin: 0; font-size: 16.1px; color: var(--ink); font-weight: 650; }
 .doc .lv, .doc .st, .doc .tag {
-  font-size: 11px; line-height: 18px; padding: 0 7px; border-radius: 5px;
+  font-size: 11.6px; line-height: 19px; padding: 0 7px; border-radius: 5px;
   border: 1px solid transparent; font-weight: 600;
 }
 .doc .lv-e { background: rgba(var(--ok-rgb) / .13); color: rgb(var(--ok-rgb)); border-color: rgba(var(--ok-rgb) / .26); }
@@ -646,8 +646,8 @@ html[data-theme="light"] .doc-lesson {
 .doc-study .algo:hover { transform: translateY(-1px); }
 .doc-study .idea b, .doc-study .meta b, .doc-study .tl b, .doc-study .ref b { color: var(--ink); }
 .doc-study .idea { color: var(--ink-2); }
-.doc-study .meta { color: var(--ink-3); font-size: 13px; }
-.doc-study .lead { color: var(--ink-2); font-size: 14.6px; line-height: 1.78; margin: 10px 0 16px; }
+.doc-study .meta { color: var(--ink-3); font-size: 13.6px; }
+.doc-study .lead { color: var(--ink-2); font-size: 15.4px; line-height: 1.8; margin: 10px 0 16px; }
 .doc-study .codebox { margin: 12px 0 8px; }
 .doc-study .codebox pre { font-size: 12.6px; }
 .doc-study .codebox .cp {
@@ -728,7 +728,7 @@ html[data-theme="dark"] .doc-lesson pre { background: var(--code-bg); color: var
 .doc .sov-e { border: 1px dashed var(--line); border-radius: 10px; color: var(--ink-3); }
 
 @media (max-width: 640px) {
-  .doc { font-size: 14.8px; }
+  .doc { font-size: 15.6px; }
   .doc h2 { font-size: 18.6px; }
   .doc-study .grid2 { grid-template-columns: 1fr; }
 }
@@ -743,7 +743,7 @@ html[data-theme="dark"] .doc-lesson pre { background: var(--code-bg); color: var
 .doc.home .hero-stats { margin-top: 26px; }
 .doc.home .sec-t { margin: 32px 0 14px; }
 .doc.home .sec-t h2 {
-  margin: 0; padding: 0; border: 0; font-size: 16px; font-weight: 700;
+  margin: 0; padding: 0; border: 0; font-size: 17px; font-weight: 700;
   letter-spacing: -.01em; line-height: 1.5;
 }
 .doc.home .sec-t h2::before {
@@ -752,7 +752,7 @@ html[data-theme="dark"] .doc-lesson pre { background: var(--code-bg); color: var
   vertical-align: -1px;
 }
 .doc.home .path p { margin: 0; }
-.doc.home .path b { font-size: 15px; }
+.doc.home .path b { font-size: 15.8px; }
 .doc.home .mod-c .md { margin: 0; }
 .doc.home .home-foot { margin-top: 46px; }
 .doc.home .cg-t { margin: 26px 0 12px; }
@@ -774,7 +774,7 @@ html[data-theme="dark"] .doc-lesson pre { background: var(--code-bg); color: var
 .doc.home .hero-stats { margin-top: 26px; }
 .doc.home .sec-t { margin: 32px 0 14px; }
 .doc.home .sec-t h2 {
-  margin: 0; padding: 0; border: 0; font-size: 16px; font-weight: 700;
+  margin: 0; padding: 0; border: 0; font-size: 17px; font-weight: 700;
   letter-spacing: -.01em; line-height: 1.5;
 }
 .doc.home .sec-t h2::before {
@@ -783,7 +783,7 @@ html[data-theme="dark"] .doc-lesson pre { background: var(--code-bg); color: var
   vertical-align: -1px;
 }
 .doc.home .path p { margin: 0; }
-.doc.home .path b { font-size: 15px; }
+.doc.home .path b { font-size: 15.8px; }
 .doc.home .mod-c .md { margin: 0; }
 .doc.home .home-foot { margin-top: 46px; }
 .doc.home .cg-t { margin: 26px 0 12px; }
