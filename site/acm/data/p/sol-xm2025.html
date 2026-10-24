@@ -1,31 +1,37 @@
 
 
 
-<div class="box info"><div class="t">怎么用这份题解</div><ul><li>每题给「一句话题意 → 思路 → 参考代码 → 复杂度」，代码都在 C++17 下用官方样例跑过。</li><li>点题号标题旁的「去 OJ 做题」可以直接跳原题；带 Special Judge 的题（如 1724）样例只是其中一种合法答案。</li></ul></div>
+<div class="box info"><div class="t">这份题解怎么用</div><ul><li>每题先给<b>完整题意</b>（含输入输出与数据范围），再给两三条<b>引导性提示</b>——卡住时先看提示，别急着展开。</li><li>「完整思路」默认折叠，里面是推导过程；最后一段<b>代码逐段讲</b>说明每块在干什么。</li><li>代码都在 C++17 下用官方样例跑过；带 Special Judge 的题（1724）样例只是一种合法答案。</li></ul></div>
 <h2 id="idx">题目索引</h2>
-<table><thead><tr><th>题号</th><th>题目</th><th>核心考点</th><th>时限</th></tr></thead><tbody>
-<tr><td>A</td><td>失落的画卷</td><td>把一张 n×m 的字符画用 RLE（…</td><td>1 秒</td></tr>
-<tr><td>B</td><td>坏掉的时针</td><td>f(x) = 各位数字 +1 之积，…</td><td>2 秒</td></tr>
-<tr><td>C</td><td>CS2: 图神的伤害计算器</td><td>三种战斗场景：合计伤害、护甲减伤、连…</td><td>1 秒</td></tr>
-<tr><td>D</td><td>奶龙数日子</td><td>给两个合法日期，求相差多少天（起点那…</td><td>1 秒</td></tr>
-<tr><td>E</td><td>她喜欢你</td><td>没有输入，原样输出一行问候语。…</td><td>1 秒</td></tr>
-<tr><td>F</td><td>小孤独买拨片</td><td>拨片有 50 枚 130 元、10 …</td><td>1 秒</td></tr>
-<tr><td>G</td><td>共鸣圣歌</td><td>在数轴上选一个点 j 站着，收集 Σ…</td><td>1 秒</td></tr>
-<tr><td>H</td><td>AC is all you need</td><td>有 A、B、C 三种字母和 X∈{A…</td><td>1 秒</td></tr>
-<tr><td>I</td><td>信息摘要</td><td>长度为 n 的分数序列，多次询问区间…</td><td>1 秒</td></tr>
-<tr><td>J</td><td>芙莉莲与世代的魔导书</td><td>偶数页 N 的书，每次「织法」把前后…</td><td>1 秒</td></tr>
-<tr><td>K</td><td>九宫格(Easy Version)</td><td>n×m（≤3×3）点阵上数所有合法解…</td><td>2 秒</td></tr>
-<tr><td>L</td><td>轻音部下午茶点心争夺战</td><td>n 块糕点，两人轮流取 1~2 块，…</td><td>1 秒</td></tr>
+<table><thead><tr><th>序号</th><th>题号</th><th>题目</th><th>复杂度</th><th>时限</th></tr></thead><tbody>
+<tr><td>A</td><td>1659</td><td>失落的画卷</td><td>O(nm)</td><td>1 秒</td></tr>
+<tr><td>B</td><td>1660</td><td>坏掉的时针</td><td>预处理 O(10^6·7)，单次 O(1)</td><td>2 秒</td></tr>
+<tr><td>C</td><td>1661</td><td>CS2: 图神的伤害计算器</td><td>O(1)</td><td>1 秒</td></tr>
+<tr><td>D</td><td>1662</td><td>奶龙数日子</td><td>O(年数 + 12)，本题即常数</td><td>1 秒</td></tr>
+<tr><td>E</td><td>1663</td><td>她喜欢你</td><td>O(1)</td><td>1 秒</td></tr>
+<tr><td>F</td><td>1664</td><td>小孤独买拨片</td><td>O((n/50)·5) 每组，约 1e4</td><td>1 秒</td></tr>
+<tr><td>G</td><td>1665</td><td>共鸣圣歌</td><td>O(N²)</td><td>1 秒</td></tr>
+<tr><td>H</td><td>1666</td><td>AC is all you need</td><td>O(log(Σ/3) · 最大流)，图仅 11 点</td><td>1 秒</td></tr>
+<tr><td>I</td><td>1667</td><td>信息摘要</td><td>O((n+m) log M)</td><td>1 秒</td></tr>
+<tr><td>J</td><td>1668</td><td>芙莉莲与世代的魔导书</td><td>O(log M)</td><td>1 秒</td></tr>
+<tr><td>K</td><td>1669</td><td>九宫格(Easy Version)</td><td>O(路径数 × 点数)，3×3 约 1e6 内</td><td>2 秒</td></tr>
+<tr><td>L</td><td>1670</td><td>轻音部下午茶点心争夺战</td><td>O(1)</td><td>1 秒</td></tr>
 </tbody></table>
 <h2 id="p1659">A · 失落的画卷</h2>
-<div class="prob"><div class="ph"><span class="pn">P1659</span><span class="oi">时间 1 秒 / 内存 128 兆</span><a href="https://acm.sztu.edu.cn/csgoj/problemset/problem?pid=1659" target="_blank" rel="noopener">去 OJ 做题 ↗</a></div><div class="st"><p>把一张 n×m 的字符画用 RLE（游程编码）压缩，或把 RLE 串解压回字符画，由 op 决定方向。</p></div></div>
-<p><b>思路</b>：压缩：把所有行拼成一个长串，扫一遍数连续相同的字符，写成「次数+字符」；解压：顺序读「数字串+字符」，遇数字就累加计数，遇字符就输出 count 个。</p>
-<div class="smp"><div><span class="smp-h">输入</span><pre>2 5 1
+<div class="prob"><div class="ph"><span class="pn">P1659</span><span class="oi">时间 1 秒 / 内存 128 兆</span><a href="https://acm.sztu.edu.cn/csgoj/problemset/problem?pid=1659" target="_blank" rel="noopener">去 OJ 做题 ↗</a></div><div class="st"><p>把一张 n×m 的字符画用 RLE 压缩，或把 RLE 串还原成字符画；op=1 压缩、op=2 解压。</p></div></div>
+<h3>题意</h3>
+<h4>题目描述</h4><p>在某些古老的编程大赛档案馆里，保存着许多巨大的<br>字符画。这些字符画是用 ASCII 字符排成的 <code class="tex">n × m</code> 的矩形，每个位置都有一个字符。<br>然而，字符画常常很大，直接存储会占用很多空间。于是，管理员决定使用<br>RLE（Run-Length Encoding，游程编码）<br>压缩技术来存档。</p><p>RLE 的规则非常简单：</p><p>- 将相同的连续字符合并为“出现次数 + 字符”的形式。 例如：</p><pre>AAAABBCCCC</pre><p>会被压缩成</p><pre>4A2B4C</pre><p>管理员希望你来实现一个程序，能够：</p><p>- 压缩 一个 <code class="tex">n × m</code> 的字符画。</p><p>- 解压 一个 RLE 压缩后的字符串，还原为 <code class="tex">n × m</code> 的字符画。</p><h4>输入格式</h4><p>- 第一行输入三个整数 <code class="tex">n (0 ≤ n ≤ 100), m (0 ≤ m ≤ 100), op (op  ∈  [1, 2])</code>。</p><p>- <code class="tex">n, m</code><br>表示字符画的行数和列数。</p><p>- <code class="tex">op = 1</code> 表示执行<br>压缩操作。</p><p>- <code class="tex">op = 2</code> 表示执行<br>解压操作。</p><p>- 若 <code class="tex">op = 1</code>： 接下来输入 <code class="tex">n</code> 行，每行 <code class="tex">m</code> 个字符，表示字符画。</p><p>- 若 <code class="tex">op = 2</code>：<br>接下来输入一个压缩字符串。保证该压缩字符串正确无误，解压后正好可以得到<br><code class="tex">n × m</code> 个字符。</p><h4>输出格式</h4><p>- 若 <code class="tex">op = 1</code>：输出压缩后的字符串（不包含换行符）。</p><p>- 若 <code class="tex">op = 2</code>：输出解压后的 <code class="tex">n × m</code> 字符画，每行 <code class="tex">m</code> 个字符。</p><h4>提示</h4><p>- 当 <code class="tex">n=0</code> 或 <code class="tex">m=0</code><br>时，字符画为空，不需要输出任何内容。</p><p>- 压缩与解压后的结果均唯一。</p>
+<div class="smp"><div><span class="smp-h">样例输入</span><pre>2 5 1
 AAAAB
 BBCCC
-</pre></div><div><span class="smp-h">输出</span><pre>4A3B3C
+</pre></div><div><span class="smp-h">样例输出</span><pre>4A3B3C
 </pre></div></div>
-<details><summary>参考代码（C++17，已过样例）</summary><pre><code>#include &lt;bits/stdc++.h&gt;
+<h3>先想一想</h3><ul class="tight"><li>“行”是干扰项：把 n 行首尾相接成一条长串，跨行的相同字符也要合并。</li><li>解压时先连续读数字（次数可能超过一位），再读一个字符，把这个字符重复 count 次。</li><li>n 或 m 为 0 时字符画是空的，压缩结果为空串。</li></ul>
+<details class="deep"><summary>完整思路（点开看推导）</summary>
+<p>压缩就是最朴素的游程编码：把所有行拼成一个长串 s，用双指针扫一遍，i 指向一段的起点，j 一直往右走到字符变化为止，这一段就是 j−i 个 s[i]，输出「次数 + 字符」后令 i=j。因为拼接时行与行之间不插入任何分隔，跨行的同字符自然会被并到一起，正好符合样例 AAAAB + BBCCC = 4A3B3C。</p>
+<p>解压是逆过程：从左到右扫字符串，遇到数字就累加计数（cnt = cnt*10 + c−数字0），遇到非数字就把当前字符重复 cnt 次追加到答案里，然后清零计数。最后按每行 m 个字符切出来输出即可，不必真的维护二维数组。</p>
+</details>
+<h3>参考代码</h3><pre><code>#include &lt;bits/stdc++.h&gt;
 using namespace std;
 
 int main() {
@@ -62,16 +68,24 @@ int main() {
         }
     }
     return 0;
-}</code></pre></details>
-<p class="ref"><b>复杂度</b>：O(nm)<br><b>坑点</b>：n 或 m 为 0 时字符画为空，什么都不能输出；次数可能超过 9，解析时要按十进制累加。</p>
+}</code></pre>
+<h3>代码逐段看</h3><ul class="tight"><li>读入用 <code>getline</code>：字符画里可能有空格之类的符号，用 <code>cin &gt;&gt; char</code> 会把空白吃掉。</li><li>压缩用双指针 <code>i / j</code>，每段只扫一遍，整体 O(nm)。</li><li>解压时 <code>out.append(cnt, c)</code> 一次展开一段，最后 <code>substr(i*m, m)</code> 切行。</li></ul>
+<p class="ref"><b>复杂度</b>：O(nm)<br><b>坑点</b>：别把行尾换行读进字符画；次数可能是两位数（如 10A），必须累加而不是只取一位。</p>
 <h2 id="p1660">B · 坏掉的时针</h2>
-<div class="prob"><div class="ph"><span class="pn">P1660</span><span class="oi">时间 2 秒 / 内存 32 兆</span><a href="https://acm.sztu.edu.cn/csgoj/problemset/problem?pid=1660" target="_blank" rel="noopener">去 OJ 做题 ↗</a></div><div class="st"><p>f(x) = 各位数字 +1 之积，对 n 连续做 x 次，求结果（n ≤ 1e18，x ≤ 1e9，T ≤ 2e6）。</p></div></div>
-<p><b>思路</b>：一次操作后结果只含 2/3/5/7 这些因子，再走几步必然掉进 2→3→…→10→2 的 9 长环。预处理 1e6 以内每个数「到环的步数、进环入口」，更大的数直接迭代到 ≤1e6 再查表；超过环前步数就用 (x−dep) mod 9 定位。</p>
-<div class="smp"><div><span class="smp-h">输入</span><pre>2
+<div class="prob"><div class="ph"><span class="pn">P1660</span><span class="oi">时间 2 秒 / 内存 32 兆</span><a href="https://acm.sztu.edu.cn/csgoj/problemset/problem?pid=1660" target="_blank" rel="noopener">去 OJ 做题 ↗</a></div><div class="st"><p>定义 f(x) 为「十进制各位数字 +1 之后的乘积」，对 n 连续做 x 次，输出结果（n ≤ 1e18，x ≤ 1e9）。</p></div></div>
+<h3>题意</h3>
+<h4>题目描述</h4><p>大一开学不久，小 a 迎来了自己的 <code class="tex">18</code> 岁生日。朋友们送了他一份特别的礼物 ——<br>一只“坏掉的时钟”。</p><p>这只时钟看起来和普通时钟一样，有一个时针。但它的走法却十分古怪：</p><p>普通时钟的时针会依次从 <code class="tex">1</code> 走到<br><code class="tex">12</code>，然后再回到 <code class="tex">1</code>；</p><p>而这只“坏掉的时钟”，每次走动时，都会把当前时针所指的数字拆开成十进制的各个位数，把每一位都加上<br><code class="tex">1</code>，再将它们全部相乘，得到的新数，才是时针下一步所指向的位置。</p><p>小 a<br>越看越离谱，于是决定研究一下这只奇怪时钟的规律。他可以随意设定时针的起始位置，然后想知道：在经过<br><code class="tex">x</code><br>次走动之后，时针会停在什么数字上？</p><p>定义操作： 对于一个非负整数 <code class="tex">a</code>，操作前其十进制表示为 <code class="tex">a_0a_1a_2·s a_n-1</code>，操作后的值表示为<code class="tex">∏_i=0^n-1(a_i + 1)</code>。</p><p>给定初始整数 <code class="tex">n</code> 和 <code class="tex">x</code>，要求对 <code class="tex">n</code> 连续进行上述操作 <code class="tex">x</code> 次，输出最终结果。</p><h4>输入格式</h4><p>第一行包含 <code class="tex">T</code> (<code class="tex">1 ≤ T ≤ 2× 10^6</code>) —<br>测试用例的数量。</p><p>每个测试用例一行包含两个非负整数 <code class="tex">n</code> (<code class="tex">0 ≤ n ≤ 10^18</code>)和 <code class="tex">x</code> (<code class="tex">0 ≤ x ≤ 10^9</code>)。</p><h4>输出格式</h4><p>对于每个测试样例，输出一行一个整数，表示答案。</p><h4>提示</h4><p>以下是对第二组样例的解释：</p><p>输入: <code class="tex">n = 20250927, x = 2</code></p><p>解释:</p><p>- 第 1 次操作 (对 <code class="tex">20250927</code>):</p><p>- 各位数字为 <code class="tex">2, 0, 2, 5, 0, 9, 2, 7</code>。</p><p>- 计算 <code class="tex">(2+1) × (0+1) × (2+1) × (5+1) × (0+1) × (9+1) × (2+1) × (7+1) = 12960</code>。</p><p>- 第 2 次操作 (对 <code class="tex">12960</code>):</p><p>- 各位数字为 <code class="tex">1, 2, 9, 6, 0</code>。</p><p>- 计算 <code class="tex">(1+1) × (2+1) × (9+1) × (6+1) × (0+1) = 420</code>。</p><p>- 最终结果: <code class="tex">420</code></p><p>本题输入数据较大，请使用较快的读入方式。</p>
+<div class="smp"><div><span class="smp-h">样例输入</span><pre>2
 999999 1
-20250927 2</pre></div><div><span class="smp-h">输出</span><pre>1000000
+20250927 2</pre></div><div><span class="smp-h">样例输出</span><pre>1000000
 420</pre></div></div>
-<details><summary>参考代码（C++17，已过样例）</summary><pre><code>#include &lt;bits/stdc++.h&gt;
+<h3>先想一想</h3><ul class="tight"><li>先手算几个数：f(999999)=10⁶，f(12960)=420，多做几次会发现数值掉得飞快。</li><li>想想 f(x) 能取到哪些值：它是若干个 1..10 的乘积，质因子只可能是 2、3、5、7。</li><li>把轨迹画出来，会看到一个很短的循环。</li></ul>
+<details class="deep"><summary>完整思路（点开看推导）</summary>
+<p>先看 f 的量级：一次操作把 x 变成各位 (digit+1) 的乘积，结果最大是 9^19 ≈ 1.35e18，但只有「几乎全是 9」的数才可能这么大，而这种数的下一轮 f 会瞬间掉到很小（如 10^18 变 2）。所以轨迹很快就会落到 2~10 这一段，而这一段正好是一个 9 长环：2→3→4→5→6→7→8→9→10→2。</p>
+<p>因此答案只由「进环前走了几步」和「从环上哪个位置进」决定。预处理 10^6 以内每个数：dep[v] = 走多少步进环，ent[v] = 进环时踩到的值；用记忆化沿路径回溯填表，总代价 O(10^6 × 位数)。</p>
+<p>单次询问：x=0 直接输出 n；否则先做一次 f（输入可能到 1e18），若结果仍大于 10^6 就继续手算（最多两三次）；剩下 x 步时，若 x &lt; dep[v] 就直接走，否则跳到环上算：答案 = 2 + ((ent[v]-2) + (x-dep[v])) mod 9。</p>
+</details>
+<h3>参考代码</h3><pre><code>#include &lt;bits/stdc++.h&gt;
 using namespace std;
 
 static const int LIM = 1000000;
@@ -138,18 +152,24 @@ int main() {
     }
     fwrite(out.data(), 1, out.size(), stdout);
     return 0;
-}</code></pre></details>
-<p class="ref"><b>复杂度</b>：预处理 O(LIM·log)；单次询问 O(1)（大数多走常数步）<br><b>坑点</b>：T 高达 2e6，必须自己写缓冲读入；x=0 时原样输出 n。</p>
+}</code></pre>
+<h3>代码逐段看</h3><ul class="tight"><li>预处理 <code>F[v]</code> 存 f(v)；<code>dep/ent</code> 用 unsigned char 省内存。</li><li>记忆化：沿路把点压进 <code>path[]</code>，撞到已知点后倒着填 dep/ent。</li><li>读入必须自己写缓冲区：T 最大 2×10^6，<code>cin</code> 偏慢。</li><li>输出用 <code>string</code> 攒起来一次 fwrite，避免两百万次 printf。</li></ul>
+<p class="ref"><b>复杂度</b>：预处理 O(10^6·7)，单次 O(1)<br><b>坑点</b>：x=0 要原样输出 n（不是 f(n)）；环是 2..10 共 9 个元素。</p>
 <h2 id="p1661">C · CS2: 图神的伤害计算器</h2>
-<div class="prob"><div class="ph"><span class="pn">P1661</span><span class="oi">时间 1 秒 / 内存 256 兆</span><a href="https://acm.sztu.edu.cn/csgoj/problemset/problem?pid=1661" target="_blank" rel="noopener">去 OJ 做题 ↗</a></div><div class="st"><p>三种战斗场景：合计伤害、护甲减伤、连发总伤害，按 option 分别做 a+b、a−b、a×b。</p></div></div>
-<p><b>思路</b>：读入 option 后直接分支即可，是热身题。</p>
-<div class="smp"><div><span class="smp-h">输入</span><pre>3
+<div class="prob"><div class="ph"><span class="pn">P1661</span><span class="oi">时间 1 秒 / 内存 256 兆</span><a href="https://acm.sztu.edu.cn/csgoj/problemset/problem?pid=1661" target="_blank" rel="noopener">去 OJ 做题 ↗</a></div><div class="st"><p>按 option 做三种伤害计算：合计 a+b、护甲减伤 a−b、连发 a×b。</p></div></div>
+<h3>题意</h3>
+<h4>题目描述</h4><p>图神 是 ACM_CS2<br>界的传奇选手，以其惊人的反应速度和精准的枪法而闻名。为了在比赛中做出最快、最正确的决策，他需要一个能快速计算不同战斗场景下伤害值的程序。现在，他把这个任务交给了你，你需要编写一个程序，模拟三种核心的战斗伤害计算场景。</p><p>程序将接收一个操作类型 option 和两个数值 a<br>和 b。你需要根据 option<br>的值执行相应的计算：</p><p>- 当 option 为 1 时，代表<br>【火力叠加】。</p><p>- 情况说明：图神 和队友同时向一个敌人开火，图神 造成了 a<br>点伤害，队友造成了 b 点伤害。</p><p>- 计算任务：请求出敌人受到的总伤害。</p><p>- 当 option 为 2 时，代表<br>【护甲减伤】。</p><p>- 情况说明：图神 的一发子弹理论上能造成 a<br>点巨额伤害，但敌人装备了精良的护甲，抵消了 b 点伤害。</p><p>- 计算任务：请求出敌人实际受到的伤害。</p><p>- 当 option 为 3 时，代表<br>【爆发连射】。</p><p>- 情况说明：图神 使用一把连发武器（如AK-47），单发子弹命中能造成<br>a 点伤害，他以惊人的控枪能力精准地命中了 b<br>发。</p><p>- 计算任务：请求出这轮连射造成的总伤害。</p><h4>输入格式</h4><p>第一行包含一个整数 <code class="tex">t</code> <code class="tex">(1 ≤ t ≤ 100)</code> —— 测试用例的数量。</p><p>对于每个测试用例，只有一行输入，包含三个整数：option,<br>a, b。</p><p>- <code class="tex">1 ≤ option ≤ 3</code></p><p>- <code class="tex">1 ≤ a, b ≤ 2 × 10^9</code></p><p>- 数据保证在 option 为 <code class="tex">2</code> 时，<code class="tex">a ≥ b</code>。</p><h4>输出格式</h4><p>对于每个测试用例，输出一行，包含一个整数 ——<br>对应场景下的计算结果。</p>
+<div class="smp"><div><span class="smp-h">样例输入</span><pre>3
 1 100 800
 2 2000 500
-3 150 4</pre></div><div><span class="smp-h">输出</span><pre>900
+3 150 4</pre></div><div><span class="smp-h">样例输出</span><pre>900
 1500
 600</pre></div></div>
-<details><summary>参考代码（C++17，已过样例）</summary><pre><code>#include &lt;bits/stdc++.h&gt;
+<h3>先想一想</h3><ul class="tight"><li>就是三个分支，读完直接算。</li><li>a、b 最大 2×10^9，乘法会溢出 int。</li></ul>
+<details class="deep"><summary>完整思路（点开看推导）</summary>
+<p>签到题。option=1 输出 a+b，option=2 输出 a−b（题目保证 a ≥ b），option=3 输出 a×b。唯一要注意的是第三种乘积上界 4×10^18，必须用 64 位整数；前两种其实 int 够，但统一 long long 更省心。</p>
+</details>
+<h3>参考代码</h3><pre><code>#include &lt;bits/stdc++.h&gt;
 using namespace std;
 int main() {
     int t;
@@ -161,20 +181,27 @@ int main() {
         printf("%lld\n", ans);
     }
     return 0;
-}</code></pre></details>
-<p class="ref"><b>复杂度</b>：O(1)<br><b>坑点</b>：a,b ≤ 2e9，乘积到 4e18，必须用 long long（scanf 用 %lld）。</p>
+}</code></pre>
+<h3>代码逐段看</h3><ul class="tight"><li><code>scanf("%d %lld %lld")</code>：op 是 int，两个操作数 long long。</li><li>三目运算符写完分支，或 if/else 更清楚。</li></ul>
+<p class="ref"><b>复杂度</b>：O(1)<br><b>坑点</b>：a*b 到 4e18，用 int 直接 WA。</p>
 <h2 id="p1662">D · 奶龙数日子</h2>
-<div class="prob"><div class="ph"><span class="pn">P1662</span><span class="oi">时间 1 秒 / 内存 256 兆</span><a href="https://acm.sztu.edu.cn/csgoj/problemset/problem?pid=1662" target="_blank" rel="noopener">去 OJ 做题 ↗</a></div><div class="st"><p>给两个合法日期，求相差多少天（起点那天算在内、终点不算）。</p></div></div>
-<p><b>思路</b>：写 idx(y,m,d) 把日期映射成「从 1800-01-01 起过了多少天」：年按闰年规则累加 365/366，月按表累加，二月在闰年 +1；答案就是 idx2 − idx1。</p>
-<div class="smp"><div><span class="smp-h">输入</span><pre>4
+<div class="prob"><div class="ph"><span class="pn">P1662</span><span class="oi">时间 1 秒 / 内存 256 兆</span><a href="https://acm.sztu.edu.cn/csgoj/problemset/problem?pid=1662" target="_blank" rel="noopener">去 OJ 做题 ↗</a></div><div class="st"><p>给两个合法日期，求相差多少天（含起始日、不含结束日）。</p></div></div>
+<h3>题意</h3>
+<h4>题目描述</h4><p>在一个阳光明媚的下午，健忘的奶龙在后山发现了一根极其稀有的“七彩流光笋”！这根竹笋看起来美味极了，但他的好朋友小七告诉他，这种笋必须埋在地下，耐心等待一段时间，风味才会达到顶峰。</p><p>奶龙听话地把笋埋了起来，并在他的小本本上记下了两个重要的日期：</p><p>- 埋藏日: <code class="tex">Y_1</code> 年<br><code class="tex">M_1</code> 月 <code class="tex">D_1</code> 日</p><p>- 开挖日: <code class="tex">Y_2</code> 年<br><code class="tex">M_2</code> 月 <code class="tex">D_2</code> 日</p><p>可是，奶龙的脑容量和他的肚子一样，装满了就容易忘事。他现在已经不记得自己需要等待多少天了。他只知道，“等待的天数”就是从埋藏日的那天开始，一直数到开挖日那天，总共有多少天。</p><p>作为小七和奶龙最好的伙伴，你能帮帮这只犯迷糊的胖胖龙，算出他总共需要“睡几觉”才能吃到美味的竹笋吗？</p><p>给定两个日期（保证第二个日期不早于第一个日期），请计算这两个日期之间相差了多少天。</p><p>例如，从 2025年9月18日 到 2025年9月20日，奶龙需要等待 2 天（即<br>9月18日 和 9月19日 这两天）。</p><h4>输入格式</h4><p>第一行包含一个整数 <code class="tex">t</code> <code class="tex">(1 ≤ t ≤ 100)</code> —— 测试用例的数量。</p><p>对于每个测试例，只有一行输入，包含六个整数：<code class="tex">Y_1, M_1, D_1, Y_2, M_2, D_2</code>，分别代表第一个日期的年、月、日和第二个日期的年、月、日。</p><p>- <code class="tex">1800 ≤ Y_1, Y_2 ≤ 3000</code></p><p>- <code class="tex">1 ≤ M_1, M_2 ≤ 12</code></p><p>- <code class="tex">1 ≤ D_1, D_2 ≤ 31</code></p><p>- 输入保证所有日期均为有效日期，且第二个日期大于或等于第一个日期。</p><h4>输出格式</h4><p>对于每个测试用例，输出一个整数，代表两个日期之间相隔的天数。</p><h4>提示</h4><p>样例解释：</p><p>- 样例 1：从 9月18日 到 9月20日，相差 2 天。</p><p>- 样例 2：2024年是闰年，2月有29天。从 2月25日 到<br>3月5日，需要经过 2月的(29-25)=4天，以及3月的5天，共 4 + 5 = 9 天。</p><p>- 样例 3：从 2023年12月30日 到 2024年1月2日，需要经过<br>12月的(31-30)=1天，以及1月的2天，共 1 + 2 = 3 天。</p><p>- 样例 4：从 2023年1月1日 到<br>2025年1月1日，经历了完整的 2023年（平年, 365天）和 2024年（闰年,<br>366天），共 365 + 366 = 731 天。</p><p>在公历中，闰年遵循以下规则：</p><p>- 年份能被 4 整除，但不能被 100 整除。</p><p>- 或者，年份能被 400 整除。</p>
+<div class="smp"><div><span class="smp-h">样例输入</span><pre>4
 2025 9 18 2025 9 20
 2024 2 25 2024 3 5
 2023 12 30 2024 1 2
-2023 1 1 2025 1 1</pre></div><div><span class="smp-h">输出</span><pre>2
+2023 1 1 2025 1 1</pre></div><div><span class="smp-h">样例输出</span><pre>2
 9
 3
 731</pre></div></div>
-<details><summary>参考代码（C++17，已过样例）</summary><pre><code>#include &lt;bits/stdc++.h&gt;
+<h3>先想一想</h3><ul class="tight"><li>不同月份天数不同，闰年二月还要 +1。</li><li>与其一个月一个月加，不如把日期换算成「从固定起点过了多少天」，再相减。</li><li>闰年规则：4 的倍数且不是 100 的倍数，或 400 的倍数。</li></ul>
+<details class="deep"><summary>完整思路（点开看推导）</summary>
+<p>定义 idx(y,m,d) = 从 1800-01-01 到 (y,m,d) 经过的天数。先累加整年（1800..y−1，闰年 366、平年 365），再累加整月（1..m−1，二月遇闰年补 1），最后加 d−1。两个日期都换算成 idx 后相减，跨月、跨年、跨闰年全部自动处理。</p>
+<p>用样例检验：2023-12-30 到 2024-01-02 差 3 天；2023-01-01 到 2025-01-01 跨一个平年一个闰年，365+366=731，与样例一致。</p>
+</details>
+<h3>参考代码</h3><pre><code>#include &lt;bits/stdc++.h&gt;
 using namespace std;
 static bool leap(int y) { return (y % 4 == 0 &amp;&amp; y % 100 != 0) || y % 400 == 0; }
 static long long idx(int y, int m, int d) {
@@ -192,27 +219,40 @@ int main() {
         printf("%lld\n", idx(y2, m2, d2) - idx(y1, m1, d1));
     }
     return 0;
-}</code></pre></details>
-<p class="ref"><b>复杂度</b>：O(年数) 每年常数，实际近 O(1)<br><b>坑点</b>：闰年规则是 4 的倍数、不是 100 的倍数，或 400 的倍数；跨年样例（2023→2025）要能对上 731。</p>
+}</code></pre>
+<h3>代码逐段看</h3><ul class="tight"><li><code>leap(y)</code> 抽成函数，年和月两处都用。</li><li>月天数表二月写 28，闰年时额外 +1。</li><li>返回 long long，省得纠结范围。</li></ul>
+<p class="ref"><b>复杂度</b>：O(年数 + 12)，本题即常数<br><b>坑点</b>：闰年判断别漏「400 的倍数」；跨年样例要能出 731。</p>
 <h2 id="p1663">E · 她喜欢你</h2>
-<div class="prob"><div class="ph"><span class="pn">P1663</span><span class="oi">时间 1 秒 / 内存 128 兆</span><a href="https://acm.sztu.edu.cn/csgoj/problemset/problem?pid=1663" target="_blank" rel="noopener">去 OJ 做题 ↗</a></div><div class="st"><p>没有输入，原样输出一行问候语。</p></div></div>
-<p><b>思路</b>：签到题，直接 puts。</p>
-<div class="smp"><div><span class="smp-h">输入</span><pre></pre></div><div><span class="smp-h">输出</span><pre>Hello, Shenzhen Technology School!</pre></div></div>
-<details><summary>参考代码（C++17，已过样例）</summary><pre><code>#include &lt;bits/stdc++.h&gt;
-int main() { puts("Hello, Shenzhen Technology School!"); return 0; }</code></pre></details>
-<p class="ref"><b>复杂度</b>：O(1)<br><b>坑点</b>：注意大小写与标点：Hello, Shenzhen Technology School!</p>
+<div class="prob"><div class="ph"><span class="pn">P1663</span><span class="oi">时间 1 秒 / 内存 128 兆</span><a href="https://acm.sztu.edu.cn/csgoj/problemset/problem?pid=1663" target="_blank" rel="noopener">去 OJ 做题 ↗</a></div><div class="st"><p>没有输入，输出一行指定的问候语。</p></div></div>
+<h3>题意</h3>
+<h4>题目描述</h4><p>公元2025年9月27日，一个平凡的周六清晨，全球的程序员们从睡梦中醒来，却发现世界已经天翻地覆。</p><p>一种神秘的”代码能力衰减场”笼罩了整个地球，所有程序员（包括ACM世界冠军、IOI金牌得主、顶级科技公司的首席架构师，甚至是你身边的同学）的编程能力一夜之间下降了整整<br><code class="tex">10000</code> 倍。</p><p>曾经能够轻松解决动态规划难题的大脑，现在连最简单的循环语句都需要思考半天；曾经能够瞬间理解复杂算法的时间复杂度，现在连基本的算术运算都变得困难重重。全球的技术进步仿佛被按下了暂停键，互联网上充斥着各种低级的代码错误，整个数字世界濒临崩溃。</p><p>然而，在这片混乱中，唯独你——不知为何——完全免疫了这种效应！你的编程能力没有丝毫减退，思维依然敏捷如初。</p><p>此刻，全球技术委员会紧急联系了你。他们发现，唯一能够逆转这种效应的方法，是向世界展示一段纯净无暇的代码——一段简单到不受能力衰减影响，却又精确到足以证明编程本质的代码。世界需要你的帮助！</p><h4>输入格式</h4><p>无输入</p><h4>输出格式</h4><p>输出仅一行，表示答案“Hello, Shenzhen Technology School!”</p>
+<div class="smp"><div><span class="smp-h">样例输入</span><pre></pre></div><div><span class="smp-h">样例输出</span><pre>Hello, Shenzhen Technology School!</pre></div></div>
+<h3>先想一想</h3><ul class="tight"><li>签到题，照抄题面里的字符串。</li><li>注意大小写和感叹号。</li></ul>
+<details class="deep"><summary>完整思路（点开看推导）</summary>
+<p>这是「防爆零」的签到题：程序不读输入，直接输出 Hello, Shenzhen Technology School! 即可。唯一会错的地方是手抄时把标点或大小写改掉。</p>
+</details>
+<h3>参考代码</h3><pre><code>#include &lt;bits/stdc++.h&gt;
+int main() { puts("Hello, Shenzhen Technology School!"); return 0; }</code></pre>
+<h3>代码逐段看</h3><ul class="tight"><li><code>puts()</code> 自带换行，比 printf 少写一个换行符。</li><li>字符串里有逗号和感叹号，别写成中文全角。</li></ul>
+<p class="ref"><b>复杂度</b>：O(1)<br><b>坑点</b>：学校名是 School 不是 University，照题面抄。</p>
 <h2 id="p1664">F · 小孤独买拨片</h2>
-<div class="prob"><div class="ph"><span class="pn">P1664</span><span class="oi">时间 1 秒 / 内存 256 兆</span><a href="https://acm.sztu.edu.cn/csgoj/problemset/problem?pid=1664" target="_blank" rel="noopener">去 OJ 做题 ↗</a></div><div class="st"><p>拨片有 50 枚 130 元、10 枚 28 元、1 枚 3 元三种买法，买恰好 n 枚的最小花费（n ≤ 1e5）。</p></div></div>
-<p><b>思路</b>：枚举大包个数 a（0..n/50），剩下的 r &lt; 50 再枚举中包个数 b（0..r/10），其余单买，取最小。</p>
-<div class="smp"><div><span class="smp-h">输入</span><pre>4
+<div class="prob"><div class="ph"><span class="pn">P1664</span><span class="oi">时间 1 秒 / 内存 256 兆</span><a href="https://acm.sztu.edu.cn/csgoj/problemset/problem?pid=1664" target="_blank" rel="noopener">去 OJ 做题 ↗</a></div><div class="st"><p>50 枚 130 元、10 枚 28 元、1 枚 3 元，买恰好 n 枚的最小花费（n ≤ 1e5）。</p></div></div>
+<h3>题意</h3>
+<h4>题目描述</h4><p>“结束乐队”的贝斯手山田凉为了增加活动经费，开始销售乐队的特制吉他拨片。她推出了三种不同的购买方式：</p><p>- 大号套餐: 一次性购买 50<br>枚拨片，售价 130 日元。</p><p>- 中号套餐: 一次性购买 10<br>枚拨片，售价 28 日元。</p><p>- 单枚零售: 购买 1 枚拨片，售价<br>3 日元。</p><p>乐队的头号粉丝小孤独（后藤一里）想支持乐队，她计划购买恰好<br><code class="tex">n</code><br>枚拨片。由于她非常害怕和人交流，她希望你能预先帮她算好，怎样组合购买才能在满足数量要求的同时，花费的钱最少。</p><p>请你帮小孤独计算一下，买到 <code class="tex">n</code><br>枚拨片所需的最低花费是多少。</p><h4>输入格式</h4><p>第一行是一个整数 <code class="tex">t</code> <code class="tex">(1 ≤ t ≤ 100)</code>，代表测试用例的数量。</p><p>接下来 <code class="tex">t</code> 行，每行包含一个整数<br><code class="tex">n</code> <code class="tex">(1 ≤ n ≤ 10^5)</code>，代表需要购买的拨片总数。</p><h4>输出格式</h4><p>对于每个测试用例，输出一个整数，表示购买 <code class="tex">n</code> 枚拨片所需的最低总花费。</p><h4>提示</h4><p>当需要购买 <code class="tex">63</code> 枚时：</p><p>- 先买 <code class="tex">1</code><br>份“大号套餐”（50枚），花费 <code class="tex">130</code><br>日元。剩下还需要 <code class="tex">63 - 50 = 13</code><br>枚。</p><p>- 再买 <code class="tex">1</code><br>份“中号套餐”（10枚），花费 <code class="tex">28</code><br>日元。剩下还需要 <code class="tex">13 - 10 = 3</code><br>枚。</p><p>- 最后单买 <code class="tex">3</code> 枚，花费 <code class="tex">3 × 3 = 9</code> 日元。</p><p>- 总花费 = <code class="tex">130 + 28 + 9 = 167</code><br>日元。</p>
+<div class="smp"><div><span class="smp-h">样例输入</span><pre>4
 13
 63
 100
-528</pre></div><div><span class="smp-h">输出</span><pre>37
+528</pre></div><div><span class="smp-h">样例输出</span><pre>37
 167
 260
 1380</pre></div></div>
-<details><summary>参考代码（C++17，已过样例）</summary><pre><code>#include &lt;bits/stdc++.h&gt;
+<h3>先想一想</h3><ul class="tight"><li>先算单价：大包 2.6 元/枚、中包 2.8 元/枚、单买 3 元/枚，所以大包优先。</li><li>但不能一路贪心：余数用中包还是单买要看具体数量（8 枚单买 24 元比中包 28 元便宜）。</li><li>n 只有 1e5，枚举大包个数完全够。</li></ul>
+<details class="deep"><summary>完整思路（点开看推导）</summary>
+<p>单价排序是大包 &lt; 中包 &lt; 单买，所以最优解里大包尽量多，唯一不确定的是「余数怎么处理」。于是枚举大包个数 a（0..n/50），剩余 r = n − 50a &lt; 50；再枚举中包个数 b（0..r/10），余下 r − 10b 枚单买，花费 a·130 + b·28 + (r−10b)·3，取最小。</p>
+<p>因为 r &lt; 50，b 最多 5 个取值，总枚举量约 (n/50)×5，n=1e5 时只有一万次。这个「枚举一维、其余直接算」的套路在小范围贪心里很常用：把不确定的部分摊开枚举，就不必证明贪心。</p>
+</details>
+<h3>参考代码</h3><pre><code>#include &lt;bits/stdc++.h&gt;
 using namespace std;
 int main() {
     int t; scanf("%d", &amp;t);
@@ -229,16 +269,23 @@ int main() {
         printf("%lld\n", best);
     }
     return 0;
-}</code></pre></details>
-<p class="ref"><b>复杂度</b>：O((n/50)·5) 每组<br><b>坑点</b>：不能「多买」凑整：必须恰好 n 枚；n&lt;10 时单买可能比中包便宜（8 枚 24 &lt; 28）。</p>
+}</code></pre>
+<h3>代码逐段看</h3><ul class="tight"><li>外层 a 从 0 到 <code>n/50</code>。</li><li>内层 b 从 0 到 <code>r/10</code>，<code>c = r - 10*b</code> 是单买数。</li><li>每次 <code>min</code> 更新答案，初值 <code>LLONG_MAX</code>。</li></ul>
+<p class="ref"><b>复杂度</b>：O((n/50)·5) 每组，约 1e4<br><b>坑点</b>：8 枚时单买 24 元 &lt; 中包 28 元；必须恰好 n 枚，不能多买。</p>
 <h2 id="p1665">G · 共鸣圣歌</h2>
-<div class="prob"><div class="ph"><span class="pn">P1665</span><span class="oi">时间 1 秒 / 内存 256 兆</span><a href="https://acm.sztu.edu.cn/csgoj/problemset/problem?pid=1665" target="_blank" rel="noopener">去 OJ 做题 ↗</a></div><div class="st"><p>在数轴上选一个点 j 站着，收集 Σ max(0, sᵢ − |pᵢ − pⱼ|)，求最大值（N ≤ 1000）。</p></div></div>
-<p><b>思路</b>：直接枚举停留点 j，内层扫所有 i 累加贡献，取最大。</p>
-<div class="smp"><div><span class="smp-h">输入</span><pre>3
+<div class="prob"><div class="ph"><span class="pn">P1665</span><span class="oi">时间 1 秒 / 内存 256 兆</span><a href="https://acm.sztu.edu.cn/csgoj/problemset/problem?pid=1665" target="_blank" rel="noopener">去 OJ 做题 ↗</a></div><div class="st"><p>选一个点 j 站着，收集所有点的 Σ max(0, sᵢ − |pᵢ − pⱼ|)，求最大值（N ≤ 1000）。</p></div></div>
+<h3>题意</h3>
+<h4>题目描述</h4><p>纺都的歌声正在哀鸣，这个被丝线与信仰统治的王国，正等待着一位真正的英雄。为了打破施加于此地的诅咒，解放整个纺都，我们勇敢的大黄蜂姐姐必须完成一项艰巨的使命：从雄伟的圣堡出发，一路向上攀登，最终抵达那云端的摇篮圣所。</p><p>在一根叫“纺都”的数轴上，有 <code class="tex">N</code><br>个叫做“共鸣点”的东西。 每个共鸣点 <code class="tex">i</code><br>都有一个坐标 <code class="tex">p_i</code><br>和一份基础的灵丝 <code class="tex">s_i</code>。</p><p>大黄蜂姐姐需要选择 一个 共鸣点 <code class="tex">j</code> 站着不动，然后她会同时从<br>所有 的 <code class="tex">N</code><br>个点（包括她脚下的点）吸取灵丝。</p><p>从一个点 <code class="tex">i</code><br>能吸取到的灵丝，会因为距离而减少，公式是：<br>汲取灵丝 = <code class="tex">max(0, s_i - |p_i - p_j|)</code></p><p>也就是说，如果点 <code class="tex">i</code> 离她站的点<br><code class="tex">j</code> 太远，远到距离 <code class="tex">|p_i - p_j|</code> 超过了点 <code class="tex">i</code> 本身的基础灵丝 <code class="tex">s_i</code>，那就一点灵丝都吸不到啦。</p><p>我们在点 <code class="tex">j</code><br>停留，能收集到的总灵丝就是把从所有 <code class="tex">N</code><br>个点吸到的灵丝加起来。</p><p>我们的任务就是，帮大黄蜂姐姐在 <code class="tex">N</code><br>个共鸣点里，找到那个最棒的停留点，让她收集到的总灵丝是所有可能性里最高的，然后告诉她这个最高的总灵丝是多少！</p><h4>输入格式</h4><p>第一行包含一个整数 <code class="tex">N</code> <code class="tex">(1 ≤ N ≤ 1000)</code>，表示共鸣点的数量。</p><p>接下来的 <code class="tex">N</code> 行，每行包含两个整数<br><code class="tex">p_i</code> 和 <code class="tex">s_i</code> <code class="tex">(0 ≤ p_i,s_i ≤ 100000)</code>，分别代表第 <code class="tex">i</code> 个共鸣点的坐标和基础灵丝值。</p><h4>输出格式</h4><p>输出一个整数，表示大黄蜂能收集到的最大灵丝总量。</p><h4>提示</h4><p>这个区域有3个共鸣点。让我们逐一计算将每个点作为停留点时的情况：</p><p>- 停留在点 1 (坐标 10, 灵丝量 20):</p><p>- 从点 <code class="tex">1</code> 汲取: <code class="tex">(0, 20 - |10 - 10|) = 20</code></p><p>- 从点 <code class="tex">2</code> 汲取: <code class="tex">(0, 5 - |20 - 10|) = max(0, 5 - 10) = 0</code></p><p>- 从点 <code class="tex">3</code> 汲取: <code class="tex">(0, 12 - |22 - 10|) = max(0, 12 - 12) = 0</code></p><p>- 总灵丝量 = <code class="tex">20 + 0 + 0 = 20</code></p><p>- 停留在点 <code class="tex">2</code> (坐标<br><code class="tex">20</code>, 灵丝量 <code class="tex">5</code>):</p><p>- 从点 <code class="tex">1</code> 汲取: <code class="tex">(0, 20 - |10 - 20|) = max(0, 20 - 10) = 10</code></p><p>- 从点 <code class="tex">2</code> 汲取: <code class="tex">(0, 5 - |20 - 20|) = 5</code></p><p>- 从点 <code class="tex">3</code> 汲取: <code class="tex">(0, 12 - |22 - 20|) = max(0, 12 - 2) = 10</code></p><p>- 总灵丝量 = <code class="tex">10 + 5 + 10 = 25</code></p><p>- 停留在点 <code class="tex">3</code> (坐标<br><code class="tex">22</code>, 灵丝量 <code class="tex">12</code>):</p><p>- 从点 <code class="tex">1</code> 汲取: <code class="tex">(0, 20 - |10 - 22|) = max(0, 20 - 12) = 8</code></p><p>- 从点 <code class="tex">2</code> 汲取: <code class="tex">(0, 5 - |20 - 22|) = max(0, 5 - 2) = 3</code></p><p>- 从点 <code class="tex">3</code> 汲取: <code class="tex">(0, 12 - |22 - 22|) = 12</code></p><p>- 总灵丝量 = <code class="tex">8 + 3 + 12 = 23</code></p><p>比较三个结果 <code class="tex">(20, 25, 23)</code>，最大值为 <code class="tex">25</code>。因此，最佳选择是停留在第二个共鸣点。</p>
+<div class="smp"><div><span class="smp-h">样例输入</span><pre>3
 10 20
 20 5
-22 12</pre></div><div><span class="smp-h">输出</span><pre>25</pre></div></div>
-<details><summary>参考代码（C++17，已过样例）</summary><pre><code>#include &lt;bits/stdc++.h&gt;
+22 12</pre></div><div><span class="smp-h">样例输出</span><pre>25</pre></div></div>
+<h3>先想一想</h3><ul class="tight"><li>固定 j 之后，每个点 i 的贡献只和自己有关，互不影响。</li><li>所以把 j 从 1 枚举到 N，每次算一遍总和即可。</li><li>贡献可能为 0，不能算成负数。</li></ul>
+<details class="deep"><summary>完整思路（点开看推导）</summary>
+<p>这题没有隐藏结构：N ≤ 1000，直接 O(N²) 枚举答案点。对每个 j，内层遍历所有 i，算 d = |pᵢ − pⱼ|；若 d ≥ sᵢ 则贡献为 0（对应 max(0, …)），否则贡献 sᵢ − d，累加后与当前最优比较。</p>
+<p>为什么不用更聪明的办法：坐标和 s 都到 1e5，理论上能用前缀和做 O(N log N)，但 N 只有 1000，O(N²)=1e6 完全够，没必要给自己加戏。</p>
+</details>
+<h3>参考代码</h3><pre><code>#include &lt;bits/stdc++.h&gt;
 using namespace std;
 int main() {
     int n; scanf("%d", &amp;n);
@@ -255,22 +302,30 @@ int main() {
     }
     printf("%lld\n", best);
     return 0;
-}</code></pre></details>
-<p class="ref"><b>复杂度</b>：O(N²)<br><b>坑点</b>：贡献下界是 0，距离超过 sᵢ 要按 0 算，不能出现负数。</p>
+}</code></pre>
+<h3>代码逐段看</h3><ul class="tight"><li>外层枚举停留点 j，内层累加所有 i。</li><li>距离用 <code>abs(p[i]-p[j])</code>。</li><li>先判 <code>d &lt; s[i]</code> 再加，天然实现截断为 0。</li></ul>
+<p class="ref"><b>复杂度</b>：O(N²)<br><b>坑点</b>：s 可能小于距离，必须截断到 0；答案用 long long 更稳。</p>
 <h2 id="p1666">H · AC is all you need</h2>
-<div class="prob"><div class="ph"><span class="pn">P1666</span><span class="oi">时间 1 秒 / 内存 128 兆</span><a href="https://acm.sztu.edu.cn/csgoj/problemset/problem?pid=1666" target="_blank" rel="noopener">去 OJ 做题 ↗</a></div><div class="st"><p>有 A、B、C 三种字母和 X∈{A,B}、Y∈{A,C}、Z∈{B,C}，拼 ACA/ACB/ACC，求最多拼几个。</p></div></div>
-<p><b>思路</b>：一个串 = 「首字母 A」+「中间 C」+「末尾任意」。二分答案 k，建图跑最大流判可行：源点连 6 种字母（容量为个数），字母连它能担任的角色（首/A、中/C、尾/任意），角色连汇点容量 k，满流 3k 即可行。</p>
-<div class="smp"><div><span class="smp-h">输入</span><pre>5
+<div class="prob"><div class="ph"><span class="pn">P1666</span><span class="oi">时间 1 秒 / 内存 128 兆</span><a href="https://acm.sztu.edu.cn/csgoj/problemset/problem?pid=1666" target="_blank" rel="noopener">去 OJ 做题 ↗</a></div><div class="st"><p>六种字母 A、B、C、X∈{A,B}、Y∈{A,C}、Z∈{B,C}，拼 ACA / ACB / ACC，求最多拼几个。</p></div></div>
+<h3>题意</h3>
+<h4>题目描述</h4><p>jwgg 很喜欢AC，现在他有一些字母，想要拼成一些含有AC的的字符串</p><p>现在jwgg有6种不同的字母，分别为 <code class="tex">A</code> , <code class="tex">B</code> , <code class="tex">C</code> ，以及能表示为 <code class="tex">A</code> 或 <code class="tex">B</code> 的字母 <code class="tex">X</code> , 能表示为 <code class="tex">A</code> 或 <code class="tex">C</code> 的字母 <code class="tex">Y</code> 和能表示为 <code class="tex">B</code> 或 <code class="tex">C</code> 的字母 <code class="tex">Z</code> ，jwgg想把这些字母拼成三种字符串：<br><code class="tex">ACA</code> , <code class="tex">ACB</code> 和 <code class="tex">ACC</code><br>。他想使拼出来的这三种字符串的数量的总和尽可能大。现在请你帮他计算这个最大值是多少。</p><h4>输入格式</h4><p>输入包含多组测试样例</p><p>第一行包含一个整数 <code class="tex">t</code> (<code class="tex">1 ≤ t ≤ 10^3</code>) —<br>测试用例的数量。</p><p>每个测试用例的仅一行包含六个整数 <code class="tex">a</code> , <code class="tex">b</code> , <code class="tex">c</code> , <code class="tex">x</code> , <code class="tex">y</code> 和 <code class="tex">z</code> ( <code class="tex">0 ≤ a, b, c, x, y, z ≤ 10^9</code> ) — 分别表示六种字母的数量。</p><h4>输出格式</h4><p>对于每个测试用例，输出一行，包含一个正整数 <code class="tex">sum</code> —<br>拼出来的三种字符串的数量之和的最大值。</p><h4>提示</h4><p>在第一个测试样例中，下面是一种可能的情况：</p><p>- <code class="tex">ACX</code> ，可以被解释为 <code class="tex">ACA</code> 或 <code class="tex">ACB</code></p><p>- <code class="tex">XCX</code> ，可以被解释为 <code class="tex">ACA</code> 或 <code class="tex">ACB</code></p><p>- <code class="tex">XCZ</code> ，可以被解释为 <code class="tex">ACC</code> 或 <code class="tex">ACB</code></p><p>- <code class="tex">XCZ</code> ，可以被解释为 <code class="tex">ACC</code> 或 <code class="tex">ACB</code></p><p>- <code class="tex">YZB</code> ，可以被解释为 <code class="tex">ACB</code></p><p>总共用到了 <code class="tex">1</code> 个 <code class="tex">A</code> , <code class="tex">1</code> 个 <code class="tex">B</code> , <code class="tex">4</code> 个 <code class="tex">C</code> , <code class="tex">5</code> 个 <code class="tex">X</code> , <code class="tex">1</code> 个 <code class="tex">Y</code> , <code class="tex">3</code> 个 <code class="tex">Z</code> ，拼出了5个符合要求的字符串。</p><p>注意，我们不关心拼成了多少种字符串，我们只关心数量。</p><p>在第二个测试样例中，下面是一种可能的情况：</p><p>- <code class="tex">ACA</code></p><p>- <code class="tex">ACA</code></p><p>- <code class="tex">ACA</code></p><p>总共用到了 <code class="tex">6</code> 个 <code class="tex">A</code> , <code class="tex">0</code> 个 <code class="tex">B</code> , <code class="tex">3</code> 个 <code class="tex">C</code> , <code class="tex">0</code> 个 <code class="tex">X</code> , <code class="tex">0</code> 个 <code class="tex">Y</code> , <code class="tex">0</code> 个 <code class="tex">Z</code></p><p>第二个测试样例另一种可能的情况：</p><p>- <code class="tex">ACA</code></p><p>- <code class="tex">ACA</code></p><p>- <code class="tex">ACB</code></p><p>总共用到了 <code class="tex">5</code> 个 <code class="tex">A</code> , <code class="tex">1</code> 个 <code class="tex">B</code> , <code class="tex">3</code> 个 <code class="tex">C</code> , <code class="tex">0</code> 个 <code class="tex">X</code> , <code class="tex">0</code> 个 <code class="tex">Y</code> , <code class="tex">0</code> 个 <code class="tex">Z</code></p><p>在第三个测试样例中，下面是一种可能的情况：</p><p>- <code class="tex">ACB</code></p><p>- <code class="tex">ACB</code></p><p>- <code class="tex">ACB</code></p><p>- <code class="tex">XYZ</code></p><p>- <code class="tex">XYZ</code></p><p>- <code class="tex">XYZ</code></p><p>将所有 <code class="tex">XYZ</code> 视为 <code class="tex">ACB</code> 即可</p>
+<div class="smp"><div><span class="smp-h">样例输入</span><pre>5
 1 1 4 5 1 4
 6 1 3 0 0 0
 3 3 3 3 3 3
 5 9 1 8 7 2
-111111111 222222222 333333333 666666666 777777777 888888888</pre></div><div><span class="smp-h">输出</span><pre>5
+111111111 222222222 333333333 666666666 777777777 888888888</pre></div><div><span class="smp-h">样例输出</span><pre>5
 3
 6
 10
 999999999</pre></div></div>
-<details><summary>参考代码（C++17，已过样例）</summary><pre><code>#include &lt;bits/stdc++.h&gt;
+<h3>先想一想</h3><ul class="tight"><li>每个串结构固定：第一位必须是 A、第二位必须是 C、第三位 A/B/C 都行。</li><li>于是问题变成「把有限字母分配给三个角色，让三者数量尽量相等」。</li><li>X 只能当 A 或 B，Y 能当 A 或 C，Z 能当 B 或 C —— 一个字母只能选一种解释，这就是难点。</li><li>数量到 1e9 不能逐个匹配，但「能否拼出 k 个」关于 k 单调，可以二分。</li></ul>
+<details class="deep"><summary>完整思路（点开看推导）</summary>
+<p>先抽象：一个串 = 首字母 A + 中间 C + 末尾（A/B/C 之一）。把三个位置看成三个角色，每种实体字母能担任的角色是固定的：A→{首,末}，B→{末}，C→{中,末}，X→{首,末}，Y→{首,中,末}，Z→{中,末}。</p>
+<p>给定 k，判断能否拼出 k 个串 = 能否把字母分给三个角色、每个角色恰好 k 个（同一字母不能身兼两职）。这是标准二分图匹配：左边 6 种字母（容量 = 个数），右边 3 个角色（容量 = k），按「能否担任」连边，源点连字母、角色连汇点，跑最大流看是否达到 3k。</p>
+<p>可行性关于 k 单调（k 可行则 k−1 一定可行：拆掉任意一个串即可），所以二分 k ∈ [0, (a+b+c+x+y+z)/3]，每次跑一个只有 11 个点的小网络。</p>
+</details>
+<h3>参考代码</h3><pre><code>#include &lt;bits/stdc++.h&gt;
 using namespace std;
 typedef long long ll;
 
@@ -345,20 +400,28 @@ int main() {
         printf("%lld\n", ans);
     }
     return 0;
-}</code></pre></details>
-<p class="ref"><b>复杂度</b>：O(log·最大流)，图只有 11 个点<br><b>坑点</b>：Y 既能当 A 又能当 C，必须靠流来分配，不能简单取 min；答案可到 1e9，容量用 long long。</p>
+}</code></pre>
+<h3>代码逐段看</h3><ul class="tight"><li>角色编号 0=首(A)、1=中(C)、2=末(任意)，<code>ok[6][3]</code> 表写死谁能当什么。</li><li>建图：S→字母容量 cnt，字母→角色容量 INF，角色→T 容量 k。</li><li>判据 <code>maxflow == 3*k</code>。</li><li>容量用 long long：字母数到 1e9，3k 也到 3e9。</li></ul>
+<p class="ref"><b>复杂度</b>：O(log(Σ/3) · 最大流)，图仅 11 点<br><b>坑点</b>：Y 是唯一能同时当「首」和「中」的字母，必须靠流分配；答案可能到 1e9。</p>
 <h2 id="p1667">I · 信息摘要</h2>
-<div class="prob"><div class="ph"><span class="pn">P1667</span><span class="oi">时间 1 秒 / 内存 128 兆</span><a href="https://acm.sztu.edu.cn/csgoj/problemset/problem?pid=1667" target="_blank" rel="noopener">去 OJ 做题 ↗</a></div><div class="st"><p>长度为 n 的分数序列，多次询问区间 [l,r] 的乘积 mod 998244353（即 P·Q⁻¹）。</p></div></div>
-<p><b>思路</b>：每个分数先化成 p·q⁻¹ mod M，做前缀积；区间答案 = pre[r] · pre[l−1]⁻¹，逆元用费马小定理快速幂。</p>
-<div class="smp"><div><span class="smp-h">输入</span><pre>3
+<div class="prob"><div class="ph"><span class="pn">P1667</span><span class="oi">时间 1 秒 / 内存 128 兆</span><a href="https://acm.sztu.edu.cn/csgoj/problemset/problem?pid=1667" target="_blank" rel="noopener">去 OJ 做题 ↗</a></div><div class="st"><p>n 个分数 pᵢ/qᵢ，m 次询问区间 [l,r] 的乘积 mod 998244353。</p></div></div>
+<h3>题意</h3>
+<h4>题目描述</h4><p>在不安全的网络环境中，为了确保数据传输的完整性与准确性，两位密码学研究者设计了一种基于有理数的“分段摘要”校验协议。</p><p>该协议用于处理一个由 <code class="tex">n</code><br>个分数（有理数）构成的数据序列。每一个分数都以 <code class="tex">p_i / q_i</code><br>的形式表示。协议的核心是为数据的任意连续分段 <code class="tex">[l, r]</code><br>生成一个紧凑且唯一的“摘要值”，用于后续的正确性比对。</p><p>摘要值的生成规则定义如下：</p><p>- 首先，计算指定分段内所有分数的精确乘积。这个结果会是一个最终的总分数，记为<br><code class="tex">P/Q</code>。</p><p>- 然后，将这个总分数 <code class="tex">P/Q</code><br>转换为一个在特定模数下的整数。转换规则为 <code class="tex">(P · Q^-1) ±odM</code>，其中 <code class="tex">Q^-1</code> 是分母 <code class="tex">Q</code> 在模 <code class="tex">M</code> 意义下的乘法逆元，<code class="tex">M</code> 是协议使用的公开质数密钥 <code class="tex">998244353</code>。</p><p>你的任务是实现这个协议的核心算法，以便能够快速地为任意给定的数据分段计算出其对应的摘要值。</p><p>给定一个长度为 <code class="tex">n</code><br>的分数序列，其中第 <code class="tex">i</code> 个分数为 <code class="tex">p_i / q_i</code>。</p><p>有 <code class="tex">m</code><br>次查询，每次查询给定一个分段区间 <code class="tex">[l, r]</code>。</p><p>你需要计算该区间内所有分数的乘积，假设结果为 <code class="tex">P/Q</code>，然后计算出其最终的“摘要值” <code class="tex">(P · Q^-1) ±od998244353</code>。</p><p>形式化地，对于每次查询 <code class="tex">[l, r]</code>，你需要计算： $<code class="tex">(∏_i=l^r p_i/q_i) ±od998244353</code>$</p><h4>输入格式</h4><p>第一行包含一个正整数 <code class="tex">n</code>，表示数据序列的长度。</p><p>接下来 <code class="tex">n</code> 行，每行包含两个正整数<br><code class="tex">p_i</code> 和 <code class="tex">q_i</code>，代表序列中的第 <code class="tex">i</code> 个分数为 <code class="tex">p_i / q_i</code>。</p><p>之后的一行包含一个正整数 <code class="tex">m</code>，表示查询的数量。</p><p>接下来 <code class="tex">m</code> 行，每行包含两个正整数<br><code class="tex">l</code> 和 <code class="tex">r</code>，表示一个需要计算摘要值的分段区间。</p><h4>输出格式</h4><p>对于每次查询，输出一行一个整数，代表该数据分段的摘要值。</p><h4>提示</h4><p>样例解释</p><p>对于第一个分段 <code class="tex">[1, 1]</code>，需要计算<br><code class="tex">2/1 ±od998244353 = 2</code>。</p><p>对于第二个分段 <code class="tex">[2, 3]</code>，需要计算<br><code class="tex">1/4 × 1/5 = 1/20 ±od998244353 = 149736653</code>，因为 <code class="tex">20 × 149736653  1 ±od998244353</code>。</p><p>数据范围</p><p>对于所有测试数据，保证：</p><p><code class="tex">1 ≤ n, m ≤ 2 × 10^5</code></p><p><code class="tex">1 ≤ p_i, q_i ≤ 10^10</code>（所有的 <code class="tex">q_i</code> 均不为<br><code class="tex">998244353</code> 的倍数）</p><p><code class="tex">1 ≤ l ≤ r ≤ n</code></p>
+<div class="smp"><div><span class="smp-h">样例输入</span><pre>3
 2 1
 1 4
 1 5
 2
 1 1
-2 3</pre></div><div><span class="smp-h">输出</span><pre>2
+2 3</pre></div><div><span class="smp-h">样例输出</span><pre>2
 149736653</pre></div></div>
-<details><summary>参考代码（C++17，已过样例）</summary><pre><code>#include &lt;bits/stdc++.h&gt;
+<h3>先想一想</h3><ul class="tight"><li>模意义下「除以 q」等于「乘以 q 的逆元」。</li><li>区间乘积可以前缀积相除：ans = pre[r] × pre[l−1]⁻¹。</li><li>M 是质数，逆元用费马小定理 a^(M−2) 快速幂。</li></ul>
+<details class="deep"><summary>完整思路（点开看推导）</summary>
+<p>把每个分数先化成模意义下的整数：vᵢ = pᵢ · qᵢ^(M−2) mod M；再做前缀积 pre[i] = pre[i−1]·vᵢ。区间 [l,r] 的乘积 = pre[r]·pre[l−1]⁻¹。</p>
+<p>为什么能这样「除」：模数为质数时非零元素构成乘法群，每个元素有唯一逆元，所以分数运算在模意义下完全合法（题目保证 qᵢ 不是 M 的倍数）。</p>
+<p>每次询问做一次快速幂，约 30 次乘法；n、m 在 2×10^5 量级也只有几百万次运算旋。</p>
+</details>
+<h3>参考代码</h3><pre><code>#include &lt;bits/stdc++.h&gt;
 using namespace std;
 typedef long long ll;
 const ll MOD = 998244353;
@@ -377,13 +440,21 @@ int main() {
         printf("%lld\n", ans);
     }
     return 0;
-}</code></pre></details>
-<p class="ref"><b>复杂度</b>：O((n+m) log MOD)<br><b>坑点</b>：分母要 mod 后再求逆；注意读入可能很大，用 long long 取模。</p>
+}</code></pre>
+<h3>代码逐段看</h3><ul class="tight"><li>边读边算前缀积，省一个数组。</li><li><code>qpow(q, MOD-2)</code> 求逆元，先对 q 取模。</li><li>询问 <code>pre[r] * qpow(pre[l-1], MOD-2) % MOD</code>。</li></ul>
+<p class="ref"><b>复杂度</b>：O((n+m) log M)<br><b>坑点</b>：q 先 %MOD 再求逆；l=1 时 pre[0]=1，不用特判。</p>
 <h2 id="p1668">J · 芙莉莲与世代的魔导书</h2>
-<div class="prob"><div class="ph"><span class="pn">P1668</span><span class="oi">时间 1 秒 / 内存 128 兆</span><a href="https://acm.sztu.edu.cn/csgoj/problemset/problem?pid=1668" target="_blank" rel="noopener">去 OJ 做题 ↗</a></div><div class="st"><p>偶数页 N 的书，每次「织法」把前后两半交错，问做 M 次后第 L 页原来是第几页（N,M ≤ 1e10）。</p></div></div>
-<p><b>思路</b>：一次织法相当于把页码 x 变成 x·2⁻¹ (mod N+1)：验证 N=6 时 1→4、2→1、3→5、4→2、5→6、6→3 都对。于是答案是 L·(2⁻¹)^M mod (N+1)，2⁻¹ = (N+2)/2，快速幂即可。</p>
-<div class="smp"><div><span class="smp-h">输入</span><pre>6 2 3</pre></div><div><span class="smp-h">输出</span><pre>6</pre></div></div>
-<details><summary>参考代码（C++17，已过样例）</summary><pre><code>#include &lt;bits/stdc++.h&gt;
+<div class="prob"><div class="ph"><span class="pn">P1668</span><span class="oi">时间 1 秒 / 内存 128 兆</span><a href="https://acm.sztu.edu.cn/csgoj/problemset/problem?pid=1668" target="_blank" rel="noopener">去 OJ 做题 ↗</a></div><div class="st"><p>N 页的书（N 偶数）做 M 次「前后两半交错」的洗牌，问第 L 页原来在第几页（N,M ≤ 1e10）。</p></div></div>
+<h3>题意</h3>
+<h4>题目描述</h4><p>在向北方行进的旅途中，魔法使芙莉莲和她的弟子费伦，在一个神话时代的遗迹中发现了一个隐藏的房间。里面存放着一本巨大无比的魔导书，记载了<br>N<br>页独立且强大的古代咒语。然而，书中的咒语完全杂乱无章，几乎无法解读。</p><p>为了解开其中的秘密，芙莉莲决定使用一种被称为“时序织法”的古代精灵排序魔法。这个咒语是高等精灵为了整理浩如烟海的图书馆，通过揭示文本之间的时间关联而设计的。</p><p>“时序织法”的运作方式十分独特。对于一本有 N<br>页的魔导书（N 恒为偶数），一次“织法”过程如下：</p><p>- 咒语会将魔导书魔法般地分成均等的两半：包含第 1 到 N/2<br>页的“早期”咒语，和包含第 N/2 + 1 到 N 页的“晚期”咒语。</p><p>- 接着，它会创造一本顺序重组后的新魔导书。新书的第一页来自“晚期”那一半的第一页，第二页则来自“早期”那一半的第一页，第三页是“晚期”的第二页，第四页是“早期”的第二页……以此类推，将两个时代完美地交错在一起。</p><p>例如，如果魔导书有 6 页，两半分别为 {1, 2, 3} 和 {4, 5,<br>6}。经过一次织法后，新的页码顺序会变为 {4, 1, 5, 2, 6, 3}。</p><p>捆绑这本魔导书的魔力是巨大的。芙莉莲意识到仅施放一次咒语是不够的。她计算出必须总共施展<br>M 次“时序织法”，才能完全恢复魔导书的预定秩序。</p><p>当芙莉莲准备仪式时，勤奋好学的费伦在一旁专心观察。为了检验自己对复杂魔法的理解，她提出了一个问题：“芙莉莲大人，当您施展了<br>M 次织法之后，我很好奇那个最终落在第 L<br>页的咒语。您能告诉我，在您开始之前，它最初的页码是多少吗？”</p><p>芙莉莲认为这是一个教导的好机会，便将这个挑战交给了费伦。你能帮助费伦找到答案吗？</p><h4>输入格式</h4><p>输入文件中有三个用空格间隔的整数，分别表示 <code class="tex">N,M,L</code>。</p><p>（其中 <code class="tex">1≤ N≤ 10^10,0 ≤ M≤ 10^10</code>，且 <code class="tex">N</code><br>为偶数）。</p><h4>输出格式</h4><p>输出一个整数，代表经过 M 次织法后，位于第 L<br>页的咒语其最初的页码。</p><h4>提示</h4><p><code class="tex">1 ≤ N ≤ 10^10</code>，<code class="tex">0 ≤ M ≤ 10^10</code>，且 <code class="tex">N</code> 为偶数。</p>
+<div class="smp"><div><span class="smp-h">样例输入</span><pre>6 2 3</pre></div><div><span class="smp-h">样例输出</span><pre>6</pre></div></div>
+<h3>先想一想</h3><ul class="tight"><li>先看 N=6 时一次洗牌：4 1 5 2 6 3，把「新位置→原页码」列成表。</li><li>盯 1→4、2→1、3→5、4→2、5→6、6→3，像不像「乘某个数再取模」？</li><li>试模数 N+1=7：1×4=4、2×4=8≡1、3×4=12≡5 …… 全对上。</li><li>4 正是 2 在模 7 下的逆元，所以 M 次就是乘 (2⁻¹)^M。</li></ul>
+<details class="deep"><summary>完整思路（点开看推导）</summary>
+<p>把一次洗牌看成置换 s：s(x) = x/2（x 偶），s(x) = N/2 + (x+1)/2（x 奇）。N=6 时算出 s = [4,1,5,2,6,3]，恰好等于 x×4 mod 7；而 4 是 2 关于模 7 的逆元。这个结论对任意偶数 N 成立：s(x) ≡ x·2⁻¹ (mod N+1)。</p>
+<p>于是 M 次洗牌后第 L 个位置的原页码 = L·(2⁻¹)^M mod (N+1)。2⁻¹ = (N+2)/2（因为 2·(N+2)/2 = N+2 ≡ 1），用快速幂求它的 M 次方再乘 L。</p>
+<p>为什么是 N+1 而不是 N：洗牌把「前半的第 k 个」和「后半的第 k 个」交错，位置与页码之间的对应天然带一个「第 0 位 = 第 N 位」的环绕，模 N+1 正好把这个环绕表达出来。</p>
+</details>
+<h3>参考代码</h3><pre><code>#include &lt;bits/stdc++.h&gt;
 using namespace std;
 typedef long long ll;
 typedef __int128 lll;
@@ -400,13 +471,21 @@ int main() {
     if (ans == 0) ans = mod;
     printf("%lld\n", ans);
     return 0;
-}</code></pre></details>
-<p class="ref"><b>复杂度</b>：O(log M)<br><b>坑点</b>：N 到 1e10，模乘要用 __int128 防溢出；M=0 时答案就是 L。</p>
+}</code></pre>
+<h3>代码逐段看</h3><ul class="tight"><li>模数取 <code>N+1</code>，底数 <code>inv2 = (N+2)/2</code>。</li><li>N 到 1e10，模乘用 <code>__int128</code> 防溢出。</li><li>对 M 做二进制拆分，O(log M)。</li></ul>
+<p class="ref"><b>复杂度</b>：O(log M)<br><b>坑点</b>：模乘必须防溢出；M=0 时答案是 L；L 也要先对 N+1 取模。</p>
 <h2 id="p1669">K · 九宫格(Easy Version)</h2>
-<div class="prob"><div class="ph"><span class="pn">P1669</span><span class="oi">时间 2 秒 / 内存 512 兆</span><a href="https://acm.sztu.edu.cn/csgoj/problemset/problem?pid=1669" target="_blank" rel="noopener">去 OJ 做题 ↗</a></div><div class="st"><p>n×m（≤3×3）点阵上数所有合法解锁路径：跨点时中间点必须已被访问，单点也算一条。</p></div></div>
-<p><b>思路</b>：点数最多 9，直接 DFS 枚举所有简单路径；每一步用 gcd(|dx|,|dy|) 判断两点之间有没有格点，有就检查它们是否都已在路径上。</p>
-<div class="smp"><div><span class="smp-h">输入</span><pre>1 3</pre></div><div><span class="smp-h">输出</span><pre>11</pre></div></div>
-<details><summary>参考代码（C++17，已过样例）</summary><pre><code>#include &lt;bits/stdc++.h&gt;
+<div class="prob"><div class="ph"><span class="pn">P1669</span><span class="oi">时间 2 秒 / 内存 512 兆</span><a href="https://acm.sztu.edu.cn/csgoj/problemset/problem?pid=1669" target="_blank" rel="noopener">去 OJ 做题 ↗</a></div><div class="st"><p>n×m（≤3×3）点阵上数所有合法解锁路径：跨点时中间的点必须已访问过，单点也算一条。</p></div></div>
+<h3>题意</h3>
+<h4>题目描述</h4><p>大家知道手机的图案解锁功能吗？它通常基于一个 3 × 3<br>的点阵九宫格。用户通过在点与点之间连线，形成一条路径来设置密码。</p><p>在这个过程中，有一个重要的规则：</p><p>- 当你从一个点连到另一个点时，如果这两个点的连线段上经过了其他点，那么这些点必须已经在之前的路径中被选中过，否则这条连线是不合法的。<br>（例如，在 3 \times 3<br>九宫格中，如果要从左上角 (1,1)<br>连到右上角 (1,3)，必须先经过中间点<br>(1,2)；若 (1,2) 尚未选过，则不能直接连 (1,1) → (1,3)。）</p><p>现在，小 a 把这个问题推广到 n × m<br>的点阵，并想知道：一共有多少种不同的密码？</p><p>定义：</p><p>一个密码就是点阵上的一条合法路径。</p><p>与正常手机系统不同，本题路径长度至少为 1 而不是至少为 4（即单个点也算密码）。</p><p>两个密码不同，当且仅当：它们的长度不同，或它们在某个位置所选择的点不同。</p><h4>输入格式</h4><p>一行包含两个正整数表示点阵大小。</p><h4>输出格式</h4><p>输出一个整数，表示不同密码的总数。</p><h4>提示</h4><p>样例说明：</p><p>当点阵是 1 \times 3（点依次为 A, B, C）时，所有合法的密码路径如下：</p><p>- 长度为 1 的路径（任选一个点）：</p><p>A, \; B, \; C —— 共 3 种。</p><p>- 长度为 2 的路径：</p><p>- 相邻点之间：</p><p>A \to B, \; B \to A, \; B \to C, \; C \to<br>B —— 共 4 种。</p><p>- 注意 A \to C<br>直接相连是不允许的，因为中间的点 B<br>没有被经过。</p><p>- 长度为 3 的路径：</p><p>- A \to B \to C, \; C \to B \to A ——<br>从一端到另一端依次经过。</p><p>- B \to A \to C, \; B \to C \to A ——<br>先访问中间点 B，此时再连 A \to C 或 C \to<br>A 就合法了（因为中点 B<br>已经访问过）。 —— 共 4 种。</p><p>因此总数为 3 + 4 + 4 = 11</p><p>数据范围：</p><p>对于所有数据，保证：n, m \ge 1， n \le 3, m<br>\le 3</p>
+<div class="smp"><div><span class="smp-h">样例输入</span><pre>1 3</pre></div><div><span class="smp-h">样例输出</span><pre>11</pre></div></div>
+<h3>先想一想</h3><ul class="tight"><li>点数最多 9，总路径数百万级，可以直接搜索。</li><li>判断「A 到 B 中间有没有格点」：取 Δx、Δy 的 gcd，g=1 说明相邻无阻挡，否则中间有 g−1 个点。</li><li>那些中间点必须都已在当前路径里，才允许跨过去。</li></ul>
+<details class="deep"><summary>完整思路（点开看推导）</summary>
+<p>这就是手机九宫格解锁的计数问题，规模只有 3×3，标准做法是 DFS 枚举所有简单路径。状态用 vis[9] 记录踩过的点，每进入一个点就把答案 +1（长度 1 的路径也算）；扩展时枚举未访问的 nx，检查从 cur 到 nx 是否合法：令 g = gcd(|Δx|,|Δy|)，g=1 直接可连；g&gt;1 说明中间有 g−1 个等分格点，必须全部已访问。</p>
+<p>注意判定只看中间点「是否已访问」，不看它是怎么被访问的 ——所以 1×3 里 A→B→C 与 B→A→C 都合法，总数是 11 而不是 9。</p>
+<p>复杂度是「走法数 × 9」，3×3 也就百万级，跑得飞快。</p>
+</details>
+<h3>参考代码</h3><pre><code>#include &lt;bits/stdc++.h&gt;
 using namespace std;
 int n, m, N;
 long long ans = 0;
@@ -449,16 +528,25 @@ int main() {
     }
     printf("%lld\n", ans);
     return 0;
-}</code></pre></details>
-<p class="ref"><b>复杂度</b>：O(所有简单路径) ≈ 1e6 量级<br><b>坑点</b>：1×3 的答案是 11 不是 9：B→A→C 这类「先经过中点再跨」是合法的；路径长度 1 也要计数。</p>
+}</code></pre>
+<h3>代码逐段看</h3><ul class="tight"><li>点编号成 <code>x*m+y</code>，用一维 <code>vis</code>。</li><li><code>between_ok(a,b)</code> 里用 gcd 求步数，逐个检查中间点。</li><li><code>dfs</code> 一进来先 <code>ans++</code>，因为当前前缀本身就是一条密码。</li><li>回溯记得把 <code>vis[nx]</code> 清 0。</li></ul>
+<p class="ref"><b>复杂度</b>：O(路径数 × 点数)，3×3 约 1e6 内<br><b>坑点</b>：单点也算密码；跨点判定是「中间点已访问」；答案用 long long。</p>
 <h2 id="p1670">L · 轻音部下午茶点心争夺战</h2>
-<div class="prob"><div class="ph"><span class="pn">P1670</span><span class="oi">时间 1 秒 / 内存 128 兆</span><a href="https://acm.sztu.edu.cn/csgoj/problemset/problem?pid=1670" target="_blank" rel="noopener">去 OJ 做题 ↗</a></div><div class="st"><p>n 块糕点，两人轮流取 1~2 块，取到最后一块者胜，先手是唯，判胜负（n ≤ 1000）。</p></div></div>
-<p><b>思路</b>：经典 Bash 博弈：3 的倍数时后手必胜，否则先手取 n mod 3 块把局面留成 3 的倍数。</p>
-<div class="smp"><div><span class="smp-h">输入</span><pre>4
+<div class="prob"><div class="ph"><span class="pn">P1670</span><span class="oi">时间 1 秒 / 内存 128 兆</span><a href="https://acm.sztu.edu.cn/csgoj/problemset/problem?pid=1670" target="_blank" rel="noopener">去 OJ 做题 ↗</a></div><div class="st"><p>n 块糕点轮流取 1~2 块，取到最后一块的赢；先手唯、后手澪，判断谁赢。</p></div></div>
+<h3>题意</h3>
+<h4>题目描述</h4><p>又是一个阳光明媚的下午，樱丘高中轻音部的活动室里弥漫着红茶的香气。今天是周五，按照惯例，轻音部的成员们正在享受她们最爱的下午茶时光。</p><p>“啊~今天的草莓蛋糕真是美味呢！”田井中律满足地舔着叉子说道。</p><p>“是啊，琴吹同学带来的抹茶饼干也很棒。”秋山澪小口啜饮着红茶，脸上洋溢着幸福的笑容。</p><p>然而，当大家准备享用最后一份甜点——一块精致的蒙布朗栗子蛋糕时，平泽唯突然发现了一个严重的问题。</p><p>“啊！大家…好像只剩下一份蛋糕了…”唯指着桌子中央，眼神中既有期待又有一丝不安。</p><p>轻音部的四位成员面面相觑。律和䌷已经享用过点心了，现在只剩下唯和澪还没有品尝这份美味的蒙布朗。</p><p>“这可怎么办呢？”琴吹䌷歪着头思考着。</p><p>田井中律拍了拍手，提出了一个建议：“既然这样，不如玩个小游戏来决定谁能享用这份蛋糕吧！”</p><p>游戏规则 律设计的游戏规则如下：</p><p>桌子上有 <code class="tex">n</code><br>块小糕点（这些是䌷额外准备的小饼干，用来代替珍贵的蒙布朗蛋糕进行游戏）</p><p>平泽唯先手，秋山澪后手，轮流进行游戏</p><p>每轮玩家可以从盘子中取走 1 块或 2 块糕点</p><p>取走最后一块糕点的玩家获胜，可以享用那份蒙布朗蛋糕</p><p>唯则握紧拳头，眼神坚定：“为了蒙布朗，我会全力以赴的！”</p><p>作为轻音部的忠实粉丝，你被邀请来预测这场点心争夺战的结果。请编写一个程序，根据给定的糕点数量<br><code class="tex">n</code> ，判断哪位少女会获胜。</p><h4>输入格式</h4><p>一个整数 <code class="tex">n</code> <code class="tex">(1 ≤ n ≤ 1000)</code>，表示初始糕点数量。</p><h4>输出格式</h4><p>一个字符串：</p><p>如果平泽唯获胜，输出 “Yui”</p><p>如果秋山澪获胜，输出 “Mio”</p><h4>提示</h4><p>样例#0 解释：场景重现：唯可以先取 1 块糕点，剩下 3<br>块。无论澪如何取，唯都能取走最后一块。唯开心地跳起来：“太好啦！蒙布朗是我的啦！”</p><p>样例#1 解释：场景重现：无论唯取 1 块还是 2<br>块，澪都能取走最后一块获得胜利。澪害羞地说：“那个…我会分一半给唯的…”</p>
+<div class="smp"><div><span class="smp-h">样例输入</span><pre>4
 
-</pre></div><div><span class="smp-h">输出</span><pre>Yui
+</pre></div><div><span class="smp-h">样例输出</span><pre>Yui
 
 </pre></div></div>
-<details><summary>参考代码（C++17，已过样例）</summary><pre><code>#include &lt;bits/stdc++.h&gt;
-int main() { int n; scanf("%d", &amp;n); puts(n % 3 ? "Yui" : "Mio"); return 0; }</code></pre></details>
-<p class="ref"><b>复杂度</b>：O(1)<br><b>坑点</b>：输出是字符串 Yui / Mio，注意首字母大写。</p>
+<h3>先想一想</h3><ul class="tight"><li>先推小数据：n=1、2 先手赢，n=3 先手无论取几块都把最后一块留给对方。</li><li>n=4、5 先手赢，n=6 又输 —— 规律是 3 的倍数。</li><li>为什么？你取 k 块，对方取 3−k 块，一轮正好消耗 3 块。</li></ul>
+<details class="deep"><summary>完整思路（点开看推导）</summary>
+<p>这是最经典的 Bash 博弈：每次可取 1..m 块、取最后一块者胜，必败态是 n mod (m+1) = 0。本题 m=2，所以 n 是 3 的倍数时先手必败。</p>
+<p>证明两面：① n=3k 时，先手取 1 或 2，后手都取 3−先手取的数量，一轮共 3 块，始终让先手面对 3 的倍数，最后一块必归后手；② n=3k+1 或 3k+2 时，先手先取 1 或 2 块把局面留成 3 的倍数，之后照同样策略反制。</p>
+<p>所以答案就是一句：n%3==0 输出 Mio，否则输出 Yui。</p>
+</details>
+<h3>参考代码</h3><pre><code>#include &lt;bits/stdc++.h&gt;
+int main() { int n; scanf("%d", &amp;n); puts(n % 3 ? "Yui" : "Mio"); return 0; }</code></pre>
+<h3>代码逐段看</h3><ul class="tight"><li>读一个 n，判断 <code>n % 3</code>。</li><li>输出字符串 <code>Yui</code> / <code>Mio</code>，首字母大写。</li></ul>
+<p class="ref"><b>复杂度</b>：O(1)<br><b>坑点</b>：n=3 时后手赢，别把判断写反。</p>

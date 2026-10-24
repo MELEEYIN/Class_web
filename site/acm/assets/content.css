@@ -814,3 +814,15 @@ html[data-theme="dark"] .doc-lesson pre { background: var(--code-bg); color: var
 }
 .doc .smp pre { margin: 0; font-size: 12.5px; }
 @media (max-width: 620px) { .doc .smp { grid-template-columns: 1fr; } }
+
+/* 题解里的折叠推导与公式块 */
+.doc details.deep { border-color: rgba(var(--accent-rgb) / .28); background: rgba(var(--accent-rgb) / .045); }
+.doc details.deep > summary { color: var(--accent); font-weight: 650; }
+.doc pre.eq { background: rgba(var(--accent-rgb) / .06); color: var(--ink-2); border: 1px dashed var(--line-2); }
+.doc .prob .st p { margin: 0; }
+
+/* 题解里的折叠推导与公式块 */
+.doc details.deep { border-color: rgba(var(--accent-rgb) / .28); background: rgba(var(--accent-rgb) / .045); }
+.doc details.deep > summary { color: var(--accent); font-weight: 650; }
+.doc pre.eq { background: rgba(var(--accent-rgb) / .06); color: var(--ink-2); border: 1px dashed var(--line-2); }
+.doc .prob .st p { margin: 0; }
