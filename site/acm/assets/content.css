@@ -826,3 +826,19 @@ html[data-theme="dark"] .doc-lesson pre { background: var(--code-bg); color: var
 .doc details.deep > summary { color: var(--accent); font-weight: 650; }
 .doc pre.eq { background: rgba(var(--accent-rgb) / .06); color: var(--ink-2); border: 1px dashed var(--line-2); }
 .doc .prob .st p { margin: 0; }
+
+/* 题解：折叠原题 + 难度星级 */
+.doc details.orig { background: rgba(var(--ink-4) / .05); border-style: dashed; }
+.doc details.orig > summary { color: var(--ink-2); }
+.doc details.orig[open] > summary { color: var(--accent); }
+.doc .badge .stars { font-style: normal; letter-spacing: .5px; color: var(--warn); margin-left: 5px; }
+.doc .prob .ph .badge { margin-right: 8px; }
+
+/* 题解：折叠原题 + 难度星级 */
+.doc details.orig { background: rgba(var(--ink-4) / .05); border-style: dashed; }
+.doc details.orig > summary { color: var(--ink-2); }
+.doc details.orig[open] > summary { color: var(--accent); }
+.doc .badge .stars { font-style: normal; letter-spacing: .5px; color: var(--warn); margin-left: 5px; }
+.doc .prob .ph .badge { margin-right: 8px; }
+.doc table .stars { color: var(--warn); font-size: 11px; letter-spacing: .5px; }
+.doc table .stars { color: var(--warn); font-size: 11px; letter-spacing: .5px; }
