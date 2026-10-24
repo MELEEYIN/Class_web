@@ -5,10 +5,11 @@
 <h2 id="idx">题目索引</h2>
 <table><thead><tr><th>序号</th><th>题号</th><th>题目</th><th>难度</th><th>复杂度</th><th>时限</th></tr></thead><tbody>
 <tr><td>A</td><td>1720</td><td>图神不是区——成都</td><td>入门 <span class="stars">★☆☆☆☆</span></td><td>O(1)</td><td>1 秒</td></tr>
-<tr><td>B</td><td>1724</td><td>CFOP vs Roux</td><td>普及/提高− <span class="stars">★★★☆☆</span></td><td>O(n)</td><td>1 秒</td></tr>
-<tr><td>C</td><td>1726</td><td>琪露诺的完美算术教室</td><td>入门 <span class="stars">★☆☆☆☆</span></td><td>O(81)</td><td>1 秒</td></tr>
-<tr><td>D</td><td>1727</td><td>小五想做零</td><td>普及/提高− <span class="stars">★★★★☆</span></td><td>O(T·常数)，暴搜状态 ≤ 5⁴</td><td>1 秒</td></tr>
-<tr><td>E</td><td>1729</td><td>Badeline</td><td>提高 <span class="stars">★★★★★</span></td><td>O((N+M) log N)</td><td>2 秒</td></tr>
+<tr><td>B</td><td>1723</td><td>叽里咕噜游乐园与龟</td><td>普及/提高− <span class="stars">★★★☆☆</span></td><td>O((n+m) log n)</td><td>1 秒</td></tr>
+<tr><td>C</td><td>1724</td><td>CFOP vs Roux</td><td>普及/提高− <span class="stars">★★★☆☆</span></td><td>O(n)</td><td>1 秒</td></tr>
+<tr><td>D</td><td>1726</td><td>琪露诺的完美算术教室</td><td>入门 <span class="stars">★☆☆☆☆</span></td><td>O(81)</td><td>1 秒</td></tr>
+<tr><td>E</td><td>1727</td><td>小五想做零</td><td>普及/提高− <span class="stars">★★★★☆</span></td><td>O(T·常数)，暴搜状态 ≤ 5⁴</td><td>1 秒</td></tr>
+<tr><td>F</td><td>1729</td><td>Badeline</td><td>提高 <span class="stars">★★★★★</span></td><td>O((N+M) log N)</td><td>2 秒</td></tr>
 </tbody></table>
 <h2 id="p1720">A · 图神不是区——成都</h2>
 <div class="prob"><div class="ph"><span class="pn">P1720</span><span class="badge diff">入门 <i class="stars">★☆☆☆☆</i></span><span class="oi">时间 1 秒 / 内存 128 兆</span><a href="https://acm.sztu.edu.cn/csgoj/problemset/problem?pid=1720" target="_blank" rel="noopener">去 OJ 做题 ↗</a></div><div class="st"><p>无输入，原样输出一句英文标语。</p></div></div>
@@ -27,7 +28,59 @@ int main() {
 }</code></pre>
 <h3>代码逐段看</h3><ul class="tight"><li><code>puts("...")</code> 直接输出并换行。</li><li>字符串里的单引号在双引号串中不用转义。</li></ul>
 <p class="ref"><b>复杂度</b>：O(1)<br><b>坑点</b>：不要自己改写句子，照抄。</p>
-<h2 id="p1724">B · CFOP vs Roux</h2>
+<h2 id="p1723">B · 叽里咕噜游乐园与龟</h2>
+<div class="prob"><div class="ph"><span class="pn">P1723</span><span class="badge diff">普及/提高− <i class="stars">★★★☆☆</i></span><span class="oi">时间 1 秒 / 内存 256 兆</span><a href="https://acm.sztu.edu.cn/csgoj/problemset/problem?pid=1723" target="_blank" rel="noopener">去 OJ 做题 ↗</a></div><div class="st"><p>n 块积木，m 个项目：数量型要 x 块积木，重量型要 1 块重量 ≥ x 的积木；每块只能用一次，求最多玩几个。</p></div></div>
+<details class="orig"><summary>原题（展开看完整题面与样例）</summary>
+<h4>题目描述</h4><p>「叽里咕噜游乐园」盛大开业！这座古怪的游乐园只收积木</p><p>小乌龟非常想去那玩一趟，于是它翻出床底下那个破旧的小木箱，把积攒已久的积木哗啦一声倒在地板上，一块一块数过去，一共是<br>n 块，第 i 块的重量是 a_i。</p><p>好不容易盼到今天早上，游乐园门口终于贴出了新的项目单，密密麻麻一共 m 个项目。小乌龟激动地拉上好朋友小菜就往门口冲，可越往下看越糊涂——这些项目的收票方式居然还不一样：</p><p>- 数量型项目：这类项目的售票机是个大嘴巴，它只数个数。你得往里投进 x 块积木。</p><p>- 重量型项目​：这类项目的门口架着一座天平，它只认重量。你只要投进 1 块<br>积木，它的重量要不低于 x。</p><p>不过有两件事，小乌龟再糊涂也忘不掉：</p><p>- 每块积木只能用于一个项目</p><p>- 每个项目最多玩一次</p><p>“那……我们到底能玩几个呀？”小菜歪着脑袋问。</p><p>愚蠢的小乌龟蹲在地上掰着爪子数了半天，越数越乱。它叹了口气，把皱巴巴的项目单往你面前一推：</p><p>“你比我聪明，你来算算——最多能玩多少个项目？”</p><h4>输入格式</h4><p>第一行两个整数 n,\ m。</p><p>第二行 n 个整数 a_1,a_2,\dots,a_n，表示每块积木的重量。</p><p>接下来 m 行，每行两个整数 op,\ x：</p><p>- op = 1：一个数量型项目，需要 x 块积木；</p><p>- op = 2：一个重量型项目，需要 1 块重量不低于 x 的积木。</p><h4>输出格式</h4><p>一行一个整数，表示最多能玩的项目数。</p><h4>提示</h4><p>数据范围</p><p>对于 100\% 的数据：</p><p>1 \le n,m \le 2\times 10^5,\qquad 1 \le a_i<br>\le 10^9,\qquad 1 \le x \le 10^9,\qquad op\in\{1,2\}</p><p>同一类项目之间互不影响，可以按任意顺序游玩。</p><p>子任务（部分分）</p><p>子任务 |<br>分值 |<br>限制 |</p><p>1 |<br>10 |<br>n,m \le 10 |</p><p>2 |<br>20 |<br>n,m \le 1000 |</p><p>3 |<br>15 |<br>所有项目都是数量型（op=1） |</p><p>4 |<br>15 |<br>所有项目都是重量型（op=2） |</p><p>5 |<br>40 |<br>无特殊限制 |</p>
+<div class="smp"><div><span class="smp-h">样例输入</span><pre>5 6
+2 3 4 5 6
+1 1
+1 1
+1 1
+2 4
+2 5
+2 6</pre></div><div><span class="smp-h">样例输出</span><pre>5</pre></div></div>
+</details>
+<h3>先想一想</h3><ul class="tight"><li>重量型项目只消耗 1 块，但有重量下限；数量型不挑重量，只吃数量。</li><li>两类项目都是「1 个项目 = 1 次收益」，所以先满足更难的重量型不会吃亏。</li><li>重量型按需求从大到小处理，每次给「刚好够用」的最小积木，把大积木省下来。</li><li>剩下的积木拿去做数量型：需求小的先做，能做的个数自然最多。</li></ul>
+<details class="deep"><summary>完整思路（点开看推导）</summary>
+<p>两类项目收益都是 1，区别只在消耗：重量型消耗 1 块且有下限，数量型消耗 x 块但不挑重量。于是先把「稀缺资源」——大重量积木——分给要求最苛刻的项目：重量型按 x 从大到小排序，对每个项目在有序集合里找最小的 ≥ x 的那块。用刚好够的而不是最大的，能给后面留更大余量（交换论证：若把 a（x ≤ a &lt; b）换成更大的 b，剩余集合只会更差）。找不到就放弃该项目。</p>
+<p>处理完重量型，剩下的积木对数量型完全等价，只有总数 R 有用。数量型按 x 从小到大排序，能连续做 k 个当且仅当这些 x 的前缀和 ≤ R，所以边累加边判断，第一个做不下就停。</p>
+<p>两段互不影响，答案就是两段计数之和。</p>
+</details>
+<h3>参考代码</h3><pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+typedef long long ll;
+int main() {
+    int n, m;
+    scanf("%d %d", &amp;n, &amp;m);
+    multiset&lt;ll&gt; st;
+    for (int i = 0; i &lt; n; ++i) { ll a; scanf("%lld", &amp;a); st.insert(a); }
+    vector&lt;ll&gt; t1, t2;
+    for (int i = 0; i &lt; m; ++i) {
+        int op; ll x; scanf("%d %lld", &amp;op, &amp;x);
+        (op == 1 ? t1 : t2).push_back(x);
+    }
+    int ans = 0;
+    // 重量型：需求从大到小，每次给「刚好够」的最小积木
+    sort(t2.rbegin(), t2.rend());
+    for (ll x : t2) {
+        auto it = st.lower_bound(x);
+        if (it == st.end()) continue;
+        st.erase(it); ++ans;
+    }
+    // 数量型：需求从小到大，用剩下的积木数尽量多满足
+    sort(t1.begin(), t1.end());
+    ll rest = (ll)st.size(), need = 0;
+    for (ll x : t1) {
+        if (need + x &gt; rest) break;
+        need += x; ++ans;
+    }
+    printf("%d\n", ans);
+    return 0;
+}</code></pre>
+<h3>代码逐段看</h3><ul class="tight"><li>积木放进 <code>multiset</code>，重量型用 <code>lower_bound(x)</code> 找刚好够的那块，找到就 <code>erase</code>。</li><li>按 op 把需求分到两个 vector，重量型用 <code>rbegin/rend</code> 降序处理。</li><li>数量型遍历时累加 <code>need</code>，一旦 <code>need + x &gt; rest</code> 立刻 break。</li><li>n、m 到 2e5，每次 multiset 操作 O(log n)，整体可过。</li></ul>
+<p class="ref"><b>复杂度</b>：O((n+m) log n)<br><b>坑点</b>：重量型要给「最小的足够积木」而不是最大的；数量型必须先做需求小的，否则会提前卡住。</p>
+<h2 id="p1724">C · CFOP vs Roux</h2>
 <div class="prob"><div class="ph"><span class="pn">P1724</span><span class="badge diff">普及/提高− <i class="stars">★★★☆☆</i></span><span class="oi">时间 1 秒 / 内存 128 兆</span><a href="https://acm.sztu.edu.cn/csgoj/problemset/problem?pid=1724" target="_blank" rel="noopener">去 OJ 做题 ↗</a></div><div class="st"><p>n 轮比赛，CFOP 总得分 a、Roux 总得分 b，求最少平局数并给出任意一种每轮比分（n ≤ 100）。</p></div></div>
 <details class="orig"><summary>原题（展开看完整题面与样例）</summary>
 <h4>题目描述</h4><p>魔方社正在研究不同复原方法在对抗赛中的表现。</p><p>在一场对抗赛中，使用 CFOP 方法的选手与使用 Roux<br>方法的选手进行多轮比拼。每轮比赛结束后，会记录两位选手在该轮获得的得分。</p><p>记一轮比赛的记录为 x:y，其中：</p><p>- x 表示使用 CFOP<br>方法的选手本轮得分；</p><p>- y 表示使用 Roux<br>方法的选手本轮得分。</p><p>如果 x=y，则本轮比赛为平局；如果<br>x&gt;y，则 CFOP 选手获胜；如果 x&lt;y，则 Roux 选手获胜。</p><p>现在已知两位选手一共进行了 n<br>轮比赛，且：</p><p>- CFOP 选手所有轮次的总得分为 a；</p><p>- Roux 选手所有轮次的总得分为 b。</p><p>请你计算比赛中可能出现的最少平局数，并构造一份满足条件的完整比赛记录。</p><h4>输入格式</h4><p>第一行包含一个整数 n，表示比赛轮数。</p><p>第二行包含一个整数 a，表示 CFOP<br>选手的总得分。</p><p>第三行包含一个整数 b，表示 Roux<br>选手的总得分。</p><h4>输出格式</h4><p>第一行输出一个整数 d，表示最少的平局数。</p><p>接下来输出 n 行，每行输出一个形如<br>x:y 的比赛记录，其中 x 是<br>CFOP 选手本轮得分，y 是 Roux<br>选手本轮得分。</p><p>输出的记录必须满足：</p><p>- 所有 x,y 都是非负整数；</p><p>- 所有 x 的总和恰好为 a；</p><p>- 所有 y 的总和恰好为 b；</p><p>- 恰好有 d 轮比赛满足 x=y。</p><p>如果存在多种合法答案，输出任意一种即可。</p><h4>提示</h4><p>数据范围</p><p>1\le n\le 100</p><p>0\le a,b\le 1000</p>
@@ -74,7 +127,7 @@ int main() {
 }</code></pre>
 <h3>代码逐段看</h3><ul class="tight"><li>先判 <code>n==1</code>，输出 <code>(a==b)</code> 和 <code>a:b</code>。</li><li><code>a+b&lt;n</code>：d = n−a−b，先 a 个 <code>1:0</code>、再 b 个 <code>0:1</code>、最后补 <code>0:0</code>。</li><li>否则 0 平局：<code>ka = max(0, n-b)</code> 并夹到 [0,a]，<code>kb = n-ka</code>。</li><li>分摊用 <code>a/ka + (i &lt; a%ka)</code>，余数给前几个。</li></ul>
 <p class="ref"><b>复杂度</b>：O(n)<br><b>坑点</b>：有 Special Judge，不必和样例逐字一致；注意 a=0/b=0 与 n=1 的边界。</p>
-<h2 id="p1726">C · 琪露诺的完美算术教室</h2>
+<h2 id="p1726">D · 琪露诺的完美算术教室</h2>
 <div class="prob"><div class="ph"><span class="pn">P1726</span><span class="badge diff">入门 <i class="stars">★☆☆☆☆</i></span><span class="oi">时间 1 秒 / 内存 128 兆</span><a href="https://acm.sztu.edu.cn/csgoj/problemset/problem?pid=1726" target="_blank" rel="noopener">去 OJ 做题 ↗</a></div><div class="st"><p>用 1~9 里两个不同的数字做加、减、乘，问能否「恰好有一个」结果等于 N（0 ≤ N ≤ 500）。</p></div></div>
 <details class="orig"><summary>原题（展开看完整题面与样例）</summary>
 <h4>题目描述</h4><p>琪露诺是住在雾之湖的冰之妖精，逢人便自称「本小姐最强」。一天，大酱给她一套写着<br>1 到 9<br>的数字卡片，每个数字恰好只有一张。好胜心大起的她决定挑战自己：随便抽出两张不同的卡片，把上面的数字做一次加法、减法或乘法，看能不能凑出某个数<br>N。</p><p>「区区算术，本小姐闭着眼睛都能算出来！」</p><p>——三分钟后，琪露诺的头顶冒出了白色的蒸汽（物理意义上的结冰）。她决定把这个难题交给聪明的你。</p><p>给出一个整数 N，判断是否存在两个不同的整数<br>a, b（1 \le<br>a, b \le 9 且 a \neq b），使得<br>a + b、a -<br>b、a \times b<br>三者之中恰有一个等于 N。</p><p>如果存在，输出 yes；不存在，输出 no。</p><h4>输入格式</h4><p>一行一个整数 N（0 \le N \le 500）。</p><h4>输出格式</h4><p>一行 yes 或 no。</p><h4>提示</h4><p>- 样例 1：7 + 8 = 15（也可以 3 \times 5 = 15），输出<br>yes。</p><p>- 样例 2：19<br>无法由两个不同的一位数通过一次运算得到，输出 no。</p><p>- 样例 3：0 = a - a<br>需要同一个数字用两次，而每个数字只能用一次，输出 no。</p><p>- 样例 4：6 \times 7 = 42，输出<br>yes。</p><p>- 样例 5：81 只能写成 9 \times 9，但 9 只能用一次，输出 no。</p><p>- 样例 6：两个 1~9 的数做运算最大只能得到 8 \times 9 = 72，500 太大了，输出 no。</p>
@@ -100,7 +153,7 @@ int main() {
 }</code></pre>
 <h3>代码逐段看</h3><ul class="tight"><li>两层循环 a,b ∈ [1,9]，跳过 a==b。</li><li>用三个比较结果相加得到命中个数 <code>c</code>，判断 <code>c == 1</code>。</li><li>命中就 <code>puts("yes")</code> 并 return，最后兜底 no。</li></ul>
 <p class="ref"><b>复杂度</b>：O(81)<br><b>坑点</b>：a−b 可能为负或 0；「恰好一个」不是「至少一个」。</p>
-<h2 id="p1727">D · 小五想做零</h2>
+<h2 id="p1727">E · 小五想做零</h2>
 <div class="prob"><div class="ph"><span class="pn">P1727</span><span class="badge diff">普及/提高− <i class="stars">★★★★☆</i></span><span class="oi">时间 1 秒 / 内存 256 兆</span><a href="https://acm.sztu.edu.cn/csgoj/problemset/problem?pid=1727" target="_blank" rel="noopener">去 OJ 做题 ↗</a></div><div class="st"><p>五种牌面 0~4，每次取一组和是 5 的倍数的牌，问最多取几次（T ≤ 1e5，aᵢ ≤ 1e9）。</p></div></div>
 <details class="orig"><summary>原题（展开看完整题面与样例）</summary>
 <h4>题目描述</h4><p>小五喜欢恋恋。某一天小五想做零。</p><p>具体是这样的：小五有 a_i 张牌面为<br>i 的牌（0 \le<br>i \le 4），其中 i 号牌恰好有<br>a_i 张。</p><p>一次操作是：选择至少一张牌，使得这些牌的牌面之和是<br>5 的倍数，然后把这些牌消耗掉。</p><p>小五想知道：他最多能做多少次这样的操作？</p><h4>输入格式</h4><p>第一行一个整数 T，表示测试数据组数（1 \le T \le 10^5）。</p><p>接下来 T 行，每行 5 个整数 a_0, a_1,<br>a_2, a_3, a_4，表示各种牌的数量（0 \le<br>a_i \le 10^9）。</p><h4>输出格式</h4><p>对每组数据，输出一行一个整数，表示最多能进行的操作次数。</p><h4>提示</h4><p>第 1 组：没有牌，答案是 0。</p><p>第 2 组：3 张 0 号牌，每张单独一次操作（0 本身是 5<br>的倍数），共 3 次。</p><p>第 3 组：1+4=5 一次，2+3=5 一次，共 2 次。</p><p>第 4 组：1+2+2=5 一次，1+1+1+2=5 一次，共 2 次。</p><p>第 5 组：1+1+3=5 一次，剩下 3 张 3（和<br>9，不是 5 的倍数），共 1 次。</p><p>第 6 组：4+4+4+3=15 一次，共 1 次。</p>
@@ -170,7 +223,7 @@ int main() {
 }</code></pre>
 <h3>代码逐段看</h3><ul class="tight"><li><code>ans = a[0]</code> 起步，再处理 (1,4)、(2,3) 配对。</li><li>同类五连用 <code>n1/5</code> 累加，然后 <code>n1 %= 5</code> 留残余。</li><li>残余四数都 < 5，四重循环枚举子集，和能被 5 整除就递归。</li><li>用 <code>map&lt;array&lt;int,4&gt;,int&gt;</code> 记忆化。</li></ul>
 <p class="ref"><b>复杂度</b>：O(T·常数)，暴搜状态 ≤ 5⁴<br><b>坑点</b>：不能直接用 sum/5：{3,3} 和为 6 凑不出 5 的倍数，答案是 0；0 面值每张算一次。</p>
-<h2 id="p1729">E · Badeline</h2>
+<h2 id="p1729">F · Badeline</h2>
 <div class="prob"><div class="ph"><span class="pn">P1729</span><span class="badge diff">提高 <i class="stars">★★★★★</i></span><span class="oi">时间 2 秒 / 内存 256 兆</span><a href="https://acm.sztu.edu.cn/csgoj/problemset/problem?pid=1729" target="_blank" rel="noopener">去 OJ 做题 ↗</a></div><div class="st"><p>完全图 K_N：原图 G 里有的边权 1，其余边权 0，求最小生成树权值。</p></div></div>
 <details class="orig"><summary>原题（展开看完整题面与样例）</summary>
 <h4>题目描述</h4><p>她正是我的另一面，我要如何摆脱她呢？</p><p>给定包含 N 个点以及 M 条边的无向图 G。</p><p>构造完全图 K_N：</p><p>- 如果边 (u, v) 在原图 G 中出现，则这条边的边权为 1；</p><p>- 如果边 (u, v) 不在原图 G 中出现，则这条边的边权为 0。</p><p>求完全图 K_N<br>的最小生成树的总权值。</p><h4>输入格式</h4><p>第一行为两个正整数 N 与 M。</p><p>接下来的 M 行，每行两个整数 u 与 v，表示无向图 G 的一条边。保证 u<br>\neq v，无重边。</p><h4>输出格式</h4><p>一个非负整数，代表 K_N<br>的最小生成树的总权值。</p><h4>提示</h4><p>- 完全图 K_N：包含<br>N<br>个点，且任意两个不同点之间都恰有一条边相连的无向图，共有 \frac{N(N-1)}{2} 条边。</p><p>- 生成树：无向图的一棵生成树是一个包含图中全部 N 个点、恰好由 N-1 条边构成的连通无环子图。</p><p>- 最小生成树：在带权无向连通图中，所有生成树里边权之和最小的一棵，称为最小生成树；其边权总和称为最小生成树的总权值。</p><p>注：本题中完全图 K_N<br>的每一条边都带权（权为 0 或 1），任意两个点之间都有边，因此 K_N 总是连通的，其最小生成树一定存在。</p><p>样例说明</p><p>图 G 中存在孤立点（6 到 10<br>号点没有任何边）。在 K_N<br>中，孤立点与其他所有点的边权都是 0，因此可以用 0<br>权边把全部点连成一棵生成树，总权值为 0。</p><p>数据范围</p><p>- 1 \leq N \leq 2 * 10^6</p><p>- 0 \leq M \leq N</p><p>- 对于每条边，1 \leq u, v \leq N 且<br>u \neq v；图中无重边。</p>
@@ -229,4 +282,4 @@ int main() {
 <h3>代码逐段看</h3><ul class="tight"><li>无向边用 <code>unordered_set&lt;ll&gt;</code> 存，key = <code>min*(N+1)+max</code>。</li><li>未访问点用 <code>set&lt;int&gt;</code>，可边遍历边删除。</li><li>BFS 里扫一遍 S：能连的取走入队，不能连的留着。</li><li>输出 <code>连通块数 - 1</code>。</li></ul>
 <p class="ref"><b>复杂度</b>：O((N+M) log N)<br><b>坑点</b>：答案是补图块数 − 1，不是和 M 有关的式子；必须用 set 版补图 BFS。</p>
 <h2 id="todo">还没写的部分</h2>
-<p>这几道题面已经抓下来了，题解与代码还在补：P1718 akl9 with ???、P1719 决战紫禁之巅、P1721 海克斯大乱斗、P1722 她问我回不回家，我沉默了，她以为我不想回、P1723 叽里咕噜游乐园与龟、P1725 Babel、P1728 Re0_从0开始的异世界生活（easy version）、P1730 合作修路。</p>
+<p>这几道题面已经抓下来了，题解与代码还在补：P1718 akl9 with ???、P1719 决战紫禁之巅、P1721 海克斯大乱斗、P1722 她问我回不回家，我沉默了，她以为我不想回、P1725 Babel、P1728 Re0_从0开始的异世界生活（easy version）、P1730 合作修路。</p>
