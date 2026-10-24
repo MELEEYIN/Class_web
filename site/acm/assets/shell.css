@@ -981,3 +981,11 @@ html:not([data-wall="none"]) .stage { padding-top: 26px; }
 @media (max-width: 860px) {
   html:not([data-wall="none"]) .doc { padding: 18px 16px 26px; border-radius: 14px; }
 }
+
+/* 课程评级与洛谷口径不一致时，第二个 chip 用虚线区分 */
+.chipk.luo { border-style: dashed; color: var(--ink-3); }
+.chipk.luo b { color: var(--ink-3); }
+
+/* 课程评级与洛谷口径不一致时，第二个 chip 用虚线区分 */
+.chipk.luo { border-style: dashed; color: var(--ink-3); }
+.chipk.luo b { color: var(--ink-3); }

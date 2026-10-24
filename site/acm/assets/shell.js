@@ -585,6 +585,12 @@
       c += '<span class="chipk' + (cls ? ' ' + cls : '') + '">' + esc(t) + '</span>';
     }
     one(item.level, 'lv');
+    var LMAP = { '入门': 1, '入门+': 1.5, '普及-': 2, '普及/提高-': 3, '提高-': 3.5, '提高': 4, '提高+': 5 };
+    if (item.luogu && Math.abs((LMAP[item.luogu] || 0) - (LMAP[item.level] || 0)) >= 0.9)
+      one('洛谷 ' + item.luogu, 'luo');
+    var LMAP = { '入门': 1, '入门+': 1.5, '普及-': 2, '普及/提高-': 3, '提高-': 3.5, '提高': 4, '提高+': 5 };
+    if (item.luogu && Math.abs((LMAP[item.luogu] || 0) - (LMAP[item.level] || 0)) >= 0.9)
+      one('洛谷 ' + item.luogu, 'luo');
     if (item.kind === 'review') one('回顾');
     if (item.kind === 'mock') one('模拟赛');
     one(item.dur);
