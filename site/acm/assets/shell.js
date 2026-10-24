@@ -567,7 +567,7 @@
     };
 
     if (CACHE[p.route]) { paint(CACHE[p.route]); return; }
-    fetch('data/p/' + item.file, { cache: 'force-cache' })
+    fetch('data/p/' + item.file, { cache: 'no-cache' })
       .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
       .then(function (t) { CACHE[p.route] = t; paint(t); })
       .catch(function () {
@@ -659,7 +659,7 @@
     $('#sovInput').value = '';
   }
   function loadIndex() {
-    fetch('data/search.json', { cache: 'force-cache' })
+    fetch('data/search.json', { cache: 'no-cache' })
       .then(function (r) { return r.json(); })
       .then(function (d) { INDEX = d; runSearch($('#sovInput').value); })
       .catch(function () { INDEX = []; });
@@ -844,7 +844,7 @@
   /* ------------------------------------------------------------ 启动 */
   function boot() {
     applyTheme(currentTheme());
-    fetch('data/nav.json', { cache: 'force-cache' })
+    fetch('data/nav.json', { cache: 'no-cache' })
       .then(function (r) { return r.json(); })
       .then(function (d) {
         NAV = d;
