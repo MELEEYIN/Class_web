@@ -97,18 +97,58 @@
   }
 
   /* ------------------------------------------------------------ 侧栏 */
+
+  /* 侧栏把「学习手册 / 算竞教程 / 学习计划」合成一个模块展示，
+     但每个条目的 route 不变（hb/…、course/…、plan/…），所以路由、进度、样式都不受影响 */
+  var MERGE_MIDS = ['hb', 'course', 'plan'];
+  function renderModules() {
+    var out = [], merged = null;
+    NAV.modules.forEach(function (m) {
+      if (MERGE_MIDS.indexOf(m.id) < 0) { out.push(m); return; }
+      if (!merged) {
+        merged = { id: 'cpp', name: 'C++ 竞赛教程', items: [], groups: [], merged: true };
+        out.push(merged);
+      }
+      if (m.groups && m.groups.length) {
+        m.groups.forEach(function (g) {
+          merged.groups.push({
+            name: g.name,
+            short: (m.id === 'course' ? '教程 · ' : '') + (g.short || g.name),
+            items: g.items
+          });
+        });
+      } else {
+        merged.groups.push({ name: m.name, short: m.name, items: m.items });
+      }
+      merged.items = merged.items.concat(m.items);
+    });
+    if (merged) merged.activeParts = MERGE_MIDS;
+    return out;
+  }
+
+  /* 学习进度只在「C++ 竞赛教程」展开时才显示 */
+  function syncProg() {
+    var box = $('#nav .nv-mod[data-mod="cpp"]');
+    var foot = $('.side-foot');
+    if (!foot) return;
+    foot.classList.toggle('no-prog', !(box && !box.classList.contains('fold')));
+  }
+
   function buildNav() {
     var host = $('#nav');
     var html = '';
     var lastSec = '';
     var act = (parseHash().route || 'course').split('/')[0];
-    NAV.modules.forEach(function (m) {
+    renderModules().forEach(function (m) {
       if (m.section && m.section !== lastSec) {
         html += '<div class="nv-sec">' + esc(m.section) + '</div>';
         lastSec = m.section;
       }
       var folded = lsGet('acm.fold.' + m.id, null);
-      var fold = folded === null ? (m.id !== act) : !!folded;
+      var hit = m.merged
+        ? m.items.some(function (it) { return it.id.split('/')[0] === act; })
+        : (m.id === act);
+      var fold = folded === null ? !hit : !!folded;
       html += '<div class="nv-mod' + (fold ? ' fold' : '') + '" data-mod="' + m.id + '">';
       html += '<button class="nv-h" type="button" data-fold="' + m.id + '">' +
               '<span class="chev">' + ICON.chev + '</span><b>' + esc(m.name) + '</b>' +
@@ -125,6 +165,7 @@
       html += '</div></div>';
     });
     host.innerHTML = html;
+    syncProg();
     $$('#nav .nv-mod').forEach(function (box) {
       var list = box.querySelector('.nv-list');
       if (list) list.style.maxHeight = box.classList.contains('fold') ? '0px' : 'none';
@@ -145,6 +186,7 @@
   function setFold(box, fold, animate) {
     var list = box.querySelector('.nv-list');
     box.classList.toggle('fold', fold);
+    syncProg();
     if (!list) return;
     if (!animate) { list.style.maxHeight = fold ? '0px' : 'none'; return; }
     if (fold) {

@@ -989,3 +989,7 @@ html:not([data-wall="none"]) .stage { padding-top: 26px; }
 /* 课程评级与洛谷口径不一致时，第二个 chip 用虚线区分 */
 .chipk.luo { border-style: dashed; color: var(--ink-3); }
 .chipk.luo b { color: var(--ink-3); }
+
+/* 学习进度：只在「C++ 竞赛教程」展开时显示 */
+.side-foot.no-prog .pg-t,
+.side-foot.no-prog .pg-bar { display: none; }
