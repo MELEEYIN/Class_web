@@ -1,0 +1,665 @@
+/* ==========================================================================
+   ex.css — 大学英语子站（/en）的内容层
+   --------------------------------------------------------------------------
+   谁用：site/en/b1.html（以及后续按同一套骨架改版的册页）
+   依赖：同一目录上一级 ../acm/assets/shell.css 提供布局与配色令牌
+         （--surface / --ink / --line / --accent / --accent-rgb …），
+         本文件只写「教材正文」与「课内习题」两类组件，不碰侧栏与顶栏。
+
+   类名契约
+     单元       .unit .uhead .uno .uzh .usub .ubadges
+     模块       .mod .mtag .msub .meta .lead
+     表格       .spine .chaintbl .seg
+     词汇       table .w（词）/ .ex（例句）/ .w-ipa / .w-pos
+     语言点     .lp .eg
+     教材练习   .exgrp .exh .exk .bank .exlist .exq .exa .k
+     习题卡     .task .task-h .tno .ttag .tmeta .task-b .ask .zh .kw .en .ansbox
+     过渡练习   details.draft
+     自测       .goal .hint
+   ========================================================================== */
+
+/* ---------------------------------------------------------- 0. 兼容令牌
+   content.css 与旧页面用的是 --text-2 / --panel-rgb / --radius 这一套旧名字，
+   shell.css 里没有。这里一次性映射过去，旧结构照搬过来也能对上色。 */
+:root {
+  --text: var(--ink);
+  --text-2: var(--ink-2);
+  --text-3: var(--ink-3);
+  --panel-rgb: 14 28 48;
+  --panel-a: 1;
+  --radius: 12px;
+  --ok-rgb: 43 199 155;
+  --warn-rgb: 224 160 74;
+  --danger-rgb: 240 115 115;
+  --vio-rgb: 167 139 250;
+  --code-line: var(--line);
+  --code-text: #d7e3f5;
+}
+html[data-theme="light"] {
+  --panel-rgb: 255 255 255;
+  --ok-rgb: 14 159 122;
+  --warn-rgb: 194 117 26;
+  --danger-rgb: 214 69 69;
+  --vio-rgb: 109 40 217;
+  --code-text: #0d1729;
+}
+
+/* 正文左右留白：shell.css 的 .doc 已经有 padding，这里只补段间距 */
+.docbody > .unit:first-child { margin-top: 8px; }
+
+/* ---------------------------------------------------------- 1. 单元 */
+.unit {
+  margin: 0 0 46px;
+  scroll-margin-top: calc(var(--top-h) + 18px);
+}
+.uhead {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 0 0 13px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.uno {
+  flex: none;
+  margin-top: 3px;
+  padding: 3px 9px;
+  border-radius: 8px;
+  border: 1px solid rgb(var(--accent-rgb) / .34);
+  background: rgb(var(--accent-rgb) / .12);
+  color: var(--accent);
+  font: 600 12.5px/1.5 var(--mono);
+  letter-spacing: .04em;
+}
+.uhead .ut {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.unit h2.u2t {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 22px;
+  line-height: 1.35;
+  letter-spacing: .2px;
+  color: var(--ink);
+}
+.uzh {
+  margin-left: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-3);
+  letter-spacing: 0;
+}
+.usub {
+  margin: 5px 0 0;
+  font-size: 12.8px;
+  color: var(--ink-3);
+}
+.ubadges {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+/* 来源标记（官方口径 / 话题补全） */
+.verdict {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 9px;
+  border-radius: 7px;
+  font-size: 11.8px;
+  white-space: nowrap;
+  border: 1px solid rgb(148 163 184 / .3);
+  background: rgb(148 163 184 / .12);
+  color: var(--ink-3);
+}
+.verdict.off {
+  border-color: rgb(var(--ok-rgb) / .34);
+  background: rgb(var(--ok-rgb) / .12);
+  color: rgb(var(--ok-rgb));
+}
+.verdict.top {
+  border-color: rgb(var(--warn-rgb) / .34);
+  background: rgb(var(--warn-rgb) / .12);
+  color: rgb(var(--warn-rgb));
+}
+
+/* 单元折叠（保留旧 details 结构时用） */
+.unit > summary { list-style: none; cursor: pointer; }
+.unit > summary::-webkit-details-marker { display: none; }
+
+/* ---------------------------------------------------------- 2. 模块 */
+.mod {
+  margin: 0 0 26px;
+  padding: 18px 20px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+  scroll-margin-top: calc(var(--top-h) + 14px);
+}
+.mod:last-child { margin-bottom: 0; }
+.mod > h3 {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin: 0 0 14px;
+  padding-bottom: 11px;
+  border-bottom: 1px dashed var(--line);
+  font-size: 15.5px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.mtag {
+  flex: none;
+  padding: 1px 7px;
+  border-radius: 6px;
+  border: 1px solid rgb(var(--accent-rgb) / .3);
+  background: rgb(var(--accent-rgb) / .13);
+  color: var(--accent);
+  font: 600 11px/1.7 var(--mono);
+  letter-spacing: .06em;
+}
+.msub {
+  font-size: 12.2px;
+  font-weight: 400;
+  color: var(--ink-4);
+  letter-spacing: 0;
+}
+.mod p.meta {
+  margin: 12px 0 6px;
+  font-size: 12.9px;
+  color: var(--ink-2);
+}
+.mod p.meta:first-of-type { margin-top: 0; }
+.mod p.meta b { color: var(--ink); font-weight: 600; }
+.mod p.lead {
+  margin: 10px 0 12px;
+  font-size: 13.6px;
+  line-height: 1.85;
+  color: var(--ink-2);
+}
+
+/* ---------------------------------------------------------- 3. 表格 */
+.doc-study table.spine td.p,
+.doc-study table.chaintbl td.p {
+  width: 5.2em;
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: 12.2px;
+  color: var(--accent);
+}
+.doc-study table td.m {
+  width: 4.6em;
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: 12.2px;
+  color: var(--ink-3);
+}
+.doc-study table.seg td:first-child { width: 42%; color: var(--ink-2); }
+.doc-study table.seg td:nth-child(2) { color: var(--ink); }
+.doc-study table.seg td:last-child { color: var(--ink-3); font-size: 12.6px; }
+.doc-study table.chaintbl td:last-child,
+.doc-study table.chaintbl th:last-child { text-align: right; white-space: nowrap; }
+
+/* 任务状态点 */
+.dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.2px;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.dot::before {
+  content: "";
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: .55;
+}
+.dot.ok { color: rgb(var(--ok-rgb)); }
+.mut { color: var(--ink-4); font-size: 12.2px; }
+.dot.todo { color: var(--ink-3); }
+
+/* ---------------------------------------------------------- 4. 词汇表 */
+.doc-study table td.w {
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.doc-study table td.ex { font-size: 12.8px; color: var(--ink-2); line-height: 1.7; }
+.doc-study table td.ex i {
+  display: block;
+  margin-top: 2px;
+  font-style: normal;
+  color: var(--ink-4);
+  font-size: 12.2px;
+}
+.w-ipa { font-family: var(--mono); font-size: 12px; color: var(--accent); }
+.w-pos { font-size: 11.8px; color: var(--ink-4); }
+
+/* 主题 / 目标 / 热身 列表 */
+.themes { display: flex; flex-direction: column; gap: 6px; margin: 8px 0 4px; }
+.th {
+  padding: 7px 12px;
+  border-radius: 8px;
+  border-left: 3px solid rgb(var(--accent-rgb) / .55);
+  background: rgb(var(--accent-rgb) / .07);
+  font-size: 13px;
+  color: var(--ink-2);
+}
+.th b { color: var(--ink); font-weight: 600; margin-right: 6px; }
+ul.obj, ol.warm { margin: 6px 0 10px 20px; padding: 0; font-size: 13.2px; color: var(--ink-2); }
+ul.obj li, ol.warm li { margin: 5px 0; line-height: 1.75; }
+ul.obj li i, ol.warm li i { font-style: normal; color: var(--ink-4); }
+ul.obj li i::before { content: "—— "; color: var(--ink-4); }
+
+/* ---------------------------------------------------------- 5. 语言点 */
+.lp {
+  margin: 12px 0;
+  padding: 12px 15px;
+  border: 1px solid var(--line);
+  border-left: 3px solid rgb(var(--accent-rgb) / .6);
+  border-radius: 0 10px 10px 0;
+  background: rgb(var(--accent-rgb) / .05);
+}
+.lp > b { display: block; margin-bottom: 5px; font-size: 13.4px; color: var(--ink); }
+.lp p { margin: 5px 0; font-size: 13px; line-height: 1.8; color: var(--ink-2); }
+.lp p.eg {
+  font-family: var(--mono);
+  font-size: 12.4px;
+  color: var(--ink-3);
+  padding-top: 6px;
+  border-top: 1px dashed var(--line);
+}
+
+/* ---------------------------------------------------------- 6. 教材练习组 */
+.exgrp {
+  margin: 16px 0 6px;
+  padding: 14px 16px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--surface-2);
+}
+.exh {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-bottom: 10px;
+  padding-bottom: 9px;
+  border-bottom: 1px dashed var(--line);
+  font-size: 13.6px;
+}
+.exh b { color: var(--ink); }
+.exk {
+  font-size: 11.4px;
+  padding: 1px 7px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.exk.off {
+  color: rgb(var(--ok-rgb));
+  background: rgb(var(--ok-rgb) / .12);
+  border-color: rgb(var(--ok-rgb) / .3);
+}
+.exk.self {
+  color: var(--ink-2);
+  background: rgb(148 163 184 / .13);
+  border-color: rgb(148 163 184 / .28);
+}
+.exh .chip.act { margin-left: auto; }
+.bank {
+  margin: 4px 0 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgb(var(--accent-rgb) / .06);
+  border: 1px dashed rgb(var(--accent-rgb) / .3);
+  font-size: 12.6px;
+  color: var(--ink-2);
+  line-height: 1.9;
+}
+.bank b { color: var(--ink); }
+.bank i { font-style: normal; font-family: var(--mono); color: var(--accent); }
+ol.exlist { margin: 0; padding-left: 22px; }
+ol.exlist > li { margin: 0 0 12px; }
+p.exq {
+  margin: 0 0 5px;
+  font-size: 13.4px;
+  line-height: 1.8;
+  color: var(--ink);
+}
+.exa {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgb(var(--ok-rgb) / .07);
+  border-left: 2px solid rgb(var(--ok-rgb) / .45);
+  font-size: 12.8px;
+  line-height: 1.75;
+  color: var(--ink-2);
+}
+.exa p { margin: 3px 0; }
+.exa b { color: var(--ink-2); }
+.exa .k {
+  font-family: var(--mono);
+  font-weight: 600;
+  color: rgb(var(--ok-rgb));
+}
+/* 遮住解析 */
+.veiled .exa, .veiled .ansbox {
+  filter: blur(5px);
+  opacity: .45;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ---------------------------------------------------------- 7. 课内习题卡 */
+.chain { margin: 0 0 18px; }
+.task {
+  margin: 16px 0 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--surface);
+  overflow: hidden;
+}
+.task.book { border-color: rgb(var(--ok-rgb) / .34); }
+.task.need { border-style: dashed; background: rgb(var(--warn-rgb) / .05); }
+.task-h {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+  padding: 11px 15px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line);
+}
+.task-h h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.tno {
+  flex: none;
+  padding: 1px 7px;
+  border-radius: 6px;
+  background: rgb(var(--accent-rgb) / .14);
+  border: 1px solid rgb(var(--accent-rgb) / .3);
+  color: var(--accent);
+  font: 600 11px/1.7 var(--mono);
+}
+.task.book .tno {
+  background: rgb(var(--ok-rgb) / .14);
+  border-color: rgb(var(--ok-rgb) / .3);
+  color: rgb(var(--ok-rgb));
+}
+.ttag {
+  font-size: 11.3px;
+  padding: 1px 7px;
+  border-radius: 6px;
+  color: rgb(var(--ok-rgb));
+  background: rgb(var(--ok-rgb) / .12);
+  border: 1px solid rgb(var(--ok-rgb) / .3);
+}
+.ttag.self {
+  color: var(--ink-2);
+  background: rgb(148 163 184 / .13);
+  border-color: rgb(148 163 184 / .28);
+}
+.tmeta {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.task-h .chip.act { margin-left: auto; }
+.task-b { padding: 14px 15px 16px; }
+p.ask {
+  margin: 0 0 7px;
+  font-size: 12.2px;
+  letter-spacing: .04em;
+  color: var(--ink-3);
+}
+p.ask:not(:first-child) { margin-top: 15px; }
+ol.zh, ul.kw { margin: 0 0 4px 20px; padding: 0; }
+ul.kw { display: flex; flex-wrap: wrap; gap: 7px; list-style: none; margin-left: 0; }
+ol.zh li {
+  margin: 4px 0;
+  font-size: 13.6px;
+  line-height: 1.95;
+  color: var(--ink);
+}
+ul.kw li {
+  padding: 2px 9px;
+  border-radius: 7px;
+  font-family: var(--mono);
+  font-size: 12.2px;
+  color: var(--accent);
+  background: rgb(var(--accent-rgb) / .1);
+  border: 1px solid rgb(var(--accent-rgb) / .26);
+}
+.en {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  font-size: 13.4px;
+  line-height: 1.95;
+  color: var(--ink);
+}
+.en p { margin: 0 0 9px; }
+.en p:last-child { margin-bottom: 0; }
+.ansbox { transition: filter .18s var(--ease); }
+.needlist { margin: 6px 0 0 20px; padding: 0; font-size: 13.2px; color: var(--ink-2); }
+.needlist li { margin: 4px 0; line-height: 1.75; }
+.needlist code {
+  font-family: var(--mono);
+  font-size: 12.2px;
+  padding: 1px 5px;
+  border-radius: 5px;
+  background: rgb(var(--accent-rgb) / .1);
+  color: var(--accent);
+}
+
+/* ---------------------------------------------------------- 8. 过渡练习 */
+details.draft {
+  margin: 18px 0 0;
+  border: 1px dashed var(--line-2);
+  border-radius: var(--r-m);
+  background: rgb(var(--surface-2) / .5);
+  padding: 0 16px;
+}
+details.draft > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 12px 0;
+  font-size: 13.2px;
+  color: var(--ink-2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+details.draft > summary::-webkit-details-marker { display: none; }
+details.draft > summary::before {
+  content: "▸";
+  color: var(--accent);
+  transition: transform .18s var(--ease);
+}
+details.draft[open] > summary::before { transform: rotate(90deg); }
+details.draft > summary b { color: var(--ink); }
+details.draft .draft-body { padding-bottom: 8px; }
+
+/* 旧结构的答案折叠 */
+details.ans {
+  margin: 8px 0 0;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface-2);
+  padding: 0 12px;
+}
+details.ans > summary {
+  cursor: pointer;
+  padding: 8px 0;
+  font-size: 12.6px;
+  color: var(--accent);
+  list-style: none;
+}
+details.ans > summary::-webkit-details-marker { display: none; }
+details.ans ol { margin: 0 0 10px 20px; font-size: 13px; color: var(--ink-2); line-height: 1.9; }
+ol.frame { margin: 4px 0 0 22px; padding: 0; }
+ol.frame li { margin: 6px 0; font-size: 13.4px; line-height: 1.85; color: var(--ink); }
+.mod p.ex { font-size: 13px; color: var(--ink-3); margin: 6px 0; }
+
+/* ---------------------------------------------------------- 9. 自测清单 */
+ul.goal { margin: 16px 0 8px; padding: 0; list-style: none; }
+ul.goal li {
+  position: relative;
+  margin: 7px 0;
+  padding: 8px 12px 8px 34px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  font-size: 13px;
+  color: var(--ink-2);
+  line-height: 1.7;
+}
+ul.goal li::before {
+  content: "";
+  position: absolute;
+  left: 12px; top: 11px;
+  width: 13px; height: 13px;
+  border-radius: 4px;
+  border: 1.5px solid rgb(var(--accent-rgb) / .5);
+}
+.mod p.hint {
+  margin: 8px 0 0;
+  font-size: 12.6px;
+  color: var(--ink-4);
+  line-height: 1.75;
+}
+
+/* ---------------------------------------------------------- 10. 杂项 */
+.callout {
+  margin: 12px 0;
+  padding: 11px 15px;
+  border-radius: 10px;
+  border: 1px solid rgb(var(--warn-rgb) / .32);
+  background: rgb(var(--warn-rgb) / .08);
+  font-size: 13px;
+  color: var(--ink-2);
+  line-height: 1.8;
+}
+.callout.ok {
+  border-color: rgb(var(--ok-rgb) / .32);
+  background: rgb(var(--ok-rgb) / .07);
+}
+.callout p { margin: 4px 0; }
+ul.tight { margin: 6px 0 8px 20px; padding: 0; font-size: 13.2px; color: var(--ink-2); }
+ul.tight li { margin: 3px 0; }
+.dlg { margin: 10px 0; font-size: 13.2px; color: var(--ink-2); line-height: 1.9; }
+.dlg p { margin: 3px 0; }
+.tx { font-size: 12.8px; color: var(--ink-3); }
+.g { font-family: var(--mono); color: var(--accent); }
+
+/* 窄屏 */
+@media (max-width: 760px) {
+  .uhead { flex-wrap: wrap; }
+  .ubadges { width: 100%; }
+  .mod { padding: 14px 14px 16px; }
+  .unit h2.u2t { font-size: 19px; }
+  .doc-study table.seg td:first-child { width: auto; }
+}
+
+/* ---------------------------------------------------------- 11. 模块快捷条 */
+.mtabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: -2px 0 15px;
+}
+.mtabs a {
+  display: inline-flex;
+  align-items: center;
+  height: 27px;
+  padding: 0 11px;
+  border-radius: 7px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink-3);
+  font-size: 12.3px;
+  text-decoration: none;
+  transition: color .16s var(--ease), border-color .16s var(--ease), background .16s var(--ease);
+}
+.mtabs a:hover {
+  border-color: rgb(var(--accent-rgb) / .5);
+  background: rgb(var(--accent-rgb) / .08);
+  color: var(--accent);
+  text-decoration: none;
+}
+
+/* ---------------------------------------------------------- 12. 按钮 */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 27px;
+  padding: 0 11px;
+  border-radius: 7px;
+  border: 1px solid var(--line-2);
+  background: var(--surface);
+  color: var(--ink-2);
+  font-size: 12.2px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: color .16s var(--ease), border-color .16s var(--ease), background .16s var(--ease);
+}
+.chip:hover { border-color: rgb(var(--accent-rgb) / .5); color: var(--accent); }
+.chip.on {
+  background: rgb(var(--accent-rgb) / .14);
+  border-color: rgb(var(--accent-rgb) / .45);
+  color: var(--accent);
+}
+
+/* ---------------------------------------------------------- 13. 任务链表微调 */
+.doc-study table.chaintbl { table-layout: fixed; }
+.doc-study table.chaintbl th,
+.doc-study table.chaintbl td {
+  padding: 8px 10px;
+  font-size: 12.8px;
+  line-height: 1.7;
+  vertical-align: top;
+}
+.doc-study table.chaintbl td:first-child {
+  color: var(--ink);
+  font-weight: 500;
+  font-family: var(--mono);
+  font-size: 12.2px;
+  word-break: break-word;
+}
+.doc-study table.chaintbl td:nth-child(3) { color: var(--ink-3); white-space: normal; }
+.doc-study table.chaintbl td:last-child { text-align: right; }
+
+/* ---------------------------------------------------------- 14. 行内代码 */
+.doc-study code {
+  padding: 1px 6px;
+  border-radius: 5px;
+  border: 1px solid rgb(var(--accent-rgb) / .22);
+  background: rgb(var(--accent-rgb) / .1);
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 12.1px;
+  white-space: nowrap;
+}
+.doc-study p.meta code { white-space: normal; word-break: break-word; }
+
+/* 结构对照表：列宽由 colgroup 给，这里只调间距 */
+.doc-study table.seg { table-layout: fixed; }
+.doc-study table.seg th, .doc-study table.seg td { padding: 8px 10px; vertical-align: top; }
+.doc-study table.seg td:first-child { width: auto; }
+.doc-study table.seg td { font-size: 12.8px; line-height: 1.75; }
+.doc-study table.seg td:nth-child(2) { font-family: var(--mono); font-size: 12.1px; }
