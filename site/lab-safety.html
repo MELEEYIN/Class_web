@@ -6,22 +6,33 @@
 <title>实验室安全学习手册 · 新材料与新能源学院题库</title>
 <style>
 :root{
-  --bg:#0e1116; --bg2:#131a22; --card:#161e28; --card2:#1b2430; --line:#243040;
-  --txt:#e7ecf3; --txt2:#c3ccd9; --sub:#8b99ab; --accent:#6ea8fe;
-  --ok:#34d399; --bad:#f87171; --warn:#fbbf24; --purple:#a78bfa; --pink:#f472b6; --cyan:#38bdf8;
+  /* 与主站 leeyin.xyz 同一套深色令牌（蓝调） */
+  --bg:#060d1a; --bg2:#08111f; --card:#0e1c30; --card2:#12233a; --line:#1c3049;
+  --txt:#e9f1fc; --txt2:#b6c8e0; --sub:#8298b6; --accent:#4d8dff;
+  --ok:#2bc79b; --bad:#f0736f; --warn:#e0a04a; --purple:#8b7bff; --pink:#f472b6; --cyan:#48b0ff;
+  --bg-grad:linear-gradient(180deg,#060d1a 0%,#08111f 60%,#060d1a 100%);
+  --glass:rgba(8,17,31,.78);
   --shadow:0 8px 24px rgba(0,0,0,.35);
   --radius:14px;
 }
 html[data-theme="light"]{
-  --bg:#f4f7fb; --bg2:#ffffff; --card:#ffffff; --card2:#f7fafd; --line:#e3eaf3;
-  --txt:#131a24; --txt2:#2b3a4d; --sub:#5f7086; --accent:#2563eb;
-  --ok:#0f9d63; --bad:#dc2626; --warn:#b45309; --purple:#7c3aed; --pink:#db2777; --cyan:#0284c7;
+  /* 主站的蓝白配色 */
+  --bg:#f3f8ff; --bg2:#ffffff; --card:#ffffff; --card2:#f8fbff; --line:#e2ecf9;
+  --txt:#0e1f38; --txt2:#33475f; --sub:#697f9b; --accent:#2563eb;
+  --ok:#0e9f7a; --bad:#d64545; --warn:#c2751a; --purple:#7c3aed; --pink:#db2777; --cyan:#0284c7;
+  --bg-grad:linear-gradient(180deg,#f3f8ff 0%,#eaf2fe 55%,#f5f9ff 100%);
+  --glass:rgba(255,255,255,.82);
   --shadow:0 6px 20px rgba(20,40,70,.08);
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
+html{
+  /* 背景与主站 body::before 的渐变一致，铺满视口且不随内容滚动 */
+  background:var(--bg-grad) no-repeat center center / cover fixed;
+  min-height:100%;
+}
 body{
-  background:var(--bg); color:var(--txt);
+  background:transparent; color:var(--txt);
   font-family:"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC",system-ui,-apple-system,sans-serif;
   font-size:15px; line-height:1.7; -webkit-font-smoothing:antialiased;
 }
@@ -33,12 +44,26 @@ button{font-family:inherit;font-size:inherit;cursor:pointer}
 .layout{display:grid;grid-template-columns:272px minmax(0,1fr);min-height:100vh}
 .side{
   position:sticky;top:0;height:100vh;overflow-y:auto;
-  background:var(--bg2);border-right:1px solid var(--line);
+  background:var(--glass);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border-right:1px solid var(--line);
   padding:22px 16px 28px;display:flex;flex-direction:column;gap:18px;
 }
 .side::-webkit-scrollbar{width:8px}
 .side::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
 
+/* 返回主站 */
+.back-home{
+  align-self:flex-start;display:inline-flex;align-items:center;gap:6px;
+  margin:0 6px -6px;padding:5px 11px;border-radius:999px;
+  border:1px solid var(--line);background:color-mix(in srgb,var(--card) 65%,transparent);
+  color:var(--txt2);font-size:12px;line-height:1.5;transition:.16s;
+}
+.back-home:hover{
+  color:var(--accent);text-decoration:none;
+  border-color:color-mix(in srgb,var(--accent) 50%,transparent);
+  background:color-mix(in srgb,var(--accent) 12%,transparent);
+}
+.back-home svg{flex:none}
 .brand{padding:0 6px}
 .brand h1{font-size:17px;margin:0 0 6px;letter-spacing:.3px;font-weight:700}
 .brand p{margin:0;font-size:12px;color:var(--sub);line-height:1.6}
@@ -71,8 +96,8 @@ button{font-family:inherit;font-size:inherit;cursor:pointer}
 .main{min-width:0}
 .topbar{
   position:sticky;top:0;z-index:30;display:flex;flex-wrap:wrap;gap:10px;align-items:center;
-  padding:14px 26px;background:color-mix(in srgb, var(--bg) 82%, transparent);
-  backdrop-filter:blur(14px);border-bottom:1px solid var(--line);
+  padding:14px 26px;background:var(--glass);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--line);
 }
 .search{position:relative;flex:1 1 240px;min-width:180px}
 .search input{
@@ -250,6 +275,7 @@ button{font-family:inherit;font-size:inherit;cursor:pointer}
   .wrap{max-width:none;padding:0}
   .q{break-inside:avoid;border-color:#ccc}
   .chapter.collapsed .ch-body{display:block}
+  html{background:#fff!important;background-image:none!important}
   body{background:#fff;color:#000}
 }
 </style>
@@ -257,6 +283,10 @@ button{font-family:inherit;font-size:inherit;cursor:pointer}
 <body>
 <div class="layout">
   <aside class="side">
+    <a class="back-home" href="https://leeyin.xyz/" title="返回 leeyin.xyz 主站">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      返回主站
+    </a>
     <div class="brand">
       <h1>实验室安全 · 学习手册</h1>
       <p>深圳技术大学 实验室安全考试系统<br>新材料与新能源学院自制题库</p>
