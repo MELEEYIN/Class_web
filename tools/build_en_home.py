@@ -13,6 +13,10 @@ build_en_home.py — 生成 site/en/index.html（课程学习站首页）
 """
 import io
 import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from nav_shared import build_nav
 import re
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -159,35 +163,7 @@ HEAD = """<!DOCTYPE html>
       <input id="sideSearch" type="search" placeholder="搜课程、册次、单元…" autocomplete="off" aria-label="搜索">
       <kbd>Ctrl K</kbd>
     </div>
-    <nav class="side-nav" id="nav" aria-label="站点目录">
-      <div class="nv-mod" data-mod="home">
-        <button class="nv-h" type="button" data-fold="home"><span class="chev">@@CHEV@@</span><b>课程总览</b><em>4</em></button>
-        <div class="nv-list">
-          <a class="nv-i on" href="./index.html"><span class="tt">总览首页</span></a>
-          <a class="nv-i" href="./math.html"><span class="tt">高等数学 · 13 章</span></a>
-          <a class="nv-i" href="./b1.html"><span class="tt">大学英语 · 第 1 册</span></a>
-          <a class="nv-i" href="#books"><span class="tt">四册 24 个单元</span></a>
-        </div>
-      </div>
-      <div class="nv-mod fold" data-mod="math">
-        <button class="nv-h" type="button" data-fold="math"><span class="chev">@@CHEV@@</span><b>高等数学</b><em>13</em></button>
-        <div class="nv-list">
-          <div class="nv-grp">上册 · 第一～七章</div>
-          @@MATHUP@@
-          <div class="nv-grp">下册 · 第八～十三章</div>
-          @@MATHDN@@
-        </div>
-      </div>
-      <div class="nv-mod fold" data-mod="en">
-        <button class="nv-h" type="button" data-fold="en"><span class="chev">@@CHEV@@</span><b>大学英语</b><em>4</em></button>
-        <div class="nv-list">
-          <a class="nv-i" href="./b1.html"><span class="no">B1</span><span class="tt">第 1 册 · 课内习题</span></a>
-          <a class="nv-i" href="./b2.html"><span class="no">B2</span><span class="tt">第 2 册</span></a>
-          <a class="nv-i" href="./b3.html"><span class="no">B3</span><span class="tt">第 3 册</span></a>
-          <a class="nv-i" href="./b4.html"><span class="no">B4</span><span class="tt">第 4 册</span></a>
-        </div>
-      </div>
-    </nav>
+    @@NAV@@
     <div class="side-foot">
       <div class="pg-t"><span>内容规模</span><b>13 章 · 24 单元</b></div>
       <div class="side-tools">
@@ -287,6 +263,7 @@ HEAD = """<!DOCTYPE html>
   </div>
 </div>
 <div class="mask"></div>
+<script src="./skin.js"></script>
 <script src="./en.js"></script>
 </body>
 </html>
@@ -315,7 +292,8 @@ def math_nav(items):
 
 
 def main():
-    page = (HEAD.replace("@@SEARCH@@", SEARCH)
+    page = (HEAD.replace("@@NAV@@", build_nav("./b1.html", "math"))
+                .replace("@@SEARCH@@", SEARCH)
                 .replace("@@CHEV@@", CHEV)
                 .replace("@@THEME@@", THEME)
                 .replace("@@TOPHAT@@", TOPHAT)

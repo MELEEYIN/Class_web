@@ -14,6 +14,10 @@ build_en_math.py — 生成 site/en/math.html（高等数学 · 宋浩讲义对�
 """
 import io
 import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from nav_shared import build_nav
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -816,7 +820,7 @@ def main():
                      '<span class="tt">%s</span><span class="mk"></span></a>' % (c["id"], c["id"], c["no"], c["title"])
                      for c in dn)
 
-    page = HEAD.replace("@@NAVUP@@", nav_up).replace("@@NAVDN@@", nav_dn)
+    page = HEAD.replace("@@NAV@@", build_nav("./b1.html", "math"))
     page = page.replace("@@CHAPTERS@@", render_quick() + chapters)
     page = page.replace("@@NSEC@@", str(nsec))
     page = page.replace("@@NCH@@", str(len(CH)))
@@ -855,27 +859,7 @@ HEAD = """<!DOCTYPE html>
       <input id="sideSearch" type="search" placeholder="搜章节、公式、易错点…" autocomplete="off" aria-label="搜索">
       <kbd>Ctrl K</kbd>
     </div>
-    <nav class="side-nav" id="nav" aria-label="站点目录">
-      <div class="nv-mod" data-mod="math">
-        <button class="nv-h" type="button" data-fold="math"><span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span><b>高等数学</b><em>13</em></button>
-        <div class="nv-list">
-          <div class="nv-grp">上册 · 第一～七章</div>
-          @@NAVUP@@
-          <div class="nv-grp">下册 · 第八～十三章</div>
-          @@NAVDN@@
-        </div>
-      </div>
-      <div class="nv-mod fold" data-mod="en">
-        <button class="nv-h" type="button" data-fold="en"><span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span><b>大学英语</b><em>4</em></button>
-        <div class="nv-list">
-          <a class="nv-i" href="./b1.html"><span class="no">B1</span><span class="tt">第 1 册 · 课内习题</span></a>
-          <a class="nv-i" href="./b2.html"><span class="no">B2</span><span class="tt">第 2 册</span></a>
-          <a class="nv-i" href="./b3.html"><span class="no">B3</span><span class="tt">第 3 册</span></a>
-          <a class="nv-i" href="./b4.html"><span class="no">B4</span><span class="tt">第 4 册</span></a>
-          <a class="nv-i" href="./index.html"><span class="tt">四册总览</span></a>
-        </div>
-      </div>
-    </nav>
+    @@NAV@@
     <div class="side-foot">
       <div class="pg-t"><span>高数进度</span><b id="pgNum">0 / 13</b></div>
       <div class="pg-bar"><i id="pgBar"></i></div>
@@ -933,6 +917,7 @@ HEAD = """<!DOCTYPE html>
   </div>
 </div>
 <div class="mask"></div>
+<script src="./skin.js"></script>
 <script src="./en.js"></script>
 </body>
 </html>

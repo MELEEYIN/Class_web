@@ -11,6 +11,10 @@ build_en_b1.py — 生成 site/en/b1.html（第 1 册 · 课内习题对齐版�
 """
 import io
 import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from nav_shared import build_nav
 import re
 import html
 
@@ -499,31 +503,7 @@ HEAD = """<!DOCTYPE html>
       <input id="sideSearch" type="search" placeholder="搜单元、课文、习题…" autocomplete="off" aria-label="搜索本册">
       <kbd>Ctrl K</kbd>
     </div>
-    <nav class="side-nav" id="nav" aria-label="本站目录">
-      <div class="nv-mod" data-mod="b1">
-        <button class="nv-h" type="button" data-fold="b1"><span class="chev">@@CHEV@@</span><b>第 1 册 · 大一上</b><em>6</em></button>
-        <div class="nv-list">@@NAVITEMS@@</div>
-      </div>
-      <div class="nv-mod fold" data-mod="math">
-        <button class="nv-h" type="button" data-fold="math"><span class="chev">@@CHEV@@</span><b>高等数学</b><em>13</em></button>
-        <div class="nv-list">
-          <div class="nv-grp">上册 · 第一～七章</div>
-          @@MATHUP@@
-          <div class="nv-grp">下册 · 第八～十三章</div>
-          @@MATHDN@@
-        </div>
-      </div>
-      <div class="nv-mod fold" data-mod="more">
-        <button class="nv-h" type="button" data-fold="more"><span class="chev">@@CHEV@@</span><b>其他册 / 站点</b><em>5</em></button>
-        <div class="nv-list">
-          <a class="nv-i" href="./index.html"><span class="tt">四册总览</span></a>
-          <a class="nv-i" href="./b2.html"><span class="tt">第 2 册 · 大一下</span></a>
-          <a class="nv-i" href="./b3.html"><span class="tt">第 3 册 · 大二上</span></a>
-          <a class="nv-i" href="./b4.html"><span class="tt">第 4 册 · 大二下</span></a>
-          <a class="nv-i" href="../acm/index.html"><span class="tt">编程学习站</span></a>
-        </div>
-      </div>
-    </nav>
+    @@NAV@@
     <div class="side-foot">
       <div class="pg-t"><span>本册进度</span><b id="pgNum">0 / 6</b></div>
       <div class="pg-bar"><i id="pgBar"></i></div>
@@ -581,6 +561,7 @@ HEAD = """<!DOCTYPE html>
   </div>
 </div>
 <div class="mask"></div>
+<script src="./skin.js"></script>
 <script src="./en.js"></script>
 </body>
 </html>
@@ -662,8 +643,7 @@ def main():
                         '<span class="tt">%s</span><span class="mk">%s</span></a>'
                         % (u["uid"], u["uid"], n, u["en"], CHECK))
 
-    page = (HEAD.replace("@@MATHUP@@", MATH_NAV_UP)
-                .replace("@@MATHDN@@", MATH_NAV_DN)
+    page = (HEAD.replace("@@NAV@@", build_nav("", "en"))
                 .replace("@@SEARCH@@", SEARCH)
                 .replace("@@CHEV@@", CHEV)
                 .replace("@@THEME@@", THEME_ICO)
