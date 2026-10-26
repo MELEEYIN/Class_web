@@ -489,8 +489,8 @@ HEAD = """<!DOCTYPE html>
   <aside class="side" id="side">
     <div class="side-top">
       <a class="brand" href="./index.html">
-        <span class="brand-mark">E</span>
-        <span class="brand-txt"><b>大学英语</b><small>领航 · 综合教程</small></span>
+        <span class="brand-mark">学</span>
+        <span class="brand-txt"><b>课程学习站</b><small>高等数学 · 大学英语</small></span>
       </a>
       <button class="side-x" id="sideX" type="button" aria-label="收起侧栏">✕</button>
     </div>
@@ -503,6 +503,15 @@ HEAD = """<!DOCTYPE html>
       <div class="nv-mod" data-mod="b1">
         <button class="nv-h" type="button" data-fold="b1"><span class="chev">@@CHEV@@</span><b>第 1 册 · 大一上</b><em>6</em></button>
         <div class="nv-list">@@NAVITEMS@@</div>
+      </div>
+      <div class="nv-mod fold" data-mod="math">
+        <button class="nv-h" type="button" data-fold="math"><span class="chev">@@CHEV@@</span><b>高等数学</b><em>13</em></button>
+        <div class="nv-list">
+          <div class="nv-grp">上册 · 第一～七章</div>
+          @@MATHUP@@
+          <div class="nv-grp">下册 · 第八～十三章</div>
+          @@MATHDN@@
+        </div>
       </div>
       <div class="nv-mod fold" data-mod="more">
         <button class="nv-h" type="button" data-fold="more"><span class="chev">@@CHEV@@</span><b>其他册 / 站点</b><em>5</em></button>
@@ -518,16 +527,17 @@ HEAD = """<!DOCTYPE html>
     <div class="side-foot">
       <div class="pg-t"><span>本册进度</span><b id="pgNum">0 / 6</b></div>
       <div class="pg-bar"><i id="pgBar"></i></div>
-      <div class="side-tools"><a class="mini-btn" href="./index.html">四册总览</a></div>
+      <div class="side-tools"><a class="mini-btn" href="./math.html">高等数学</a></div>
     </div>
   </aside>
 
   <div class="main">
     <header class="top" id="top">
       <button class="burger" id="burger" type="button" aria-label="打开目录">☰</button>
-      <div class="crumb"><a href="./index.html">大学英语</a><span class="sep">/</span><span class="cur">第 1 册 · 课内习题</span></div>
+      <div class="crumb"><a href="./index.html">课程学习站</a><span class="sep">/</span><span class="cur">大学英语 · 第 1 册</span></div>
       <div class="top-r">
         <button class="top-btn" id="themeBtn" type="button" title="切换深浅色">@@THEME@@<span class="tl">浅色</span></button>
+        <a class="top-btn" href="./math.html"><span class="tl">高等数学</span></a>
         <a class="top-btn" href="https://welearn.sflep.com/student/course_info.aspx?cid=3224" target="_blank" rel="noopener"><span class="tl">WE Learn</span></a>
       </div>
     </header>
@@ -540,7 +550,7 @@ HEAD = """<!DOCTYPE html>
         <div class="stage">
           <article class="doc doc-study" id="doc">
             <header class="doc-head">
-              <div class="eyebrow">大学英语 · 第 1 册</div>
+              <div class="eyebrow">课程学习站 · 大学英语</div>
               <h1>领航大学英语 · 综合教程 1<span class="hno">B1</span></h1>
               <p class="lede">六个单元，每个单元的课内习题都按 WE Learn 的真实任务链重排：先看清平台上题目的顺序，再逐项拿到题面、答案和解析。Translation 六组题面与参考译文已按教材录入，并补了逐句结构对照；Use of Language 目前只有 Unit 1 是教材原题，其余单元在原来的位置上留了「待录入」卡，写明还缺哪几样材料。自编的过渡练习全部收进折叠块，不占视线。</p>
               <div class="chips">
@@ -623,6 +633,22 @@ def build_unit(u, mods, old6):
                     tabs=tabs)
 
 
+MATH_CH = [(1, "函数与极限"), (2, "导数与微分"), (3, "中值定理与导数应用"),
+           (4, "不定积分"), (5, "定积分"), (6, "定积分的应用"), (7, "微分方程"),
+           (8, "向量代数与空间解析几何"), (9, "多元函数微分法"),
+           (10, "重积分"), (11, "曲线积分"), (12, "曲面积分"), (13, "无穷级数")]
+
+
+def _math_nav(items):
+    return "".join(
+        '<a class="nv-i" href="./math.html#m%d"><span class="no">%02d</span>'
+        '<span class="tt">%s</span></a>' % (n, n, t) for n, t in items)
+
+
+MATH_NAV_UP = _math_nav(MATH_CH[:7])
+MATH_NAV_DN = _math_nav(MATH_CH[7:])
+
+
 def main():
     units_src = load_units(OLD)
     out_units = []
@@ -636,7 +662,9 @@ def main():
                         '<span class="tt">%s</span><span class="mk">%s</span></a>'
                         % (u["uid"], u["uid"], n, u["en"], CHECK))
 
-    page = (HEAD.replace("@@SEARCH@@", SEARCH)
+    page = (HEAD.replace("@@MATHUP@@", MATH_NAV_UP)
+                .replace("@@MATHDN@@", MATH_NAV_DN)
+                .replace("@@SEARCH@@", SEARCH)
                 .replace("@@CHEV@@", CHEV)
                 .replace("@@THEME@@", THEME_ICO)
                 .replace("@@TOPHAT@@", TOPHAT)

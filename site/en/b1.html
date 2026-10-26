@@ -18,8 +18,8 @@
   <aside class="side" id="side">
     <div class="side-top">
       <a class="brand" href="./index.html">
-        <span class="brand-mark">E</span>
-        <span class="brand-txt"><b>大学英语</b><small>领航 · 综合教程</small></span>
+        <span class="brand-mark">学</span>
+        <span class="brand-txt"><b>课程学习站</b><small>高等数学 · 大学英语</small></span>
       </a>
       <button class="side-x" id="sideX" type="button" aria-label="收起侧栏">✕</button>
     </div>
@@ -32,6 +32,15 @@
       <div class="nv-mod" data-mod="b1">
         <button class="nv-h" type="button" data-fold="b1"><span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span><b>第 1 册 · 大一上</b><em>6</em></button>
         <div class="nv-list"><a class="nv-i" href="#u1" data-unit="u1"><span class="no">01</span><span class="tt">College Life</span><span class="mk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></span></a><a class="nv-i" href="#u2" data-unit="u2"><span class="no">02</span><span class="tt">Understanding Relationships</span><span class="mk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></span></a><a class="nv-i" href="#u3" data-unit="u3"><span class="no">03</span><span class="tt">Holidays and Traditions</span><span class="mk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></span></a><a class="nv-i" href="#u4" data-unit="u4"><span class="no">04</span><span class="tt">Leisure</span><span class="mk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></span></a><a class="nv-i" href="#u5" data-unit="u5"><span class="no">05</span><span class="tt">Language Learning</span><span class="mk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></span></a><a class="nv-i" href="#u6" data-unit="u6"><span class="no">06</span><span class="tt">Food and Culture</span><span class="mk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></span></a></div>
+      </div>
+      <div class="nv-mod fold" data-mod="math">
+        <button class="nv-h" type="button" data-fold="math"><span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span><b>高等数学</b><em>13</em></button>
+        <div class="nv-list">
+          <div class="nv-grp">上册 · 第一～七章</div>
+          <a class="nv-i" href="./math.html#m1"><span class="no">01</span><span class="tt">函数与极限</span></a><a class="nv-i" href="./math.html#m2"><span class="no">02</span><span class="tt">导数与微分</span></a><a class="nv-i" href="./math.html#m3"><span class="no">03</span><span class="tt">中值定理与导数应用</span></a><a class="nv-i" href="./math.html#m4"><span class="no">04</span><span class="tt">不定积分</span></a><a class="nv-i" href="./math.html#m5"><span class="no">05</span><span class="tt">定积分</span></a><a class="nv-i" href="./math.html#m6"><span class="no">06</span><span class="tt">定积分的应用</span></a><a class="nv-i" href="./math.html#m7"><span class="no">07</span><span class="tt">微分方程</span></a>
+          <div class="nv-grp">下册 · 第八～十三章</div>
+          <a class="nv-i" href="./math.html#m8"><span class="no">08</span><span class="tt">向量代数与空间解析几何</span></a><a class="nv-i" href="./math.html#m9"><span class="no">09</span><span class="tt">多元函数微分法</span></a><a class="nv-i" href="./math.html#m10"><span class="no">10</span><span class="tt">重积分</span></a><a class="nv-i" href="./math.html#m11"><span class="no">11</span><span class="tt">曲线积分</span></a><a class="nv-i" href="./math.html#m12"><span class="no">12</span><span class="tt">曲面积分</span></a><a class="nv-i" href="./math.html#m13"><span class="no">13</span><span class="tt">无穷级数</span></a>
+        </div>
       </div>
       <div class="nv-mod fold" data-mod="more">
         <button class="nv-h" type="button" data-fold="more"><span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span><b>其他册 / 站点</b><em>5</em></button>
@@ -47,16 +56,17 @@
     <div class="side-foot">
       <div class="pg-t"><span>本册进度</span><b id="pgNum">0 / 6</b></div>
       <div class="pg-bar"><i id="pgBar"></i></div>
-      <div class="side-tools"><a class="mini-btn" href="./index.html">四册总览</a></div>
+      <div class="side-tools"><a class="mini-btn" href="./math.html">高等数学</a></div>
     </div>
   </aside>
 
   <div class="main">
     <header class="top" id="top">
       <button class="burger" id="burger" type="button" aria-label="打开目录">☰</button>
-      <div class="crumb"><a href="./index.html">大学英语</a><span class="sep">/</span><span class="cur">第 1 册 · 课内习题</span></div>
+      <div class="crumb"><a href="./index.html">课程学习站</a><span class="sep">/</span><span class="cur">大学英语 · 第 1 册</span></div>
       <div class="top-r">
         <button class="top-btn" id="themeBtn" type="button" title="切换深浅色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/><circle cx="12" cy="12" r="3.6"/></svg><span class="tl">浅色</span></button>
+        <a class="top-btn" href="./math.html"><span class="tl">高等数学</span></a>
         <a class="top-btn" href="https://welearn.sflep.com/student/course_info.aspx?cid=3224" target="_blank" rel="noopener"><span class="tl">WE Learn</span></a>
       </div>
     </header>
@@ -69,7 +79,7 @@
         <div class="stage">
           <article class="doc doc-study" id="doc">
             <header class="doc-head">
-              <div class="eyebrow">大学英语 · 第 1 册</div>
+              <div class="eyebrow">课程学习站 · 大学英语</div>
               <h1>领航大学英语 · 综合教程 1<span class="hno">B1</span></h1>
               <p class="lede">六个单元，每个单元的课内习题都按 WE Learn 的真实任务链重排：先看清平台上题目的顺序，再逐项拿到题面、答案和解析。Translation 六组题面与参考译文已按教材录入，并补了逐句结构对照；Use of Language 目前只有 Unit 1 是教材原题，其余单元在原来的位置上留了「待录入」卡，写明还缺哪几样材料。自编的过渡练习全部收进折叠块，不占视线。</p>
               <div class="chips">

@@ -1,0 +1,179 @@
+/* ==========================================================================
+   math.css — 高等数学页（/en/math.html）的公式与章节排版
+   --------------------------------------------------------------------------
+   依赖：acm/assets/shell.css（外壳令牌）、en/ex.css（单元头 / 表格 / 提示块）
+        本文件只做两件事：① 无 MathJax 的公式排版；② 章节内的节表与公式块。
+
+   为什么不用 MathJax：站点 CSP 是 default-src 'self'，外链脚本会被拦掉，
+   自己塞一份 300 KB 的数学字体也不划算。这里的公式全部走 HTML + Unicode，
+   代价是要手写结构，好处是零依赖、能跟着深浅色主题走。
+
+   公式写法
+     行内        <span class="fm">lim<sub>x→0</sub> sin x / x = 1</span>
+     变量斜体    <span class="fm"><i>f</i>(<i>x</i>)</span>
+     分数        <span class="fr"><span class="n">1</span><span class="d">x</span></span>
+     极限/求和   <span class="lm">lim<span class="s">x→0</span></span>
+     大字运算符  <span class="op">∫</span> <span class="op">Σ</span> <span class="op">√</span>
+     独立公式    <div class="fml"><span class="row">…</span></div>
+   ========================================================================== */
+
+/* ---------------------------------------------------------- 1. 公式基础 */
+.fm {
+  font-family: "Cambria Math", "Latin Modern Math", "Times New Roman", var(--sans);
+  font-size: 1.03em;
+  letter-spacing: .01em;
+  white-space: nowrap;
+}
+.fm i, .fm var { font-style: italic; font-family: "Times New Roman", var(--sans); }
+.fm sup, .fm sub { font-size: .7em; line-height: 0; }
+.op {
+  font-family: "Cambria Math", "Times New Roman", serif;
+  font-size: 1.22em;
+  vertical-align: -.08em;
+  margin: 0 .12em;
+}
+.fr {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: -.48em;
+  margin: 0 .26em;
+  line-height: 1.25;
+  font-size: 1em;
+}
+.fr > .n { border-bottom: 1px solid currentColor; padding: 0 .26em; }
+.fr > .d { padding: 0 .26em; }
+.lm {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: -.34em;
+  margin: 0 .16em;
+  line-height: 1.06;
+}
+.lm > .s { font-size: .66em; color: var(--ink-3); margin-top: 1px; white-space: nowrap; }
+
+/* 独立公式块 */
+.fml {
+  margin: 12px 0;
+  padding: 14px 18px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-2);
+  overflow-x: auto;
+  font-size: 15px;
+  line-height: 2.5;
+}
+.fml > .row { display: block; padding: 3px 0; }
+.fml > .row + .row { margin-top: 2px; }
+.fml .fm { font-size: 1.04em; }
+.fml .tag {
+  display: inline-block;
+  margin-left: 10px;
+  font-size: 11.6px;
+  color: var(--ink-4);
+  font-family: var(--sans);
+}
+
+/* ---------------------------------------------------------- 2. 分节表 */
+.doc-study table.sectbl { table-layout: fixed; }
+.doc-study table.sectbl th,
+.doc-study table.sectbl td { padding: 8px 10px; font-size: 12.9px; line-height: 1.75; vertical-align: top; }
+.doc-study table.sectbl td:first-child {
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.6;
+}
+.doc-study table.sectbl td:first-child .pg {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--mono);
+  font-size: 11.4px;
+  font-weight: 400;
+  color: var(--ink-4);
+}
+.doc-study table.sectbl td:nth-child(2) { color: var(--ink-2); }
+.doc-study table.sectbl td:nth-child(3) { color: var(--ink-3); font-size: 12.5px; }
+
+/* ---------------------------------------------------------- 3. 章节块 */
+.unit.mth .uhead { align-items: center; }
+.unit.mth .uno { font-size: 13px; }
+.chpg {
+  display: inline-flex;
+  gap: 6px;
+  margin-left: 10px;
+  font-family: var(--mono);
+  font-size: 11.6px;
+  color: var(--ink-4);
+  vertical-align: 2px;
+}
+.booktag {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: 6px;
+  border: 1px solid var(--line-2);
+  background: var(--surface-2);
+  font-size: 11.2px;
+  color: var(--ink-3);
+  margin-right: 6px;
+}
+
+/* 小标题（节内的「公式」「易错」） */
+.sect-h {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 18px 0 10px;
+  font-size: 13.4px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.sect-h::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+/* 易错点列表 */
+ul.pit { margin: 6px 0 0; padding: 0; list-style: none; }
+ul.pit li {
+  position: relative;
+  margin: 7px 0;
+  padding: 8px 12px 8px 32px;
+  border-radius: 8px;
+  border: 1px solid rgb(var(--danger-rgb) / .26);
+  background: rgb(var(--danger-rgb) / .06);
+  font-size: 13px;
+  line-height: 1.75;
+  color: var(--ink-2);
+}
+ul.pit li::before {
+  content: "!";
+  position: absolute;
+  left: 11px;
+  top: 8px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: rgb(var(--danger-rgb) / .18);
+  color: rgb(var(--danger-rgb));
+  font: 700 11px/14px var(--sans);
+  text-align: center;
+}
+ul.pit li b { color: var(--ink); }
+
+/* 综合提高（题型） */
+ol.drill { margin: 6px 0 0 20px; padding: 0; }
+ol.drill li { margin: 8px 0; font-size: 13.1px; line-height: 1.8; color: var(--ink-2); }
+ol.drill li b { color: var(--ink); }
+ol.drill li em {
+  font-style: normal;
+  color: var(--ink-3);
+  font-size: 12.6px;
+}
+
+/* 章节列表页的表格宽一点 */
+.doc-study table.sectbl col.c1 { width: 30%; }

@@ -147,7 +147,8 @@
   var readBar = $('#readBar');
   var toTop = $('#toTop');
   var navLinks = $$('#tocList a');
-  var anchors = navLinks.map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); });
+  var secs = $$('.unit');
+  var sideLinks = $$('#nav a.nv-i[data-unit]');
 
   function onScroll() {
     var sc = $('#scroll') || document.scrollingElement;
@@ -156,15 +157,20 @@
     if (readBar) readBar.style.width = Math.min(100, (top / h) * 100).toFixed(2) + '%';
     if (toTop) toTop.classList.toggle('show', top > 480);
 
+    /* 目录高亮：用章节自身的视口位置判断，不能用目录链接的位置
+       （右栏是 sticky + 内部滚动，链接的 rect 跟页面滚动没有关系） */
     var idx = -1;
-    for (var i = 0; i < anchors.length; i++) {
-      var el = anchors[i];
-      if (el && el.getBoundingClientRect().top <= 120) idx = i;
+    for (var i = 0; i < secs.length; i++) {
+      if (secs[i].getBoundingClientRect().top <= 140) idx = i;
     }
     navLinks.forEach(function (a, i) { a.classList.toggle('on', i === idx); });
+
+    var cur = idx >= 0 ? secs[idx].id : '';
+    sideLinks.forEach(function (a) { a.classList.toggle('on', a.getAttribute('data-unit') === cur); });
   }
   var scrollHost = $('#scroll');
   (scrollHost || window).addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
   onScroll();
 
   if (toTop) {

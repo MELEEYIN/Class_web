@@ -6,7 +6,7 @@
 <meta name="description" content="按《领航大学英语·综合教程》四册 24 个单元编排的大学英语学习子站：每个单元固定 6 个学习模块 —— 单元导入、词汇与语言点、课文精读、听力口语、翻译写作、练习与自测。">
 <meta name="theme-color" content="#2563eb">
 <meta name="color-scheme" content="light dark">
-<title>大学英语 · 四册总览 · 校园主页子站</title>
+<title>课程学习站 · 大学英语四册总览 + 高等数学</title>
 <script src="../js/boot.js"></script>
 <script>try{var _t=document.documentElement.getAttribute('data-theme')||'light';document.documentElement.setAttribute('data-mode',_t);}catch(e){}</script>
 <script src="./bg.js"></script>
@@ -237,6 +237,20 @@ h2.clk:hover,h3.clk:hover{color:var(--accent)}
 }
 </style>
 <link rel="stylesheet" href="./en.css">
+<style>
+/* 两门课入口卡 */
+.courses{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0 26px}
+@media (max-width:820px){.courses{grid-template-columns:1fr}}
+.ccard{display:flex;flex-direction:column;gap:8px;padding:18px 20px;border-radius:14px;
+  border:1px solid var(--line);background:rgb(var(--panel-rgb) / var(--panel-a));
+  text-decoration:none;transition:border-color .16s,transform .16s}
+.ccard:hover{border-color:rgb(var(--accent-rgb) / .5);transform:translateY(-2px);text-decoration:none}
+.ccard .ctag{align-self:flex-start;padding:1px 8px;border-radius:6px;font-size:11.5px;
+  color:var(--accent);background:rgb(var(--accent-rgb) / .12);border:1px solid rgb(var(--accent-rgb) / .3)}
+.ccard b{font-size:15.5px;color:var(--text)}
+.ccard p{margin:0;font-size:13px;line-height:1.8;color:var(--text-2)}
+.ccard .cgo{margin-top:4px;font-size:12.6px;color:var(--accent)}
+</style>
 </head>
 <body>
 <div class="bgfx" aria-hidden="true"></div>
@@ -254,7 +268,7 @@ h2.clk:hover,h3.clk:hover{color:var(--accent)}
   <div class="acm-wrap acm-nav-inner">
     <a class="acm-brand" href="../index.html" title="回到校园主页">
       <span class="acm-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-graduation"/></svg></span>
-      <span class="acm-brand-text"><strong>大学英语</strong><small>校园主页 · 子站</small></span>
+      <span class="acm-brand-text"><strong>课程学习站</strong><small>大学英语 · 高等数学</small></span>
     </a>
     <nav class="acm-tabs" aria-label="子站页面">
       <a href="./index.html" class="on" aria-current="page">四册总览</a>
@@ -262,6 +276,7 @@ h2.clk:hover,h3.clk:hover{color:var(--accent)}
       <a href="./b2.html">第 2 册</a>
       <a href="./b3.html">第 3 册</a>
       <a href="./b4.html">第 4 册</a>
+      <a href="./math.html">高等数学</a>
     </nav>
     <div class="acm-nav-actions">
       <button class="acm-btn acm-btn-icon" type="button" id="themeBtn" title="切换深色 / 浅色（全站共用）" aria-label="切换深色或浅色主题">
@@ -275,7 +290,7 @@ h2.clk:hover,h3.clk:hover{color:var(--accent)}
 </header>
 <header class="top">
   <div class="wrap">
-    <h1>大学英语 · 四册总览</h1>
+    <h1>课程学习站 · 大学英语四册总览</h1>
     <p class="sub">按 <b>《领航大学英语·综合教程》</b>（上海外语教育出版社 · 刘建达总主编）的单元顺序编排：<b>四册 × 每册 6 个单元 = 24 个单元</b>，每个单元内部固定 6 个学习模块。单元是导航的第一层，模块是第二层 —— 想练什么就点进哪个模块。</p>
     <div class="stats">
       <span class="stat">4 册</span><span class="stat">24 个单元</span>
@@ -289,7 +304,10 @@ h2.clk:hover,h3.clk:hover{color:var(--accent)}
 </header>
 <div class="layout">
   <aside>
-    <div class="ttl">四册目录</div>
+    <div class="ttl">课程</div>
+    <a class="sub2" href="./math.html">高等数学 · 13 章</a>
+    <a class="sub2" href="./b1.html">大学英语 · 第 1 册</a>
+    <div class="ttl" style="margin-top:12px">四册目录</div>
     <a href="#b1">第 1 册 · 大一上 · 入门</a>
     <a href="#b2">第 2 册 · 大一下 · 基础</a>
     <a href="#b3">第 3 册 · 大二上 · 进阶</a>
@@ -300,6 +318,21 @@ h2.clk:hover,h3.clk:hover{color:var(--accent)}
     <a class="sub2" href="#matrix">24 个单元</a>
   </aside>
   <main>
+    <h2 id="courses">两门课，一套外壳</h2>
+    <section class="courses" aria-label="课程入口">
+      <a class="ccard" href="./math.html">
+        <span class="ctag">高等数学</span>
+        <b>13 章 · 75 节</b>
+        <p>按《宋浩高等数学讲义》上册 7 章、下册 6 章逐节整理：每章给「节表（这一节必须会什么、怎么考）+ 核心公式 + 易错点 + 综合提高题型」。</p>
+        <span class="cgo">进入高等数学 →</span>
+      </a>
+      <a class="ccard" href="./b1.html">
+        <span class="ctag">大学英语</span>
+        <b>第 1 册 · 课内习题对齐版</b>
+        <p>六个单元的课内习题按 WE Learn 的真实任务链重排，Translation 六组题面与参考译文按教材录入，配逐句结构对照。</p>
+        <span class="cgo">进入第 1 册 →</span>
+      </a>
+    </section>
     <h2 id="how">三步学习法</h2>
     <p class="lead">不要把六个模块从头读到尾 —— 按「课前 / 课中 / 课后」三段时间分配，一个单元大概三次、每次半小时就够。</p>
     <div class="steps">
