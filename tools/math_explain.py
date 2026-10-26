@@ -42,6 +42,23 @@ STRIP_RE = re.compile(r"\n?<!--EXPL:[\w-]+-->[\s\S]*?<!--/EXPL:[\w-]+-->\n?")
 BLOCK_RE = re.compile(r"<!--EXPL:(m\d+-s\d+)-->\s*([\s\S]*?)\s*<!--/EXPL:\1-->")
 FORBIDDEN = ("<script", "<style", "http://", "https://", "\\frac", "\\int", " style=")
 
+# 短公式整体不拆行：把 .fm 里的普通空格换成不换行空格。
+# 长公式（>30 字）保持可拆，否则窄屏会横向溢出。
+FM_RE = re.compile(r'(<span class="fm">)([\s\S]*?)(</span>)')
+TAG_RE = re.compile(r"<[^>]+>")
+FM_WRAP_MAX = 30
+
+
+def nowrap_short_formulas(body):
+    def fix(m):
+        head, inner, tail = m.group(1), m.group(2), m.group(3)
+        plain = TAG_RE.sub("", inner)
+        if len(plain) <= FM_WRAP_MAX and " " in inner:
+            inner = inner.replace(" ", "&#160;")
+        return head + inner + tail
+
+    return FM_RE.sub(fix, body)
+
 
 def load_blocks():
     blocks, bad = {}, []
@@ -54,7 +71,7 @@ def load_blocks():
             for pat in FORBIDDEN:
                 if pat in body:
                     bad.append((sid, pat))
-            blocks[sid] = body
+            blocks[sid] = nowrap_short_formulas(body)
     return blocks, bad
 
 

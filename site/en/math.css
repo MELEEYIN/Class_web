@@ -504,61 +504,83 @@ details.ex-a > summary:hover { color: var(--kpt-label); }
 }
 .exset .ex-q { color: var(--kpt-label); }
 .exset .ex-a-body { color: var(--kpt-ink); }
-
-/* ---------------------------------------------------------- 13. 逐节讲解 */
+/* ---------------------------------------------------------- 13. 逐节讲解
+   这一块是页面的主要阅读面：每节 900–1600 字的讲义式正文。
+   两条可读性红线：字号必须和正文一致（16px，不能比速记还小），
+   段落之间要能扫（首行缩进 + 段距），五个部分之间要有分隔（小标题上压一条细线）。 */
 .explain {
-  margin: 14px 0 6px;
-  padding: 4px 18px 10px;
+  margin: 16px 0 8px;
+  padding: 6px 22px 16px;
   border: 1px solid var(--line);
   border-left: 3px solid rgb(var(--accent-rgb) / .55);
-  border-radius: 0 10px 10px 0;
+  border-radius: 0 12px 12px 0;
   background: var(--surface-2);
-  font-size: 13.9px;
-  line-height: 2.02;
+  font-size: 16px;
+  line-height: 1.88;
   color: var(--kpt-ink);
+  text-align: left;
 }
-.explain > p { margin: 11px 0; }
-.explain > p:first-child { margin-top: 14px; }
+.explain > p {
+  margin: 0 0 13px;
+  text-indent: 2em;
+}
+.explain > p:first-child { margin-top: 12px; }
 .explain b { color: var(--kpt-label); }
 .explain .expl-h {
-  margin: 18px 0 4px;
-  font-size: 13.4px;
+  margin: 26px 0 10px;
+  padding-top: 15px;
+  border-top: 1px solid var(--line);
+  font-size: 16.5px;
   font-weight: 700;
   color: var(--kpt-label);
+  letter-spacing: .2px;
   position: relative;
-  padding-left: 13px;
+  padding-left: 14px;
 }
+.explain .expl-h:first-child { margin-top: 14px; padding-top: 0; border-top: 0; }
 .explain .expl-h::before {
   content: "";
   position: absolute;
-  left: 1px;
-  top: .72em;
+  left: 0;
+  top: 1.05em;
   width: 5px;
-  height: 5px;
-  border-radius: 50%;
+  height: 15px;
+  border-radius: 2px;
   background: var(--accent);
 }
-.explain ul, .explain ol { margin: 8px 0 8px 22px; padding: 0; }
-.explain li { margin: 5px 0; }
+.explain .expl-h:first-child::before { top: .55em; }
+.explain ul, .explain ol { margin: 10px 0 13px 24px; padding: 0; }
+.explain li { margin: 7px 0; }
 .explain .fm { white-space: normal; }
+/* 例题卡：比正文略小一档，但仍然要能读 */
 .explain .expl-eg {
-  margin: 14px 0;
-  padding: 11px 14px 12px;
-  border: 1px solid rgb(var(--accent-rgb) / .18);
-  border-radius: 8px;
-  background: rgb(var(--accent-rgb) / .055);
-  font-size: 13.4px;
+  margin: 16px 0;
+  padding: 13px 16px 14px;
+  border: 1px solid rgb(var(--accent-rgb) / .2);
+  border-radius: 10px;
+  background: rgb(var(--accent-rgb) / .06);
+  font-size: 15.2px;
+  line-height: 1.85;
 }
-.explain .expl-q { margin: 0 0 7px; color: var(--kpt-label); }
+.explain .expl-eg p { text-indent: 0; }
+.explain .expl-q { margin: 0 0 8px; color: var(--kpt-label); }
 .explain .expl-s { margin: 0; }
 .explain .expl-t {
-  margin: 9px 0 0;
-  padding-top: 8px;
+  margin: 11px 0 0;
+  padding-top: 9px;
   border-top: 1px dashed var(--line);
-  font-size: 12.6px;
-  color: var(--ink-4);
+  font-size: 14.4px;
+  line-height: 1.8;
+  color: var(--ink-3);
 }
+/* 深色下把讲解正文再提亮一档：Cambria Math 的斜体笔画细，同等亮度看着比正文字更淡 */
+html[data-theme="dark"] .explain { color: #d8e4f5; }
+html[data-theme="dark"] .explain .expl-eg { color: #d8e4f5; }
+/* 公式字号抬 3%，行内公式在 16px 正文里才不至于发虚 */
+.explain .fm { font-size: 1.03em; }
+.explain .fm .fr, .explain .fm .lm { font-size: 1em; }
 @media (max-width: 760px) {
-  .explain { padding: 2px 13px 8px; font-size: 13.4px; line-height: 1.95; }
-  .explain .expl-eg { padding: 9px 11px 10px; font-size: 13px; }
+  .explain { padding: 4px 15px 12px; font-size: 15.2px; line-height: 1.82; }
+  .explain .expl-h { font-size: 15.8px; margin-top: 22px; padding-top: 13px; }
+  .explain .expl-eg { padding: 11px 12px 12px; font-size: 14.6px; }
 }
