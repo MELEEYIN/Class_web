@@ -100,7 +100,7 @@
 
   /* 侧栏：C++ 语法教程（父）→ 学习手册 / 算竞教程 / 学习计划（子模块）；其余模块平铺。
      每个条目的 route 不变（hb/…、course/…、plan/…），路由与样式都不受影响 */
-  var CXX_KIDS = ['hb', 'course', 'plan'];
+  var CXX_KIDS = ['hb', 'course', 'plan', 'dev', 'sol'];
 
   function ownList(box) {
     for (var i = 0; i < box.children.length; i++)
@@ -154,12 +154,7 @@
               kids.map(function (m) { return modBox(m, act); }).join('') +
               '</div></div>';
     }
-    var lastSec = 'C++ 语法教程';
     mods.filter(function (m) { return CXX_KIDS.indexOf(m.id) < 0; }).forEach(function (m) {
-      if (m.section && m.section !== lastSec) {
-        html += '<div class="nv-sec">' + esc(m.section) + '</div>';
-        lastSec = m.section;
-      }
       html += modBox(m, act);
     });
     host.innerHTML = html;
@@ -617,7 +612,8 @@
         (item.sub && !isCount(item.sub) ? '<p class="lede">' + esc(item.sub) + '</p>' : '') +
         chips(item, mod) + '</header>';
       doc.innerHTML = head + funcsTable(item) + '<div class="docbody">' + html + '</div>';
-      if (mod.id === 'py' || mod.id === 'c') { doc.className = 'doc py-doc'; }
+      if (mod.id === 'py') { doc.className = 'doc py-doc'; }
+      if (mod.id === 'c') { doc.className = 'doc c-doc'; }
       afterRender(doc);
       if (mod.id === 'py' && window.LEARN_CODE) {
         try { window.LEARN_CODE.decorate(doc); } catch (e) { }

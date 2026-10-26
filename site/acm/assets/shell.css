@@ -1005,3 +1005,57 @@ html:not([data-wall="none"]) .stage { padding-top: 26px; }
 .nv-mod > .nv-list > .nv-mod > .nv-h { padding-top: 7px; padding-bottom: 6px; }
 .nv-mod > .nv-list > .nv-mod > .nv-h b { font-size: 13.2px; color: var(--ink-2); }
 .nv-mod > .nv-list > .nv-mod > .nv-h em { font-size: 10.6px; color: var(--ink-4); }
+
+/* ==========================================================================
+   C 语言教程：正文排版加强（可读性 + 层次）
+   ========================================================================== */
+.doc.c-doc { font-size: 16.4px; line-height: 1.95; color: var(--ink); }
+.doc.c-doc p { margin: 15px 0; max-width: 76ch; color: var(--ink-2); }
+.doc.c-doc > .docbody > p:first-of-type {
+  font-size: 17px; color: var(--ink); line-height: 1.9;
+  padding: 14px 18px; border-radius: 12px;
+  background: rgba(var(--accent-rgb) / .06);
+  border: 1px solid rgba(var(--accent-rgb) / .14);
+}
+.doc.c-doc h2 {
+  margin: 46px 0 16px; padding: 0 0 10px; font-size: 23px; font-weight: 700;
+  border-bottom: 1px solid var(--line); position: relative;
+}
+.doc.c-doc h2::after {
+  content: ""; position: absolute; left: 0; bottom: -1px; width: 54px; height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--teal)); border-radius: 2px;
+}
+.doc.c-doc h3 {
+  margin: 30px 0 10px; font-size: 17.6px; font-weight: 650; color: var(--ink);
+  padding-left: 13px; position: relative;
+}
+.doc.c-doc h3::before {
+  content: ""; position: absolute; left: 0; top: .46em; width: 6px; height: 6px;
+  border-radius: 2px; transform: rotate(45deg);
+  background: rgba(var(--accent-rgb) / .8);
+}
+.doc.c-doc h4 { margin: 22px 0 8px; font-size: 15.6px; color: var(--ink-2); }
+.doc.c-doc ul, .doc.c-doc ol { margin: 12px 0 16px; padding-left: 1.35em; }
+.doc.c-doc li { margin: 7px 0; color: var(--ink-2); line-height: 1.85; }
+.doc.c-doc li::marker { color: rgba(var(--accent-rgb) / .75); }
+.doc.c-doc pre { margin: 16px 0; border-radius: 12px; font-size: 13.4px; }
+.doc.c-doc pre code { line-height: 1.7; }
+.doc.c-doc :not(pre) > code {
+  font-size: .9em; padding: 2px 6px; border-radius: 6px;
+  background: rgba(var(--accent-rgb) / .1); color: var(--accent);
+  border: 1px solid rgba(var(--accent-rgb) / .16);
+}
+.doc.c-doc table { margin: 18px 0; font-size: 14px; }
+.doc.c-doc table th {
+  background: rgba(var(--accent-rgb) / .1); color: var(--ink); font-weight: 650;
+  font-size: 13.4px; letter-spacing: .01em;
+}
+.doc.c-doc table tbody tr:nth-child(even) { background: rgba(var(--ink-4) / .045); }
+.doc.c-doc table td, .doc.c-doc table th { padding: 9px 12px; }
+.doc.c-doc blockquote {
+  margin: 18px 0; padding: 12px 16px; border-radius: 10px;
+  border-left: 3px solid rgba(var(--warn-rgb) / .7);
+  background: rgba(var(--warn-rgb) / .07); color: var(--ink-2); font-size: 15.2px;
+}
+.doc.c-doc hr { margin: 34px 0; border: 0; border-top: 1px dashed var(--line-2); }
+.doc.c-doc strong { color: var(--ink); font-weight: 700; }
