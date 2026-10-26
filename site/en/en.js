@@ -143,47 +143,128 @@
     }
   });
 
-  /* ------------------------------------------------ 5. 本页目录 + 进度 */
+  /* ------------------------------------------------ 5. 本页目录 + 进度
+     目录分两种：
+       · 普通页（英语单元 / 首页）：只列一层「章」或「小节」
+       · 高数页（有 .sect-h 节标题）：章 → 节 → 该节的知识点，当前节自动展开 */
   var tocBox = $('#tocList');
-  if (tocBox) {
-    var html = '';
-    if (units.length) {
-      units.forEach(function (u) {
-        var t = u.getAttribute('data-title') || (u.id || '').toUpperCase();
-        html += '<a class="lv2" href="#' + u.id + '">' + t + '</a>';
+  var secs = units.length ? units : $$('.sec-t');
+  var DEEP = $$('.sect-h[id]').length > 0;
+  var tocData = DEEP ? buildTocData() : null;
+  var navLinks = [];
+  var railKey = '';
+  var sideLinks = $$('#nav a.nv-i[data-unit]');
+
+  function buildTocData() {
+    var out = [];
+    $$('.unit').forEach(function (u) {
+      var ch = { id: u.id, title: u.getAttribute('data-title') || u.id, secs: [] };
+      $$('.sect-h[id]', u).forEach(function (h) {
+        var c = h.cloneNode(true);
+        var pg = c.querySelector('.pgx');
+        if (pg) pg.parentNode.removeChild(pg);
+        var t = (c.textContent || '').replace(/\s+/g, ' ').trim()
+          .replace(/^第[一二三四五六七八九十]+节\s*/, '');
+        var sec = { id: h.id, title: t, pts: [] };
+        var ol = h.nextElementSibling;
+        if (ol && ol.classList.contains('kpt')) {
+          $$('li', ol).forEach(function (li) {
+            var bb = li.querySelector('b');
+            if (li.id && bb) sec.pts.push({ id: li.id, title: bb.textContent.trim() });
+          });
+        }
+        ch.secs.push(sec);
       });
-    } else {
-      /* 首页这类没有「单元」的页面：目录取小节标题（h2[id]） */
-      $$('.sec-t h2[id]').forEach(function (h) {
-        html += '<a class="lv2" href="#' + h.id + '">' + h.textContent.replace(/\s+/g, ' ').trim() + '</a>';
-      });
+      out.push(ch);
+    });
+    return out;
+  }
+
+  function renderRail(chIdx, secIdx) {
+    if (!tocBox) return;
+    var h = '';
+    if (!DEEP) {
+      if (units.length) {
+        units.forEach(function (u, i) {
+          h += '<a class="lv2' + (i === chIdx ? ' on' : '') + '" href="#' + u.id + '">' +
+            (u.getAttribute('data-title') || u.id) + '</a>';
+        });
+      } else {
+        $$('.sec-t h2[id]').forEach(function (x, i) {
+          h += '<a class="lv2' + (i === chIdx ? ' on' : '') + '" href="#' + x.id + '">' +
+            x.textContent.replace(/\s+/g, ' ').trim() + '</a>';
+        });
+      }
+      tocBox.innerHTML = h;
+      navLinks = $$('a', tocBox);
+      return;
     }
-    tocBox.innerHTML = html;
+    tocData.forEach(function (ch, i) {
+      h += '<a class="lv2' + (i === chIdx ? ' cur' : '') + '" href="#' + ch.id + '">' + ch.title + '</a>';
+      if (i !== chIdx) return;
+      ch.secs.forEach(function (sec, j) {
+        h += '<a class="lv3' + (j === secIdx ? ' on' : '') + '" href="#' + sec.id + '" title="' +
+          sec.title + '">' + sec.title + '</a>';
+        if (j !== secIdx) return;
+        sec.pts.forEach(function (pt) {
+          h += '<a class="lv4" href="#' + pt.id + '" title="' + pt.title + '">' + pt.title + '</a>';
+        });
+      });
+    });
+    tocBox.innerHTML = h;
+    navLinks = $$('a', tocBox);
+  }
+
+  function activeIndex() {
+    var chIdx = -1, secIdx = -1, ptIdx = -1;
+    for (var i = 0; i < secs.length; i++) {
+      if (secs[i].getBoundingClientRect().top <= 140) chIdx = i;
+    }
+    if (DEEP && chIdx >= 0 && tocData[chIdx]) {
+      var list = tocData[chIdx].secs;
+      for (var j = 0; j < list.length; j++) {
+        var el = document.getElementById(list[j].id);
+        if (el && el.getBoundingClientRect().top <= 168) secIdx = j;
+      }
+      if (secIdx >= 0) {
+        var pts = list[secIdx].pts;
+        for (var k = 0; k < pts.length; k++) {
+          var li = document.getElementById(pts[k].id);
+          if (li && li.getBoundingClientRect().top <= 176) ptIdx = k;
+        }
+      }
+    }
+    return [chIdx, secIdx, ptIdx];
   }
 
   var readBar = $('#readBar');
   var toTop = $('#toTop');
-  var navLinks = $$('#tocList a');
-  var secs = units.length ? units : $$('.sec-t');
-  var sideLinks = $$('#nav a.nv-i[data-unit]');
 
   function onScroll() {
     var sc = $('#scroll') || document.scrollingElement;
     var top = sc.scrollTop || window.scrollY || 0;
-    var h = (sc.scrollHeight - sc.clientHeight) || 1;
-    if (readBar) readBar.style.width = Math.min(100, (top / h) * 100).toFixed(2) + '%';
+    var hgt = (sc.scrollHeight - sc.clientHeight) || 1;
+    if (readBar) readBar.style.width = Math.min(100, (top / hgt) * 100).toFixed(2) + '%';
     if (toTop) toTop.classList.toggle('show', top > 480);
 
-    /* 目录高亮：用章节自身的视口位置判断，不能用目录链接的位置
-       （右栏是 sticky + 内部滚动，链接的 rect 跟页面滚动没有关系） */
-    var idx = -1;
-    for (var i = 0; i < secs.length; i++) {
-      if (secs[i].getBoundingClientRect().top <= 140) idx = i;
-    }
-    navLinks.forEach(function (a, i) { a.classList.toggle('on', i === idx); });
+    var act = activeIndex();
+    var key = act[0] + '/' + act[1] + '/' + act[2];
+    if (key !== railKey) { railKey = key; renderRail(act[0], act[1]); }
 
-    var curEl = idx >= 0 ? secs[idx] : null;
-    var cur = curEl ? (curEl.id || ($('h2[id]', curEl) ? $('h2[id]', curEl).id : '')) : '';
+    /* 高亮只改 class；当前节与其知识点都点亮，章本身不点亮（避免和节抢视觉） */
+    navLinks.forEach(function (a, idx) {
+      var id = a.getAttribute('href').slice(1);
+      var on = false;
+      if (DEEP && act[0] >= 0 && act[1] >= 0 && tocData[act[0]]) {
+        var sec = tocData[act[0]].secs[act[1]];
+        on = id === sec.id || (act[2] >= 0 && sec.pts[act[2]] && id === sec.pts[act[2]].id);
+      } else {
+        on = idx === act[0];
+      }
+      a.classList.toggle('on', on);
+    });
+
+    var cur = act[0] >= 0 ? (secs[act[0]].id || '') : '';
     sideLinks.forEach(function (a) { a.classList.toggle('on', a.getAttribute('data-unit') === cur); });
   }
   var scrollHost = $('#scroll');

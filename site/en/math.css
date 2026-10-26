@@ -267,3 +267,17 @@ ol.kpt > li > .kd sup { font-size: .72em; }
 .doc-study table.seg td { font-size: 13.2px; line-height: 1.85; }
 
 .fml { font-size: 15.4px; line-height: 2.55; }
+
+/* 右栏三级目录：节/知识点单行显示，太长省略，悬停看全称 */
+.rail a.lv3, .rail a.lv4 {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rail a.lv2.cur { color: var(--ink); font-weight: 650; }
+.rail a.lv3.on { color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
+.rail a.lv4.on { color: var(--accent); }
+
+/* 目录点进来时，锚点别贴在顶栏底下 */
+.sect-h { scroll-margin-top: calc(var(--top-h) + 26px); }
+ol.kpt > li { scroll-margin-top: calc(var(--top-h) + 40px); }
