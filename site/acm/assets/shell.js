@@ -98,76 +98,74 @@
 
   /* ------------------------------------------------------------ 侧栏 */
 
-  /* 侧栏把「学习手册 / 算竞教程 / 学习计划」合成一个模块展示，
-     但每个条目的 route 不变（hb/…、course/…、plan/…），所以路由、进度、样式都不受影响 */
-  var MERGE_MIDS = ['hb', 'course', 'plan', 'dev', 'sol'];
-  function renderModules() {
-    var out = [], merged = null;
-    NAV.modules.forEach(function (m) {
-      if (MERGE_MIDS.indexOf(m.id) < 0) { out.push(m); return; }
-      if (!merged) {
-        merged = { id: 'cpp', name: 'C++ 竞赛教程', items: [], groups: [], merged: true };
-        out.push(merged);
-      }
-      if (m.groups && m.groups.length) {
-        m.groups.forEach(function (g) {
-          merged.groups.push({
-            name: g.name,
-            short: (m.id === 'course' ? '教程 · ' : '') + (g.short || g.name),
-            items: g.items
-          });
-        });
-      } else {
-        merged.groups.push({ name: m.name, short: m.name, items: m.items });
-      }
-      merged.items = merged.items.concat(m.items);
-    });
-    if (merged) merged.activeParts = MERGE_MIDS;
-    return out;
+  /* 侧栏：C++ 语法教程（父）→ 学习手册 / 算竞教程 / 学习计划（子模块）；其余模块平铺。
+     每个条目的 route 不变（hb/…、course/…、plan/…），路由与样式都不受影响 */
+  var CXX_KIDS = ['hb', 'course', 'plan'];
+
+  function ownList(box) {
+    for (var i = 0; i < box.children.length; i++)
+      if (box.children[i].classList && box.children[i].classList.contains('nv-list')) return box.children[i];
+    return null;
   }
 
-  /* 学习进度只在「C++ 竞赛教程」展开时才显示 */
+  function modBox(m, act) {
+    var folded = lsGet('acm.fold.' + m.id, null);
+    var fold = folded === null ? (m.id !== act) : !!folded;
+    var h = '<div class="nv-mod' + (fold ? ' fold' : '') + '" data-mod="' + m.id + '">';
+    h += '<button class="nv-h" type="button" data-fold="' + m.id + '">' +
+         '<span class="chev">' + ICON.chev + '</span><b>' + esc(m.name) + '</b>' +
+         '<em>' + m.items.length + '</em></button>';
+    h += '<div class="nv-list">';
+    if (m.groups && m.groups.length) {
+      m.groups.forEach(function (g) {
+        h += '<div class="nv-grp">' + esc(g.short || g.name) + '</div>';
+        g.items.forEach(function (it) { h += navItem(it); });
+      });
+    } else {
+      m.items.forEach(function (it) { h += navItem(it); });
+    }
+    h += '</div></div>';
+    return h;
+  }
+
+  /* 学习进度：算竞教程（及其父块）展开时才显示 */
   function syncProg() {
-    var box = $('#nav .nv-mod[data-mod="cpp"]');
+    var c = $('#nav .nv-mod[data-mod="course"]');
+    var p = (c && c.parentElement && c.parentElement.closest) ? c.parentElement.closest('.nv-mod') : null;
+    var open = !!(c && !c.classList.contains('fold') && !(p && p.classList.contains('fold')));
     var foot = $('.side-foot');
-    if (!foot) return;
-    foot.classList.toggle('no-prog', !(box && !box.classList.contains('fold')));
+    if (foot) foot.classList.toggle('no-prog', !open);
   }
 
   function buildNav() {
     var host = $('#nav');
-    var html = '';
-    var lastSec = '';
     var act = (parseHash().route || 'course').split('/')[0];
-    renderModules().forEach(function (m) {
+    var mods = NAV.modules, html = '';
+
+    var kids = mods.filter(function (m) { return CXX_KIDS.indexOf(m.id) >= 0; });
+    if (kids.length) {
+      var hit = kids.some(function (m) { return m.id === act; });
+      var f = lsGet('acm.fold.cxx', null);
+      var fold = f === null ? !hit : !!f;
+      html += '<div class="nv-mod nv-parent' + (fold ? ' fold' : '') + '" data-mod="cxx">' +
+              '<button class="nv-h" type="button" data-fold="cxx">' +
+              '<span class="chev">' + ICON.chev + '</span><b>C++ 语法教程</b></button>' +
+              '<div class="nv-list">' +
+              kids.map(function (m) { return modBox(m, act); }).join('') +
+              '</div></div>';
+    }
+    var lastSec = 'C++ 语法教程';
+    mods.filter(function (m) { return CXX_KIDS.indexOf(m.id) < 0; }).forEach(function (m) {
       if (m.section && m.section !== lastSec) {
         html += '<div class="nv-sec">' + esc(m.section) + '</div>';
         lastSec = m.section;
       }
-      var folded = lsGet('acm.fold.' + m.id, null);
-      var hit = m.merged
-        ? m.items.some(function (it) { return it.id.split('/')[0] === act; })
-        : (m.id === act);
-      var fold = folded === null ? !hit : !!folded;
-      html += '<div class="nv-mod' + (fold ? ' fold' : '') + '" data-mod="' + m.id + '">';
-      html += '<button class="nv-h" type="button" data-fold="' + m.id + '">' +
-              '<span class="chev">' + ICON.chev + '</span><b>' + esc(m.name) + '</b>' +
-              '<em>' + m.items.length + '</em></button>';
-      html += '<div class="nv-list">';
-      if (m.groups) {
-        m.groups.forEach(function (g) {
-          html += '<div class="nv-grp">' + esc(g.short || g.name) + '</div>';
-          g.items.forEach(function (it) { html += navItem(it); });
-        });
-      } else {
-        m.items.forEach(function (it) { html += navItem(it); });
-      }
-      html += '</div></div>';
+      html += modBox(m, act);
     });
     host.innerHTML = html;
     syncProg();
     $$('#nav .nv-mod').forEach(function (box) {
-      var list = box.querySelector('.nv-list');
+      var list = ownList(box);
       if (list) list.style.maxHeight = box.classList.contains('fold') ? '0px' : 'none';
     });
 
@@ -183,8 +181,9 @@
       }
     });
   }
+
   function setFold(box, fold, animate) {
-    var list = box.querySelector('.nv-list');
+    var list = ownList(box);
     box.classList.toggle('fold', fold);
     syncProg();
     if (!list) return;
@@ -219,10 +218,13 @@
       if (on) actEl = a;
     });
     if (actEl) {
-      var box = actEl.closest('.nv-mod');
-      if (box && box.classList.contains('fold')) {
-        setFold(box, false, false);
-        lsSet('acm.fold.' + box.getAttribute('data-mod'), false);
+      var box = actEl.closest('.nv-mod'), guard = 0;
+      while (box && guard++ < 5) {
+        if (box.classList.contains('fold')) {
+          setFold(box, false, false);
+          lsSet('acm.fold.' + box.getAttribute('data-mod'), false);
+        }
+        box = (box.parentElement && box.parentElement.closest) ? box.parentElement.closest('.nv-mod') : null;
       }
       var nav = $('#nav');
       var r = actEl.getBoundingClientRect(), nr = nav.getBoundingClientRect();

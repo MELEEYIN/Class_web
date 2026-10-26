@@ -993,3 +993,15 @@ html:not([data-wall="none"]) .stage { padding-top: 26px; }
 /* 学习进度：只在「C++ 竞赛教程」展开时显示 */
 .side-foot.no-prog .pg-t,
 .side-foot.no-prog .pg-bar { display: none; }
+
+/* 侧栏两级：C++ 语法教程（父块）下的子模块 */
+.nv-parent > .nv-h { padding-top: 11px; padding-bottom: 9px; }
+.nv-parent > .nv-h b { font-size: 14px; letter-spacing: .01em; }
+.nv-parent > .nv-h em { display: none; }
+.nv-mod > .nv-list > .nv-mod {
+  margin: 1px 0 3px 10px; padding-left: 2px;
+  border-left: 1px solid var(--line);
+}
+.nv-mod > .nv-list > .nv-mod > .nv-h { padding-top: 7px; padding-bottom: 6px; }
+.nv-mod > .nv-list > .nv-mod > .nv-h b { font-size: 13.2px; color: var(--ink-2); }
+.nv-mod > .nv-list > .nv-mod > .nv-h em { font-size: 10.6px; color: var(--ink-4); }
