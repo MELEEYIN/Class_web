@@ -481,8 +481,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer;
 html.reveal-ready [data-reveal] {
   opacity: 0;
   transform: translateY(14px);
-  transition: opacity .6s var(--ease-out), transform .6s var(--ease-out);
-  will-change: opacity, transform;
+  transition: opacity .55s var(--ease-out), transform .55s var(--ease-out);
 }
 html.reveal-ready [data-reveal].is-visible { opacity: 1; transform: none; }
 

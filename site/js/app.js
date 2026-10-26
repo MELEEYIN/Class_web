@@ -321,9 +321,10 @@
         if (!entry.isIntersecting) return;
         var el = entry.target;
         var idx = Number(el.getAttribute('data-reveal-i') || 0);
-        el.style.transitionDelay = (idx % 6) * 60 + 'ms';
+        el.style.transitionDelay = (idx % 4) * 40 + 'ms';
         el.classList.add('is-visible');
         io.unobserve(el);
+        setTimeout(function () { el.style.transitionDelay = ''; }, 550);
       });
     }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
 

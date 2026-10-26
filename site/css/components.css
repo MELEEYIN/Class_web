@@ -118,6 +118,15 @@
   line-height: 1.6;
   flex: 1;
 }
+/* 工具区：统一卡片高度——描述最多 3 行，超出的用省略号截断，
+   短的也预留 3 行高度，整排底边对齐、不再参差 */
+#toolGrid .link-card .lc-desc {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  min-height: 4.8em;
+}
 .link-card .lc-foot {
   display: flex;
   align-items: center;
