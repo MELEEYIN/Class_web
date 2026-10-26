@@ -1,0 +1,591 @@
+<article data-learn-content>
+<p><strong>读完这一章你能做到</strong></p>
+
+<ul><li>画出任意 <code>try/except/else/finally</code> 组合的执行顺序；</li><li>用经典的异常类层次写出清晰的 <code>except</code> 分支（窄前宽后）；</li><li>定义带结构化数据的自定义异常，用 <code>raise ... from e</code> 保留因果链；</li><li>解释为什么 <code>except Exception: pass</code> 是最糟糕的写法，以及 <code>finally</code> 里 <code>return</code> 的危险；</li><li>在 LBYL 与 EAFP 之间做出有理由的选择。</li></ul>
+
+<hr>
+
+<h2 id="s16-1">16.1 四个关键字的执行顺序</h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch16_01_basics.py</code></figcaption><pre class="py"><code>"""ch16_01_basics.py —— try/except/else/finally 的执行顺序"""
+
+
+def step(name):
+    print("  [执行]", name)
+
+
+print("=== 无异常时：try -&gt; else -&gt; finally ===")
+try:
+    step("try")
+except ValueError:
+    step("except")
+else:
+    step("else：没有异常")
+finally:
+    step("finally")
+
+print("=== 有异常时：try 中断 -&gt; except -&gt; finally（else 跳过） ===")
+try:
+    step("try")
+    raise ValueError("出事了")
+except ValueError as e:
+    step(f"except 捕获 {e}")
+else:
+    step("else：不会执行")
+finally:
+    step("finally")
+
+print("=== 多个 except：只匹配第一个能接住的 ===")
+for exc in (ValueError("值错"), KeyError("缺键"), TypeError("类型错")):
+    try:
+        raise exc
+    except (ValueError, KeyError) as e:
+        print(f"  {type(e).__name__} 被元组分支接住：{e}")
+    except TypeError as e:
+        print(f"  {type(e).__name__} 被单独分支接住：{e}")
+
+print("=== 顺序很重要：宽的先写会吞掉窄的 ===")
+try:
+    raise KeyError("具体错误")
+except Exception as e:
+    print("  宽泛分支先接住：", type(e).__name__)
+
+print("=== 未被捕获的异常会继续往上抛 ===")
+
+
+def inner():
+    raise RuntimeError("内层炸了")
+
+
+def outer():
+    try:
+        inner()
+    except ValueError:
+        print("  接不住 RuntimeError")
+    finally:
+        print("  finally 仍然执行")
+
+
+try:
+    outer()
+except RuntimeError as e:
+    print("  最外层接住：", e)
+
+print("=== except 里的 as 变量在块结束后被删除 ===")
+try:
+    raise ValueError("测试")
+except ValueError as err:
+    print("  块内可用：", err)
+try:
+    print(err)
+except NameError as e:
+    print("  块外：NameError:", e)
+
+print("=== 再 raise 同一个异常对象：traceback 会叠加 ===")
+
+
+def reraise_twice():
+    try:
+        try:
+            1 / 0
+        except ZeroDivisionError as e:
+            raise e
+    except ZeroDivisionError as e2:
+        return f"{type(e2).__name__}: {e2}"
+
+
+print(reraise_twice())</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>=== 无异常时：try -&gt; else -&gt; finally ===
+  [执行] try
+  [执行] else：没有异常
+  [执行] finally
+=== 有异常时：try 中断 -&gt; except -&gt; finally（else 跳过） ===
+  [执行] try
+  [执行] except 捕获 出事了
+  [执行] finally
+=== 多个 except：只匹配第一个能接住的 ===
+  ValueError 被元组分支接住：值错
+  KeyError 被元组分支接住：'缺键'
+  TypeError 被单独分支接住：类型错
+=== 顺序很重要：宽的先写会吞掉窄的 ===
+  宽泛分支先接住： KeyError
+=== 未被捕获的异常会继续往上抛 ===
+  finally 仍然执行
+  最外层接住： 内层炸了
+=== except 里的 as 变量在块结束后被删除 ===
+  块内可用： 测试
+  块外：NameError: name 'err' is not defined
+=== 再 raise 同一个异常对象：traceback 会叠加 ===
+ZeroDivisionError: division by zero</code></pre></div></figure>
+
+<p>执行顺序表：</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>情况</th>
+<th>try</th>
+<th>except</th>
+<th>else</th>
+<th>finally</th>
+</tr></thead>
+<tbody>
+<tr><td>无异常</td><td>跑完</td><td>跳过</td><td><strong>执行</strong></td><td><strong>执行</strong></td></tr>
+<tr><td>匹配到异常</td><td>中断</td><td><strong>执行</strong></td><td>跳过</td><td><strong>执行</strong></td></tr>
+<tr><td>异常不匹配</td><td>中断</td><td>跳过</td><td>跳过</td><td><strong>执行</strong>，然后继续抛</td></tr>
+<tr><td>try 内 <code>return</code></td><td>中断</td><td>—</td><td>跳过</td><td><strong>执行</strong>（然后返回）</td></tr>
+<tr><td>try 内 <code>break</code>/<code>continue</code></td><td>中断</td><td>—</td><td>跳过</td><td><strong>执行</strong>（然后跳出）</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>四条容易忽略的细节：</p>
+
+<ol><li><strong><code>else</code> 的价值</strong>是把"只有成功才做的事"和 <code>try</code> 体分开，避免把 <code>else</code> 里的异常也一起捕获。典型场景：<code>try: data = json.loads(s)</code> / <code>except ValueError:</code> / <code>else: process(data)</code> —— 这样 <code>process</code> 里的 <code>ValueError</code> 不会被误当成"JSON 解析失败"。</li><li><strong><code>except</code> 的顺序是首个匹配</strong>。<code>except Exception</code> 写在前面，后面的分支永远轮不到——这属于<strong>逻辑失效</strong>而不是语法错误，最容易被忽略。</li><li><strong><code>as</code> 变量在 <code>except</code> 块结束时被 <code>del</code></strong>，防止引用循环。块外再用就是 <code>NameError</code>。</li><li><strong><code>raise e</code> 会追加一层 traceback</strong>。想原样透传用裸 <code>raise</code>，想加信息用 <code>raise NewError(...) from e</code>。</li></ol>
+
+<pre class="pycon"><code>&gt;&gt;&gt; try:
+...     x = int("abc")
+... except ValueError as e:
+...     print("捕获：", e)
+捕获： invalid literal for int() with base 10: 'abc'
+&gt;&gt;&gt; try:
+...     {}["k"]
+... except KeyError as e:
+...     print("缺键：", e)
+缺键： 'k'</code></pre>
+
+<p>注意 <code>KeyError</code> 的 <code>str()</code> 会带上引号（因为它的参数是键对象本身，<code>str</code> 走 <code>repr</code>），而 <code>ValueError</code> 的参数是字符串，<code>str</code> 直接输出。日志里看到 <code>'k'</code> 这种带引号的消息，基本就是 <code>KeyError</code>。</p>
+
+<hr>
+
+<h2 id="s16-2">16.2 自定义异常与异常链</h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch16_02_custom.py</code></figcaption><pre class="py"><code>"""ch16_02_custom.py —— 自定义异常、raise from、assert"""
+
+
+class AppError(Exception):
+    """所有业务异常的基类"""
+
+
+class ValidationError(AppError):
+    def __init__(self, field, value):
+        super().__init__(f"字段 {field} 的值 {value!r} 非法")
+        self.field = field
+        self.value = value
+
+
+class NotFoundError(AppError):
+    pass
+
+
+print("=== 自定义异常可以带结构化数据 ===")
+try:
+    raise ValidationError("age", -1)
+except AppError as e:
+    print("类型：", type(e).__name__)
+    print("消息：", e)
+    print("附带字段：", e.field, "| 附带值：", e.value)
+    print("是 AppError 的子类：", isinstance(e, AppError))
+    print("也是 Exception 的子类：", isinstance(e, Exception))
+
+print("=== 按基类捕获所有业务异常 ===")
+for exc in (ValidationError("name", ""), NotFoundError("用户不存在")):
+    try:
+        raise exc
+    except AppError as e:
+        print(f"  [{type(e).__name__}] {e}")
+
+print("=== raise from：把原因挂成 __cause__ ===")
+try:
+    try:
+        int("abc")
+    except ValueError as e:
+        raise AppError("解析配置失败") from e
+except AppError as e:
+    print("最外层消息：", e)
+    print("原因类型：", type(e.__cause__).__name__)
+    print("原因消息：", e.__cause__)
+
+print("=== 不写 from：解释器自动挂 __context__ ===")
+try:
+    try:
+        int("abc")
+    except ValueError:
+        raise AppError("没写 from 的版本")
+except AppError as e:
+    print("__context__ 类型：", type(e.__context__).__name__)
+    print("__cause__ 是：", e.__cause__)
+
+print("=== from None：主动切断原因链 ===")
+try:
+    try:
+        int("abc")
+    except ValueError:
+        raise AppError("对外只暴露这个") from None
+except AppError as e:
+    print("__cause__：", e.__cause__, "| __suppress_context__：", e.__suppress_context__)
+
+print("=== assert 只在调试期可靠 ===")
+
+
+def set_age(age):
+    assert age &gt;= 0, f"age 不能为负，收到 {age}"
+    return age
+
+
+print("合法值：", set_age(3))
+try:
+    set_age(-1)
+except AssertionError as e:
+    print("AssertionError:", e)
+
+print("=== 异常对象可以携带任意属性 ===")
+err = AppError("业务失败")
+err.code = 4001
+err.detail = {"retry": False}
+print(err.code, err.detail)
+
+print("=== 异常的 __str__ 与 repr ===")
+print("str：", str(err))
+print("repr：", repr(err))</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>=== 自定义异常可以带结构化数据 ===
+类型： ValidationError
+消息： 字段 age 的值 -1 非法
+附带字段： age | 附带值： -1
+是 AppError 的子类： True
+也是 Exception 的子类： True
+=== 按基类捕获所有业务异常 ===
+  [ValidationError] 字段 name 的值 '' 非法
+  [NotFoundError] 用户不存在
+=== raise from：把原因挂成 __cause__ ===
+最外层消息： 解析配置失败
+原因类型： ValueError
+原因消息： invalid literal for int() with base 10: 'abc'
+=== 不写 from：解释器自动挂 __context__ ===
+__context__ 类型： ValueError
+__cause__ 是： None
+=== from None：主动切断原因链 ===
+__cause__： None | __suppress_context__： True
+=== assert 只在调试期可靠 ===
+合法值： 3
+AssertionError: age 不能为负，收到 -1
+=== 异常对象可以携带任意属性 ===
+4001 {'retry': False}
+=== 异常的 __str__ 与 repr ===
+str： 业务失败
+repr： AppError('业务失败')</code></pre></div></figure>
+
+<p><strong>异常类该怎么设计</strong>：总是定义一个项目自己的基类（如 <code>AppError</code>），所有业务异常继承它。好处是上层可以用一个 <code>except AppError</code> 兜住所有"可预期的业务失败"，同时不会把 <code>KeyError</code>、<code>TypeError</code> 这类<strong>真 bug</strong> 一起吞掉。</p>
+
+<p><strong>异常链的三条通道</strong>：</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>写法</th>
+<th><code>__cause__</code></th>
+<th><code>__context__</code></th>
+<th>traceback 显示</th>
+</tr></thead>
+<tbody>
+<tr><td><code>raise B(...) from a</code></td><td>是 <code>a</code></td><td>是 <code>a</code></td><td>"The above exception was the direct cause of..."</td></tr>
+<tr><td><code>raise B(...)</code>（在 except 内）</td><td><code>None</code></td><td>是 <code>a</code></td><td>"During handling of the above exception, another exception occurred"</td></tr>
+<tr><td><code>raise B(...) from None</code></td><td><code>None</code></td><td>是 <code>a</code> 但被抑制</td><td>只显示 <code>B</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>选择标准很实用：<strong>"因为底层错了，所以业务层也失败"用 <code>from e</code></strong>；<strong>"底层错误对外不暴露，换成统一错误"用 <code>from None</code></strong>。</p>
+
+<p><code>assert</code> 的三条限制：① 用 <code>python -O</code> 运行时<strong>全部被移除</strong>，所以不能拿它做输入校验；② <code>assert</code> 的第二个参数是断言失败时的消息，别写成元组（<code>assert x, ("a", "b")</code> 会抛 <code>AssertionError: ('a', 'b')</code>）；③ 生产代码做校验应该 <code>if not cond: raise ValueError(...)</code>。</p>
+
+<div class="box warn"><p><code>err.code = 4001</code> 这种临时挂属性只适合小脚本。要长期维护就写进 <code>__init__</code>，否则调用方无法从类型上知道有哪些字段。</p></div>
+
+<hr>
+
+<h2 id="s16-3">16.3 <code>with</code> 与 <code>finally</code>：资源与控制的边界</h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch16_03_patterns.py</code></figcaption><pre class="py"><code>"""ch16_03_patterns.py —— EAFP、with 吞异常、finally 的边界"""
+import sys
+
+print("=== LBYL 与 EAFP ===")
+data = {"a": 1}
+if "b" in data:
+    print("LBYL 拿到：", data["b"])
+else:
+    print("LBYL：键不存在")
+
+try:
+    print("EAFP 拿到：", data["b"])
+except KeyError as e:
+    print("EAFP：KeyError", e)
+
+print("get 的默认值更省事：", data.get("b", 0))
+
+print("=== with 的 __exit__ 返回 True 会吞掉异常 ===")
+
+
+class Swallow:
+    def __enter__(self):
+        print("  进入")
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        print("  退出，异常类型：", exc_type.__name__ if exc_type else None)
+        return True
+
+
+try:
+    with Swallow():
+        raise ValueError("本来会被吞掉")
+    print("  with 之后的语句照常执行")
+except ValueError:
+    print("  不该走到这里")
+
+print("=== __exit__ 返回 False/None，异常继续传播 ===")
+
+
+class PassThrough:
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        print("  清理资源，然后放行")
+        return False
+
+
+try:
+    with PassThrough():
+        raise ValueError("继续往上抛")
+except ValueError as e:
+    print("  外层捕获：", e)
+
+print("=== finally 里 return 会压掉异常与返回值 ===")
+
+
+def swallow_by_return():
+    try:
+        raise ValueError("原始异常")
+    finally:
+        return "finally 的返回值"
+
+
+print("结果：", swallow_by_return())
+
+
+def keep_value():
+    try:
+        return "try 的返回值"
+    finally:
+        print("  finally 仍然执行")
+
+
+print("结果：", keep_value())
+
+print("=== 循环里的 try/finally：continue 也会走 finally ===")
+for i in range(3):
+    try:
+        if i == 1:
+            continue
+        print("  处理", i)
+    finally:
+        print("  finally 拿到 i =", i)
+
+print("=== 裸 raise 重新抛出当前异常 ===")
+
+
+def check(n):
+    try:
+        if n &lt; 0:
+            raise ValueError("不能为负")
+    except ValueError:
+        print("  记录日志后继续抛")
+        raise
+
+
+try:
+    check(-1)
+except ValueError as e:
+    print("  外层收到：", e)
+
+print("=== sys.exc_info() 取当前异常三元组 ===")
+try:
+    1 / 0
+except ZeroDivisionError:
+    exc_type, exc_val, exc_tb = sys.exc_info()
+    print("类型：", exc_type.__name__)
+    print("值：", exc_val)
+    print("有 traceback 对象：", exc_tb is not None)
+
+print("=== 别捕获 BaseException ===")
+print("BaseException 的子类：", [c.__name__ for c in BaseException.__subclasses__()][:4])
+print("Exception 是它的子类：", issubclass(Exception, BaseException))</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>=== LBYL 与 EAFP ===
+LBYL：键不存在
+EAFP：KeyError 'b'
+get 的默认值更省事： 0
+=== with 的 __exit__ 返回 True 会吞掉异常 ===
+  进入
+  退出，异常类型： ValueError
+  with 之后的语句照常执行
+=== __exit__ 返回 False/None，异常继续传播 ===
+  清理资源，然后放行
+  外层捕获： 继续往上抛
+=== finally 里 return 会压掉异常与返回值 ===
+结果： finally 的返回值
+  finally 仍然执行
+结果： try 的返回值
+=== 循环里的 try/finally：continue 也会走 finally ===
+  处理 0
+  finally 拿到 i = 0
+  finally 拿到 i = 1
+  处理 2
+  finally 拿到 i = 2
+=== 裸 raise 重新抛出当前异常 ===
+  记录日志后继续抛
+  外层收到： 不能为负
+=== sys.exc_info() 取当前异常三元组 ===
+类型： ZeroDivisionError
+值： division by zero
+有 traceback 对象： True
+=== 别捕获 BaseException ===
+BaseException 的子类： ['BaseExceptionGroup', 'Exception', 'GeneratorExit', 'KeyboardInterrupt']
+Exception 是它的子类： True</code></pre></div></figure>
+
+<p><strong><code>with</code> 就是 <code>try/finally</code> 的语法糖</strong>，但更安全：它保证 <code>__exit__</code> 一定执行，并把"是否吞掉异常"变成一个<strong>显式契约</strong>（返回 <code>True</code> 吞，返回假值放行）。<code>open()</code>、<code>threading.Lock</code>、数据库连接、临时目录都用它。手写 <code>try/finally: f.close()</code> 容易漏掉，<code>with open(...)</code> 不会。</p>
+
+<p><strong><code>finally</code> 里 <code>return</code> 是明确的坏实践</strong>——它会把正在传播的异常<strong>静默压掉</strong>（示例里 <code>ValueError</code> 消失了，函数返回字符串）。同理，<code>finally</code> 里 <code>break</code>/<code>continue</code> 也会压掉异常。Python 3.14 起 <code>finally</code> 里 <code>break/continue/return</code> 会发 <code>SyntaxWarning</code>，正是为了提醒这个坑。</p>
+
+<p><strong>LBYL vs EAFP</strong>：Python 社区倾向 EAFP（Easier to Ask Forgiveness than Permission）——直接做，出错再处理。原因是 Python 里"检查"与"使用"之间存在时间窗口（多线程/文件被删），而且 <code>try</code> 在没有异常时几乎零开销（3.11 起零成本异常表）。但 LBYL 更易读时就用 LBYL：<code>if "b" in data</code> 比 <code>try/except KeyError</code> 更直白，而 <code>data.get("b", 0)</code> 更省事。</p>
+
+<p><strong>永远不要 <code>except BaseException</code></strong>：它会把 <code>KeyboardInterrupt</code>（Ctrl+C）、<code>SystemExit</code>（<code>sys.exit()</code>）一起吞掉，导致程序无法中断、退出码错误。要兜底就捕 <code>Exception</code>。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; def safe_div(a, b):
+...     try:
+...         return a / b
+...     except ZeroDivisionError:
+...         return None
+...     finally:
+...         print("  清理")
+&gt;&gt;&gt; safe_div(6, 3)
+  清理
+2.0
+&gt;&gt;&gt; safe_div(1, 0)
+  清理</code></pre>
+
+<hr>
+
+<h2 id="s16-4">16.4 异常在多线程/异步里的行为差异</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>场景</th>
+<th>异常去哪里</th>
+<th>处理方式</th>
+</tr></thead>
+<tbody>
+<tr><td>普通函数</td><td>调用栈向上</td><td><code>try/except</code></td></tr>
+<tr><td>线程 <code>threading.Thread</code></td><td><strong>不会传回主线程</strong>，默认打印到 stderr</td><td>线程函数内部自己 <code>try/except</code>，或 <code>Thread(..., target=wrapper)</code></td></tr>
+<tr><td>进程池 <code>Pool</code>/<code>Executor</code></td><td>序列化后由 <code>future.result()</code> 重新抛出</td><td>必须调用 <code>result()</code> 才会触发</td></tr>
+<tr><td><code>asyncio</code> 任务</td><td>存在 <code>Task</code> 上，未取走时在 GC 时打印"never retrieved"</td><td><code>await task</code> 或 <code>task.add_done_callback</code></td></tr>
+<tr><td><code>asyncio.gather</code></td><td>第一个异常默认会让整个 gather 抛出</td><td><code>return_exceptions=True</code> 收集</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>这条表解释了"为什么我的线程明明报错了程序却什么都没干"——线程里的异常默认只打印 traceback，不会让主进程失败。22 章会给出完整写法。</p>
+
+<hr>
+
+<h2 id="s16-5">16.5 与 C++ 的差别</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>维度</th>
+<th>C++</th>
+<th>Python</th>
+</tr></thead>
+<tbody>
+<tr><td>错误传递</td><td>返回码 / 异常 / <code>std::expected</code></td><td>只有异常（外加 <code>None</code>/<code>False</code> 约定）</td></tr>
+<tr><td>捕获语法</td><td><code>catch (const std::exception&amp; e)</code></td><td><code>except ValueError as e</code></td></tr>
+<tr><td>类型匹配</td><td>按继承，可 <code>catch (...)</code></td><td>按继承，<code>except BaseException</code> 才等价 <code>...</code></td></tr>
+<tr><td>析构保障</td><td>RAII</td><td><code>with</code> / <code>finally</code> / <code>__del__</code></td></tr>
+<tr><td>重新抛出</td><td><code>throw;</code></td><td>裸 <code>raise</code></td></tr>
+<tr><td>未捕获异常</td><td><code>std::terminate</code></td><td>打印 traceback，进程退出码 1</td></tr>
+<tr><td>性能</td><td>零开销（无异常时）</td><td>3.11+ 零成本异常表，<code>try</code> 块几乎免费</td></tr>
+<tr><td>检查型异常</td><td>无</td><td>无（错误全在运行期）</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>C++ 程序员要改的第一个习惯：<strong>没有"返回值判断错误"这一套</strong>。函数要么返回结果，要么抛异常，不会同时给你一个 <code>-1</code> 和一个 <code>errno</code>。第二个习惯：<strong>异常不是"罕见情况"</strong>——<code>StopIteration</code>、<code>KeyError</code> 在 Python 里是日常控制流。</p>
+
+<hr>
+
+<h2 id="s16-6">16.6 易错点清单</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>现象</th>
+<th>原因</th>
+<th>一行修复</th>
+</tr></thead>
+<tbody>
+<tr><td>报错被吞，程序"什么都没发生"</td><td><code>except Exception: pass</code></td><td>至少 <code>logging.exception(...)</code> 记录</td></tr>
+<tr><td>后面的 <code>except</code> 永远不执行</td><td>宽泛分支写在前</td><td>窄的写前，宽的写后</td></tr>
+<tr><td>Ctrl+C 无法中断</td><td><code>except BaseException</code></td><td>捕 <code>Exception</code></td></tr>
+<tr><td><code>NameError</code> 出现在 <code>except</code> 块之后</td><td><code>as</code> 变量已被删除</td><td>提前存到别的变量</td></tr>
+<tr><td>异常信息看不出根因</td><td>没写 <code>from e</code></td><td><code>raise NewError(...) from e</code></td></tr>
+<tr><td>函数本该抛异常却返回了值</td><td><code>finally</code> 里有 <code>return</code></td><td>把 <code>return</code> 移出 <code>finally</code></td></tr>
+<tr><td><code>assert</code> 在校验输入，线上失效</td><td><code>-O</code> 会移除断言</td><td>改用 <code>if not ...: raise ValueError(...)</code></td></tr>
+<tr><td>线程报错但主程序正常退出</td><td>线程异常不外传</td><td>线程内 <code>try/except</code> + 记录</td></tr>
+<tr><td><code>json.loads</code> 的 <code>ValueError</code> 与业务 <code>ValueError</code> 混在一起</td><td><code>try</code> 范围太大</td><td>缩小 <code>try</code>，把处理逻辑放 <code>else</code></td></tr>
+<tr><td>自定义异常没继承 <code>Exception</code></td><td>继承了 <code>BaseException</code></td><td>改成 <code>class X(Exception)</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<hr>
+
+<h2 id="s16-7">16.7 练习</h2>
+
+<p><strong>1.（顺序）</strong> 写一个 <code>divide(a, b)</code>：<code>b == 0</code> 时抛 <code>ZeroDivisionError</code>（用 <code>raise</code>），其它情况返回商；调用方用 <code>try/except/else/finally</code> 打印四段标记，验证四段的执行顺序。</p>
+
+<p>验收：成功时打印 try、else、finally 三段；失败时打印 try、except、finally 三段。</p>
+
+<p><strong>2.（自定义异常）</strong> 设计 <code>ConfigError(Exception)</code>、<code>ConfigParseError(ConfigError)</code>、<code>ConfigMissingError(ConfigError)</code>。写 <code>load_config(text)</code>：空文本抛 <code>ConfigMissingError</code>，非法 JSON 抛 <code>ConfigParseError</code>（<code>from e</code> 保留原始 <code>ValueError</code>）。用两段坏输入验证。</p>
+
+<p>验收：两段输入分别抛出对应子类；<code>__cause__</code> 的类型是 <code>ValueError</code>；用 <code>except ConfigError</code> 能一次捕住两者。</p>
+
+<p><strong>3.（with）</strong> 写一个 <code>Timer</code> 上下文管理器，<code>__enter__</code> 返回自身，<code>__exit__</code> 打印"耗时 X.XX 秒"（用 <code>time.perf_counter()</code>，不要打印固定值）。再写一个 <code>suppress(*excs)</code> 上下文管理器，只吞掉指定类型的异常。</p>
+
+<p>验收：<code>with suppress(ValueError): raise ValueError</code> 不报错；<code>with suppress(ValueError): raise KeyError</code> 会抛出 <code>KeyError</code>。</p>
+
+<p><strong>4.（变式）</strong> 下面代码哪里有问题？修好它并解释：</p>
+
+<pre class="out"><code>def read_int(s):
+    try:
+        return int(s)
+    except Exception:
+        return 0
+    finally:
+        print("读取完成")</code></pre>
+
+<p>验收：指出 <code>except Exception</code> 把 <code>TypeError</code>/<code>MemoryError</code> 这类真 bug 一起吞成 <code>0</code>，并改成只捕 <code>ValueError</code>：<code>int(None)</code> 必须抛 <code>TypeError</code> 而非返回 <code>0</code>，<code>int("abc")</code> 返回 <code>0</code> 且打印一次"读取完成"。</p>
+
+<p><strong>5.（挑战）</strong> 用 <code>try/except/else/finally</code> + 自定义异常实现一个"批量处理 + 部分失败不中断"的函数：处理 10 条记录，坏记录收集到 <code>errors</code> 列表（含索引与异常），最后返回 <code>(成功数, errors)</code>，并保证无论成败都打印汇总。</p>
+
+<p>验收：10 条里 3 条坏时返回 <code>(7, [...])</code>，<code>errors</code> 里每项包含索引与异常消息，汇总打印一次。</p>
+
+<hr>
+
+<h2 id="s16-8">16.8 小结</h2>
+
+<ol><li><strong><code>try</code> 无异常走 <code>else</code> 再走 <code>finally</code></strong>；有异常则走 <code>except</code> 再走 <code>finally</code>；不匹配就带着 <code>finally</code> 继续往上抛。</li><li><strong>窄异常在前、宽异常在后</strong>，自定义异常都继承项目基类，跨层用 <code>raise ... from e</code> 保留因果。</li><li><strong><code>finally</code> 里不 <code>return</code>/<code>break</code></strong>；资源交给 <code>with</code>；兜底只捕 <code>Exception</code>，绝不捕 <code>BaseException</code>。</li></ol>
+
+<p>程序的另一大副作用来源是磁盘：下一章讲文件 IO 与 <code>pathlib</code>——编码为什么会炸、<code>with</code> 为什么必须写、<code>os.path</code> 与 <code>pathlib.Path</code> 该用哪个。</p>
+
+    
+
+    
+</article>

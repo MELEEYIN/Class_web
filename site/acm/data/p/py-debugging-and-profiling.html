@@ -1,0 +1,526 @@
+<article data-learn-content>
+<p><strong>读完这一章你能做到</strong></p>
+
+<ol><li>从一段 traceback 里三秒定位「哪一行、哪一层、什么异常」，并读懂 <code>from e</code> 造成的链式异常。</li><li>用 <code>breakpoint()</code>/<code>pdb</code> 与 IDE 断点检查运行中状态，而不是靠到处 <code>print</code>。</li><li>用 <code>logging</code> 分级输出，用 <code>warnings</code> 提示废弃，用 <code>assert</code> 守住不变量。</li><li>用 <code>cProfile</code> + <code>pstats</code> 按调用次数与耗时排序找热点，并知道 <code>timeit</code> 的正确用法。</li><li>识别五类典型性能反模式，并说出正确的替代写法。</li></ol>
+
+<h2 id="s25-1">25.1 读 traceback：自下而上，最后三行才是关键</h2>
+
+<pre class="code"><code>Traceback (most recent call last):
+  File "app.py", line 12, in &lt;module&gt;
+    main()
+  File "app.py", line 8, in main
+    load("abc")
+  File "app.py", line 5, in load
+    return int(text)
+ValueError: invalid literal for int() with base 10: 'abc'</code></pre>
+
+<p>四步读法：</p>
+
+<ol><li><strong>最后一行</strong>：异常类型 + 消息。<code>ValueError: invalid literal for int()</code> 已经说明「给 <code>int()</code> 的字符串不是数字」。</li><li><strong>倒数第二段</strong>：真正出错的位置（<code>load</code> 的 <code>int(text)</code>），这一帧是你写的代码。</li><li><strong>往上</strong>：调用链，<code>&lt;module&gt;</code> → <code>main</code> → <code>load</code>，说明它是怎么走到这里的。</li><li><strong><code>most recent call last</code></strong>：最外层在最上面，最内层在最下面——和 C++ 的栈展开方向相反，别读反。</li></ol>
+
+<p><code>KeyError</code> 有个著名坑：它的参数是<strong>键对象本身</strong>，<code>str(e)</code> 打印的是这个键的 <code>repr</code>——所以你会看到一对多余的引号，误以为是字符串内容的一部分。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; try:
+...     {}["缺失的键"]
+... except KeyError as e:
+...     print("str :", str(e))
+...     print("repr:", repr(e))
+...     print("args:", e.args)
+str : '缺失的键'
+repr: KeyError('缺失的键')
+args: ('缺失的键',)</code></pre>
+
+<p>对比一下 <code>ValueError</code>：<code>str(ValueError("坏值"))</code> 就是 <code>坏值</code>，没有引号。<code>KeyError</code>/<code>IndexError</code> 这类「参数是被查找对象」的异常都保留了 <code>repr</code> 风格。</p>
+
+<p>所以 <code>print(f"读配置失败: {e}")</code> 只说「键名」，不说「哪个文件、哪个函数」。这类消息要自己补上下文——<code>raise KeyError(f"配置缺少 {key!r}")</code>。</p>
+
+<p>链式异常是 <code>raise ... from e</code> 的产物，traceback 会输出两段并用 <code>The above exception was the direct cause of the following exception</code> 连接：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; def parse(t):
+...     return int(t)
+...
+&gt;&gt;&gt; try:
+...     try:
+...         parse("abc")
+...     except ValueError as e:
+...         raise RuntimeError("解析配置失败") from e
+... except RuntimeError as err:
+...     print("本层:", type(err).__name__, "|", err)
+...     print("根因:", type(err.__cause__).__name__, "|", err.__cause__)
+...     print("抑制标记:", err.__suppress_context__)
+本层: RuntimeError | 解析配置失败
+根因: ValueError | invalid literal for int() with base 10: 'abc'
+抑制标记: True</code></pre>
+
+<p><code>err.__cause__</code> 是 <code>from e</code> 指定的原因，<code>err.__context__</code> 是「在这个 except 里又抛异常」时自动挂上的上下文。注意上面那个 <code>True</code>：<strong>只要写了 <code>from</code></strong>，<code>__suppress_context__</code> 就被置为 <code>True</code>，traceback 不再打印 <code>__context__</code>；<code>from e</code> 是「换成更清楚的原因」，<code>from None</code> 是「原因就是没有，别展示下游噪音」，两者都会掐掉自动上下文。</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>写法</th>
+<th><code>__cause__</code></th>
+<th><code>__suppress_context__</code></th>
+<th>traceback 展示</th>
+</tr></thead>
+<tbody>
+<tr><td><code>raise B()</code> 在 except 内</td><td><code>None</code></td><td><code>False</code></td><td><code>During handling of the above exception...</code> + 两段</td></tr>
+<tr><td><code>raise B() from a</code></td><td><code>a</code></td><td><code>True</code></td><td><code>The above exception was the direct cause...</code> + 两段</td></tr>
+<tr><td><code>raise B() from None</code></td><td><code>None</code></td><td><code>True</code></td><td>只有 <code>B</code> 一段</td></tr>
+</tbody>
+</table>
+</div>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch25_01_traceback.py</code></figcaption><pre class="py"><code>import traceback
+
+
+def parse(text):
+    return int(text)
+
+
+def load(raw):
+    try:
+        return parse(raw)
+    except ValueError as e:
+        raise RuntimeError("解析配置失败") from e
+
+
+def main():
+    try:
+        load("abc")
+    except RuntimeError as e:
+        tb = traceback.extract_tb(e.__traceback__)
+        print("帧数:", len(tb))
+        print("调用链:", " -&gt; ".join(f.name for f in tb))
+        print("本层异常:", type(e).__name__, "|", e)
+        cause = e.__cause__
+        print("根因:", type(cause).__name__, "|", cause)
+        print("只格式化异常行:", traceback.format_exception_only(type(cause), cause)[0].strip())
+        print("是否自动产生的上下文:", e.__context__ is cause)
+
+
+main()
+
+try:
+    assert 3 * 7 == 22, f"乘法算错了：3*7 = {3 * 7}"
+except AssertionError as e:
+    print("断言失败信息:", e)
+
+print("__debug__ =", __debug__, "（用 python -O 运行会变成 False，assert 全部消失）")
+
+try:
+    {}["缺失的键"]
+except KeyError as e:
+    print("KeyError 的参数是键本身:", e, "| repr:", repr(e))
+    print("想打印消息要用 e.args:", e.args)</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>帧数: 2
+调用链: main -&gt; load
+本层异常: RuntimeError | 解析配置失败
+根因: ValueError | invalid literal for int() with base 10: 'abc'
+只格式化异常行: ValueError: invalid literal for int() with base 10: 'abc'
+是否自动产生的上下文: True
+断言失败信息: 乘法算错了：3*7 = 21
+__debug__ = True （用 python -O 运行会变成 False，assert 全部消失）
+KeyError 的参数是键本身: '缺失的键' | repr: KeyError('缺失的键')
+想打印消息要用 e.args: ('缺失的键',)</code></pre></div></figure>
+
+<h2 id="s25-2">25.2 别用 <code>print</code> 调试：三条替代</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>手段</th>
+<th>用途</th>
+<th>为什么比 <code>print</code> 好</th>
+</tr></thead>
+<tbody>
+<tr><td><code>assert</code></td><td>守住「绝不该发生」的条件</td><td>自带消息，<code>-O</code> 下自动消失，零成本</td></tr>
+<tr><td><code>logging</code></td><td>保留上下文、可分级、可关掉</td><td>带时间/模块名，能留在生产里</td></tr>
+<tr><td><code>breakpoint()</code></td><td>停下来检查全部局部变量</td><td>一次看到所有变量与调用栈</td></tr>
+</tbody>
+</table>
+</div>
+
+<pre class="pycon"><code>&gt;&gt;&gt; try:
+...     assert 3 * 7 == 22, f"乘法算错了：3*7 = {3 * 7}"
+... except AssertionError as e:
+...     print(type(e).__name__ + ":", e)
+AssertionError: 乘法算错了：3*7 = 21</code></pre>
+
+<p><code>assert</code> 的三条纪律：①消息里写<strong>实际值</strong>，不要只写「不满足」；②<strong>不要用 assert 校验外部输入</strong>（<code>-O</code> 下会被删掉，安全性归零）；③它适合放「不变量」——循环中间状态、函数入口的契约。</p>
+
+<p><code>print</code> 调试的真正问题是<strong>它不可关闭</strong>：调完忘了删，输出里混着 <code>1</code>、<code>here</code>、<code>xxx</code>，还得回头清理。<code>logging.debug</code> 只要提高一级就全消失。</p>
+
+<h2 id="s25-3">25.3 <code>breakpoint()</code> 与 <code>pdb</code></h2>
+
+<p>Python 3.7 起内置 <code>breakpoint()</code>，等价于 <code>import pdb; pdb.set_trace()</code>（可用 <code>PYTHONBREAKPOINT</code> 环境变量换成 ipdb/pudb）。程序跑到这一行会停住，进入交互式调试器。</p>
+
+<p>七个够用的命令：</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>命令</th>
+<th>缩写</th>
+<th>作用</th>
+</tr></thead>
+<tbody>
+<tr><td><code>list</code></td><td><code>l</code></td><td>看当前行附近的源码</td></tr>
+<tr><td><code>next</code></td><td><code>n</code></td><td>执行下一行（不进入函数）</td></tr>
+<tr><td><code>step</code></td><td><code>s</code></td><td>进入被调用的函数</td></tr>
+<tr><td><code>continue</code></td><td><code>c</code></td><td>继续到下一个断点</td></tr>
+<tr><td><code>print expr</code></td><td><code>p</code></td><td>求值并打印（可 <code>p locals()</code>）</td></tr>
+<tr><td><code>where</code></td><td><code>w</code></td><td>打印调用栈</td></tr>
+<tr><td><code>quit</code></td><td><code>q</code></td><td>退出（会中止程序）</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><code>p locals()</code> 是最好用的一条：一次看到当前帧的所有局部变量，比在五个地方插 <code>print</code> 快得多。<code>!</code> 前缀可以执行任意语句（<code>!x = 5</code> 改值继续跑），这让「把可疑变量改成边界值试试」变成两秒钟的事。</p>
+
+<div class="box tip"><p>调试器是<strong>交互式</strong>的，所以本章示例不能自动校验 <code>pdb</code> 会话。真实工作流是：在可疑行前插 <code>breakpoint()</code>，<code>python script.py</code> 跑起来，<code>n</code>/<code>s</code> 单步，<code>p</code> 查值。IDE（VS Code、PyCharm）的断点是同一套机制的图形界面，红点 + 条件断点（<code>i == 99</code>）比手动插 <code>if i == 99: breakpoint()</code> 干净。</p></div>
+
+<h2 id="s25-4">25.4 <code>logging</code>：可关闭的 <code>print</code></h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch25_03_logging_warn.py</code></figcaption><pre class="py"><code>import logging
+import sys
+import warnings
+
+logging.basicConfig(stream=sys.stdout, level=logging.INFO,
+                    format="%(levelname)s %(name)s %(message)s", force=True)
+log = logging.getLogger("dbg")
+
+log.debug("DEBUG 低于 INFO，默认不打印")
+log.info("用户 %s 登录失败，第 %d/%d 次", "tom", 2, 5)
+log.warning("磁盘剩余 %d MB", 120)
+log.error("数据库连接超时，重试 %d 次", 3)
+
+
+def old_api():
+    warnings.warn("old_api 将在 4.0 移除，请改用 new_api",
+                  DeprecationWarning, stacklevel=2)
+
+
+with warnings.catch_warnings(record=True) as caught:
+    warnings.simplefilter("always")
+    old_api()
+    print("捕获警告数:", len(caught))
+    print("类别:", caught[0].category.__name__)
+    print("消息:", caught[0].message)
+    print("位置指向调用方:", caught[0].filename.endswith("ch25_03_logging_warn.py"))
+
+with warnings.catch_warnings(record=True) as caught:
+    warnings.simplefilter("error")
+    try:
+        old_api()
+    except DeprecationWarning as e:
+        print("把警告升级为异常后:", str(e))
+
+print("__debug__ =", __debug__, "| 解释器:", sys.version_info.major, sys.version_info.minor)
+print("日志是否低于阈值:", log.isEnabledFor(logging.DEBUG),
+      "| 是否启用 INFO:", log.isEnabledFor(logging.INFO))</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>INFO dbg 用户 tom 登录失败，第 2/5 次
+WARNING dbg 磁盘剩余 120 MB
+ERROR dbg 数据库连接超时，重试 3 次
+捕获警告数: 1
+类别: DeprecationWarning
+消息: old_api 将在 4.0 移除，请改用 new_api
+位置指向调用方: True
+把警告升级为异常后: old_api 将在 4.0 移除，请改用 new_api
+__debug__ = True | 解释器: 3 14
+日志是否低于阈值: False | 是否启用 INFO: True</code></pre></div></figure>
+
+<p>四个约定（第 21 章讲过配置，这里讲用法）：</p>
+
+<ol><li><strong>级别要选对</strong>：<code>debug</code> 给排查细节、<code>info</code> 给正常流程（启动、任务数）、<code>warning</code> 给「能继续但要关注」、<code>error</code> 给「这次操作失败」、<code>critical</code> 给「进程要死了」。</li><li><strong>占位不要 f-string</strong>：<code>log.info("处理 %d 条", n)</code> 在级别不够时不会格式化，f-string 总是先算一遍。</li><li><strong>异常用 <code>log.exception</code></strong>：它自动带上 traceback，等价于 <code>error(..., exc_info=True)</code>。</li><li><strong><code>logger = logging.getLogger(__name__)</code></strong>：名字就是模块名，粒度和模块对齐。</li></ol>
+
+<p><code>warnings</code> 与 <code>logging</code> 分工不同：<code>warnings</code> 面向<strong>代码使用者</strong>（「这个 API 要废弃了」「这个用法有坑」），可被 <code>-W error</code> 升级成异常，也可以在测试里 <code>catch_warnings(record=True)</code> 断言；<code>logging</code> 面向<strong>运行观测</strong>。</p>
+
+<h2 id="s25-5">25.5 计时：<code>perf_counter</code> 与 <code>timeit</code></h2>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import timeit
+&gt;&gt;&gt; timeit.timeit("sum(range(100))", number=1000) &gt; 0
+True
+&gt;&gt;&gt; timeit.timeit(stmt="'-'.join(str(i) for i in range(50))", number=100) &gt; 0
+True
+&gt;&gt;&gt; import time
+&gt;&gt;&gt; hasattr(time, "perf_counter") and hasattr(time, "perf_counter_ns")
+True</code></pre>
+
+<p>三条规矩：</p>
+
+<ol><li><strong>别用 <code>time.time()</code> 测耗时</strong>：它取的是墙钟时间，会被系统对时（NTP）跳变影响，而且精度可能只有 15ms（Windows 上尤其）。用 <code>time.perf_counter()</code>。</li><li><strong>单次测量毫无意义</strong>：毫秒级操作的噪声可能比结果还大。<code>timeit</code> 会跑多次取最小值，<code>number=</code> 控制循环次数。</li><li><strong><code>timeit</code> 的语句里不要包含准备数据</strong>：<code>setup=</code> 里放准备代码，<code>stmt=</code> 只放被测表达式，否则你测的是「构造 + 计算」。</li></ol>
+
+<p>写基准时唯一诚实的输出是<strong>相对比较</strong>（A 比 B 快多少倍），而不是「本机跑了 0.0031 秒」——后者换个机器就变了。本章示例因此只断言「慢 100 倍以上」这种稳健结论。</p>
+
+<h2 id="s25-6">25.6 <code>cProfile</code>：找出真正花时间的地方</h2>
+
+<p>直觉定位热点几乎总是错的。<code>cProfile</code> 是标准库自带的确定性剖析器，记录每次函数调用的次数与耗时。</p>
+
+<pre class="py"><code># 片段：最常用的三步
+import cProfile, pstats
+
+profiler = cProfile.Profile()
+profiler.enable()
+main()                      # 被测代码
+profiler.disable()
+pstats.Stats(profiler).sort_stats("cumulative").print_stats(15)</code></pre>
+
+<p>输出五列要会读：</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>列</th>
+<th>含义</th>
+<th>怎么用</th>
+</tr></thead>
+<tbody>
+<tr><td><code>ncalls</code></td><td>调用次数（<code>a/b</code> 表示总/原始）</td><td>次数异常高 → 循环里重复计算</td></tr>
+<tr><td><code>tottime</code></td><td>函数自身耗时（不含子调用）</td><td><strong>排第一优先看这列</strong></td></tr>
+<tr><td><code>percall</code></td><td><code>tottime/ncalls</code></td><td>单次成本</td></tr>
+<tr><td><code>cumtime</code></td><td>含子调用的累计耗时</td><td>找「哪条路径整体最贵」</td></tr>
+<tr><td><code>filename:lineno</code></td><td>位置</td><td>点进去看实现</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>排序方式决定你看到什么：<code>sort_stats("tottime")</code> 找「自己很贵」的函数，<code>sort_stats("cumulative")</code> 找「整条链路很贵」的入口，<code>sort_stats("calls")</code> 找「被调了几万次」的小函数。<strong>先看 <code>tottime</code>，再看 <code>cumtime</code></strong>——前者是真正消耗 CPU 的地方，后者只是把子调用的账算在父函数头上。</p>
+
+<p>命令行也能用，不必改代码：</p>
+
+<pre class="shell"><code>python -m cProfile -s tottime script.py | head -20</code></pre>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch25_02_profile.py</code></figcaption><pre class="py"><code>import cProfile
+import pstats
+import timeit
+import tracemalloc
+
+
+def fib(n):
+    return n if n &lt; 2 else fib(n - 1) + fib(n - 2)
+
+
+def build(n):
+    return [i * i for i in range(n)]
+
+
+profiler = cProfile.Profile()
+profiler.enable()
+value = fib(20)
+rows = build(100_000)
+profiler.disable()
+
+print("fib(20) =", value, "| build 结果长度:", len(rows))
+
+stats = pstats.Stats(profiler)
+key = (fib.__code__.co_filename, fib.__code__.co_firstlineno, "fib")
+print("fib 被调用次数:", stats.stats[key][1])
+print("统计条目数 &gt;= 2:", len(stats.stats) &gt;= 2)
+
+
+def scan_count(data, target):
+    ops = 0
+    for x in data:
+        ops += 1
+        if x == target:
+            break
+    return ops
+
+
+hay = list(range(1000))
+hay_set = set(hay)
+print("线性扫描到末位需要比较:", scan_count(hay, 999), "次")
+
+t_list = timeit.timeit(lambda: 999 in hay, number=1000)
+t_set = timeit.timeit(lambda: 999 in hay_set, number=1000)
+print("list 版比 set 版慢 100 倍以上:", t_list &gt; t_set * 100)
+
+t0 = timeit.default_timer()
+total = sum(build(50_000))
+elapsed = timeit.default_timer() - t0
+print("求和结果:", total, "| 耗时小于 1 秒:", elapsed &lt; 1.0)
+
+tracemalloc.start()
+chunks = [bytearray(1000) for _ in range(10)]
+snapshot = tracemalloc.take_snapshot()
+tracemalloc.stop()
+top = snapshot.statistics("filename")[0]
+print("内存快照条目 &gt; 0:", len(snapshot.statistics("filename")) &gt; 0)
+print("最大块至少 9000 字节:", top.size &gt;= 9000)
+print("chunks 占用约 10000 字节:", 9_000 &lt;= sum(len(c) for c in chunks) &lt;= 11_000)</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>fib(20) = 6765 | build 结果长度: 100000
+fib 被调用次数: 21891
+统计条目数 &gt;= 2: True
+线性扫描到末位需要比较: 1000 次
+list 版比 set 版慢 100 倍以上: True
+求和结果: 41665416675000 | 耗时小于 1 秒: True
+内存快照条目 &gt; 0: True
+最大块至少 9000 字节: True
+chunks 占用约 10000 字节: True</code></pre></div></figure>
+
+<p><code>cProfile</code> 有两个局限：①它自己也消耗时间（通常 1.5～3 倍慢），所以<strong>看比例不看绝对值</strong>；②它只到函数粒度，看不到函数内部哪一行慢——那要用 <code>line_profiler</code>（第三方，<code>@profile</code> 装饰器）。另外 <code>cProfile</code> 不统计 C 扩展内部（numpy 的矩阵乘法会显示成一次调用），这类要换 <code>perf</code>/<code>py-spy</code> 这类采样剖析器。</p>
+
+<h2 id="s25-7">25.7 复杂度：先量级，再常数</h2>
+
+<pre class="pycon"><code>&gt;&gt;&gt; data = list(range(1000))
+&gt;&gt;&gt; target = 999
+&gt;&gt;&gt; ops = sum(1 for i, x in enumerate(data) if (x == target) or True)
+&gt;&gt;&gt; ops
+1000</code></pre>
+
+<p>一次 <code>in</code> 检查在 list 上是 O(n)：999 在末位就要比 1000 次。换成 <code>set</code> 是 O(1) 的哈希查找——同一份数据、同一个判断，差三个数量级。<strong>这类问题的收益远大于任何微优化</strong>（把 <code>for</code> 改成推导式只能省 20%）。</p>
+
+<p>排序与查找的常见选择：</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>需求</th>
+<th>朴素做法</th>
+<th>复杂度</th>
+<th>正确做法</th>
+<th>复杂度</th>
+</tr></thead>
+<tbody>
+<tr><td>判断存在</td><td><code>x in list</code></td><td>O(n)</td><td><code>x in set</code></td><td>O(1)</td></tr>
+<tr><td>多次查找</td><td>每次线性扫</td><td>O(n·m)</td><td>先建 <code>dict</code></td><td>O(n+m)</td></tr>
+<tr><td>去重保序</td><td>手动循环</td><td>O(n²)</td><td><code>dict.fromkeys</code></td><td>O(n)</td></tr>
+<tr><td>计数</td><td>两次遍历</td><td>O(n²)</td><td><code>Counter</code></td><td>O(n)</td></tr>
+<tr><td>拼接字符串</td><td><code>s += x</code> 循环</td><td>O(n²)</td><td><code>"".join(parts)</code></td><td>O(n)</td></tr>
+<tr><td>取前 k 大</td><td>全排序</td><td>O(n log n)</td><td><code>heapq.nlargest</code></td><td>O(n log k)</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>第 5 章讲过 <code>+=</code> 拼字符串的二次复杂度，这里补一句原因：<code>str</code> 不可变，每次 <code>+=</code> 都新建一个对象并复制全部旧内容，n 次就是 1+2+…+n。</p>
+
+<h2 id="s25-8">25.8 内存：<code>tracemalloc</code></h2>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import tracemalloc
+&gt;&gt;&gt; tracemalloc.start()
+&gt;&gt;&gt; data = [bytearray(1000) for _ in range(10)]
+&gt;&gt;&gt; snap = tracemalloc.take_snapshot()
+&gt;&gt;&gt; tracemalloc.stop()
+&gt;&gt;&gt; top = snap.statistics("lineno")[0]
+&gt;&gt;&gt; top.size &gt;= 9_000
+True
+&gt;&gt;&gt; isinstance(top.traceback[0].lineno, int)
+True</code></pre>
+
+<p><code>tracemalloc</code> 按分配点统计峰值与当前占用，是「内存为什么一直涨」的第一把工具。三步用法：<code>start()</code> → 跑可疑代码 → <code>take_snapshot()</code>，然后 <code>statistics("lineno")</code> 按行聚合、<code>compare_to(old, "lineno")</code> 看两次快照之间多了什么。</p>
+
+<p>对象为什么没被回收，用 <code>gc</code> 与 <code>sys.getrefcount</code> 查：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import gc, sys
+&gt;&gt;&gt; gc.disable()
+&gt;&gt;&gt; a = []
+&gt;&gt;&gt; b = [a]
+&gt;&gt;&gt; sys.getrefcount(a) &gt;= 2
+True
+&gt;&gt;&gt; gc.collect() &gt;= 0
+True
+&gt;&gt;&gt; gc.enable()</code></pre>
+
+<p>引用计数是主力回收机制（对象引用归零立即释放），<code>gc</code> 只负责<strong>循环引用</strong>。所以「闭包持有大对象」「全局缓存永不清理」「异常对象的 traceback 持有整个栈帧」是三类最常见的内存泄漏。</p>
+
+<h2 id="s25-9">25.9 五类性能反模式</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>反模式</th>
+<th>症状</th>
+<th>正确写法</th>
+</tr></thead>
+<tbody>
+<tr><td>循环里 <code>s += x</code> 拼字符串</td><td>数据一多就卡死</td><td><code>"".join(parts)</code></td></tr>
+<tr><td>循环里 <code>list.append</code> + 手工计算</td><td>比推导式慢 20%～40%</td><td>列表推导式</td></tr>
+<tr><td>循环里重复算不变量</td><td><code>for</code> 内 <code>len(xs)</code>、属性查找</td><td>提到循环外，或局部变量</td></tr>
+<tr><td>用 <code>in list</code> 反复查存在</td><td>O(n²)</td><td>先转 <code>set</code>/<code>dict</code></td></tr>
+<tr><td>每行都 <code>print</code> 调试</td><td>IO 拖慢十倍</td><td><code>logging</code>（级别不够时零成本）</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>还有一类是<strong>测量方法错误</strong>：用 <code>time.time()</code>、只跑一次、把准备数据算进计时、在有其他负载的机器上测。这类「假数据」比不测更糟——它会让你去优化一个根本不热的地方。</p>
+
+<h2 id="25-a-与-c-的差别">25.a 与 C++ 的差别</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>维度</th>
+<th>Python</th>
+<th>C++</th>
+</tr></thead>
+<tbody>
+<tr><td>调试器</td><td><code>pdb</code>/<code>breakpoint()</code>，源码级</td><td><code>gdb</code>/<code>lldb</code>，可看寄存器与内存</td></tr>
+<tr><td>崩溃现场</td><td>traceback 带源码行（若有 .py）</td><td>core dump + 符号表</td></tr>
+<tr><td>断言</td><td><code>assert</code>（<code>-O</code> 可移除）</td><td><code>assert</code>（<code>NDEBUG</code> 移除）+ <code>static_assert</code></td></tr>
+<tr><td>性能剖析</td><td><code>cProfile</code>（函数级）、<code>line_profiler</code></td><td><code>perf</code>、<code>valgrind --tool=callgrind</code>、VTune</td></tr>
+<tr><td>采样剖析</td><td><code>py-spy</code>（可附到运行中进程）</td><td><code>perf record</code></td></tr>
+<tr><td>内存工具</td><td><code>tracemalloc</code>、<code>gc</code>、<code>objgraph</code></td><td>Valgrind、ASan、Massif</td></tr>
+<tr><td>优化手段</td><td>换算法/数据结构、C 扩展、numpy、PyPy</td><td>编译选项、内联、SIMD、缓存友好布局</td></tr>
+<tr><td>优化上限</td><td>常数级提升几倍，算法级差数量级</td><td>常数级也能差 10 倍以上（缓存/向量化）</td></tr>
+<tr><td>计时精度</td><td><code>perf_counter</code> 纳秒级</td><td><code>chrono::steady_clock</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>最本质的差别：C++ 的性能问题常常在<strong>指令级</strong>（缓存未命中、分支预测、虚函数开销），Python 的性能问题几乎总在<strong>算法与对象创建</strong>上。所以 Python 优化的第一步永远是「换数据结构/换算法」，最后才是「换成 C 扩展」。而 Python 的调试优势是<strong>不需要重新编译</strong>：改一行、重跑、断点即到。</p>
+
+<h2 id="25-b-易错点清单">25.b 易错点清单</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>现象</th>
+<th>原因</th>
+<th>一行修复</th>
+</tr></thead>
+<tbody>
+<tr><td>只看 traceback 第一段，找不到出错行</td><td>方向读反了</td><td>从<strong>最后一段</strong>往上看</td></tr>
+<tr><td><code>print(f"错误: {e}")</code> 只打印了键名</td><td><code>KeyError</code> 的 <code>str</code> 就是键</td><td>自己补上下文：<code>f"缺少 {key!r}"</code></td></tr>
+<tr><td>加了 <code>-O</code> 后参数校验失效</td><td><code>assert</code> 被整体删除</td><td>输入校验用 <code>if ... raise</code></td></tr>
+<tr><td>断点不生效</td><td><code>breakpoint()</code> 在未执行的分支里</td><td>用条件断点或确认那行真的跑了</td></tr>
+<tr><td><code>pdb</code> 里 <code>q</code> 直接退出整个程序</td><td><code>quit</code> 就是中止</td><td>用 <code>c</code> 继续，或 <code>disable</code> 断点</td></tr>
+<tr><td>计时结果每次都不一样</td><td>用了 <code>time.time()</code> + 单次测量</td><td><code>timeit</code> + <code>perf_counter</code></td></tr>
+<tr><td>优化后反而更慢</td><td>优化了不热的 5%</td><td>先 <code>cProfile</code> 排序再动手</td></tr>
+<tr><td><code>cProfile</code> 显示某函数耗时巨大</td><td>那是 <code>cumtime</code>，含子调用</td><td>看 <code>tottime</code> 列</td></tr>
+<tr><td>内存一直涨但找不到分配点</td><td>没有快照对比</td><td><code>tracemalloc</code> 两次快照 <code>compare_to</code></td></tr>
+<tr><td>日志在生产里把磁盘写满</td><td><code>DEBUG</code> 级别留在配置里</td><td>用环境变量控制级别</td></tr>
+<tr><td>警告刷屏后没人看</td><td>没分类、没升级</td><td>测试里 <code>-W error</code>，废弃用 <code>DeprecationWarning</code></td></tr>
+<tr><td>生产环境不能断点</td><td>交互式调试器不可用</td><td><code>py-spy dump --pid</code> 抓栈，或加结构化日志</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="25-c-练习">25.c 练习</h2>
+
+<p><strong>基础 1</strong>：写一个三层调用的函数链，让最内层抛 <code>ZeroDivisionError</code>，在中间层用 <code>raise ... from e</code> 包装成自定义异常，最外层打印「调用链 / 根因 / 是否是显式 cause」。要求输出不含文件绝对路径。</p>
+
+<p>验收：输出恰好三行，包含 <code>main -&gt; middle -&gt; inner</code> 形式的调用链与 <code>ZeroDivisionError</code>；把 <code>from e</code> 改成 <code>from None</code> 后根因行消失。</p>
+
+<p><strong>基础 2</strong>：用 <code>timeit</code> 比较 <code>"".join(str(i) for i in range(200))</code> 与循环 <code>+=</code> 拼接的耗时，断言前者至少快 2 倍，并打印两种写法在 n=200 时的操作次数（提示：<code>+=</code> 的复制次数是 1+2+…+n）。</p>
+
+<p>验收：比较结论稳定（多次运行都成立）；操作次数打印为 <code>20100</code>。</p>
+
+<p><strong>基础 3</strong>：给一段故意写慢的代码（循环里 <code>x in list</code>、循环里 <code>s += c</code>）做剖析，用 <code>pstats.sort_stats("tottime")</code> 打印前 5 行，指出热点函数名。</p>
+
+<p>验收：能打印出热点函数名与其 <code>ncalls</code>；改造后同一基准的相对耗时下降（断言「改造后比改造前快 5 倍以上」）。</p>
+
+<p><strong>变式</strong>：用 <code>tracemalloc</code> 对比两个版本的峰值内存：一个把 10 万个 int 存进 <code>list</code>，一个存进 <code>array("i")</code>，打印两者的峰值字节数与自己计算的比值。</p>
+
+<p>验收：两个 <code>peak</code> 都能打印出来且 <code>list</code> 版本明显更大；比值断言成立（提示：int 对象约 28 字节 + 指针 8 字节）。</p>
+
+<p><strong>挑战</strong>：写一个 <code>debug_report(obj)</code> 函数，不依赖交互式调试器，输出：<code>repr</code>、<code>type</code>、<code>dir</code> 过滤后的公共属性、<code>sys.getsizeof</code>、以及若为容器时的元素类型统计；用它诊断一个「看起来是 list 其实是 list of list」的嵌套错误。</p>
+
+<p>验收：对 <code>[[1, 2], [3]]</code> 能指出「元素类型是 list，深度 2」；对 <code>[1, 2]</code> 输出深度 1；输出行数固定、不含内存地址。</p>
+
+<h2 id="25-d-小结">25.d 小结</h2>
+
+<ol><li>traceback 从<strong>最后一段</strong>读起：异常类型 → 出错帧 → 调用链；<code>from e</code> 造出的 <code>__cause__</code> 是根因，<code>__context__</code> 是自动上下文。</li><li>调试三件套替掉 <code>print</code>：<code>assert</code> 守不变量、<code>logging</code> 留可关闭的痕迹、<code>breakpoint()</code> 一次看全部局部变量。</li><li>性能先量级后常数：<code>cProfile</code> 按 <code>tottime</code> 排序找热点、<code>timeit</code> 做相对比较、<code>tracemalloc</code> 找内存增长点；换数据结构通常比任何微优化收益大一个数量级。</li></ol>
+
+<p>下一章把前面所有内容收成一份清单：新手在 Python 里最常踩的坑，每一条都给出「症状 → 原因 → 改法」，可以直接当自查表用。</p>
+
+    
+
+    
+</article>

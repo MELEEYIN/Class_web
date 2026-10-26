@@ -1,0 +1,1342 @@
+<article data-learn-content>
+<p><strong>读完这一章你能做到</strong></p>
+
+<ol><li>说清 <code>obj.x</code> 每一步去哪找，知道为什么 <code>self</code> 必须写在参数表里。</li><li>用 <code>@dataclass</code> 十行写完全参构造、相等、<code>repr</code>，不再手抄样板代码。</li><li>用 <code>property</code> 给字段加校验，让 <code>t.celsius = -300</code> 当场抛错。</li><li>读懂菱形继承下的 MRO，明白 <code>super()</code> 找的不是「父类」而是「MRO 上的下一个」。</li><li>写出实现了 <code>__len__</code> / <code>__getitem__</code> / <code>__eq__</code> / <code>__hash__</code> 的对象，让它能当内置类型用。</li></ol>
+
+<h2 id="s18-1">18.1 类和实例到底存了什么</h2>
+
+<p><code>class</code> 语句执行完，得到的是一个<strong>对象</strong>（类本身也是对象）。类体里写的名字进 <code>类的 __dict__</code>，<code>__init__</code> 里 <code>self.xxx =</code> 写的名字进<strong>每个实例自己的 <code>__dict__</code></strong>。属性访问就是先查实例字典，再沿继承链查类字典。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; class Point:
+...     dim = 2
+...     def __init__(self, x, y):
+...         self.x, self.y = x, y
+...     def norm1(self):
+...         return abs(self.x) + abs(self.y)
+...
+&gt;&gt;&gt; p = Point(3, -4)
+&gt;&gt;&gt; sorted(k for k in Point.__dict__ if not k.startswith("__"))
+['dim', 'norm1']
+&gt;&gt;&gt; p.__dict__
+{'x': 3, 'y': -4}
+&gt;&gt;&gt; p.dim
+2</code></pre>
+
+<p>方法也是类字典里的一个普通函数对象，<code>p.norm1</code> 之所以不用传 <code>self</code>，是因为取属性时<strong>绑定</strong>了一次：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; class Calc:
+...     def twice(self, n):
+...         return 2 * n
+...
+&gt;&gt;&gt; c = Calc()
+&gt;&gt;&gt; Calc.twice(c, 21)
+42
+&gt;&gt;&gt; type(Calc.twice).__name__
+'function'
+&gt;&gt;&gt; type(c.twice).__name__
+'method'
+&gt;&gt;&gt; c.twice.__self__ is c
+True
+&gt;&gt;&gt; Calc.twice.__qualname__
+'Calc.twice'</code></pre>
+
+<p><code>Calc.twice</code> 是<strong>函数</strong>，<code>c.twice</code> 是<strong>方法对象</strong>：取属性时解释器把函数和 <code>c</code> 绑在一起。所以「<code>self</code> 是隐式传的第一个参数」不是语法糖，而是绑定机制的结果——这也解释了为什么 <code>Calc.twice()</code> 少传参数只会得到一个 <code>TypeError</code>（提示缺少位置参数），而不是什么「类方法调用失败」。</p>
+
+<p>查表顺序用一个小实验钉死：实例字典 → 类型 → 父类 → … → <code>object</code>。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; class A:
+...     v = "A.v"
+...
+&gt;&gt;&gt; class B(A):
+...     v = "B.v"
+...
+&gt;&gt;&gt; b = B()
+&gt;&gt;&gt; b.v
+'B.v'
+&gt;&gt;&gt; b.v = "instance"
+&gt;&gt;&gt; b.v
+'instance'
+&gt;&gt;&gt; del b.v
+&gt;&gt;&gt; b.v
+'B.v'
+&gt;&gt;&gt; "v" in b.__dict__
+False</code></pre>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch18_01_class_basics.py</code></figcaption><pre class="py"><code>"""ch18_01_class_basics.py —— 类、实例、属性与命名习惯"""
+
+
+class Point:
+    count = 0
+
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        Point.count += 1
+
+    def move(self, dx, dy):
+        self.x += dx
+        self.y += dy
+        return self
+
+    def __repr__(self):
+        return f"Point({self.x}, {self.y})"
+
+
+p = Point(1, 2)
+q = Point(3, 4)
+print("两个点：", p, q)
+print("类属性 count：", Point.count, "| 通过实例也能读到：", p.count)
+
+print("=== 实例属性遮蔽类属性 ===")
+p.count = 99
+print("p.count：", p.count, "| q.count：", q.count, "| Point.count：", Point.count)
+del p.count
+print("删掉实例属性后回到类属性：", p.count)
+
+print("=== self 就是实例本身 ===")
+print("p.move 是绑定方法：", p.move)
+print("返回值就是 self：", p.move(1, 1) is p)
+print("链式调用：", p.move(1, 0).move(0, 1), "| 现在 p =", p)
+
+print("=== 可变类属性是所有实例共享的 ===")
+
+
+class Bag:
+    items = []
+
+    def add(self, item):
+        self.items.append(item)
+
+
+b1, b2 = Bag(), Bag()
+b1.add("a")
+print("b1.items：", b1.items, "| b2.items：", b2.items)
+print("是同一个列表：", b1.items is b2.items)
+
+
+class SafeBag:
+    def __init__(self):
+        self.items = []
+
+    def add(self, item):
+        self.items.append(item)
+
+
+s1, s2 = SafeBag(), SafeBag()
+s1.add("a")
+print("修正版 b1：", s1.items, "| b2：", s2.items)
+
+print("=== 单下划线是约定，双下划线会被改名 ===")
+
+
+class Secret:
+    def __init__(self):
+        self._internal = "单下划线：约定别碰"
+        self.__hidden = "双下划线：被改名"
+
+    def reveal(self):
+        return self.__hidden
+
+
+s = Secret()
+print(s._internal)
+try:
+    print(s.__hidden)
+except AttributeError as e:
+    print("直接访问 s.__hidden -&gt;", type(e).__name__ + ":", e)
+print("__dict__ 里真实存在的键：", [k for k in s.__dict__ if "hidden" in k])
+print("通过方法访问：", s.reveal())
+print("按改名后的名字访问：", s._Secret__hidden)
+
+print("=== 实例字典与类字典 ===")
+print("p.__dict__：", p.__dict__)
+print("Point 里的自定义名字：", sorted(k for k in Point.__dict__ if not k.startswith("__")))
+print("方法本身是函数对象：", type(Point.move).__name__)
+print("通过类调用要手动传 self：", Point.move(Point(0, 0), 5, 5))
+
+print("=== 类属性在类体里可以直接算 ===")
+
+
+class Config:
+    base = 10
+    double = base * 2
+
+    def __init__(self, name):
+        self.name = name
+
+
+print("Config.double：", Config.double, "| 实例也能读到：", Config("demo").double)</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>两个点： Point(1, 2) Point(3, 4)
+类属性 count： 2 | 通过实例也能读到： 2
+=== 实例属性遮蔽类属性 ===
+p.count： 99 | q.count： 2 | Point.count： 2
+删掉实例属性后回到类属性： 2
+=== self 就是实例本身 ===
+p.move 是绑定方法： &lt;bound method Point.move of Point(1, 2)&gt;
+返回值就是 self： True
+链式调用： Point(3, 4) | 现在 p = Point(3, 4)
+=== 可变类属性是所有实例共享的 ===
+b1.items： ['a'] | b2.items： ['a']
+是同一个列表： True
+修正版 b1： ['a'] | b2： []
+=== 单下划线是约定，双下划线会被改名 ===
+单下划线：约定别碰
+直接访问 s.__hidden -&gt; AttributeError: 'Secret' object has no attribute '__hidden'
+__dict__ 里真实存在的键： ['_Secret__hidden']
+通过方法访问： 双下划线：被改名
+按改名后的名字访问： 双下划线：被改名
+=== 实例字典与类字典 ===
+p.__dict__： {'x': 3, 'y': 4}
+Point 里的自定义名字： ['count', 'move']
+方法本身是函数对象： function
+通过类调用要手动传 self： Point(5, 5)
+=== 类属性在类体里可以直接算 ===
+Config.double： 20 | 实例也能读到： 20</code></pre></div></figure>
+
+<p>三件事在这段输出里同时成立：赋值 <code>b.v = ...</code> <strong>只在实例字典里新建一个键</strong>，不碰类；<code>del</code> 之后重新落到类属性；<code>Point.count += 1</code> 这种「读类属性再写回类属性」必须写全名，写 <code>self.count += 1</code> 会先读类属性、再在实例字典里造一个遮蔽它的新键。</p>
+
+<div class="box warn"><p>类体里 <code>items = []</code> 是所有实例共享的同一个列表。<code>Bag()</code> 建两个对象，<code>b1.add("a")</code> 之后 <code>b2.items</code> 也是 <code>['a']</code>。凡是可变默认状态，一律写进 <code>__init__</code> 的 <code>self.items = []</code>，或者用 <code>@dataclass</code> 的 <code>field(default_factory=list)</code>。</p></div>
+
+<h2 id="s18-2">18.2 类属性、实例属性与遮蔽</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>写法</th>
+<th>落在哪</th>
+<th>生命周期</th>
+<th>典型用途</th>
+</tr></thead>
+<tbody>
+<tr><td><code>class C: n = 0</code></td><td><code>C.__dict__</code></td><td>随类</td><td>常量、计数器、默认配置</td></tr>
+<tr><td><code>self.n = 0</code></td><td>实例 <code>__dict__</code></td><td>随实例</td><td>每个对象自己的状态</td></tr>
+<tr><td><code>C.n = 5</code></td><td>改类字典</td><td>随类</td><td>全局开关、注册表</td></tr>
+<tr><td><code>@property</code></td><td>类字典里的描述符</td><td>随类</td><td>计算属性 + 校验</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>同名时<strong>实例赢</strong>，且这个遮蔽是单实例的：<code>p.count = 99</code> 之后 <code>q.count</code> 仍是类值。类属性改了，没被遮蔽的实例立刻看到新值；已经被遮蔽的不受影响。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; class Cfg:
+...     retries = 3
+...
+&gt;&gt;&gt; a, b = Cfg(), Cfg()
+&gt;&gt;&gt; a.retries = 10
+&gt;&gt;&gt; b.retries, Cfg.retries
+(3, 3)
+&gt;&gt;&gt; Cfg.retries = 5
+&gt;&gt;&gt; a.retries, b.retries
+(10, 5)</code></pre>
+
+<p>另一个坑在类体内部：类体的作用域<strong>不是</strong>闭包作用域，所以方法里不能直接读类体中的名字。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; class Bad:
+...     value = 42
+...     def get(self):
+...         return value
+...
+&gt;&gt;&gt; try:
+...     Bad().get()
+... except NameError as e:
+...     print(type(e).__name__, e)
+NameError name 'value' is not defined
+&gt;&gt;&gt; class Good:
+...     value = 42
+...     def get(self):
+...         return self.value
+...
+&gt;&gt;&gt; Good().get()
+42</code></pre>
+
+<h2 id="s18-3">18.3 命名约定与名字改写</h2>
+
+<p>Python 用命名表达可见性，编译器只对<strong>双下划线开头、不以双下划线结尾</strong>的名字动手：在类 <code>S</code> 里写 <code>self.__v</code>，实际存成 <code>self._S__v</code>。这叫名字改写（name mangling），目的是让子类不会意外覆盖父类的私有实现。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; class S:
+...     def __init__(self):
+...         self.__v = 1
+...     def get(self):
+...         return self.__v
+...
+&gt;&gt;&gt; s = S()
+&gt;&gt;&gt; s.get()
+1
+&gt;&gt;&gt; list(s.__dict__)
+['_S__v']
+&gt;&gt;&gt; s._S__v
+1
+&gt;&gt;&gt; try:
+...     s.__v
+... except AttributeError as e:
+...     print(type(e).__name__, e)
+AttributeError 'S' object has no attribute '__v'</code></pre>
+
+<p>改写只在<strong>类体内</strong>发生，所以子类里写的 <code>self.__v</code> 会变成 <code>self._子类名__v</code>，是另一个槽位。而 <code>super().__init__()</code> 内部的 <code>self.__v</code> 是在父类体里编译的，改写前缀仍是父类名——这就是双下划线「恰好」能保护私有字段的原因。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; class T:
+...     def __init__(self):
+...         self.__x__ = 9
+...         self._y = 10
+...
+&gt;&gt;&gt; T().__dict__
+{'__x__': 9, '_y': 10}</code></pre>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>写法</th>
+<th>含义</th>
+<th>是否被改写</th>
+<th>外部能访问吗</th>
+</tr></thead>
+<tbody>
+<tr><td><code>name</code></td><td>公开</td><td>否</td><td>能</td></tr>
+<tr><td><code>_name</code></td><td>内部实现，约定别碰</td><td>否</td><td>能（靠自觉）</td></tr>
+<tr><td><code>__name</code></td><td>类私有</td><td>是 → <code>_Cls__name</code></td><td>要写全名才能</td></tr>
+<tr><td><code>__name__</code></td><td>协议钩子</td><td>否</td><td>能，别自造</td></tr>
+<tr><td><code>name_</code></td><td>避开关键字（<code>class_</code>）</td><td>否</td><td>能</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box warn"><p><code>from module import *</code> 不会导入下划线开头的名字；单元测试要访问 <code>obj._Cls__v</code> 时，说明你正在测试私有实现，该停下来看设计。</p></div>
+
+<h2 id="s18-4">18.4 继承与 <code>super()</code></h2>
+
+<p>继承有两层含义：<strong>接口兼容</strong>（子类能当父类用）和<strong>代码复用</strong>（不重写就沿用）。<code>isinstance</code> 检查整条链，<code>type</code> 只看精确类型——判断「是不是某类东西」永远用 <code>isinstance</code>。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; class Animal:
+...     def __init__(self, name):
+...         self.name = name
+...     def speak(self):
+...         return self.name + " 发出声音"
+...
+&gt;&gt;&gt; class Dog(Animal):
+...     def speak(self):
+...         return self.name + " 汪汪"
+...
+&gt;&gt;&gt; d = Dog("旺财")
+&gt;&gt;&gt; isinstance(d, Animal), type(d) is Animal
+(True, False)
+&gt;&gt;&gt; isinstance(True, int), type(True) is int
+(True, False)</code></pre>
+
+<p><code>super()</code> 的正确心智模型是「在 <code>type(self)</code> 的 MRO 上，从<strong>当前类之后</strong>继续找下一个」。它不是「父类引用」，所以在多继承里能保证每个类只被调一次。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; class Base:
+...     def tag(self):
+...         return ["Base"]
+...
+&gt;&gt;&gt; class Left(Base):
+...     def tag(self):
+...         return ["Left"] + super().tag()
+...
+&gt;&gt;&gt; class Right(Base):
+...     def tag(self):
+...         return ["Right"] + super().tag()
+...
+&gt;&gt;&gt; class Both(Left, Right):
+...     def tag(self):
+...         return ["Both"] + super().tag()
+...
+&gt;&gt;&gt; Both().tag()
+['Both', 'Left', 'Right', 'Base']</code></pre>
+
+<p>注意 <code>Base</code> 只出现一次、且排在最后——这是合作式多继承（cooperative inheritance）的效果：每一层都调 <code>super()</code>，链条自然走完。只要有一层忘了调 <code>super().__init__()</code>，后面的初始化全部静默丢失。</p>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch18_02_inherit.py</code></figcaption><pre class="py"><code>"""ch18_02_inherit.py —— 继承、super、MRO 与抽象基类"""
+from abc import ABC, abstractmethod
+
+
+class Animal:
+    def __init__(self, name):
+        self.name = name
+
+    def speak(self):
+        return f"{self.name} 发出声音"
+
+    def describe(self):
+        return f"我是 {type(self).__name__}，叫 {self.name}"
+
+
+class Dog(Animal):
+    def speak(self):
+        return f"{self.name} 汪汪"
+
+
+class Cat(Animal):
+    def speak(self):
+        return super().speak() + "（喵）"
+
+
+d, c = Dog("旺财"), Cat("咪咪")
+print(d.speak(), "|", c.speak())
+print("子类没写 __init__ 就用父类的：", d.describe())
+print("isinstance 看整条继承链：", isinstance(d, Animal), isinstance(d, Dog))
+print("type 只看精确类型：", type(d) is Animal, type(d) is Dog)
+
+print("=== super() 调用父类实现 ===")
+
+
+class Puppy(Dog):
+    def speak(self):
+        return super().speak() + "，而且是奶声奶气"
+
+
+print(Puppy("小黑").speak())
+
+print("=== MRO：菱形继承时的查找顺序 ===")
+
+
+class A:
+    def who(self):
+        return "A"
+
+
+class B(A):
+    def who(self):
+        return "B -&gt; " + super().who()
+
+
+class C(A):
+    def who(self):
+        return "C -&gt; " + super().who()
+
+
+class D(B, C):
+    def who(self):
+        return "D -&gt; " + super().who()
+
+
+print("D 的 MRO：", [k.__name__ for k in D.__mro__])
+print("D().who()：", D().who())
+
+print("=== 合作式 super：每个类都调一次 ===")
+order = []
+
+
+class Base:
+    def __init__(self):
+        order.append("Base")
+        super().__init__()
+
+
+class Left(Base):
+    def __init__(self):
+        order.append("Left")
+        super().__init__()
+
+
+class Right(Base):
+    def __init__(self):
+        order.append("Right")
+        super().__init__()
+
+
+class Both(Left, Right):
+    def __init__(self):
+        order.append("Both")
+        super().__init__()
+
+
+Both()
+print("初始化顺序：", order)
+print("Both 的 MRO：", [k.__name__ for k in Both.__mro__])
+
+print("=== 抽象基类：强制子类实现 ===")
+
+
+class Shape(ABC):
+    @abstractmethod
+    def area(self):
+        ...
+
+    def describe(self):
+        return f"{type(self).__name__} 的面积是 {self.area():.2f}"
+
+
+class Square(Shape):
+    def __init__(self, side):
+        self.side = side
+
+    def area(self):
+        return self.side ** 2
+
+
+class Circle(Shape):
+    def __init__(self, r):
+        self.r = r
+
+    def area(self):
+        return 3.14159 * self.r ** 2
+
+
+print(Square(3).describe())
+print(Circle(1).describe())
+try:
+    Shape()
+except TypeError as e:
+    print("TypeError:", e)
+try:
+    class Bad(Shape):
+        pass
+
+    Bad()
+except TypeError as e:
+    print("TypeError:", e)
+
+print("=== 覆盖与扩展：调父类再加工 ===")
+
+
+class LoudDog(Dog):
+    def speak(self):
+        return super().speak().upper()
+
+
+print(LoudDog("大黄").speak())
+
+print("=== 用 mixin 组合能力 ===")
+
+
+class JsonMixin:
+    def to_json(self):
+        import json
+        return json.dumps(self.__dict__, ensure_ascii=False, sort_keys=True)
+
+
+class User(JsonMixin):
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+
+print(User("小明", 18).to_json())
+print("User 的 MRO：", [k.__name__ for k in User.__mro__])</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>旺财 汪汪 | 咪咪 发出声音（喵）
+子类没写 __init__ 就用父类的： 我是 Dog，叫 旺财
+isinstance 看整条继承链： True True
+type 只看精确类型： False True
+=== super() 调用父类实现 ===
+小黑 汪汪，而且是奶声奶气
+=== MRO：菱形继承时的查找顺序 ===
+D 的 MRO： ['D', 'B', 'C', 'A', 'object']
+D().who()： D -&gt; B -&gt; C -&gt; A
+=== 合作式 super：每个类都调一次 ===
+初始化顺序： ['Both', 'Left', 'Right', 'Base']
+Both 的 MRO： ['Both', 'Left', 'Right', 'Base', 'object']
+=== 抽象基类：强制子类实现 ===
+Square 的面积是 9.00
+Circle 的面积是 3.14
+TypeError: Can't instantiate abstract class Shape without an implementation for abstract method 'area'
+TypeError: Can't instantiate abstract class Bad without an implementation for abstract method 'area'
+=== 覆盖与扩展：调父类再加工 ===
+大黄 汪汪
+=== 用 mixin 组合能力 ===
+{"age": 18, "name": "小明"}
+User 的 MRO： ['User', 'JsonMixin', 'object']</code></pre></div></figure>
+
+<p><strong>覆盖要调父类</strong>：想「在父类行为上加点东西」就先 <code>super().speak()</code> 再加工，而不是复制一遍父类代码。想彻底替换就不调，这是有意为之的替换（override）而不是扩展（extend），写注释说明。</p>
+
+<h2 id="s18-5">18.5 MRO：多继承的查找顺序</h2>
+
+<p>Python 用 C3 线性化算出一条顺序，存在 <code>Cls.__mro__</code> 里。规则是：子类在父类前、按声明顺序、且每个类只出现一次。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; class A:
+...     def who(self):
+...         return "A"
+...
+&gt;&gt;&gt; class B(A):
+...     def who(self):
+...         return "B" + super().who()
+...
+&gt;&gt;&gt; class C(A):
+...     def who(self):
+...         return "C" + super().who()
+...
+&gt;&gt;&gt; class D(B, C):
+...     pass
+...
+&gt;&gt;&gt; [k.__name__ for k in D.__mro__]
+['D', 'B', 'C', 'A', 'object']
+&gt;&gt;&gt; D().who()
+'BCA'
+&gt;&gt;&gt; class E(C, B):
+...     pass
+...
+&gt;&gt;&gt; [k.__name__ for k in E.__mro__]
+['E', 'C', 'B', 'A', 'object']
+&gt;&gt;&gt; E().who()
+'CBA'</code></pre>
+
+<p><code>D().who()</code> 里 <code>super()</code> 是在 <code>B</code> 的方法体里编译的，但它按 <code>type(self)</code> 即 <code>D</code> 的 MRO 走，于是 B 之后是 C，C 之后是 A。把声明顺序从 <code>(B, C)</code> 换成 <code>(C, B)</code>，输出就从 <code>BCA</code> 变 <code>CBA</code>——<strong>多继承的行为由声明顺序决定</strong>，这也是它危险的地方。</p>
+
+<p>C3 会拒绝矛盾的继承图：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; class X: pass
+...
+&gt;&gt;&gt; class Y(X): pass
+...
+&gt;&gt;&gt; try:
+...     class Z(X, Y): pass
+... except TypeError as e:
+...     print(type(e).__name__ + ":", e)
+TypeError: Cannot create a consistent method resolution order (MRO) for bases X, Y</code></pre>
+
+<div class="box tip"><p>需要多继承时，让第一个基类是「真正的主体」，其余是 mixin（只提供一两个方法、自己不实例化、不写 <code>__init__</code>）。<code>class User(JsonMixin)</code> 这种单主体 + 能力组合是安全的；两个都有状态的主体类做多继承，早晚撞上 MRO。</p></div>
+
+<h2 id="s18-6">18.6 魔术方法：让对象长得像内置类型</h2>
+
+<p>魔术方法（dunder method）不是给你直接调的，是解释器在特定语法下替你调的：<code>len(x)</code> 找 <code>__len__</code>，<code>x + y</code> 找 <code>__add__</code>，<code>print(x)</code> 找 <code>__str__</code>，<code>[x]</code> 找 <code>__repr__</code>。写对了，你的对象就能进 <code>sorted</code>、<code>for</code>、<code>in</code>、<code>set</code>。</p>
+
+<p><strong><code>__str__</code> 给人看，<code>__repr__</code> 给开发者看</strong>。只写一个时，写 <code>__repr__</code>——它同时服务调试、容器显示和日志。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; class M:
+...     def __init__(self, v):
+...         self.v = v
+...     def __str__(self):
+...         return f"值={self.v}"
+...     def __repr__(self):
+...         return f"M({self.v})"
+...
+&gt;&gt;&gt; m = M(7)
+&gt;&gt;&gt; print(m)
+值=7
+&gt;&gt;&gt; str(m), repr(m)
+('值=7', 'M(7)')
+&gt;&gt;&gt; [m]
+[M(7)]
+&gt;&gt;&gt; f"{m} / {m!r}"
+'值=7 / M(7)'</code></pre>
+
+<p><code>__repr__</code> 的验收标准是：<code>eval(repr(x)) == x</code> 尽量成立。</p>
+
+<p><strong><code>__eq__</code> 与 <code>__hash__</code> 是一份契约</strong>：相等的对象必须有相同哈希；一旦你定义了 <code>__eq__</code>，Python 会把 <code>__hash__</code> 设成 <code>None</code>，对象立刻变成不可哈希——这是故意的，防止「相等但哈希不同」破坏字典。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; class P:
+...     def __init__(self, v):
+...         self.v = v
+...     def __eq__(self, other):
+...         return isinstance(other, P) and self.v == other.v
+...
+&gt;&gt;&gt; try:
+...     hash(P(1))
+... except TypeError as e:
+...     print(type(e).__name__, e)
+TypeError unhashable type: 'P'
+&gt;&gt;&gt; P(1) == P(1)
+True
+&gt;&gt;&gt; P(1) == 1
+False</code></pre>
+
+<p><code>__eq__</code> 里遇到不认识的类型要 <code>return NotImplemented</code>（不是 <code>False</code>），这样 Python 才会去试对方的 <code>__eq__</code>。</p>
+
+<p><strong>容器协议</strong>四个方法就够用了：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; class Deck:
+...     def __init__(self):
+...         self._c = ["A", "K", "Q"]
+...     def __len__(self):
+...         return len(self._c)
+...     def __getitem__(self, i):
+...         return self._c[i]
+...
+&gt;&gt;&gt; d = Deck()
+&gt;&gt;&gt; len(d), d[0], d[-1], d[1:]
+(3, 'A', 'Q', ['K', 'Q'])
+&gt;&gt;&gt; [c for c in Deck()]
+['A', 'K', 'Q']
+&gt;&gt;&gt; "K" in Deck()
+True</code></pre>
+
+<p>只写 <code>__getitem__</code>，<code>for</code> 和 <code>in</code> 就自动能用（解释器退回到「从 0 开始索引直到 <code>IndexError</code>」）；<code>in</code> 的退路是逐个 <code>==</code> 比较，O(n)。补上 <code>__contains__</code> 才能自己决定怎么做。补上 <code>__iter__</code> 才能返回真正的迭代器（第 15 章）。</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>语法</th>
+<th>调用的方法</th>
+<th>不写时的默认</th>
+</tr></thead>
+<tbody>
+<tr><td><code>len(x)</code></td><td><code>__len__</code></td><td><code>TypeError</code></td></tr>
+<tr><td><code>x[i]</code> / <code>x[a:b]</code></td><td><code>__getitem__</code></td><td><code>TypeError</code></td></tr>
+<tr><td><code>x[i] = v</code></td><td><code>__setitem__</code></td><td><code>TypeError</code></td></tr>
+<tr><td><code>for v in x</code> / <code>in</code></td><td><code>__iter__</code> → 退化用 <code>__getitem__</code></td><td>不可迭代</td></tr>
+<tr><td><code>bool(x)</code></td><td><code>__bool__</code> → 退化用 <code>__len__</code></td><td>恒 <code>True</code></td></tr>
+<tr><td><code>x == y</code> / <code>x &lt; y</code></td><td><code>__eq__</code> / <code>__lt__</code></td><td>比身份</td></tr>
+<tr><td><code>x + y</code></td><td><code>__add__</code></td><td><code>TypeError</code></td></tr>
+<tr><td><code>print(x)</code> / <code>f"{x}"</code></td><td><code>__str__</code> → 退化 <code>__repr__</code></td><td>带地址的默认形式</td></tr>
+<tr><td><code>x()</code></td><td><code>__call__</code></td><td>不可调用</td></tr>
+<tr><td><code>with x:</code></td><td><code>__enter__</code> / <code>__exit__</code></td><td><code>TypeError</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>只写 <code>__lt__</code> 和 <code>__eq__</code>，其余比较可以由 <code>functools.total_ordering</code> 补齐：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import functools
+&gt;&gt;&gt; @functools.total_ordering
+... class V:
+...     def __init__(self, t):
+...         self.t = tuple(t)
+...     def __eq__(self, o):
+...         return self.t == o.t
+...     def __lt__(self, o):
+...         return self.t &lt; o.t
+...
+&gt;&gt;&gt; V((1, 2)) &lt; V((1, 10)), V((1, 2)) &lt;= V((1, 2)), V((2, 0)) &gt; V((1, 9))
+(True, True, True)</code></pre>
+
+<p>元组比较是按元素字典序，所以 <code>(1, 2) &lt; (1, 10)</code>——这正是版本号排序写错的原因：字符串 <code>"1.2" &lt; "1.10"</code> 是 <code>False</code>，拆成整数元组才是对的。</p>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch18_03_magic.py</code></figcaption><pre class="py"><code>"""ch18_03_magic.py —— 魔术方法：让自定义对象像内置类型一样工作"""
+import functools
+
+
+class Money:
+    def __init__(self, amount):
+        self.amount = amount
+
+    def __repr__(self):
+        return f"Money({self.amount})"
+
+    def __str__(self):
+        return f"￥{self.amount}"
+
+    def __eq__(self, other):
+        if not isinstance(other, Money):
+            return NotImplemented
+        return self.amount == other.amount
+
+    def __hash__(self):
+        return hash(self.amount)
+
+    def __add__(self, other):
+        if isinstance(other, Money):
+            return Money(self.amount + other.amount)
+        return NotImplemented
+
+    def __lt__(self, other):
+        return self.amount &lt; other.amount
+
+    def __len__(self):
+        return len(str(self.amount))
+
+
+a, b = Money(30), Money(12)
+print("str：", str(a), "| repr：", repr(a))
+print("容器里显示的是 repr：", [a, b])
+
+print("=== 相等与哈希 ===")
+print("Money(5) == Money(5)：", Money(5) == Money(5))
+print("Money(5) == Money(6)：", Money(5) == Money(6))
+print("Money(5) == '5'：", Money(5) == "5")
+print("去重后集合大小：", len({Money(5), Money(5), Money(6)}))
+
+print("=== 算术与比较 ===")
+print("相加：", a + b)
+try:
+    a + 1
+except TypeError as e:
+    print("TypeError:", e)
+print("排序：", [str(m) for m in sorted([a, b, Money(21)])])
+print("len 走 __len__：", len(Money(12345)))
+
+print("=== 定义了 __eq__ 却没定义 __hash__ 就不可哈希 ===")
+
+
+class Unhashable:
+    def __init__(self, v):
+        self.v = v
+
+    def __eq__(self, other):
+        return isinstance(other, Unhashable) and self.v == other.v
+
+
+try:
+    {Unhashable(1)}
+except TypeError as e:
+    print("TypeError:", e)
+
+print("=== 容器协议：__len__ / __getitem__ / __contains__ / __iter__ ===")
+
+
+class Deck:
+    def __init__(self):
+        self._cards = ["A", "K", "Q"]
+
+    def __len__(self):
+        return len(self._cards)
+
+    def __getitem__(self, index):
+        return self._cards[index]
+
+    def __contains__(self, value):
+        return value in self._cards
+
+    def __iter__(self):
+        return iter(self._cards)
+
+
+deck = Deck()
+print("len：", len(deck), "| deck[0]：", deck[0], "| deck[1:]：", deck[1:])
+print("'K' in deck：", "K" in deck, "| 遍历：", [c for c in deck])
+print("bool 看 __len__：", bool(Deck()), "| 空序列为假")
+
+
+class Empty:
+    def __len__(self):
+        return 0
+
+
+print("len 为 0 的对象：", bool(Empty()))
+
+print("=== __call__：实例也能像函数一样调用 ===")
+
+
+class Multiplier:
+    def __init__(self, k):
+        self.k = k
+
+    def __call__(self, x):
+        return x * self.k
+
+
+double = Multiplier(2)
+print("double(21)：", double(21))
+print("是 callable：", callable(double))
+
+print("=== total_ordering：只写两个比较，补齐全部 ===")
+
+
+@functools.total_ordering
+class Version:
+    def __init__(self, parts):
+        self.parts = tuple(parts)
+
+    def __eq__(self, other):
+        return self.parts == other.parts
+
+    def __lt__(self, other):
+        return self.parts &lt; other.parts
+
+    def __repr__(self):
+        return "Version" + repr(self.parts)
+
+
+v1, v2 = Version((1, 2)), Version((1, 10))
+print(v1, v2)
+print("&lt;：", v1 &lt; v2, "| &lt;=：", v1 &lt;= Version((1, 2)), "| &gt;：", Version((2, 0)) &gt; v2, "| &gt;=：", v1 &gt;= v1)</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>str： ￥30 | repr： Money(30)
+容器里显示的是 repr： [Money(30), Money(12)]
+=== 相等与哈希 ===
+Money(5) == Money(5)： True
+Money(5) == Money(6)： False
+Money(5) == '5'： False
+去重后集合大小： 2
+=== 算术与比较 ===
+相加： ￥42
+TypeError: unsupported operand type(s) for +: 'Money' and 'int'
+排序： ['￥12', '￥21', '￥30']
+len 走 __len__： 5
+=== 定义了 __eq__ 却没定义 __hash__ 就不可哈希 ===
+TypeError: cannot use 'Unhashable' as a set element (unhashable type: 'Unhashable')
+=== 容器协议：__len__ / __getitem__ / __contains__ / __iter__ ===
+len： 3 | deck[0]： A | deck[1:]： ['K', 'Q']
+'K' in deck： True | 遍历： ['A', 'K', 'Q']
+bool 看 __len__： True | 空序列为假
+len 为 0 的对象： False
+=== __call__：实例也能像函数一样调用 ===
+double(21)： 42
+是 callable： True
+=== total_ordering：只写两个比较，补齐全部 ===
+Version(1, 2) Version(1, 10)
+&lt;： True | &lt;=： True | &gt;： True | &gt;=： True</code></pre></div></figure>
+
+<h2 id="s18-7">18.7 <code>@dataclass</code>：删掉样板代码</h2>
+
+<p>一个只有字段的类，<code>__init__</code>、<code>__repr__</code>、<code>__eq__</code> 全是手抄的噪音。<code>@dataclass</code> 按<strong>带注解的类属性</strong>自动生成这三样。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; from dataclasses import dataclass, field, asdict, replace
+&gt;&gt;&gt; @dataclass
+... class Item:
+...     name: str
+...     price: float
+...     tags: list = field(default_factory=list)
+...
+&gt;&gt;&gt; i = Item("键盘", 199.0)
+&gt;&gt;&gt; i
+Item(name='键盘', price=199.0, tags=[])
+&gt;&gt;&gt; i == Item("键盘", 199.0)
+True
+&gt;&gt;&gt; Item("a", 1).tags is Item("b", 2).tags
+False
+&gt;&gt;&gt; asdict(i)
+{'name': '键盘', 'price': 199.0, 'tags': []}
+&gt;&gt;&gt; replace(i, price=99.0).price
+99.0</code></pre>
+
+<p><code>default_factory</code> 不是啰嗦，<code>default_factory=list</code> 才是「每个实例新建一个空列表」。写成 <code>tags: list = []</code> 会被直接拒绝：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; from dataclasses import dataclass
+&gt;&gt;&gt; try:
+...     @dataclass
+...     class Bad:
+...         tags: list = []
+... except ValueError as e:
+...     print(type(e).__name__ + ":", e)
+ValueError: mutable default &lt;class 'list'&gt; for field tags is not allowed: use default_factory</code></pre>
+
+<p>常用参数一览：</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>参数</th>
+<th>作用</th>
+<th>备注</th>
+</tr></thead>
+<tbody>
+<tr><td><code>frozen=True</code></td><td>不可变，自动生成 <code>__hash__</code></td><td>可进 <code>set</code>、可当 <code>dict</code> 键</td></tr>
+<tr><td><code>order=True</code></td><td>按字段顺序生成 <code>&lt;</code> <code>&lt;=</code> <code>&gt;</code> <code>&gt;=</code></td><td>排序按字段声明顺序</td></tr>
+<tr><td><code>eq=False</code></td><td>不生成 <code>__eq__</code>，用身份比较</td><td>想自己写比较时</td></tr>
+<tr><td><code>slots=True</code></td><td>3.10+，生成 <code>__slots__</code>，省内存</td><td>不能再乱加属性</td></tr>
+<tr><td><code>kw_only=True</code></td><td>3.10+，字段只能按关键字传</td><td>参数多时防错位</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>字段顺序有硬规矩：<strong>没有默认值的字段必须在有默认值的之前</strong>，否则 <code>TypeError: non-default argument 'x' follows default argument</code>。要在字段上附带「不参与比较/不参与 repr」的元信息，用 <code>field(compare=False, repr=False)</code>。</p>
+
+<p><code>__post_init__</code> 是唯一能放校验的地方——它在生成的 <code>__init__</code> 末尾被调用：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; from dataclasses import dataclass
+&gt;&gt;&gt; @dataclass
+... class Span:
+...     lo: int
+...     hi: int
+...     def __post_init__(self):
+...         if self.lo &gt; self.hi:
+...             raise ValueError(f"lo({self.lo}) 不能大于 hi({self.hi})")
+...
+&gt;&gt;&gt; Span(1, 5)
+Span(lo=1, hi=5)
+&gt;&gt;&gt; try:
+...     Span(5, 1)
+... except ValueError as e:
+...     print(type(e).__name__, ":", e)
+ValueError : lo(5) 不能大于 hi(1)</code></pre>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch18_04_dataclass_property.py</code></figcaption><pre class="py"><code>"""ch18_04_dataclass_property.py —— dataclass、property、类方法与静态方法"""
+from dataclasses import dataclass, field, asdict, replace
+
+
+@dataclass
+class Item:
+    name: str
+    price: float
+    tags: list[str] = field(default_factory=list)
+    qty: int = 1
+
+    def total(self):
+        return self.price * self.qty
+
+
+item = Item("键盘", 199.0, ["外设"], 2)
+print(item)
+print("total：", item.total())
+print("asdict：", asdict(item))
+
+print("=== dataclass 白送的方法 ===")
+print("相等按字段比：", Item("a", 1.0) == Item("a", 1.0))
+print("两个实例共享同一个 tags 列表：", Item("x", 1).tags is Item("y", 2).tags)
+print("replace 造新对象：", replace(item, qty=5))
+
+print("=== frozen：不可变且可哈希 ===")
+
+
+@dataclass(frozen=True)
+class Point:
+    x: int
+    y: int
+
+
+pt = Point(1, 2)
+print("不可变：", pt)
+try:
+    pt.x = 9
+except Exception as e:
+    print(type(e).__name__ + ":", e)
+print("能进 set：", len({Point(1, 2), Point(1, 2), Point(3, 4)}))
+
+print("=== order=True：直接可排序 ===")
+
+
+@dataclass(order=True)
+class Version:
+    major: int
+    minor: int
+
+
+print(sorted([Version(1, 10), Version(1, 2), Version(2, 0)]))
+
+print("=== __post_init__：字段校验 ===")
+
+
+@dataclass
+class Span:
+    lo: int
+    hi: int
+
+    def __post_init__(self):
+        if self.lo &gt; self.hi:
+            raise ValueError(f"lo({self.lo}) 不能大于 hi({self.hi})")
+
+
+try:
+    Span(5, 1)
+except ValueError as e:
+    print("ValueError:", e)
+print("合法：", Span(1, 5))
+
+print("=== property：把方法伪装成属性并加校验 ===")
+
+
+class Temperature:
+    def __init__(self, celsius=0.0):
+        self.celsius = celsius
+
+    @property
+    def celsius(self):
+        return self._celsius
+
+    @celsius.setter
+    def celsius(self, value):
+        if value &lt; -273.15:
+            raise ValueError(f"低于绝对零度：{value}")
+        self._celsius = value
+
+    @property
+    def fahrenheit(self):
+        return self._celsius * 9 / 5 + 32
+
+    @fahrenheit.setter
+    def fahrenheit(self, value):
+        self.celsius = (value - 32) * 5 / 9
+
+
+t = Temperature(25)
+print("摄氏：", t.celsius, "| 华氏：", t.fahrenheit)
+t.fahrenheit = 212
+print("设华氏 212 后摄氏：", round(t.celsius, 6))
+try:
+    t.celsius = -300
+except ValueError as e:
+    print("ValueError:", e)
+print("赋值失败后原值没变：", t.celsius)
+
+
+class Circle:
+    def __init__(self, r):
+        self.r = r
+
+    @property
+    def area(self):
+        return 3.14159 * self.r ** 2
+
+
+try:
+    Circle(2).area = 10
+except AttributeError as e:
+    print("只读属性 -&gt; AttributeError:", e)
+
+print("=== classmethod 与 staticmethod ===")
+
+
+class Date:
+    def __init__(self, y, m, d):
+        self.y, self.m, self.d = y, m, d
+
+    def __repr__(self):
+        return f"Date({self.y}, {self.m}, {self.d})"
+
+    @classmethod
+    def from_string(cls, s):
+        return cls(*map(int, s.split("-")))
+
+    @staticmethod
+    def is_leap(year):
+        return year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)
+
+
+print(Date.from_string("2024-02-29"))
+print("闰年判断：", Date.is_leap(2024), Date.is_leap(2023), Date.is_leap(1900))
+print("三种方法绑定差异：",
+      type(Date.from_string).__name__, type(Date.is_leap).__name__, type(Date.__init__).__name__)
+
+
+class SubDate(Date):
+    @classmethod
+    def from_string(cls, s):
+        print("  cls 是子类：", cls.__name__)
+        return super().from_string(s)
+
+
+print(SubDate.from_string("2000-01-01"))
+
+print("=== 属性名与字段名撞车：实例化时才炸 ===")
+
+
+@dataclass
+class Bad:
+    x: int = 0
+
+    @property
+    def x(self):
+        return 1
+
+
+print("类定义本身不报错：", Bad.__name__)
+try:
+    Bad()
+except AttributeError as e:
+    print("AttributeError:", e)</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>Item(name='键盘', price=199.0, tags=['外设'], qty=2)
+total： 398.0
+asdict： {'name': '键盘', 'price': 199.0, 'tags': ['外设'], 'qty': 2}
+=== dataclass 白送的方法 ===
+相等按字段比： True
+两个实例共享同一个 tags 列表： False
+replace 造新对象： Item(name='键盘', price=199.0, tags=['外设'], qty=5)
+=== frozen：不可变且可哈希 ===
+不可变： Point(x=1, y=2)
+FrozenInstanceError: cannot assign to field 'x'
+能进 set： 2
+=== order=True：直接可排序 ===
+[Version(major=1, minor=2), Version(major=1, minor=10), Version(major=2, minor=0)]
+=== __post_init__：字段校验 ===
+ValueError: lo(5) 不能大于 hi(1)
+合法： Span(lo=1, hi=5)
+=== property：把方法伪装成属性并加校验 ===
+摄氏： 25 | 华氏： 77.0
+设华氏 212 后摄氏： 100.0
+ValueError: 低于绝对零度：-300
+赋值失败后原值没变： 100.0
+只读属性 -&gt; AttributeError: property 'area' of 'Circle' object has no setter
+=== classmethod 与 staticmethod ===
+Date(2024, 2, 29)
+闰年判断： True False False
+三种方法绑定差异： method function function
+  cls 是子类： SubDate
+Date(2000, 1, 1)
+=== 属性名与字段名撞车：实例化时才炸 ===
+类定义本身不报错： Bad
+AttributeError: property 'x' of 'Bad' object has no setter</code></pre></div></figure>
+
+<div class="box tip"><p><code>@dataclass</code> 与普通类不是二选一。字段多、需要比较与 <code>repr</code> 的数据类用它；有复杂 <code>__init__</code> 逻辑或大量方法的行为类，手写更清楚。</p></div>
+
+<h2 id="s18-8">18.8 <code>property</code>：属性门面 + 校验</h2>
+
+<p><code>property</code> 把一个 getter 变成「看起来是字段」的只读属性，再加一个 setter 就能在赋值时校验。这是 Python 加字段校验的标准做法——不需要写 <code>set_celsius()</code>。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; class T:
+...     def __init__(self, c):
+...         self.celsius = c
+...     @property
+...     def celsius(self):
+...         return self._celsius
+...     @celsius.setter
+...     def celsius(self, v):
+...         if v &lt; -273.15:
+...             raise ValueError(f"低于绝对零度：{v}")
+...         self._celsius = v
+...     @property
+...     def fahrenheit(self):
+...         return self._celsius * 9 / 5 + 32
+...
+&gt;&gt;&gt; t = T(100)
+&gt;&gt;&gt; t.fahrenheit
+212.0
+&gt;&gt;&gt; try:
+...     t.celsius = -300
+... except ValueError as e:
+...     print(type(e).__name__, e)
+ValueError 低于绝对零度：-300
+&gt;&gt;&gt; t.celsius
+100
+&gt;&gt;&gt; try:
+...     t.fahrenheit = 0
+... except AttributeError as e:
+...     print(type(e).__name__, e)
+AttributeError property 'fahrenheit' of 'T' object has no setter</code></pre>
+
+<p>三个要点：</p>
+
+<ol><li><strong>内部真值换个名字存</strong>（<code>_celsius</code>），否则 <code>self.celsius = v</code> 会递归调自己 → <code>RecursionError</code>。</li><li><code>__init__</code> 里也走 setter（<code>self.celsius = c</code>），校验逻辑只有一份。</li><li>没有 setter 就是只读，赋值抛 <code>AttributeError: ... has no setter</code>，这是最便宜的「不可变」。</li></ol>
+
+<div class="box warn"><p><code>@dataclass</code> 的字段名和 <code>property</code> 同名时，报错发生在<strong>实例化</strong>，不是类定义： <code>AttributeError: property 'x' of 'Bad' object has no setter</code>。因为生成的 <code>__init__</code> 里 <code>self.x = x</code> 撞上了只读描述符。别用同一套字段名重定义属性——要么字段名带下划线，要么用 <code>__post_init__</code> 赋值。</p></div>
+
+<h2 id="s18-9">18.9 <code>classmethod</code>、<code>staticmethod</code>、普通方法</h2>
+
+<p>三种方法只差在「第一个参数是什么」：</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>写法</th>
+<th>第一个参数</th>
+<th>通过实例调</th>
+<th>通过类调</th>
+<th>典型用途</th>
+</tr></thead>
+<tbody>
+<tr><td><code>def m(self)</code></td><td>实例</td><td>✅</td><td>要手动传</td><td>读写实例状态</td></tr>
+<tr><td><code>@classmethod def m(cls)</code></td><td>类</td><td>✅（<code>cls</code> 是 <code>type(self)</code>）</td><td>✅</td><td>备选构造器、注册表</td></tr>
+<tr><td><code>@staticmethod def m()</code></td><td>无</td><td>✅</td><td>✅</td><td>与类主题相关的纯函数</td></tr>
+</tbody>
+</table>
+</div>
+
+<pre class="pycon"><code>&gt;&gt;&gt; class D:
+...     def __init__(self, v):
+...         self.v = v
+...     @classmethod
+...     def from_string(cls, s):
+...         return cls(int(s))
+...     @staticmethod
+...     def is_even(n):
+...         return n % 2 == 0
+...
+&gt;&gt;&gt; D.from_string("42").v
+42
+&gt;&gt;&gt; D.is_even(3), D(0).is_even(4)
+(False, True)
+&gt;&gt;&gt; class E(D):
+...     pass
+...
+&gt;&gt;&gt; type(E.from_string("1")).__name__
+'E'</code></pre>
+
+<p><code>from_string</code> 里用 <code>cls(...)</code> 而不是硬写 <code>D(...)</code>，子类调用时才返回子类实例——这是工厂方法必须用 <code>classmethod</code> 的唯一理由。<code>staticmethod</code> 本质上只是「放在类命名空间里的普通函数」，<code>D.is_even</code> 拿到的就是函数本身。</p>
+
+<h2 id="s18-10">18.10 抽象基类与鸭子类型</h2>
+
+<p>Python 没有 <code>interface</code> 关键字，靠两件事：<strong>鸭子类型</strong>（有 <code>speak()</code> 就能当动物用）和<strong>抽象基类</strong>（用 <code>ABC</code> 声明「必须实现」，实例化时就拦住）。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; from abc import ABC, abstractmethod
+&gt;&gt;&gt; class Shape(ABC):
+...     @abstractmethod
+...     def area(self):
+...         ...
+...     def describe(self):
+...         return f"{type(self).__name__} 面积 {self.area():.2f}"
+...
+&gt;&gt;&gt; try:
+...     Shape()
+... except TypeError as e:
+...     print(type(e).__name__ + ":", e)
+TypeError: Can't instantiate abstract class Shape without an implementation for abstract method 'area'
+&gt;&gt;&gt; class Sq(Shape):
+...     def __init__(self, a):
+...         self.a = a
+...     def area(self):
+...         return self.a ** 2
+...
+&gt;&gt;&gt; Sq(3).describe()
+'Sq 面积 9.00'</code></pre>
+
+<p><code>ABC</code> 帮你在<strong>构造时</strong>就失败，而不是等到调用 <code>area()</code> 才发现没实现。子类忘了实现任何一个 <code>@abstractmethod</code>，<code>TypeError</code> 消息里会点名那个方法。</p>
+
+<p>需要「按接口做 <code>isinstance</code> 检查」但不想强制继承时，用 <code>typing.Protocol</code>（3.8+，3.12 起可直接用于 <code>isinstance</code>）：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; from typing import Protocol, runtime_checkable
+&gt;&gt;&gt; @runtime_checkable
+... class Sized(Protocol):
+...     def __len__(self) -&gt; int: ...
+...
+&gt;&gt;&gt; isinstance([1, 2], Sized), isinstance(42, Sized)
+(True, False)</code></pre>
+
+<div class="box tip"><p><code>abc</code> 还提供 <code>collections.abc</code> 里那批现成基类（<code>Sequence</code>、<code>Mapping</code>、<code>Iterable</code>）。自定义容器继承它们，能免费得到 <code>__contains__</code>、<code>keys()</code>、<code>items()</code> 这些派生方法，只需实现少数几个核心方法。</p></div>
+
+<h2 id="18-a-与-c-的差别">18.a 与 C++ 的差别</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>维度</th>
+<th>Python</th>
+<th>C++</th>
+</tr></thead>
+<tbody>
+<tr><td>访问控制</td><td>只有命名约定 + 名字改写，运行时无强制</td><td><code>private/protected/public</code> 编译期强制</td></tr>
+<tr><td>方法派发</td><td>一律动态查 MRO，无虚函数概念</td><td>要 <code>virtual</code> 才动态；非虚按静态类型</td></tr>
+<tr><td>重载</td><td>不支持，同名方法后者覆盖前者</td><td>按参数类型/个数重载</td></tr>
+<tr><td>析构</td><td>引用计数归零即回收，<code>__del__</code> 不保证时机</td><td>确定性析构，作用域结束必调</td></tr>
+<tr><td>对象位置</td><td>一律堆上，变量是引用</td><td>栈/堆可选，<code>sizeof</code> 精确</td></tr>
+<tr><td>多继承</td><td>允许，C3 线性化出 MRO</td><td>允许，菱形需 <code>virtual</code> 继承，无线性化</td></tr>
+<tr><td><code>const</code> 成员函数</td><td>没有，靠约定</td><td><code>const</code> 限定可调用性</td></tr>
+<tr><td>构造</td><td><code>__init__</code> 里逐字段赋值，无初始化列表</td><td>成员初始化列表、构造顺序固定</td></tr>
+<tr><td>模板/泛型</td><td>类型注解 + <code>typing</code>，运行时擦除</td><td>模板特化，编译期实例化</td></tr>
+<tr><td>值/引用语义</td><td>一切皆引用，<code>==</code> 可自定义</td><td>值语义默认，<code>==</code> 需重载</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>最需要适应的一条：<strong>Python 的对象总是堆上的引用</strong>，<code>a = b</code> 从不复制（第 3 章）。C++ 里 <code>Point p = q;</code> 是拷贝构造，Python 里 <code>p = q</code> 只是给同一个对象多贴一个名字。</p>
+
+<h2 id="18-b-易错点清单">18.b 易错点清单</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>现象</th>
+<th>原因</th>
+<th>一行修复</th>
+</tr></thead>
+<tbody>
+<tr><td>两个实例共享一个列表</td><td>可变类属性 / 可变默认参数</td><td>状态写进 <code>__init__</code>，或用 <code>field(default_factory=list)</code></td></tr>
+<tr><td><code>TypeError: missing 1 required positional argument: 'self'</code></td><td>用类名直接调实例方法</td><td>传实例，或改成 <code>@staticmethod</code></td></tr>
+<tr><td><code>AttributeError: 'X' object has no attribute '__v'</code></td><td>名字被改写成 <code>_X__v</code></td><td>用 <code>self._X__v</code>，或加公开 getter</td></tr>
+<tr><td>改了父类字段却报 <code>RecursionError</code></td><td>property 的 setter 里又赋给自己</td><td>内部真值存 <code>self._x</code></td></tr>
+<tr><td>子类 <code>__init__</code> 后父类字段不存在</td><td>忘了 <code>super().__init__(...)</code></td><td>每个 <code>__init__</code> 首行调 <code>super()</code></td></tr>
+<tr><td><code>__eq__</code> 写了，对象进 <code>set</code> 报 <code>unhashable</code></td><td>定义 <code>__eq__</code> 会清空 <code>__hash__</code></td><td>同时定义 <code>__hash__</code>，或 <code>frozen=True</code></td></tr>
+<tr><td>多继承行为诡异</td><td>声明顺序决定 MRO</td><td>打印 <code>Cls.__mro__</code>，主体类放第一个</td></tr>
+<tr><td><code>TypeError: non-default argument follows default argument</code></td><td>dataclass 字段顺序</td><td>无默认值字段排前面</td></tr>
+<tr><td>只读属性赋值报错</td><td>只有 getter 没有 setter</td><td>加 <code>@x.setter</code>，或改用方法</td></tr>
+<tr><td><code>isinstance</code> 判类型时漏掉子类</td><td>用了 <code>type(x) is C</code></td><td>改 <code>isinstance(x, C)</code></td></tr>
+<tr><td><code>setattr</code> 乱加属性，拼错名字不报错</td><td>默认 <code>__dict__</code> 自由增删</td><td>用 <code>__slots__</code> 或 <code>dataclass(slots=True)</code></td></tr>
+<tr><td>覆盖方法后父类逻辑消失</td><td>忘了 <code>super().method()</code></td><td>先调父类再加工</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="18-c-练习">18.c 练习</h2>
+
+<p><strong>基础 1</strong>：写 <code>Rectangle</code> 类，<code>width</code>/<code>height</code> 两个字段，提供 <code>area()</code> 与 <code>perimeter()</code>；再写 <code>Square</code> 继承它，用 <code>Square(3)</code> 表示边长 3。</p>
+
+<p>验收：<code>Square(3).area() == 9</code> 且 <code>Square(3).perimeter() == 12</code>，<code>isinstance(Square(3), Rectangle)</code> 为 <code>True</code>。</p>
+
+<p><strong>基础 2</strong>：给 <code>Rectangle</code> 加 <code>__repr__</code> 和 <code>__eq__</code>，让 <code>Rectangle(2, 3) == Rectangle(2, 3)</code> 为 <code>True</code>，且 <code>print([Rectangle(2, 3)])</code> 输出 <code>[Rectangle(2, 3)]</code>。</p>
+
+<p>验收：<code>repr(Rectangle(2, 3)) == 'Rectangle(2, 3)'</code>；把两个不同尺寸的放进 <code>set</code> 得到 2 个元素（需要你补 <code>__hash__</code>）。</p>
+
+<p><strong>基础 3</strong>：用 <code>@dataclass</code> 写 <code>Student</code>（<code>name</code>、<code>scores: list[int]</code>），加 <code>average()</code> 方法，并保证两个 <code>Student("a", [])</code> 的 <code>scores</code> 不是同一个列表。</p>
+
+<p>验收：<code>Student("a", []).scores is Student("b", []).scores</code> 为 <code>False</code>；<code>Student("x", [80, 90]).average() == 85.0</code>。</p>
+
+<p><strong>变式</strong>：写 <code>BankAccount</code>，<code>balance</code> 用 <code>property</code> 保护：外部只能读不能直接写，<code>deposit(n)</code> / <code>withdraw(n)</code> 里校验 <code>n &gt; 0</code> 且余额不足时抛 <code>ValueError</code>。</p>
+
+<p>验收：<code>a.withdraw(200)</code> 在余额 100 时抛 <code>ValueError</code>；<code>a.balance = 999</code> 抛 <code>AttributeError</code>；两次失败操作后 <code>a.balance</code> 仍是原值。</p>
+
+<p><strong>挑战</strong>：写一个 <code>Matrix</code> 类，实现 <code>__init__(rows: list[list[float]])</code>、<code>__repr__</code>、<code>__eq__</code>、<code>__add__</code>（维度不符抛 <code>ValueError</code>）、<code>__matmul__</code>（矩阵乘法，内维不符抛 <code>ValueError</code>）、<code>__len__</code>（返回行数），并让它支持 <code>for row in m</code>。</p>
+
+<p>验收：<code>(Matrix([[1, 2]]) + Matrix([[3, 4]])) == Matrix([[4, 6]])</code>；<code>Matrix([[1, 2]]) @ Matrix([[1], [2]])</code> 得到 <code>Matrix([[5]])</code>；维度不符时 <code>type(e) is ValueError</code>；<code>list(Matrix([[1], [2]])) == [[1], [2]]</code>。</p>
+
+<h2 id="18-d-小结">18.d 小结</h2>
+
+<ol><li><code>obj.attr</code> 是一次运行时查表：实例 <code>__dict__</code> → 类型 → MRO，所以类属性只是「所有实例共享的默认值」，可变的话就成灾。</li><li>魔术方法让自定义对象接入内置语法，<code>__eq__</code> 与 <code>__hash__</code> 必须成对出现，<code>__repr__</code> 是唯一必须写的调试接口。</li><li>日常写类先想 <code>@dataclass</code>，要校验用 <code>property</code>，要组合用 mixin + <code>super()</code>，多继承前先打印 <code>__mro__</code>。</li></ol>
+
+<p>下一章我们把类拆成文件和目录：<code>import</code> 到底按什么顺序找、<code>__init__.py</code> 有什么用、<code>python -m</code> 与 <code>python file.py</code> 为什么行为不同。</p>
+
+    
+
+    
+</article>

@@ -1,0 +1,400 @@
+<article data-learn-content>
+<p><strong>读完这一章你能做到</strong></p>
+
+<ul><li>算对任何负数的 <code>//</code>、<code>%</code>、<code>divmod</code>，并解释"余数符号跟除数走"；</li><li>预测 <code>a and b</code>、<code>a or b</code> 返回的具体值，用它们写默认值和守卫；</li><li>分清 <code>==</code>、<code>is</code>、<code>in</code> 三者的语义与复杂度差异；</li><li>用位运算做集合标志位与快速乘除，避开优先级陷阱；</li><li>说清 <code>+=</code> 对列表是原地修改、对元组是重建对象。</li></ul>
+
+<hr>
+
+<h2 id="s4-1">4.1 算术运算符：四种除法</h2>
+
+<pre class="pycon"><code>&gt;&gt;&gt; 7 / 2, 7 // 2, 7 % 2, divmod(7, 2)
+(3.5, 3, 1, (3, 1))
+&gt;&gt;&gt; -7 // 2, -7 % 2, divmod(-7, 2)
+(-4, 1, (-4, 1))</code></pre>
+
+<ul><li><code>/</code> 是<strong>真除法</strong>，永远返回 <code>float</code>，<code>4 / 2</code> 得 <code>2.0</code>（第 03 章强调过）；</li><li><code>//</code> 是<strong>向下取整</strong>除法（floor），不是"截断"：<code>-7 // 2</code> 是 <code>-4</code>，不是 C 语言的 <code>-3</code>；</li><li><code>%</code> 的结果符号<strong>跟除数一致</strong>：<code>-7 % 3 == 2</code>、<code>7 % -3 == -2</code>。所以 <code>x % n</code> 在 <code>n &gt; 0</code> 时永远落在 <code>[0, n)</code>，这个性质让 <code>%</code> 成为环形下标、哈希、日期计算的可靠工具；</li><li><code>divmod(a, b)</code> 一次给出 <code>(a // b, a % b)</code>，永不破坏 <code>a == b * (a // b) + (a % b)</code> 这条恒等式。</li></ul>
+
+<pre class="pycon"><code>&gt;&gt;&gt; -7 % 3, 7 % -3, 7 % 3
+(2, -2, 1)
+&gt;&gt;&gt; 2 ** 3 ** 2
+512
+&gt;&gt;&gt; 10 ** -2
+0.01
+&gt;&gt;&gt; 7.0 // 2
+3.0</code></pre>
+
+<p><code>**</code> 是<strong>右结合</strong>：<code>2 ** 3 ** 2</code> 等于 <code>2 ** 9</code>。负指数给出浮点结果。<code>//</code> 只要有一个操作数是浮点，结果就是浮点。</p>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch04_01_arith.py</code></figcaption><pre class="py"><code>"""ch04_01_arith.py —— 算术、比较链与位运算"""
+print("=== 四种除法 ===")
+print(7 / 2, 7 // 2, 7 % 2, divmod(7, 2))
+print(-7 / 2, -7 // 2, -7 % 2, divmod(-7, 2))
+print("负数取模跟着除数走：", -7 % 3, 7 % -3)
+print("浮点整除向下取整：", 7.0 // 2, -7.0 // 2)
+print("幂是右结合：", 2 ** 3 ** 2, "负指数给小数：", 10 ** -2)
+print("零除的两种情况：")
+try:
+    print(1 / 0)
+except ZeroDivisionError as e:
+    print("  ZeroDivisionError:", e)
+try:
+    print(1 % 0)
+except ZeroDivisionError as e:
+    print("  ZeroDivisionError:", e)
+
+print("=== 比较可以连写 ===")
+x = 5
+print(1 &lt; x &lt; 10, 0 &lt;= x &lt;= 4 == 4)
+print("字符串按字典序比较：", "apple" &lt; "banana", "a" &lt; "B")   # 大写字母编码更小
+
+print("=== 位运算 ===")
+print(5 &amp; 3, 5 | 3, 5 ^ 3, ~5)
+print(1 &lt;&lt; 10, -8 &gt;&gt; 1)
+print("位运算优先级低于算术：", 1 &lt;&lt; 2 + 3)     # 1 &lt;&lt; 5
+
+print("=== NaN 不等于自己 ===")
+nan = float("nan")
+print(nan == nan, nan != nan)</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>=== 四种除法 ===
+3.5 3 1 (3, 1)
+-3.5 -4 1 (-4, 1)
+负数取模跟着除数走： 2 -2
+浮点整除向下取整： 3.0 -4.0
+幂是右结合： 512 负指数给小数： 0.01
+零除的两种情况：
+  ZeroDivisionError: division by zero
+  ZeroDivisionError: division by zero
+=== 比较可以连写 ===
+True False
+字符串按字典序比较： True False
+=== 位运算 ===
+1 7 6 -6
+1024 -4
+位运算优先级低于算术： 32
+=== NaN 不等于自己 ===
+False True</code></pre></div></figure>
+
+<p>两个细节值得记住：<code>0 &lt;= x &lt;= 4 == 4</code> 是<strong>链式比较</strong>，等价于 <code>0 &lt;= x and x &lt;= 4 and 4 == 4</code>，所以它不报错反而为真——链式比较里 <code>==</code> 和 <code>&lt;</code> 可以混写，但可读性差，别这么写；<code>1 &lt;&lt; 2 + 3</code> 得 32 而不是 20，因为算术运算符优先级<strong>高于</strong>移位，这种地方一律加括号。</p>
+
+<hr>
+
+<h2 id="s4-2">4.2 <code>and</code> / <code>or</code> 返回操作数，不是布尔值</h2>
+
+<p>这是 C++ 程序员最容易翻车的一条：C++ 的 <code>&amp;&amp;</code>/<code>||</code> 产出 <code>bool</code>，Python 的 <code>and</code>/<code>or</code> 产出<strong>决定结果的那个操作数</strong>。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; 0 or "默认值"
+'默认值'
+&gt;&gt;&gt; 3 and 0
+0
+&gt;&gt;&gt; 2 and 3
+3
+&gt;&gt;&gt; not []
+True</code></pre>
+
+<p>规则：</p>
+
+<ul><li><code>a and b</code>：<code>a</code> 为假就返回 <code>a</code>，否则返回 <code>b</code>；</li><li><code>a or b</code>：<code>a</code> 为真就返回 <code>a</code>，否则返回 <code>b</code>；</li><li>两者都是<strong>短路</strong>的：右边可能根本不执行。</li></ul>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch04_02_logic.py</code></figcaption><pre class="py"><code>"""ch04_02_logic.py —— and/or 返回操作数、短路求值、海象运算符"""
+
+
+def check(v):
+    print("  调用 check(", v, ")")
+    return v &gt; 0
+
+
+print("=== and / or 返回的是操作数，不是 True/False ===")
+print(0 or "默认值")
+print("" or None)
+print(3 and 0)
+print(2 and 3)
+print(not [])
+
+print("=== 短路：右边的函数压根不执行 ===")
+print(check(5) and check(-1) and check(9))
+print(check(-1) and check(9) and check(7))
+
+print("=== 用 or 给默认值，用 and 做守卫 ===")
+config = {}
+level = config.get("level") or "info"
+print("level =", level)
+name = None
+print(name and name.upper())
+
+print("=== 海象运算符 := （3.8+） ===")
+data = ["10", "x", "30"]
+for s in data:
+    if (n := s.isdigit()) and n:
+        print("  纯数字行:", s)
+nums = [int(s) for s in data if (t := s.strip()).isdigit()]
+print("过滤后的数字:", nums)
+
+print("=== 三目表达式的正确形态 ===")
+print("负数" if -3 &lt; 0 else "非负")
+
+print("=== in / not in ===")
+print(2 in [1, 2, 3], "py" in "python", "k" in {"k": 1})
+print("4 in range(1, 5):", 4 in range(1, 5))</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>=== and / or 返回的是操作数，不是 True/False ===
+默认值
+None
+0
+3
+True
+=== 短路：右边的函数压根不执行 ===
+  调用 check( 5 )
+  调用 check( -1 )
+False
+  调用 check( -1 )
+False
+=== 用 or 给默认值，用 and 做守卫 ===
+level = info
+None
+=== 海象运算符 := （3.8+） ===
+  纯数字行: 10
+  纯数字行: 30
+过滤后的数字: [10, 30]
+=== 三目表达式的正确形态 ===
+负数
+=== in / not in ===
+True True True
+4 in range(1, 5): True</code></pre></div></figure>
+
+<p>注意 <code>check(-1) and check(9) and check(7)</code> 只打印了<strong>一次</strong> <code>调用 check</code>：第一个是假，后面两个被短路掉了。这就是 <code>if 列表 and 列表[0] &gt; 0:</code> 之所以安全的原因。</p>
+
+<p>两个实用模式：</p>
+
+<ul><li><strong>默认值</strong>：<code>config.get("level") or "info"</code>——但小心 <code>0</code>、<code>""</code>、<code>False</code> 也会被当成"没有值"而替换掉，需要区分时用 <code>if x is None</code>；</li><li><strong>守卫</strong>：<code>name and name.upper()</code>，<code>None</code> 时直接得 <code>None</code>，不会 <code>AttributeError</code>。</li></ul>
+
+<div class="box warn"><p><code>or</code> 给默认值会吞掉合法的假值。<code>count = user_input or 0</code> 在 <code>user_input == 0</code> 时没问题；但 <code>volume = config.get("volume") or 100</code> 在用户明确设了 <code>0</code> 时会错误地变成 <code>100</code>。要保留 0，就写 <code>v = config.get("volume"); volume = 100 if v is None else v</code>。</p></div>
+
+<hr>
+
+<h2 id="s4-3">4.3 <code>==</code>、<code>is</code>、<code>in</code>：三种"相等"</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>运算符</th>
+<th>比什么</th>
+<th>典型误用</th>
+</tr></thead>
+<tbody>
+<tr><td><code>==</code></td><td>值是否相等（走 <code>__eq__</code>）</td><td><code>x == None</code>（应 <code>is None</code>）</td></tr>
+<tr><td><code>is</code></td><td>是否同一个对象（比 id）</td><td><code>a is 256</code>（小整数缓存，随版本变）</td></tr>
+<tr><td><code>in</code></td><td>是否包含（走 <code>__contains__</code>）</td><td>在 <code>list</code> 上做 10^5 次查询——O(n²)</td></tr>
+</tbody>
+</table>
+</div>
+
+<pre class="pycon"><code>&gt;&gt;&gt; a = [1, 2]
+&gt;&gt;&gt; b = [1, 2]
+&gt;&gt;&gt; a == b, a is b
+(True, False)
+&gt;&gt;&gt; p = int("256"); q = int("256")
+&gt;&gt;&gt; p is q, p == q
+(True, True)
+&gt;&gt;&gt; r = int("300"); s = int("300")
+&gt;&gt;&gt; r is s, r == s
+(False, True)</code></pre>
+
+<p><code>p is q</code> 为真是<strong>小整数缓存</strong>（-5～256 的对象在解释器启动时就建好并复用）的结果，与"值相等"无关；换成 300 就立刻断言失败。所以<strong>永远不要用 <code>is</code> 比较数字</strong>，<code>is</code> 只用在三个场景：<code>is None</code>、<code>is True/False</code>（严格比较时）、<code>x is y</code> 判断同一对象。另外从 3.12 起，<code>256 is 256</code> 这种字面量写法会直接给 <code>SyntaxWarning</code>。</p>
+
+<p><code>in</code> 的复杂度差异必须背下来：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; 99999 in list(range(100000))
+True
+&gt;&gt;&gt; 99999 in set(range(100000))
+True</code></pre>
+
+<p>两行结果一样，但前者要逐个比 10 万次，后者一次哈希。<code>n = 10^5</code> 的题目里，<code>if x in 已访问</code> 用 list 就是 10^10 次比较，换 <code>set</code> 就是 10^5 次。</p>
+
+<hr>
+
+<h2 id="s4-4">4.4 位运算与标志位</h2>
+
+<pre class="pycon"><code>&gt;&gt;&gt; 5 &amp; 3, 5 | 3, 5 ^ 3
+(1, 7, 6)
+&gt;&gt;&gt; ~5, -8 &gt;&gt; 1
+(-6, -4)
+&gt;&gt;&gt; 1 &lt;&lt; 10
+1024</code></pre>
+
+<ul><li><code>^</code> 是<strong>异或</strong>，不是乘方（Python 的乘方是 <code>**</code>）——这是从 C++ 抄代码时的高频笔误；</li><li><code>~x == -x - 1</code>（补码），<code>~5 == -6</code>；</li><li><code>&gt;&gt;</code> 对负数是算术右移（保留符号），<code>-8 &gt;&gt; 1 == -4</code>；</li><li>位运算优先级<strong>低于</strong>比较和算术：<code>x &amp; 1 == 0</code> 实际是 <code>x &amp; (1 == 0)</code>，永远为 0。<strong>必须写 <code>(x &amp; 1) == 0</code></strong>。</li></ul>
+
+<p>标志位组合的经典写法（权限、状态、选项）：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; READ, WRITE, EXEC = 0b001, 0b010, 0b100
+&gt;&gt;&gt; perm = READ | WRITE
+&gt;&gt;&gt; perm &amp; EXEC
+0
+&gt;&gt;&gt; bool(perm &amp; READ), bool(perm &amp; EXEC)
+(True, False)
+&gt;&gt;&gt; perm ^ READ          # 翻转某一位
+2</code></pre>
+
+<p>在 Python 里也可以用 <code>set</code> 或 <code>IntFlag</code> 枚举达到同样目的，但位运算省内存、能塞进单个整数存数据库，竞赛里还能做状态压缩 DP。</p>
+
+<hr>
+
+<h2 id="s4-5">4.5 增量赋值与解包</h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch04_03_assign.py</code></figcaption><pre class="py"><code>"""ch04_03_assign.py —— 增量赋值、链式赋值、解包"""
+print("=== += 对可变对象是原地改 ===")
+a = [1, 2]
+b = a
+b += [3]
+print("a =", a, "b =", b, "a is b:", a is b)
+
+c = [1, 2]
+d = c
+d = d + [3]          # + 造新对象，d 改指新表
+print("c =", c, "d =", d, "c is d:", c is d)
+
+print("=== += 对元组只能重建 ===")
+t = (1, 2)
+try:
+    t[0] = 9
+except TypeError as e:
+    print("TypeError:", e)
+t += (3,)            # 这不是原地改，是造了新元组
+print("t =", t)
+
+print("=== 链式赋值与交换 ===")
+x = y = 0
+x, y = 1, 2
+x, y = y, x
+print("x, y =", x, y)
+
+print("=== 解包 ===")
+first, *rest = [1, 2, 3, 4]
+print("first =", first, "rest =", rest)
+head, *mid, tail = "abcdef"
+print("head =", head, "mid =", mid, "tail =", tail)
+(a, b), c = (1, 2), 3
+print("嵌套解包:", a, b, c)
+try:
+    p, q = [1, 2, 3]
+except ValueError as e:
+    print("ValueError:", e)
+
+print("=== 可读性：别用 _ 以外的星号解包做副作用 ===")
+total = sum([1, 2, 3])
+print("sum 的返回值:", total)</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>=== += 对可变对象是原地改 ===
+a = [1, 2, 3] b = [1, 2, 3] a is b: True
+c = [1, 2] d = [1, 2, 3] c is d: False
+=== += 对元组只能重建 ===
+TypeError: 'tuple' object does not support item assignment
+t = (1, 2, 3)
+=== 链式赋值与交换 ===
+x, y = 2 1
+=== 解包 ===
+first = 1 rest = [2, 3, 4]
+head = a mid = ['b', 'c', 'd', 'e'] tail = f
+嵌套解包: 1 2 3
+ValueError: too many values to unpack (expected 2, got 3)
+=== 可读性：别用 _ 以外的星号解包做副作用 ===
+sum 的返回值: 6</code></pre></div></figure>
+
+<p>关键区别在 <code>b += [3]</code> 与 <code>d = d + [3]</code>：<code>+=</code> 对列表调用 <code>__iadd__</code>（原地 extend），所以 <code>a is b</code> 仍为真；<code>+</code> 调用 <code>__add__</code> 造新列表，<code>d</code> 改了指向，<code>c</code> 不受影响。<strong>给列表追加元素用 <code>+=</code>/<code>append</code>，给元组"追加"必然是重建</strong>。</p>
+
+<p><code>a, b = b, a</code> 是交换，因为右边先算成一个元组再解包，不存在 C++ <code>swap</code> 那种临时变量问题。</p>
+
+<hr>
+
+<h2 id="s4-6">4.6 优先级速查</h2>
+
+<p>由高到低（只列常用的）：</p>
+
+<pre class="out"><code>**   →   +x -x ~x   →   * / // %   →   + -   →   &lt;&lt; &gt;&gt;   →   &amp;   →   ^   →   |   →
+== != &lt; &lt;= &gt; &gt;= in, not in, is, is not   →   not   →   and   →   or   →   if-else（三目）→  = += :=</code></pre>
+
+<p>两条硬规矩：</p>
+
+<ol><li><strong>位运算与比较混用必须加括号</strong>：<code>(x &amp; 1) == 0</code>、<code>(a | b) != 0</code>；</li><li><strong><code>not</code> 优先于 <code>and</code>/<code>or</code></strong>，所以 <code>not a and b</code> 是 <code>(not a) and b</code>；想表达"不是（a 且 b）"要写 <code>not (a and b)</code>。</li></ol>
+
+<hr>
+
+<h2 id="s4-7">4.7 与 C++ 的差别</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>维度</th>
+<th>C++</th>
+<th>Python</th>
+</tr></thead>
+<tbody>
+<tr><td><code>/</code></td><td>整型相除得整数</td><td>永远得 <code>float</code>，整除用 <code>//</code></td></tr>
+<tr><td><code>-7 / 2</code></td><td><code>-3</code>（截断）</td><td><code>-3.5</code>；<code>-7 // 2 == -4</code>（向下取整）</td></tr>
+<tr><td><code>%</code> 负数</td><td>符号跟被除数</td><td>符号跟<strong>除数</strong></td></tr>
+<tr><td><code>&amp;&amp;</code> / <code>||</code></td><td>产出 <code>bool</code></td><td>产出<strong>操作数本身</strong></td></tr>
+<tr><td><code>^</code></td><td>异或</td><td>异或（<strong>不是</strong>乘方，乘方是 <code>**</code>）</td></tr>
+<tr><td><code>++</code> / <code>--</code></td><td>有</td><td>没有，写 <code>i += 1</code></td></tr>
+<tr><td>赋值表达式</td><td>无</td><td><code>:=</code> 海象运算符</td></tr>
+<tr><td>自增对容器</td><td>无此概念</td><td><code>lst += [x]</code> 原地扩展，<code>tuple += (x,)</code> 重建</td></tr>
+<tr><td>比较链</td><td>不支持</td><td><code>1 &lt; x &lt; 10</code> 合法且只求值一次</td></tr>
+</tbody>
+</table>
+</div>
+
+<hr>
+
+<h2 id="s4-8">4.8 易错点清单</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>现象</th>
+<th>原因</th>
+<th>一行修复</th>
+</tr></thead>
+<tbody>
+<tr><td><code>-7 // 2</code> 期望 <code>-3</code> 却得 <code>-4</code></td><td><code>//</code> 是向下取整</td><td>要截断用 <code>int(-7 / 2)</code></td></tr>
+<tr><td><code>-7 % 3</code> 期望 <code>-1</code> 却得 <code>2</code></td><td>余数符号跟除数</td><td>要 C 语义用 <code>math.fmod(a, b)</code></td></tr>
+<tr><td><code>x &amp; 1 == 0</code> 永远为假</td><td><code>==</code> 优先级高于 <code>&amp;</code></td><td><code>(x &amp; 1) == 0</code></td></tr>
+<tr><td><code>2 ^ 10</code> 想算乘方得 <code>8</code></td><td><code>^</code> 是异或</td><td><code>2 ** 10</code></td></tr>
+<tr><td><code>if a == 1 or 2:</code> 恒为真</td><td><code>or</code> 只判断 <code>2</code> 的真值</td><td><code>if a in (1, 2):</code></td></tr>
+<tr><td><code>x = 0; x = x or 5</code> 得 5</td><td><code>or</code> 把 0 当假</td><td><code>x if x is not None else 5</code></td></tr>
+<tr><td><code>if x in big_list</code> 超时</td><td>list 的 <code>in</code> 是 O(n)</td><td>改用 <code>set</code>/<code>dict</code></td></tr>
+<tr><td><code>i++</code> 报 <code>SyntaxError</code></td><td>Python 没有自增运算符</td><td><code>i += 1</code></td></tr>
+<tr><td><code>not a == b</code> 结果反了</td><td>优先级：<code>==</code> 高于 <code>not</code></td><td><code>not (a == b)</code> 或 <code>a != b</code></td></tr>
+<tr><td><code>a = b = []</code> 后改一个两个都变</td><td>两个名字指向同一个列表</td><td>分别赋值 <code>a, b = [], []</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<hr>
+
+<h2 id="s4-9">4.9 练习</h2>
+
+<p><strong>1.（负数运算）</strong> 不用电脑，算出 <code>-9 // 4</code>、<code>-9 % 4</code>、<code>divmod(-9, 4)</code>、<code>9 % -4</code>，然后写代码验证。</p>
+
+<p>验收：四个结果全对，并能用 <code>a == b * (a // b) + (a % b)</code> 自证。</p>
+
+<p><strong>2.（短路）</strong> 写 <code>safe_get(d, key, default)</code>：<code>d</code> 可能是 <code>None</code>，也可能是没有该键的 dict，两种情况都返回 <code>default</code>，且<strong>不能</strong>用 <code>try/except</code>。</p>
+
+<p>验收：<code>safe_get(None, "a", 1) == 1</code>、<code>safe_get({}, "a", 1) == 1</code>、<code>safe_get({"a": 0}, "a", 1) == 0</code>（注意 0 不能被默认值吃掉）。</p>
+
+<p><strong>3.（位运算）</strong> 用位运算统计一个非负整数二进制里 <code>1</code> 的个数（不许用 <code>bin().count()</code>）。</p>
+
+<p>验收：<code>popcount(0) == 0</code>、<code>popcount(7) == 3</code>、<code>popcount(1023) == 10</code>。</p>
+
+<p><strong>4.（变式）</strong> 实现 <code>toggle(flags, bit)</code> 与 <code>has(flags, bit)</code>：分别翻转某一位、判断某一位是否置位。</p>
+
+<p>验收：<code>has(toggle(0b101, 0b010), 0b010) is True</code>，且 <code>toggle</code> 不修改原值。</p>
+
+<p><strong>5.（挑战）</strong> 写一个"运算符优先级自查表"程序：对 8 组表达式（每组含 <code>&amp;</code>、<code>==</code>、<code>&lt;&lt;</code>、<code>not</code>、<code>and</code>、<code>or</code>、三目）打印"按优先级理解的结果"和"加括号后的结果"，两者相同才算通过。</p>
+
+<p>验收：8 组全通过，且程序输出里能看出哪几组<strong>不加括号就会算错</strong>。</p>
+
+<hr>
+
+<h2 id="s4-10">4.10 小结</h2>
+
+<ol><li><strong><code>/</code> 得浮点、<code>//</code> 向下取整、<code>%</code> 跟除数同号</strong>，三者由 <code>divmod</code> 统一保证恒等式。</li><li><strong><code>and</code>/<code>or</code> 返回操作数</strong>，可用于默认值和短路守卫，但要小心吞掉 <code>0</code>/<code>""</code> 这类合法假值。</li><li><strong><code>is</code> 比身份、<code>==</code> 比值、<code>in</code> 比包含</strong>；<code>in</code> 用在 <code>list</code> 上是 O(n)，大规模查重必须用 <code>set</code>。</li></ol>
+
+<p>下一章进入最常用的对象：字符串——以及让 C++ 程序员最羡慕的 f-string。</p>
+
+    
+
+    
+</article>

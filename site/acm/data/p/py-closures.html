@@ -1,0 +1,444 @@
+<article data-learn-content>
+<p><strong>读完这一章你能做到</strong></p>
+
+<ul><li>一眼判断一段代码是否构成闭包，并指出它的自由变量；</li><li>用 <code>__closure__</code> / <code>co_freevars</code> 亲手验证闭包捕获的是"变量"不是"值"；</li><li>说清 <code>nonlocal</code> 什么时候必须写、什么时候不写也合法；</li><li>用闭包实现计数器、缓存、带配置的工厂，并知道什么时候该换成类；</li><li>认出闭包造成的内存不释放问题。</li></ul>
+
+<hr>
+
+<h2 id="s12-1">12.1 三要素与一次验证</h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch12_01_closure.py</code></figcaption><pre class="py"><code>"""ch12_01_closure.py —— 闭包的三要素与 __closure__ 实证"""
+
+
+def make_multiplier(n):
+    def mul(x):
+        return x * n
+    return mul
+
+
+double = make_multiplier(2)
+triple = make_multiplier(3)
+print(double(5), triple(5))
+print("不同的函数对象：", double is triple, "| 名字都是：", double.__name__)
+
+print("=== 自由变量存在 __closure__ 里 ===")
+print("外层函数的自由变量：", make_multiplier.__code__.co_freevars)
+print("mul 的自由变量：", double.__code__.co_freevars)
+cells = double.__closure__
+print("cell 个数：", len(cells))
+print("cell 里存的值：", cells[0].cell_contents)
+print("另一个闭包互不影响：", triple.__closure__[0].cell_contents)
+
+
+def plain(x):
+    return x + 1
+
+
+print("不引用外层变量时 __closure__ 是：", plain.__closure__)
+
+print("=== 同一外层里的两个闭包共享变量 ===")
+
+
+def make_pair():
+    n = 0
+
+    def get():
+        return n
+
+    def inc():
+        nonlocal n
+        n += 1
+
+    return get, inc
+
+
+get, inc = make_pair()
+print("初始：", get())
+inc()
+inc()
+print("两次 inc 之后：", get())
+print("两个闭包的 cell 是同一个对象：", get.__closure__[0] is inc.__closure__[0])</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>10 15
+不同的函数对象： False | 名字都是： mul
+=== 自由变量存在 __closure__ 里 ===
+外层函数的自由变量： ()
+mul 的自由变量： ('n',)
+cell 个数： 1
+cell 里存的值： 2
+另一个闭包互不影响： 3
+不引用外层变量时 __closure__ 是： None
+=== 同一外层里的两个闭包共享变量 ===
+初始： 0
+两次 inc 之后： 2
+两个闭包的 cell 是同一个对象： True</code></pre></div></figure>
+
+<p>闭包的三个条件：<strong>内层函数</strong>、<strong>引用了外层函数的变量（自由变量）</strong>、<strong>外层函数把内层函数返回出去</strong>。缺一不可——<code>make_multiplier</code> 内部的 <code>mul</code> 在返回前就已经引用了 <code>n</code>，返回后 <code>n</code> 的 cell 被 <code>__closure__</code> 攥住，于是 <code>n</code> 不会被回收。</p>
+
+<p>关键词是"<strong>变量，不是值</strong>"。这也解释了 11 章的晚绑定：三个 lambda 的 cell 指向同一个 <code>i</code>，循环结束后它自然是 2。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; def make_adder(n):
+...     return lambda x: x + n
+&gt;&gt;&gt; add5 = make_adder(5)
+&gt;&gt;&gt; add5(10)
+15
+&gt;&gt;&gt; add5.__closure__[0].cell_contents
+5</code></pre>
+
+<div class="box tip"><p><code>__closure__</code> 是只读元组，但 cell 里的值<strong>可以通过 <code>cell_contents</code> 读</strong>。想改就老老实实写 <code>nonlocal</code>，别去动 <code>cell_contents</code>——那属于实现细节（而且在某些解释器实现里不可赋值）。</p></div>
+
+<hr>
+
+<h2 id="s12-2">12.2 <code>nonlocal</code>：改外层变量必须声明</h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch12_02_nonlocal.py</code></figcaption><pre class="py"><code>"""ch12_02_nonlocal.py —— nonlocal / global：什么时候必须声明"""
+
+
+def counter_wrong():
+    count = 0
+
+    def inc():
+        count += 1
+        return count
+
+    return inc
+
+
+try:
+    counter_wrong()()
+except UnboundLocalError as e:
+    print("UnboundLocalError:", e)
+
+
+def counter_right():
+    count = 0
+
+    def inc():
+        nonlocal count
+        count += 1
+        return count
+
+    return inc
+
+
+c = counter_right()
+print("加上 nonlocal：", c(), c(), c())
+
+print("=== 只读外层变量不需要 nonlocal ===")
+
+
+def read_only():
+    msg = "外层变量"
+
+    def show():
+        return msg
+
+    return show
+
+
+print(read_only()())
+
+print("=== 改可变对象的内容也不需要 nonlocal ===")
+
+
+def append_only():
+    bucket = []
+
+    def add(x):
+        bucket.append(x)
+        return bucket
+
+    return add
+
+
+a = append_only()
+print(a(1), a(2))
+
+print("=== global 改模块级变量 ===")
+total = 0
+
+
+def bump():
+    global total
+    total += 1
+
+
+bump()
+bump()
+print("total =", total)
+
+print("=== 用函数属性保存状态：另一种常见写法 ===")
+
+
+def counter_obj():
+    def inc():
+        inc.count += 1
+        return inc.count
+
+    inc.count = 0
+    return inc
+
+
+c2 = counter_obj()
+print(c2(), c2(), "| 属性值：", c2.count)</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>UnboundLocalError: cannot access local variable 'count' where it is not associated with a value
+加上 nonlocal： 1 2 3
+=== 只读外层变量不需要 nonlocal ===
+外层变量
+=== 改可变对象的内容也不需要 nonlocal ===
+[1, 2] [1, 2]
+=== global 改模块级变量 ===
+total = 2
+=== 用函数属性保存状态：另一种常见写法 ===
+1 2 | 属性值： 2</code></pre></div></figure>
+
+<p>为什么 <code>count += 1</code> 会 <code>UnboundLocalError</code>？因为 <code>+=</code> 是<strong>赋值语句</strong>，Python 编译期看到函数体内有对 <code>count</code> 的赋值，就把 <code>count</code> 判定为<strong>局部变量</strong>；于是 <code>count + 1</code> 读的是一个还没赋值的局部名，直接报错。</p>
+
+<p>规则表：</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>操作</th>
+<th>需要声明吗</th>
+<th>说明</th>
+</tr></thead>
+<tbody>
+<tr><td>只读外层变量</td><td>不需要</td><td>名字解析按 LEGB 找到外层 cell</td></tr>
+<tr><td><code>x = ...</code> 重新绑定外层名字</td><td><strong>需要 <code>nonlocal</code></strong></td><td>否则被当成新局部变量</td></tr>
+<tr><td><code>x.append(...)</code> 改可变对象内容</td><td>不需要</td><td>没重新绑定名字，只是调用方法</td></tr>
+<tr><td><code>x += 1</code>（<code>x</code> 是外层数字）</td><td><strong>需要 <code>nonlocal</code></strong></td><td><code>+=</code> 含赋值</td></tr>
+<tr><td>改模块级变量</td><td><strong>需要 <code>global</code></strong></td><td>跳过局部与外层封闭作用域</td></tr>
+<tr><td>只在内层读 <code>global</code> 变量</td><td>不需要</td><td>读操作按 LEGB 走到模块级</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><code>UnboundLocalError: cannot access local variable 'count' where it is not associated with a value</code> 这个报错几乎总是一个信号：<strong>你想改的是外层变量，但漏了 <code>nonlocal</code></strong>。</p>
+
+<hr>
+
+<h2 id="s12-3">12.3 闭包能干什么：三种正当用法</h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch12_03_stateful.py</code></figcaption><pre class="py"><code>"""ch12_03_stateful.py —— 用闭包做有状态工具：缓存、配置、限次"""
+import functools
+
+
+def memoize(fn):
+    cache = {}
+
+    @functools.wraps(fn)
+    def wrapper(*args):
+        if args not in cache:
+            cache[args] = fn(*args)
+        return cache[args]
+
+    wrapper.cache = cache
+    return wrapper
+
+
+@memoize
+def fib(n):
+    return n if n &lt; 2 else fib(n - 1) + fib(n - 2)
+
+
+print("fib(30) =", fib(30))
+print("手写缓存里的键数：", len(fib.cache))
+
+
+@functools.cache
+def fib2(n):
+    return n if n &lt; 2 else fib2(n - 1) + fib2(n - 2)
+
+
+print("functools.cache 版本：", fib2(30), "| 条目数：", fib2.cache_info().currsize)
+
+print("=== 带配置的工厂：闭包记住参数 ===")
+
+
+def make_formatter(prefix, *, upper=False):
+    def fmt(msg):
+        text = f"{prefix}: {msg}"
+        return text.upper() if upper else text
+
+    return fmt
+
+
+info = make_formatter("[INFO]")
+warn = make_formatter("[WARN]", upper=True)
+print(info("启动完成"))
+print(warn("磁盘快满"))
+
+print("=== 限次调用：状态藏在 cell 里 ===")
+
+
+def limit_calls(n):
+    calls = 0
+
+    def guard(fn):
+        @functools.wraps(fn)
+        def wrapper(*a, **kw):
+            nonlocal calls
+            if calls &gt;= n:
+                return "已达上限"
+            calls += 1
+            return fn(*a, **kw)
+
+        return wrapper
+
+    return guard
+
+
+@limit_calls(2)
+def ping():
+    return "pong"
+
+
+print(ping(), ping(), ping())</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>fib(30) = 832040
+手写缓存里的键数： 31
+functools.cache 版本： 832040 | 条目数： 31
+=== 带配置的工厂：闭包记住参数 ===
+[INFO]: 启动完成
+[WARN]: 磁盘快满
+=== 限次调用：状态藏在 cell 里 ===
+pong pong 已达上限</code></pre></div></figure>
+
+<p>三类场景：</p>
+
+<ol><li><strong>缓存/记忆化</strong>：<code>cache</code> 字典被 <code>wrapper</code> 的 cell 记住，跨调用存活。<code>functools.cache</code> 就是这个思路的官方实现（还有 <code>lru_cache(maxsize=N)</code> 做容量控制）。</li><li><strong>配置工厂</strong>：<code>make_formatter("[INFO]")</code> 生成一个"已经记住前缀"的函数，比每次调用都传 <code>prefix</code> 更省心。<code>functools.partial</code> 能覆盖简单情形，但闭包能写出更复杂的逻辑。</li><li><strong>状态机/限流/重试</strong>：<code>calls</code> 计数藏在 cell 里，外部无法直接篡改（比挂在函数属性上更隐蔽）。</li></ol>
+
+<p>闭包 vs 类，怎么选：</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>维度</th>
+<th>闭包</th>
+<th>类</th>
+</tr></thead>
+<tbody>
+<tr><td>状态个数</td><td>1～2 个</td><td>多字段、需要多个方法</td></tr>
+<tr><td>需要被 <code>isinstance</code> 判断 / 继承</td><td>不行</td><td>可以</td></tr>
+<tr><td>序列化（pickle）</td><td>通常不行</td><td>通常可以</td></tr>
+<tr><td>代码量</td><td>更少</td><td>更多</td></tr>
+<tr><td>可调试性</td><td>状态藏在 cell，不容易看</td><td>打印对象就能看全部状态</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>判据很简单：<strong>状态多于两个、或需要多个方法互相协作，就写类</strong>。闭包适合"一个函数 + 一点记忆"。</p>
+
+<hr>
+
+<h2 id="s12-4">12.4 陷阱：内存不释放</h2>
+
+<p>闭包会<strong>延长外层变量的生命周期</strong>。这在缓存场景是特性，在下列场景就是 bug：</p>
+
+<pre class="out"><code>def load(path):
+    data = open(path, "rb").read()      # 几百 MB
+    def size():
+        return len(data)                # 闭包捕获 data
+    return size
+
+s = load("big.bin")                     # 返回后 data 依然占着内存</code></pre>
+
+<p>只要 <code>s</code> 活着，<code>data</code> 就活着——即使你只想要一个数字。修法是<strong>只捕获需要的东西</strong>：</p>
+
+<pre class="out"><code>def load_size(path):
+    with open(path, "rb") as f:
+        n = len(f.read())               # 读完就算，不留 data
+    return lambda: n                    # 只捕获 int</code></pre>
+
+<p>同类问题还有：在长生命周期的对象上挂闭包回调（回调捕获了 <code>self</code>、捕获了整个大列表），导致看着删掉了却仍占内存。诊断手段是 <code>sys.getrefcount</code> 和 <code>tracemalloc</code>（第 24 章）。</p>
+
+<hr>
+
+<h2 id="s12-5">12.5 与 C++ 的差别</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>维度</th>
+<th>C++</th>
+<th>Python</th>
+</tr></thead>
+<tbody>
+<tr><td>状态存放</td><td>lambda 的捕获成员（值或引用）</td><td><code>__closure__</code> 的 cell</td></tr>
+<tr><td>何时确定捕获</td><td>编译期由捕获列表决定</td><td>编译期由名字解析决定，值在<strong>调用时</strong>读</td></tr>
+<tr><td>按值捕获</td><td><code>[=]</code>/<code>[x]</code> 定义时拷贝</td><td>只能靠默认参数 <code>lambda x=x:</code> 模拟</td></tr>
+<tr><td>修改捕获变量</td><td><code>mutable</code> + 捕获</td><td><code>nonlocal</code></td></tr>
+<tr><td>生命周期</td><td>捕获拷贝随对象销毁</td><td>cell 随函数对象被 GC</td></tr>
+<tr><td>类型</td><td>每个 lambda 独立类型</td><td>都是 <code>function</code> 类型</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>C++ 程序员最容易踩的是"默认参数模拟按值捕获"这一条：<strong>Python 没有捕获列表</strong>，所以要么 <code>i=i</code>，要么用工厂函数。</p>
+
+<hr>
+
+<h2 id="s12-6">12.6 易错点清单</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>现象</th>
+<th>原因</th>
+<th>一行修复</th>
+</tr></thead>
+<tbody>
+<tr><td><code>UnboundLocalError: cannot access local variable 'x'</code></td><td>想改外层变量却没 <code>nonlocal</code></td><td>加 <code>nonlocal x</code></td></tr>
+<tr><td>循环里闭包全用最后一个值</td><td>晚绑定</td><td>默认参数 / 工厂函数</td></tr>
+<tr><td><code>NameError: name 'x' is not defined</code></td><td>外层变量根本没定义</td><td>检查是否漏赋值</td></tr>
+<tr><td>缓存字典无限增长</td><td><code>memoize</code> 没有容量上限</td><td>用 <code>functools.lru_cache(maxsize=N)</code></td></tr>
+<tr><td>函数返回后变量"居然还在"</td><td>闭包攥着 cell</td><td>这是特性；不想留就只捕获需要的值</td></tr>
+<tr><td>删了对象内存没降</td><td>闭包引用链</td><td><code>tracemalloc</code> 定位，拆掉引用</td></tr>
+<tr><td>两个闭包互相干扰状态</td><td>它们共享同一个 cell</td><td>每次工厂调用独立生成</td></tr>
+<tr><td><code>nonlocal</code> 报 <code>SyntaxError: no binding for nonlocal</code></td><td>外层没有同名变量</td><td>先在外层赋值，或用 <code>global</code></td></tr>
+<tr><td>在类方法里用 <code>nonlocal</code> 想改实例属性</td><td>作用域搞混</td><td>改 <code>self.x</code>，不用 <code>nonlocal</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<hr>
+
+<h2 id="s12-7">12.7 练习</h2>
+
+<p><strong>1.（基础）</strong> 写 <code>make_power(exp)</code>，返回 <code>f(base)</code> 计算 <code>base ** exp</code>；用它造出平方与立方函数。</p>
+
+<p>验收：<code>make_power(2)(3) == 9</code>、<code>make_power(3)(2) == 8</code>，且两者互不干扰。</p>
+
+<p><strong>2.（计数器）</strong> 写 <code>make_counter(start=0, step=1)</code>，返回一个每次调用递增并返回当前值的函数；要求支持两个独立计数器互不影响。</p>
+
+<p>验收：<code>c1 = make_counter(); c2 = make_counter(10, 5)</code>；<code>c1()</code> 连续调用得到 1、2，<code>c2()</code> 得到 15、20。</p>
+
+<p><strong>3.（nonlocal 判断）</strong> 下面四段代码哪些会报错？先判断再运行验证：</p>
+
+<pre class="out"><code>① def f(): x = 1
+     def g(): return x
+② def f(): x = 1
+     def g(): x = 2
+③ def f(): x = []
+     def g(): x.append(1)
+④ def f(): x = 0
+     def g(): x += 1</code></pre>
+
+<p>验收：逐条给出结论并说明原因（赋值 vs 改内容）。</p>
+
+<p><strong>4.（变式）</strong> 用闭包实现 <code>once(fn)</code>：包装后第一次调用执行 <code>fn</code> 并返回结果，之后每次调用都直接返回第一次的结果（不重复执行）。打印 <code>fn</code> 实际被调用的次数。</p>
+
+<p>验收：调用 3 次，<code>fn</code> 只执行 1 次，三次返回值相同。</p>
+
+<p><strong>5.（挑战）</strong> 用闭包实现 <code>rate_limiter(max_calls, period)</code>：一个"时间窗内最多调用 N 次"的限制器（时间用 <code>time.monotonic()</code>，只打印是否放行，别打印时间数值）。再加一个 <code>make_cache(maxsize)</code> 实现容量受限的缓存（满了清空最旧的）。</p>
+
+<p>验收：连调 <code>max_calls+1</code> 次，第 <code>max_calls+1</code> 次返回"拒绝"；缓存超过 <code>maxsize</code> 后条目数不超过上限。</p>
+
+<hr>
+
+<h2 id="s12-8">12.8 小结</h2>
+
+<ol><li><strong>闭包 = 函数 + <code>__closure__</code> 里的 cell</strong>，捕获的是变量，调用时才读值。</li><li><strong>改外层变量要 <code>nonlocal</code></strong>，改可变对象内容不用；<code>global</code> 只用于模块级。</li><li><strong>状态少用闭包、状态多用类</strong>；闭包会延长变量寿命，注意内存。</li></ol>
+
+<p>下一章用闭包装配出 Python 最标志性的语法糖：装饰器——<code>@</code> 到底做了什么、为什么要 <code>functools.wraps</code>、带参数的装饰器为什么是"三层函数"。</p>
+
+    
+
+    
+</article>

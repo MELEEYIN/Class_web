@@ -1,0 +1,481 @@
+<article data-learn-content>
+<p><strong>读完这一章你能做到</strong></p>
+
+<ul><li>分清四种容器，按"要不要按名字查""要不要改""要不要去重"三问选型；</li><li>记住"原地方法返回 <code>None</code>"这条规矩，不再写出 <code>x = a.sort()</code> 的 <code>NoneType</code> 报错；</li><li>用元组解包、<code>*rest</code>、<code>namedtuple</code> 写出比 C++ <code>pair</code>/<code>struct</code> 更短的代码；</li><li>用 <code>get</code> / <code>setdefault</code> / <code>|=</code> 处理字典的缺失键与合并；</li><li>知道为什么 <code>[[0] * 3] * 3</code> 建不出二维数组。</li></ul>
+
+<hr>
+
+<h2 id="s6-1">6.1 四种容器一览</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>容器</th>
+<th>字面量</th>
+<th>可变</th>
+<th>有序</th>
+<th>元素要求</th>
+<th><code>in</code> / 按名查</th>
+<th>典型用途</th>
+</tr></thead>
+<tbody>
+<tr><td><code>list</code></td><td><code>[1, 2]</code></td><td>✅</td><td>✅ 按位置</td><td>任意</td><td>O(n)</td><td>序列、栈、队列（尾部）</td></tr>
+<tr><td><code>tuple</code></td><td><code>(1, 2)</code></td><td>❌</td><td>✅ 按位置</td><td>任意</td><td>O(n)</td><td>固定记录、字典键、函数多返回值</td></tr>
+<tr><td><code>dict</code></td><td><code>{"a": 1}</code></td><td>✅</td><td>✅ 插入序</td><td>键必须可哈希</td><td><strong>O(1)</strong></td><td>按名字查、计数、缓存</td></tr>
+<tr><td><code>set</code></td><td><code>{1, 2}</code></td><td>✅</td><td>❌</td><td>必须可哈希</td><td><strong>O(1)</strong></td><td>去重、集合运算</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>三句话选型：<strong>要按下标/顺序 → list；要按名字查 → dict；只要"在不在" → set；一组值打包后不再改 → tuple</strong>。</p>
+
+<div class="box warn"><p><code>{}</code> 是空<strong>字典</strong>不是空集合；空集合只能写 <code>set()</code>。<code>(1)</code> 是整数 1，单元素元组要写 <code>(1,)</code>。</p></div>
+
+<hr>
+
+<h2 id="s6-2">6.2 列表：增删改查</h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch06_01_lists.py</code></figcaption><pre class="py"><code>"""ch06_01_lists.py —— 列表：增删改查、原地方法与返回值陷阱"""
+nums = [3, 1, 4, 1, 5]
+print("原列表：", nums, "长度：", len(nums))
+
+print("=== 增 ===")
+nums.append(9)
+nums.extend([2, 6])
+nums.insert(0, 0)
+print(nums)
+
+print("=== 删：四种姿势 ===")
+last = nums.pop()
+first = nums.pop(0)
+nums.remove(1)
+del nums[-1]
+print(nums, "| pop 出：", last, first)
+try:
+    nums.remove(99)
+except ValueError as e:
+    print("ValueError:", e)
+
+print("=== 查 ===")
+data = [10, 20, 20, 30]
+print(data.index(20), data.count(20), 30 in data, 99 in data)
+
+print("=== 原地方法返回 None：NoneType 报错的头号来源 ===")
+a = [3, 1, 2]
+b = a.sort()
+print("a =", a, "| b =", b)
+try:
+    b.append(4)
+except AttributeError as e:
+    print("AttributeError:", e)
+print("sorted 返回新列表：", sorted(a), "| a 仍是", a)
+
+print("=== 排序 key ===")
+words = ["pear", "fig", "banana"]
+print(sorted(words, key=len), sorted(words, key=lambda w: (len(w), w)))
+print(sorted([(2, "b"), (1, "z")]))
+
+print("=== 切片赋值能改长度 ===")
+c = [1, 2, 3, 4, 5]
+c[1:4] = ["x"]
+print(c)
+c[1:2] = []
+print(c)
+
+print("=== 嵌套列表的别名陷阱 ===")
+grid = [[0] * 2] * 2
+grid[0][0] = 1
+print(grid, "| 两个子列表是同一对象：", grid[0] is grid[1])
+grid2 = [[0] * 2 for _ in range(2)]
+grid2[0][0] = 1
+print(grid2, "| 独立子列表：", grid2[0] is not grid2[1])</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>原列表： [3, 1, 4, 1, 5] 长度： 5
+=== 增 ===
+[0, 3, 1, 4, 1, 5, 9, 2, 6]
+=== 删：四种姿势 ===
+[3, 4, 1, 5, 9] | pop 出： 6 0
+ValueError: list.remove(x): x not in list
+=== 查 ===
+1 2 True False
+=== 原地方法返回 None：NoneType 报错的头号来源 ===
+a = [1, 2, 3] | b = None
+AttributeError: 'NoneType' object has no attribute 'append'
+sorted 返回新列表： [1, 2, 3] | a 仍是 [1, 2, 3]
+=== 排序 key ===
+['fig', 'pear', 'banana'] ['fig', 'pear', 'banana']
+[(1, 'z'), (2, 'b')]
+=== 切片赋值能改长度 ===
+[1, 'x', 5]
+[1, 5]
+=== 嵌套列表的别名陷阱 ===
+[[1, 0], [1, 0]] | 两个子列表是同一对象： True
+[[1, 0], [0, 0]] | 独立子列表： True</code></pre></div></figure>
+
+<p>四个操作对应的复杂度：<code>append</code> / <code>pop()</code> 尾部 O(1)；<code>insert(0, x)</code> / <code>pop(0)</code> 头部 O(n)（整表后移）；<code>remove(x)</code> / <code>index(x)</code> / <code>in</code> O(n)。所以<strong>不要用 list 当队列</strong>——头部弹出是 O(n)，<code>collections.deque</code> 才是 O(1)（第 21 章）。</p>
+
+<p><code>sort</code> 与 <code>sorted</code> 的分工是本节的第二个重点：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; a = [3, 1, 2]
+&gt;&gt;&gt; a.sort()                      # 原地，返回 None
+&gt;&gt;&gt; a
+[1, 2, 3]
+&gt;&gt;&gt; sorted(a, reverse=True)       # 返回新列表
+[3, 2, 1]
+&gt;&gt;&gt; sorted(["bb", "a", "ccc"], key=len)
+['a', 'bb', 'ccc']</code></pre>
+
+<p>排序是<strong>稳定</strong>的，所以多关键字排序可以用"从次要关键字到主要关键字依次 <code>sort</code>"，也可以像示例里那样返回元组 <code>key=lambda w: (len(w), w)</code>。<code>sort(key=...)</code> 每个元素只调用一次 key 函数，不是比较时反复调用——这就是 Python 排序比 C++ 手写比较器快的原因（Timsort + 键提取）。</p>
+
+<div class="box tip"><p>切片赋值（<code>c[1:4] = ["x"]</code>）能一次替换多段并改变长度，这是 <code>list</code> 独有的能力；<code>list[i:j] = []</code> 就是"删除一段"。步长不为 1 时长度必须一致：<code>c[::2] = ["a"]</code> 会报 <code>ValueError</code>。</p></div>
+
+<hr>
+
+<h2 id="s6-3">6.3 元组：不可变 + 解包</h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch06_02_tuples.py</code></figcaption><pre class="py"><code>"""ch06_02_tuples.py —— 元组：不可变、解包、单元素与哈希"""
+from collections import namedtuple
+
+t = (1, 2, 3)
+print(t, len(t), t[0], t[-1], t[1:])
+print("空元组：", (), "| 单元素必须带逗号：", (1,), "| 这不是元组：", (1))
+
+print("=== 不可变的含义 ===")
+try:
+    t[0] = 99
+except TypeError as e:
+    print("TypeError:", e)
+u = t + (4,)
+print("拼接产生新元组：", u, "| 原元组：", t)
+
+print("=== 解包：Python 最有用的语法糖之一 ===")
+a, b = 1, 2
+a, b = b, a
+print("交换后：", a, b)
+x, y = (3, 4)
+print(x, y)
+first, *rest = [1, 2, 3, 4]
+print(first, rest)
+head, *mid, tail = "abcd"
+print(head, mid, tail)
+print("divmod 返回元组：", divmod(7, 2))
+for i, ch in enumerate("ab"):
+    print(i, ch)
+
+print("=== 元组作字典键 ===")
+pos = {(0, 0): "起点", (1, 2): "终点"}
+print(pos[(1, 2)])
+try:
+    {[1]: "x"}
+except TypeError as e:
+    print("TypeError:", e)
+
+print("=== 不可变的记录：namedtuple ===")
+Point = namedtuple("Point", "x y")
+p = Point(3, 4)
+print(p, p.x, p[1])
+print("按位置解包：", tuple(p))
+print("可变性对比：list 能改，tuple 只能重建")</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>(1, 2, 3) 3 1 3 (2, 3)
+空元组： () | 单元素必须带逗号： (1,) | 这不是元组： 1
+=== 不可变的含义 ===
+TypeError: 'tuple' object does not support item assignment
+拼接产生新元组： (1, 2, 3, 4) | 原元组： (1, 2, 3)
+=== 解包：Python 最有用的语法糖之一 ===
+交换后： 2 1
+3 4
+1 [2, 3, 4]
+a ['b', 'c'] d
+divmod 返回元组： (3, 1)
+0 a
+1 b
+=== 元组作字典键 ===
+终点
+TypeError: cannot use 'list' as a dict key (unhashable type: 'list')
+=== 不可变的记录：namedtuple ===
+Point(x=3, y=4) 3 4
+按位置解包： (3, 4)
+可变性对比：list 能改，tuple 只能重建</code></pre></div></figure>
+
+<p>要点：</p>
+
+<ul><li><code>a, b = b, a</code> 一步交换，底层是先把右值打包成元组再解包，<strong>不需要临时变量</strong>；</li><li><code>first, *rest = ...</code> 的星号只能有一个，<code>head, *mid, tail</code> 也能用（3.0+）；</li><li>元组<strong>可哈希</strong>所以能当字典键/集合元素，列表不行；若要键里含可变内容，用 <code>tuple(lst)</code> 转换；</li><li><code>namedtuple</code> 是"带字段名的元组"，<code>p.x</code> 与 <code>p[0]</code> 等价，仍然不可变、仍可哈希，比手写 <code>class</code> 轻得多（<code>dataclass</code> 见第 18 章）。</li></ul>
+
+<p>元组的"不可变"是<strong>浅</strong>的：<code>t = (1, [2]); t[1].append(3)</code> 是合法的，因为改的是列表内部。这一点与 list 的别名问题同源（第 3 章）。</p>
+
+<hr>
+
+<h2 id="s6-4">6.4 字典：按名字 O(1) 查</h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch06_03_dicts.py</code></figcaption><pre class="py"><code>"""ch06_03_dicts.py —— 字典：查找、默认值、插入序与合并"""
+scores = {"语文": 92, "数学": 88}
+print(scores, len(scores))
+scores["英语"] = 95
+scores["语文"] = 90
+print("插入序即遍历序：", scores)
+print("键：", list(scores), "| 值：", list(scores.values()))
+
+print("=== 取值三种方式 ===")
+print(scores["数学"])
+print(scores.get("化学"), "|", scores.get("化学", 0))
+try:
+    scores["化学"]
+except KeyError as e:
+    print("KeyError:", e)
+
+print("=== 计数：get 与 setdefault ===")
+cnt = {}
+for ch in "abca":
+    cnt[ch] = cnt.get(ch, 0) + 1
+print(cnt)
+cnt2 = {}
+for ch in "abca":
+    cnt2.setdefault(ch, 0)
+    cnt2[ch] += 1
+print(cnt2, "| 已有键时 setdefault 返回旧值：", cnt2.setdefault("a", 999))
+
+print("=== 删除与弹出 ===")
+d = {"a": 1, "b": 2}
+print(d.pop("a"), d, d.pop("zz", "默认值"))
+del d["b"]
+print(d)
+try:
+    d.pop("b")
+except KeyError as e:
+    print("KeyError:", e)
+
+print("=== 合并：update 原地，| 新建 ===")
+x = {"a": 1, "b": 2}
+y = {"b": 20, "c": 30}
+z = x | y
+print("| 结果：", z, "| x 未变：", x)
+x.update(y)
+print("update 后 x：", x)
+print("** 解包构造：", {**y, "d": 4})
+
+print("=== 遍历与构造 ===")
+for k, v in {"p": 1, "q": 2}.items():
+    print(k, v)
+print(dict(zip(["a", "b"], [1, 2])))
+print(dict(a=1, b=2))
+print("键可以是元组：", {("x", 1): "点"}[("x", 1)])
+try:
+    {["x"]: 1}
+except TypeError as e:
+    print("TypeError:", e)</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>{'语文': 92, '数学': 88} 2
+插入序即遍历序： {'语文': 90, '数学': 88, '英语': 95}
+键： ['语文', '数学', '英语'] | 值： [90, 88, 95]
+=== 取值三种方式 ===
+88
+None | 0
+KeyError: '化学'
+=== 计数：get 与 setdefault ===
+{'a': 2, 'b': 1, 'c': 1}
+{'a': 2, 'b': 1, 'c': 1} | 已有键时 setdefault 返回旧值： 2
+=== 删除与弹出 ===
+1 {'b': 2} 默认值
+{}
+KeyError: 'b'
+=== 合并：update 原地，| 新建 ===
+| 结果： {'a': 1, 'b': 20, 'c': 30} | x 未变： {'a': 1, 'b': 2}
+update 后 x： {'a': 1, 'b': 20, 'c': 30}
+** 解包构造： {'b': 20, 'c': 30, 'd': 4}
+=== 遍历与构造 ===
+p 1
+q 2
+{'a': 1, 'b': 2}
+{'a': 1, 'b': 2}
+键可以是元组： 点
+TypeError: cannot use 'list' as a dict key (unhashable type: 'list')</code></pre></div></figure>
+
+<p>必须记住的四条：</p>
+
+<ol><li><strong><code>d[k]</code> 缺键抛 <code>KeyError</code>，<code>d.get(k)</code> 返回 <code>None</code></strong>。判断"有没有"用 <code>k in d</code>，不用 <code>d.get(k)</code>——<code>d.get(k)</code> 在"值是 <code>None</code>"时分不清。</li><li><strong>插入序 = 遍历序</strong>（3.7 起是语言保证，不是实现细节）。所以 <code>print(d)</code> 的输出是确定性的，可以直接比对。</li><li><strong><code>update</code> 改自己，<code>|</code> 造新字典</strong>；同名键<strong>右边覆盖左边</strong>。<code>d |= other</code> 是 3.9+ 的原地版本。</li><li><strong>键必须可哈希</strong>：<code>str</code>、<code>int</code>、<code>float</code>、<code>tuple</code>、<code>frozenset</code>、<code>None</code> 可以，<code>list</code>、<code>dict</code>、<code>set</code> 不行。</li></ol>
+
+<p>计数是最常见的字典用法，两种写法都行，但<strong>更快的是 <code>collections.Counter</code></strong>：<code>Counter("abca")</code> 直接得 <code>{'a': 2, 'b': 1, 'c': 1}</code>，还自带 <code>most_common()</code>（第 21 章）。</p>
+
+<div class="box warn"><p>遍历字典时<strong>增删键</strong>会抛 <code>RuntimeError: dictionary changed size during iteration</code>。要改就先 <code>list(d)</code> 或 <code>list(d.items())</code> 复制一份再遍历。</p></div>
+
+<hr>
+
+<h2 id="s6-5">6.5 集合：去重与集合运算</h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch06_04_sets.py</code></figcaption><pre class="py"><code>"""ch06_04_sets.py —— 集合：去重、集合运算与可哈希要求"""
+s = {3, 1, 2}
+print("元素个数：", len(s), "| 想稳定输出用 sorted：", sorted(s))
+print("空集合只能写 set()：", set(), "| 而 {} 是空字典：", type({}).__name__)
+
+print("=== 去重 ===")
+words = ["a", "b", "a", "c"]
+print("set 去重后元素数：", len(set(words)))
+print("保序去重：", list(dict.fromkeys(words)))
+
+print("=== 增删与成员判断 ===")
+s.add(4)
+s.discard(99)
+print(sorted(s))
+s.remove(4)
+try:
+    s.remove(99)
+except KeyError as e:
+    print("KeyError:", e)
+print("成员判断：", 2 in s, 99 in s)
+
+print("=== 集合运算 ===")
+a = set("abcd")
+b = set("cdef")
+print("交集：", sorted(a &amp; b), "| 并集：", sorted(a | b))
+print("差集：", sorted(a - b), "| 对称差：", sorted(a ^ b))
+print("子集：", {"a", "b"} &lt;= a, "| 真子集：", a &lt; a)
+print("方法写法等价：", sorted(a.intersection(b)) == sorted(a &amp; b))
+
+print("=== 就地运算 ===")
+c = {1, 2}
+c |= {3}
+c &amp;= {2, 3, 9}
+print(sorted(c))
+
+print("=== 元素必须可哈希 ===")
+try:
+    {{1, 2}}
+except TypeError as e:
+    print("TypeError:", e)
+print("元组可入集合：", sorted({(1, 2), (0, 2)}))
+print("frozenset 可作字典键：", {frozenset({1, 2}): "ok"}[frozenset({2, 1})])</code></pre></figure>
+
+<ul><li><code>set</code> <strong>无序</strong>：<code>print({3, 1, 2})</code> 的输出顺序取决于哈希值，不同进程都可能不同。<strong>要做稳定输出就 <code>sorted(s)</code></strong>，想"去重且保留原顺序"用 <code>list(dict.fromkeys(xs))</code>（利用字典的插入序）。</li><li><code>discard</code> 删不存在的元素<strong>不报错</strong>，<code>remove</code> 会抛 <code>KeyError</code>——不确定在不在就用 <code>discard</code>。</li><li>集合运算的运算符版要求两边都是集合：<code>a &amp; [1]</code> 报 <code>TypeError</code>，得写 <code>a &amp; set([1])</code> 或用方法版 <code>a.intersection([1])</code>（方法接受任何可迭代对象）。</li><li><code>frozenset</code> 是不可变集合，能作字典键/集合元素。</li></ul>
+
+<hr>
+
+<h2 id="s6-6">6.6 复杂度决定能不能过题</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>操作</th>
+<th><code>list</code></th>
+<th><code>tuple</code></th>
+<th><code>dict</code></th>
+<th><code>set</code></th>
+</tr></thead>
+<tbody>
+<tr><td>按下标取 <code>x[i]</code></td><td>O(1)</td><td>O(1)</td><td>✗</td><td>✗</td></tr>
+<tr><td>按值查 <code>v in x</code></td><td>O(n)</td><td>O(n)</td><td>O(1)（查键）</td><td>O(1)</td></tr>
+<tr><td>追加</td><td><code>append</code> O(1) 均摊</td><td>✗</td><td>O(1) 均摊</td><td>O(1) 均摊</td></tr>
+<tr><td>头插入</td><td>O(n)</td><td>✗</td><td>✗</td><td>✗</td></tr>
+<tr><td>删除中间元素</td><td>O(n)</td><td>✗</td><td>O(1)</td><td>O(1)</td></tr>
+<tr><td>内存</td><td>最省</td><td>更省</td><td>较大（哈希表）</td><td>较大</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>一个真实规模的对照：10^5 个整数，查 10^5 次"在不在"——</p>
+
+<pre class="out"><code>元素个数： 3 | 想稳定输出用 sorted： [1, 2, 3]
+空集合只能写 set()： set() | 而 {} 是空字典： dict
+=== 去重 ===
+set 去重后元素数： 3
+保序去重： ['a', 'b', 'c']
+=== 增删与成员判断 ===
+[1, 2, 3, 4]
+KeyError: 99
+成员判断： True False
+=== 集合运算 ===
+交集： ['c', 'd'] | 并集： ['a', 'b', 'c', 'd', 'e', 'f']
+差集： ['a', 'b'] | 对称差： ['a', 'b', 'e', 'f']
+子集： True | 真子集： False
+方法写法等价： True
+=== 就地运算 ===
+[2, 3]
+=== 元素必须可哈希 ===
+TypeError: cannot use 'set' as a set element (unhashable type: 'set')
+元组可入集合： [(0, 2), (1, 2)]
+frozenset 可作字典键： ok</code></pre>
+
+<p>所以"判重 + 计数 + 查表"一律先想 <code>set</code>/<code>dict</code>，这是 Python 做题最省时的优化。</p>
+
+<hr>
+
+<h2 id="s6-7">6.7 与 C++ 的差别</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>维度</th>
+<th>C++</th>
+<th>Python</th>
+</tr></thead>
+<tbody>
+<tr><td>动态数组</td><td><code>std::vector&lt;int&gt;</code></td><td><code>list</code>，无需声明元素类型与容量</td></tr>
+<tr><td>定长数组</td><td><code>int a[10]</code> / <code>std::array</code></td><td><code>[0] * 10</code>（运行期创建，无栈上限）</td></tr>
+<tr><td>键值对</td><td><code>std::map</code>（红黑树 O(log n)）/ <code>unordered_map</code></td><td><code>dict</code>，哈希 O(1)，<strong>保插入序</strong></td></tr>
+<tr><td>去重</td><td><code>std::set</code> / <code>std::unordered_set</code></td><td><code>set</code>，运算符 <code>&amp; \| - ^</code> 直接可用</td></tr>
+<tr><td>多返回值</td><td><code>std::pair</code> / <code>std::tuple</code> + <code>get&lt;0&gt;</code></td><td>直接 <code>return a, b</code> + 解包</td></tr>
+<tr><td>定长记录</td><td><code>struct</code></td><td><code>tuple</code> / <code>namedtuple</code> / <code>dataclass</code></td></tr>
+<tr><td>原地修改返回值</td><td><code>v.sort()</code> 返回 <code>void</code></td><td>返回 <code>None</code>（链式调用必踩坑）</td></tr>
+<tr><td>排序稳定性</td><td><code>std::sort</code> 不稳定，<code>stable_sort</code> 才稳定</td><td><code>sort</code> / <code>sorted</code> <strong>都稳定</strong></td></tr>
+<tr><td>二维数组</td><td><code>vector&lt;vector&lt;int&gt;&gt;(n, vector&lt;int&gt;(m))</code></td><td><code>[[0] * m for _ in range(n)]</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<hr>
+
+<h2 id="s6-8">6.8 易错点清单</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>现象</th>
+<th>原因</th>
+<th>一行修复</th>
+</tr></thead>
+<tbody>
+<tr><td><code>AttributeError: 'NoneType' object has no attribute 'append'</code></td><td><code>x = a.sort()</code> / <code>a.append</code> 之外还接了原地方法</td><td>原地方法单独一行，或改用 <code>sorted(a)</code></td></tr>
+<tr><td><code>IndexError: list index out of range</code></td><td>下标越界（负下标从 -1 开始但不会更负）</td><td>先判 <code>len</code>，或用 <code>try/except IndexError</code></td></tr>
+<tr><td><code>ValueError: list.remove(x): x not in list</code></td><td><code>remove</code> 找不到元素</td><td>先 <code>if x in a</code>，或用 <code>while x in a</code></td></tr>
+<tr><td><code>KeyError: 'k'</code></td><td>直接 <code>d[k]</code> 取缺失键</td><td><code>d.get(k, 默认值)</code> 或先 <code>if k in d</code></td></tr>
+<tr><td><code>TypeError: unhashable type: 'list'</code></td><td>用列表当键/集合元素</td><td>转 <code>tuple(lst)</code></td></tr>
+<tr><td><code>RuntimeError: dictionary changed size during iteration</code></td><td>遍历时改字典</td><td><code>for k in list(d):</code></td></tr>
+<tr><td><code>[[0] * 3] * 3</code> 改一行全变</td><td>三行是同一个列表的别名</td><td><code>[[0] * 3 for _ in range(3)]</code></td></tr>
+<tr><td><code>{{1, 2}}</code> 报 <code>TypeError</code></td><td>集合元素必须可哈希</td><td>用 <code>frozenset</code> 或改成列表</td></tr>
+<tr><td>两个列表 <code>==</code> 为 True 改了其中一个另一个也变</td><td>浅拷贝/别名</td><td><code>copy.deepcopy</code> 或新建</td></tr>
+<tr><td><code>sorted(s)</code> 与 <code>print(s)</code> 顺序不一致</td><td>集合无序</td><td>输出前一律 <code>sorted</code></td></tr>
+<tr><td><code>(1)</code> 不是元组导致解包报错</td><td>缺逗号</td><td>写 <code>(1,)</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<hr>
+
+<h2 id="s6-9">6.9 练习</h2>
+
+<p><strong>1.（列表基本操作）</strong> 给定 <code>nums = [3, 1, 4, 1, 5, 9, 2, 6]</code>，输出：去重后<strong>保序</strong>的列表、升序列表、最大值及其下标、总和与平均值（保留 2 位小数）。</p>
+
+<p>验收：不用第三方库；去重结果顺序与原列表首次出现顺序一致。</p>
+
+<p><strong>2.（字典计数）</strong> 统计一段文本里每个单词出现次数，按次数降序、次数相同按单词升序输出前 3 名。</p>
+
+<p>验收：<code>"the cat the dog the bird cat"</code> 输出 <code>the 3</code>、<code>cat 2</code>、<code>bird 1</code>（各占一行）。</p>
+
+<p><strong>3.（集合运算）</strong> 给定两个班级的花名册（列表），输出去重后的并集（有序）、交集、只在一班的人。</p>
+
+<p>验收：三行输出都用 <code>sorted</code> 保证顺序稳定。</p>
+
+<p><strong>4.（变式）</strong> 实现 <code>two_sum(nums, target)</code>，返回<strong>第一个</strong>满足 <code>nums[i] + nums[j] == target</code>（<code>i &lt; j</code>）的下标对；要求对 10^5 规模不超时。</p>
+
+<p>验收：<code>two_sum([2, 7, 11, 15], 9) == (0, 1)</code>，并说明时间复杂度为什么是 O(n)。</p>
+
+<p><strong>5.（挑战）</strong> 实现 <code>group_anagrams(words)</code>：把字母异位词分到一组，组内按字典序、组间按首词字典序输出。</p>
+
+<p>验收：<code>["eat", "tea", "tan", "ate", "nat", "bat"]</code> 分成 3 组，<code>["ate", "eat", "tea"]</code> 一组；只能用内置类型（提示：排序后的字符串当字典键）。</p>
+
+<hr>
+
+<h2 id="s6-10">6.10 小结</h2>
+
+<ol><li><strong>list 按下标、dict 按名字、set 判存在、tuple 打包不变</strong>——选型就是选复杂度。</li><li><strong>原地方法返回 <code>None</code></strong>，<code>sort</code>/<code>append</code>/<code>extend</code> 都别接收返回值。</li><li><strong><code>[[0]*m]*n</code> 是 n 个别名</strong>，二维表一律用推导式建。</li></ol>
+
+<p>下一章把容器切成片段：切片 <code>s[a:b:c]</code> 的语义、负数下标、越界为什么不报错，以及切片与拷贝的关系。</p>
+
+    
+
+    
+</article>

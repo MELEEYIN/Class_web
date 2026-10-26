@@ -100,8 +100,13 @@
   function buildNav() {
     var host = $('#nav');
     var html = '';
+    var lastSec = '';
     var act = (parseHash().route || 'course').split('/')[0];
     NAV.modules.forEach(function (m) {
+      if (m.section && m.section !== lastSec) {
+        html += '<div class="nv-sec">' + esc(m.section) + '</div>';
+        lastSec = m.section;
+      }
       var folded = lsGet('acm.fold.' + m.id, null);
       var fold = folded === null ? (m.id !== act) : !!folded;
       html += '<div class="nv-mod' + (fold ? ' fold' : '') + '" data-mod="' + m.id + '">';
@@ -188,7 +193,7 @@
   /* ------------------------------------------------------------ 渲染 */
   function setCrumb(mod, item) {
     var c = $('#crumb');
-    if (!mod) { c.innerHTML = '<a href="#/">ACM 算法站</a><span class="sep">/</span><span class="cur">总览</span>'; return; }
+    if (!mod) { c.innerHTML = '<a href="#/">编程学习站</a><span class="sep">/</span><span class="cur">总览</span>'; return; }
     c.innerHTML = '<a href="#/">总览</a><span class="sep">/</span>' +
       '<a href="#/' + mod.id + '">' + esc(mod.name) + '</a>' +
       (item ? '<span class="sep">/</span><span class="cur">' + esc(item.title) + '</span>' : '');
@@ -222,9 +227,8 @@
 
   function paintHome() {
     var n = allItems().length;
-    var lessons = (modOf('course') || { items: [] }).items.length;
-    var done = 0;
-    for (var i = 0; i < lessons; i++) if (LEARNED['course/' + (i + 1)]) done++;
+    var lessons = lessonsTotal();
+    var done = lessonsDone();
     var set = function (sel, v) { var el = $(sel); if (el) el.textContent = v; };
     set('[data-hs="total"]', n);
     set('[data-hs="lessons"]', lessons);
@@ -236,7 +240,7 @@
     // 最近浏览
     var r = $('#recent');
     if (r) {
-      if (!RECENT.length) { r.innerHTML = '<div class="sov-e" style="padding:16px">还没有浏览记录，从上面三条路线任选一条开始。</div>'; }
+      if (!RECENT.length) { r.innerHTML = '<div class="sov-e" style="padding:16px">还没有浏览记录，从上面四条路线任选一条开始。</div>'; }
       else {
         r.innerHTML = RECENT.slice(0, 4).map(function (x) {
           return '<a href="#/' + x.id + '"><span class="no">' + (x.no || '·') + '</span>' +
@@ -275,7 +279,7 @@
     var doc = $('#doc');
     doc.className = 'doc home';
     doc.innerHTML = html;
-    $('#cDone').textContent = lessonsDone();
+    $('#cDone').textContent = courseDone();
     $('#pager').innerHTML = '';
     enterAnim(doc);
     bindReveal(doc);
@@ -283,9 +287,26 @@
     $('#scroll').scrollTop = 0;
   }
   function lessonsDone() {
-    var c = 0;
-    for (var i = 1; i <= 60; i++) if (LEARNED['course/' + i]) c++;
+    return courseDone() + pyDone();
+  }
+  function courseDone() {
+    var m = modOf('course'), c = 0;
+    if (m) m.items.forEach(function (it) { if (LEARNED[it.id]) c++; });
     return c;
+  }
+  function pyDone() {
+    var m = modOf('py'), c = 0;
+    if (m) m.items.forEach(function (it) { if (it.no && LEARNED[it.id]) c++; });
+    return c;
+  }
+  /* 计入进度的只有「有编号的节」：course 60 + py 26（py 的导读不算一章） */
+  function lessonsTotal() {
+    var n = 0;
+    ['course', 'py'].forEach(function (mid) {
+      var m = modOf(mid);
+      if (m) m.items.forEach(function (it) { if (it.no) n++; });
+    });
+    return n;
   }
 
   var CODE_RE = /(\/\/[^\n]*)|("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*')|(\b\d[\d]*(?:\.\d+)?\b)|(\b(?:int|long|double|float|char|bool|void|short|unsigned|signed|const|static|inline|extern|template|typename|class|struct|enum|union|namespace|using|public|private|protected|virtual|operator|new|delete|return|for|while|do|if|else|switch|case|default|break|continue|sizeof|typedef|auto|nullptr|true|false|this)\b)/g;
@@ -310,6 +331,7 @@
     });
     /* 复制按钮：所有 pre 都加一个 */
     $$('pre', root).forEach(function (pre) {
+      if (pre.closest('[data-learn-content]')) return;   /* Python 片段：learn-code.js 自己装按钮 */
       if (pre.parentElement.classList.contains('codebox')) return;
       if (pre.querySelector('.cp2')) return;
       var b = document.createElement('button');
@@ -546,7 +568,11 @@
         (item.sub && !isCount(item.sub) ? '<p class="lede">' + esc(item.sub) + '</p>' : '') +
         chips(item, mod) + '</header>';
       doc.innerHTML = head + funcsTable(item) + '<div class="docbody">' + html + '</div>';
+      if (mod.id === 'py') { doc.className = 'doc py-doc'; }
       afterRender(doc);
+      if (mod.id === 'py' && window.LEARN_CODE) {
+        try { window.LEARN_CODE.decorate(doc); } catch (e) { }
+      }
       buildTOC(doc);
       renderPager(mod, item);
       enterAnim(doc);
@@ -599,7 +625,7 @@
       one(t);
     });
     if (isCount(item.sub)) c += '<span class="chipk">' + esc(item.sub) + '</span>';
-    if (mod.id === 'course') {
+    if (mod.id === 'course' || mod.id === 'py') {
       var isDone = !!LEARNED[item.id];
       c += '<span class="head-act"><button class="btn-done' + (isDone ? ' on' : '') + '" id="doneBtn" type="button">' +
            ICON.check + '<span>' + (isDone ? '已学' : '标记已学') + '</span></button></span>';
@@ -645,7 +671,7 @@
 
   /* ------------------------------------------------------------ 进度 */
   function paintProgress() {
-    var done = lessonsDone(), total = 60;
+    var done = lessonsDone(), total = lessonsTotal() || 60;
     $('#pgNum').textContent = done + ' / ' + total;
     $('#pgBar').style.width = (done / total * 100) + '%';
     var c = $('#cDone');
@@ -676,7 +702,7 @@
     if (!q) {
       // 默认：显示最近浏览 + 常用入口
       var h = '<div class="sov-g">最近浏览</div>';
-      if (!RECENT.length) h += '<div class="sov-e">输入关键词搜索 122 张算法卡片、60 节教程与全部计划章节。</div>';
+      if (!RECENT.length) h += '<div class="sov-e">输入关键词搜索 122 张算法卡片、60 节算竞教程、26 章 Python 语法与全部计划章节。</div>';
       RECENT.slice(0, 6).forEach(function (x) {
         h += '<a class="sov-i" href="#/' + x.id + '"><span class="sm">' + esc(x.mod) + '</span>' +
              '<span class="st">' + esc(x.title) + '</span></a>';

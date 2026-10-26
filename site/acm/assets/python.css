@@ -1,0 +1,78 @@
+/* ==========================================================================
+   python.css — Python 语法教程嵌进远端 SPA 外壳（#/py/<slug>）时的适配层
+   --------------------------------------------------------------------------
+   site/acm/assets/shell.css + content.css 负责外壳与 C++ 内容排版；
+   这里只补三件事：
+     1. 侧栏两个大分类（C++ 算法竞赛 / Python 语法教程）的分区标题；
+     2. learn.css / learn-code.css 需要的设计变量（外壳没定义的那几个）；
+     3. Python 章节片段在 .docbody 里的排版微调（不要 78ch 的窄栏）。
+   顺序：shell.css → content.css → learn.css → learn-code.css → python.css
+   ========================================================================== */
+
+/* ---------- 1. 侧栏分区标题 ---------- */
+.nv-sec {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 14px 6px 2px;
+  padding: 6px 0 2px;
+  font-size: 11.4px;
+  font-weight: 750;
+  letter-spacing: .1em;
+  color: var(--ink-4);
+  border-top: 1px solid var(--line);
+}
+.nv-sec:first-child { margin-top: 2px; border-top: 0; }
+.nv-sec::after {
+  content: "";
+  flex: 1 1 auto;
+  height: 1px;
+  background: linear-gradient(90deg, var(--line), transparent);
+}
+
+/* ---------- 2. learn.css / learn-code.css 依赖的变量 ---------- */
+.doc.py-doc {
+  --acm-nav-h: 60px;
+  --acm-ease: cubic-bezier(.22, .61, .36, 1);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --sh-1: 0 1px 2px rgba(0, 0, 0, .30);
+  --sh-2: 0 4px 16px rgba(0, 0, 0, .34);
+  --sh-3: 0 18px 46px rgba(0, 0, 0, .46);
+}
+html[data-theme="light"] .doc.py-doc {
+  --sh-1: 0 1px 2px rgba(15, 43, 85, .05), 0 1px 3px rgba(15, 43, 85, .04);
+  --sh-2: 0 4px 16px rgba(15, 43, 85, .07), 0 1px 3px rgba(15, 43, 85, .05);
+  --sh-3: 0 18px 46px rgba(15, 43, 85, .12), 0 4px 14px rgba(15, 43, 85, .06);
+}
+
+/* ---------- 3. Python 章节片段排版 ---------- */
+/* learn.css 给整页阅读优化过 78ch 栏宽；在外壳里列宽已经够窄，别再来一道 */
+.doc.py-doc .docbody > [data-learn-content] {
+  max-width: none;
+  font-size: 15.5px;
+}
+.doc.py-doc .docbody > [data-learn-content] > *:first-child { margin-top: 0; }
+
+/* 外壳的 .doc pre 会盖一层底和边框；深色卡片里由 learn-code.css 接管 */
+.doc.py-doc .lc-code pre,
+.doc.py-doc figure.code.lc-dark > pre {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+/* 外壳给所有 pre 右侧留了 34px 的复制按钮位；我们的按钮在角标条里 */
+.doc.py-doc .lc-code pre.has-copy { padding-top: 14px; }
+
+/* 代码卡整体别再叠外壳的圆角与阴影 */
+.doc.py-doc .lc-code,
+.doc.py-doc figure.code.lc-dark { box-shadow: none; }
+
+/* 表格：外壳的 .doc table 与本地的 .table-wrap 同存，去掉双边框 */
+.doc.py-doc .table-wrap { margin: 14px 0; }
+.doc.py-doc .table-wrap > table { margin: 0; }
+
+/* 页内目录（右侧 rail）沿用外壳样式即可，这里只压一下层级文字 */
+.doc.py-doc [data-learn-content] h2,
+.doc.py-doc [data-learn-content] h3 { scroll-margin-top: 24px; }

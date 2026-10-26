@@ -1,0 +1,555 @@
+<article data-learn-content>
+<p><strong>读完这一章你能做到</strong></p>
+
+<ul><li>手写 <code>wrapper(*args, **kwargs)</code> 把参数与返回值原样传递，不用背模板；</li><li>说清 <code>@deco</code> 展开成什么、装饰器主体在什么时刻执行一次；</li><li>用 <code>functools.wraps</code> 保住 <code>__name__</code>/<code>__doc__</code>，并解释不写会坏在哪里；</li><li>写出带参数的装饰器、类装饰器、重试装饰器；</li><li>判断多个装饰器的包装顺序与执行顺序。</li></ul>
+
+<hr>
+
+<h2 id="s13-1">13.1 从 <code>@</code> 展开说起</h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch13_01_basic.py</code></figcaption><pre class="py"><code>"""ch13_01_basic.py —— 装饰器到底做了什么"""
+
+
+def trace(fn):
+    def wrapper(*args, **kwargs):
+        print(f"  -&gt; 调用 {fn.__name__}{args}")
+        result = fn(*args, **kwargs)
+        print(f"  &lt;- 返回 {result!r}")
+        return result
+
+    return wrapper
+
+
+def add(a, b):
+    return a + b
+
+
+added = trace(add)
+print("手动包装的结果：", added(1, 2))
+
+
+@trace
+def mul(a, b):
+    return a * b
+
+
+print("语法糖包装的结果：", mul(3, 4))
+print("mul 现在指向的是：", mul.__name__)
+
+print("=== 装饰器在定义时执行一次，包装函数在调用时执行 ===")
+
+
+def loud(fn):
+    print("  装饰器主体运行，装饰了", fn.__name__)
+
+    def wrapper():
+        return fn().upper()
+
+    return wrapper
+
+
+print("准备定义 hello")
+
+
+@loud
+def hello():
+    return "hello"
+
+
+print("hello 定义完成")
+print("第一次调用：", hello())
+print("第二次调用：", hello())
+
+print("=== 多个装饰器：由下向上包装，由上向下执行 ===")
+
+
+def deco_a(fn):
+    def wrapper():
+        return "A(" + fn() + ")"
+
+    return wrapper
+
+
+def deco_b(fn):
+    def wrapper():
+        return "B(" + fn() + ")"
+
+    return wrapper
+
+
+@deco_a
+@deco_b
+def inner():
+    return "x"
+
+
+print(inner())
+
+print("=== 忘了 return 就会丢掉返回值 ===")
+
+
+def careless(fn):
+    def wrapper(*args, **kwargs):
+        fn(*args, **kwargs)
+
+    return wrapper
+
+
+@careless
+def get_answer():
+    return 42
+
+
+print("careless 包装后：", get_answer())</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>  -&gt; 调用 add(1, 2)
+  &lt;- 返回 3
+手动包装的结果： 3
+  -&gt; 调用 mul(3, 4)
+  &lt;- 返回 12
+语法糖包装的结果： 12
+mul 现在指向的是： wrapper
+=== 装饰器在定义时执行一次，包装函数在调用时执行 ===
+准备定义 hello
+  装饰器主体运行，装饰了 hello
+hello 定义完成
+第一次调用： HELLO
+第二次调用： HELLO
+=== 多个装饰器：由下向上包装，由上向下执行 ===
+A(B(x))
+=== 忘了 return 就会丢掉返回值 ===
+careless 包装后： None</code></pre></div></figure>
+
+<p>三条关键结论，逐条对上上面的输出：</p>
+
+<ol><li><strong><code>@trace</code> 之后，<code>mul</code> 这个名字已经指向 <code>wrapper</code></strong>，不再是原来的函数。所以 <code>mul.__name__</code> 印出来是 <code>wrapper</code>（13.2 用 <code>wraps</code> 修）。</li><li><strong>装饰器主体在定义时执行一次</strong>：<code>装饰器主体运行，装饰了 hello</code> 出现在 <code>准备定义 hello</code> 之后、<code>hello 定义完成</code> 之前。之后每次调用只跑 <code>wrapper</code> 内部。</li><li><strong>多个装饰器从下往上包装</strong>：<code>@deco_a</code> 在最上面反而最后执行——<code>@deco_a @deco_b def inner</code> 等价于 <code>inner = deco_a(deco_b(inner))</code>，所以结果是 <code>A(B(x))</code>。</li></ol>
+
+<pre class="pycon"><code>&gt;&gt;&gt; def deco(fn):
+...     def wrapper(*a, **kw):
+...         return fn(*a, **kw) + "!"
+...     return wrapper
+&gt;&gt;&gt; @deco
+... def hi():
+...     return "hi"
+&gt;&gt;&gt; hi()
+'hi!'
+&gt;&gt;&gt; hi.__name__
+'wrapper'</code></pre>
+
+<p>同步把 <code>@</code> 记成一行等式：<strong><code>@deco</code> ≡ <code>f = deco(f)</code></strong>。那么 <code>@deco("x")</code> 呢？等价于 <code>f = deco("x")(f)</code> —— 先调用 <code>deco("x")</code> 得到一个装饰器，再用它装饰 <code>f</code>。这就是"带参数装饰器要三层"的唯一原因。</p>
+
+<hr>
+
+<h2 id="s13-2">13.2 <code>functools.wraps</code>：别把函数身份弄丢</h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch13_02_wraps.py</code></figcaption><pre class="py"><code>"""ch13_02_wraps.py —— functools.wraps：保住被装饰函数的元数据"""
+import functools
+
+
+def no_wraps(fn):
+    def wrapper(*args, **kwargs):
+        return fn(*args, **kwargs)
+
+    return wrapper
+
+
+def with_wraps(fn):
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        return fn(*args, **kwargs)
+
+    return wrapper
+
+
+@no_wraps
+def alpha():
+    """alpha 的说明文档"""
+    return 1
+
+
+@with_wraps
+def beta():
+    """beta 的说明文档"""
+    return 2
+
+
+print("不加 wraps：name =", alpha.__name__, "| doc =", alpha.__doc__)
+print("加了 wraps：name =", beta.__name__, "| doc =", beta.__doc__)
+print("wraps 还补了 __wrapped__：", hasattr(beta, "__wrapped__"), beta.__wrapped__.__name__)
+
+print("=== 用函数属性计数：wraps 之后属性名不会串 ===")
+
+
+def counted(fn):
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        wrapper.calls += 1
+        return fn(*args, **kwargs)
+
+    wrapper.calls = 0
+    return wrapper
+
+
+@counted
+def ping():
+    return "pong"
+
+
+ping()
+ping()
+ping()
+print(ping.__name__, "被调用", ping.calls, "次")
+
+print("=== 标准库现成的装饰器：lru_cache ===")
+
+
+@functools.lru_cache(maxsize=None)
+def slow_square(n):
+    print("  真正计算", n)
+    return n * n
+
+
+print(slow_square(4))
+print(slow_square(4))
+print(slow_square(5))
+print(slow_square.cache_info())
+
+print("=== 类方法/静态方法本质上也是装饰器 ===")
+
+
+class Demo:
+    def method(self):
+        return "普通方法"
+
+    @staticmethod
+    def static():
+        return "静态方法不需要 self"
+
+    @property
+    def value(self):
+        return 100
+
+
+d = Demo()
+print(d.method(), "|", Demo.static(), "|", d.value)
+print("staticmethod 是装饰器函数：", type(Demo.__dict__["static"]).__name__)</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>不加 wraps：name = wrapper | doc = None
+加了 wraps：name = beta | doc = beta 的说明文档
+wraps 还补了 __wrapped__： True beta
+=== 用函数属性计数：wraps 之后属性名不会串 ===
+ping 被调用 3 次
+=== 标准库现成的装饰器：lru_cache ===
+  真正计算 4
+16
+16
+  真正计算 5
+25
+CacheInfo(hits=1, misses=2, maxsize=None, currsize=2)
+=== 类方法/静态方法本质上也是装饰器 ===
+普通方法 | 静态方法不需要 self | 100
+staticmethod 是装饰器函数： staticmethod</code></pre></div></figure>
+
+<p><code>functools.wraps</code> 是 <code>functools.update_wrapper</code> 的简写，它把 <code>__module__</code>、<code>__name__</code>、<code>__qualname__</code>、<code>__doc__</code>、<code>__dict__</code> 一并拷到 wrapper 上，并额外设置 <code>__wrapped__</code> 指回原函数。不写的代价很具体：</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>不问 <code>wraps</code> 就会坏的场景</th>
+<th>表现</th>
+</tr></thead>
+<tbody>
+<tr><td>日志/追踪</td><td>日志里全是 <code>wrapper</code>，看不出是谁被调用</td></tr>
+<tr><td><code>functools.lru_cache</code> 叠加顺序</td><td>缓存键正确，但报错信息里函数名丢失</td></tr>
+<tr><td><code>inspect.signature</code> / 自动生成文档</td><td>拿到的签名是 <code>(*args, **kwargs)</code></td></tr>
+<tr><td>pytest 收集用例</td><td>测试函数名变成 <code>wrapper</code>，用例互相覆盖</td></tr>
+<tr><td><code>pickle</code> / <code>multiprocessing</code></td><td>拿不到真实 <code>__qualname__</code>，序列化失败</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box tip"><p><code>@functools.wraps(fn)</code> 写在<strong>内层 wrapper 定义之前</strong>，不要漏。这是唯一一个"照抄模板也必须保留"的装饰器。</p></div>
+
+<p><code>slow_square.cache_info()</code> 输出 <code>CacheInfo(hits=1, misses=1, maxsize=None, currsize=1)</code>：<code>4</code> 命中一次缓存、<code>5</code> 未命中，说明缓存按<strong>参数</strong>做键，且第二次调用没有真正计算（没有打印"真正计算 4"）。</p>
+
+<p><code>staticmethod</code>/<code>classmethod</code>/<code>property</code> 本身就是装饰器——<code>Demo.__dict__["static"]</code> 的类型是 <code>staticmethod</code>，说明它们把函数替换成了一个描述符对象。第 18 章细讲。</p>
+
+<hr>
+
+<h2 id="s13-3">13.3 带参数的装饰器 = 三层函数</h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch13_03_params.py</code></figcaption><pre class="py"><code>"""ch13_03_params.py —— 带参数的装饰器（三层函数）、类装饰器、重试"""
+import functools
+
+
+def repeat(times):
+    def decorator(fn):
+        @functools.wraps(fn)
+        def wrapper(*args, **kwargs):
+            return [fn(*args, **kwargs) for _ in range(times)]
+
+        return wrapper
+
+    return decorator
+
+
+@repeat(3)
+def say(msg):
+    return msg
+
+
+print(say("hi"))
+
+
+@repeat(1)
+def once(x):
+    return x
+
+
+print(once(7))
+
+
+def retry(times, exceptions=(ValueError,)):
+    def decorator(fn):
+        @functools.wraps(fn)
+        def wrapper(*args, **kwargs):
+            for attempt in range(1, times + 1):
+                try:
+                    return f"{fn(*args, **kwargs)}（第 {attempt} 次成功）"
+                except exceptions as e:
+                    if attempt == times:
+                        return f"全部失败：{type(e).__name__}"
+
+        return wrapper
+
+    return decorator
+
+
+calls = {"n": 0}
+
+
+@retry(3)
+def flaky():
+    calls["n"] += 1
+    if calls["n"] &lt; 3:
+        raise ValueError("还没准备好")
+    return "OK"
+
+
+print(flaky())
+print("flaky 实际被调用", calls["n"], "次")
+
+calls2 = {"n": 0}
+
+
+@retry(2)
+def always_bad():
+    calls2["n"] += 1
+    raise ValueError("永远失败")
+
+
+print(always_bad())
+print("always_bad 实际被调用", calls2["n"], "次")
+
+print("=== 类装饰器：实现 __call__ 的实例可以当装饰器 ===")
+
+
+class Tag:
+    def __init__(self, name):
+        self.name = name
+
+    def __call__(self, fn):
+        @functools.wraps(fn)
+        def wrapper(*args, **kwargs):
+            return f"&lt;{self.name}&gt;{fn(*args, **kwargs)}&lt;/{self.name}&gt;"
+
+        return wrapper
+
+
+@Tag("b")
+def bold(text):
+    return text
+
+
+print(bold("粗体"))
+print("名字仍是：", bold.__name__)
+
+print("=== 装饰器叠加：计时 + 日志 ===")
+log = []
+
+
+def logged(fn):
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        log.append(fn.__name__)
+        return fn(*args, **kwargs)
+
+    return wrapper
+
+
+def doubled(fn):
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        return fn(*args, **kwargs) * 2
+
+    return wrapper
+
+
+@logged
+@doubled
+def base(n):
+    return n + 1
+
+
+print(base(3))
+print("日志：", log)</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>['hi', 'hi', 'hi']
+[7]
+OK（第 3 次成功）
+flaky 实际被调用 3 次
+全部失败：ValueError
+always_bad 实际被调用 2 次
+=== 类装饰器：实现 __call__ 的实例可以当装饰器 ===
+&lt;b&gt;粗体&lt;/b&gt;
+名字仍是： bold
+=== 装饰器叠加：计时 + 日志 ===
+8
+日志： ['base']</code></pre></div></figure>
+
+<p>三层的职责分工，记住这张表就不会写乱：</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>层</th>
+<th>例子里的名字</th>
+<th>拿到什么</th>
+<th>返回什么</th>
+<th>何时执行</th>
+</tr></thead>
+<tbody>
+<tr><td>第 1 层</td><td><code>repeat(times)</code></td><td>装饰器<strong>参数</strong></td><td>装饰器</td><td><code>@repeat(3)</code> 求值时</td></tr>
+<tr><td>第 2 层</td><td><code>decorator(fn)</code></td><td><strong>被装饰的函数</strong></td><td>wrapper</td><td>函数定义时</td></tr>
+<tr><td>第 3 层</td><td><code>wrapper(*args)</code></td><td><strong>调用参数</strong></td><td>调用的结果</td><td>每次调用</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><code>retry</code> 演示了参数化装饰器最实用的形态：<code>attempt</code> 循环、异常白名单用元组参数传、最后一次失败不再抛而是返回失败信息。注意 <code>except exceptions as e</code> 里只做判定，<code>return</code> 在循环内——不要在循环外写 <code>else</code>，否则第一次成功也会被继续循环。</p>
+
+<p><strong>类装饰器</strong>：只要一个对象实现了 <code>__call__</code>，它就是可调用对象，就能当装饰器。<code>@Tag("b")</code> 先构造实例（记住 <code>name</code>），实例被调用时再装饰函数。状态放在实例属性里，比闭包更直观——这就是"状态多就用类"的具体体现。</p>
+
+<p><strong>执行顺序</strong>：<code>@logged @doubled def base</code> → <code>base(3)</code> 得 <code>(3+1)*2 = 8</code>；outer <code>logged</code> 先记日志再调用，所以 <code>log</code> 是 <code>['base']</code>（<code>wraps</code> 让 <code>fn.__name__</code> 仍是 <code>base</code>，而不是 <code>wrapper</code>）。</p>
+
+<hr>
+
+<h2 id="s13-4">13.4 什么时候不该用装饰器</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>场景</th>
+<th>问题</th>
+<th>更好的做法</th>
+</tr></thead>
+<tbody>
+<tr><td>只在一个函数上用一次</td><td>多了一层调用栈和阅读成本</td><td>直接写在内联代码里</td></tr>
+<tr><td>装饰器里改了参数语义（如悄悄加默认值）</td><td>调用方看不出来，调试极痛</td><td>显式参数</td></tr>
+<tr><td>需要访问 <code>self</code> 的实例状态</td><td>函数装饰器拿不到 <code>self</code> 之外的东西</td><td>写类方法 / 用描述符</td></tr>
+<tr><td>异步函数</td><td>普通 wrapper 会把协程包成同步函数，返回 coroutine 而非结果</td><td><code>async def wrapper</code> 并 <code>await</code></td></tr>
+<tr><td>大量小函数都加同一装饰器</td><td>每次调用多一次 Python 层函数调用</td><td>性能敏感路径改用内联写法</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>异步装饰器是新手最容易翻车的一条：</p>
+
+<pre class="out"><code>def bad_deco(fn):                 # ✗ 对 async def 用同步 wrapper
+    def wrapper(*a, **kw):
+        return fn(*a, **kw)       # 返回的是 coroutine，没 await
+    return wrapper
+
+def good_deco(fn):                # ✓
+    @functools.wraps(fn)
+    async def wrapper(*a, **kw):
+        return await fn(*a, **kw)
+    return wrapper</code></pre>
+
+<hr>
+
+<h2 id="s13-5">13.5 与 C++ 的差别</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>维度</th>
+<th>C++</th>
+<th>Python</th>
+</tr></thead>
+<tbody>
+<tr><td>是什么</td><td>编译期语法糖 / 元编程</td><td>运行期的高阶函数</td></tr>
+<tr><td>作用对象</td><td>类、函数、变量（attribute/declspec）</td><td>任何可调用对象（函数、类、实例）</td></tr>
+<tr><td>执行时机</td><td>编译期展开</td><td>定义函数时执行一次</td></tr>
+<tr><td>能否改签名</td><td>不能</td><td>能（wrapper 可以任意改）</td></tr>
+<tr><td>类型检查</td><td>模板推导在编译期</td><td>运行期无签名约束</td></tr>
+<tr><td>典型用途</td><td><code>[[nodiscard]]</code>、<code>@property</code> 类比</td><td>日志、缓存、重试、权限、计时</td></tr>
+</tbody>
+</table>
+</div>
+
+<hr>
+
+<h2 id="s13-6">13.6 易错点清单</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>现象</th>
+<th>原因</th>
+<th>一行修复</th>
+</tr></thead>
+<tbody>
+<tr><td>被装饰函数返回 <code>None</code></td><td>wrapper 忘了 <code>return fn(...)</code></td><td>补 <code>return</code></td></tr>
+<tr><td>只能传固定参数的函数</td><td>wrapper 写死 <code>def wrapper()</code></td><td>用 <code>*args, **kwargs</code></td></tr>
+<tr><td>日志里全是 <code>wrapper</code></td><td>没用 <code>functools.wraps</code></td><td>内层加 <code>@functools.wraps(fn)</code></td></tr>
+<tr><td><code>@deco(3)</code> 报 <code>TypeError: 'int' object is not callable</code></td><td>把参数化装饰器写成了两层</td><td>加一层，返回 <code>decorator</code></td></tr>
+<tr><td><code>@deco</code> 加参数化版本直接写 <code>@deco</code>（不调用）</td><td><code>deco</code> 返回的是 decorator 而不是 wrapper</td><td>必须写 <code>@deco()</code></td></tr>
+<tr><td>多装饰器顺序搞反</td><td>以为从上往下包</td><td>从下往上包装</td></tr>
+<tr><td>缓存不生效</td><td><code>lru_cache</code> 放在了会变参数的装饰器外层</td><td>让 <code>lru_cache</code> <strong>紧贴</strong>原函数（写在最下面）</td></tr>
+<tr><td>异步函数变 coroutine</td><td>同步 wrapper</td><td><code>async def wrapper</code> + <code>await</code></td></tr>
+<tr><td>装饰器在导入时就打印了</td><td>主体代码写在外层</td><td>把副作用移进 wrapper</td></tr>
+</tbody>
+</table>
+</div>
+
+<hr>
+
+<h2 id="s13-7">13.7 练习</h2>
+
+<p><strong>1.（基础）</strong> 写 <code>@log_calls</code>，每次调用打印 <code>函数名 参数 返回值</code>，并要求保留原函数名与文档字符串。</p>
+
+<p>验收：<code>print(f.__name__, f.__doc__)</code> 输出原函数的名称与文档；调用两次打印两行。</p>
+
+<p><strong>2.（基础）</strong> 写 <code>@once</code>：被装饰函数无论调用多少次，只真正执行一次，之后返回第一次的结果。</p>
+
+<p>验收：连调 3 次，内部计数器显示只执行 1 次，三次返回值相同。</p>
+
+<p><strong>3.（参数化）</strong> 写 <code>@repeat(n)</code>，把函数调用结果重复 n 次收进列表返回；<code>n=1</code> 时列表长度为 1。</p>
+
+<p>验收：<code>@repeat(3) def f(x): return x*2</code>，<code>f(5)</code> 得到 <code>[10, 10, 10]</code>。</p>
+
+<p><strong>4.（变式）</strong> 写 <code>@retry(times=3, delay=0)</code> 装饰器：函数抛 <code>ValueError</code> 时重试，最多 <code>times</code> 次；全部失败则把最后一次异常继续抛出（不是吞掉）。用一个前两次失败、第三次成功的函数验证。</p>
+
+<p>验收：函数实际被调用 3 次并返回成功值；另写一个永远失败的函数，确认最终抛出 <code>ValueError</code>。</p>
+
+<p><strong>5.（挑战）</strong> 写一个能同时用于同步函数和 <code>async def</code> 函数的 <code>@timed</code> 装饰器：判断 <code>inspect.iscoroutinefunction(fn)</code> 走两条分支，打印每次调用的耗时（用 <code>time.perf_counter()</code>，只打印"耗时 X 毫秒"的格式，不要把数字写死进预期）。再用 <code>pytest</code> 或 <code>unittest</code> 给 <code>repeat</code> 和 <code>retry</code> 各写一个用例（第 24 章会系统讲测试）。</p>
+
+<p>验收：同步函数与 <code>async def</code> 函数都能被装饰且都打印耗时；两个测试用例通过。</p>
+
+<hr>
+
+<h2 id="s13-8">13.8 小结</h2>
+
+<ol><li><strong><code>@deco</code> = <code>f = deco(f)</code></strong>，装饰器主体在定义时执行一次，wrapper 在每次调用时执行。</li><li><strong>wrapper 必须 <code>return fn(*args, **kwargs)</code></strong>，内层必须 <code>@functools.wraps(fn)</code>。</li><li><strong>带参数的装饰器是三层</strong>：参数层 → 收函数层 → 收调用参数层；多个装饰器从下往上包。</li></ol>
+
+<p>装饰器之所以能工作，靠的是"函数能看见外层名字"这条规则。下一章把这条规则彻底讲清：作用域与 LEGB——为什么在函数里给全局变量赋值会 <code>UnboundLocalError</code>、<code>global</code> 与 <code>nonlocal</code> 的边界在哪。</p>
+
+    
+
+    
+</article>

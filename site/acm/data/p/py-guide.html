@@ -1,0 +1,205 @@
+<article data-learn-content>
+<h2 id="s0-1">0.1 这套教程面向谁</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>你的情况</th>
+<th>建议路线</th>
+<th>预计投入</th>
+</tr></thead>
+<tbody>
+<tr><td>完全零基础，没写过任何语言</td><td>按 01 → 26 顺序读，第 8 章前不要跳</td><td>6 周，每周 4～5 章</td></tr>
+<tr><td>会 C++/Java，只想学 Python 的"不一样"</td><td>精读 01、03、06、10、12、13、18、20，其余按目录跳读</td><td>2 周</td></tr>
+<tr><td>会写脚本，但要补工程能力</td><td>直接从 19 章（模块）、21 章（标准库）、22 章（并发）、23 章（依赖）、24 章（测试）、25 章（调试）读</td><td>1 周</td></tr>
+<tr><td>带学生/带新人</td><td>用每章"读完这章你能做到"当教学目标，"易错点清单"当作业批改表</td><td>按课时切分</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>先做个判断：如果你能读懂下面这段并说出输出，说明你该从第 3 章开始；如果看不太懂，从第 1 章老实走。</p>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/guide_closure_demo.py</code></figcaption><pre class="py"><code>def make_counter():
+    count = 0
+
+    def step():
+        nonlocal count
+        count += 1
+        return count
+
+    return step
+
+
+c = make_counter()
+print(c(), c())</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>1 2</code></pre></div></figure>
+
+<p>答案与原因在第 12 章（闭包）。看不懂也没关系——这套教程就是从"看不懂这一行"开始的。</p>
+
+<h2 id="s0-2">0.2 26 章地图</h2>
+
+<p>四段递进，每段结束后你都应该能独立完成一件具体的事。</p>
+
+<p><strong>第一段：语言骨架（01～07）</strong>——把"一行代码怎么被执行"到"数据怎么组织"讲透。</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>章</th>
+<th>标题</th>
+<th>学完能做什么</th>
+<th>建议</th>
+</tr></thead>
+<tbody>
+<tr><td>01</td><td>环境与解释器</td><td>说清 CPython 怎么跑、<code>.pyc</code> 从哪来、<code>__name__</code> 守卫干什么</td><td>1 天</td></tr>
+<tr><td>02</td><td>缩进与基础语法</td><td>写出不会被缩进报错打断的脚本，掌握 <code>print(sep,end)</code> 与标准输入模板</td><td>1 天</td></tr>
+<tr><td>03</td><td>变量与数据类型</td><td>讲清"名字绑定对象"，解释 <code>0.1+0.2</code>、<code>is</code>/<code>==</code>、浅拷贝</td><td>2 天</td></tr>
+<tr><td>04</td><td>运算符</td><td>分清 <code>/</code>、<code>//</code>、<code>%</code> 的负数规则与 <code>and/or</code> 返回操作数</td><td>1 天</td></tr>
+<tr><td>05</td><td>字符串</td><td>用 f-string 格式表精确控制输出，说清字符与字节</td><td>2 天</td></tr>
+<tr><td>06</td><td>列表/元组/字典/集合</td><td>按"要不要改、要不要查、要不要序"选容器</td><td>2 天</td></tr>
+<tr><td>07</td><td>切片</td><td>用半开区间与负步长写出不会越界的取子序列</td><td>1 天</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>第二段：表达力（08～15）</strong>——从"写得对"到"写得简洁"。</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>章</th>
+<th>标题</th>
+<th>学完能做什么</th>
+<th>建议</th>
+</tr></thead>
+<tbody>
+<tr><td>08</td><td>流程控制</td><td>用 <code>match/case</code>、<code>for/while else</code>、真值规则替代多层 if</td><td>2 天</td></tr>
+<tr><td>09</td><td>推导式</td><td>把循环+append 改写成一行，并知道何时不该用</td><td>1 天</td></tr>
+<tr><td>10</td><td>函数与参数</td><td>设计出调用方不会传错的签名（<code>*</code>、<code>/</code>、默认值）</td><td>2 天</td></tr>
+<tr><td>11</td><td>lambda</td><td>用 <code>key=</code>、<code>itemgetter</code>、<code>sorted</code> 组合出排序与分组</td><td>1 天</td></tr>
+<tr><td>12</td><td>闭包</td><td>用闭包做配置工厂、限次调用，并解释 <code>nonlocal</code></td><td>2 天</td></tr>
+<tr><td>13</td><td>装饰器</td><td>写出带参数、带 <code>wraps</code>、能缓存的装饰器</td><td>2 天</td></tr>
+<tr><td>14</td><td>作用域与 LEGB</td><td>三分钟定位 <code>UnboundLocalError</code> 与名字遮蔽</td><td>1 天</td></tr>
+<tr><td>15</td><td>迭代器与生成器</td><td>用 <code>yield</code> 把"一次算完"改成"按需算"，处理大文件</td><td>2 天</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>第三段：结构化能力（16～20）</strong>——写"别人能改"的代码。</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>章</th>
+<th>标题</th>
+<th>学完能做什么</th>
+<th>建议</th>
+</tr></thead>
+<tbody>
+<tr><td>16</td><td>异常处理</td><td>设计异常层次，用 <code>from e</code> 保留根因，写出正确清理逻辑</td><td>2 天</td></tr>
+<tr><td>17</td><td>文件 IO 与 pathlib</td><td>读写文本/二进制、跨平台路径、原子写入</td><td>2 天</td></tr>
+<tr><td>18</td><td>面向对象</td><td>类/继承/MRO/魔术方法/dataclass/property 全用对</td><td>3 天</td></tr>
+<tr><td>19</td><td>模块与包</td><td>摆出不会被循环导入搞坏的项目结构</td><td>2 天</td></tr>
+<tr><td>20</td><td>类型注解与 typing</td><td>注解 + mypy 让 IDE 帮你抓一半的错</td><td>2 天</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>第四段：工程化（21～26）</strong>——从"能跑"到"能维护、能上线"。</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>章</th>
+<th>标题</th>
+<th>学完能做什么</th>
+<th>建议</th>
+</tr></thead>
+<tbody>
+<tr><td>21</td><td>常用标准库</td><td>13 个模块的常用面，遇到问题先想"标准库有没有"</td><td>3 天</td></tr>
+<tr><td>22</td><td>并发</td><td>按"I/O 密集 vs CPU 密集"选线程/进程/协程</td><td>3 天</td></tr>
+<tr><td>23</td><td>虚拟环境与 pip</td><td>每个项目一个环境，依赖可复现</td><td>1 天</td></tr>
+<tr><td>24</td><td>测试</td><td>unittest/pytest 写出可回归的用例，覆盖边界</td><td>2 天</td></tr>
+<tr><td>25</td><td>调试与性能</td><td>读 traceback、<code>cProfile</code> 找热点、<code>tracemalloc</code> 找泄漏</td><td>2 天</td></tr>
+<tr><td>26</td><td>新手常见坑</td><td>交付前用 20 条清单自查</td><td>1 天</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="s0-3">0.3 两条路线</h2>
+
+<p><strong>六周标准路线</strong>（每周 5 天，每天 1～2 小时）：每周一段 + 周末做该段练习的综合题。适合零基础与转语言。</p>
+
+<p><strong>三周速通路线</strong>（每天 2 章，只做每章前 3 道练习）：第 1 周 01～09，第 2 周 10～18，第 3 周 19～26。适合已有编程经验、要在项目里马上用的人。速通时<strong>不要跳过</strong> 03、06、10、18 四章——它们解释了 Python 与你原有语言差异最大的地方。</p>
+
+<h2 id="s0-4">0.4 每一章怎么读</h2>
+
+<ol><li><strong>先读"本质"和"读完这章你能做到"</strong>（10 秒）。前者是一句话的模型，后者是验收标准。</li><li><strong>手打代码，不要复制</strong>。<code>pycon</code> 块（<code>&gt;&gt;&gt;</code> 开头）请逐行敲进 REPL，边敲边对输出——打错时的报错本身就是学习内容。</li><li><strong>跑整段脚本</strong>。带 <code># 示例：examples/xxx.py</code> 的块都是完整脚本，在 <code>examples/</code> 下有同名文件，直接 <code>python examples/xxx.py</code> 就能复现文中的输出。</li><li><strong>做完 5 道练习再看"小结"</strong>。练习分基础×3、变式×1、挑战×1，每题给了"验收"标准，能自己判断对错。</li><li><strong>过一遍"易错点清单"</strong>，把不确定的条目记下来，下次写代码前回看。</li></ol>
+
+<div class="box tip"><p>每章的"与 C++ 的差别"表不是给你背的，是给你<strong>改习惯</strong>的。会 C++ 的人写 Python 最常见的错法，都是把 C++ 的语义搬过来——比如以为 <code>b = a</code> 会复制、以为 <code>for</code> 变量出了循环就没了、以为 <code>is</code> 是 <code>==</code>。</p></div>
+
+<h2 id="s0-5">0.5 环境准备（10 分钟）</h2>
+
+<ol><li><strong>装 Python 3.10 以上</strong>（本教程示例在 CPython 3.14 实测，标注了版本的新特性需要对应版本）。命令行执行：</li></ol>
+
+<pre class="shell"><code>python --version</code></pre>
+
+<p>应输出 <code>Python 3.10.x</code> 或更高。Windows 上如果提示找不到命令，装的时候要勾选 "Add python.exe to PATH"。</p>
+
+<ol><li><strong>进交互式解释器</strong>试一行：</li></ol>
+
+<pre class="shell"><code>python -c "print(2 ** 100)"</code></pre>
+
+<ol><li><strong>建一个练习目录 + 虚拟环境</strong>（第 23 章详讲，现在先会用）：</li></ol>
+
+<pre class="shell"><code>mkdir py-learn
+cd py-learn
+python -m venv .venv</code></pre>
+
+<p>激活：Windows 用 <code>.venv\Scripts\activate</code>，macOS/Linux 用 <code>source .venv/bin/activate</code>。看到提示符前面出现 <code>(.venv)</code> 就对了。</p>
+
+<ol><li><strong>建议装两个工具</strong>（可选，但强烈推荐）：</li></ol>
+
+<pre class="shell"><code>python -m pip install --upgrade pip
+python -m pip install mypy pytest</code></pre>
+
+<p><code>mypy</code> 配合第 20 章，<code>pytest</code> 配合第 24 章。</p>
+
+<div class="box warn"><p>不要用 <code>pip install</code>，用 <code>python -m pip install</code>。裸 <code>pip</code> 可能指向另一个 Python，装完在当前的解释器里 <code>import</code> 不到——这是第 23 章的第一条坑。</p></div>
+
+<h2 id="s0-6">0.6 卡住了怎么办</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>症状</th>
+<th>先查哪一章</th>
+</tr></thead>
+<tbody>
+<tr><td><code>IndentationError</code> / <code>TabError</code></td><td>02（缩进四种错误）</td></tr>
+<tr><td><code>TypeError: can only concatenate str...</code></td><td>05、26（无隐式转换）</td></tr>
+<tr><td><code>'NoneType' object is not subscriptable</code></td><td>03（函数没 <code>return</code>）</td></tr>
+<tr><td>列表改一处全变了</td><td>03、26（别名与浅拷贝）</td></tr>
+<tr><td>函数结果一次比一次长</td><td>10、26（可变默认参数）</td></tr>
+<tr><td><code>UnboundLocalError</code></td><td>14（LEGB）</td></tr>
+<tr><td><code>UnicodeDecodeError</code> / 乱码</td><td>17（编码）</td></tr>
+<tr><td><code>cannot import name ...</code></td><td>19（循环导入）</td></tr>
+<tr><td>程序卡住不动</td><td>22（死锁/阻塞事件循环）、25（断点）</td></tr>
+<tr><td>数据一大就慢</td><td>25（剖析）、26（性能反模式）</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>排查顺序永远是三步：<strong>读 traceback 最后一行 → 定位自己写的那一帧 → 用最小可复现例子验证</strong>。第 25 章 25.1 节有完整的四步读法。</p>
+
+<h2 id="s0-7">0.7 学完的标志</h2>
+
+<p>不用考试，用这五件事自测。能做到，说明这套内容真的学进去了：</p>
+
+<ol><li>给一段 50 行的陌生 Python 代码，能说出每行在做什么、哪些地方藏着可变对象共享的隐患。</li><li>让你写一个"读大文件、按字段分组统计、输出 JSON"的脚本，你会自然地用生成器逐行读、<code>dict</code> 分组、<code>json.dump</code> 写出，而不是全读进内存。</li><li>程序报错时，你先看 traceback 最后一行，而不是从头往下读。</li><li>设计一个函数签名时，你会主动用 <code>*</code> 分隔仅关键字参数，并给可变容器加 <code>None</code> 哨兵。</li><li>交付前，你会跑测试、过一遍第 26 章的自查表。</li></ol>
+
+<p>下一步：打开 <code>01-environment-and-interpreter.md</code>，从"一行 Python 到底是怎么跑起来的"开始。</p>
+
+    
+
+    
+</article>

@@ -1,0 +1,634 @@
+<article data-learn-content>
+<p><strong>读完这一章你能做到</strong></p>
+
+<ol><li>拿到需求先想「标准库里有没有」，而不是先装第三方包。</li><li>用 <code>json</code> 在字符串与数据结构间往返，并说得清 <code>ensure_ascii</code> 与错误位置。</li><li>用 <code>datetime</code> 算日期差、做格式化与解析，并知道 naive/aware 混用会抛什么。</li><li>用 <code>collections</code> 与 <code>itertools</code> 把「手写循环+字典」压缩成两行，且知道它们都是惰性的。</li><li>用 <code>argparse</code>、<code>logging</code>、<code>subprocess</code> 写出一支像样的命令行脚本。</li></ol>
+
+<h2 id="s21-1">21.1 标准库地图</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>模块</th>
+<th>一句话</th>
+<th>最常用</th>
+<th>常见坑</th>
+</tr></thead>
+<tbody>
+<tr><td><code>os</code></td><td>操作系统接口</td><td><code>path.join</code>、<code>environ</code>、<code>makedirs</code></td><td>路径拼接用 <code>+</code> 丢分隔符</td></tr>
+<tr><td><code>sys</code></td><td>解释器自身</td><td><code>argv</code>、<code>version_info</code>、<code>path</code>、<code>stdin</code></td><td><code>sys.exit(0)</code> 的 0 是成功</td></tr>
+<tr><td><code>datetime</code></td><td>日期时间</td><td><code>date</code>/<code>datetime</code>/<code>timedelta</code></td><td>naive 与 aware 混算</td></tr>
+<tr><td><code>json</code></td><td>JSON 读写</td><td><code>dumps</code>/<code>loads</code>/<code>dump</code>/<code>load</code></td><td>中文被转义、<code>datetime</code> 不可序列化</td></tr>
+<tr><td><code>re</code></td><td>正则</td><td><code>findall</code>/<code>sub</code>/<code>match</code>/<code>compile</code></td><td>忘记 <code>r""</code>、贪婪匹配</td></tr>
+<tr><td><code>collections</code></td><td>增强容器</td><td><code>Counter</code>/<code>defaultdict</code>/<code>deque</code></td><td><code>defaultdict</code> 读一下也会插入</td></tr>
+<tr><td><code>itertools</code></td><td>迭代器工具</td><td><code>accumulate</code>/<code>groupby</code>/<code>product</code></td><td><code>groupby</code> 必须先排序</td></tr>
+<tr><td><code>functools</code></td><td>函数工具</td><td><code>lru_cache</code>/<code>reduce</code>/<code>partial</code></td><td>缓存参数必须可哈希</td></tr>
+<tr><td><code>math</code></td><td>数学函数</td><td><code>isclose</code>/<code>gcd</code>/<code>comb</code>/<code>inf</code></td><td>浮点用 <code>==</code> 比较</td></tr>
+<tr><td><code>random</code></td><td>伪随机</td><td><code>randint</code>/<code>choice</code>/<code>shuffle</code></td><td>用它生成密码/令牌</td></tr>
+<tr><td><code>argparse</code></td><td>命令行参数</td><td><code>add_argument</code>/<code>parse_args</code></td><td>必填参数缺失直接 <code>SystemExit(2)</code></td></tr>
+<tr><td><code>logging</code></td><td>日志</td><td><code>getLogger</code>/<code>basicConfig</code></td><td>用 <code>print</code> 调试后忘了删</td></tr>
+<tr><td><code>subprocess</code></td><td>起子进程</td><td><code>run(...capture_output=True)</code></td><td>不检查 <code>returncode</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="s21-2">21.2 <code>os</code> 与 <code>sys</code>：和外界打交道</h2>
+
+<p>第 17 章已经用 <code>pathlib</code> 做路径操作，<code>os.path</code> 只在维护老代码时才用——两套 API 混着写最容易出错。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import os, sys
+&gt;&gt;&gt; os.path.join("a", "b") == "a" + os.sep + "b"
+True
+&gt;&gt;&gt; os.path.splitext("report.tar.gz")
+('report.tar', '.gz')
+&gt;&gt;&gt; sys.version_info &gt;= (3, 10)
+True</code></pre>
+
+<p><code>os.sep</code> 在 Windows 上是 <code>\</code>、Linux 上是 <code>/</code>，所以「手写 <code>"/"</code> 拼路径」在 Windows 上也能跑（Windows 接受 <code>/</code>），但 <code>os.path.join</code> 与 <code>Path / "x"</code> 才是唯一正确的做法。</p>
+
+<p><code>sys</code> 里最该记住的四个属性：</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>属性</th>
+<th>用途</th>
+<th>注意</th>
+</tr></thead>
+<tbody>
+<tr><td><code>sys.argv</code></td><td>命令行参数列表，<code>argv[0]</code> 是脚本名</td><td>自己解析太脆弱，用 <code>argparse</code></td></tr>
+<tr><td><code>sys.version_info</code></td><td>版本元组，可比较</td><td>判断特性用 <code>&gt;= (3, 10)</code></td></tr>
+<tr><td><code>sys.path</code></td><td>模块搜索路径列表</td><td>可以 append，但别在库代码里干</td></tr>
+<tr><td><code>sys.stdin/stdout/stderr</code></td><td>标准流</td><td>重定向测试时替换它</td></tr>
+</tbody>
+</table>
+</div>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch21_03_sys_time_math.py</code></figcaption><pre class="py"><code>import math
+import os
+import sys
+from datetime import date, datetime, timedelta, timezone
+
+print(sys.version_info[:2] &gt;= (3, 10), sys.platform, sys.getrecursionlimit())
+print(os.path.join("data", "out.txt") == "data" + os.sep + "out.txt")
+print(os.path.basename("/a/b/c.txt"), os.path.splitext("c.txt"))
+
+d = date(2024, 2, 29)
+print(d, d.weekday(), d.isoformat())
+print((date(2024, 3, 1) - date(2024, 2, 1)).days)
+print(date(2024, 1, 31) + timedelta(days=1))
+
+dt = datetime(2024, 1, 1, 9, 30)
+print(dt + timedelta(hours=2, minutes=45))
+print(dt.strftime("%Y/%m/%d %H:%M:%S"))
+print(datetime.strptime("2024-03-05 08:00", "%Y-%m-%d %H:%M"))
+
+utc = datetime(2024, 1, 1, tzinfo=timezone.utc)
+print(utc.astimezone(timezone(timedelta(hours=8))).isoformat())
+print(datetime(2024, 1, 1) == datetime(2024, 1, 1, tzinfo=timezone.utc))
+
+print(math.isclose(0.1 + 0.2, 0.3), 0.1 + 0.2 == 0.3)
+print(math.gcd(12, 18), math.lcm(4, 6), math.factorial(5))
+print(math.comb(5, 2), math.perm(5, 2))
+print(math.floor(-2.5), math.ceil(-2.5), math.trunc(-2.5))
+print(math.inf &gt; 1e308, math.isnan(float("nan")), float("nan") == float("nan"))
+print(math.hypot(3, 4), math.sqrt(16), math.log2(8), math.log(100, 10))
+print(round(math.pi, 4), round(math.e, 4))</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>True win32 1000
+True
+c.txt ('c', '.txt')
+2024-02-29 3 2024-02-29
+29
+2024-02-01
+2024-01-01 12:15:00
+2024/01/01 09:30:00
+2024-03-05 08:00:00
+2024-01-01T08:00:00+08:00
+False
+True False
+6 12 120
+10 20
+-3 -2 -2
+True True False
+5.0 4.0 3.0 2.0
+3.1416 2.7183</code></pre></div></figure>
+
+<h2 id="s21-3">21.3 <code>datetime</code>：三个类型，一条时间线</h2>
+
+<p><code>date</code>（年月日）、<code>time</code>（时分秒）、<code>datetime</code>（两者之和）、<code>timedelta</code>（时长）。做算术只会用到后两个：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; from datetime import date, datetime, timedelta, timezone
+&gt;&gt;&gt; date(2024, 1, 31) + timedelta(days=1)
+datetime.date(2024, 2, 1)
+&gt;&gt;&gt; datetime(2024, 1, 1, 9, 30) + timedelta(minutes=45)
+datetime.datetime(2024, 1, 1, 10, 15)
+&gt;&gt;&gt; datetime(2024, 1, 1) - datetime(2023, 12, 31)
+datetime.timedelta(days=1)</code></pre>
+
+<p>跨月加法是<strong>真的日历运算</strong>（1 月 31 日 + 1 天 = 2 月 1 日），不是「加 86400 秒」——夏令时切换那天两者会差一小时。</p>
+
+<p>格式化与解析是一对互逆操作，格式串写错会直接抛 <code>ValueError</code>：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; from datetime import date, datetime, timedelta, timezone
+&gt;&gt;&gt; datetime(2024, 3, 5, 8, 0).strftime("%Y-%m-%d %H:%M")
+'2024-03-05 08:00'
+&gt;&gt;&gt; datetime.strptime("2024-03-05", "%Y-%m-%d").date()
+datetime.date(2024, 3, 5)
+&gt;&gt;&gt; date(2024, 1, 1).weekday(), date(2024, 1, 1).isoweekday()
+(0, 1)</code></pre>
+
+<p><code>weekday()</code> 周一为 0，<code>isoweekday()</code> 周一为 1——竞赛题里「这年的第几天」用 <code>%j</code>，星期几用 <code>isoweekday()</code>，别混。</p>
+
+<p>最常写的格式符：<code>%Y</code> 四位年、<code>%m</code> 月、<code>%d</code> 日、<code>%H:%M:%S</code> 时分秒、<code>%j</code> 年内第几天、<code>%f</code> 微秒。<strong>不要用 <code>%A</code>、<code>%B</code></strong>（星期/月名）——它们受系统 locale 影响，同一份代码在中文 Windows 上会输出「星期一」。</p>
+
+<p>时区是新手最大的坑：<strong>naive（无 <code>tzinfo</code>）与 aware（有 <code>tzinfo</code>）不能相减</strong>，会抛 <code>TypeError: can't subtract offset-naive and offset-aware datetimes</code>。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; from datetime import datetime, timedelta, timezone
+&gt;&gt;&gt; utc = datetime(2024, 1, 1, tzinfo=timezone.utc)
+&gt;&gt;&gt; utc.astimezone(timezone(timedelta(hours=8))).isoformat()
+'2024-01-01T08:00:00+08:00'
+&gt;&gt;&gt; datetime(2024, 1, 1) == datetime(2024, 1, 1, tzinfo=timezone.utc)
+False</code></pre>
+
+<p>最后一行 <code>False</code> 不是 bug：naive 的 <code>2024-01-01 00:00</code> 按<strong>本机时区</strong>解释，与 UTC 零点不是同一时刻。约定是：<strong>内部一律存 UTC aware 时间，展示时再 <code>astimezone()</code> 成本地时区</strong>。需要 IANA 时区（<code>Asia/Shanghai</code>，能自动处理夏令时）得装 <code>tzdata</code>，标准库只提供 <code>timezone(timedelta(...))</code> 这种固定偏移。</p>
+
+<h2 id="s21-4">21.4 <code>json</code>：数据交换的通用语</h2>
+
+<p>四个函数：<code>dumps</code>（对象→字符串）、<code>loads</code>（字符串→对象）、<code>dump</code>/<code>load</code>（同上，直接对文件对象）。类型映射是固定的：</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>Python</th>
+<th>JSON</th>
+<th>说明</th>
+</tr></thead>
+<tbody>
+<tr><td><code>dict</code></td><td>object</td><td>键必须是 <code>str</code></td></tr>
+<tr><td><code>list</code>/<code>tuple</code></td><td>array</td><td>读回来一律是 <code>list</code></td></tr>
+<tr><td><code>str</code></td><td>string</td><td>默认转成 <code>\uXXXX</code></td></tr>
+<tr><td><code>int</code>/<code>float</code></td><td>number</td><td>大整数精度取决于对端</td></tr>
+<tr><td><code>True</code>/<code>False</code>/<code>None</code></td><td><code>true</code>/<code>false</code>/<code>null</code></td><td>三个名字大小写固定</td></tr>
+<tr><td><code>datetime</code>、<code>set</code>、自定义类</td><td>—</td><td><strong>不可序列化</strong>，抛 <code>TypeError</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import json
+&gt;&gt;&gt; json.dumps({"b": 1, "a": [1, 2]}, sort_keys=True)
+'{"a": [1, 2], "b": 1}'
+&gt;&gt;&gt; json.dumps("中", ensure_ascii=False), json.dumps("中")
+('"中"', '"\\u4e2d"')
+&gt;&gt;&gt; json.loads('{"a": 1}')["a"]
+1
+&gt;&gt;&gt; try:
+...     json.loads("{'a': 1}")
+... except json.JSONDecodeError as e:
+...     print(e.msg, e.pos)
+Expecting property name enclosed in double quotes 1</code></pre>
+
+<p>三个实用参数：<code>ensure_ascii=False</code>（中文可读，体积也小）、<code>indent=2</code>（人看）、<code>sort_keys=True</code>（diff 稳定）。<code>JSONDecodeError</code> 的 <code>.pos</code> 是字符偏移，<code>.lineno</code>/<code>.colno</code> 是行列——报错时把它们一起打出来，否则「JSON 解析失败」等于没说。</p>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch21_02_json_re.py</code></figcaption><pre class="py"><code>import datetime
+import json
+import re
+
+data = {"name": "小明", "age": 18, "tags": ["py", "竞赛"], "vip": False}
+s = json.dumps(data, ensure_ascii=False, sort_keys=True)
+print(s)
+print(json.dumps(data, indent=2, ensure_ascii=False).splitlines()[1])
+
+back = json.loads(s)
+print(back == data, back["tags"][1])
+print(json.dumps("中文"))                       # 默认全是 \u 转义
+print(json.loads('{"a": [1, 2.5, "x"], "b": null}'))
+
+try:
+    json.loads('{"a": 1,}')
+except json.JSONDecodeError as e:
+    print(type(e).__name__, "|", e.msg, "| 位置", e.pos)
+
+try:
+    json.dumps({"t": datetime.date(2024, 1, 1)})
+except TypeError as e:
+    print(type(e).__name__, "|", e)
+
+print(re.findall(r"\d+", "a1b22c333"))
+print(re.split(r",\s*", "a, b,c"))
+print(re.sub(r"(\w+)@(\w+)\.com", r"\2:\1", "tom@mail.com"))
+
+m = re.match(r"(?P&lt;y&gt;\d{4})-(?P&lt;m&gt;\d{2})", "2024-03")
+print(m.groupdict(), m.group(2), m.groups())
+
+print(re.match(r"&lt;.*&gt;", "&lt;a&gt;&lt;b&gt;").group(), re.match(r"&lt;.*?&gt;", "&lt;a&gt;&lt;b&gt;").group())
+print(re.findall(r"[a-z]+", "Ab Cd", re.IGNORECASE))
+
+for mm in re.finditer(r"\d+", "x10y200"):
+    print(mm.group(), mm.span())
+
+pat = re.compile(r"^\d{3}-\d{4}$")
+print(bool(pat.fullmatch("123-4567")), bool(pat.fullmatch("12-4567")))
+print(re.sub(r"\s+", " ", "  a   b  ").strip())</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>{"age": 18, "name": "小明", "tags": ["py", "竞赛"], "vip": false}
+  "name": "小明",
+True 竞赛
+"\u4e2d\u6587"
+{'a': [1, 2.5, 'x'], 'b': None}
+JSONDecodeError | Illegal trailing comma before end of object | 位置 7
+TypeError | Object of type date is not JSON serializable
+['1', '22', '333']
+['a', 'b', 'c']
+mail:tom
+{'y': '2024', 'm': '03'} 03 ('2024', '03')
+&lt;a&gt;&lt;b&gt; &lt;a&gt;
+['Ab', 'Cd']
+10 (1, 3)
+200 (4, 7)
+True False
+a b</code></pre></div></figure>
+
+<div class="box warn"><p>JSON 只认双引号。<code>{'a': 1}</code> 是合法的 Python 字典字面量，却是非法 JSON；反过来 <code>json.loads</code> 读 <code>NaN</code>、<code>Infinity</code> 也不合规（Python 默认接受，<code>parse_constant</code> 可以禁掉）。跨语言传数据时以严格 JSON 为准。</p></div>
+
+<h2 id="s21-5">21.5 <code>re</code>：正则的四个动作</h2>
+
+<p>匹配（<code>match</code>/<code>search</code>/<code>fullmatch</code>）、查找全部（<code>findall</code>/<code>finditer</code>）、替换（<code>sub</code>）、切分（<code>split</code>）。<strong>永远写原始字符串 <code>r"..."</code></strong>，否则 <code>"\d"</code> 会先被 Python 当转义处理。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import re
+&gt;&gt;&gt; re.findall(r"\d+", "a1b22")
+['1', '22']
+&gt;&gt;&gt; re.sub(r"(\w+)@(\w+)", r"\2@\1", "tom@mail")
+'mail@tom'
+&gt;&gt;&gt; m = re.match(r"(?P&lt;y&gt;\d{4})-(?P&lt;m&gt;\d{2})", "2024-03")
+&gt;&gt;&gt; m.group("y"), m.group(2)
+('2024', '03')</code></pre>
+
+<p>贪婪与非贪婪只差一个 <code>?</code>，结果差很多：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import re
+&gt;&gt;&gt; re.match(r"&lt;.*&gt;", "&lt;a&gt;&lt;b&gt;").group()
+'&lt;a&gt;&lt;b&gt;'
+&gt;&gt;&gt; re.match(r"&lt;.*?&gt;", "&lt;a&gt;&lt;b&gt;").group()
+'&lt;a&gt;'
+&gt;&gt;&gt; re.fullmatch(r"\d{3}", "123") is not None
+True</code></pre>
+
+<p><code>match</code> 只从开头试（等价于 <code>^</code>），<code>search</code> 扫全文，<code>fullmatch</code> 要求整串匹配。竞赛里「读一整行并按格式解析」几乎总用 <code>re.fullmatch</code> 或 <code>re.findall</code>，少用 <code>match</code>——<code>match</code> 成功一半也算成功，最容易漏边界。</p>
+
+<p>性能上：<strong>循环里反复用的正则必须 <code>re.compile</code></strong>。<code>re</code> 模块内部有 512 条的缓存，但编译一次存进变量既明确又快，还能让 <code>pat.fullmatch(s)</code> 读起来更像一个判断。</p>
+
+<h2 id="s21-6">21.6 <code>collections</code>：四个增强容器</h2>
+
+<pre class="pycon"><code>&gt;&gt;&gt; from collections import Counter, defaultdict, deque, namedtuple
+&gt;&gt;&gt; c = Counter("abracadabra")
+&gt;&gt;&gt; c.most_common(2)
+[('a', 5), ('b', 2)]
+&gt;&gt;&gt; c["z"]
+0
+&gt;&gt;&gt; sorted(c)
+['a', 'b', 'c', 'd', 'r']</code></pre>
+
+<p><code>Counter</code> 是「计数专用字典」：缺键返回 0 而不抛 <code>KeyError</code>，<code>most_common(n)</code> 直接给排行榜，还能做 <code>+</code>/<code>-</code>/<code>&amp;</code>/<code>|</code> 的多重集运算。统计词频、票数、字符出现次数，一行顶十行。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; from collections import defaultdict
+&gt;&gt;&gt; dd = defaultdict(list)
+&gt;&gt;&gt; dd["k"].append(1)
+&gt;&gt;&gt; dict(dd)
+{'k': [1]}
+&gt;&gt;&gt; dd2 = defaultdict(int)
+&gt;&gt;&gt; dd2["没见过的键"] += 1
+&gt;&gt;&gt; dict(dd2)
+{'没见过的键': 1}</code></pre>
+
+<p><code>defaultdict</code> 把「键不存在就建一个默认值」写进了 <code>__getitem__</code>。<strong>代价是读操作也会插入键</strong>——所以用它遍历完再 <code>len()</code> 会变多，判存在要用 <code>in</code>。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; from collections import deque
+&gt;&gt;&gt; dq = deque([1, 2, 3], maxlen=3)
+&gt;&gt;&gt; dq.append(4); dq
+deque([2, 3, 4], maxlen=3)
+&gt;&gt;&gt; dq.appendleft(0); dq
+deque([0, 2, 3], maxlen=3)</code></pre>
+
+<p><code>deque</code> 两端插入删除都是 O(1)，<code>list</code> 的头部插入是 O(n)。BFS 队列、滑动窗口、最近 N 条记录，全用它。<code>maxlen</code> 一到就自动挤掉另一头，写成环形缓冲只要一行。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; from collections import namedtuple
+&gt;&gt;&gt; P = namedtuple("P", "x y")
+&gt;&gt;&gt; P(1, 2)._replace(y=5)
+P(x=1, y=5)
+&gt;&gt;&gt; P(1, 2)[1]
+2</code></pre>
+
+<p><code>namedtuple</code> 是「有字段名的元组」：能解包、能索引（所以排序、比较都和元组一样快），又能 <code>p.x</code>。字段不可变，<code>_replace</code> 返回新对象。想加方法就继承它；想可变、想默认值，直接上第 18 章的 <code>dataclass</code>。</p>
+
+<h2 id="s21-7">21.7 <code>itertools</code>：把循环写成流水线</h2>
+
+<p>它们是<strong>惰性的</strong>：返回迭代器，不建列表，所以能处理无限序列。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import itertools as it
+&gt;&gt;&gt; list(it.accumulate([1, 2, 3, 4]))
+[1, 3, 6, 10]
+&gt;&gt;&gt; list(it.islice(it.count(10), 3))
+[10, 11, 12]
+&gt;&gt;&gt; list(it.chain([1], [2, 3]))
+[1, 2, 3]
+&gt;&gt;&gt; list(it.pairwise([1, 2, 3]))
+[(1, 2), (2, 3)]</code></pre>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>工具</th>
+<th>作用</th>
+<th>典型场景</th>
+</tr></thead>
+<tbody>
+<tr><td><code>count(start, step)</code></td><td>无限等差</td><td>配合 <code>islice</code> 取前 N 个</td></tr>
+<tr><td><code>cycle(seq)</code></td><td>无限循环</td><td>轮流分配、轮询</td></tr>
+<tr><td><code>repeat(x, n)</code></td><td>重复 n 次</td><td>批量初始化</td></tr>
+<tr><td><code>accumulate</code></td><td>前缀和/前缀积</td><td>区间和、累积最大</td></tr>
+<tr><td><code>chain</code> / <code>chain.from_iterable</code></td><td>串联</td><td>拼接多个列表</td></tr>
+<tr><td><code>islice</code></td><td>切片迭代器</td><td>取无限序列的一段</td></tr>
+<tr><td><code>groupby</code></td><td>相邻分组</td><td>游程编码</td></tr>
+<tr><td><code>product</code> / <code>permutations</code> / <code>combinations</code></td><td>笛卡尔积/排列/组合</td><td>暴力枚举</td></tr>
+<tr><td><code>pairwise</code>（3.10+）</td><td>相邻对</td><td>相邻差、滑动比较</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><code>groupby</code> 有一个必踩的坑：<strong>它只合并相邻的相同键</strong>，所以分组前必须先按同一个键排序。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import itertools as it
+&gt;&gt;&gt; [k for k, g in it.groupby("aabbbc")]
+['a', 'b', 'c']
+&gt;&gt;&gt; [list(g) for k, g in it.groupby("aabbbc")]
+[['a', 'a'], ['b', 'b', 'b'], ['c']]
+&gt;&gt;&gt; [(k, list(g)) for k, g in it.groupby("abab")]
+[('a', ['a']), ('b', ['b']), ('a', ['a']), ('b', ['b'])]</code></pre>
+
+<p><code>it.product([1, 2], "ab")</code> 是双重循环的替代品，<code>combinations(xs, 2)</code> 是「枚举所有二元组」的标准答案——两者都比手写嵌套 <code>for</code> 短，且顺序确定（按输入顺序的字典序）。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import itertools as it
+&gt;&gt;&gt; list(it.product([1, 2], "ab"))
+[(1, 'a'), (1, 'b'), (2, 'a'), (2, 'b')]
+&gt;&gt;&gt; list(it.combinations([1, 2, 3], 2))
+[(1, 2), (1, 3), (2, 3)]
+&gt;&gt;&gt; list(it.permutations([1, 2], 2))
+[(1, 2), (2, 1)]</code></pre>
+
+<h2 id="s21-8">21.8 <code>functools</code>：三个高频工具</h2>
+
+<pre class="pycon"><code>&gt;&gt;&gt; from functools import lru_cache, partial, reduce
+&gt;&gt;&gt; @lru_cache(maxsize=None)
+... def fib(n):
+...     return n if n &lt; 2 else fib(n - 1) + fib(n - 2)
+...
+&gt;&gt;&gt; fib(10)
+55
+&gt;&gt;&gt; fib.cache_info().hits &gt; 0
+True
+&gt;&gt;&gt; reduce(lambda x, y: x * y, [1, 2, 3, 4])
+24
+&gt;&gt;&gt; int2 = partial(int, base=2)
+&gt;&gt;&gt; int2("1010")
+10</code></pre>
+
+<p><code>lru_cache</code> 把函数变成记忆化版本，是「递归写对了却 TLE」的第一号解药；它缓存的是<strong>参数元组</strong>，所以参数必须可哈希（传 <code>list</code> 会抛 <code>TypeError: unhashable type</code>）。<code>partial</code> 把部分参数提前绑定，专门用来给回调/<code>key</code> 函数做适配。<code>reduce</code> 在 Python 3 里被挪进了 <code>functools</code>，能用 <code>sum</code>/<code>math.prod</code> 的场合别用它（可读性差）。</p>
+
+<h2 id="s21-9">21.9 <code>math</code> 与 <code>random</code></h2>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import math
+&gt;&gt;&gt; math.isclose(0.1 + 0.2, 0.3)
+True
+&gt;&gt;&gt; math.floor(-2.5), math.ceil(-2.5), math.trunc(-2.5)
+(-3, -2, -2)
+&gt;&gt;&gt; math.gcd(12, 18), math.comb(5, 2), math.perm(5, 2)
+(6, 10, 20)
+&gt;&gt;&gt; math.inf &gt; 1e308, math.nan == math.nan, math.isnan(math.nan)
+(True, False, True)
+&gt;&gt;&gt; round(math.pi, 4)
+3.1416
+&gt;&gt;&gt; math.log(100, 10)
+2.0</code></pre>
+
+<p><code>math.inf</code> 是浮点无穷（<code>float("inf")</code> 等价），<code>1e308</code> 是有限浮点的量级；<code>nan != nan</code> 是 IEEE 754 的规定，判空要用 <code>math.isnan</code>。<code>math.comb</code>/<code>math.perm</code> 从 3.8 起自带，大数组合数不再需要手写阶乘（<code>factorial(1000)</code> 有 2568 位，<code>comb(1000, 500)</code> 更大，但 int 无上限，见第 3 章）。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import random
+&gt;&gt;&gt; random.seed(7)
+&gt;&gt;&gt; a = [random.randint(1, 6) for _ in range(3)]
+&gt;&gt;&gt; random.seed(7)
+&gt;&gt;&gt; [random.randint(1, 6) for _ in range(3)] == a
+True
+&gt;&gt;&gt; random.seed(1)
+&gt;&gt;&gt; s1 = random.sample(["a", "b", "c", "d"], 2); random.seed(1); s2 = random.sample(["a", "b", "c", "d"], 2)
+&gt;&gt;&gt; s1 == s2
+True</code></pre>
+
+<p><code>random</code> 是<strong>伪随机</strong>：同一个种子给出同一串数。这正是复现 bug、固定测试数据的手段（<code>random.seed(0)</code> 后输出可写进断言）。<code>random.shuffle(xs)</code> 原地改列表并返回 <code>None</code>；<code>random.sample(xs, k)</code> 不重复取 k 个；<code>random.choices(xs, weights=..., k=n)</code> 可重复且有权重。</p>
+
+<div class="box warn"><p><code>random</code> 不能用来生成密码、令牌、验证码。它的输出可预测，密码学安全要用 <code>secrets.token_hex(16)</code> / <code>secrets.randbelow(100)</code>。</p></div>
+
+<h2 id="s21-10">21.10 <code>argparse</code>：命令行参数</h2>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import argparse
+&gt;&gt;&gt; p = argparse.ArgumentParser(prog="tool")
+&gt;&gt;&gt; _ = p.add_argument("path")
+&gt;&gt;&gt; _ = p.add_argument("-n", type=int, default=3)
+&gt;&gt;&gt; a = p.parse_args(["f.txt", "-n", "5"])
+&gt;&gt;&gt; a
+Namespace(path='f.txt', n=5)
+&gt;&gt;&gt; a.path, a.n
+('f.txt', 5)</code></pre>
+
+<p><code>parse_args</code> 返回一个 <code>Namespace</code>，字段名就是参数名（<code>--count</code> 会变成 <code>count</code>，下划线化）。位置参数靠顺序，可选参数靠 <code>-</code>/<code>--</code> 前缀；<code>type=int</code> 会自动转换，转失败就报错退出。必填可选参数缺失时它打印用法并 <code>sys.exit(2)</code>——所以<strong>单元测试里要把 <code>parse_args</code> 的参数显式传进去</strong>，别让它去读 <code>sys.argv</code>。</p>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch21_04_cli_logging.py</code></figcaption><pre class="py"><code>import argparse
+import contextlib
+import io
+import logging
+import subprocess
+import sys
+
+
+def build_parser():
+    p = argparse.ArgumentParser(prog="tool", description="生成报告")
+    p.add_argument("path", help="输入文件")
+    p.add_argument("-n", "--count", type=int, default=3, help="条数")
+    p.add_argument("-v", "--verbose", action="store_true")
+    return p
+
+
+args = build_parser().parse_args(["data.txt", "-n", "5", "-v"])
+print(args)
+print(args.path, args.count, args.verbose)
+
+err = io.StringIO()
+try:
+    with contextlib.redirect_stderr(err):
+        build_parser().parse_args([])
+except SystemExit as e:
+    print("code", e.code, "| 说是必填:", "required" in err.getvalue())
+
+logging.basicConfig(stream=sys.stdout, level=logging.INFO,
+                    format="%(levelname)s %(name)s %(message)s", force=True)
+log = logging.getLogger("demo")
+log.debug("debug 低于 INFO，不会出现")
+log.info("开始处理 %s", "任务")
+log.warning("磁盘已用 %d%%", 90)
+log.setLevel(logging.ERROR)
+print("logger 级别改为 ERROR 后:", log.isEnabledFor(logging.INFO))
+
+r = subprocess.run([sys.executable, "-c", "print('child ok')"],
+                   capture_output=True, text=True)
+print(r.returncode, repr(r.stdout))
+
+bad = subprocess.run([sys.executable, "-c", "raise SystemExit(3)"],
+                     capture_output=True, text=True)
+print(bad.returncode, repr(bad.stdout))
+
+try:
+    subprocess.run([sys.executable, "-c", "import sys; sys.exit(1)"],
+                   check=True, capture_output=True)
+except subprocess.CalledProcessError as e:
+    print(type(e).__name__, "returncode =", e.returncode)
+
+try:
+    subprocess.run([sys.executable, "-c", "import time; time.sleep(2)"],
+                   timeout=0.5, capture_output=True)
+except subprocess.TimeoutExpired as e:
+    print(type(e).__name__, "timeout =", e.timeout)</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>Namespace(path='data.txt', count=5, verbose=True)
+data.txt 5 True
+code 2 | 说是必填: True
+INFO demo 开始处理 任务
+WARNING demo 磁盘已用 90%
+logger 级别改为 ERROR 后: False
+0 'child ok\n'
+3 ''
+CalledProcessError returncode = 1
+TimeoutExpired timeout = 0.5</code></pre></div></figure>
+
+<h2 id="s21-11">21.11 <code>logging</code>：比 <code>print</code> 多五件事</h2>
+
+<p>级别（<code>DEBUG &lt; INFO &lt; WARNING &lt; ERROR &lt; CRITICAL</code>）、时间戳、来源模块名、输出目的地、开关控制。<code>basicConfig</code> 只生效一次，第二次调用什么都不做（除非 <code>force=True</code>，3.8+）。</p>
+
+<pre class="py"><code># 片段：生产脚本的日志骨架
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+    datefmt="%H:%M:%S",
+)
+log = logging.getLogger(__name__)      # 每个模块一个 logger，名字就是模块名
+
+log.info("处理 %d 条记录", len(rows))   # 用 %s 占位，别用 f-string</code></pre>
+
+<p>三个约定：①<code>getLogger(__name__)</code> 而不是 <code>getLogger("app")</code>，这样按模块名就能关掉某个模块的日志；②传参用 <code>%s</code> 占位而不是 f-string——日志级别不够时字符串根本不会被格式化，f-string 则总是先算一遍；③库代码里<strong>不要</strong>调 <code>basicConfig</code>，配置权归应用。异常用 <code>log.exception("...")</code>，它等价于 <code>error(..., exc_info=True)</code>，会自动带上 traceback。</p>
+
+<h2 id="s21-12">21.12 <code>subprocess</code>：起一个子进程</h2>
+
+<p><code>subprocess.run</code> 是唯一推荐的入口（<code>os.system</code>、<code>os.popen</code> 已过时，且有注入风险）。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import subprocess, sys
+&gt;&gt;&gt; r = subprocess.run([sys.executable, "-c", "print('child ok')"], capture_output=True, text=True)
+&gt;&gt;&gt; r.returncode, r.stdout
+(0, 'child ok\n')
+&gt;&gt;&gt; bad = subprocess.run([sys.executable, "-c", "raise SystemExit(3)"], capture_output=True, text=True)
+&gt;&gt;&gt; bad.returncode
+3</code></pre>
+
+<p>四条规则：①命令写成<strong>列表</strong>，不要写 <code>shell=True</code> 拼字符串（否则用户输入里的 <code>;</code> 就是命令注入）；②<code>capture_output=True</code> + <code>text=True</code> 拿字符串而不是字节；③<strong>一定检查 <code>returncode</code></strong>，或者直接 <code>check=True</code> 让它抛 <code>CalledProcessError</code>；④给外部命令加 <code>timeout=</code>，否则它卡住你的脚本也卡住。</p>
+
+<pre class="py"><code># 片段：调用外部程序并处理失败
+try:
+    r = subprocess.run([exe, "--version"], capture_output=True, text=True,
+                       timeout=10, check=True)
+    print(r.stdout.strip())
+except subprocess.CalledProcessError as e:
+    print("失败", e.returncode, e.stderr[:200])
+except subprocess.TimeoutExpired:
+    print("超时")
+except FileNotFoundError:
+    print("程序不存在")</code></pre>
+
+<p><code>FileNotFoundError</code> 是「命令没装」的典型信号，Windows 上还可能是「有空格没加引号但因为用了列表所以不会」——列表形式天然解决了空格问题。</p>
+
+<h2 id="21-a-与-c-的差别">21.a 与 C++ 的差别</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>维度</th>
+<th>Python</th>
+<th>C++</th>
+</tr></thead>
+<tbody>
+<tr><td>依赖管理</td><td>标准库 <code>import</code> 即用，第三方走 pip</td><td><code>#include</code> 头文件 + 链接库</td></tr>
+<tr><td>日期时间</td><td><code>datetime</code> 内置，带时区对象</td><td>C++20 前无标准日期，靠 <code>time_t</code> + <code>strftime</code></td></tr>
+<tr><td>JSON</td><td><code>json</code> 内置</td><td>需 nlohmann/json 等第三方</td></tr>
+<tr><td>正则</td><td><code>re</code> 内置，语法接近 PCRE</td><td>C++11 <code>std::regex</code>，性能与支持都弱</td></tr>
+<tr><td>哈希表计数</td><td><code>Counter</code> 一行</td><td><code>std::unordered_map</code> 手写 <code>++m[k]</code></td></tr>
+<tr><td>排列组合</td><td><code>itertools</code> 惰性生成</td><td><code>std::next_permutation</code> 需先排序</td></tr>
+<tr><td>随机</td><td><code>random</code>（Mersenne Twister）</td><td><code>&lt;random&gt;</code> 引擎 + 分布两层</td></tr>
+<tr><td>命令行</td><td><code>argparse</code> 自动生成帮助与报错</td><td>手写 <code>argc/argv</code> 解析</td></tr>
+<tr><td>日志</td><td><code>logging</code> 五级 + 格式化</td><td>无标准方案，常自造宏</td></tr>
+<tr><td>子进程</td><td><code>subprocess.run</code> 一个函数</td><td><code>fork/exec</code> 或 <code>system()</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>最本质的差别：C++ 的标准库是「<strong>给你积木</strong>」（容器 + 算法），Python 的标准库是「<strong>给你成品</strong>」（直接能做 JSON、日志、命令行、HTTP）。所以 C++ 项目里大量脚手架代码，在 Python 里往往只是十几个 <code>import</code>。</p>
+
+<h2 id="21-b-易错点清单">21.b 易错点清单</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>现象</th>
+<th>原因</th>
+<th>一行修复</th>
+</tr></thead>
+<tbody>
+<tr><td><code>json.dumps</code> 出来全是 <code>\u4e2d</code></td><td>默认 <code>ensure_ascii=True</code></td><td>加 <code>ensure_ascii=False</code></td></tr>
+<tr><td><code>json.dumps(obj)</code> 抛 <code>TypeError: not JSON serializable</code></td><td><code>datetime</code>/<code>set</code> 不被支持</td><td>先 <code>default=str</code> 或手动转 ISO 字符串</td></tr>
+<tr><td><code>re.findall</code> 返回 <code>[]</code> 但明明有</td><td>忘了 <code>r""</code>，<code>\d</code> 被当转义</td><td>所有 pattern 都写原始字符串</td></tr>
+<tr><td><code>re.match</code> 匹配到一半也算成功</td><td><code>match</code> 不是全串匹配</td><td>用 <code>fullmatch</code> 或 <code>\Z</code></td></tr>
+<tr><td><code>groupby</code> 分组结果碎成一片</td><td>只合并相邻相同键</td><td>先 <code>sorted(xs, key=...)</code></td></tr>
+<tr><td><code>defaultdict</code> 的 <code>len()</code> 莫名变大</td><td>读操作会插入默认值</td><td>判存在用 <code>in</code>，别用 <code>[]</code> 试探</td></tr>
+<tr><td><code>lru_cache</code> 抛 <code>unhashable type</code></td><td>传了 <code>list</code>/<code>dict</code> 参数</td><td>参数转 <code>tuple</code>，或自己写缓存</td></tr>
+<tr><td><code>naive</code> 与 <code>aware</code> 相减报 <code>TypeError</code></td><td>一个有时区一个没有</td><td>统一 <code>tzinfo=timezone.utc</code></td></tr>
+<tr><td><code>strftime("%A")</code> 输出中文</td><td>依赖系统 locale</td><td>用数字格式，或自己映射表</td></tr>
+<tr><td><code>argparse</code> 在测试里读到了 pytest 的参数</td><td>用了 <code>sys.argv</code></td><td>显式传 <code>parse_args([...])</code></td></tr>
+<tr><td><code>basicConfig</code> 第二次调用没反应</td><td>它只配置一次</td><td><code>force=True</code></td></tr>
+<tr><td>子进程失败但脚本继续跑</td><td>没检查 <code>returncode</code></td><td><code>check=True</code> 或断言返回码</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="21-c-练习">21.c 练习</h2>
+
+<p><strong>基础 1</strong>：统计一段文本的词频，输出前 3 名及次数；要求忽略大小写与标点。</p>
+
+<p>验收：输入 <code>"The cat, the DOG! the bird."</code> 输出 <code>the 3</code>、<code>cat 1</code>、<code>dog 1</code>（同频按字母序）。</p>
+
+<p><strong>基础 2</strong>：写 <code>days_between(a: str, b: str) -&gt; int</code>，接受 <code>"2024-01-01"</code> 形式，返回相差天数（可正可负）。</p>
+
+<p>验收：<code>days_between("2024-03-01", "2024-02-01") == 29</code>（2024 是闰年）；格式错误抛 <code>ValueError</code>。</p>
+
+<p><strong>基础 3</strong>：把 <code>{"name": "小明", "score": 92.5, "at": datetime(2024, 1, 1)}</code> 序列化成 JSON 字符串再读回，<code>at</code> 字段用 ISO 格式保存。</p>
+
+<p>验收：往返后 <code>data["at"] == "2024-01-01T00:00:00"</code>，且 <code>json.loads</code> 不抛异常。</p>
+
+<p><strong>变式</strong>：用 <code>re</code> 写一个 <code>mask_phone(s)</code>，把 <code>13812345678</code> 变成 <code>138****5678</code>，其它长度原样返回。</p>
+
+<p>验收：<code>mask_phone("13812345678") == "138****5678"</code>；<code>mask_phone("123") == "123"</code>。</p>
+
+<p><strong>挑战</strong>：写一支命令行工具 <code>wordcount.py</code>：<code>python wordcount.py FILE [-n N] [--ignore-case]</code>，用 <code>argparse</code> 解析、<code>Counter</code> 统计、<code>logging</code> 输出进度（<code>--verbose</code> 时开 INFO）；文件不存在时给出友好错误并退出码 2。</p>
+
+<p>验收：<code>--help</code> 有中文说明；正常文件输出前 N 名；不存在文件时 stderr 有提示且 <code>echo $?</code> 为 2。</p>
+
+<h2 id="21-d-小结">21.d 小结</h2>
+
+<ol><li>先问「标准库有没有」：<code>json</code>/<code>re</code>/<code>datetime</code>/<code>collections</code>/<code>itertools</code> 能省掉大部分脚手架代码，而且零依赖、无版本风险。</li><li>三个容器与三个工具是提效重点：<code>Counter</code> 计数、<code>defaultdict</code> 聚合、<code>deque</code> 做队列；<code>itertools</code> 惰性流水线、<code>functools.lru_cache</code> 记忆化、<code>argparse</code> 接命令行。</li><li>精度与时间两条红线：浮点比较用 <code>math.isclose</code>，时间统一 UTC aware；<code>random</code> 只用于模拟，安全场景换 <code>secrets</code>。</li></ol>
+
+<p>下一章进入并发：同一份代码用 <code>threading</code>、<code>multiprocessing</code>、<code>asyncio</code> 三种方式各写一遍，并说清 GIL 到底限制了什么。</p>
+
+    
+
+    
+</article>

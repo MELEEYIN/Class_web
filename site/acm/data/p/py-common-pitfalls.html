@@ -1,0 +1,598 @@
+<article data-learn-content>
+<p><strong>读完这一章你能做到</strong></p>
+
+<ol><li>在写代码的当下就认出「可变默认参数」「浅拷贝」「晚绑定」这三类陷阱，而不是等线上出错的第 3 天。</li><li>说清 <code>is</code> 与 <code>==</code>、<code>in list</code> 与 <code>in set</code>、<code>+=</code> 与 <code>join</code> 的差别，并给出替换写法。</li><li>不再写裸 <code>except:</code>、不再在 <code>try</code> 里吞掉异常、不再用 <code>finally</code> 里的 <code>return</code>。</li><li>认出「遮蔽内置名」「模块名撞标准库」「循环导入」三类导入期问题。</li><li>把本章末尾的自查表当 checklist，交付前逐条过一遍。</li></ol>
+
+<h2 id="s26-1">26.1 可变默认参数：默认值只算一次</h2>
+
+<p>函数定义时，<code>def</code> 这一行会<strong>执行</strong>——默认值表达式当场求值，结果挂在函数对象的 <code>__defaults__</code> 上。之后每次调用，用的是同一个对象。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; def add(item, bucket=[]):
+...     bucket.append(item)
+...     return bucket
+...
+&gt;&gt;&gt; add("a")
+['a']
+&gt;&gt;&gt; add("b")
+['a', 'b']
+&gt;&gt;&gt; add.__defaults__
+(['a', 'b'],)</code></pre>
+
+<p><code>add("a")</code> 与 <code>add("b")</code> 之间没有任何其它调用，<code>bucket</code> 却记住了上一次的内容。原因就在 <code>add.__defaults__</code>：那个 <code>[]</code> 是<strong>一个</strong>列表，两次调用都拿到它。这类 bug 特别难查，因为「函数有状态」这件事从调用点完全看不出来。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; def add_ok(item, bucket=None):
+...     if bucket is None:
+...         bucket = []
+...     bucket.append(item)
+...     return bucket
+...
+&gt;&gt;&gt; add_ok("a"), add_ok("b")
+(['a'], ['b'])
+&gt;&gt;&gt; add_ok.__defaults__
+(None,)</code></pre>
+
+<p><strong>规则</strong>：默认值只能是不可变对象（<code>int</code>、<code>str</code>、<code>None</code>、<code>tuple</code>、<code>frozenset</code>）。需要容器就用 <code>None</code> 哨兵，或者在 <code>dataclass</code> 里用 <code>field(default_factory=list)</code>（第 18 章）。</p>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch26_01_mutable_default.py</code></figcaption><pre class="py"><code>def add_item_bad(item, bucket=[]):
+    bucket.append(item)
+    return bucket
+
+
+def add_item_ok(item, bucket=None):
+    if bucket is None:
+        bucket = []
+    bucket.append(item)
+    return bucket
+
+
+print("默认参数只在定义时求值一次，所以两次调用共用同一个列表：")
+print(" 第 1 次:", add_item_bad("a"))
+print(" 第 2 次:", add_item_bad("b"))
+print(" 默认值就存在函数对象上:", add_item_bad.__defaults__)
+
+print()
+print("None 哨兵版每调用一次新建一个：")
+print(" 第 1 次:", add_item_ok("a"))
+print(" 第 2 次:", add_item_ok("b"))
+
+print()
+rows = [[0] * 2] * 2          # 外层 tuple 重复的是同一个 list 的引用
+rows[0][0] = 9
+print("[[0]*2]*2 只改一格:", rows)
+
+grid = [[0] * 2 for _ in range(2)]
+grid[0][0] = 9
+print("推导式版本只改一格:", grid)
+
+print()
+a = [1, 2]
+b = a
+b.append(3)
+print("b = a 之后改 b，a 也变了:", a, "| 是同一对象:", a is b)
+c = a[:]
+c.append(4)
+print("a[:] 拷贝后改 c，a 不变:", a, c)</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>默认参数只在定义时求值一次，所以两次调用共用同一个列表：
+ 第 1 次: ['a']
+ 第 2 次: ['a', 'b']
+ 默认值就存在函数对象上: (['a', 'b'],)
+
+None 哨兵版每调用一次新建一个：
+ 第 1 次: ['a']
+ 第 2 次: ['b']
+
+[[0]*2]*2 只改一格: [[9, 0], [9, 0]]
+推导式版本只改一格: [[9, 0], [0, 0]]
+
+b = a 之后改 b，a 也变了: [1, 2, 3] | 是同一对象: True
+a[:] 拷贝后改 c，a 不变: [1, 2, 3] [1, 2, 3, 4]</code></pre></div></figure>
+
+<div class="box warn"><p><code>bucket=[]</code> 的写法不会报错、不会警告，甚至在测试里也常常"刚好"通过——因为多数测试只调一次。它只在<strong>同一进程内多次调用</strong>时暴露，而线上服务恰好就是这种环境。</p></div>
+
+<h2 id="s26-2">26.2 别名与浅拷贝：改一个，两个都变</h2>
+
+<p>赋值 <code>b = a</code> 从不复制对象，它只是让 <code>b</code> 指向 <code>a</code> 指向的那个对象。要复制才用 <code>copy.copy</code>/<code>a[:]</code>/<code>list(a)</code>。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; a = [1, 2]
+&gt;&gt;&gt; b = a
+&gt;&gt;&gt; b.append(3)
+&gt;&gt;&gt; a
+[1, 2, 3]
+&gt;&gt;&gt; a is b
+True
+&gt;&gt;&gt; c = a[:]
+&gt;&gt;&gt; c.append(4)
+&gt;&gt;&gt; a
+[1, 2, 3]</code></pre>
+
+<p>浅拷贝只复制<strong>第一层</strong>。嵌套结构里，内层元素仍是共享的：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import copy
+&gt;&gt;&gt; a = [[1, 2]]
+&gt;&gt;&gt; b = copy.copy(a)
+&gt;&gt;&gt; b.append("新元素")
+&gt;&gt;&gt; a
+[[1, 2]]
+&gt;&gt;&gt; b[0].append(9)
+&gt;&gt;&gt; a
+[[1, 2, 9]]
+&gt;&gt;&gt; c = copy.deepcopy(a)
+&gt;&gt;&gt; c[0].append(99)
+&gt;&gt;&gt; a
+[[1, 2, 9]]</code></pre>
+
+<p><code>b.append</code> 只动外层，<code>a</code> 不受影响；<code>b[0].append</code> 动的是共享的内层列表，<code>a</code> 跟着变。<code>deepcopy</code> 才逐层复制。</p>
+
+<p>矩阵初始化是同一个坑的高频变体：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; rows = [[0] * 2] * 2
+&gt;&gt;&gt; rows[0][0] = 9
+&gt;&gt;&gt; rows
+[[9, 0], [9, 0]]
+&gt;&gt;&gt; grid = [[0] * 2 for _ in range(2)]
+&gt;&gt;&gt; grid[0][0] = 9
+&gt;&gt;&gt; grid
+[[9, 0], [0, 0]]</code></pre>
+
+<p><code>[...] * 2</code> 重复的是<strong>引用</strong>。把外层换成推导式就没事，因为有 2 次独立的 <code>[0] * 2</code>。同理，<code>[[]] * 3</code>、<code>"abc".split()</code> 之后 <code>[x] * n</code> 都要警惕。</p>
+
+<div class="box tip"><p>判断「这次赋值是否安全」只需要问一句：右边是<strong>不可变对象</strong>吗？<code>int</code>/<code>str</code>/<code>tuple</code>（且元素全不可变）/<code>frozenset</code> 可以随便共享；<code>list</code>/<code>dict</code>/<code>set</code>/自定义类实例一律当作"共享"对待，需要独立副本就显式复制。</p></div>
+
+<h2 id="s26-3">26.3 <code>is</code> 比的是身份，不是值</h2>
+
+<pre class="pycon"><code>&gt;&gt;&gt; a = int("1000")
+&gt;&gt;&gt; b = int("1000")
+&gt;&gt;&gt; a == b, a is b
+(True, False)
+&gt;&gt;&gt; int("256") is int("256")
+True
+&gt;&gt;&gt; [] is []
+False
+&gt;&gt;&gt; None is None
+True</code></pre>
+
+<p><code>is</code> 判断「是不是同一块内存」，<code>==</code> 判断「值是否相等」。<code>int("256") is int("256")</code> 为 <code>True</code> 是因为 CPython 缓存了 -5～256 的小整数（<code>[]</code> 每次新建，所以 <code>False</code>）。这个缓存是实现细节，<strong>不能依赖</strong>：<code>int("1000") is int("1000")</code> 就是 <code>False</code>。</p>
+
+<p>唯一该用 <code>is</code> 的地方：</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>场景</th>
+<th>写法</th>
+<th>为什么</th>
+</tr></thead>
+<tbody>
+<tr><td>判 <code>None</code></td><td><code>x is None</code></td><td><code>None</code> 是单例，<code>==</code> 可能被自定义 <code>__eq__</code> 干扰</td></tr>
+<tr><td>判 <code>True</code>/<code>False</code></td><td><code>if flag:</code> 而不是 <code>if flag is True:</code></td><td>前者接受所有真值</td></tr>
+<tr><td>判哨兵对象</td><td><code>if arg is _MISSING:</code></td><td>哨兵是独一无二的</td></tr>
+<tr><td>判类型</td><td><code>isinstance(x, C)</code></td><td>别用 <code>type(x) is C</code>（漏子类）</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="s26-4">26.4 边遍历边改容器</h2>
+
+<pre class="pycon"><code>&gt;&gt;&gt; nums = [1, 2, 2, 3, 2, 4]
+&gt;&gt;&gt; bad = nums[:]
+&gt;&gt;&gt; for x in bad:
+...     if x == 2:
+...         bad.remove(x)
+...
+&gt;&gt;&gt; bad
+[1, 3, 2, 4]</code></pre>
+
+<p>本该删掉三个 2，结果只删了两个。<code>for</code> 内部靠索引推进，删元素让后面的元素整体前移，索引照样 +1，于是跳过了一个。这类 bug 的结果依赖数据排列，同样的代码在不同输入下有时"正确"。</p>
+
+<p><code>dict</code> 更直接，改大小就抛异常：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; d = {"a": 1}
+&gt;&gt;&gt; try:
+...     for k in d:
+...         d[k + "2"] = 2
+... except RuntimeError as e:
+...     print(type(e).__name__ + ":", e)
+RuntimeError: dictionary changed size during iteration</code></pre>
+
+<p>三种正确写法：</p>
+
+<pre class="out"><code># 推导式：只读原表，产新表
+evens = [x for x in nums if x != 2]
+
+# 遍历副本：要原地改原表时
+for x in nums[:]:
+    if x == 2:
+        nums.remove(x)
+
+# 倒序遍历：按下标删时
+for i in range(len(nums) - 1, -1, -1):
+    if nums[i] == 2:
+        del nums[i]</code></pre>
+
+<p>对 <code>dict</code>/<code>set</code>，一律 <code>for k in list(d):</code> 或 <code>for k in sorted(d):</code>——后者顺便让输出顺序稳定。</p>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch26_02_loop_mutation.py</code></figcaption><pre class="py"><code>nums = [1, 2, 2, 3, 2, 4]
+
+bad = nums[:]
+for x in bad:
+    if x == 2:
+        bad.remove(x)
+print("边遍历边删（漏删）:", bad)
+
+good = [x for x in nums if x != 2]
+print("推导式过滤      :", good)
+
+good2 = nums[:]
+for x in nums[:]:              # 遍历副本，改原列表
+    if x == 2:
+        good2.remove(x)
+print("遍历副本        :", good2)
+
+print()
+d = {"a": 1, "b": 2}
+try:
+    for k in d:
+        d[k + "!"] = 0        # 边遍历边插入
+except RuntimeError as e:
+    print("遍历中改 dict 大小:", type(e).__name__ + ":", e)
+print("遍历 list(d) 可行  :", sorted(k + "!" for k in list(d)))
+
+print()
+for i in range(3):
+    pass
+print("for 结束后 i 还在:", i)
+
+handlers = [lambda: i for _ in range(3)]
+print("lambda 晚绑定     :", [h() for h in handlers])
+fixed = [lambda i=i: i for i in range(3)]
+print("默认参数固定值    :", [f() for f in fixed])</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>边遍历边删（漏删）: [1, 3, 2, 4]
+推导式过滤      : [1, 3, 4]
+遍历副本        : [1, 3, 4]
+
+遍历中改 dict 大小: RuntimeError: dictionary changed size during iteration
+遍历 list(d) 可行  : ['a!', 'a!!', 'b!']
+
+for 结束后 i 还在: 2
+lambda 晚绑定     : [2, 2, 2]
+默认参数固定值    : [0, 1, 2]</code></pre></div></figure>
+
+<h2 id="s26-5">26.5 晚绑定：lambda 与闭包记住的是变量</h2>
+
+<pre class="pycon"><code>&gt;&gt;&gt; fs = [lambda: i for i in range(3)]
+&gt;&gt;&gt; [f() for f in fs]
+[2, 2, 2]
+&gt;&gt;&gt; fs = [lambda i=i: i for i in range(3)]
+&gt;&gt;&gt; [f() for f in fs]
+[0, 1, 2]</code></pre>
+
+<p><code>lambda: i</code> 里的 <code>i</code> 是<strong>自由变量</strong>，闭包捕获的是单元格（cell）而不是当时的值。等三个 lambda 都被调用时，循环早已结束，<code>i</code> 停在 <code>2</code>。用默认参数 <code>i=i</code> 把值在<strong>定义时</strong>固定下来，是最简洁的修法（第 11 章还有 <code>partial</code> 与工厂函数两种）。</p>
+
+<p>同一个机制还带来「循环变量泄漏」：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; for i in range(3):
+...     pass
+...
+&gt;&gt;&gt; i
+2</code></pre>
+
+<p><code>for</code> 不创建作用域，循环结束后 <code>i</code> 依然存在并保留最后一个值。C++ 里 <code>for (int i = 0; ...)</code> 的 <code>i</code> 出了循环就没了，这里不会。三个后果要留意：①<code>i</code> 可能覆盖外层的同名变量；②在函数里，<code>i</code> 若在循环前被引用会触发 <code>UnboundLocalError</code>（第 14 章）；③推导式<strong>不会</strong>泄漏（它有独立作用域），所以 <code>[i for i in range(3)]</code> 之后 <code>i</code> 不变。</p>
+
+<h2 id="s26-6">26.6 异常处理的四种错法</h2>
+
+<p><strong>错法一：裸 <code>except:</code></strong>。它连 <code>KeyboardInterrupt</code>、<code>SystemExit</code> 都接，Ctrl+C 都停不下来：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; issubclass(KeyboardInterrupt, Exception)
+False
+&gt;&gt;&gt; try:
+...     raise KeyboardInterrupt
+... except Exception as e:
+...     print("这个分支接不到")
+... except BaseException as e:
+...     print("只有 BaseException 能接:", type(e).__name__)
+只有 BaseException 能接: KeyboardInterrupt</code></pre>
+
+<p>第一行 <code>False</code> 就是根因：<code>KeyboardInterrupt</code> 直接继承 <code>BaseException</code>，跟 <code>Exception</code> 是兄弟。所以 <code>except Exception</code> 分支完全不执行。<strong>至少写 <code>except Exception:</code></strong>，需要放行 Ctrl+C 就只能这样；写裸 <code>except:</code> 等于连「用户要中断」都当成正常流程。</p>
+
+<p><strong>错法二：<code>except</code> 写多个类型不用元组</strong>。<code>except A or B:</code> 根本不是"或"：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; try:
+...     [][0]
+... except KeyError or IndexError as e:
+...     print("这个分支不会执行")
+... except IndexError as e:
+...     print("实际由第二个分支接住:", type(e).__name__)
+实际由第二个分支接住: IndexError</code></pre>
+
+<p><code>KeyError or IndexError</code> 先求值成 <code>KeyError</code>（类对象为真），所以第一个分支等价于 <code>except KeyError</code>。正确写法是元组：<code>except (KeyError, IndexError) as e:</code>。</p>
+
+<p><strong>错法三：<code>pass</code> 吞掉一切</strong>。<code>except Exception: pass</code> 会让「文件不存在」和「解析失败」看起来一模一样，排查从 5 分钟变成 5 小时。要忽略也必须留下证据：<code>logging.warning("跳过 %s: %s", path, e)</code>。</p>
+
+<p><strong>错法四：<code>finally</code> 里 <code>return</code></strong>。它会把正在传播的异常直接吃掉：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; def f():
+...     try:
+...         raise ValueError("这个异常会消失")
+...     finally:
+...         return "finally 的 return 赢了"
+...
+&gt;&gt;&gt; f()
+'finally 的 return 赢了'</code></pre>
+
+<p>（3.12 起，解释器会在编译这句时发一条 <code>SyntaxWarning: 'return' in a 'finally' block</code>——官方的态度很明确：这不是"风格问题"，是要吞异常的写法。）</p>
+
+<p><code>finally</code> 的 <code>return</code>/<code>break</code>/<code>continue</code> 会<strong>丢弃</strong>异常与返回值。同类问题还有「<code>except</code> 里 <code>return</code> 之后 <code>finally</code> 又改返回值」。规矩：<code>finally</code> 只做清理，不做控制流。</p>
+
+<h2 id="s26-7">26.7 资源、路径与编码</h2>
+
+<p><strong>不关文件</strong>。<code>open()</code> 不配 <code>with</code>，写缓冲可能不落盘，Windows 上还删不掉文件：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import shutil, tempfile
+&gt;&gt;&gt; from pathlib import Path
+&gt;&gt;&gt; work = Path(tempfile.mkdtemp())          # 只在这里造临时文件，不污染当前目录
+&gt;&gt;&gt; f = (work / "demo.txt").open("w", encoding="utf-8")
+&gt;&gt;&gt; _ = f.write("内容")
+&gt;&gt;&gt; f.closed
+False
+&gt;&gt;&gt; f.close()
+&gt;&gt;&gt; f.closed
+True
+&gt;&gt;&gt; with (work / "demo.txt").open("w", encoding="utf-8") as g:
+...     _ = g.write("内容")
+...
+&gt;&gt;&gt; g.closed
+True
+&gt;&gt;&gt; shutil.rmtree(work)</code></pre>
+
+<p>而且一旦 <code>write</code> 抛异常，<code>close</code> 就永远不执行。<code>with open(...) as f:</code> 保证离开代码块时关闭，异常时也关。</p>
+
+<p><strong>相对路径依赖当前工作目录</strong>。<code>open("data.csv")</code> 找的是 <code>os.getcwd()</code>，不是脚本所在目录。双击运行 vs 命令行运行 vs 被别处 import，cwd 全都不同，这就是"在我机器上好好的"的经典来源。用 <code>Path(__file__).resolve().parent / "data.csv"</code> 定位脚本旁的资源（第 17 章）。</p>
+
+<p><strong>反斜杠是转义符</strong>。<code>"C:\new\table.txt"</code> 里的 <code>\n</code> 是换行、<code>\t</code> 是制表符：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; len("C:\new\table.txt"), len(r"C:\new\table.txt")
+(14, 16)
+&gt;&gt;&gt; print("C:\temp")
+C:	emp</code></pre>
+
+<p>同一个路径，<code>\n</code> 和 <code>\t</code> 各占<strong>一个</strong>字符，所以长度少了 2；看起来像 <code>C:\new\table.txt</code> 的字符串，实际是 <code>C:</code> + 换行 + <code>ew</code> + 制表符 + <code>able.txt</code>。</p>
+
+<p>写路径永远用：原始字符串 <code>r"C:\new"</code>、正斜杠 <code>"C:/new"</code>，或者 <code>pathlib.Path</code>。第三种最好，因为它在 Windows 上也能正确拼。</p>
+
+<p><strong>编码不写死</strong>。<code>open()</code> 不写 <code>encoding=</code> 时用<strong>平台默认</strong>（中文 Windows 是 GBK，Linux 是 UTF-8）。同一份代码在两台机器上行为不同，读别人的 UTF-8 文件就 <code>UnicodeDecodeError</code>。规矩：文本 IO 永远显式 <code>encoding="utf-8"</code>。</p>
+
+<h2 id="s26-8">26.8 名字与导入</h2>
+
+<p><strong>遮蔽内置名</strong>。<code>list = [...]</code>、<code>sum = 0</code>、<code>id = 1</code>、<code>type = "x"</code> 都会让后面的内置函数失效：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; sum = 0
+&gt;&gt;&gt; for i in (1, 2, 3):
+...     sum += i
+...
+&gt;&gt;&gt; sum
+6
+&gt;&gt;&gt; try:
+...     sum([1, 2])
+... except TypeError as e:
+...     print(type(e).__name__ + ":", e)
+TypeError: 'int' object is not callable</code></pre>
+
+<p>错误信息 <code>'int' object is not callable</code> 完全没提"你把 sum 覆盖了"，所以这类 bug 特别费时间。约定：<code>lst</code>、<code>total</code>、<code>idx</code>、<code>kind</code> 之类加后缀，绝不用内置名当变量名（第 3 章命名约定表）。</p>
+
+<p><strong>模块名撞标准库</strong>。自己建 <code>random.py</code>、<code>json.py</code>、<code>types.py</code>、<code>email.py</code>，同目录下 <code>import random</code> 会导入你自己的文件，然后 <code>random.randint</code> 报 <code>AttributeError</code>——因为标准库被顶掉了。表现是"标准库坏了"，根因是文件名。</p>
+
+<p><strong><code>from m import *</code></strong>。它把 <code>m</code> 里所有不以 <code>_</code> 开头的名字倒进当前命名空间，两个模块都导出 <code>process</code> 时后者静默覆盖前者，且看不出是谁。只用显式导入；包作者该用 <code>__all__</code> 明确导出面（第 19 章）。</p>
+
+<p><strong>循环导入</strong>。<code>a.py</code> 开头 <code>import b</code>、<code>b.py</code> 开头 <code>import a</code>，谁先被导入谁就拿到"半成品"模块，典型报错是 <code>cannot import name 'X' from partially initialized module 'a' (most likely due to a circular import)</code>。修法：把共享部分抽到第三个模块；或把 <code>import</code> 挪进函数体内延迟到调用时；或用 <code>import a</code> 而不是 <code>from a import X</code>（前者只绑模块名，晚一点取属性仍然可行）。</p>
+
+<h2 id="s26-9">26.9 数字与字符串</h2>
+
+<pre class="pycon"><code>&gt;&gt;&gt; 0.1 + 0.2 == 0.3
+False
+&gt;&gt;&gt; round(0.1 + 0.2, 10) == 0.3
+True
+&gt;&gt;&gt; 7 / 2, 7 // 2
+(3.5, 3)
+&gt;&gt;&gt; try:
+...     "3" + 3
+... except TypeError as e:
+...     print(type(e).__name__ + ":", e)
+TypeError: can only concatenate str (not "int") to str
+&gt;&gt;&gt; "3" * 3
+'333'</code></pre>
+
+<p>四个高频点：</p>
+
+<ul><li><strong>浮点别用 <code>==</code></strong>。用 <code>math.isclose(a, b, rel_tol=1e-9)</code> 或比较差值；金额用 <code>Decimal</code>（第 3 章）。</li><li><strong><code>/</code> 永远返回 <code>float</code></strong>。<code>4 / 2</code> 是 <code>2.0</code> 不是 <code>2</code>；需要整数用 <code>//</code>，需要"真除法但取整"用 <code>int(a / b)</code> 时要留意负数方向（<code>int(-3.5) == -3</code>，而 <code>-7 // 2 == -4</code>）。</li><li><strong><code>+</code> 不隐式转类型</strong>。C++ 里 <code>"a" + 1</code> 编译不过，Python 里 <code>"3" + 3</code> 运行时抛 <code>TypeError</code>。要么 <code>str(3)</code>，要么 f-string。</li><li><strong><code>*</code> 对字符串是重复</strong>。<code>"3" * 3</code> 是 <code>'333'</code>，不是 <code>9</code>；<code>[0] * 3</code> 是 <code>[0, 0, 0]</code>。想数学乘就先把类型转对。</li></ul>
+
+<p>还有三个字符串方法误用：<code>strip("ab")</code> 删的是<strong>字符集合</strong> <code>{a, b}</code> 而不是子串 <code>"ab"</code>；<code>s.replace</code> 返回新串（<code>str</code> 不可变，原地改无效）；<code>split()</code> 不带参数按任意空白切并丢空串，<code>split(" ")</code> 会在连续空格处产生空串。判空用 <code>if not s.strip():</code>，判"包含子串"用 <code>in</code>，判前后缀用 <code>startswith</code>/<code>endswith</code>。</p>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch26_03_traps.py</code></figcaption><pre class="py"><code>print("== 与 is:")
+a = int("1000")
+b = int("1000")
+print(" 值相等:", a == b, "| 是同一对象:", a is b)
+print(" 小整数被缓存:", int("256") is int("256"))
+
+print()
+print("字符串组合判断:")
+role = "guest"
+print(" 错误写法 role == 'admin' or 'root' -&gt;", repr(role == "admin" or "root"))
+print(" 正确写法 role in ('admin', 'root') -&gt;", repr(role in ("admin", "root")))
+
+print()
+print("strip 的语义:")
+print(" 只去两端空白:", repr("  a b  ".strip()))
+print(" 参数是字符集合:", repr("xyhxy".strip("xy")))
+
+print()
+print("浮点比较:")
+print(" 0.1 + 0.2 == 0.3 -&gt;", 0.1 + 0.2 == 0.3)
+print(" 实际误差:", repr(0.1 + 0.2 - 0.3))
+
+print()
+print("除法:")
+print(" 7 / 2  =", 7 / 2, "| 类型", type(7 / 2).__name__)
+print(" 7 // 2 =", 7 // 2, "| 类型", type(7 // 2).__name__)
+
+print()
+print("遮蔽内置名:")
+lst = list
+list = [1, 2, 3]
+try:
+    list("abc")
+except TypeError as e:
+    print(" 遮蔽后调不动:", e)
+list = lst
+print(" 恢复后:", list("abc"))
+
+print()
+print("隐式字符串拼接:")
+print(" 相邻字面量自动连:", repr("abc" "def"))
+print(" 混合元组需要逗号:", ("abc" "def", "x"))</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>== 与 is:
+ 值相等: True | 是同一对象: False
+ 小整数被缓存: True
+
+字符串组合判断:
+ 错误写法 role == 'admin' or 'root' -&gt; 'root'
+ 正确写法 role in ('admin', 'root') -&gt; False
+
+strip 的语义:
+ 只去两端空白: 'a b'
+ 参数是字符集合: 'h'
+
+浮点比较:
+ 0.1 + 0.2 == 0.3 -&gt; False
+ 实际误差: 5.551115123125783e-17
+
+除法:
+ 7 / 2  = 3.5 | 类型 float
+ 7 // 2 = 3 | 类型 int
+
+遮蔽内置名:
+ 遮蔽后调不动: 'list' object is not callable
+ 恢复后: ['a', 'b', 'c']
+
+隐式字符串拼接:
+ 相邻字面量自动连: 'abcdef'
+ 混合元组需要逗号: ('abcdef', 'x')</code></pre></div></figure>
+
+<h2 id="s26-10">26.10 性能上的三个直觉错误</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>直觉</th>
+<th>实际</th>
+<th>正确做法</th>
+</tr></thead>
+<tbody>
+<tr><td><code>s += x</code> 拼接很快</td><td>每次新建字符串，O(n²)</td><td><code>"".join(parts)</code></td></tr>
+<tr><td><code>in list</code> 和 <code>in set</code> 差不多</td><td>O(n) vs O(1)，n=10⁵ 差万倍</td><td>先转 <code>set</code>/<code>dict</code></td></tr>
+<tr><td>循环里少写一行就能快</td><td>函数调用与属性查找才是大头</td><td>把 <code>len()</code>、<code>obj.attr</code> 提到循环外</td></tr>
+</tbody>
+</table>
+</div>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import timeit
+&gt;&gt;&gt; slow = min(timeit.repeat("s = ''\nfor i in range(3000): s += 'x'", number=1, repeat=3))
+&gt;&gt;&gt; fast = min(timeit.repeat("''.join(['x'] * 3000)", number=1, repeat=3))
+&gt;&gt;&gt; fast &lt; slow
+True
+&gt;&gt;&gt; import math
+&gt;&gt;&gt; math.isclose(1e16 + 1, 1e16)
+True</code></pre>
+
+<p>同样拼出 3000 个字符，<code>+=</code> 循环比 <code>join</code> 慢一个数量级以上（本机约 20 倍，具体数字不写死，只断言方向）。<code>math.isclose</code> 那一行是另一个坑的反面：<code>1e16 + 1 == 1e16</code> 在浮点里成立，因为 <code>1e16</code> 附近的精度间隔已经是 2。</p>
+
+<p>还有一个反向坑：<strong>过早优化</strong>。把清晰的推导式改成手工 <code>append</code> 循环只省 20%，却让代码难读；而把 <code>in list</code> 换成 <code>in set</code> 能省 99.9%。先量级、后常数（第 25 章）。</p>
+
+<h2 id="26-a-与-c-的差别">26.a 与 C++ 的差别</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>现象</th>
+<th>C++</th>
+<th>Python</th>
+</tr></thead>
+<tbody>
+<tr><td>变量赋值</td><td>按值复制（或显式引用）</td><td>只绑名字，改的是同一个对象</td></tr>
+<tr><td>默认参数</td><td>每次调用重新求值</td><td><strong>定义时求值一次</strong>，共享同一对象</td></tr>
+<tr><td><code>is</code>/<code>==</code></td><td>指针比较 / <code>operator==</code></td><td>身份比较 / 值比较，两者语义完全不同</td></tr>
+<tr><td>循环变量作用域</td><td>循环结束即销毁</td><td>泄漏到函数体，循环后仍可用</td></tr>
+<tr><td>lambda 捕获</td><td><code>[=]</code> 按值、<code>[&amp;]</code> 按引用，显式</td><td>闭包默认按<strong>变量</strong>捕获（晚绑定）</td></tr>
+<tr><td>遍历中修改容器</td><td>迭代器失效，UB</td><td>list 静默跳过，dict 抛 <code>RuntimeError</code></td></tr>
+<tr><td>类型检查</td><td>编译期，错误无法通过</td><td>运行时，只在实际执行到那行时报错</td></tr>
+<tr><td>整数除法</td><td><code>/</code> 截断，<code>%</code> 符号随被除数</td><td><code>/</code> 浮点，<code>//</code> 向下取整，<code>%</code> 符号随除数</td></tr>
+<tr><td>导入</td><td><code>#include</code> 文本复制</td><td>模块对象 + <code>sys.modules</code> 缓存，可循环导入出问题</td></tr>
+<tr><td>名字遮蔽</td><td>局部作用域可遮蔽，易发现</td><td>变量能遮蔽内置函数，报错信息不提示根因</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>最本质的一条：C++ 的多数坑在<strong>编译期</strong>被拦下（类型不匹配、未声明、迭代器失效有 UB 但至少不静默），Python 的坑在<strong>运行时</strong>才表现，而且常常不报错——它给你一个错的结果。所以 Python 更需要测试，也更需要把这份自查表当真。</p>
+
+<h2 id="26-b-易错点清单">26.b 易错点清单</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>现象</th>
+<th>原因</th>
+<th>一行修复</th>
+</tr></thead>
+<tbody>
+<tr><td>函数调用结果一次比一次长</td><td>默认参数是 <code>[]</code>/<code>{}</code>，定义时只建一次</td><td>改 <code>None</code> 哨兵或 <code>default_factory</code></td></tr>
+<tr><td>改了 b，a 也变了</td><td>赋值只绑名字，没复制</td><td><code>b = a[:]</code> / <code>copy.copy</code> / <code>deepcopy</code></td></tr>
+<tr><td>嵌套列表改一处全变</td><td><code>[[0]*n]*m</code> 共享内层</td><td><code>[[0]*n for _ in range(m)]</code></td></tr>
+<tr><td><code>x is 1000</code> 时对时错</td><td><code>is</code> 比身份，小整数有缓存</td><td>比值用 <code>==</code>，判 <code>None</code> 才用 <code>is</code></td></tr>
+<tr><td>循环里删元素删不干净</td><td>索引推进 + 元素前移，跳过</td><td>推导式重建 / 遍历副本 / 倒序删</td></tr>
+<tr><td>遍历 dict 时插入报 <code>RuntimeError</code></td><td>迭代中改变了大小</td><td><code>for k in list(d):</code></td></tr>
+<tr><td>三个 lambda 全返回同一个值</td><td>闭包晚绑定，捕获的是变量</td><td><code>lambda i=i: i</code> 或 <code>partial</code></td></tr>
+<tr><td>循环后变量还在，覆盖了外层</td><td><code>for</code> 不建作用域</td><td>换名字，或在函数内用</td></tr>
+<tr><td>Ctrl+C 停不下程序</td><td>裸 <code>except:</code> 接了 <code>BaseException</code></td><td>至少 <code>except Exception:</code></td></tr>
+<tr><td><code>except A or B</code> 只抓到 A</td><td>先求值成 <code>A</code>，不是元组</td><td><code>except (A, B) as e:</code></td></tr>
+<tr><td>异常莫名消失</td><td><code>finally</code> 里的 <code>return</code> 吞掉</td><td><code>finally</code> 只做清理</td></tr>
+<tr><td>写出的文件是乱码</td><td><code>open</code> 用了平台默认编码</td><td><code>encoding="utf-8"</code></td></tr>
+<tr><td>脚本单独跑正常，被 import 就找不到文件</td><td>相对路径依赖 cwd</td><td><code>Path(__file__).parent / ...</code></td></tr>
+<tr><td>路径里的 <code>\n</code> <code>\t</code> 变成换行制表符</td><td>反斜杠转义</td><td>原始串 <code>r"C:\new"</code> 或 <code>pathlib</code></td></tr>
+<tr><td><code>'int' object is not callable</code></td><td>变量遮蔽了内置名</td><td>改名，别用 <code>sum</code>/<code>list</code>/<code>id</code></td></tr>
+<tr><td><code>import random</code> 后属性不存在</td><td>同目录有同名 <code>random.py</code></td><td>重命名自己的模块</td></tr>
+<tr><td><code>cannot import name ... partially initialized</code></td><td>循环导入</td><td>抽公共模块 / 延迟导入</td></tr>
+<tr><td><code>0.1 + 0.2 != 0.3</code></td><td>二进制浮点表示</td><td><code>math.isclose</code> 或 <code>Decimal</code></td></tr>
+<tr><td><code>"3" + 3</code> 抛 <code>TypeError</code></td><td>无隐式类型转换</td><td><code>str(3)</code> 或 f-string</td></tr>
+<tr><td>数据一大就卡</td><td><code>+=</code> 拼串 / <code>in list</code></td><td><code>join</code> / 转 <code>set</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="26-c-练习">26.c 练习</h2>
+
+<p><strong>基础 1</strong>：写一个 <code>History</code> 类，<code>add(x)</code> 追加并返回当前全部记录，默认构造不共享状态；再用两个实例互相验证。然后故意把它改成 <code>def __init__(self, items=[])</code>，跑同一个验证脚本，把失败现象记录成一行注释（不要求保留错误版本）。</p>
+
+<p>验收：<code>History().add(1)</code> 后再 <code>History().add(2)</code> 返回 <code>[2]</code>；错误版本返回 <code>[1, 2]</code>，且注释里写清"默认参数在定义时求值"。</p>
+
+<p><strong>基础 2</strong>：给定 <code>nums = [1, 2, 2, 3, 2, 4]</code>，用三种写法（推导式、遍历副本、倒序 del）各删掉所有 <code>2</code>，断言三者结果都是 <code>[1, 3, 4]</code>，并打印"边遍历边删"的错误结果作对照。</p>
+
+<p>验收：三种正确结果一致；错误版本打印 <code>[1, 3, 2, 4]</code>。</p>
+
+<p><strong>基础 3</strong>：写一个 <code>safe_int(text, default=None)</code>：<code>text</code> 不是整数时返回 <code>default</code>，并 <code>logging.warning</code> 记录原文；<code>text</code> 为 <code>None</code> 时抛 <code>TypeError</code>（因为那是调用方的 bug，不该被吞）。三条断言覆盖三种输入。</p>
+
+<p>验收：<code>safe_int("12") == 12</code>、<code>safe_int("x", 0) == 0</code> 且有 warning 记录、<code>safe_int(None)</code> 抛 <code>TypeError</code>。</p>
+
+<p><strong>变式</strong>：把 26.5 的三个 lambda 修好，用三种方式各写一遍（默认参数、<code>functools.partial</code>、工厂函数），断言三者都返回 <code>[0, 1, 2]</code>。</p>
+
+<p>验收：三个版本的输出完全一致；任一版本里 <code>lambda</code> 体内都不出现裸 <code>i</code> 的自由变量引用。</p>
+
+<p><strong>挑战</strong>：写一个 <code>lint(source: str) -&gt; list[str]</code>，用 <code>ast</code> 静态扫出本章的四类问题：①<code>def</code> 的参数默认值是 <code>list</code>/<code>dict</code>/<code>set</code> 字面量；②<code>is</code> 与字面量比较（<code>1</code>/<code>"x"</code>/<code>[]</code>）；③<code>except</code> 处理了 <code>BaseException</code> 或裸 <code>except</code>；④<code>for</code> 循环体里对同一名字调用 <code>.append/.remove/.pop</code>。返回形如 <code>"第 3 行: 可变默认参数"</code> 的列表。</p>
+
+<p>验收：对一段故意写错 4 处的源码，返回 4 条且行号正确；对一段正确代码返回空列表。</p>
+
+<h2 id="26-d-小结">26.d 小结</h2>
+
+<ol><li>三类大坑同源：<strong>名字绑定对象</strong>（别名、浅拷贝）、<strong>定义时求值一次</strong>（默认参数、lambda 闭包）、<strong>运行时才查</strong>（类型、导入、遍历中改容器）。</li><li>判断赋值是否安全只问一句"右边可变吗"；判断闭包是否安全只看"捕获的是值还是变量"；判断异常处理是否安全只看"<code>except</code> 有没有窄到具体类型"。</li><li>性能与正确性的优先级永远是：先换数据结构与算法（数量级），再改常数（20%），最后才谈微优化；<code>timeit</code> 与 <code>cProfile</code> 是唯一可信的裁判。</li></ol>
+
+<p>到这里 26 章正文结束。这套内容从「解释器怎么跑一行代码」讲到「怎么不踩坑」，每一章的示例都能直接运行、输出都是实测。接下来请读 <code>00-guide.md</code> 的学习路线，按周推进；写完每章练习后回到对应章节的"易错点清单"逐条自测，通过后再进下一章。</p>
+
+    
+
+    
+</article>

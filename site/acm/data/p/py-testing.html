@@ -1,0 +1,522 @@
+<article data-learn-content>
+<p><strong>读完这一章你能做到</strong></p>
+
+<ol><li>用 <code>unittest</code> 写出一组能跑、能报错定位、能跳过已知 bug 的测试。</li><li>用 <code>pytest</code> 的裸 <code>assert</code>、<code>fixture</code>、<code>parametrize</code> 把测试写得比被测代码还短。</li><li>用 <code>unittest.mock</code> 把时间、网络、随机数这些不确定的东西换成确定值。</li><li>说清「该测什么」：边界、异常、等价类，以及为什么覆盖率 100% 也可能全是废测试。</li><li>把测试接进一条命令（<code>pytest -q</code>）与 CI。</li></ol>
+
+<div class="box tip"><p>本章可运行的示例都用<strong>标准库 <code>unittest</code></strong>（无需安装任何包），所以本文档能自动校验它们的真实输出。<code>pytest</code> 部分给出完整代码与终端输出，但需要你先 <code>python -m pip install pytest</code> 才能跑——它是第三方包，不属于标准库。</p></div>
+
+<h2 id="s24-1">24.1 测试替你拦住什么</h2>
+
+<p>三类收益，按重要性排序：</p>
+
+<ol><li><strong>回归网</strong>：改 A 功能弄坏 B 功能，是项目里最常见的 bug。有测试时它在提交前就红；没测试时它在上线后才发现。</li><li><strong>可执行的文档</strong>：新同事读 <code>test_parse_date.py</code> 比读实现更快知道「这个函数接受什么、拒绝什么」。</li><li><strong>设计压力</strong>：一个函数难测，通常意味着它有隐藏的全局状态、副作用或过多依赖。写测试的过程会逼你把它拆小。</li></ol>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>层次</th>
+<th>数量级</th>
+<th>速度</th>
+<th>例子</th>
+</tr></thead>
+<tbody>
+<tr><td>单元测试</td><td>几百上千</td><td>毫秒</td><td><code>safe_div(1, 0)</code> 抛 <code>ValueError</code></td></tr>
+<tr><td>集成测试</td><td>几十</td><td>秒</td><td>接口 + 数据库一起跑</td></tr>
+<tr><td>端到端测试</td><td>几个</td><td>分钟</td><td>起服务、发 HTTP、断言响应</td></tr>
+<tr><td>手工验证</td><td>越少越好</td><td>—</td><td>只在无法自动化时用</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>新手最常犯的错是「只写端到端」：一个真实数据库 + 一个真实网络调用，让整个测试套件从 0.2 秒变成 2 分钟，于是没人愿意跑，测试就死了。<strong>单元测试要多而快，越往上越少</strong>。</p>
+
+<h2 id="s24-2">24.2 <code>unittest</code>：标准库自带的那套</h2>
+
+<p>骨架四件套：继承 <code>TestCase</code>、方法名以 <code>test_</code> 开头、用 <code>self.assertXxx</code> 断言、用 <code>python -m unittest</code> 运行。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; try:
+...     assert 1 + 1 == 3, "加法坏了"
+... except AssertionError as e:
+...     print(type(e).__name__ + ":", e)
+AssertionError: 加法坏了</code></pre>
+
+<p>断言失败就是抛 <code>AssertionError</code>，测试框架捕获它并把「哪一行、什么值」报给你。<code>assert</code> 的第二个参数一定要写——否则报错只有 <code>AssertionError</code> 四个字，等于没报。</p>
+
+<p>常用断言一张表：</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>断言</th>
+<th>判断</th>
+<th>备注</th>
+</tr></thead>
+<tbody>
+<tr><td><code>assertEqual(a, b)</code></td><td><code>a == b</code></td><td>最常用</td></tr>
+<tr><td><code>assertNotEqual(a, b)</code></td><td><code>a != b</code></td><td></td></tr>
+<tr><td><code>assertTrue(x)</code> / <code>assertFalse(x)</code></td><td>真值</td><td>别用它代替具体断言</td></tr>
+<tr><td><code>assertIs(a, b)</code> / <code>assertIsNone(x)</code></td><td>身份</td><td>判 <code>None</code> 用它而不是 <code>==</code></td></tr>
+<tr><td><code>assertIn(a, seq)</code></td><td>成员</td><td>检查子串/字典键</td></tr>
+<tr><td><code>assertAlmostEqual(a, b, places=7)</code></td><td>四舍五入到 7 位后相等</td><td>浮点专用</td></tr>
+<tr><td><code>assertRaises(Err, fn, *args)</code></td><td>抛指定异常</td><td>推荐用 <code>with</code> 形式</td></tr>
+<tr><td><code>assertWarns(Warn)</code></td><td>发出警告</td><td>逐步废弃 API 时用</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>浮点断言为什么必须用 <code>assertAlmostEqual</code>，一次失败就说清了：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import unittest
+&gt;&gt;&gt; tc = unittest.TestCase()
+&gt;&gt;&gt; tc.assertAlmostEqual(0.1 + 0.2, 0.3, places=7)
+&gt;&gt;&gt; print("places=7 通过")
+places=7 通过
+&gt;&gt;&gt; try:
+...     tc.assertAlmostEqual(0.1 + 0.2, 0.3, places=20)
+... except AssertionError as e:
+...     print(str(e).splitlines()[0])
+0.30000000000000004 != 0.3 within 20 places (5.551115123125783e-17 difference)</code></pre>
+
+<p><code>assertEqual</code> 对这两个数会直接失败——这是第 3 章讲过的二进制浮点误差在测试层的表现。</p>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch24_01_unittest.py</code></figcaption><pre class="py"><code>import io
+import unittest
+
+
+def safe_div(a, b):
+    if b == 0:
+        raise ValueError("除数不能为 0")
+    return a / b
+
+
+class TestSafeDiv(unittest.TestCase):
+    def test_normal(self):
+        self.assertEqual(safe_div(6, 3), 2)
+
+    def test_float(self):
+        self.assertAlmostEqual(safe_div(1, 3), 0.3333, places=4)
+
+    def test_zero(self):
+        with self.assertRaises(ValueError) as ctx:
+            safe_div(1, 0)
+        self.assertEqual(str(ctx.exception), "除数不能为 0")
+
+    def test_many_cases(self):
+        for a, b in [(1, 1), (4, 2), (9, 3)]:
+            with self.subTest(a=a, b=b):
+                self.assertEqual(safe_div(a * b, b), a)
+
+    @unittest.expectedFailure
+    def test_known_bug(self):
+        self.assertEqual(safe_div(1, 3), 0.33)
+
+
+suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestSafeDiv)
+buffer = io.StringIO()
+result = unittest.TextTestRunner(stream=buffer, verbosity=2).run(suite)
+
+print("用例数:", result.testsRun)
+print("失败:", len(result.failures), "| 错误:", len(result.errors))
+print("预期失败:", len(result.expectedFailures), "| 跳过:", len(result.skipped))
+print("整体通过:", result.wasSuccessful())
+for case, _ in result.expectedFailures:
+    print("被标记为预期失败的方法:", case._testMethodName)</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>用例数: 5
+失败: 0 | 错误: 0
+预期失败: 1 | 跳过: 0
+整体通过: True
+被标记为预期失败的方法: test_known_bug</code></pre></div></figure>
+
+<p>四个值得记住的机制：</p>
+
+<ul><li><strong><code>setUp</code> / <code>tearDown</code></strong>：每个测试方法前后各跑一次，用于建临时文件、连数据库；<code>tearDown</code> 里必须清理干净，否则测试之间互相污染，顺序一变就挂。</li><li><strong><code>subTest</code></strong>：一组相似输入放一个方法里，用 <code>with self.subTest(...)</code> 包住，失败时只报那一条并继续跑剩下的——比复制五个方法清爽。</li><li><strong><code>@unittest.expectedFailure</code></strong>：把「已知会失败」的用例标记出来，套件整体仍算通过，修好后它会变成 <code>unexpected success</code> 提醒你删掉标记。</li><li><strong><code>@unittest.skip("原因")</code></strong>：临时跳过（依赖未装的环境、未实现的平台）。</li></ul>
+
+<p>运行方式有三种，最常用的是发现模式：</p>
+
+<pre class="shell"><code>python -m unittest                          # 发现当前目录的 test*.py
+python -m unittest tests.test_calc          # 跑单个模块
+python -m unittest tests.test_calc.TestSafeDiv.test_zero   # 跑单个方法
+python -m unittest -v                       # 每个用例一行</code></pre>
+
+<h2 id="s24-3">24.3 <code>pytest</code>：为什么几乎所有人都换用它</h2>
+
+<p><code>pytest</code> 兼容 <code>unittest</code> 的用例（能直接跑 <code>TestCase</code>），但自己那套写法更短：</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>对比项</th>
+<th><code>unittest</code></th>
+<th><code>pytest</code></th>
+</tr></thead>
+<tbody>
+<tr><td>断言</td><td><code>self.assertEqual(a, b)</code></td><td><code>assert a == b</code></td></tr>
+<tr><td>失败信息</td><td>需要写 msg</td><td>自动显示两边的值</td></tr>
+<tr><td>用例组织</td><td>必须继承类</td><td>普通函数即可</td></tr>
+<tr><td>前置准备</td><td><code>setUp</code>/<code>tearDown</code></td><td><code>fixture</code>（可组合、可作用域化）</td></tr>
+<tr><td>参数化</td><td>手写循环 + <code>subTest</code></td><td><code>@pytest.mark.parametrize</code></td></tr>
+<tr><td>临时目录</td><td>自己 <code>tempfile</code> + 清理</td><td>内置 <code>tmp_path</code> fixture</td></tr>
+<tr><td>环境变量/<code>sys.path</code></td><td>手动</td><td><code>monkeypatch</code> fixture</td></tr>
+<tr><td>插件生态</td><td>无</td><td>覆盖率、并行、超时、随机顺序几千个</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>装与跑就两步：</p>
+
+<pre class="shell"><code>python -m pip install pytest
+pytest -q                 # 安静模式
+pytest -x                 # 第一个失败就停
+pytest -k "parse and not slow"    # 按名字过滤
+pytest --lf               # 只跑上次失败的</code></pre>
+
+<p>文件名要匹配 <code>test_*.py</code> 或 <code>*_test.py</code>，函数名以 <code>test_</code> 开头，类名以 <code>Test</code> 开头且不能有 <code>__init__</code>——这是 pytest 的发现规则，不符合就「0 tests ran」，比报错更难查。</p>
+
+<pre class="out"><code># test_calc.py（需要先 pip install pytest）
+import pytest
+from calc import safe_div
+
+
+def test_normal():
+    assert safe_div(6, 3) == 2
+
+
+def test_float():
+    assert safe_div(1, 3) == pytest.approx(0.3333, abs=1e-4)
+
+
+def test_zero():
+    with pytest.raises(ValueError, match="除数不能为 0"):
+        safe_div(1, 0)
+
+
+@pytest.mark.parametrize("a,b,want", [
+    (1, 1, 1),
+    (4, 2, 2),
+    (9, 3, 3),
+    (0, 5, 0),
+])
+def test_many(a, b, want):
+    assert safe_div(a * b, b) == want</code></pre>
+
+<pre class="out"><code># 终端输出（耗时随机器不同）
+$ pytest -q
+.......                                                              [100%]
+7 passed in 0.02s</code></pre>
+
+<p>失败的输出信息量是 <code>unittest</code> 比不了的：</p>
+
+<pre class="out"><code># 把 test_zero 的期望改成 ZeroDivisionError 后会看到：
+$ pytest -q
+.F.....                                                              [100%]
+________________________________ test_zero _________________________________
+    def test_zero():
+        with pytest.raises(ZeroDivisionError, match="除数不能为 0"):
+&gt;           safe_div(1, 0)
+E           Failed: DID NOT RAISE &lt;class 'ZeroDivisionError'&gt;
+=========================== short test summary info ============================
+FAILED test_calc.py::test_zero - Failed: DID NOT RAISE &lt;class 'ZeroDivisionError'&gt;
+1 failed, 6 passed in 0.03s</code></pre>
+
+<p>它直接把源码那几行贴出来并用 <code>&gt;</code> 指出出错表达式，连「期望抛什么、实际抛了什么」都写了。</p>
+
+<h2 id="s24-4">24.4 fixture：把「准备」和「清理」写成依赖</h2>
+
+<p><code>fixture</code> 是「一个带 <code>return</code>（或 <code>yield</code>）的函数，名字出现在测试函数参数里就自动注入」。</p>
+
+<pre class="out"><code># conftest.py —— 放在项目根目录或 tests/ 下，自动被发现
+import pytest
+
+
+@pytest.fixture
+def sample_rows():
+    return [{"id": 1, "score": 90}, {"id": 2, "score": 50}]
+
+
+@pytest.fixture
+def db(tmp_path):
+    path = tmp_path / "test.db"
+    path.write_text("v1", encoding="utf-8")
+    yield path                      # yield 之前是准备，之后是清理
+    path.unlink()</code></pre>
+
+<pre class="out"><code># test_report.py
+def test_total(sample_rows):
+    assert sum(r["score"] for r in sample_rows) == 140
+
+
+def test_db_written(db):
+    assert db.read_text(encoding="utf-8") == "v1"</code></pre>
+
+<p>四个必会要点：</p>
+
+<ol><li><strong>作用域</strong>：<code>@pytest.fixture(scope="session")</code> 能在整个测试会话里只建一次（数据库连接、浏览器），默认是 <code>function</code>（每个测试都重建）。</li><li><strong><code>yield</code> 即清理</strong>：<code>yield</code> 之后的代码在测试结束后执行，等价于 <code>tearDown</code>，但<strong>不必写在另一个方法里</strong>。</li><li><strong>可组合</strong>：<code>db</code> 依赖 <code>tmp_path</code>，<code>report</code> 依赖 <code>db</code>，pytest 自动按依赖顺序建、按相反顺序拆。</li><li><strong><code>autouse=True</code></strong>：强制每个测试都用（比如全局打补丁），慎用——它让测试的依赖关系变得不可见。</li></ol>
+
+<p>内置的三个高频 fixture：<code>tmp_path</code>（临时目录 <code>pathlib.Path</code>，自动清理）、<code>monkeypatch</code>（改环境变量/属性/<code>sys.path</code>，测试后自动还原）、<code>capsys</code>（捕获 <code>print</code> 输出）。</p>
+
+<h2 id="s24-5">24.5 mock：把不确定的东西钉死</h2>
+
+<p>测试里最讨厌三样东西：<strong>当前时间、网络、随机数</strong>。<code>unittest.mock</code> 用「假对象」替换它们。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; from unittest.mock import MagicMock
+&gt;&gt;&gt; fake = MagicMock(return_value=42)
+&gt;&gt;&gt; fake("参数")
+42
+&gt;&gt;&gt; fake.call_args
+call('参数')
+&gt;&gt;&gt; fake.assert_called_once_with("参数")
+&gt;&gt;&gt; fake.call_count
+1</code></pre>
+
+<p><code>MagicMock()</code> 的属性访问、调用、下标全都返回新的 mock，所以不用提前声明结构；<code>return_value</code> 决定调它返回什么；<code>side_effect</code> 可以让它依次返回不同值或抛异常。</p>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch24_02_mock.py</code></figcaption><pre class="py"><code>import sys
+from unittest.mock import MagicMock, patch
+
+mod = sys.modules[__name__]
+
+
+def now():
+    import time
+    return time.time()
+
+
+def is_expired(created, ttl=60):
+    return now() - created &gt; ttl
+
+
+with patch.object(mod, "now", return_value=1000.0):
+    print("未过期:", not is_expired(970.0))
+    print("已过期:", is_expired(900.0))
+
+fake = MagicMock(return_value={"ok": True})
+print("返回值:", fake("/api"))
+print("调用参数:", fake.call_args)
+print("调用次数:", fake.call_count)
+fake.assert_called_once_with("/api")
+
+send = MagicMock()
+for i in range(3):
+    send(i)
+print("全部调用:", [c.args for c in send.call_args_list])
+
+client = MagicMock()
+client.get.return_value.status_code = 200
+resp = client.get("https://example.com")
+print("链式属性打桩:", resp.status_code, "| 调用的方法名:", client.get.call_args.args)
+
+with patch.object(mod, "now", side_effect=RuntimeError("时钟坏了")):
+    try:
+        is_expired(1.0)
+    except RuntimeError as e:
+        print("side_effect 抛异常:", e)</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>未过期: True
+已过期: True
+返回值: {'ok': True}
+调用参数: call('/api')
+调用次数: 1
+全部调用: [(0,), (1,), (2,)]
+链式属性打桩: 200 | 调用的方法名: ('https://example.com',)
+side_effect 抛异常: 时钟坏了</code></pre></div></figure>
+
+<p>打补丁的两种写法，<strong>优先用 <code>patch.object</code></strong>：</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>写法</th>
+<th>用法</th>
+<th>什么时候用</th>
+</tr></thead>
+<tbody>
+<tr><td><code>with patch("模块.名字", ...)</code></td><td>按字符串路径打补丁</td><td>名字确定、补丁目标是导入过来的符号</td></tr>
+<tr><td><code>with patch.object(mod, "名字", ...)</code></td><td>直接给对象+属性名</td><td><strong>最稳</strong>，不依赖模块被叫什么名字</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>字符串形式最容易踩的坑是「补丁打在了导入方还是定义方」。规则是：<strong>补丁要打在「使用它的那个模块」的命名空间里</strong>。<code>from time import time</code> 之后，<code>patch("time.time")</code> 是无效的——因为你的模块里已经有独立的 <code>time</code> 名字了，要 <code>patch("你的模块.time")</code>。</p>
+
+<p><code>MagicMock</code> 的一个隐患：它接受任何调用、任何属性，于是「你拼错了方法名」也照样通过。所以关键断言要落到 <code>assert_called_once_with(...)</code> 上，而不是「没报错就算过」。</p>
+
+<h2 id="s24-6">24.6 该测什么：边界、异常、等价类</h2>
+
+<p>「测得多」不等于「测得对」。对每个函数，按四类准备用例：</p>
+
+<ol><li><strong>正常路径</strong>：典型输入 → 期望输出。</li><li><strong>边界</strong>：空集合、单个元素、0、负数、最大长度、闰年 2 月 29 日、字符串首尾。</li><li><strong>异常路径</strong>：非法输入是否抛<strong>正确的异常类型</strong>（不是「随便抛一个」）。</li><li><strong>不变量/性质</strong>：排序后长度不变、编码再解码能还原、<code>f(x) &gt;= 0</code>。</li></ol>
+
+<p>浮点比较单独拎出来，因为 <code>==</code> 几乎总是错的：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import math
+&gt;&gt;&gt; def approx(a, b, tol=1e-9):
+...     return math.isclose(a, b, rel_tol=tol, abs_tol=tol)
+...
+&gt;&gt;&gt; approx(0.1 + 0.2, 0.3)
+True
+&gt;&gt;&gt; approx(1e-12, 0.0), approx(1e-12, 0.0, 1e-13)
+(True, False)
+&gt;&gt;&gt; approx(1e9, 1e9 + 1.0)
+True</code></pre>
+
+<p><code>rel_tol</code>（相对容差）和 <code>abs_tol</code>（绝对容差）要一起给：只给相对容差时，和 0 比较永远失败（任何数相对 0 的误差都是无穷大）；只给绝对容差时，大数比较过严。</p>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch24_03_assert.py</code></figcaption><pre class="py"><code>import math
+
+
+def approx(a, b, tol=1e-9):
+    return math.isclose(a, b, rel_tol=tol, abs_tol=tol)
+
+
+def check(cond, desc):
+    print(("ok    " if cond else "FAIL  ") + desc)
+    return cond
+
+
+results = [
+    check(approx(0.1 + 0.2, 0.3), "0.1+0.2 约等于 0.3"),
+    check(not (0.1 + 0.2 == 0.3), "但 0.1+0.2 == 0.3 为假，所以不能用 =="),
+    check(approx(1e-12, 0.0), "1e-12 在默认绝对容差之内"),
+    check(not approx(1e-12, 0.0, 1e-13), "容差收紧到 1e-13 后不通过"),
+    check(approx(1e9, 1e9 + 1.0), "相对容差让大数的 1 之差也可接受"),
+]
+print("通过", sum(results), "/", len(results))
+
+
+def safe_div(a, b):
+    if b == 0:
+        raise ValueError("除数不能为 0")
+    return a / b
+
+
+for args, want in [((6, 3), 2), ((1, 4), 0.25)]:
+    got = safe_div(*args)
+    print("边界内:", args, "→", got, "| 与期望一致:", approx(got, want))
+
+try:
+    safe_div(1, 0)
+except ValueError as e:
+    print("异常路径:", type(e).__name__, "|", e)</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>ok    0.1+0.2 约等于 0.3
+ok    但 0.1+0.2 == 0.3 为假，所以不能用 ==
+ok    1e-12 在默认绝对容差之内
+ok    容差收紧到 1e-13 后不通过
+ok    相对容差让大数的 1 之差也可接受
+通过 5 / 5
+边界内: (6, 3) → 2.0 | 与期望一致: True
+边界内: (1, 4) → 0.25 | 与期望一致: True
+异常路径: ValueError | 除数不能为 0</code></pre></div></figure>
+
+<h2 id="s24-7">24.7 覆盖率：看趋势，别看数字</h2>
+
+<pre class="shell"><code>python -m pip install pytest-cov
+pytest --cov=myapp --cov-report=term-missing</code></pre>
+
+<p>输出里 <code>Missing</code> 一列指出<strong>哪些行没被执行</strong>，比总百分比有用得多：</p>
+
+<pre class="out"><code>Name              Stmts   Miss  Cover   Missing
+-----------------------------------------------
+myapp/calc.py        12      2    83%   14-15</code></pre>
+
+<p>三条经验：</p>
+
+<ul><li><strong>80% 左右的覆盖率</strong>通常已经能挡住大部分回归；追到 100% 往往靠 <code># pragma: no cover</code> 作弊。</li><li><strong>分支覆盖率</strong>（<code>--cov-branch</code>）比行覆盖率有意义：<code>if</code> 只走了一边，行覆盖仍是 100%。</li><li><strong>没被断言的执行毫无价值</strong>：跑过一行不等于验证了那行的结果。覆盖率衡量「有没有跑到」，测试质量靠断言。</li></ul>
+
+<h2 id="s24-8">24.8 目录结构与命名</h2>
+
+<pre class="out"><code>project/
+├── src/myapp/
+│   ├── __init__.py
+│   └── calc.py
+├── tests/
+│   ├── conftest.py            # 共享 fixture
+│   ├── test_calc.py           # 与被测模块同名，一一对应
+│   └── test_cli.py
+└── pyproject.toml             # [tool.pytest.ini_options] 放配置</code></pre>
+
+<pre class="code"><code>[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+markers = ["slow: 需要几秒以上的用例"]</code></pre>
+
+<p>命名约定只有一条值得坚持：<strong>测试文件与测试函数名描述「被破坏的行为」</strong>，而不是「函数名」。<code>test_zero_division_raises_value_error</code> 比 <code>test_div_2</code> 有用得多——半年前失败时，前者直接告诉你哪里坏了。</p>
+
+<h2 id="24-a-与-c-的差别">24.a 与 C++ 的差别</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>维度</th>
+<th>Python</th>
+<th>C++</th>
+</tr></thead>
+<tbody>
+<tr><td>测试框架</td><td><code>unittest</code>（标准库）、<code>pytest</code>（事实标准）</td><td>GoogleTest、Catch2、doctest，均需引入</td></tr>
+<tr><td>断言</td><td>运行时 <code>assert</code> / <code>assertXxx</code></td><td>编译期 <code>static_assert</code> + 运行时 <code>EXPECT_EQ</code></td></tr>
+<tr><td>编译期检查</td><td>无（靠 mypy）</td><td>类型/常量表达式在编译期就能挂</td></tr>
+<tr><td>mock</td><td>运行时替换属性，无需接口</td><td>需虚函数/接口或模板注入，常靠代码生成</td></tr>
+<tr><td>发现用例</td><td>按文件名/函数名前缀自动发现</td><td>注册宏 + 链接 + <code>main</code> 里 <code>RUN_ALL_TESTS()</code></td></tr>
+<tr><td>参数化</td><td><code>@pytest.mark.parametrize</code></td><td><code>INSTANTIATE_TEST_SUITE_P</code> 宏</td></tr>
+<tr><td>浮点比较</td><td><code>pytest.approx</code> / <code>assertAlmostEqual</code></td><td><code>EXPECT_NEAR(a, b, eps)</code></td></tr>
+<tr><td>覆盖率</td><td><code>coverage.py</code>（字节码级）</td><td>gcov/llvm-cov（编译期插桩）</td></tr>
+<tr><td>运行命令</td><td><code>pytest -q</code></td><td>编译 + 链接 + 运行可执行文件</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>最本质的差别：C++ 的测试要<strong>先编译</strong>才能跑，所以反馈周期以秒计；Python 改一行就能重跑，所以鼓励「红-绿-重构」的小步循环。反过来，C++ 的编译期断言能在写代码时就挡住一类错误，Python 只能靠测试与类型检查器补位。</p>
+
+<h2 id="24-b-易错点清单">24.b 易错点清单</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>现象</th>
+<th>原因</th>
+<th>一行修复</th>
+</tr></thead>
+<tbody>
+<tr><td><code>pytest</code> 报 <code>no tests ran</code></td><td>文件名/函数名不匹配发现规则</td><td>改成 <code>test_*.py</code>、<code>test_*</code> 函数</td></tr>
+<tr><td>用例单独跑过、全跑就挂</td><td>测试间共享了可变状态</td><td>每次在 <code>setUp</code>/fixture 里重建数据</td></tr>
+<tr><td><code>assertEqual</code> 比较浮点总失败</td><td>二进制浮点误差</td><td>用 <code>assertAlmostEqual</code> / <code>pytest.approx</code></td></tr>
+<tr><td><code>assertRaises</code> 里代码没抛异常，用例却过了</td><td>断言写在 <code>with</code> 块外</td><td>断言调用必须写在 <code>with</code> 内</td></tr>
+<tr><td><code>patch("time.time")</code> 无效</td><td>补丁打错了命名空间</td><td>打在「使用方模块」的名字上</td></tr>
+<tr><td>mock 拼错方法名仍然通过</td><td><code>MagicMock</code> 接受一切</td><td>加 <code>assert_called_once_with(...)</code></td></tr>
+<tr><td>测试依赖真实网络</td><td>没 mock 外部调用</td><td><code>patch.object</code> 替换请求函数</td></tr>
+<tr><td>测试跑了 3 分钟没人跑</td><td>大量集成/端到端用例</td><td>拆成单元测试 + 打 <code>@pytest.mark.slow</code></td></tr>
+<tr><td>覆盖率 100% 但线上仍炸</td><td>只执行没断言、边界没测</td><td>补断言 + 边界/异常用例</td></tr>
+<tr><td><code>tmp_path</code> 之外用了固定文件名</td><td>并发跑测试时互相覆盖</td><td>一切临时文件走 <code>tmp_path</code></td></tr>
+<tr><td><code>conftest.py</code> 放在包内没被发现</td><td>位置不对</td><td>放项目根或 <code>tests/</code> 下</td></tr>
+<tr><td>测试改了全局配置没还原</td><td>用了 <code>os.environ[...]=</code> 直接赋值</td><td>用 <code>monkeypatch.setenv</code> 自动还原</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="24-c-练习">24.c 练习</h2>
+
+<p><strong>基础 1</strong>：为 <code>def parse_int(s: str) -&gt; int</code> 写 6 个用例：正常、负数、带空格、空串、<code>"3.5"</code>、<code>None</code>。分别断言返回值或异常类型。</p>
+
+<p>验收：<code>python -m unittest</code> 全部通过；把实现改成 <code>return 0</code> 后至少 3 个用例失败。</p>
+
+<p><strong>基础 2</strong>：给一个「判断闰年」的 <code>is_leap(y)</code> 写参数化测试，覆盖 1900（非闰）、2000（闰）、2023、2024。</p>
+
+<p>验收：<code>unittest</code> 用 <code>subTest</code> 或 <code>pytest</code> 用 <code>parametrize</code> 均可；4 条断言全过，且删掉 <code>% 400</code> 分支时有且仅有 1900/2000 两条失败。</p>
+
+<p><strong>基础 3</strong>：写一个函数 <code>now_iso()</code> 返回当前时间字符串，再用 mock 固定时间，断言输出恰好是 <code>"2024-01-01T00:00:00"</code>。</p>
+
+<p>验收：不 mock 时输出随时间变化；mock 后断言稳定通过，且测试连跑两次结果相同。</p>
+
+<p><strong>变式</strong>：给读 JSON 配置的函数写测试，用 <code>tmp_path</code> 造三个文件：正常、缺字段、非法 JSON；断言三种情况的返回值或异常。</p>
+
+<p>验收：三个用例互不影响，随机顺序执行（<code>pytest -p no:randomly</code> 关闭/开启）结果一致；临时文件不残留。</p>
+
+<p><strong>挑战</strong>：为一个「带重试的下载函数」（最多 3 次、间隔递增、全失败抛异常）写测试：全部用 mock，不产生真实网络请求，并断言「重试了 3 次」「每次间隔符合预期」。</p>
+
+<p>验收：<code>mock.call_count == 3</code>；间隔断言通过（时间也被 mock）；把最大重试次数改成 5 时测试失败并指出实际调用次数。</p>
+
+<h2 id="24-d-小结">24.d 小结</h2>
+
+<ol><li>测试是回归网 + 可执行文档：一层单元测试（多、快）+ 少量集成/端到端，比全是端到端有用得多。</li><li><code>unittest</code> 够用且零依赖；<code>pytest</code> 的裸 <code>assert</code>、<code>fixture</code>、<code>parametrize</code> 让测试短一半，值得装。</li><li>测四类东西——正常、边界、异常、不变量；浮点只用 <code>approx</code>，时间/网络/随机一律 mock；覆盖率看 <code>Missing</code> 行，不看百分比。</li></ol>
+
+<p>下一章处理「代码跑得慢/跑得不对」：怎么用 <code>pdb</code> 和断点定位、<code>traceback</code> 怎么读、<code>cProfile</code> 与 <code>timeit</code> 怎么找出真正的热点。</p>
+
+    
+
+    
+</article>

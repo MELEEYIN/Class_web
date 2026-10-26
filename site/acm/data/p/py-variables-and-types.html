@@ -1,0 +1,572 @@
+<article data-learn-content>
+<p><strong>读完这一章你能做到</strong></p>
+
+<ul><li>看见 <code>b = a</code> 就立刻判断出改 <code>b</code> 会不会影响 <code>a</code>；</li><li>说出 <code>0.1 + 0.2</code> 不等于 <code>0.3</code> 的原因，并在需要精确时改用 <code>Decimal</code>；</li><li>区分"重新绑定"和"原地修改"，知道函数传参改不动调用方的哪种写法；</li><li>一眼认出 <code>[[0] * 3] * 3</code> 这类"三行共用一个列表"的隐形 bug；</li><li>正确选择 <code>is</code> 与 <code>==</code>，并用 <code>is None</code> 判断缺失值。</li></ul>
+
+<hr>
+
+<h2 id="s3-1">3.1 变量是名字，不是盒子</h2>
+
+<p>C++ 里 <code>int a = 1; int b = a;</code> 会在栈上开出两块 4 字节，改 <code>b</code> 永远碰不到 <code>a</code>。Python 完全不是这样：赋值语句 <code>b = a</code> 只做一件事——<strong>在命名空间里记录"名字 b 指向对象 a 所指的那个对象"</strong>。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; a = [1, 2]
+&gt;&gt;&gt; b = a                 # b 是 a 的别名，不是副本
+&gt;&gt;&gt; b.append(3)
+&gt;&gt;&gt; a
+[1, 2, 3]
+&gt;&gt;&gt; a is b
+True</code></pre>
+
+<p><code>is</code> 判断两个名字是不是同一个对象（比的是 id），<code>==</code> 判断内容是否相等。上面两次 <code>append</code> 只有一次真正发生，因为 <code>a</code> 和 <code>b</code> 根本就是同一个列表。</p>
+
+<p>不可变对象看起来"安全"，其实原理一样，只是<strong>没人能改它</strong>：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; x = 10
+&gt;&gt;&gt; y = x
+&gt;&gt;&gt; y += 1                # int 不可变，+= 实际上是造了个新对象 11
+&gt;&gt;&gt; x, y
+(10, 11)</code></pre>
+
+<p>所以判断影响的规则只有一条：<strong>改的是"对象的内容"还是"名字的指向"</strong>。</p>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch03_02_binding.py</code></figcaption><pre class="py"><code>"""ch03_02_binding.py —— 变量是名字，不是盒子"""
+a = [1, 2, 3]
+b = a                    # 别名：两个名字贴同一个列表
+b.append(4)
+print("a =", a)
+print("b =", b)
+print("a is b :", a is b)
+
+c = a[:]                 # 切片 = 浅拷贝，得到新列表
+c.append(5)
+print("a =", a)
+print("c =", c)
+print("a is c :", a is c)
+
+x = 10
+y = x
+y += 1                   # int 不可变，+= 造出一个新对象
+print("x, y =", x, y)
+
+print("--- 函数参数：改内容 vs 换名字 ---")
+
+
+def add_item(lst):
+    lst.append("新")      # 原地修改，调用方看得见
+
+
+def rebind(lst):
+    lst = lst + ["新"]    # 重新绑定，调用方看不见
+
+
+box1 = ["旧"]
+add_item(box1)
+print("add_item 之后:", box1)
+
+box2 = ["旧"]
+rebind(box2)
+print("rebind 之后:", box2)
+
+print("--- is 与 == ---")
+p = int("256")
+q = int("256")
+print("256 缓存:", p is q, p == q)
+r = int("300")
+s = int("300")
+print("300 不复用:", r is s, r == s)
+print("None 只能用 is:", None is None, [] is [])</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>a = [1, 2, 3, 4]
+b = [1, 2, 3, 4]
+a is b : True
+a = [1, 2, 3, 4]
+c = [1, 2, 3, 4, 5]
+a is c : False
+x, y = 10 11
+--- 函数参数：改内容 vs 换名字 ---
+add_item 之后: ['旧', '新']
+rebind 之后: ['旧']
+--- is 与 == ---
+256 缓存: True True
+300 不复用: False True
+None 只能用 is: True False</code></pre></div></figure>
+
+<p><code>add_item</code> 改了调用方的列表，<code>rebind</code> 没改——因为 <code>lst = lst + ["新"]</code> 只是让<strong>函数内部的这个名字</strong>改贴新对象，外面那个列表连碰都没被碰到。这是 Python 传参的全部机制，叫「按对象引用传递」：传的是名字所指的对象，不是对象副本。</p>
+
+<div class="box warn"><p>把 Python 的参数当 C++ 的 <code>&amp;</code> 引用：<code>x = x + [1]</code> 不会影响调用方，<code>x.append(1)</code> 会。想改调用方，要么原地改，要么 <code>return</code> 回去再赋给原变量。</p></div>
+
+<hr>
+
+<h2 id="s3-2">3.2 六个内置类型先认清</h2>
+
+<p><code>type()</code> 返回类型对象，<code>isinstance()</code> 判断"是不是这一类（含子类）"：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; type(42), type(4.2), type("4"), type(True), type(None)
+(&lt;class 'int'&gt;, &lt;class 'float'&gt;, &lt;class 'str'&gt;, &lt;class 'bool'&gt;, &lt;class 'NoneType'&gt;)
+&gt;&gt;&gt; isinstance(True, int), isinstance(42, float)
+(True, False)</code></pre>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>类型</th>
+<th>字面量</th>
+<th>可变性</th>
+<th>典型用途</th>
+</tr></thead>
+<tbody>
+<tr><td><code>int</code></td><td><code>42</code>、<code>0xff</code>、<code>0b1010</code>、<code>1_000_000</code></td><td>不可变</td><td>计数、编号、大整数运算</td></tr>
+<tr><td><code>float</code></td><td><code>3.14</code>、<code>1e-5</code>、<code>float("inf")</code></td><td>不可变</td><td>物理量、概率、近似计算</td></tr>
+<tr><td><code>bool</code></td><td><code>True</code>、<code>False</code></td><td>不可变</td><td>条件、开关、<code>sum()</code> 计数</td></tr>
+<tr><td><code>str</code></td><td><code>'a'</code>、<code>"a"</code>、<code>f"{x}"</code></td><td>不可变</td><td>文本、路径、输出</td></tr>
+<tr><td><code>NoneType</code></td><td><code>None</code></td><td>不可变</td><td>"没有值"的哨兵</td></tr>
+<tr><td><code>complex</code></td><td><code>1+2j</code></td><td>不可变</td><td>很少用，了解即可</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>数值类型之间会自动提升：<code>int</code> 混进 <code>float</code> 运算就变 <code>float</code>，<code>bool</code> 混进 <code>int</code> 就当 0/1。字符串<strong>不会</strong>自动变数字，<code>"1" + 1</code> 直接 <code>TypeError</code>。</p>
+
+<hr>
+
+<h2 id="s3-3">3.3 整数：没有溢出，但有代价</h2>
+
+<p>C++ 的 <code>int</code> 32 位、<code>long long</code> 64 位，<code>1e18 * 1e18</code> 溢出成垃圾值；Python 的 <code>int</code> 用变长数组存，<strong>永远不会溢出</strong>，代价是大数运算变慢（内部按 30 位一"段"做长乘法）。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; 2 ** 100
+1267650600228229401496703205376
+&gt;&gt;&gt; len(str(2 ** 200))
+61
+&gt;&gt;&gt; 10 ** 30 // 7
+142857142857142857142857142857</code></pre>
+
+<p>竞赛里 <code>n ≤ 10^5</code> 的阶乘、<code>a^b mod p</code> 直接算就行，不用手写高精度。唯一的硬限制是 <strong>3.11 起，<code>str()</code> 一个超过 4300 位的整数会抛 <code>ValueError</code></strong>（防止有人拿 <code>2**100000000</code> 做 DoS），需要时先 <code>sys.set_int_max_str_digits(0)</code>。</p>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch03_01_numbers.py</code></figcaption><pre class="py"><code>"""ch03_01_numbers.py —— int / float / Decimal / Fraction / bool"""
+print("=== int：任意精度，不溢出 ===")
+print(2 ** 100)
+print(10 ** 20 // 7)
+print(len(str(2 ** 200)))          # 大整数转字符串也没问题
+
+print("=== float：二进制浮点，有误差 ===")
+print(0.1 + 0.2)
+print(0.1 + 0.2 == 0.3)
+print(f"{0.1 + 0.2:.20f}")         # 看真实的二进制近似值
+print(1e16 + 1)                    # 精度只有 15~17 位十进制
+print(2 ** 53, 2 ** 53 + 1, float(2 ** 53) + 1)
+print(round(2.675, 2))             # 不是 2.68
+
+print("=== Decimal / Fraction：要精确就用它们 ===")
+from decimal import Decimal, getcontext
+from fractions import Fraction
+
+getcontext().prec = 30
+print(Decimal("0.1") + Decimal("0.2"))
+print(Decimal("1.1") * Decimal("3"))
+print(Fraction(1, 3) + Fraction(1, 6))
+
+print("=== bool 是 int 的子类 ===")
+print(True + True)
+print(isinstance(True, int), type(True) is int)
+print(sum([True, False, True, True]))   # 统计满足条件的个数
+
+print("=== 除法总是返回 float ===")
+print(4 / 2, type(4 / 2).__name__)
+print(4 // 2, type(4 // 2).__name__)</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>=== int：任意精度，不溢出 ===
+1267650600228229401496703205376
+14285714285714285714
+61
+=== float：二进制浮点，有误差 ===
+0.30000000000000004
+False
+0.30000000000000004441
+1e+16
+9007199254740992 9007199254740993 9007199254740992.0
+2.67
+=== Decimal / Fraction：要精确就用它们 ===
+0.3
+3.3
+1/2
+=== bool 是 int 的子类 ===
+2
+True False
+3
+=== 除法总是返回 float ===
+2.0 float
+2 int</code></pre></div></figure>
+
+<p>最后两行是个高频陷阱：<code>4 / 2</code> 是 <code>2.0</code> 而不是 <code>2</code>。<strong><code>/</code> 永远返回 float</strong>，要整数结果必须写 <code>//</code>。</p>
+
+<hr>
+
+<h2 id="s3-4">3.4 浮点：为什么 <code>0.1 + 0.2 != 0.3</code></h2>
+
+<p><code>float</code> 是 IEEE-754 双精度：1 位符号、11 位指数、52 位尾数，等价于 <code>m / 2^k</code> 形式的二进制小数。而 <code>0.1</code> 在二进制里是无限循环小数，只能截断存储，于是误差在加法里累积：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; 0.1 + 0.2
+0.30000000000000004
+&gt;&gt;&gt; 0.1 + 0.2 == 0.3
+False
+&gt;&gt;&gt; f"{0.1 + 0.2:.20f}"
+'0.30000000000000004441'
+&gt;&gt;&gt; abs((0.1 + 0.2) - 0.3) &lt; 1e-9        # 正确姿势：比误差
+True</code></pre>
+
+<p>两条工程结论：</p>
+
+<ol><li><strong>永远不要用 <code>==</code> 比较两个算出来的浮点数</strong>，用 <code>abs(a - b) &lt; eps</code>（<code>math.isclose(a, b)</code> 更稳，它按相对误差判断）；</li><li><strong>金额、分数这类必须精确的场景，用 <code>Decimal</code>（十进制）或 <code>Fraction</code>（有理数）</strong>，并且 <code>Decimal</code> 一定要用<strong>字符串</strong>构造。</li></ol>
+
+<pre class="pycon"><code>&gt;&gt;&gt; from decimal import Decimal
+&gt;&gt;&gt; Decimal("0.1") + Decimal("0.2")
+Decimal('0.3')
+&gt;&gt;&gt; Decimal(0.1)                        # 传 float 会把误差原样带进来
+Decimal('0.1000000000000000055511151231257827021181583404541015625')
+&gt;&gt;&gt; from fractions import Fraction
+&gt;&gt;&gt; Fraction(1, 3) + Fraction(1, 6)
+Fraction(1, 2)</code></pre>
+
+<p>顺带记住两个数：<code>2**53 = 9007199254740992</code> 是 float 能<strong>精确表示连续整数</strong>的上界，超过它相邻整数就共用同一个 float；<code>round()</code> 用的是"银行家舍入"（.5 取偶），所以 <code>round(2.675, 2)</code> 得 <code>2.67</code>，<code>round(0.5)</code> 得 <code>0</code>、<code>round(1.5)</code> 得 <code>2</code>。竞赛判题输出浮点通常要求 <code>%.2f</code> 或误差 ≤ 1e-6，正是为了绕开这些。</p>
+
+<hr>
+
+<h2 id="s3-5">3.5 <code>bool</code> 是 <code>int</code> 的子类</h2>
+
+<p><code>True</code> 就是 <code>1</code>，<code>False</code> 就是 <code>0</code>，<code>bool</code> 继承自 <code>int</code>。这带来一个实用技巧——<strong>布尔值求和就是计数</strong>：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; True + True
+2
+&gt;&gt;&gt; sum([True, False, True, True])
+3</code></pre>
+
+<p>但它也埋了坑：<code>isinstance(True, int)</code> 是 <code>True</code>，所以 <code>1 == True</code>、<code>0 == False</code> 都成立，<code>{1: "a"}[True]</code> 能取到 <code>"a"</code>。做"类型严格相等"判断时要用 <code>type(x) is bool</code>。</p>
+
+<hr>
+
+<h2 id="s3-6">3.6 可变与不可变：决定"多个名字"会不会互相影响</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>类别</th>
+<th>类型</th>
+<th>能否原地改</th>
+</tr></thead>
+<tbody>
+<tr><td>不可变</td><td><code>int</code> <code>float</code> <code>bool</code> <code>str</code> <code>tuple</code> <code>frozenset</code> <code>bytes</code> <code>None</code></td><td>不能，任何"修改"都产生新对象</td></tr>
+<tr><td>可变</td><td><code>list</code> <code>dict</code> <code>set</code> <code>bytearray</code>、绝大多数自定义类实例</td><td>能，改的是同一块内存</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>不可变带来两个直接后果：<strong>可以作字典的键、可以放进集合</strong>（因为哈希值不会变），以及<strong>在函数里"改"它其实改不到调用方</strong>。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; {(1, 2): "点", "x": 1}[(1, 2)]
+'点'
+&gt;&gt;&gt; d = {}
+&gt;&gt;&gt; try:
+...     d[[1, 2]] = "线"
+... except TypeError as e:
+...     print(type(e).__name__, e)
+TypeError cannot use 'list' as a dict key (unhashable type: 'list')</code></pre>
+
+<p>上面的 <code>TypeError: unhashable type: 'list'</code> 是新手最常见的报错之一，根因就是 list 可变、没有稳定哈希。把键换成 <code>tuple(lst)</code> 即可。</p>
+
+<p>元组本身不可变，但<strong>里面装的若是可变对象，那个对象仍然能被改</strong>：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; t = (1, [2, 3])
+&gt;&gt;&gt; t[0] = 9
+Traceback (most recent call last):
+    ...
+TypeError: 'tuple' object does not support item assignment
+&gt;&gt;&gt; t[1].append(9)
+&gt;&gt;&gt; t
+(1, [2, 3, 9])</code></pre>
+
+<p>"不可变"约束的是<strong>这一层的引用关系</strong>，不是递归的深不可变。理解这一点，<code>tuple</code> 能不能当 dict 键就有了判断标准：<code>(1, [2])</code> 不可哈希，<code>(1, (2, 3))</code> 可以。</p>
+
+<hr>
+
+<h2 id="s3-7">3.7 浅拷贝、深拷贝，与 <code>[[0] * 3] * 3</code></h2>
+
+<p><code>b = a</code> 是别名；<code>a[:]</code>、<code>list(a)</code>、<code>a.copy()</code>、<code>copy.copy(a)</code> 是<strong>浅拷贝</strong>：只复制最外层容器，里面的元素仍是共享的。<code>copy.deepcopy(a)</code> 才递归复制到底。</p>
+
+<pre class="out"><code># 示例：examples/ch03_03_copy.py 的运行结果（完整源码见该文件）</code></pre>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch03_03_copy.py</code></figcaption><pre class="py"><code>"""ch03_03_copy.py —— 浅拷贝 / 深拷贝 / 不可变"""
+import copy
+
+a = [1, [2, 3]]
+b = a.copy()             # 浅拷贝：只复制最外层
+c = copy.deepcopy(a)     # 深拷贝：递归复制所有层次
+
+b[0] = 100
+b[1].append(99)
+
+print("a =", a)
+print("b =", b)
+print("c =", c)
+
+print("--- 不可变对象：改了就是新对象 ---")
+s = "abc"
+t = s
+s += "d"
+print(s, t, s is t)
+
+tup = (1, [2, 3])
+try:
+    tup[0] = 9
+except TypeError as e:
+    print("TypeError:", e)
+tup[1].append(9)          # 元素可变，容器仍不可变
+print("元组内部被改了:", tup)
+
+print("--- 浅拷贝对字典/集合 ---")
+d = {"k": [1, 2]}
+d2 = dict(d)
+d2["k"].append(3)
+print(d, d2)
+
+print("--- 列表乘法的陷阱 ---")
+grid = [[0] * 3] * 3
+grid[0][0] = 1
+print(grid)
+grid2 = [[0] * 3 for _ in range(3)]
+grid2[0][0] = 1
+print(grid2)</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>a = [1, [2, 3, 99]]
+b = [100, [2, 3, 99]]
+c = [1, [2, 3]]
+--- 不可变对象：改了就是新对象 ---
+abcd abc False
+TypeError: 'tuple' object does not support item assignment
+元组内部被改了: (1, [2, 3, 9])
+--- 浅拷贝对字典/集合 ---
+{'k': [1, 2, 3]} {'k': [1, 2, 3]}
+--- 列表乘法的陷阱 ---
+[[1, 0, 0], [1, 0, 0], [1, 0, 0]]
+[[1, 0, 0], [0, 0, 0], [0, 0, 0]]</code></pre></div></figure>
+
+<p>看第一组：<code>b[1].append(99)</code> 之后 <code>a</code> 的内层列表也变成了 <code>[2, 3, 99]</code>，因为浅拷贝只复制了"指向内层列表的那根指针"。<code>c</code> 保持干净，因为 <code>deepcopy</code> 连内层一起复制了。再看最后两行：<code>[[0] * 3] * 3</code> 里三个"行"是<strong>同一个列表对象</strong>（乘法复制的是引用），改一行等于改三行；用推导式逐行新建才对。</p>
+
+<div class="box tip"><p>二维数组/矩阵一律用 <code>[[0] * m for _ in range(n)]</code>。<code>[[0] * m] * n</code> 是 Python 教程里最高频的 bug 模板，判题时表现为"改了一个格子，一整列都变了"。</p></div>
+
+<hr>
+
+<h2 id="s3-8">3.8 <code>None</code>：一个专门表示"没有"的对象</h2>
+
+<p><code>None</code> 是 <code>NoneType</code> 的唯一实例，表示"这里没有值"。它<strong>不是</strong> 0、<code>""</code>、<code>False</code>，也不等于空容器。所有比较里只有 <code>is None</code> 是对的：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; x = None
+&gt;&gt;&gt; x is None
+True
+&gt;&gt;&gt; not x
+True
+&gt;&gt;&gt; x == 0
+False</code></pre>
+
+<p>判断"函数有没有返回值/有没有找到"时，用 <code>is None</code> 而不是 <code>== None</code>：前者比 id（永远 O(1)），后者会调用可能被重载的 <code>__eq__</code>，而且 flake8 会直接报 <code>E711</code>。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; def find(xs, target):
+...     for i, v in enumerate(xs):
+...         if v == target:
+...             return i
+...     return None
+&gt;&gt;&gt; idx = find([3, 1, 4], 9)
+&gt;&gt;&gt; print(idx is None)
+True
+&gt;&gt;&gt; print(idx == 0)          # 用索引真假判断的经典翻车点
+False</code></pre>
+
+<p>如果 <code>find</code> 返回 <code>0</code>（第一个位置就命中），<code>if not idx:</code> 会把"找到了"误判成"没找到"。<strong>返回索引、又可能返回"没找到"时，一律 <code>is None</code> 判断</strong>，或者干脆用 <code>if idx is not None:</code>。</p>
+
+<hr>
+
+<h2 id="s3-9">3.9 类型转换与真值判断</h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch03_04_convert.py</code></figcaption><pre class="py"><code>"""ch03_04_convert.py —— 类型转换、真值与 None"""
+print(int("42"), int("  7  "), int("-8"))
+print(int("1f", 16), int("0b1010", 2), int("1_000"))
+print(int(3.99), int(-3.99), round(3.99))
+print(float("1e3"), float("0.5"), float("inf") &gt; 10 ** 308)
+print(str(1.0), str(10), str(True), str([1, 2]))
+print(list("abc"), tuple([1, 2]), sorted({"b", "a"}))
+
+print("--- 真值判断 ---")
+for v in [0, 3, -1, 0.0, "", "0", [], [0], {}, None]:
+    print(f"{v!r:&gt;6}  -&gt;  {bool(v)}")
+
+print("--- None ---")
+def find(xs, target):
+    for i, v in enumerate(xs):
+        if v == target:
+            return i
+    return None
+
+print(find([3, 1, 4], 4), find([3, 1, 4], 9))
+idx = find([3, 1, 4], 9)
+print("用 is 判断:", idx is None)
+print("用 == 判断的坑:", idx == 0)
+
+print("--- 会炸的转换 ---")
+for expr in ['int("abc")', 'int("3.5")', 'int(None)', 'float("1,5")']:
+    try:
+        eval(expr)
+    except (ValueError, TypeError) as e:
+        print(f"{expr:&lt;14} -&gt; {type(e).__name__}: {e}")</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>42 7 -8
+31 10 1000
+3 -3 4
+1000.0 0.5 True
+1.0 10 True [1, 2]
+['a', 'b', 'c'] (1, 2) ['a', 'b']
+--- 真值判断 ---
+     0  -&gt;  False
+     3  -&gt;  True
+    -1  -&gt;  True
+   0.0  -&gt;  False
+    ''  -&gt;  False
+   '0'  -&gt;  True
+    []  -&gt;  False
+   [0]  -&gt;  True
+    {}  -&gt;  False
+  None  -&gt;  False
+--- None ---
+2 None
+用 is 判断: True
+用 == 判断的坑: False
+--- 会炸的转换 ---
+int("abc")     -&gt; ValueError: invalid literal for int() with base 10: 'abc'
+int("3.5")     -&gt; ValueError: invalid literal for int() with base 10: '3.5'
+int(None)      -&gt; TypeError: int() argument must be a string, a bytes-like object or a real number, not 'NoneType'
+float("1,5")   -&gt; ValueError: could not convert string to float: '1,5'</code></pre></div></figure>
+
+<p>要记住的真值规则：<strong>空即假</strong>——<code>0</code>、<code>0.0</code>、<code>""</code>、<code>[]</code>、<code>{}</code>、<code>()</code>、<code>set()</code>、<code>None</code> 全为 <code>False</code>，其余为真。两个反直觉点：字符串 <code>"0"</code> 和 <code>"False"</code> 是<strong>非空字符串</strong>，真值为 <code>True</code>；<code>-1</code> 也是真值。</p>
+
+<p>转换的坑集中在 <code>int()</code>：它只认"整数字面量"，<code>int("3.5")</code> 抛 <code>ValueError</code>，要先 <code>int(float("3.5"))</code>；<code>int(3.99)</code> 是<strong>截断</strong>（向零取整，得 3），而 <code>int(-3.99)</code> 得 -3，不是 C 语言里某些实现的向下取整。</p>
+
+<div class="box warn"><p><code>bool("False")</code> 是 <code>True</code>。从配置文件/命令行读到的 <code>"False"</code>、<code>"0"</code>、<code>"no"</code> 必须显式映射：<code>s.strip().lower() in {"1", "true", "yes", "on"}</code>。</p></div>
+
+<hr>
+
+<h2 id="s3-10">3.10 命名与"常量"约定</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>写法</th>
+<th>含义</th>
+<th>例子</th>
+</tr></thead>
+<tbody>
+<tr><td><code>snake_case</code></td><td>变量、函数、模块</td><td><code>user_count</code>、<code>parse_line</code></td></tr>
+<tr><td><code>PascalCase</code></td><td>类</td><td><code>class TreeNode</code></td></tr>
+<tr><td><code>_leading</code></td><td>内部使用（约定，不强制）</td><td><code>_cache</code></td></tr>
+<tr><td><code>__dunder__</code></td><td>Python 保留的协议名</td><td><code>__init__</code>、<code>__len__</code></td></tr>
+<tr><td><code>UPPER_CASE</code></td><td>常量（<strong>约定</strong>，Python 没有 const）</td><td><code>MAX_N = 10 ** 5</code></td></tr>
+<tr><td><code>_</code></td><td>丢弃不用的值</td><td><code>for _ in range(n)</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>变量名会<strong>遮蔽内置函数</strong>：<code>list = [1, 2]</code> 之后 <code>list("ab")</code> 就报 <code>TypeError: 'list' object is not callable</code>。同理别用 <code>id</code>、<code>type</code>、<code>sum</code>、<code>input</code>、<code>next</code>、<code>str</code> 当变量名。想表达"这是常量"，写全大写；想在类型检查层面强制只读，用 <code>typing.Final</code>（见第 20 章）。</p>
+
+<hr>
+
+<h2 id="s3-11">3.11 与 C++ 的差别</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>维度</th>
+<th>C++</th>
+<th>Python</th>
+</tr></thead>
+<tbody>
+<tr><td>变量的本质</td><td>一块有类型的内存</td><td>命名空间里的一条"名字 → 对象"记录</td></tr>
+<tr><td><code>b = a</code></td><td>复制值（或调拷贝构造）</td><td>新建别名，零复制</td></tr>
+<tr><td>类型</td><td>编译期固定，声明即分配</td><td>运行期跟着对象走，名字可随时改指别的类型</td></tr>
+<tr><td>整数</td><td>32/64 位，溢出回绕</td><td>任意精度，不溢出，大数变慢</td></tr>
+<tr><td><code>4 / 2</code></td><td><code>2</code>（int 除法）</td><td><code>2.0</code>（<code>/</code> 永远 float，整除用 <code>//</code>）</td></tr>
+<tr><td>传参</td><td>值传递 / <code>&amp;</code> 引用 / 指针</td><td>按对象引用传递：改内容可见，重新绑定不可见</td></tr>
+<tr><td>布尔</td><td>独立的 <code>bool</code>，可隐式转 <code>int</code></td><td><code>bool</code> <strong>继承自</strong> <code>int</code>，<code>True + True == 2</code></td></tr>
+<tr><td>数组拷贝</td><td><code>std::vector</code> 深拷贝语义</td><td><code>a.copy()</code> 只是浅拷贝，深拷贝要 <code>deepcopy</code></td></tr>
+<tr><td>常量</td><td><code>const</code> / <code>constexpr</code> 编译期强制</td><td>只有大写命名约定，无强制力（<code>Final</code> 仅类型检查期）</td></tr>
+<tr><td>空值</td><td><code>nullptr</code> / <code>NULL</code></td><td><code>None</code>，用 <code>is None</code> 判断</td></tr>
+</tbody>
+</table>
+</div>
+
+<hr>
+
+<h2 id="s3-12">3.12 易错点清单</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>现象</th>
+<th>原因</th>
+<th>一行修复</th>
+</tr></thead>
+<tbody>
+<tr><td>改 <code>b</code> 结果 <code>a</code> 也变了</td><td><code>b = a</code> 是别名</td><td>要独立副本就 <code>b = a.copy()</code> / <code>copy.deepcopy(a)</code></td></tr>
+<tr><td>改矩阵一个格子，整列都变</td><td><code>[[0]*m]*n</code> 复制的是同一行的引用</td><td><code>[[0]*m for _ in range(n)]</code></td></tr>
+<tr><td><code>0.1 + 0.2 == 0.3</code> 为 <code>False</code></td><td>二进制浮点无法精确表示 0.1</td><td><code>math.isclose(a, b)</code> 或 <code>Decimal("0.1")</code></td></tr>
+<tr><td><code>round(2.675, 2)</code> 得 <code>2.67</code></td><td>银行家舍入 + 二进制误差</td><td>金额用 <code>Decimal</code>，按需 <code>quantize</code></td></tr>
+<tr><td><code>4 / 2</code> 输出 <code>2.0</code>，格式错</td><td><code>/</code> 永远返回 float</td><td>要整数用 <code>//</code>；要显示 <code>2</code> 用 <code>int()</code> 或 <code>f"{x:.0f}"</code></td></tr>
+<tr><td><code>d[[1,2]] = ...</code> 报 <code>unhashable</code></td><td>list 可变，不能当键</td><td><code>d[tuple(lst)]</code></td></tr>
+<tr><td><code>x == None</code> 被判为不严谨</td><td><code>==</code> 会走 <code>__eq__</code></td><td>一律 <code>x is None</code></td></tr>
+<tr><td><code>if not idx:</code> 把索引 0 当"没找到"</td><td>0 为假</td><td><code>if idx is not None:</code></td></tr>
+<tr><td><code>int("3.5")</code> 抛 <code>ValueError</code></td><td><code>int()</code> 只认整数字面量</td><td><code>int(float("3.5"))</code></td></tr>
+<tr><td><code>bool("False")</code> 是 <code>True</code></td><td>非空字符串恒为真</td><td>显式白名单判断</td></tr>
+<tr><td><code>list = [...]</code> 后 <code>list()</code> 报错</td><td>内置名被遮蔽</td><td>换个变量名，必要时 <code>del list</code></td></tr>
+<tr><td>元组里塞了列表，改了列表发现"元组变了"</td><td>元组只保证本层引用不变</td><td>需要真不可变就用 <code>tuple</code> + <code>tuple</code>，别混放可变对象</td></tr>
+</tbody>
+</table>
+</div>
+
+<hr>
+
+<h2 id="s3-13">3.13 练习</h2>
+
+<p><strong>1.（预测输出）</strong> 不运行，写出结果，再跑一遍核对：</p>
+
+<pre class="py"><code>a = [1, 2, 3]
+b = a
+b += [4]
+c = a[:]
+c += [5]
+print(a, b, c)</code></pre>
+
+<p>验收：能解释为什么 <code>a</code> 和 <code>b</code> 都变成 <code>[1, 2, 3, 4]</code>，而 <code>c</code> 是 <code>[1, 2, 3, 4, 5]</code>（提示：<code>+=</code> 对 list 走 <code>__iadd__</code>，是原地扩展）。</p>
+
+<p><strong>2.（修 bug）</strong> 下面代码本意是造一个 3×3 的零矩阵，然后把主对角线设为 1，但输出全错：</p>
+
+<pre class="py"><code>g = [[0] * 3] * 3
+for i in range(3):
+    g[i][i] = 1
+print(g)</code></pre>
+
+<p>验收：改成正确写法，输出</p>
+
+<pre class="out"><code>[[1, 0, 0], [0, 1, 0], [0, 0, 1]]</code></pre>
+
+<p><strong>3.（判断同一性）</strong> 写一个函数 <code>same_object(a, b) -&gt; bool</code>，判断两个列表是不是同一个对象，并说明为什么不能用 <code>==</code> 代替。</p>
+
+<p>验收：<code>same_object(x, x)</code> 为 <code>True</code>，<code>same_object([1], [1])</code> 为 <code>False</code>。</p>
+
+<p><strong>4.（精确计算）</strong> 用 <code>Decimal</code> 计算 <code>0.1 + 0.2</code>、<code>1.1 * 3</code>，输出必须是 <code>0.3</code> 和 <code>3.3</code>；再打印 <code>Decimal(0.1)</code> 看看直接传 float 会带进什么。</p>
+
+<p>验收：两个结果分别为 <code>Decimal('0.3')</code>、<code>Decimal('3.3')</code>，并能说出为什么必须用字符串构造。</p>
+
+<p><strong>5.（挑战）</strong> 实现 <code>safe_int(s) -&gt; int | None</code>：接受 <code>"42"</code>、<code>" 7 "</code>、<code>"3.9"</code>（截断为 3）、<code>"1e3"</code>（1000），非法输入返回 <code>None</code> 而不抛异常。</p>
+
+<p>验收：<code>safe_int("3.9") == 3</code>、<code>safe_int("1e3") == 1000</code>、<code>safe_int("abc") is None</code>、<code>safe_int(None) is None</code>，且全程不产生未捕获异常。</p>
+
+<hr>
+
+<h2 id="s3-14">3.14 小结</h2>
+
+<ol><li><strong>变量是名字，赋值是贴标签</strong>：<code>b = a</code> 不复制数据，只有"改内容"才互相影响，"换指向"不影响别人。</li><li><strong>可变性决定一切</strong>：list/dict/set 可变且共享，int/str/tuple 不可变所以安全；要独立副本就明确写 <code>.copy()</code> 或 <code>deepcopy()</code>。</li><li><strong>数值要认清边界</strong>：int 不溢出、<code>/</code> 返回 float、浮点不能用 <code>==</code> 比、要精确就 <code>Decimal("0.1")</code>。</li></ol>
+
+<p>下一章我们把这些对象放进表达式里，看看运算符——尤其是 <code>//</code>、<code>%</code> 对负数的处理、<code>and/or</code> 的短路返回值和 <code>:=</code> 海象运算符——是怎么工作的。</p>
+
+    
+
+    
+</article>
