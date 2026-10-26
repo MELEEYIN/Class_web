@@ -1059,3 +1059,16 @@ html:not([data-wall="none"]) .stage { padding-top: 26px; }
 }
 .doc.c-doc hr { margin: 34px 0; border: 0; border-top: 1px dashed var(--line-2); }
 .doc.c-doc strong { color: var(--ink); font-weight: 700; }
+
+/* 代码块配色变量（SPA 只加载 shell/content，acm.css 里的定义用不到） */
+:root, html[data-theme="dark"] {
+  --code-bg: #0d1b2e;
+  --code-text: #dbe6f5;
+  --code-line: rgba(148, 163, 184, .18);
+}
+html[data-theme="light"] {
+  --code-bg: #0f1c2e;
+  --code-text: #e6eefc;
+  --code-line: rgba(148, 163, 184, .2);
+}
+.doc pre, .doc pre code { color: var(--code-text); }

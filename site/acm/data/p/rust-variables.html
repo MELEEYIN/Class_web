@@ -1,0 +1,66 @@
+<article data-learn-content>
+<p>Rust 的变量默认不可变，类型几乎都要明确写出来——这两条看起来“啰嗦”，其实是它能在编译期挡掉一大半 bug 的根源。这一章把变量、可变性、常量、遮蔽和基本类型一次讲清。</p>
+
+<h2 id="s1">一、let 与 mut</h2>
+
+<pre><code>fn main() {
+    let x = 5;          // 不可变
+    // x = 6;           // 编译错误：cannot assign twice to immutable variable
+
+    let mut y = 5;      // 可变
+    y = 6;              // OK
+    println!("y = {}", y);
+}</code></pre>
+
+<table><thead><tr><th>关键字</th><th>能否重新赋值</th><th>典型用途</th></tr></thead><tbody>
+<tr><td><code>let x</code></td><td>否</td><td>默认选择，能不可变就别可变</td></tr>
+<tr><td><code>let mut x</code></td><td>是</td><td>累加器、读入缓冲、状态机</td></tr>
+<tr><td><code>const MAX: u32 = 100;</code></td><td>否，且<strong>编译期</strong>求值</td><td>全局常量，名字惯例全大写</td></tr>
+<tr><td><code>static G: &amp;str = "hi";</code></td><td>否，占用固定内存</td><td>全局状态（可变 static 需要 unsafe）</td></tr>
+</tbody></table>
+
+<blockquote><code>const</code> 和 <code>let</code> 的区别：<code>const</code> 必须标类型、只能在全局或函数内声明但不能遮蔽，且值在编译期就确定；<code>let</code> 可以在运行时计算，还能被同名新变量遮蔽。</blockquote>
+
+<h2 id="s2">二、遮蔽（shadowing）</h2>
+
+<pre><code>let spaces = "   ";          // &amp;str
+let spaces = spaces.len();   // usize —— 同名新变量，类型也换了
+println!("{}", spaces);      // 3</code></pre>
+
+<p>遮蔽不是“改值”，而是<strong>新建一个绑定把旧名字盖住</strong>：旧变量依然存在（直到作用域结束才释放），新变量可以有不同类型。这一点 <code>mut</code> 做不到：<code>mut</code> 只能改值，不能改类型。</p>
+
+<h2 id="s3">三、标量类型</h2>
+
+<table><thead><tr><th>类别</th><th>类型</th><th>说明</th></tr></thead><tbody>
+<tr><td>整数</td><td><code>i8/16/32/64/128</code>、<code>isize</code>；<code>u8…u128</code>、<code>usize</code></td><td>默认 <code>i32</code>；<code>isize/usize</code> 随平台（64 位机器是 64 位），用于下标与长度</td></tr>
+<tr><td>浮点</td><td><code>f32</code>、<code>f64</code></td><td>默认 <code>f64</code>，精度更高</td></tr>
+<tr><td>布尔</td><td><code>bool</code></td><td><code>true</code> / <code>false</code>，不能与整数互转</td></tr>
+<tr><td>字符</td><td><code>char</code></td><td>4 字节 Unicode 标量，<code>'字'</code>；与字符串 <code>"字"</code> 不同</td></tr>
+</tbody></table>
+
+<p>整数溢出在 <strong>debug</strong> 构建会 panic，在 <strong>release</strong> 构建会按补码回绕——两边行为不一致是经典坑，需要明确回绕就用 <code>wrapping_add</code>，需要检测就用 <code>checked_add</code>。</p>
+
+<h2 id="s4">四、复合类型</h2>
+
+<pre><code>let tup: (i32, f64, u8) = (500, 6.4, 1);
+let (a, b, c) = tup;              // 解构
+println!("{}", tup.0);            // 也可以按下标
+
+let arr = [1, 2, 3, 4, 5];        // 长度固定，类型 [i32; 5]
+let zeros = [0; 10];              // 10 个 0
+println!("{}", arr[0]);           // 越界会 panic（运行时检查）</code></pre>
+
+<p>Rust 的数组长度是类型的一部分（<code>[i32; 5]</code> 与 <code>[i32; 6]</code> 是不同类型），要动态长度请用 <code>Vec&lt;T&gt;</code>。</p>
+
+<h2 id="s5">五、常见坑</h2>
+<ol>
+<li>以为 <code>let</code> 的变量“能改一次”：不能，必须 <code>mut</code>。</li>
+<li>混用整数类型：<code>let a: i32 = 1; let b: i64 = 2; a + b</code> 直接编译失败，没有隐式提升，要 <code>as</code> 显式转换。</li>
+<li><code>as</code> 转换是<strong>截断</strong>而非四舍五入：<code>300.7 as u8</code> 得到 44。</li>
+<li>字符串下标：<code>s[0]</code> 不允许（UTF-8 变长），要用 <code>s.chars().nth(0)</code> 或切片 <code>&amp;s[0..1]</code>（且必须落在字符边界）。</li>
+<li>把 <code>char</code> 当成字节：<code>char</code> 是 4 字节 Unicode 标量，和 <code>u8</code> 不同。</li>
+</ol>
+
+<h2 id="s6">六、小结</h2>
+<p><strong>默认不可变 + 必须明确类型</strong>是 Rust 的两条地基。下一章讲函数与控制流，然后进入真正的分水岭：所有权。</p>
+</article>

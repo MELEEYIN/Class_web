@@ -1,0 +1,72 @@
+<article data-learn-content>
+<p>这一章只做一件事：把 Rust 的工具链装好，并弄清 <code>rustc</code>、<code>cargo</code>、<code>rustup</code> 三者的分工。装完之后你能用一条命令创建、编译、运行项目，后面所有章节都靠它。</p>
+
+<h2 id="s1">一、三个工具各管什么</h2>
+
+<table><thead><tr><th>工具</th><th>职责</th><th>你会用到的命令</th></tr></thead><tbody>
+<tr><td><code>rustup</code></td><td>工具链管理器：装/切 Rust 版本、管理 target</td><td><code>rustup update</code>、<code>rustup show</code></td></tr>
+<tr><td><code>rustc</code></td><td>编译器本体：把单个 .rs 变成可执行文件</td><td><code>rustc main.rs</code></td></tr>
+<tr><td><code>cargo</code></td><td>项目管理器：依赖、构建、测试、发布</td><td><code>cargo new</code>、<code>cargo run</code>、<code>cargo add</code></td></tr>
+</tbody></table>
+
+<p>日常只用 <code>cargo</code>，<code>rustc</code> 是它内部调用的。安装：</p>
+
+<pre><code># Linux / macOS
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# Windows：下载 rustup-init.exe 直接运行，需要 MSVC 生成工具
+# 验证
+rustc --version
+cargo --version</code></pre>
+
+<h2 id="s2">二、第一个项目</h2>
+
+<pre><code>cargo new hello_rust      # 创建项目（默认是 bin 类型，带 main 函数）
+cd hello_rust
+cargo run                 # 编译 + 运行，一步到位
+cargo build --release     # 优化构建，产物在 target/release/</code></pre>
+
+<p><code>cargo new</code> 会生成这样的结构：</p>
+
+<pre><code>hello_rust/
+├── Cargo.toml        # 项目元信息与依赖
+└── src/
+    └── main.rs       # 入口文件</code></pre>
+
+<p><code>Cargo.toml</code> 是最小可用的清单，依赖写在 <code>[dependencies]</code> 下：</p>
+
+<pre><code>[package]
+name = "hello_rust"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# rand = "0.8"        # 需要时取消注释，cargo build 会自动下载</code></pre>
+
+<blockquote><code>edition</code> 不是编译器版本，而是“语言规则的一次快照”（2015 / 2018 / 2021）。同一个编译器可以编译不同 edition 的代码，行为按 edition 决定。</blockquote>
+
+<h2 id="s3">三、Hello, world 的三个层次</h2>
+
+<pre><code>// src/main.rs
+fn main() {
+    println!("Hello, world!");   // 注意是 println! 带感叹号，它是宏不是函数
+}</code></pre>
+
+<table><thead><tr><th>写法</th><th>含义</th></tr></thead><tbody>
+<tr><td><code>fn main()</code></td><td>程序入口，每个可执行 crate 必须有且只有一个</td></tr>
+<tr><td><code>println!</code></td><td>宏，负责格式化并换行；<code>{} </code>是占位符，如 <code>println!("{} + {} = {}", 1, 2, 3)</code></td></tr>
+<tr><td><code>;</code></td><td>语句结束符；<strong>不带分号的表达式会作为返回值</strong>（第 5 章会反复用到）</td></tr>
+</tbody></table>
+
+<h2 id="s4">四、常见坑</h2>
+<ol>
+<li>只装了 <code>rustc</code> 没装 <code>cargo</code>：用 <code>rustup</code> 装，别单独下编译器。</li>
+<li>Windows 上缺 MSVC 链接器：报 <code>linker `link.exe` not found</code>，装 Visual Studio Build Tools 的 C++ 组件。</li>
+<li>把 <code>println!()</code> 写成 <code>println()</code>：宏必须带 <code>!</code>。</li>
+<li>在 <code>target/</code> 里改代码：那里是构建产物，改源码要动 <code>src/</code>。</li>
+<li>忘记 <code>--release</code>：默认 <code>debug</code> 构建慢很多（但带调试断言），性能测试一律用 release。</li>
+</ol>
+
+<h2 id="s5">五、小结</h2>
+<p><strong>rustup 管版本，cargo 管项目，rustc 管单文件编译。</strong>下一章用 <code>cargo</code> 写一个真正的小程序——猜数字，把输入、解析、循环、随机数一次串起来。</p>
+</article>

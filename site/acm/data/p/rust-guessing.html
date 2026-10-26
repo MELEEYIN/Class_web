@@ -1,0 +1,77 @@
+<article data-learn-content>
+<p>猜数字是 Rust 官方的第一个实战：它把「读输入 → 解析类型 → 循环 → 比较 → 提前退出」串成一条完整链路，也第一次逼你面对 <code>Result</code> 和 <code>match</code>。</p>
+
+<h2 id="s1">一、完整代码</h2>
+
+<pre><code>use rand::Rng;
+use std::cmp::Ordering;
+use std::io;
+
+fn main() {
+    println!("猜一个 1 到 100 之间的数字");
+
+    let secret = rand::thread_rng().gen_range(1..=100);
+
+    loop {
+        println!("请输入你的猜测：");
+
+        let mut guess = String::new();
+        io::stdin()
+            .read_line(&mut guess)
+            .expect("读取输入失败");
+
+        let guess: u32 = match guess.trim().parse() {
+            Ok(num) =&gt; num,
+            Err(_) =&gt; {
+                println!("请输入一个数字");
+                continue;
+            }
+        };
+
+        match guess.cmp(&amp;secret) {
+            Ordering::Less =&gt; println!("太小了"),
+            Ordering::Greater =&gt; println!("太大了"),
+            Ordering::Equal =&gt; {
+                println!("猜对了！");
+                break;
+            }
+        }
+    }
+}</code></pre>
+
+<p><code>Cargo.toml</code> 里需要加一行依赖：</p>
+<pre><code>[dependencies]
+rand = "0.8"</code></pre>
+
+<h2 id="s2">二、几个必须看懂的点</h2>
+
+<table><thead><tr><th>片段</th><th>为什么这么写</th></tr></thead><tbody>
+<tr><td><code>let mut guess</code></td><td>Rust 变量默认<strong>不可变</strong>，要改就得 <code>mut</code>；<code>read_line</code> 要在原字符串后追加，所以必须可变</td></tr>
+<tr><td><code>&amp;mut guess</code></td><td>传的是<strong>可变引用</strong>，函数才能写回原变量（第 4 章讲借用）</td></tr>
+<tr><td><code>.expect(...)</code></td><td><code>read_line</code> 返回 <code>Result</code>，<code>expect</code> 在出错时 panic 并打印这条消息</td></tr>
+<tr><td><code>guess.trim()</code></td><td>输入带换行符 <code>\n</code>，先去掉首尾空白再解析</td></tr>
+<tr><td><code>let guess: u32 = ...</code></td><td><strong>变量遮蔽（shadowing）</strong>：新变量复用旧名字但换了类型，从 <code>String</code> 变成 <code>u32</code></td></tr>
+<tr><td><code>match ... { Ok / Err }</code></td><td><code>parse()</code> 返回 <code>Result&lt;u32, ParseIntError&gt;</code>，必须处理两个分支，不能忽略</td></tr>
+<tr><td><code>continue</code></td><td>解析失败时直接进入下一轮循环，而不是让程序崩掉</td></tr>
+</tbody></table>
+
+<h2 id="s3">三、和 C/C++ 的直觉差异</h2>
+
+<ul>
+<li><strong>没有隐式类型转换</strong>。<code>"42".parse()</code> 必须靠目标类型标注（<code>: u32</code>）来决定解析成什么，编译器不会猜。</li>
+<li><strong>返回值必须处理</strong>。<code>Result</code> 标了 <code>#[must_use]</code>，你写 <code>io::stdin().read_line(&amp;mut s);</code> 会收到警告——错误不能静默丢弃。</li>
+<li><strong>比较是 <code>cmp</code> + <code>match</code></strong>，而不是 <code>if/else</code> 三连；<code>Ordering</code> 是枚举，三个分支必须写全（穷尽性检查）。</li>
+</ul>
+
+<h2 id="s4">四、常见坑</h2>
+<ol>
+<li>忘记 <code>use rand::Rng;</code>：<code>gen_range</code> 是 trait 方法，不导入 trait 就调不到。</li>
+<li><code>read_line</code> 传 <code>&amp;guess</code>：类型不匹配，需要 <code>&amp;mut</code>。</li>
+<li>没有 <code>trim()</code>：<code>"42\n"</code> 解析失败，程序走进 <code>Err</code> 分支。</li>
+<li><code>guess.cmp(&amp;secret)</code> 少写 <code>&amp;</code>：<code>cmp</code> 要的是引用，否则会移动所有权。</li>
+<li>把 <code>gen_range(1..=100)</code> 写成 <code>1...100</code>：后者是已废弃语法，新版编译不过。</li>
+</ol>
+
+<h2 id="s5">五、小结</h2>
+<p>这一章已经把 Rust 的几个“味道”尝到了：<strong>不可变优先、错误必须处理、类型必须明确、分支必须穷尽</strong>。下一章系统讲变量、可变性和数据类型，把这些直觉补成规则。</p>
+</article>
