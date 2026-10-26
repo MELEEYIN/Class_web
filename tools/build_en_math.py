@@ -23,6 +23,14 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 OUT = os.path.join(ROOT, "site", "en", "math.html")
 
+sys.path.insert(0, HERE)
+from math_pts_up import PTS_UP
+from math_pts_dn import PTS_DN
+
+PTS = {}
+PTS.update(PTS_UP)
+PTS.update(PTS_DN)
+
 # ----------------------------------------------------------------------
 # 公式小工具
 # ----------------------------------------------------------------------
@@ -742,13 +750,31 @@ QUICK = [
 def render_secs(ch):
     cols = ('<colgroup><col style="width:27%"><col style="width:38%"><col style="width:35%"></colgroup>')
     rows = []
-    for name, pg, must, how in ch["secs"]:
-        rows.append("<tr><td>%s<span class=\"pg\">%s</span></td><td>%s</td><td>%s</td></tr>"
-                    % (name, pg, must, how))
+    for i, (name, pg, must, how) in enumerate(ch["secs"]):
+        rows.append('<tr><td><a href="#%s-s%d">%s</a><span class="pg">%s</span></td>'
+                    '<td>%s</td><td>%s</td></tr>'
+                    % (ch["id"], i + 1, name, pg, must, how))
     return ('<div class="mod" id="%s-m1"><h3><span class="mtag">M1</span>节与必会'
             '<span class="msub">讲义原节次 · 这一节必须会什么</span></h3>'
             '<table class="sectbl">%s<thead><tr><th>节（页码）</th><th>必须会</th><th>通常怎么考</th></tr></thead>'
             '<tbody>%s</tbody></table></div>' % (ch["id"], cols, "".join(rows)))
+
+
+def render_points(ch):
+    """M2 逐节知识点：每节一组，编号沿用讲义节序"""
+    out = []
+    pts_all = PTS.get(ch["no"], [])
+    for i, sec in enumerate(ch["secs"]):
+        name, page = sec[0], sec[1]
+        pts = pts_all[i] if i < len(pts_all) else []
+        if not pts:
+            continue
+        items = "".join('<li><b>%s</b>%s</li>' % (t, d) for t, d in pts)
+        out.append('<div class="sect-h" id="%s-s%d">%s<span class="pgx">%s · %d 条</span></div>'
+                   '<ol class="kpt">%s</ol>' % (ch["id"], i + 1, name, page, len(pts), items))
+    return ('<div class="mod" id="%s-m2"><h3><span class="mtag">M2</span>逐节知识点'
+            '<span class="msub">按讲义节次展开 · 定义 / 公式 / 套路</span></h3>%s</div>'
+            % (ch["id"], "".join(out)))
 
 
 def render_forms(ch):
@@ -756,7 +782,7 @@ def render_forms(ch):
     for label, rows in ch["forms"]:
         inner = "".join('<span class="row">%s</span>' % r for r in rows)
         blocks.append('<div class="fml">%s</div>' % inner)
-    return ('<div class="mod" id="%s-m2"><h3><span class="mtag">M2</span>核心公式'
+    return ('<div class="mod" id="%s-m3"><h3><span class="mtag">M3</span>核心公式'
             '<span class="msub">考试要能默写的那几条</span></h3>%s</div>'
             % (ch["id"], "".join(blocks)))
 
@@ -764,7 +790,7 @@ def render_forms(ch):
 def render_traps(ch):
     pits = "".join("<li>%s</li>" % p for p in ch["pits"])
     drills = "".join("<li><b>%s</b><br><em>思路：</em>%s</li>" % (t, h) for t, h in ch["drills"])
-    return ('<div class="mod" id="%s-m3"><h3><span class="mtag">M3</span>易错点与综合提高'
+    return ('<div class="mod" id="%s-m4"><h3><span class="mtag">M4</span>易错点与综合提高'
             '<span class="msub">扣分常从这里开始</span></h3>'
             '<div class="sect-h">易错点</div><ul class="pit">%s</ul>'
             '<div class="sect-h">综合提高（讲义每章末的题型）</div><ol class="drill">%s</ol></div>'
@@ -774,7 +800,7 @@ def render_traps(ch):
 def render_ch(ch):
     vc, vt = ("off", "上册") if ch["book"] == "上册" else ("top", "下册")
     n = ch["no"]
-    body = render_secs(ch) + render_forms(ch) + render_traps(ch)
+    body = render_secs(ch) + render_points(ch) + render_forms(ch) + render_traps(ch)
     head = (
         '<section class="unit mth" id="' + ch["id"] + '" data-unit="' + str(n) +
         '" data-title="' + ch["title"] + '">\n'
@@ -784,7 +810,8 @@ def render_ch(ch):
         '      <h2 class="u2t">' + ch["title"] + '<span class="uzh">' + ch["book"] +
         ' · 第 ' + str(n) + ' 章</span></h2>\n'
         '      <p class="usub">讲义 ' + ch["pages"] + '　·　' + str(len(ch["secs"])) +
-        ' 节　·　' + str(len(ch["forms"])) + ' 组公式　·　' + str(len(ch["pits"])) + ' 条易错</p>\n'
+        ' 节　·　' + str(sum(len(x) for x in PTS.get(ch["no"], []))) + ' 条知识点　·　' +
+        str(len(ch["forms"])) + ' 组公式　·　' + str(len(ch["pits"])) + ' 条易错</p>\n'
         '    </div>\n'
         '    <div class="ubadges">\n'
         '      <span class="verdict ' + vc + '">' + vt + '</span>\n'
@@ -824,6 +851,7 @@ def main():
     page = page.replace("@@CHAPTERS@@", render_quick() + chapters)
     page = page.replace("@@NSEC@@", str(nsec))
     page = page.replace("@@NCH@@", str(len(CH)))
+    page = page.replace("@@NPTS@@", str(sum(len(x) for _c in CH for x in PTS.get(_c["no"], []))))
     io.open(OUT, "w", encoding="utf-8", newline="\n").write(page)
     print("written:", OUT, len(page), "chars")
 
@@ -891,6 +919,7 @@ HEAD = """<!DOCTYPE html>
               <div class="chips">
                 <span class="chipk"><b>@@NCH@@</b> 章</span>
                 <span class="chipk"><b>@@NSEC@@</b> 节</span>
+                <span class="chipk"><b>@@NPTS@@</b> 条知识点</span>
                 <span class="chipk lv">上册 7 章 · 下册 6 章</span>
                 <span class="chipk">公式零依赖手排</span>
               </div>
@@ -899,7 +928,7 @@ HEAD = """<!DOCTYPE html>
             <div class="docbody">
               <div class="callout ok">
                 <p><b>怎么用这一页</b></p>
-                <p>① 按讲义进度点章：先看 M1 节表确认「这一节要会什么」，别一上来就刷题；② M2 的公式要动手抄一遍，抄完合上页面默写；③ M3 的易错点大多是阅卷时的扣分点，考前只看这一块也值；④ 每章末的「综合提高」是讲义自带的题型，先自己想 30 秒再看思路。</p>
+                <p>① 按讲义进度点章，M1 节表先看清这一章有几节、每节大概考什么；② <b>M2 逐节知识点</b>是主体：每节 3–7 条，把定义、公式、套路写成了可以直接背的句子，按节读完就等于过了一遍讲义；③ M3 的公式表考前单独抄一遍、合上默写；④ M4 的易错点大多是阅卷扣分点；⑤ 每章末的「综合提高」是讲义自带的题型，先自己想 30 秒再看思路。</p>
                 <p>章节目录与页码取自《宋浩高等数学讲义》上册（第一～七章）与下册（第八～十三章）；公式与易错点按这些节的内容整理。</p>
               </div>
               @@CHAPTERS@@

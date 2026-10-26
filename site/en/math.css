@@ -178,3 +178,54 @@ ol.drill li em {
 
 /* 章节列表页的表格宽一点 */
 .doc-study table.sectbl col.c1 { width: 30%; }
+
+/* 逐节知识点 */
+.sect-h::after { order: 1; }
+.sect-h .pgx {
+  order: 2;
+  margin-left: 0;
+  font-family: var(--mono);
+  font-size: 11.2px;
+  font-weight: 400;
+  color: var(--ink-4);
+  white-space: nowrap;
+}
+ol.kpt {
+  counter-reset: kpt;
+  margin: 0 0 20px;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+ol.kpt > li {
+  counter-increment: kpt;
+  position: relative;
+  padding: 9px 14px 9px 40px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  font-size: 13px;
+  line-height: 1.82;
+  color: var(--ink-2);
+}
+ol.kpt > li::before {
+  content: counter(kpt);
+  position: absolute;
+  left: 11px;
+  top: 10px;
+  width: 19px;
+  height: 19px;
+  border-radius: 6px;
+  background: rgb(var(--accent-rgb) / .13);
+  border: 1px solid rgb(var(--accent-rgb) / .26);
+  color: var(--accent);
+  font: 600 10.6px/17px var(--mono);
+  text-align: center;
+}
+ol.kpt > li b {
+  color: var(--ink);
+  font-weight: 650;
+  margin-right: 6px;
+}
+ol.kpt > li b::after { content: "｜"; color: var(--ink-4); font-weight: 400; margin-left: 2px; }
