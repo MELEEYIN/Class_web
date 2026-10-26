@@ -6,7 +6,54 @@
 
 ---
 
-## 0. 现状一句话
+## 现状更新（2026-10，务必先读这一节）
+
+远端 ACM 子站在本方案之上又做了一次重构，**站点现在是单页应用（SPA）**，下面的第 0~N 节描述的是
+「按章独立整页」的老方案，仅作为 Python 侧的写作/渲染管线保留，不再是线上入口。
+
+现在真正生效的链路：
+
+```
+site/acm/index.html          应用外壳（唯一 HTML 入口）
+site/acm/assets/shell.js     hash 路由 #/route、侧栏、目录、搜索、主题、进度
+site/acm/data/nav.json       侧栏与路由的唯一数据源（modules → items）
+site/acm/data/search.json    章节级搜索索引
+site/acm/data/p/*.html       路由对应的内容片段（纯 body，无 html/head）
+```
+
+Python 27 章以**片段 + 数据**的方式并入，不再有独立的对外 URL：
+
+```
+site/acm/python/NN-slug.md           正文源（提示词工程师维护）
+  └─ python site/acm/python/_render.py       → site/acm/python/NN-slug.html（整页，可独立打开自测）
+      └─ python site/acm/python/_build/build_spa.py
+           ├─ → site/acm/data/p/py-<slug>.html   片段（保留 <article data-learn-content> 根节点）
+           ├─ → site/acm/data/nav.json           追加/刷新 id 为 py 的模块（27 条 + 284 个小节）
+           └─ → site/acm/data/search.json         追加/刷新 u 以 py/ 开头的条目
+```
+
+**改一章的正确姿势**：改 `.md` → `_render.py` → `build_spa.py`（幂等，可反复跑，只覆盖 py-* 片段与 py 模块）。
+
+代码高亮与深色代码卡：
+
+- `site/js/learn-code.js` 导出 `window.LEARN_CODE.decorate(容器)`，对容器内所有 `pre` 做高亮/包卡/装复制按钮，
+  靠 `data-lc="1"` 幂等；`DOMContentLoaded` 时自动跑一次（整页场景）。
+- `assets/shell.js` 在 `paint()` 里对 `mod.id === 'py'` 设 `doc.className = 'doc py-doc'`，渲染后调用一次 `decorate(doc)`；
+  同时在 `afterRender()` 里跳过 `[data-learn-content]` 内的 `pre`，避免与远端的 `.cp2` 复制按钮重复。
+- 样式：`site/acm/learn.css`（整页外壳，非 `[data-learn-content]` 规则都带 `.learn-*` 前缀，不会污染 C++ 页面）、
+  `site/acm/learn-code.css`（代码卡，选择器全部以 `[data-learn-content]` 开头）、
+  `site/acm/assets/python.css`（SPA 内层适配：分区标题 `.nv-sec`、cwd 变量补全、压掉远端 `.doc pre` 通用样式对深色卡的干扰）。
+- 进度：`lessonsDone()/lessonsTotal()` 已把 `course`（60）与 `py`（26，`no` 为空的导读不计）合并，侧栏显示 `x / 86`。
+
+**部署**：仓库没有 CI，`git push` ≠ 上线。上线要在本机跑
+`wrangler deploy`（`wrangler.jsonc` 的 `assets.directory` 指向 `site/`，自定义域 `leeyin.xyz`）。
+国内网络下 HTTPS 到 GitHub 会被重置，本仓库 `origin` 已改用 `ssh://git@ssh.github.com:443/MELEEYIN/Class_web.git`；
+wrangler 的 OAuth token 约 30 天过期，过期后跑 `wrangler login` 重新授权。
+
+---
+
+## 0. 现状一句话（历史：整页方案）
+
 
 `site/acm/` 已从「ACM 算法子站」升级为「编程学习站」：顶层两大分类 **C++ 算法竞赛** 与 **Python**；
 C++ 侧仍是原来的 `study.html` / `practice.html`（**URL 一个没变**，老链接与深链全部有效）；
