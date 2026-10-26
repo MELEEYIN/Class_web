@@ -11,7 +11,7 @@
    更新流程：新 SW install 后**不自动接管**，由页面提示「有新版本，点一下更新」，
    用户点了才 skipWaiting + reload（避免像以前那样用户长期跑在旧代码上）。
    ========================================================================== */
-var VERSION = 'v24';  // 改样式/脚本时记得 +1（v24：高数补逐节知识点 354 条）
+var VERSION = 'v25';  // 改样式/脚本时记得 +1（v25：知识点卡片改成两行式、字号与对比度上调）
 var SHELL_CACHE = 'cw-shell-' + VERSION;
 var RUNTIME_CACHE = 'cw-runtime-' + VERSION;
 

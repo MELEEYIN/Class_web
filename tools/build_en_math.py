@@ -769,7 +769,7 @@ def render_points(ch):
         pts = pts_all[i] if i < len(pts_all) else []
         if not pts:
             continue
-        items = "".join('<li><b>%s</b>%s</li>' % (t, d) for t, d in pts)
+        items = "".join('<li><b>%s</b><span class="kd">%s</span></li>' % (t, d) for t, d in pts)
         out.append('<div class="sect-h" id="%s-s%d">%s<span class="pgx">%s · %d 条</span></div>'
                    '<ol class="kpt">%s</ol>' % (ch["id"], i + 1, name, page, len(pts), items))
     return ('<div class="mod" id="%s-m2"><h3><span class="mtag">M2</span>逐节知识点'
