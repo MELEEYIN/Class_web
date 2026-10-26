@@ -1,0 +1,1111 @@
+<article data-learn-content>
+<h2 id="s1">1. 查找算法概述</h2>
+
+<h3 id="s2">什么是查找</h3>
+
+<p><strong>查找（Searching）</strong>：在数据集合中，找出满足给定条件的元素（或确定它不存在）的过程。</p>
+
+<ul><li><strong>关键字（key）</strong>：用来标识一个数据元素的某个数据项的值，查找就是拿 <code>key</code> 去比较。</li><li><strong>查找表</strong>：由同一类型的数据元素构成的集合。  <strong>静态查找表</strong>：只做查找，不做插入/删除（如顺序查找、二分查找）。 <strong>动态查找表</strong>：查找过程中还会插入/删除（如哈希表、二叉排序树）。</li></ul>
+
+<h3 id="s3">衡量指标：平均查找长度 ASL</h3>
+
+<p><strong>ASL（Average Search Length）</strong> = 查找过程中关键字比较次数的期望值：</p>
+
+<pre><code>ASL = Σ (Pi × Ci)
+
+Pi —— 查找第 i 个元素的概率（通常认为各元素等概率，Pi = 1/n）
+Ci —— 找到第 i 个元素所需的比较次数</code></pre>
+
+<p>ASL 越小，算法效率越高。分析查找算法时，"<strong>成功</strong>的 ASL"和"<strong>失败</strong>的 ASL"通常要分开算。</p>
+
+<h3 id="s4">本章要讲的算法</h3>
+
+<table><thead><tr><th>分类</th><th>算法</th><th>前提</th></tr></thead><tbody><tr><td>线性（顺序）结构查找</td><td>基本查找（顺序查找）</td><td>无</td></tr><tr><td>线性（顺序）结构查找</td><td>二分查找（折半查找）</td><td><strong>数据必须有序</strong></td></tr><tr><td>线性（顺序）结构查找</td><td>插值查找</td><td><strong>有序 + 分布均匀</strong></td></tr><tr><td>线性（顺序）结构查找</td><td>分块查找（索引顺序查找）</td><td>块间有序、块内可无序</td></tr><tr><td>散列结构查找</td><td>哈希查找</td><td>建立哈希表</td></tr></tbody></table>
+
+<blockquote>冒泡排序、选择排序属于"排序算法"，放在本文后半部分。</blockquote>
+
+<hr>
+
+<h2 id="s5">2. 基本查找（顺序查找 / 线性查找）</h2>
+
+<h3 id="s6">思路</h3>
+
+<p>从表的一端开始，逐个把元素的关键字与目标值 <code>key</code> 比较：</p>
+
+<ul><li>相等 ——&gt; 查找成功，返回下标；</li><li>扫描到表尾仍不相等 ——&gt; 查找失败。</li></ul>
+
+<p><strong>对数据是否有序没有要求</strong>，这是它最大的优点。</p>
+
+<h3 id="s7">代码实现</h3>
+
+<h4 id="s8">版本一：从前往后</h4>
+
+<pre><code>// 基本查找：在 arr 中找 key，找到返回下标，找不到返回 -1
+int seq_search(int arr[], int n, int key)
+{
+    for (int i = 0; i &lt; n; i++)
+    {
+        if (arr[i] == key)
+        {
+            return i;           // 找到，返回下标
+        }
+    }
+    return -1;                  // 遍历完没找到
+}</code></pre>
+
+<h4 id="s9">版本二：带"哨兵"</h4>
+
+<p>把 <code>key</code> 放到下标 0 的位置（下标 0 不存有效数据），从后往前扫描，不必每次判断 <code>i</code> 是否越界，减少一次比较：</p>
+
+<pre><code>// 哨兵版：arr[0] 作为哨兵，有效数据从 arr[1] 开始
+// 注意：这里 n 表示"最后一个元素的下标"（即数据占 arr[1] ~ arr[n]）
+int seq_search_sentinel(int arr[], int n, int key)
+{
+    arr[0] = key;               // 设置哨兵
+    int i = n;
+    while (arr[i] != key)       // 不用判断 i &gt; 0，因为 arr[0] == key 一定会停
+    {
+        i--;
+    }
+    return (i == 0) ? -1 : i;   // i == 0 说明是哨兵"撞"到的，即没找到
+}</code></pre>
+
+<h3 id="s10">效率分析</h3>
+
+<ul><li>查找第 <code>i</code> 个元素需要比较 <code>i</code> 次（从前往后）。</li><li>等概率下：</li></ul>
+
+<pre><code>ASL成功 = (1 + 2 + 3 + ... + n) / n = (n + 1) / 2
+ASL失败 = n + 1        （要比较完整个表）</code></pre>
+
+<ul><li><strong>时间复杂度 O(n)</strong>，空间复杂度 O(1)。</li></ul>
+
+<h3 id="s11">优缺点</h3>
+
+<table><thead><tr><th>优点</th><th>缺点</th></tr></thead><tbody><tr><td>对数据无任何要求（无序也行）</td><td>数据量大时效率很低</td></tr><tr><td>算法简单、易实现</td><td>不适合频繁查找的大数据量场景</td></tr><tr><td>适合<strong>数据量较小</strong>、<strong>查找不频繁</strong>的场合</td><td></td></tr></tbody></table>
+
+<hr>
+
+<h2 id="s12">3. 二分查找（折半查找）</h2>
+
+<h3 id="s13">前提</h3>
+
+<p><strong>数据必须是有序的</strong>（升序或降序，且支持随机访问 —— 顺序表/数组）。如果数据无序，必须先排序。</p>
+
+<h3 id="s14">思路</h3>
+
+<p>设数组升序，用 <code>left</code>、<code>right</code> 标记查找区间，每轮取中间位置 <code>mid</code>：</p>
+
+<ul><li><code>arr[mid] == key</code> ——&gt; 找到了；</li><li><code>arr[mid] &gt; key</code> ——&gt; 目标只可能在<strong>左半区</strong>，<code>right = mid - 1</code>；</li><li><code>arr[mid] &lt; key</code> ——&gt; 目标只可能在<strong>右半区</strong>，<code>left = mid + 1</code>。</li></ul>
+
+<p>每比较一次，区间缩小一半，直到 <code>left &gt; right</code>（区间为空）说明不存在。</p>
+
+<h3 id="s15">逐步演示</h3>
+
+<p>在 <code>{7, 23, 79, 81, 103, 127, 131, 147}</code> 中查找 <code>81</code>：</p>
+
+<table><thead><tr><th>轮次</th><th>left</th><th>right</th><th>mid</th><th>arr[mid]</th><th>比较结果</th><th>区间变化</th></tr></thead><tbody><tr><td>1</td><td>0</td><td>7</td><td>3</td><td>81</td><td>相等 → 找到</td><td>——</td></tr></tbody></table>
+
+<p>再找 <code>103</code>：</p>
+
+<table><thead><tr><th>轮次</th><th>left</th><th>right</th><th>mid</th><th>arr[mid]</th><th>比较结果</th><th>区间变化</th></tr></thead><tbody><tr><td>1</td><td>0</td><td>7</td><td>3</td><td>81</td><td>81 &lt; 103</td><td>left = 4</td></tr><tr><td>2</td><td>4</td><td>7</td><td>5</td><td>127</td><td>127 &gt; 103</td><td>right = 4</td></tr><tr><td>3</td><td>xxxxxxxxxx int a[] = {10};int b[] = {20};int c[] = {30};​int <em>arr[] = {a, b, c};             // 存地址​printf("arr[0][0] = %d\n", arr[0][0]);printf("</em>(<em>(arr+0)) = %d\n", </em>(*(arr + 0)));printf("<strong>arr = %d\n", </strong>arr);      // 二级指针的间接引用c</td><td>4</td><td>4</td><td>103</td><td>相等 → 找到</td><td>——</td></tr></tbody></table>
+
+<blockquote>可以看到：8 个元素最多只需 3 次比较（⌈log₂8⌉ = 3）。</blockquote>
+
+<h3 id="s16">代码实现</h3>
+
+<h4 id="s17">循环版（闭区间写法 <code>[left, right]</code>）</h4>
+
+<pre><code>// 二分查找（升序数组），找到返回下标，找不到返回 -1
+int binary_search(int arr[], int n, int key)
+{
+    int left = 0;
+    int right = n - 1;          // 闭区间 [left, right]
+
+    while (left &lt;= right)       // 注意是 &lt;=
+    {
+        int mid = left + (right - left) / 2;    // 防溢出写法
+        if (arr[mid] == key)
+        {
+            return mid;         // 找到了
+        }
+        else if (arr[mid] &gt; key)
+        {
+            right = mid - 1;    // 目标在左半区
+        }
+        else
+        {
+            left = mid + 1;     // 目标在右半区
+        }
+    }
+    return -1;                  // 区间为空，没找到
+}</code></pre>
+
+<h4 id="s18">递归版</h4>
+
+<pre><code>int binary_search_rec(int arr[], int left, int right, int key)
+{
+    if (left &gt; right)
+    {
+        return -1;              // 递归出口：区间为空
+    }
+
+    int mid = left + (right - left) / 2;
+    if (arr[mid] == key)
+    {
+        return mid;
+    }
+    else if (arr[mid] &gt; key)
+    {
+        return binary_search_rec(arr, left, mid - 1, key);   // 左半区
+    }
+    else
+    {
+        return binary_search_rec(arr, mid + 1, right, key);  // 右半区
+    }
+}</code></pre>
+
+<h4 id="s19">完整示例</h4>
+
+<pre><code>int main(void)
+{
+    int arr[] = {7, 23, 79, 81, 103, 127, 131, 147};
+    int n = sizeof(arr) / sizeof(arr[0]);
+
+    int key = 103;
+    int index = binary_search(arr, n, key);
+    if (index == -1)
+    {
+        printf("%d 不存在\n", key);
+    }
+    else
+    {
+        printf("%d 的下标为：%d\n", key, index);
+    }
+
+    system("pause");
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<h3 id="s20">关键点与易错点</h3>
+
+<ol><li><strong>必须先排序。</strong> 对无序数据做二分，结果是错的（不是"找不到"，而是"找错"）。</li><li><strong>区间开闭要自洽</strong>，两种写法不能混用：</li></ol>
+
+<table><thead><tr><th>写法</th><th>初值</th><th>循环条件</th><th>收缩方式</th></tr></thead><tbody><tr><td>闭区间 <code>[left, right]</code></td><td><code>right = n - 1</code></td><td><code>left &lt;= right</code></td><td><code>right = mid - 1</code> / <code>left = mid + 1</code></td></tr><tr><td>左闭右开 <code>[left, right)</code></td><td><code>right = n</code></td><td><code>left &lt; right</code></td><td><code>right = mid</code> / <code>left = mid + 1</code></td></tr></tbody></table>
+
+<blockquote>最常见的 bug：<code>right = n - 1</code> 却写 <code>left &lt; right</code>，会漏掉最后一个元素；或写成 <code>right = mid</code>，导致 <code>left == right</code> 时死循环。</blockquote>
+
+<ol><li><strong><code>mid</code> 的溢出问题</strong>：  ``<code>c int mid = (left + right) / 2;           // 当 left、right 都很大时 left+right 会溢出 int mid = left + (right - left) / 2;    // 推荐写法，不会溢出 </code>``</li><li><strong>只能用于顺序存储</strong>（数组）。链表不能随机访问，无法 O(1) 定位 <code>mid</code>。</li><li><strong>重复元素的返回值不确定</strong>：数组里有多个相同值时，二分返回的是"某一个"，不保证是第一个或最后一个。</li></ol>
+
+<h3 id="s21">查找"边界"的变体（重要）</h3>
+
+<p>实际做题时经常需要的不只是"存在"，而是<strong>第一个/最后一个满足条件的位置</strong>：</p>
+
+<pre><code>// 查找第一个 &gt;= key 的下标（lower_bound）
+int lower_bound(int arr[], int n, int key)
+{
+    int left = 0, right = n;            // 左闭右开
+    while (left &lt; right)
+    {
+        int mid = left + (right - left) / 2;
+        if (arr[mid] &gt;= key)
+            right = mid;                // mid 可能就是答案，保留
+        else
+            left = mid + 1;
+    }
+    return left;                        // 可能等于 n（表示都比 key 小）
+}
+
+// 查找第一个 &gt; key 的下标（upper_bound）
+int upper_bound(int arr[], int n, int key)
+{
+    int left = 0, right = n;
+    while (left &lt; right)
+    {
+        int mid = left + (right - left) / 2;
+        if (arr[mid] &gt; key)
+            right = mid;
+        else
+            left = mid + 1;
+    }
+    return left;
+}</code></pre>
+
+<blockquote>结论：<code>key</code> 出现的次数 = <code>upper_bound - lower_bound</code>。</blockquote>
+
+<h3 id="s22">效率分析</h3>
+
+<ul><li>每次区间减半，最多比较 <strong>⌈log₂(n+1)⌉</strong> 次。</li><li><strong>时间复杂度 O(log n)</strong>，空间复杂度 O(1)（递归版为 O(log n) 栈空间）。</li><li>等概率下 ASL ≈ <code>log₂(n+1) - 1</code>。</li></ul>
+
+<table><thead><tr><th>n</th><th>最多比较次数</th></tr></thead><tbody><tr><td>8</td><td>3</td></tr><tr><td>1000</td><td>10</td></tr><tr><td>100 万</td><td>20</td></tr><tr><td>10 亿</td><td>30</td></tr></tbody></table>
+
+<blockquote>这就是二分查找强大的地方：<strong>数据量翻倍，比较次数只多 1 次</strong>。</blockquote>
+
+<hr>
+
+<h2 id="s23">4. 插值查找</h2>
+
+<h3 id="s24">思路</h3>
+
+<p>二分查找每次都取"正中间"，但如果我们已经知道 <code>key</code> 可能靠前或靠后，取中间就不是最优的。<strong>插值查找按比例估算 <code>key</code> 应该在的位置</strong>：</p>
+
+<pre><code>mid = left + (key - arr[left]) / (arr[right] - arr[left]) × (right - left)</code></pre>
+
+<p>对比一下：</p>
+
+<table><thead><tr><th>算法</th><th>mid 公式</th></tr></thead><tbody><tr><td>二分查找</td><td><code>left + (right - left) × 1/2</code></td></tr><tr><td>插值查找</td><td><code>left + (right - left) × (key - arr[left]) / (arr[right] - arr[left])</code></td></tr></tbody></table>
+
+<p><strong>直观理解</strong>：把"1/2"换成了"目标值在当前区间中的比例"。</p>
+
+<p><strong>例子</strong>：在 1 ~ 10000 均匀分布的有序数组中查 <code>15</code>。二分第一次取 5000；插值查找会算出 <code>15</code> 大约在 15% 的位置，直接跳到 1500 附近，<strong>一下就缩掉绝大部分区间</strong>。</p>
+
+<h3 id="s25">前提</h3>
+
+<ol><li><strong>数据必须有序</strong>；</li><li><strong>数据分布比较均匀</strong>（近似等差数列效果最好）。</li></ol>
+
+<h3 id="s26">代码实现</h3>
+
+<pre><code>// 插值查找（升序、分布较均匀的数组）
+int interpolation_search(int arr[], int n, int key)
+{
+    int left = 0, right = n - 1;
+
+    while (left &lt;= right &amp;&amp; key &gt;= arr[left] &amp;&amp; key &lt;= arr[right])
+    {
+        // 防止分母为 0：区间内所有元素相同时，直接比较
+        if (arr[right] == arr[left])
+        {
+            return (arr[left] == key) ? left : -1;
+        }
+
+        // 按比例估算位置
+        int mid = left + (key - arr[left]) * (right - left) / (arr[right] - arr[left]);
+
+        if (arr[mid] == key)
+        {
+            return mid;
+        }
+        else if (arr[mid] &gt; key)
+        {
+            right = mid - 1;
+        }
+        else
+        {
+            left = mid + 1;
+        }
+    }
+    return -1;
+}</code></pre>
+
+<h3 id="s27">必须注意的三个点</h3>
+
+<ol><li><strong>分母为 0</strong>：当 <code>arr[right] == arr[left]</code>（区间内元素全相同）时，除法会崩，必须特判。</li><li><strong><code>mid</code> 越界</strong>：如果 <code>key</code> 超出区间范围（比如比 <code>arr[left]</code> 还小），  公式算出的 <code>mid</code> 可能小于 <code>left</code> 甚至为负数。 所以循环条件里要加 <code>key &gt;= arr[left] &amp;&amp; key &lt;= arr[right]</code>， 或对算出的 <code>mid</code> 做夹紧（clamp）： ``<code>c if (mid &lt; left)  mid = left; if (mid &gt; right) mid = right; </code>``</li><li><strong>数据不均匀时反而更慢</strong>：比如 <code>{1, 2, 3, 4, 5, 100000}</code> 里查 <code>5</code>，  插值公式会把它估到很靠后的位置，可能一次只缩掉一个元素，退化成 O(n)。</li></ol>
+
+<h3 id="s28">效率分析</h3>
+
+<table><thead><tr><th>情况</th><th>时间复杂度</th></tr></thead><tbody><tr><td>数据均匀分布</td><td><strong>O(log log n)</strong>，比二分更快</td></tr><tr><td>数据分布极不均匀</td><td><strong>最坏 O(n)</strong>，比二分差</td></tr></tbody></table>
+
+<blockquote>结论：<strong>能用二分就用二分</strong>；只有在确认数据"均匀有序"且数据量很大时，插值查找才有优势。</blockquote>
+
+<hr>
+
+<h2 id="s29">5. 分块查找（索引顺序查找）</h2>
+
+<h3 id="s30">思路</h3>
+
+<p>分块查找是<strong>顺序查找与二分查找的折中</strong>，做法是把数据分成若干块：</p>
+
+<ol><li><strong>块间有序</strong>：第 1 块的最大值 &lt; 第 2 块的所有值 &lt; 第 3 块 ……（块与块之间有序）；</li><li><strong>块内可以无序</strong>（块内随便放）。</li></ol>
+
+<p>再建立一个<strong>索引表</strong>，每一项记录：</p>
+
+<table><thead><tr><th>索引项</th><th>内容</th></tr></thead><tbody><tr><td>maxKey</td><td>该块中的最大关键字</td></tr><tr><td>start</td><td>该块在数组中的起始下标</td></tr><tr><td>length</td><td>该块的元素个数</td></tr></tbody></table>
+
+<p>因为索引表按 <code>maxKey</code> 有序，所以可以<strong>先查索引表定位到块</strong>，再<strong>在块内顺序查找</strong>。</p>
+
+<h3 id="s31">示例</h3>
+
+<p>数据：<code>{16, 5, 9, 25, 12, 30, 38, 45, 60, 58, 71, 80}</code>，每块 4 个元素：</p>
+
+<pre><code>块1: 16,  5,  9, 25   —— 最大 25
+块2: 12, 30, 38, 45   —— 最大 45
+块3: 60, 58, 71, 80   —— 最大 80
+
+索引表：
+  maxKey: 25  45  80
+  start :  0   4   8</code></pre>
+
+<p>查找 <code>38</code>：</p>
+
+<ol><li>在索引表中比较：<code>38 &gt; 25</code>，<code>38 &lt;= 45</code> ——&gt; 锁定<strong>块2</strong>（<code>start = 4</code>）；</li><li>在块2（下标 4~7）中顺序查找 ——&gt; 第 3 个元素命中。</li></ol>
+
+<h3 id="s32">代码实现</h3>
+
+<pre><code>#define BLOCK_SIZE 4
+
+// 索引项
+typedef struct {
+    int maxKey;     // 该块的最大关键字
+    int start;      // 该块起始下标
+    int length;     // 该块元素个数
+} index_t;
+
+// 建立索引表，返回块数
+int build_index(int arr[], int n, index_t idx[])
+{
+    int blocks = (n + BLOCK_SIZE - 1) / BLOCK_SIZE;   // 向上取整
+    for (int i = 0; i &lt; blocks; i++)
+    {
+        int start = i * BLOCK_SIZE;
+        int len = (start + BLOCK_SIZE &lt;= n) ? BLOCK_SIZE : (n - start);
+        int max = arr[start];
+
+        for (int j = start; j &lt; start + len; j++)
+        {
+            if (arr[j] &gt; max) max = arr[j];
+        }
+        idx[i].maxKey = max;
+        idx[i].start  = start;
+        idx[i].length = len;
+    }
+    return blocks;
+}
+
+// 分块查找：先顺序查索引表确定块，再块内顺序查找
+int block_search(int arr[], int n, index_t idx[], int blocks, int key)
+{
+    int b = -1;
+    // ① 在索引表中顺序查找，找到第一个 maxKey &gt;= key 的块
+    for (int i = 0; i &lt; blocks; i++)
+    {
+        if (key &lt;= idx[i].maxKey)
+        {
+            b = i;
+            break;
+        }
+    }
+    if (b == -1)
+    {
+        return -1;      // 比所有块的最大值都大，一定不存在
+    }
+
+    // ② 在块内顺序查找
+    for (int i = idx[b].start; i &lt; idx[b].start + idx[b].length; i++)
+    {
+        if (arr[i] == key)
+        {
+            return i;
+        }
+    }
+    return -1;
+}</code></pre>
+
+<blockquote>索引表本身是有序的，所以"①"这一步也可以改成<strong>二分查找索引表</strong>，当块数很多时能进一步提速。</blockquote>
+
+<h3 id="s33">效率分析</h3>
+
+<p>设 <code>n</code> 个元素分成 <code>b</code> 块、每块 <code>s</code> 个元素（<code>b × s = n</code>），若索引表和块内都用顺序查找：</p>
+
+<pre><code>ASL = ASL索引 + ASL块内 ≈ (b + 1)/2 + (s + 1)/2 = (b + s)/2 + 1</code></pre>
+
+<p>由均值不等式，<code>b = s = √n</code> 时 ASL 最小：</p>
+
+<pre><code>ASL最小 ≈ √n + 1</code></pre>
+
+<ul><li><strong>时间复杂度 O(√n)</strong>，介于顺序查找 O(n) 与二分查找 O(log n) 之间。</li><li>空间上需要额外的索引表。</li></ul>
+
+<h3 id="s34">优缺点</h3>
+
+<table><thead><tr><th>优点</th><th>缺点</th></tr></thead><tbody><tr><td>插入/删除比二分查找方便（块内无序，只要不破坏块间有序就行）</td><td>需要额外维护索引表</td></tr><tr><td>适合<strong>数据量大、又要频繁动态增删</strong>的场景</td><td>效率不如二分查找</td></tr></tbody></table>
+
+<hr>
+
+<h2 id="s35">6. 哈希查找（散列查找）</h2>
+
+<h3 id="s36">基本概念</h3>
+
+<p>前面几种查找都要"比较"，哈希查找的核心思想是：<strong>通过哈希函数直接算出元素的存储位置</strong>，理想情况下一次就能定位，<strong>O(1)</strong>。</p>
+
+<ul><li><strong>哈希表（散列表）</strong>：用哈希函数建立"关键字 → 存储位置"映射的存储结构。</li><li><strong>哈希函数 <code>H(key)</code></strong>：把关键字映射成哈希表中下标的函数。</li><li><strong>哈希地址</strong>：<code>H(key)</code> 算出的下标。</li><li><strong>冲突（碰撞）</strong>：两个不同的 <code>key</code> 算出<strong>同一个哈希地址</strong>（<code>H(k1) == H(k2)</code> 但 <code>k1 != k2</code>）。</li><li><strong>同义词</strong>：产生冲突的那些关键字互称同义词。</li></ul>
+
+<blockquote><strong>冲突是不可避免的</strong>（因为关键字空间通常远大于哈希表空间），所以哈希查找的两个核心问题是：① 设计好的哈希函数；② 设计好的冲突解决办法。</blockquote>
+
+<h3 id="s37">常用哈希函数</h3>
+
+<table><thead><tr><th>方法</th><th>做法</th><th>适用</th></tr></thead><tbody><tr><td><strong>直接定址法</strong></td><td><code>H(key) = key</code> 或 <code>a × key + b</code></td><td>关键字连续、范围小</td></tr><tr><td><strong>除留余数法</strong>（最常用）</td><td><code>H(key) = key % p</code>，<code>p</code> 一般取<strong>小于表长的最大质数</strong></td><td>通用</td></tr><tr><td>数字分析法</td><td>取关键字中分布较均匀的几位</td><td>关键字位数多、分布有规律</td></tr><tr><td>平方取中法</td><td>平方后取中间几位</td><td>关键字位数少</td></tr><tr><td>折叠法</td><td>把关键字分成几段相加</td><td>位数很多</td></tr></tbody></table>
+
+<pre><code>// 除留余数法示例：表长 13，取 p = 13（质数）
+#define TABLE_SIZE 13
+int hash_func(int key)
+{
+    return key % TABLE_SIZE;
+}</code></pre>
+
+<h3 id="s38">冲突解决办法</h3>
+
+<h4 id="s39">方法一：开放定址法</h4>
+
+<p>当 <code>H(key)</code> 已被占用时，按某种规则<strong>向后探测</strong>空位置。</p>
+
+<pre><code>// 线性探测：依次看 H+1, H+2, H+3 ... （循环）
+int next = (H(key) + i) % TABLE_SIZE;    // i = 1, 2, 3 ...</code></pre>
+
+<table><thead><tr><th>探测方式</th><th>公式</th><th>特点</th></tr></thead><tbody><tr><td><strong>线性探测</strong></td><td><code>(H + i) % m</code></td><td>简单，但会产生<strong>聚集</strong>（连续占满一片）</td></tr><tr><td><strong>二次探测</strong></td><td><code>(H ± i²) % m</code></td><td>减少聚集</td></tr><tr><td><strong>双重散列</strong></td><td><code>(H1 + i × H2) % m</code></td><td>效果更好</td></tr></tbody></table>
+
+<blockquote><strong>重要坑</strong>：开放定址法<strong>删除元素不能直接置空</strong>，否则会截断后续元素的探测链，导致本来存在的元素查不到。要用"<strong>墓碑标记</strong>"（如 <code>-1</code> 表示已删除、<code>INT_MIN</code> 表示空）。</blockquote>
+
+<h4 id="s40">方法二：链地址法（拉链法，最常用）</h4>
+
+<p>哈希表的每个位置存一个<strong>链表头</strong>，所有哈希地址相同的元素挂到同一个链表上。</p>
+
+<pre><code>typedef struct node {
+    int key;
+    struct node *next;
+} node_t;
+
+node_t *table[TABLE_SIZE];      // 数组 + 链表</code></pre>
+
+<ul><li>优点：<strong>没有聚集问题</strong>；删除方便（直接摘链）；装载因子可以 &gt; 1。</li><li>缺点：需要额外的指针空间；链表长了退化成 O(n)。</li></ul>
+
+<h4 id="s41">其他方法</h4>
+
+<ul><li><strong>再哈希法</strong>：冲突时换第二个哈希函数再算。</li><li><strong>公共溢出区</strong>：冲突的元素统一放到另一个溢出表里。</li></ul>
+
+<h3 id="s42">装载因子</h3>
+
+<pre><code>α = 表中已存元素个数 n / 哈希表长度 m</code></pre>
+
+<ul><li><code>α</code> 越大 ——&gt; 冲突越多、查找越慢；</li><li>开放定址法一般控制 <strong>α &lt; 0.75</strong>，超过就要扩容（<strong>rehash</strong>：新建更大的表，把所有元素重新插入）。</li></ul>
+
+<h3 id="s43">代码实现：除留余数 + 开放定址（线性探测）</h3>
+
+<pre><code>#include &lt;stdio.h&gt;
+#include &lt;limits.h&gt;
+
+#define M 13                        // 表长，取质数
+#define EMPTY  INT_MIN              // 空标记
+#define DELETED (INT_MIN + 1)       // 墓碑标记（表示被删除过）
+
+int table[M];
+
+// 初始化
+void ht_init(void)
+{
+    for (int i = 0; i &lt; M; i++)
+    {
+        table[i] = EMPTY;
+    }
+}
+
+// 哈希函数
+int hash(int key)
+{
+    return key % M;
+}
+
+// 插入：成功返回下标，表满返回 -1
+int ht_insert(int key)
+{
+    int h = hash(key);
+    for (int i = 0; i &lt; M; i++)             // 最多探测 M 次
+    {
+        int pos = (h + i) % M;
+        if (table[pos] == EMPTY || table[pos] == DELETED)
+        {
+            table[pos] = key;
+            return pos;
+        }
+    }
+    return -1;                              // 表已满
+}
+
+// 查找：成功返回下标，失败返回 -1
+int ht_search(int key)
+{
+    int h = hash(key);
+    for (int i = 0; i &lt; M; i++)
+    {
+        int pos = (h + i) % M;
+        if (table[pos] == EMPTY)            // 遇到空位，说明探测链断了 ——&gt; 不存在
+        {
+            return -1;
+        }
+        if (table[pos] == key)
+        {
+            return pos;
+        }
+        // 若是 DELETED，继续往后探测
+    }
+    return -1;
+}
+
+// 删除：把位置标记为"墓碑"，不能直接置空！
+int ht_delete(int key)
+{
+    int pos = ht_search(key);
+    if (pos == -1)
+    {
+        return -1;
+    }
+    table[pos] = DELETED;
+    return 0;
+}
+
+int main(void)
+{
+    ht_init();
+
+    int keys[] = {19, 14, 23, 1, 68, 20, 84, 27, 55, 11, 10, 79};
+    int n = sizeof(keys) / sizeof(keys[0]);
+    for (int i = 0; i &lt; n; i++)
+    {
+        printf("插入 %2d -&gt; 位置 %d\n", keys[i], ht_insert(keys[i]));
+    }
+
+    printf("\n查找 27 -&gt; %d\n", ht_search(27));
+    printf("查找 99 -&gt; %d\n", ht_search(99));
+
+    system("pause");
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<h3 id="s44">代码实现：链地址法（拉链法）</h3>
+
+<pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+#define M 13
+
+typedef struct node {
+    int key;
+    struct node *next;
+} node_t;
+
+node_t *table[M];
+
+// 初始化
+void ht_init(void)
+{
+    for (int i = 0; i &lt; M; i++)
+    {
+        table[i] = NULL;
+    }
+}
+
+// 哈希函数
+int hash(int key)
+{
+    return key % M;
+}
+
+// 插入：头插法
+void ht_insert(int key)
+{
+    int h = hash(key);
+    node_t *p = malloc(sizeof(node_t));
+    if (p == NULL)
+    {
+        return;
+    }
+    p-&gt;key = key;
+    p-&gt;next = table[h];
+    table[h] = p;
+}
+
+// 查找：在对应链表里顺序找
+node_t *ht_search(int key)
+{
+    int h = hash(key);
+    for (node_t *p = table[h]; p != NULL; p = p-&gt;next)
+    {
+        if (p-&gt;key == key)
+        {
+            return p;
+        }
+    }
+    return NULL;
+}
+
+// 删除
+int ht_delete(int key)
+{
+    int h = hash(key);
+    node_t *prev = NULL;
+    for (node_t *p = table[h]; p != NULL; prev = p, p = p-&gt;next)
+    {
+        if (p-&gt;key == key)
+        {
+            if (prev == NULL)
+            {
+                table[h] = p-&gt;next;
+            }
+            else
+            {
+                prev-&gt;next = p-&gt;next;
+            }
+            free(p);
+            return 0;
+        }
+    }
+    return -1;
+}</code></pre>
+
+<h3 id="s45">效率分析</h3>
+
+<table><thead><tr><th>情况</th><th>时间复杂度</th></tr></thead><tbody><tr><td>平均（哈希函数设计良好、α 合理）</td><td><strong>O(1)</strong></td></tr><tr><td>最坏（全部冲突，退化成一条链/连续探测）</td><td>O(n)</td></tr></tbody></table>
+
+<ul><li>空间复杂度：O(n)（需要额外的指针或空位）。</li></ul>
+
+<h3 id="s46">哈希查找小结</h3>
+
+<ul><li><strong>哈希查找不要求数据有序</strong>，这是它相对二分查找的最大优势；</li><li>查找速度最快，但<strong>不适合范围查找</strong>（如"找 50~80 之间的所有数"），  也不适合按顺序遍历输出；</li><li><strong>空间换时间</strong>的典型代表。</li></ul>
+
+<hr>
+
+<h2 id="s47">7. 冒泡排序（Bubble Sort）</h2>
+
+<h3 id="s48">思路</h3>
+
+<p>重复走访要排序的数列，<strong>每次比较相邻的两个元素</strong>，如果顺序不对就交换；每走一趟，最大的元素就会"冒泡"到未排序部分的最后面。</p>
+
+<ul><li>有 <code>n</code> 个元素，最多需要 <code>n - 1</code> 趟；</li><li>第 <code>i</code> 趟只需要比较 <code>n - 1 - i</code> 次（后面已经是排好的）。</li></ul>
+
+<h3 id="s49">逐步演示</h3>
+
+<p>对 <code>{5, 2, 9, 1, 6}</code> 升序排序：</p>
+
+<pre><code>初始：      5  2  9  1  6
+
+第 1 趟：
+  5&gt;2 交换  2  5  9  1  6
+  5&lt;9 不动  2  5  9  1  6
+  9&gt;1 交换  2  5  1  9  6
+  9&gt;6 交换  2  5  1  6  9     ← 最大值 9 归位
+                比较 4 次
+
+第 2 趟：  2  5  1  6 | 9
+  2&lt;5 不动  2  5  1  6
+  5&gt;1 交换  2  1  5  6
+  5&lt;6 不动  2  1  5  6     ← 次大值 6 归位
+                比较 3 次
+
+第 3 趟：  2  1  5 | 6  9
+  2&gt;1 交换  1  2  5
+  2&lt;5 不动  1  2  5         ← 5 归位
+                比较 2 次
+
+第 4 趟：  1  2 | 5  6  9
+  1&lt;2 不动  1  2             ← 2 归位
+                比较 1 次
+
+结果：      1  2  5  6  9</code></pre>
+
+<p>总比较次数 = 4 + 3 + 2 + 1 = 10 = <code>n(n-1)/2</code>。</p>
+
+<h3 id="s50">代码实现</h3>
+
+<h4 id="s51">基础版</h4>
+
+<pre><code>void bubble_sort(int arr[], int n)
+{
+    for (int i = 0; i &lt; n - 1; i++)             // 外层控制"趟数"
+    {
+        for (int j = 0; j &lt; n - 1 - i; j++)     // 内层控制"每次比较"
+        {
+            if (arr[j] &gt; arr[j + 1])            // 相邻两两比较（升序：前面大就换）
+            {
+                int tmp = arr[j];               // 三杯水交换
+                arr[j] = arr[j + 1];
+                arr[j + 1] = tmp;
+            }
+        }
+    }
+}</code></pre>
+
+<h4 id="s52">优化版：加"是否发生交换"标志</h4>
+
+<p>如果某一趟<strong>一次交换都没有</strong>，说明数组已经有序，可以直接结束：</p>
+
+<pre><code>void bubble_sort_opt(int arr[], int n)
+{
+    for (int i = 0; i &lt; n - 1; i++)
+    {
+        int swapped = 0;                        // 本趟是否发生交换
+        for (int j = 0; j &lt; n - 1 - i; j++)
+        {
+            if (arr[j] &gt; arr[j + 1])
+            {
+                int tmp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = tmp;
+                swapped = 1;
+            }
+        }
+        if (swapped == 0)                       // 已经有序，提前结束
+        {
+            break;
+        }
+    }
+}</code></pre>
+
+<h4 id="s53">进一步优化：记录最后一次交换的位置</h4>
+
+<p>某一趟中，最后一次交换位置之后的元素已经有序，下一趟不必再比较：</p>
+
+<pre><code>void bubble_sort_opt2(int arr[], int n)
+{
+    int border = n - 1;
+    while (border &gt; 0)
+    {
+        int lastSwap = 0;
+        for (int j = 0; j &lt; border; j++)
+        {
+            if (arr[j] &gt; arr[j + 1])
+            {
+                int tmp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = tmp;
+                lastSwap = j;
+            }
+        }
+        border = lastSwap;
+    }
+}</code></pre>
+
+<h3 id="s54">完整示例</h3>
+
+<pre><code>int main(void)
+{
+    int arr[] = {5, 2, 9, 1, 6, 3};
+    int n = sizeof(arr) / sizeof(arr[0]);
+
+    bubble_sort(arr, n);
+
+    for (int i = 0; i &lt; n; i++)
+    {
+        printf("%d ", arr[i]);
+    }
+    printf("\n");
+
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<h3 id="s55">效率分析</h3>
+
+<table><thead><tr><th>指标</th><th>值</th></tr></thead><tbody><tr><td>最好时间复杂度</td><td>O(n)（原数组已有序 <strong>且</strong> 用了标志位优化）</td></tr><tr><td>平均时间复杂度</td><td><strong>O(n²)</strong></td></tr><tr><td>最坏时间复杂度</td><td>O(n²)（完全逆序）</td></tr><tr><td>空间复杂度</td><td>O(1)（原地排序）</td></tr><tr><td>稳定性</td><td><strong>稳定</strong>（相等元素不会交换，相对次序不变）</td></tr></tbody></table>
+
+<h3 id="s56">常见坑</h3>
+
+<ol><li><strong>内层边界写错</strong>：写成 <code>j &lt; n - 1</code> 会做多余的比较（虽然结果对，但效率更差）；  写成 <code>j &lt;= n - 1 - i</code> 会<strong>越界</strong>（<code>arr[j+1]</code> 越界）。</li><li><strong>交换时忘了用临时变量</strong>：<code>arr[j] = arr[j+1]; arr[j+1] = arr[j];</code> 是错的。</li><li><strong>外层只需 <code>n - 1</code> 趟</strong>：<code>n - 1</code> 趟后前 <code>n-1</code> 个位置都有序，最后一个自然也就位了。</li></ol>
+
+<hr>
+
+<h2 id="s57">8. 选择排序（Selection Sort）</h2>
+
+<h3 id="s58">思路</h3>
+
+<p>把数组分成"<strong>已排序区</strong>"和"<strong>未排序区</strong>"：</p>
+
+<ul><li>每一趟在未排序区里找到<strong>最小（或最大）</strong>的元素；</li><li>把它和未排序区的<strong>第一个元素交换</strong>；</li><li>未排序区缩小一个，重复直到只剩一个元素。</li></ul>
+
+<blockquote>与冒泡的区别：冒泡是"边走边换"，选择排序是"先找最小、最后只换一次"，所以<strong>交换次数少得多</strong>。</blockquote>
+
+<h3 id="s59">逐步演示</h3>
+
+<p>对 <code>{5, 2, 9, 1, 6}</code> 升序排序：</p>
+
+<pre><code>初始：          5  2  9  1  6
+                未排序区：[0..4]
+
+第 1 趟：在 5 2 9 1 6 中找最小值 1（下标 3），与 arr[0] 交换
+        1 | 2  9  5  6        已排序：[0]
+
+第 2 趟：在 2 9 5 6 中找最小值 2（下标 1），与 arr[1] 交换（自己，不变）
+        1  2 | 9  5  6        已排序：[0..1]
+
+第 3 趟：在 9 5 6 中找最小值 5（下标 3），与 arr[2] 交换
+        1  2  5 | 9  6        已排序：[0..2]
+
+第 4 趟：在 9 6 中找最小值 6（下标 4），与 arr[3] 交换
+        1  2  5  6 | 9        已排序：[0..3]
+
+结果：  1  2  5  6  9</code></pre>
+
+<h3 id="s60">代码实现</h3>
+
+<pre><code>void select_sort(int arr[], int n)
+{
+    for (int i = 0; i &lt; n - 1; i++)             // i 是未排序区的第一个位置
+    {
+        int minIndex = i;                       // 先假设 arr[i] 最小
+        for (int j = i + 1; j &lt; n; j++)         // 在未排序区找真正的最小值
+        {
+            if (arr[j] &lt; arr[minIndex])
+            {
+                minIndex = j;
+            }
+        }
+        // 只交换一次：把最小值换到未排序区的最前面
+        if (minIndex != i)
+        {
+            int tmp = arr[i];
+            arr[i] = arr[minIndex];
+            arr[minIndex] = tmp;
+        }
+    }
+}</code></pre>
+
+<h3 id="s61">完整示例</h3>
+
+<pre><code>int main(void)
+{
+    int arr[] = {5, 2, 9, 1, 6, 3};
+    int n = sizeof(arr) / sizeof(arr[0]);
+
+    select_sort(arr, n);
+
+    for (int i = 0; i &lt; n; i++)
+    {
+        printf("%d ", arr[i]);
+    }
+    printf("\n");
+
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<h3 id="s62">效率分析</h3>
+
+<table><thead><tr><th>指标</th><th>值</th></tr></thead><tbody><tr><td>时间复杂度</td><td><strong>O(n²)</strong>（最好/平均/最坏都是；因为不管数据怎样都要找最小值）</td></tr><tr><td>比较次数</td><td><code>n(n-1)/2</code>，固定不变</td></tr><tr><td>交换次数</td><td>最多 <code>n - 1</code> 次（比冒泡少很多）</td></tr><tr><td>空间复杂度</td><td>O(1)</td></tr><tr><td>稳定性</td><td><strong>不稳定</strong></td></tr></tbody></table>
+
+<h4 id="s63">为什么选择排序不稳定？</h4>
+
+<p><strong>稳定</strong>要求：相等的元素排序后相对次序不变。选择排序的交换会<strong>跨过中间元素</strong>，可能打乱顺序。</p>
+
+<p>反例：<code>{5a, 5b, 2}</code>（<code>5a</code> 与 <code>5b</code> 值相等，<code>5a</code> 在前）</p>
+
+<pre><code>第 1 趟：找最小值 2（下标 2），与 arr[0] 交换
+        2  5b  5a          ← 5a 和 5b 的相对次序被交换打乱了
+结果：  2  5b  5a</code></pre>
+
+<p><code>5a</code> 原本在 <code>5b</code> 前面，排序后跑到后面去了 —— 所以<strong>不稳定</strong>。</p>
+
+<h3 id="s64">与冒泡排序对比</h3>
+
+<table><thead><tr><th></th><th>冒泡排序</th><th>选择排序</th></tr></thead><tbody><tr><td>比较次数</td><td>≤ <code>n(n-1)/2</code></td><td>固定 <code>n(n-1)/2</code></td></tr><tr><td>交换次数</td><td>最多 <code>n(n-1)/2</code></td><td>最多 <code>n - 1</code></td></tr><tr><td>最好情况</td><td>O(n)（有序 + 优化）</td><td>O(n²) 无法优化</td></tr><tr><td>稳定性</td><td>稳定</td><td>不稳定</td></tr><tr><td>适用</td><td>数据基本有序时表现好</td><td><strong>交换成本高</strong>（如元素很大）时更合适</td></tr></tbody></table>
+
+<hr>
+
+<h2 id="s65">9. 综合对比</h2>
+
+<h3 id="s66">查找算法</h3>
+
+<table><thead><tr><th>算法</th><th>前提</th><th>时间复杂度</th><th>空间</th><th>能否动态增删</th><th>特点</th></tr></thead><tbody><tr><td>基本查找（顺序）</td><td>无</td><td>O(n)</td><td>O(1)</td><td>方便</td><td>最简单，数据量小才用</td></tr><tr><td>二分查找</td><td><strong>必须有序</strong></td><td>O(log n)</td><td>O(1)</td><td>不方便</td><td>最常用，效率高</td></tr><tr><td>插值查找</td><td>有序 + <strong>分布均匀</strong></td><td>平均 O(log log n)，最坏 O(n)</td><td>O(1)</td><td>不方便</td><td>均匀大数据集比二分快</td></tr><tr><td>分块查找</td><td>块间有序</td><td>O(√n)</td><td>O(索引表)</td><td>较方便</td><td>顺序与二分折中</td></tr><tr><td>哈希查找</td><td>无</td><td>平均 O(1)，最坏 O(n)</td><td>O(n)</td><td>方便</td><td>最快，但不支持范围查找</td></tr></tbody></table>
+
+<h3 id="s67">排序算法</h3>
+
+<table><thead><tr><th>算法</th><th>最好</th><th>平均</th><th>最坏</th><th>空间</th><th>稳定性</th></tr></thead><tbody><tr><td>冒泡排序</td><td>O(n)</td><td>O(n²)</td><td>O(n²)</td><td>O(1)</td><td><strong>稳定</strong></td></tr><tr><td>选择排序</td><td>O(n²)</td><td>O(n²)</td><td>O(n²)</td><td>O(1)</td><td><strong>不稳定</strong></td></tr></tbody></table>
+
+<h3 id="s68">怎么选？</h3>
+
+<ul><li><strong>数据有序</strong> ——&gt; 优先考虑二分查找；</li><li><strong>数据有序且分布均匀、量很大</strong> ——&gt; 可以试插值查找；</li><li><strong>数据量大、频繁增删</strong> ——&gt; 哈希表 或 分块查找；</li><li><strong>数据无序、量小</strong> ——&gt; 顺序查找最省事；</li><li><strong>排序</strong>：数据规模小、要求稳定 ——&gt; 冒泡；交换元素的代价很大 ——&gt; 选择排序。  （数据量大时两者都不适用，应使用快速排序 / 归并排序 / 堆排序。）</li></ul>
+
+<hr>
+
+<h2 id="s69">10. 标准库里的查找函数（C 没有 find）</h2>
+
+<blockquote>前面讲的查找算法都是"自己写循环"。那 C 标准库有没有现成的查找函数？<strong>没有叫 <code>find</code> 的。</strong> C 的做法是"<strong>按数据形态分头提供专用函数</strong>"，再加一个通用的 <code>bsearch()</code>。</blockquote>
+
+<h3 id="s70">10.1 查找函数全家谱</h3>
+
+<table><thead><tr><th>想找什么</th><th>函数</th><th>头文件</th><th>返回</th><th>前置要求</th></tr></thead><tbody><tr><td>字符串里的字符（首次）</td><td><code>strchr</code></td><td><code>string.h</code></td><td>指针 / <code>NULL</code></td><td>—</td></tr><tr><td>字符串里的字符（最后一次）</td><td><code>strrchr</code></td><td><code>string.h</code></td><td>指针</td><td>—</td></tr><tr><td>字符串里的子串</td><td><code>strstr</code></td><td><code>string.h</code></td><td>指针</td><td>—</td></tr><tr><td>字符串里<strong>任一个</strong>字符</td><td><code>strpbrk</code></td><td><code>string.h</code></td><td>指针</td><td>—</td></tr><tr><td>内存块里的字节</td><td><code>memchr</code></td><td><code>string.h</code></td><td>指针</td><td>—</td></tr><tr><td><strong>任意类型的有序数组</strong></td><td><strong><code>bsearch</code></strong></td><td><strong><code>stdlib.h</code></strong></td><td><strong>指针</strong></td><td><strong>必须先排序</strong></td></tr><tr><td>任意类型但<strong>无序</strong>的数组</td><td><code>lfind</code> / <code>lsearch</code></td><td><code>search.h</code></td><td>指针</td><td>非 ISO C（POSIX）</td></tr></tbody></table>
+
+<blockquote>补充几个"查跨度"的：<code>strspn</code>（开头连续属于某集合的字符个数）、<code>strcspn</code>（开头连续<strong>不</strong>属于某集合的个数）。</blockquote>
+
+<h3 id="s71">10.2 C 查找函数的两个约定</h3>
+
+<ol><li><strong>一律返回指针</strong>（找不到返回 <code>NULL</code>），<strong>不返回下标</strong>。  要下标就自己做指针相减：<code>(int *)p - arr</code>。</li><li><strong>通用型函数</strong>（<code>bsearch</code>、<code>lfind</code>）<strong>必须由你提供比较函数</strong> —— 因为 C 没有泛型，  库函数不知道你的元素怎么比大小。</li></ol>
+
+<h3 id="s72">10.3 bsearch：C 里最接近"通用 find"的东西</h3>
+
+<pre><code>#include &lt;stdlib.h&gt;
+void *bsearch(const void *key,      // 【要找的值】的地址
+              const void *base,     // 数组首地址
+              size_t nmemb,         // 元素个数
+              size_t size,          // 单个元素的字节数
+              int (*compar)(const void *, const void *));   // 比较函数</code></pre>
+
+<table><thead><tr><th>参数</th><th>说明</th></tr></thead><tbody><tr><td><code>key</code></td><td>指向"要找的值"的指针（传变量的地址，不是值本身）</td></tr><tr><td><code>base</code></td><td>数组首地址</td></tr><tr><td><code>nmemb</code></td><td>元素<strong>个数</strong></td></tr><tr><td><code>size</code></td><td>单个元素占<strong>多少字节</strong>（通常写 <code>sizeof(arr[0])</code>）</td></tr><tr><td><code>compar</code></td><td>比较函数，返回 <code>&lt;0 / 0 / &gt;0</code></td></tr><tr><td><strong>返回值</strong></td><td>指向<strong>匹配元素</strong>的指针；找不到返回 <code>NULL</code></td></tr></tbody></table>
+
+<pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+// 比较函数：返回 1 / 0 / -1
+int cmp_int(const void *a, const void *b)
+{
+    int x = *(const int *)a;
+    int y = *(const int *)b;
+    return (x &gt; y) - (x &lt; y);
+}
+
+int main(void)
+{
+    int arr[] = {103, 7, 147, 81, 23, 131, 127, 79};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    int key = 103;
+
+    // ① 必须先排序（同样的比较规则！）
+    qsort(arr, n, sizeof(arr[0]), cmp_int);
+
+    // ② 再二分查找
+    int *p = bsearch(&amp;key, arr, n, sizeof(arr[0]), cmp_int);
+
+    if (p == NULL)
+    {
+        printf("%d 不存在\n", key);
+    }
+    else
+    {
+        printf("找到 %d，下标 %d\n", *p, (int)(p - arr));   // 指针相减得下标
+    }
+
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<h4 id="s73">五个必须注意的点</h4>
+
+<ol><li><strong>必须已排序</strong>，而且要用<strong>同一个比较规则</strong>。  对无序数组调用 <code>bsearch</code>，结果是<strong>未定义</strong>的 —— 不是"找不到"，而是"可能找错"。</li><li><strong>有重复元素时返回哪一个不确定</strong>，不保证是第一个。</li><li><strong>做不到 lower_bound / upper_bound</strong>（"第一个 ≥ key 的位置"）。  这是 <code>bsearch</code> 最大的功能缺口 —— 有这种需求只能<strong>手写二分</strong>（见第 3 章变体部分）。</li><li><strong>比较函数不要写成相减</strong>：  ``<code>c return <em>(int </em>)a - <em>(int </em>)b;      // ✗ 可能溢出（INT_MIN 和 INT_MAX 相减） return (x &gt; y) - (x &lt; y);          // ✓ 安全，且天然返回 1 / 0 / -1 </code>``</li><li><strong><code>key</code> 必须是"和数组元素同类型"的对象</strong>。<code>bsearch</code> 是按你给的内存当元素去比的，  传 <code>int</code> 就要传 <code>&amp;int_var</code>，传结构体就要传结构体变量的地址。</li></ol>
+
+<h4 id="s74">结构体数组的例子</h4>
+
+<pre><code>typedef struct {
+    int  id;
+    char name[32];
+} stu_t;
+
+// 按 id 排序 / 比较
+int cmp_stu(const void *a, const void *b)
+{
+    int x = ((const stu_t *)a)-&gt;id;
+    int y = ((const stu_t *)b)-&gt;id;
+    return (x &gt; y) - (x &lt; y);
+}
+
+int main(void)
+{
+    stu_t arr[] = {{103, "Tom"}, {7, "Jerry"}, {81, "Andy"}};
+    int n = sizeof(arr) / sizeof(arr[0]);
+
+    qsort(arr, n, sizeof(arr[0]), cmp_stu);
+
+    stu_t key;
+    key.id = 81;                                    // 只看 id 作为关键字
+    stu_t *p = bsearch(&amp;key, arr, n, sizeof(arr[0]), cmp_stu);
+
+    if (p != NULL)
+    {
+        printf("查到：%d %s\n", p-&gt;id, p-&gt;name);
+    }
+
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<h3 id="s75">10.4 其它专用查找函数速查</h3>
+
+<pre><code>#include &lt;string.h&gt;
+
+char buf[] = "hello world";
+
+char *p1 = strchr(buf, 'w');            // 找字符：返回 "world" 的地址
+char *p2 = strrchr(buf, 'l');           // 从右往左找字符：返回最后一个 'l'
+char *p3 = strstr(buf, "wor");          // 找子串：返回 "world" 的地址
+char *p4 = memchr(buf, 'o', sizeof(buf));   // 在内存块中找字节
+
+char str[] = "abc,def;ghi";
+char *p5 = strpbrk(str, ",;");          // 找 ",;" 中任意一个字符的首次出现
+
+// 注意：用之前都要判 NULL
+if (p3 != NULL)
+{
+    printf("返回的是：%s\n", p3);        // 返回的是"从匹配位置开始"的字符串
+    printf("下标是：%d\n", (int)(p3 - buf));
+}</code></pre>
+
+<blockquote>记忆点：这些函数的返回值都是"<strong>从匹配处开始</strong>的指针"，所以直接 <code>printf("%s", p)</code>打印出来的是<strong>后半截字符串</strong>，不是匹配到的那一个字符。要下标就 <code>p - buf</code>。</blockquote>
+
+<h3 id="s76">10.5 POSIX 的 lfind / lsearch（无序数组的通用查找）</h3>
+
+<p><code>bsearch</code> 要求有序，那无序数组想用通用的查找怎么办？POSIX 提供了这两个<strong>线性查找</strong>函数：</p>
+
+<pre><code>#include &lt;search.h&gt;
+
+// lfind：只查找，找不到返回 NULL
+void *lfind(const void *key, const void *base, size_t *nmemb, size_t size,
+            int (*compar)(const void *, const void *));
+
+// lsearch：找不到就【追加】到数组末尾，并更新 nmemb
+void *lsearch(const void *key, void *base, size_t *nmemb, size_t size,
+              int (*compar)(const void *, const void *));</code></pre>
+
+<ul><li>两者都是 <strong>O(n)</strong>（线性查找）；</li><li>注意 <code>nmemb</code> 是<strong>指针</strong> —— 因为 <code>lsearch</code> 会修改元素个数；</li><li><code>lsearch</code> 的"找不到就插入"特性，正好用来实现<strong>动态查找表</strong>；</li><li><strong>它们不是 ISO C 标准</strong>（属 POSIX）。在 MSVC 里名字是 <code>_lfind</code> / <code>_lsearch</code>；  在 Linux/glibc 下需要 <code>#include &lt;search.h&gt;</code>。 <strong>跨平台代码里不要用它们</strong>，自己写循环更稳。</li></ul>
+
+<h3 id="s77">10.6 自己写一个通用 find</h3>
+
+<p>C 里最实用的做法还是自己封装一个：</p>
+
+<pre><code>// 通用线性查找：返回匹配元素的指针，找不到返回 NULL
+void *my_find(const void *base, size_t n, size_t size, const void *key,
+              int (*cmp)(const void *, const void *))
+{
+    const char *p = (const char *)base;         // 按字节推进，兼容任意类型
+    for (size_t i = 0; i &lt; n; i++)
+    {
+        if (cmp(p + i * size, key) == 0)
+        {
+            return (void *)(p + i * size);
+        }
+    }
+    return NULL;
+}</code></pre>
+
+<p>如果元素是"纯数据"（没有指针成员、没有结构体填充字节），也可以直接用 <code>memcmp</code>：</p>
+
+<pre><code>void *my_find_mem(const void *base, size_t n, size_t size, const void *key)
+{
+    const unsigned char *p = (const unsigned char *)base;
+    for (size_t i = 0; i &lt; n; i++)
+    {
+        if (memcmp(p + i * size, key, size) == 0)
+        {
+            return (void *)(p + i * size);
+        }
+    }
+    return NULL;
+}</code></pre>
+
+<blockquote>坑：结构体可能有<strong>填充字节</strong>（<code>sizeof</code> 里那些"看不见"的字节），其内容不确定，用 <code>memcmp</code> 比结构体可能误判 —— 所以<strong>结构体要用比较函数</strong>，不要用 <code>memcmp</code>。</blockquote>
+
+<h3 id="s78">10.7 和 C++ 对照：别被名字骗了</h3>
+
+<table><thead><tr><th>语言</th><th>函数</th><th>复杂度</th><th>说明</th></tr></thead><tbody><tr><td>C</td><td><code>bsearch</code></td><td><strong>O(log n)</strong></td><td>通用，但<strong>要求有序</strong></td></tr><tr><td>C</td><td><code>lfind</code> / 手写循环</td><td>O(n)</td><td>无序数组</td></tr><tr><td>C++</td><td><code>std::find</code></td><td><strong>O(n)</strong></td><td><strong>它是线性遍历，不是二分！</strong></td></tr><tr><td>C++</td><td><code>std::binary_search</code></td><td>O(log n)</td><td>要求有序</td></tr><tr><td>C++</td><td><code>std::lower_bound</code> / <code>upper_bound</code></td><td>O(log n)</td><td>有序数组的边界查找</td></tr></tbody></table>
+
+<blockquote><strong>常见误解</strong>："C 没有 find、C++ 有 find，所以 C++ 查找更快。"错 —— <code>std::find</code> 和你的手写循环一样是 O(n)。真正二分的是 <code>binary_search</code> / <code>lower_bound</code> / <code>upper_bound</code>（在 <code>&lt;algorithm&gt;</code> 里），而 C 里对应的就是 <code>bsearch</code>。</blockquote>
+
+<h3 id="s79">10.8 选型小结</h3>
+
+<table><thead><tr><th>场景</th><th>用什么</th></tr></thead><tbody><tr><td>有序数组找元素</td><td><code>bsearch</code>（记得先 <code>qsort</code>）</td></tr><tr><td>需要"第一个/最后一个 ≥ x"的位置</td><td><strong>手写二分</strong>（库函数做不到）</td></tr><tr><td>字符串找字符 / 子串</td><td><code>strchr</code> / <code>strrchr</code> / <code>strstr</code></td></tr><tr><td>内存块里找字节</td><td><code>memchr</code></td></tr><tr><td>无序小数组</td><td>自己写循环</td></tr><tr><td>无序大数据 + 频繁查找</td><td>自己建哈希表（C 没有现成的）</td></tr></tbody></table>
+
+<hr>
+
+<h2 id="s80">11. 练习</h2>
+
+<h3 id="s81">查找</h3>
+
+<ol><li><strong>二分查找基础</strong>：在 <code>{7, 23, 79, 81, 103, 127, 131, 147}</code> 中查找 <code>103</code>，写出每轮的 <code>left / mid / right</code>。</li><li><strong>手写二分</strong>：分别用"闭区间"和"左闭右开"两种写法实现二分查找，并互相验证结果一致。</li><li><strong>边界变体</strong>：在有序数组 <code>{1, 2, 2, 2, 3, 4}</code> 中，求 <code>2</code> 出现的<strong>第一个位置</strong>、<strong>最后一个位置</strong>和<strong>出现次数</strong>。</li><li><strong>插值查找</strong>：在 <code>1 ~ 10000</code> 的等差数组中查找 <code>15</code>，统计二分查找与插值查找各自需要比较几次。</li><li><strong>分块查找</strong>：把 <code>{16, 5, 9, 25, 12, 30, 38, 45, 60, 58, 71, 80}</code> 分成每块 4 个元素，建立索引表，实现查找 <code>38</code>、<code>71</code>、<code>50</code>。</li><li><strong>哈希表</strong>：对 <code>{19, 14, 23, 1, 68, 20, 84, 27, 55, 11, 10, 79}</code> 用表长 13 的除留余数法建表，分别用<strong>线性探测</strong>和<strong>链地址法</strong>实现，并统计各自的平均查找长度。</li></ol>
+
+<h3 id="s82">排序</h3>
+
+<ol><li><strong>冒泡排序</strong>：对 <code>{5, 2, 9, 1, 6, 3}</code> 写出每一趟排序后的结果。</li><li><strong>冒泡优化</strong>：给冒泡排序加上"标志位"和"最后一次交换位置"两种优化，用<strong>已经有序</strong>的数组测试优化效果。</li><li><strong>选择排序</strong>：对 <code>{5, 2, 9, 1, 6, 3}</code> 写出每一趟排序后的结果，并统计交换次数。</li><li><strong>比较</strong>：构造一组数据，让冒泡排序的交换次数远多于选择排序，并说明原因。</li><li><strong>综合</strong>：把本章所有查找、排序算法写成一个程序，用同一组随机数据测试，打印各自的耗时和比较/交换次数。</li></ol>
+
+<h3 id="s83">标准库函数</h3>
+
+<ol><li><strong>bsearch 实战</strong>：给一个 <code>stu_t</code> 结构体数组（含 <code>id</code>、<code>name</code>），先用 <code>qsort</code> 按 <code>id</code> 排序，  再用 <code>bsearch</code> 按 <code>id</code> 查找指定学生；然后故意<strong>不排序</strong>直接 <code>bsearch</code>，观察结果是否正确。</li><li><strong>比较函数的坑</strong>：分别用 <code>return <em>(int </em>)a - <em>(int </em>)b;</code> 和 <code>return (x &gt; y) - (x &lt; y);</code>  作为 <code>qsort</code> 的比较函数，构造一组包含 <code>INT_MIN</code>、<code>INT_MAX</code> 的数据，比较两者结果差异。</li><li><strong>字符串查找</strong>：给定一句话，用 <code>strchr</code> 找出第一个空格的位置、用 <code>strrchr</code> 找出最后一个空格的位置，  用 <code>strstr</code> 判断某个单词是否出现，并输出它在句中的下标。</li><li><strong>通用 find</strong>：实现 10.6 节的两个版本（比较函数版 / <code>memcmp</code> 版），  再构造一个含指针成员或存在填充字节的结构体，验证 <code>memcmp</code> 版为什么会误判。</li></ol>
+</article>

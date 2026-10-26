@@ -1,0 +1,1044 @@
+<article data-learn-content>
+<h2 id="s1">1. 算术运算符</h2>
+
+<table><thead><tr><th><strong>运算符</strong></th><th><strong>术语</strong></th><th><strong>示例</strong></th><th><strong>结果</strong></th></tr></thead><tbody><tr><td>+</td><td>正号</td><td>+3</td><td>3</td></tr><tr><td>-</td><td>负号</td><td>-3</td><td>-3</td></tr><tr><td>+</td><td>加</td><td>10 + 5</td><td>15</td></tr><tr><td>-</td><td>减</td><td>10 - 5</td><td>5</td></tr><tr><td>*</td><td>乘</td><td>10 * 5</td><td>50</td></tr><tr><td>/</td><td>除</td><td>10 / 5</td><td>2</td></tr><tr><td>%</td><td>取余(取模 Modulo)</td><td>10 % 3</td><td>1</td></tr></tbody></table>
+
+<pre><code>// 目标：掌握算数运算的基本语法
+int main(void)
+{
+	int m = +3;
+	int n = -3;
+	printf("m=%d, n=%d\n", m, n);
+
+	int a = 10, b = 5;
+	printf("a+b=%d\n", a + b);
+	printf("a-b=%d\n", a - b);
+	printf("a*b=%d\n", a * b);
+	printf("a/b=%d\n", a / b);
+	printf("10%%3=%d\n", 10 % 3);  // 在printf的格式串中显示 %号, 需要使用 %%
+
+	// 3 % 10 取余结果是多少呢?
+	printf("3%%10=%d\n", 3 % 10);  // 3
+
+	return 0;
+}</code></pre>
+
+<h3 id="s2">注意事项</h3>
+
+<ol><li>先 * / %，后 + -。</li><li>除法  两整数相除，结果整数（舍小数部分） 两浮点数相除，结果 double 浮点数 整数和实数相除，自动类型转换为实型 不允许 除 0（与数学一样）</li><li>取模（取余）  运算数必须是整型 对负数取余，结果为余数的绝对值 不允许 除 0（与数学一样）</li></ol>
+
+<pre><code>// 目标: 掌握算术运算符使用特性
+int main(void)
+{
+	// 先乘除后加减
+	printf("%d\n", 4 + 6 % 5);	// 5
+
+	// 两整数相除，结果整数（舍小数部分）
+	printf("%d\n", 19 / 10);	// 1
+
+	// 两浮点数相除，结果 double 浮点数, 默认保留 6 位小数
+	printf("%lf\n", 3.6 / 1.3);	// 2.769231
+
+	// 整数和实数相除，自动类型转换为实型
+	printf("%lf, %llu\n", 6 / 2.0, sizeof(6/2.0));  // 表达式结果占 8 字节, double 类型.
+
+	// 除 0 不允许
+	printf("%d\n", 6 / 0);  // 被零除或对零取余 错误.
+
+	// 取余运算,参与运算的操作数,必须为整数
+	printf("%d\n", 7.3 % 2);	// 表达式必须包含整数 错误.
+
+	// 对负数取余，结果为余数的绝对值
+	printf("%d\n", 7 % -5);		// 2
+
+	// 对 0 取余不允许
+	printf("%d\n", 6 % 0);  // 被零除或对零取模 错误.
+
+	return 0;
+}</code></pre>
+
+<h3 id="s3">总结</h3>
+
+<p>算数运算符有哪些？</p>
+
+<ul><li>先 * / %，后 + -。</li></ul>
+
+<p>/ 运算注意什么？</p>
+
+<ul><li>两整数相除得整数。 运算表达式遵循类型转换规则</li></ul>
+
+<p>% 运算注意什么？</p>
+
+<ul><li>运算数必须是整数。 负数取余结果为正。</li></ul>
+
+<h2 id="s4">2. 比较运算符</h2>
+
+<h3 id="s5">基础语法</h3>
+
+<table><thead><tr><th><strong>运算符</strong></th><th><strong>作用</strong></th><th><strong>示例</strong></th><th><strong>结果</strong></th></tr></thead><tbody><tr><td>&lt;</td><td>判断 小于</td><td>4 &lt; 3</td><td>不成立（假）：0</td></tr><tr><td>&lt;=</td><td>判断 小于<strong>或</strong>等于</td><td>4 &lt;= 3</td><td>不成立（假）：0</td></tr><tr><td>&gt;</td><td>判断 大于</td><td>4 &gt; 3</td><td>成立（真）：1</td></tr><tr><td>&gt;=</td><td>判断 大于<strong>或</strong>等于</td><td>4 &gt;= 4</td><td>成立（真）：1</td></tr><tr><td>==</td><td>判断 相等</td><td>4 == 3</td><td>不成立（假）：0</td></tr><tr><td>!=</td><td>判断 不相等</td><td>4 != 3</td><td>成立（真）：1</td></tr></tbody></table>
+
+<p><strong>注意：</strong>判断 “相等”，使用 “==”， 不能使用 “=”（赋值符）</p>
+
+<h3 id="s6">优先级</h3>
+
+<ol><li>整体，比算术运算符 低。</li><li>整体，比赋值运算符 高。</li><li>\&gt;  &gt;=  &lt;  &lt;= 高于 == !=</li></ol>
+
+<pre><code>// 目标: 掌握 比较运算符语法 和 优先级
+int main(void)
+{
+	// 成立 1, 不成立 0
+	printf("10 &gt; 10: %d\n", 10 &gt; 10);
+	printf("10 &gt;= 10: %d\n", 10 &gt;= 10);
+
+	int a = 10;
+	printf("10 &lt;= a: %d\n", 10 &lt;= a);
+	printf("10 &lt; a: %d\n", 10 &lt; a);
+
+	printf("a != 10: %d\n", a != 10);
+	printf("a == 10: %d\n", a == 10);  // 不要将 == 错写成 =
+
+	// 整体，低于 算术运算符
+	printf("a &gt;= 3 + 7: %d\n", a &gt;= 3 + 7);  // 先算 +, 再判断 &gt;=
+	printf("7 == 3 + 4: %d\n", 7 == 3 + 4);  // 先算 +, 再判断 =
+
+	// 整体, 高于 赋值运算符
+    int b;
+	b = 4 &gt; a;				// 先算 4 &gt; a, 再赋值
+	printf("b = %d\n", b);
+	printf("b = %d\n", b = 7 != a);		 // 先算 7 != a, 再赋值.
+    printf("b = %d\n", b = 7 != a + 1);  // 先算 a+1, 再判断 7 != a+1, 再赋值.
+
+	// &gt; &gt;= &lt; &lt;= 高于 == !=
+	printf("%d\n", 7 &gt; 5 != 3 &lt;= 4);
+
+	return 0;
+}</code></pre>
+
+<h3 id="s7">总结</h3>
+
+<ul><li>关系运算的比较结果只有两种：1（成立、真）、0（不成立、假）</li><li>计算机中判等，需使用 “==”</li><li>优先级，高于赋值，低于算数。 \&gt;  &gt;=  &lt;  &lt;= 高于 == !=</li></ul>
+
+<h2 id="s8">3. 赋值运算符</h2>
+
+<p>目标：会使用赋值运算符表达式**</p>
+
+<p>包括：基本赋值运算符 和 复合赋值运算符（ = 与算数运算符 组合而成）。</p>
+
+<p>作用：给变量赋值。 结合性：<strong>自右向左</strong>。</p>
+
+<p>xxxxxxxxxx int a[] = {10};int b[] = {20};int c[] = {30};​int <em>arr[] = {a, b, c};             // 存地址​printf("arr[0][0] = %d\n", arr[0][0]);printf("</em>(<em>(arr+0)) = %d\n", </em>(*(arr + 0)));printf("<strong>arr = %d\n", </strong>arr);      // 二级指针的间接引用c</p>
+
+<h3 id="s9">基础语法</h3>
+
+<table><thead><tr><th><strong>运算符</strong></th><th><strong>术语</strong></th><th><strong>示例</strong></th><th><strong>结果</strong></th></tr></thead><tbody><tr><td>+=</td><td>加等于</td><td>int a=1;  a+=2;（等同于a = a+2）</td><td>a值为 3;</td></tr><tr><td>-=</td><td>减等于</td><td>int a=5;  a-=3;（等同于a = a-3）</td><td>a值为 2;</td></tr><tr><td>*=</td><td>乘等于</td><td>int a=2;  a*=2;（等同于a = a\*2）</td><td>a值为 4;</td></tr><tr><td>/=</td><td>除等于</td><td>int a=4;  a/=2;（等同于a = a/2）</td><td>a值为 2;</td></tr><tr><td>%=</td><td>模等于</td><td>int a=3;  a%=2;（等同于a = a%2）</td><td>a值为 1;</td></tr></tbody></table>
+
+<p><strong>注意：</strong>赋值运算符，会修改变量的原始值。 赋值符左侧，必须可修改（变量）。</p>
+
+<pre><code>int main(void)
+{
+	// = 赋值符, 自右向左
+	int a = 2, b = 1, c = 0;
+
+	a = a + b;
+	printf("a = %d\n", a);
+	b = a &lt; c;
+	printf("b = %d\n", b);  // 直接 打印 b = a &lt; c
+	a = b = c = 8;
+	printf("a = %d, b = %d, c = %d\n", a, b, c);
+
+	// += -= 复合赋值符。需求：微信钱包有 15.8 元， 发 2.9 元红包，收 13.6 元红包。
+	double money;
+    money = 15.8;
+	money += 2.9;		// 等价于: money = money + 2.9;
+	printf("money = %lf\n", money);
+
+	// 需求: 发红包
+	money -= 13.6;		// 等价于: money = money - 13.6;
+	printf("money = %lf\n", money);
+
+    // 其他 复合赋值符。
+	int i, j;
+    i = 10, j = 5;
+	//i *= j;	// 等价于:i = i * j;
+	//i /= j;	// 等价与:i = i / j;
+	//i %= j;	// 等价与:i = i % j;
+	printf("i = %d\n", i);
+
+	// 思考:
+	i %= j - 2;			// 等价于 i = i % (j - 2);  %= 右侧看做一个整体.
+	printf("i = %d\n", i);
+
+    // 注意：赋值符，左侧必须可修改
+    3 += 2;
+
+	return 0;
+}</code></pre>
+
+<h3 id="s10">总结</h3>
+
+<ul><li>先运算，后赋值。方向，自右向左</li><li>+= 可实现累加，将别人的数据累加给自己。</li><li>所有赋值运算符，都会修改变量原始值。</li></ul>
+
+<h2 id="s11">4. 自增减运算符</h2>
+
+<p><strong>目标：实现数据的增 1、减1运算</strong></p>
+
+<p>自增自减运算也叫 增 1 减 1 运算，都是单目运算。</p>
+
+<p>作用：</p>
+
+<ul><li>自增 ++， 放在变量前面或后面，对变量自身值+1。</li><li>自减 --， 放在变量前面或后面，对变量自身值-1。</li><li>方便实现变量的 +1 或 -1 运算。</li></ul>
+
+<p>应用场景：</p>
+
+<ul><li>点赞 和 取消点赞。</li></ul>
+
+<table><thead><tr><th><strong>运算符</strong></th><th><strong>术语</strong></th><th><strong>示例</strong></th><th><strong>结果</strong></th></tr></thead><tbody><tr><td>++</td><td>自增</td><td>int a=1;  a++ 或 ++a;（等同于a = a+1）</td><td>a 值为 2;</td></tr></tbody></table>
+
+<h3 id="s12">自增自减语法</h3>
+
+<p>++ 对变量值 +1。  -- 对变量值 -1。</p>
+
+<pre><code>// 目标: 掌握 ++ 自增1, -- 自减1 特性
+int main(void)
+{
+	int a = 10;
+
+	//a++; // a = a + 1;
+	++a; // a = a + 1;		与 a++ 效果相同
+
+	printf("a = %d\n", a);
+	//a--; // a = a -1;
+	--a; // a = a -1;		与 a-- 效果相同
+
+	printf("a = %d\n", a);
+
+	return 0;
+}</code></pre>
+
+<h3 id="s13">前缀后缀区别</h3>
+
+<p><strong>注意：++ 和 -- 如果 ==不是单独使用==（如：用在表达式中），前缀和后缀 ==差异巨大==</strong></p>
+
+<ul><li>放在变量前，先 +1、-1 再取值使用。</li></ul>
+
+<pre><code>  int a = 10;
+  int res = ++a;  // 先 +1，再取 a 值给 res。 （先加再用）</code></pre>
+
+<ul><li>放在变量后，先 取值用，再  +1、-1</li></ul>
+
+<pre><code>  int b = 10;
+  int res2 = b--; // 先取 b 值给 res2， 而后 b 再 -1  （先用再减）</code></pre>
+
+<p>代码验证：</p>
+
+<pre><code>// 目标: 掌握 ++/-- 前缀后缀差异
+int main(void)
+{
+	int a = 10;
+	int res = ++a;	// 先+1,再用
+	printf("res = %d\n", res);
+
+	int b = 10;
+	//printf("b = %d\n", b--);	// 先用,再-1
+	printf("b = %d\n", --b);	// 先-1,再用
+	printf("b = %d\n", b);		// 查看b值
+
+	return 0;
+}</code></pre>
+
+<h3 id="s14">注意事项</h3>
+
+<ol><li>不能用于常量</li><li>不能用于表达式</li><li>优先级：整体高于算数运算符（必然高于比较、赋值）；后缀高于前缀</li><li>不要在一个表达式中，对同一变量 多次 ++、-- 运算。可读性差，且不用编译系统结果不同。</li></ol>
+
+<pre><code>// 目标: 掌握 ++/-- 使用注意事项
+int main(void)
+{
+	// 1. 不能用于常量
+	//printf("%d\n", 10++);
+
+	// 2. 不能用于表达式
+	int a = 10;
+	// (a - 1)++;
+	// ++(-a);
+
+	// 3. 全部 高于算数运算
+	//int b = ++a * 3;
+	int b = a-- * 3;
+	printf("b = %d\n", b);
+
+	// 3. 后缀高于前缀
+	printf("a = %d\n", -a++);
+
+	// 对同一变量 多次 ++、-- 运算。可读性差，且不同编译系统结果不同。
+	int i = 10;
+	int j = 5;
+
+	int res = i++ + ++i - --j - ++j + 3 + i--;
+	printf("res = %d\n", res);	// 26  --- Linux下gcc编译器: 28
+	printf("i = %d\n", i);		// 11
+	printf("j = %d\n", j);		// 5
+
+	return 0;
+}</code></pre>
+
+<h3 id="s15">总结</h3>
+
+<ul><li>++ 自增 1， --自减 1</li><li>单独使用，前缀后缀没区别；</li><li>非单独使用：前缀，先+1、-1，再用； 后缀，先用，再+1、-1</li><li>只适用变量，不能用于常量、表达式。</li><li>优先级，高于算数、比较、赋值。后缀高于前缀。</li></ul>
+
+<h2 id="s16">5. 逻辑运算符</h2>
+
+<p>作用：</p>
+
+<ul><li>用程序解决 类似 或者、并且 这种 含有逻辑关系的 情况。</li></ul>
+
+<p>应用场景：</p>
+
+<ul><li>去京东买手机。 筛选条件： 128G 并且 120w 快充 。 后台 怎么做？ 用 与 运算判断，满足展示，不满足不展示。如果用户 就想买 华为 或者 小米手机，后台用 或 运算，筛选厂商对应的手机。</li></ul>
+
+<h3 id="s17">基础语法</h3>
+
+<ul><li>将多个条件放在一起运算，最终返回 真（1）或  假（0）</li></ul>
+
+<table><thead><tr><th><strong>运算符</strong></th><th><strong>术语</strong></th><th><strong>示例</strong></th><th><strong>结果</strong></th><th>速记</th></tr></thead><tbody><tr><td>&amp;&amp;</td><td>与</td><td>2&gt;1 &amp;&amp; 3&gt;2</td><td>&amp;&amp;两边同为真，结果为真，否则为假。</td><td>同真为真</td></tr><tr><td>\</td><td>\</td><td></td><td>或</td><td>2&gt;1\</td><td>\</td><td>3 &gt; 5</td><td>\</td><td>\</td><td>两边有一个为真，结果为真，二者同为假，结果为假。</td><td>有真为真</td></tr><tr><td>!</td><td>非</td><td>! (2&gt;1)</td><td>取反！表达式为假，加 ! 为真；表达式为真，加 ! 为假。</td><td>真非为假</td></tr></tbody></table>
+
+<p>案例1 ： 需求，手机存储大于 128，手机屏幕尺寸大于等于 6.35**</p>
+
+<pre><code>// 目标: 掌握逻辑运算符语法特性
+int main(void)
+{
+	int storage = 256;		// 手机存储
+	double size = 6.3;		// 屏幕尺寸
+
+	// 需求1: 手机存储大于128, 同时 屏幕尺寸大于等于6.7
+	printf("%d\n", storage &gt; 128 &amp;&amp; size &gt;= 6.7);  // &amp;&amp; 同真为真
+
+	// 需求2: 手机存储大于128, 或者 屏幕尺寸大于等于6.7
+	printf("%d\n", storage &gt; 128 || size &gt;= 6.7);	// || 有真为真
+
+	// !非，取反的意思
+	printf("%d\n", !6);			// 非真为假
+	printf("%d\n", !0);			// 非假为真
+	printf("%d\n", !(7 &lt; 9));	// 思考结果是什么?  --&gt; 0
+
+    //（使用时特殊情况）判断 20 是介于 10 和 30 之间的数
+    // 错误写法
+	printf("%d\n", 30 &gt; 20 &gt; 10); 	// C 语言不支持，数学中连续判断的语法
+
+	// 正确写法
+	printf("%d\n", 30 &gt; 20 &amp;&amp; 20 &gt; 10);
+
+	return 0;
+}</code></pre>
+
+<p><strong>案例2 ： 判断 20 是介于 30 和 10 之间的数。</strong></p>
+
+<pre><code>// 错误写法
+printf("%d\n", 30 &gt; 20 &gt; 10); 	// C 语言不支持，数学的这种连续判断的语法
+
+// 正确写法
+printf("%d\n", 30 &gt; 20 &amp;&amp; 20 &gt; 10);</code></pre>
+
+<h3 id="s18">短路运算</h3>
+
+<p>​		逻辑运算符的特性，导致实际应用中一部分表达式不执行，也能得出整个表达式结果。这一特点经常作为考点出现在计算机二级、期末考试题中。</p>
+
+<p>在程序中：</p>
+
+<ul><li>判断 表达式 a &amp;&amp; (b+c) 的结果：  当 a 为假时，不必计算 b+c，可直接得出表达式为假的结论。</li><li>判断 表达式 a || (b+c) 的结果：  当 a 为真时，则不必计算 b+c，就能判断出表达式的值为 真。</li></ul>
+
+<p><strong>概念：逻辑表达式 运算过程中，只运算左边表达式，就能直接得出整个逻辑表达式的结果。—— 短路运算  </strong></p>
+
+<h4 id="s19">短路运算作用</h4>
+
+<p>​		在代码中利用短路运算，可 <strong>避免不必要运算，提高程序执行效率</strong>。 比如有如下代码：</p>
+
+<pre><code>int a = 5, b = 28;
+int c = (a &gt; 3) || ((b / 7)*4 % 2 != 0);
+printf("c = %d\n", c);</code></pre>
+
+<p>​		现要计算 c 值。= 右侧表达式含有逻辑或 || 运算符，运算特性 有真为真。|| 左边表达式很容易判断为 真，可确定整个表达式结果为 真。 右侧 b 相关的 复杂表达式 不需要计算 。</p>
+
+<h4 id="s20">短路运算特性</h4>
+
+<p>​		<strong>左表达式能直接得逻辑表达式结果，右表达式不执行。</strong></p>
+
+<p><strong>案例 1：</strong>以下代码执行后，a、b、c 的值依次是多少？</p>
+
+<pre><code>// 目标: 掌握运算特性
+int main(void)
+{
+	int a = 1, b = 2, c = 3;
+	(a = b + c) || (++b) ;
+	printf("a=%d, b=%d, c=%d\n", a, b, c);
+
+    return 0;
+}</code></pre>
+
+<p>​		简单分析代码。 很可能得出结论： a = 5，b = 3，c = 3</p>
+
+<p>​		但，实际上这里的 b 并没有完成自增运算，值还是 2。 为什么 有前缀 ++ 自增，b 值还是 2 呢？ 因为 <strong>短路运算</strong>！++b 并未执行。</p>
+
+<p>​		逻辑 || 运算符，运算特性有真为真。 左侧 a = b+c 赋值表达式很容易得出结果为真。 因此 整个 表达式得出结论为真，右侧 ++b 并不需要执行。 因此，即使是 前缀自增，b 没有执行机会，值依然为 2。</p>
+
+<p>​		正确输出结果：a = 5，b = 2，c = 3</p>
+
+<p><strong>案例 2：</strong>分析代码，推测 a, x, y 的值分别是什么？</p>
+
+<pre><code>// 目标: 掌握运算特性
+int main(void)
+{
+	int x = 1, y = 5, a;
+	a = --x &amp;&amp; ++y;
+	printf("a=%d, x=%d, y=%d\n", a, x, y);
+
+    return 0;
+}</code></pre>
+
+<p>​		同样是逻辑运算表达式，逻辑与&amp;&amp; 运算符，运算特性 同真为真。 x 初值为 1，前缀 --x 执行 结果为 0，假。依然会触发短路运算特性。右侧 ++y 不执行。</p>
+
+<p>​		因此，输出结果为：a=0, x=0, y=5</p>
+
+<p><strong>案例 3：</strong> 依然上述案例 2代码，将 --x 修改为 x--，输出结果为何？</p>
+
+<pre><code>// 目标: 掌握运算特性
+int main(void)
+{
+    int x = 1, y = 5, a;
+	a = x-- &amp;&amp; ++y;
+	printf("a=%d, x=%d, y=%d\n", a, x, y);
+
+    return 0;
+}</code></pre>
+
+<p>​		修改后，x-- 由于是 后缀，因此 先取值 1 为真（而后再-1），所以没有触发 短路运算，继续运算 右侧 ++y，将 y 值自增为 6。 1 &amp;&amp; 6 结果为真， a 值为 1。</p>
+
+<p>​		因此，输出结果为：a=1, x=0, y=6</p>
+
+<p><strong>小知识：合理利用短路运算特性，提高程序执行效率</strong></p>
+
+<ul><li>编写含<strong>==&amp;&amp;==</strong>表达式时，&amp;&amp; 同真为真，左表达式值为假时，右表达式不计算， 建议将 <strong>==易假 值放左边==</strong>。</li><li>编写含<strong>==||==</strong>表达式时，|| 有真为真，左表达式值为真时，右表达式不计算。 建议将 <strong>==易真 值放左边==</strong>。</li></ul>
+
+<h3 id="s21">总结</h3>
+
+<ul><li>&amp;&amp;：同真为真； ||：有真为真； ! ：真非为假</li><li>判断一个数在另两个数范围内，用 &amp;&amp; 实现</li><li>短路特性：运算符左侧表达式可直接得结论，则右侧表达式不执行</li><li>利用短路特性：&amp;&amp;，将易假表达式放左侧；||，将易真表达式放左侧</li></ul>
+
+<h2 id="s22">6. 条件运算符</h2>
+
+<h3 id="s23">基础语法</h3>
+
+<p><strong>语法：表达式1  ？表达式 2：表达式 3</strong></p>
+
+<ul><li>表达式 1 一定起 判别 作用。表达式 2 和 表达式 3 只能有一个执行。</li><li>三目运算的结果，必须被使用。</li></ul>
+
+<p><strong>运算规则：</strong></p>
+
+<ul><li>判断 表达式 1 的结果：  为真，整个三目运算的结果为 表达式 2 为假，整个三目运算的结果为 表达式 3</li></ul>
+
+<p>能解决什么问题呢？比如，查询成绩系统中，根据成绩判定是否及格？可以用 三目运算来进行判断。</p>
+
+<p>案例 1：接收学生成绩，判断是否 及格，给出 Y/N 结果。**</p>
+
+<pre><code>// 目标: 掌握 三目运算语法特性
+int main(void)
+{
+	double score;
+
+	printf("请输入成绩:");
+	scanf("%lf", &amp;score);
+
+	char res = score &gt;= 60 ? 'Y' : 'N'; // 三目运算结果 赋值给 res 变量
+
+	printf("是否及格? %c\n", res);
+	return 0;
+}</code></pre>
+
+<p><strong>案例 2：找出两个数中的较小值</strong></p>
+
+<pre><code>// 目标: 掌握 三目运算语法特性
+int main(void)
+{
+	int a = 10;
+    int b = 20;
+
+	printf("较小值为：%d\n", a &lt; b ? a : b);	// 三目运算结果在 printf 中使用
+	return 0;
+}</code></pre>
+
+<h3 id="s24">特性和嵌套应用</h3>
+
+<p>​		嵌套条件运算符的写法，在实际编程中较少见，因为代码可读性低。 但，<strong>计算机考试中，经常出做考点。</strong></p>
+
+<p>​		辨别技巧是，当 表达式中 有 2 个以上问号、冒号，一定是发生了 三目运算嵌套。</p>
+
+<p>​		处理方法是，先将位于右边的 “?” 与它后面最近一个 “:” 配对。因为，条件运算符的结合性，自右向左。</p>
+
+<p>​		优先级，高于赋值运算符，低于算数、逻辑、比较运算符。</p>
+
+<p><strong>案例 1：</strong></p>
+
+<pre><code>int res = w &lt; x ? x + w : x &lt; y ? x : y;   	//  w &lt; x ? x + w :（x &lt; y ? x : y）</code></pre>
+
+<p>​	将 右侧的 ？与后面的 ：配对，x &lt; y ? x : y 看做一组 三目运算表达式，作为另外一组 三目运算的 表达式 3。</p>
+
+<p><strong>案例 2：</strong></p>
+
+<pre><code>int res = a &gt; b ? c &gt; d ? e : f : g;		// a &gt; b ? （c &gt; d ? e : f ）: g</code></pre>
+
+<p>​	将 右侧的 ？与后面的 ：配对，c &gt; d ? e : f 看做一组 三目运算表达式，作为另外一组 三目运算的 表达式 2。</p>
+
+<p>​	这种嵌套写法，看其他人写的程序时，能看懂即可。我们不要这样写。</p>
+
+<h3 id="s25">总结</h3>
+
+<ul><li><strong>语法规则：</strong>  表达式1  ？表达式 2：表达式 3 表达式 1 为真，整个取表达式 2； 为假，整个取表达式 3 结果必须被使用</li><li><strong>嵌套三目运算：</strong>  出现 两个以上 ？: ，说明有嵌套。 自右向左，找 “?” 与它后面最近一个 “:” 配对</li><li><strong>优先级：</strong>  高于 赋值运算符，低于 算数、逻辑、比较运算符。</li></ul>
+
+<h3 id="s26">验收案例</h3>
+
+<p>练习1：分析程序，执行结束后 a、b、res 的值分别是多少？**</p>
+
+<pre><code>int main(void)
+{
+	int a = 3, b = 4, c = 5, d = 6;
+
+	int res = a &gt; b ? a++ : c &gt; d ? ++a : b++;
+
+	printf("a = %d, b = %d, res = %d\n", a, b, res);
+
+    return 0;
+}</code></pre>
+
+<p>练习2：使用三目运算符，编写程序实现找出三个数中的最大值。**</p>
+
+<pre><code>// 方法 1：
+int main(void)
+{
+	int a = 11;
+	int b = 22;
+	int c = 35;
+	int ab_max = a &gt; b ? a : b;
+
+	int max = c &gt; ab_max ? c : ab_max;
+
+	printf("abc最大值为:%d\n", max);
+	return 0;
+}
+
+// 方法 2：
+int main(void)
+{
+	int a = 1, b = 2, c = 3;
+
+	int max = c &gt; (a &gt; b ? a : b) ? c : a &gt; b ? a : b;
+
+	printf("abc最大值为:%d\n", max);
+	return 0;
+}</code></pre>
+
+<h2 id="s27">7，逗号运算符</h2>
+
+<p>C语言中，逗号也是一种运算符。 用逗号将多个表达式连接起来，组成逗号表达式。一般形式为：</p>
+
+<p><strong>表达式 1，表达式 2，表达式 3，....，表达式 n</strong></p>
+
+<p>如：a+3, b+4, c+5  是一个 逗号表达式。</p>
+
+<p>求解过程是 自左向右 依次求解。 整个逗号表达式的值，为最后一个表达式 n 的值。</p>
+
+<p>逗号运算符的优先级，是所有运算符中最低的。</p>
+
+<p>练习：分析下面代码执行过程。res 值为多少？</p>
+
+<pre><code>int i = 3;
+int res = (i++, ++i, i + 5);
+printf("res = %d\n", res);</code></pre>
+
+<h3 id="s28">总结</h3>
+
+<p>取整个逗号表达式值的做法，在实际编程中不常用到。 但，计算机考试中，经常出做考点。记住两句话就好了：</p>
+
+<ul><li><strong>整个逗号表达式的值，为最后一个表达式 的值。</strong></li><li><strong>逗号运算符优先级最低（比赋值还低）</strong></li></ul>
+
+<h3 id="s29">练习</h3>
+
+<p>分析下列程序执行，i 值为多少？</p>
+
+<pre><code>int i, a;
+i = (a = 2 * 3, a * 4), a + 6;
+printf("%d\n", i);		// i 值为 24。 因为优先级的原因，i存储的不是 整个逗号表达式的值。</code></pre>
+
+<h2 id="s30">8，运算符优先级</h2>
+
+<table><thead><tr><th>运算符</th><th>名称</th></tr></thead><tbody><tr><td>[ ]</td><td>数组下标</td></tr><tr><td>()</td><td>圆括号</td></tr><tr><td>-</td><td>负号</td></tr><tr><td>++、--</td><td>自增、自减&lt;br /&gt;windows：先++优于后++ &lt;br /&gt;mac、Linux从左到右依次计算</td></tr><tr><td>&amp;</td><td>取地址运算符</td></tr><tr><td>！</td><td>逻辑非</td></tr><tr><td>(类型)</td><td>强制类型转换</td></tr><tr><td>sizeof</td><td>长度运算符</td></tr><tr><td>*</td><td>乘</td></tr><tr><td>/</td><td>除</td></tr><tr><td>%</td><td>取余</td></tr><tr><td>+</td><td>加</td></tr><tr><td>-</td><td>减</td></tr><tr><td>&gt;</td><td>大于</td></tr><tr><td>&gt;=</td><td>大于等于</td></tr><tr><td>&lt;</td><td>小于</td></tr><tr><td>&lt;=</td><td>小于等于</td></tr><tr><td>==</td><td>等于</td></tr><tr><td>!=</td><td>不等于</td></tr><tr><td>&amp;&amp;</td><td>逻辑与</td></tr><tr><td>\</td><td>\</td><td></td><td>逻辑或</td></tr><tr><td>? :</td><td>条件运算符</td></tr><tr><td>=</td><td>赋值运算符</td></tr><tr><td>/=</td><td>除后赋值</td></tr><tr><td>*=</td><td>乘后赋值</td></tr><tr><td>%=</td><td>取余后赋值</td></tr><tr><td>+=</td><td>加后赋值</td></tr><tr><td>-=</td><td>减后赋值</td></tr><tr><td>,</td><td>逗号运算符</td></tr></tbody></table>
+
+<p><strong>案例 1：</strong> 分析下面代码执行过程。res 值为多少？</p>
+
+<pre><code>int a = 0;
+scanf("%d", &amp;a);
+int res = (a &lt; -10 || a &gt;= 10, a &gt; -10 &amp;&amp; a &lt;= 10);
+// 括号不能省。不写括号，这个逗号会被当成"声明分隔符"，
+// 编译器会以为你要接着定义变量，于是报错：
+// expected '=', ',', ';', 'asm' or '__attribute__' before '&gt;' token</code></pre>
+
+<p><strong>案例 2：</strong> 分析下面代码执行过程。res 值为多少？</p>
+
+<pre><code>int x = 0, y = 1;
+int res = x++ != !y;
+printf("res = %d\n", res);</code></pre>
+
+<p><strong>案例 3：</strong> 分析下面代码执行过程。res 值为多少？</p>
+
+<pre><code>int i = 35, a = 3, b = 5, c = 7;
+int res = i % 7 == 0 &amp;&amp; (a != b &amp;&amp; b != c &amp;&amp; c != a);</code></pre>
+
+<hr>
+
+<h2 id="s31">9. if 分支语句</h2>
+
+<blockquote><code>if ... else</code> 分支语句，实现一种<strong>模糊匹配</strong>（匹配一个范围）。</blockquote>
+
+<h3 id="s32">基础语法</h3>
+
+<pre><code>if (判断表达式)
+{
+    // 判别表达式为真，执行的代码
+}
+else
+{
+    // 判别表达式为假，执行的代码
+}</code></pre>
+
+<p>多分支：</p>
+
+<pre><code>if (判断表达式1)
+{
+    // 判别表达式1 为真，执行的代码
+}
+else if (判断表达式2)
+{
+    // 判别表达式1 为假、判别表达式2 为真，执行的代码
+}
+else if (判断表达式3)
+{
+    // 判别表达式1 为假、判别表达式2 为假、判别表达式3 为真，执行的代码
+}
+...
+else
+{
+    // 以上所有判别表达式都为假，执行的代码
+}</code></pre>
+
+<h3 id="s33">示例：判断一个数的正负</h3>
+
+<pre><code>int main(void)
+{
+    int a;
+    printf("请输入一个数：");
+    int ret = scanf("%d", &amp;a);
+
+    if (a &gt; 0)
+    {
+        printf("a &gt; 0\n");
+    }
+    else
+    {
+        printf("a &lt;= 0\n");
+    }
+
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<h3 id="s34">示例：判断成绩等级（多分支）</h3>
+
+<pre><code>int main(void)
+{
+    int score;
+    printf("请输入学生成绩：");
+    scanf("%d", &amp;score);
+
+    if (score &gt;= 90)                        // 优秀
+    {
+        printf("优秀\n");
+    }
+    else if (score &gt;= 70 &amp;&amp; score &lt; 90)     // 70 &lt; score &lt; 90 是错误写法！
+    {
+        printf("良好\n");
+    }
+    else if (score &gt;= 60 &amp;&amp; score &lt; 70)
+    {
+        printf("及格\n");
+    }
+    else
+    {
+        printf("差劲\n");
+    }
+
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<blockquote><strong>易错点</strong>：不能写成 <code>70 &lt; score &lt; 90</code>（C 语言不支持这种连写），必须用逻辑运算符连接：<code>score &gt;= 70 &amp;&amp; score &lt; 90</code>。</blockquote>
+
+<h3 id="s35">练习：3 只小猪秤体重</h3>
+
+<p><strong>题目</strong>：屏幕输入 3 只小猪的重量，借助 <code>if</code> 分支，找出最重的那只小猪。</p>
+
+<pre><code>int main(void)
+{
+    int pig1, pig2, pig3;
+
+    printf("请输入 3 只小猪的重量：");
+    scanf("%d %d %d", &amp;pig1, &amp;pig2, &amp;pig3);
+
+    if (pig1 &gt; pig2)            // pig1 重
+    {
+        if (pig1 &gt; pig3)        // 1. 这行不能写分号  2. 缩进使用 tab 实现
+        {
+            printf("第一只小猪最重，体重为：%d\n", pig1);
+        }
+        else
+        {
+            printf("第三只小猪最重，体重为：%d\n", pig3);
+        }
+    }
+    else                        // pig2 重
+    {
+        if (pig2 &gt; pig3)
+        {
+            printf("第二只小猪最重，体重为：%d\n", pig2);
+        }
+        else
+        {
+            printf("第三只小猪最重，体重为：%d\n", pig3);
+        }
+    }
+
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<p><strong>其他实现方法</strong>：</p>
+
+<pre><code>// 使用逻辑运算
+if (pig1 &gt; pig2 &amp;&amp; pig1 &gt; pig3)     // ---&gt; pig1
+
+// 使用三目运算
+pig1 &gt; pig2 ? pig1 : pig2;</code></pre>
+
+<blockquote>注意点：- <strong>分支语句中可以嵌套其他分支语句。</strong> - <strong><code>else</code> 总是找它前面最近的、未配对的 <code>if</code> 组合使用。</strong></blockquote>
+
+<hr>
+
+<h2 id="s36">10. switch 分支语句</h2>
+
+<blockquote><strong>优点</strong>：精确匹配，结构较清晰，较 <code>if</code> 语句执行效率略高。<strong>缺点</strong>：不能直接判断区间，需要借助表达式运算。</blockquote>
+
+<h3 id="s37">语法</h3>
+
+<pre><code>switch (表达式)
+{
+    case 1:
+        执行语句;
+        break;      // 表示一个分支执行结束，跳出 switch
+    case 2:
+        执行语句;
+        break;      // 表示一个分支执行结束，跳出 switch
+        ......
+    case N:
+        执行语句;
+        break;      // 表示一个分支执行结束，跳出 switch
+    default:
+        其他情况执行的语句;    // 上述所有的 case 都不满足
+        break;
+}</code></pre>
+
+<h3 id="s38">示例：判断成绩等级</h3>
+
+<pre><code>int main(void)
+{
+    int score;
+    printf("请输入学生成绩：");
+    scanf("%d", &amp;score);
+
+    // 将学生成绩通过运算，得出可以放入 switch case 分支的表达式
+    switch (score / 10)
+    {
+        case 10:
+            printf("优秀\n");
+            break;      // 表示当前分支结束
+        case 9:
+            printf("优秀\n");
+            break;
+        case 8:
+            printf("良好\n");
+            break;
+        case 7:
+            printf("良好\n");
+            break;
+        case 6:
+            printf("及格\n");
+            break;
+        default:        // 所有 case 都不满足的其他情况
+            printf("不及格\n");
+            break;
+    }
+
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<h3 id="s39">case 穿透</h3>
+
+<p>一个 <code>case</code> 分支如果没有 <code>break</code>，它执行完本 <code>case</code> 的代码后，会<strong>继续向下执行下一个 <code>case</code> 分支的代码</strong>，这称之为 <strong>case 穿透</strong>。</p>
+
+<blockquote><strong>大多数情况下，一个 <code>case</code> 分支应该对应一个 <code>break;</code>。</strong></blockquote>
+
+<h3 id="s40">利用 case 穿透</h3>
+
+<pre><code>switch (score / 10)
+{
+    case 10:        // 故意让 switch 发生 case 穿透
+    case 9:
+        printf("优秀\n");
+        break;
+    case 8:         // 故意让 switch 发生 case 穿透
+    case 7:
+        printf("良好\n");
+        break;
+    case 6:
+        printf("及格\n");
+        break;
+    default:        // 所有 case 都不满足的其他情况
+        printf("不及格\n");
+        break;
+}</code></pre>
+
+<blockquote>小结：多个 <code>case</code> 要执行同一段代码时，可以让它们共用一个 <code>break</code>（合理利用穿透）。</blockquote>
+
+<hr>
+
+<h2 id="s41">11. while 循环语句</h2>
+
+<h3 id="s42">语法</h3>
+
+<pre><code>while (判别表达式)      // 如果为真，执行循环体；如果为假，跳出循环
+{
+    循环体
+}</code></pre>
+
+<h3 id="s43">练习：敲 7</h3>
+
+<p><strong>题目</strong>：从 1 ~ 100 数数，逢 7 和 7 的倍数，敲桌子。</p>
+
+<p><strong>分析</strong>：</p>
+
+<pre><code>7 的倍数： num % 7 == 0
+个位含 7：num % 10 == 7
+十位含 7：num / 10 == 7</code></pre>
+
+<pre><code>int main(void)
+{
+    // 7 的倍数： num % 7 == 0
+    // 个位含 7： num % 10 == 7
+    // 十位含 7： num / 10 == 7
+    int num = 1;
+
+    while (num &lt;= 100)
+    {
+        // 判断敲桌子的时机
+        // if ((num % 7 == 0) || (num % 10 == 7) || (num / 10 == 7))
+        if (num % 7 == 0 || num % 10 == 7 || num / 10 == 7)
+        {
+            printf("敲桌子！\n");
+        }
+        else
+        {
+            printf("%d\n", num);
+        }
+        num++;
+    }
+
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<hr>
+
+<h2 id="s44">12. do while 循环语句</h2>
+
+<blockquote>无论如何<strong>先执行一次循环体</strong>，然后再判断循环是否应该继续。</blockquote>
+
+<h3 id="s45">语法</h3>
+
+<pre><code>do {
+    循环体
+} while (判断表达式);</code></pre>
+
+<blockquote>与 <code>while</code> 的区别：<code>while</code> 先判断后执行，<code>do while</code> <strong>先执行一次再判断</strong>，所以 <code>do while</code> 的循环体至少执行一次；另外 <code>do while</code> 的 <code>while (...)</code> 后面<strong>必须写分号</strong>。</blockquote>
+
+<h3 id="s46">练习：求水仙花数</h3>
+
+<p><strong>题目</strong>：一个三位数（100 ~ 999），各个位上数字的立方和等于本数字（如 153、370、371、407）。</p>
+
+<p><strong>分析</strong>：</p>
+
+<pre><code>3 位数： 100 ~ 999    —— 如：234、861
+个位数： int a = num % 10;
+十位数： int b = num / 10 % 10;
+百位数： int c = num / 100;</code></pre>
+
+<pre><code>int main(void)
+{
+    // 个位数： int a = num % 10;
+    // 十位数： int b = num / 10 % 10;
+    // 百位数： int c = num / 100;
+    int num = 100;  // 数数从 100 开始
+    int a, b, c;    // 定义存储个位、十位、百位数的变量
+
+    do {
+        a = num % 10;           // 求个位数
+        b = num / 10 % 10;      // 求十位数
+        c = num / 100;          // 求百位数
+
+        // 判断这个数字是否是"水仙花数"
+        if (a * a * a + b * b * b + c * c * c == num)
+        {
+            printf("水仙花数：%d\n", num);
+        }
+
+        num++;                  // 不断向后数数
+    } while (num &lt;= 999);
+
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<hr>
+
+<h2 id="s47">13. 类型转换</h2>
+
+<h3 id="s48">隐式类型转换</h3>
+
+<ol><li><strong>编译器自动完成</strong>（小类型转大类型、同类型大小）。</li><li><strong>由赋值产生。</strong></li></ol>
+
+<blockquote>- 小类型 ——&gt; 大类型：没问题。- 大类型 ——&gt; 小类型：可能丢失数据。</blockquote>
+
+<pre><code>int main(void)
+{
+    int a = 321;
+    char ch = a;                // 用值为 321 的 a 变量，给 char 类型赋值
+    printf("ch = %d\n", ch);    // 运行输出 65
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<p><strong>为什么是 65？</strong>（大类型转小类型的截断过程）</p>
+
+<pre><code>321 ：  256 有、128 没有、64 有、32/16/8/4/2 没有、1 有
+
+0000 0000 0000 0000 0000 0001 0100 0001   —— 321 的二进制表现形式
+0000 0000                                 —— char 只有一个字节
+
+赋值后，char 值为： 0100 0001  ---  64 + 1 = 65</code></pre>
+
+<pre><code>int r = 3;
+float s = 3.14 * r * r;
+// 3.14 默认类型是 double，r 为 int 类型。运算过程中，转换为 double 类型运算
+// 运算结束，赋值给 s 时，再转换为 float</code></pre>
+
+<blockquote>小技巧：VS 中 <code>Ctrl + F7</code> <strong>只编译，检查语法错误，不运行</strong>。</blockquote>
+
+<h3 id="s49">强制类型转换</h3>
+
+<p><strong>语法</strong>：</p>
+
+<ol><li>强转变量：<code>(目标类型)变量</code></li><li>强转表达式：<code>(目标类型)表达式</code></li></ol>
+
+<pre><code>int main(void)
+{
+    float price = 3.6;      // 单价
+    int weight = 4;         // 斤数
+
+    // int sum = weight * (int)price;    // 强转变量
+    // printf("sum = %d\n", sum);        // --- 12
+
+    int sum = (int)(weight * price);     // 强转表达式
+    printf("sum = %d\n", sum);           // --- 14
+
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<blockquote>区别：<code>(int)price</code> 是先把单价截断成 3 再乘（12）；<code>(int)(weight * price)</code> 是先算完 14.4 再截断（14）。<strong>先算后转，结果不同。</strong></blockquote>
+
+<hr>
+
+<h2 id="s50">14. 数值溢出</h2>
+
+<p>如果 <code>int</code> 类型变量已经取到最大值（2147483647），再给这个变量 <code>+1</code>，就发生了<strong>溢出</strong>。</p>
+
+<ul><li><strong>上溢出</strong>：最大值 <code>+1</code></li><li><strong>下溢出</strong>：最小值 <code>-1</code></li></ul>
+
+<h3 id="s51">无符号数</h3>
+
+<pre><code>取值范围   0 ~ 2^32-1
+最大值 + 1  ——&gt; 0
+0 - 1       ——&gt; 最大值</code></pre>
+
+<pre><code>// 上溢出
+int main(void)
+{
+    unsigned int a = UINT_MAX;              // 取出无符号最大值
+    printf("最大值 +1 = %d\n", a + 1);      // 0
+    printf("最大值 +2 = %d\n", a + 2);      // 1
+    return 0;
+}</code></pre>
+
+<h3 id="s52">有符号数</h3>
+
+<pre><code>上溢出：最大值 +1，上溢出 == 最小值
+下溢出：最小值 -1，下溢出 == 最大值</code></pre>
+
+<pre><code>int main(void)
+{
+    int a = INT_MAX;    // 取出有符号最大值
+    printf("最大值 +1 = %d, 最小值 = %d\n", a + 1, INT_MIN);
+    return 0;
+}</code></pre>
+
+<h3 id="s53">小结</h3>
+
+<ul><li>大部分编译器对于数值溢出采用上述处理方式，但<strong>个别编译器有可能不同</strong>。</li><li>受数值溢出影响，进行数据存储时要<strong>选择恰当的数据类型</strong>（如 <code>389482390483209</code> 就不能用 <code>int</code> 存）。</li></ul>
+
+<hr>
+
+<h2 id="s54">15. 不常用关键字（了解）</h2>
+
+<table><thead><tr><th>关键字</th><th>作用</th></tr></thead><tbody><tr><td><code>extern</code></td><td>表示<strong>声明</strong>。声明没有内存空间，<strong>不能提升为定义</strong></td></tr><tr><td><code>const</code></td><td>限制一个变量为<strong>只读</strong> —— 常量</td></tr><tr><td><code>volatile</code></td><td>防止编译优化</td></tr><tr><td><code>register</code></td><td>定义一个<strong>寄存器变量</strong>，没有内存地址</td></tr></tbody></table>
+
+<hr>
+
+<h2 id="s55">16. 输入输出函数</h2>
+
+<h3 id="s56">输出函数</h3>
+
+<h4 id="s57">printf</h4>
+
+<pre><code>printf("...");
+// 常用格式匹配符：%d、%c、%x、%u、%s ....</code></pre>
+
+<h4 id="s58">putchar 函数</h4>
+
+<p><strong>输出一个字符到屏幕。</strong></p>
+
+<pre><code>putchar(97);        // 97 == 'a'
+putchar('\n');      // 输出换行符
+putchar('b');
+putchar('\n');      // 使用频率较高，等价于 printf("\n");
+putchar('abcZ');    // 'abcZ' 是错误的定义，既不是 char 也不是字符串！</code></pre>
+
+<blockquote>易错点：<code>'abcZ'</code> 是错误的定义，既不是 <code>char</code> 也不是字符串。</blockquote>
+
+<h3 id="s59">输入函数</h3>
+
+<h4 id="s60">scanf 函数</h4>
+
+<p><strong>使用</strong>：按照指定格式匹配符，获取指定类型数据。</p>
+
+<pre><code>int a;
+scanf("%d", &amp;a);    // 获取整数</code></pre>
+
+<blockquote>详细用法（字符串、正则匹配等）见第 06 章。</blockquote>
+</article>

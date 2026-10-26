@@ -1,0 +1,240 @@
+<article data-learn-content>
+<h2 id="s1">1. 数据类型</h2>
+
+<h3 id="s2">sizeof 运算符</h3>
+
+<blockquote>目标：会查看变量、类型占用内存大小</blockquote>
+
+<p>​		每种数据类型，都有自己固定的占用内存大小和取值范围。具体展开讲解前，我们先来看下，C 语言提供的查看变量或类型占用内存大小的运算符，sizeof。</p>
+
+<ul><li><strong>语法 1：sizeof(变量名)</strong></li></ul>
+
+<pre><code>  int a = 10;
+  printf("%llu\n", sizeof(a));//sizeof(a) 获取 a 变量占用内存大小。可以用 printf 显示出来
+  // 查看 sizeof 返回的占用内存大小，需要使用 %llu 格式符</code></pre>
+
+<ul><li><strong>语法 2：sizeof(类型名)</strong></li></ul>
+
+<pre><code>  printf("%llu\n", sizeof(double)); // 也可以使用 sizeof 直接查看某种类型占用的内存大小</code></pre>
+
+<h3 id="s3">数值型</h3>
+
+<h4 id="s4">整型</h4>
+
+<blockquote>目标：选用不同类型存整数</blockquote>
+
+<h4 id="s5">基础信息</h4>
+
+<table><thead><tr><th>数据类型</th><th>字节数</th><th>格式符</th><th>数据范围</th><th>最小值宏</th><th>最大值宏</th></tr></thead><tbody><tr><td>short（短整型）</td><td>2</td><td>%hd</td><td>-2&lt;sup&gt;15&lt;/sup&gt; ~ 2&lt;sup&gt;15&lt;/sup&gt;-1 (-32768 ~ 32767)</td><td>SHRT_MIN</td><td>SHRT_MAX</td></tr><tr><td><strong>int（整型）</strong></td><td><strong>4</strong></td><td><strong>%d</strong></td><td><strong>-2&lt;sup&gt;31&lt;/sup&gt; ~ 2&lt;sup&gt;31&lt;/sup&gt;-1 (-2147483648 ~ 2147483647)</strong></td><td>INT_MIN</td><td>INT_MAX</td></tr><tr><td>long（长整型）</td><td>4</td><td>%ld</td><td>-2&lt;sup&gt;31&lt;/sup&gt; ~ 2&lt;sup&gt;31&lt;/sup&gt;-1 (-2147483648 ~ 2147483647)</td><td>LONG_MIN</td><td>LONG_MAX</td></tr><tr><td>long long（长长整型）</td><td>8</td><td>%lld</td><td>-2&lt;sup&gt;63&lt;/sup&gt; ~ 2&lt;sup&gt;63&lt;/sup&gt;-1</td><td>LLONG_MIN</td><td>LLONG_MAX</td></tr><tr><td>unsigned short（无符号 短整型）</td><td>同 short</td><td>%hu</td><td>0 ~  2&lt;sup&gt;16&lt;/sup&gt;-1 (0 ~ 65535)</td><td>0</td><td>USHRT_MAX</td></tr><tr><td>unsigned int（无符号 整型）</td><td>同 int</td><td>%u</td><td>0 ~  2&lt;sup&gt;32&lt;/sup&gt;-1 (0 ~ 4294967295)</td><td>0</td><td>UINT_MAX</td></tr><tr><td>unsigned long（无符号 长整型）</td><td>同 long</td><td>%lu</td><td>0 ~  2&lt;sup&gt;32&lt;/sup&gt;-1 (0 ~ 4294967295)</td><td>0</td><td>ULONG_MAX</td></tr><tr><td>unsigned long long（无符号 长长整型）</td><td>同 long long</td><td>%llu</td><td>0 ~  2&lt;sup&gt;64&lt;/sup&gt;-1</td><td>0</td><td>ULLONG_MAX</td></tr></tbody></table>
+
+<p>上表中列出的占用字节数和取值范围，是大多数情况下各种类型的取值。</p>
+
+<p>由于，C 标准没有具体规定以上各类数据所占用的字节数。因此，在不同系统、编译器下，数据类型占用的字节数会有所不同。</p>
+
+<blockquote>比如：int 类型，在 Turbo C 环境占 2 字节，取值范围与 short 相同。 而在 Visual C 环境下是 4 字节。再如：long 类型，相同的 gcc 编译器下，在 Windows 系统中占 4 字节，而在 Linux 系统中占 8 字节。</blockquote>
+
+<p>可以使用 sizeof 查看 数据类型 占用内存的大小。</p>
+
+<p>可以引入头文件 #include &lt;limits.h&gt; 借助宏来查看 数据类型 在当前平台上 对应的最小、最大值。</p>
+
+<pre><code>#include &lt;stdio.h&gt;
+#include &lt;limits.h&gt;
+
+int main(void)
+{
+    printf("short 大小 = %llu\n", sizeof(short));
+	printf("short 最小值 = %hd， 最大值 = %hd\n", SHRT_MIN, SHRT_MAX);
+	printf("unsigned short 最小值 = 0 最大值 = %hu\n", USHRT_MAX);
+	printf("\n");
+
+	printf("int 大小 = %llu\n", sizeof(int));
+	printf("int 最小值 = %d，最大值 = %d\n", INT_MIN, INT_MAX);
+	printf("unsigned int 最小值 = 0, 最大值 = %u\n", UINT_MAX);
+	printf("\n");
+
+	printf("long 大小 = %llu\n", sizeof(long));
+	printf("long 最小值 = %ld， 最大值 = %ld\n", LONG_MIN, LONG_MAX);
+	printf("unsigned long 最小值 = 0 最大值 = %lu\n", ULONG_MAX);
+	printf("\n");
+
+	printf("long long 大小 = %llu\n", sizeof(long long));
+	printf("long long 最小值 = %lld， 最大值 = %lld\n", LLONG_MIN, LLONG_MAX);
+	printf("unsigned long long 最小值 = 0, 最大值 = %llu\n", ULLONG_MAX);
+	printf("\n");
+
+	return 0;
+}</code></pre>
+
+<h4 id="s6">验收案例</h4>
+
+<ul><li>编写程序，选择合适的类型 定义变量 存储：人类年龄、中国人口数量 和 地球年龄（约45.5 亿）， 并借助宏 打印 选用的类型对应无符号数 最大值，证明你的选择无误。</li></ul>
+
+<h4 id="s7">bool型</h4>
+
+<blockquote>目标：知道 bool 类型两种取值</blockquote>
+
+<p>​		C语言在设计之初是没有布尔类型的，使用 1 和 0，对应表示真、假。</p>
+
+<p>​		但，其他编程语言像 C++、java 都设计有布尔数类型。 C语言在1999 年推出的新标准（C99）中，也加入了 布尔类型。用 true 来代表 1，为真；用 false 来代表 0，为假。使用时，需要引入头文件 #include &lt;stdbool.h&gt;</p>
+
+<pre><code>#include &lt;stdbool.h&gt;
+
+int main(void)
+{
+	printf("%d, %d\n", true, false); // 1, 0
+    return 0;
+}</code></pre>
+
+<p>​		虽然语法上与其他语言一致，但 C 语言每次在使用时需先引入头文件，较为麻烦。 因此，一些老 C 工程师还是喜欢直接在程序中用 1 和 0 来表示 真和假。</p>
+
+<h4 id="s8">实型</h4>
+
+<blockquote>目标：会选用浮点型变量存小数</blockquote>
+
+<p>​		实型表示有符号的十进制小数，在计算机内部以浮点方式表示（小数点是浮动的），因此也叫浮点型。</p>
+
+<p>​		常见实型有两种： float (单精度)、 double (双精度)</p>
+
+<p>​		实型数据没有八、十六进制，也没有 unsigned 无符号形式。在计算机底层采用的是近似计算，实现比较复杂，且不同平台处理方式不同。我们这里只学习它基本的知识。</p>
+
+<h4 id="s9">基础信息</h4>
+
+<table><thead><tr><th>类型</th><th>字节数</th><th>格式符</th><th>有效数字</th><th>常量后缀</th></tr></thead><tbody><tr><td>float (单精度)</td><td>4</td><td>%f</td><td>6~7</td><td>f</td></tr><tr><td>double (双精度)</td><td>8</td><td>%lf</td><td>15~16</td><td>无</td></tr></tbody></table>
+
+<p>我们直接书写的小数常量，如 6.23，系统默认看做 double 类型。如想指明为 float 类型，需加后缀 f，6.23f。</p>
+
+<ul><li>6~7：  整数部分 + 小数部分 &lt;= 6 位， 准确。 整数部分 + 小数部分 == 7 位，可能准确，也可能不准确。 整数部分 + 小数部分 &gt; 7位。大多不准确。</li><li>15~16：  整数部分 + 小数部分 &lt;= 15 位， 准确。 整数部分 + 小数部分 == 16 位，可能准确，也可能不准确 整数部分 + 小数部分 &gt; 16位。大多不准确。</li></ul>
+
+<p>显示小数时，%f 和 %lf 默认保留 6 位小数。</p>
+
+<p>如需指定小数位数，使用格式符 %.nf ，n 为几，表示精确到小数点后几位，会对 n+1 位做 4 舍 5 入。</p>
+
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void)
+{
+	float f = 1.23456789101112131415f; // 定义有 20 位小数的 float 变量
+	double d = 1.23456789101112131415; // 定义有 20 位小数的 double 变量
+
+	printf("f=%.20f\n", f);
+	printf("d=%.20lf\n", d);
+
+	return 0;
+}</code></pre>
+
+<h4 id="s10">验收案例</h4>
+
+<ul><li>已知 圆周率π的值为3.14159265358979323846。选择一种浮点数类型定义变量保存π值，并打印输出变量，要求正确保留小数点后 8 位数据。</li></ul>
+
+<h3 id="s11">字符型</h3>
+
+<blockquote>目标：会在程序中使用字符型数据</blockquote>
+
+<h4 id="s12">基础信息</h4>
+
+<p>​		C 语言定义 char 类型来表示字符数据。 其本质依然是存储数值，因此与数值型类似，也有有符号、无符号之分。占用 1 个字节内存大小。</p>
+
+<table><thead><tr><th>类型</th><th>字节数</th><th>格式符</th><th>数据范围</th><th>最小值宏</th><th>最大值宏</th></tr></thead><tbody><tr><td>char</td><td>1</td><td>%hhd</td><td>-2&lt;sup&gt;7&lt;/sup&gt; ~ 2&lt;sup&gt;7&lt;/sup&gt;-1 (-128 ~ 127)</td><td>CHAR_MIN</td><td>CHAR_MAX</td></tr><tr><td>unsigned char</td><td>1</td><td>%hhu</td><td>0~2&lt;sup&gt;8&lt;/sup&gt;-1 (0 ~ 255)</td><td>0</td><td>UCHAR_MAX</td></tr></tbody></table>
+
+<h4 id="s13">ASCII 码</h4>
+
+<p>​		char 类型在程序中，最常用来表示字符。其本质依然是一个数字，但每个值都对应一个固定的字符，共定义了128个字符。称之为 ASCII 码 (American Standard Code for Information Interchange) 美国信息交换标准代码。</p>
+
+<table><thead><tr><th><strong>ASCII值</strong></th><th><strong>控制字符</strong></th><th><strong>ASCII值</strong></th><th><strong>字符</strong></th><th><strong>ASCII值</strong></th><th><strong>字符</strong></th><th><strong>ASCII值</strong></th><th><strong>字符</strong></th></tr></thead><tbody><tr><td><strong>0</strong></td><td><strong>NUL</strong></td><td><strong>32</strong></td><td><strong>(space)</strong></td><td>64</td><td>@</td><td>96</td><td>、</td></tr><tr><td>1</td><td>SOH</td><td>33</td><td>!</td><td><strong>65</strong></td><td><strong>A</strong></td><td><strong>97</strong></td><td><strong>a</strong></td></tr><tr><td>2</td><td>STX</td><td>34</td><td>"</td><td>66</td><td>B</td><td>98</td><td>b</td></tr><tr><td>3</td><td>ETX</td><td>35</td><td>#</td><td>67</td><td>C</td><td>99</td><td>c</td></tr><tr><td>4</td><td>EOT</td><td>36</td><td>$</td><td>68</td><td>D</td><td>100</td><td>d</td></tr><tr><td>5</td><td>ENQ</td><td>37</td><td>%</td><td>69</td><td>E</td><td>101</td><td>e</td></tr><tr><td>6</td><td>ACK</td><td>38</td><td>&amp;</td><td>70</td><td>F</td><td>102</td><td>f</td></tr><tr><td>7</td><td>BEL</td><td>39</td><td>‘</td><td>71</td><td>G</td><td>103</td><td>g</td></tr><tr><td>8</td><td>BS</td><td>40</td><td>(</td><td>72</td><td>H</td><td>104</td><td>h</td></tr><tr><td>9</td><td>HT</td><td>41</td><td>)</td><td>73</td><td>I</td><td>105</td><td>i</td></tr><tr><td><strong>10</strong></td><td><strong>LF</strong></td><td>42</td><td>*</td><td>74</td><td>J</td><td>106</td><td>j</td></tr><tr><td>11</td><td>VT</td><td>43</td><td>+</td><td>75</td><td>K</td><td>107</td><td>k</td></tr><tr><td>12</td><td>FF</td><td>44</td><td>,</td><td>76</td><td>L</td><td>108</td><td>l</td></tr><tr><td>13</td><td>CR</td><td>45</td><td>-</td><td>77</td><td>M</td><td>109</td><td>m</td></tr><tr><td>14</td><td>SO</td><td>46</td><td>.</td><td>78</td><td>N</td><td>110</td><td>n</td></tr><tr><td>15</td><td>SI</td><td>47</td><td>/</td><td>79</td><td>O</td><td>111</td><td>o</td></tr><tr><td>16</td><td>DLE</td><td><strong>48</strong></td><td><strong>0</strong></td><td>80</td><td>P</td><td>112</td><td>p</td></tr><tr><td>17</td><td>DCI</td><td>49</td><td>1</td><td>81</td><td>Q</td><td>113</td><td>q</td></tr><tr><td>18</td><td>DC2</td><td>50</td><td>2</td><td>82</td><td>R</td><td>114</td><td>r</td></tr><tr><td>19</td><td>DC3</td><td>51</td><td>3</td><td>83</td><td>S</td><td>115</td><td>s</td></tr><tr><td>20</td><td>DC4</td><td>52</td><td>4</td><td>84</td><td>T</td><td>116</td><td>t</td></tr><tr><td>21</td><td>NAK</td><td>53</td><td>5</td><td>85</td><td>U</td><td>117</td><td>u</td></tr><tr><td>22</td><td>SYN</td><td>54</td><td>6</td><td>86</td><td>V</td><td>118</td><td>v</td></tr><tr><td>23</td><td>TB</td><td>55</td><td>7</td><td>87</td><td>W</td><td>119</td><td>w</td></tr><tr><td>24</td><td>CAN</td><td>56</td><td>8</td><td>88</td><td>X</td><td>120</td><td>x</td></tr><tr><td>25</td><td>EM</td><td>57</td><td>9</td><td>89</td><td>Y</td><td>121</td><td>y</td></tr><tr><td>26</td><td>SUB</td><td>58</td><td>:</td><td>90</td><td>Z</td><td>122</td><td>z</td></tr><tr><td>27</td><td>ESC</td><td>59</td><td>;</td><td>91</td><td>[</td><td>123</td><td>{</td></tr><tr><td>28</td><td>FS</td><td>60</td><td>&lt;</td><td>92</td><td>\</td><td>124</td><td>\</td><td></td></tr><tr><td>29</td><td>GS</td><td>61</td><td>=</td><td>93</td><td>]</td><td>125</td><td>}</td></tr><tr><td>30</td><td>RS</td><td>62</td><td>&gt;</td><td>94</td><td>^</td><td>126</td><td>~</td></tr><tr><td>31</td><td>US</td><td>63</td><td>?</td><td>95</td><td>_</td><td>127</td><td>DEL</td></tr></tbody></table>
+
+<p>​		上表中有 6 个字符对应的 ASCII 较为常见，建议大家记下，会为后续写代码提供很多方便。</p>
+
+<table><thead><tr><th>字符</th><th>ASCII 码</th><th>字符</th><th>ASCII 码</th></tr></thead><tbody><tr><td><strong>空</strong></td><td><strong>0</strong></td><td><strong>‘\n’</strong></td><td><strong>10</strong></td></tr><tr><td><strong>空格</strong></td><td><strong>32</strong></td><td><strong>0</strong></td><td><strong>48</strong></td></tr><tr><td><strong>A</strong></td><td><strong>65</strong></td><td><strong>a</strong></td><td><strong>97</strong></td></tr></tbody></table>
+
+<p>​		需注意的是，我们从键盘键入的所有内容都是字符。如，键入数字 7，实际是字符 ‘7’，真正存储在计算机内的是 55（字符 7 的 ASCII 码值），而如果我们键入了 35，实际上这是两个字符。真正存储在计算机内的是 51 和 53（字符 3 和 字符 5 的 ASCII 码值）。</p>
+
+<p>​		我们可以用 printf 结合 格式符 %c，显示字符。 如果用 %d，就显示 其 ASCII 值了。</p>
+
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void)
+{
+	char ch = 53;
+	printf("ASCII为：%d, 字符为：%c\n", ch, ch);
+    return 0;
+}</code></pre>
+
+<h4 id="s14">转义字符</h4>
+
+<p>C 语言提供了一类特殊的字符，是由 \ 和特定字符组合而成，称之为 转义字符。他们都是 <strong>==一个==</strong> 字符，如：</p>
+
+<ul><li>‘\n’ 这是 1 个字符。 代表 回车换行（回车键）。</li><li>‘\t’ 也是 1 个字符。代表 制表符 （Tab键）。</li><li>‘\b’ 同样是 1 个字符。 代表 退格符（Backspace 键）。</li><li>‘\0’ 是一个字符。代表 空。对应 ASCII 值 0。</li><li>‘\ddd’ 是一个字符。ddd 对应 3 个八进制数（没有用 0 开头）。 如：\141 对应 ASCII 值为 97，代表 ‘a’。</li><li>‘\xhh’ 是一个字符。x 表十六进制，hh 对应 2 个十六进制数。 如：\x41 对应 ASCII 值为 65，代表 ‘A’。</li></ul>
+
+<p>\ 还可以在特定环境下，将一个字符还原其本身意。</p>
+
+<p>比如，现在想输出 10 并且两侧带双引号，也就是希望屏幕上出现 <code>"10"</code>。如果直接写成 <code>printf(""%d"", 10);</code>，字符串会在第一个引号处被提前闭合，编译报错。这时可以用 <code>\"</code> 转义，把双引号还原成普通字符。</p>
+
+<pre><code>printf("\"%d\"", 10);  // 这里的 \" 看做一个双引号字符。</code></pre>
+
+<p>类似的还有：</p>
+
+<ul><li><code>\'</code> 代表 单引号。</li><li><code>\\</code> 代表 反斜杠。</li></ul>
+
+<h4 id="s15">字符输入输出</h4>
+
+<p>C 语言提供了专门的函数，方便在程序中 获取、输出 字符数据。</p>
+
+<ul><li><strong>getchar()：获取用户从键盘写入的一个字符。</strong>  程序执行到 getchar() 会暂停，等待用户键入字符数据。 一次 getchar() 调用，只读取一个字符。如用户键入多个字符，需要多次调用 getchar()读取。 函数调用完成，会返回实际读到的字符 对应的 ASCII 值。 用户键入字符结束，敲的回车键，对应‘\n’ 字符，也可以使用 getchar() 读取。</li></ul>
+
+<pre><code>  int ret = getchar();</code></pre>
+
+<ul><li><strong>putchar(ch)：将 ch 对应的字符，输出到屏幕。</strong>  ch 可以是变量也可以是常量。 一次 putchar() 调用，只写出一个字符（不含换行符 ‘\n’）。 函数调用完成，会返回实际写出的字符 对应的 ASCII 值。</li></ul>
+
+<pre><code>  char ch = 'A';
+  int ret = putchar(ch);</code></pre>
+
+<h4 id="s16">验收案例</h4>
+
+<ul><li>编写程序，使用 getchar接收用户输入的 字符 a 和回车符。要求通过 ‘a’ 进行数学运算得到 ‘A’，只使用一个 prinf 函数打印 ‘A’ 和 回车符的 ASCII 值，使用 tab 符隔分数据。</li></ul>
+
+<h3 id="s17">2. 标识符</h3>
+
+<h4 id="s18">2.1 什么是标识符？</h4>
+
+<p>​	程序中，我们自己起的名字统称为标识符</p>
+
+<h4 id="s19">2.2 标识符的硬性要求</h4>
+
+<ul><li>以数字、字母、下划线组成</li><li>不能以数字开头</li><li>不能是关键字</li><li>区分大小写</li></ul>
+
+<h4 id="s20">2.3 标识符的软性建议</h4>
+
+<p>​	用英文单词，见名知意</p>
+
+<p>​	变量名：全部小写</p>
+
+<p>​	文件名：全部小写，单词之间用下划线隔开</p>
+
+<h2 id="s21">3. scanf 输入</h2>
+
+<blockquote>目标：接收用户输入数据</blockquote>
+
+<p>​		我们可以借助 getchar() 读取用键入的字符数据。 如果想要读取其他数据怎么办呢？C语言提供了 scanf() 函数，可以结合 格式符 读取各种类型数据。</p>
+
+<h3 id="s22">基础信息</h3>
+
+<ul><li>作用：从标准输入设备（键盘）上按格式获取数据。</li><li>语法：scanf("格式控制字符串“, ......); 需指定头文件 #include &lt;stdio.h&gt;  参 1： 必须是字符串，且必须包含 格式说明符（占位符） 格式符 与 数据类型中使用方式一致。 常用的有 %d、%c、%f、%lf 等。 后续参数（变参）：个数，直接受 参 1 格式匹配符影响。 对应 格式符的 必须是 变量地址（&amp;变量名，可取变量地址），代表数据存放位置。</li><li>示例：</li></ul>
+
+<pre><code>  printf("请输入一个字符：");	// 借助 printf 提示用户输入
+  char ch = 0;	// 准备变量，存储数据
+  scanf("%c", &amp;ch);	// 使用变量地址，与 格式符对应
+
+  printf("请输入三个整数，用逗号间隔：");
+  int a, b, c;   // 可以不赋初值。
+  scanf("%d,%d,%d", &amp;a, &amp;b, &amp;c);</code></pre>
+
+<h3 id="s23">注意事项</h3>
+
+<ol><li>不要在 scanf 的参 1 中，添加类似 printf() 的提示字符串和 \n 换行符。</li><li>键入数据时，数据个数、类型、顺序，必须与参 1 中占位符一一对应。</li><li>键入数据时，数据间的分割符，必须与 参 1 中 占位符的分割符一致。</li><li>scanf 的返回值，代表格式符成功匹配数据的次数。可用它判断输入是否成功，例如 <code>if (scanf("%d", &amp;n) == 1)</code>。</li><li>VS 较新版本（VS2005 起默认开启安全开发生命周期检查）编译时，会将 scanf 划为 “不安全函数”，报出 C4996 错误，推荐你使用 <strong>scanf_s()</strong> 函数。</li></ol>
+
+<blockquote><strong>函数名是 <code>scanf_s</code>，不是 <code>s_scanf</code>。</strong> 同批还有 <code>strcpy_s</code>、<code>printf_s</code>、<code>memcpy_s</code>，命名规律都是原名加 <code>_s</code> 后缀。<code>scanf_s</code> 来自 C11 附录 K（Annex K）的边界检查扩展，属于可选功能。MSVC 提供，MinGW 也能用，但 Linux 的 glibc 不实现，跨平台代码里不要用。它唯一的实际作用，是要求给 <code>%s</code>、<code>%c</code>、<code>%[</code> 多传一个缓冲区大小；而这个效果，标准的 <code>scanf("%7s", buf)</code> 也能达到，且到处都能跑。</blockquote>
+
+<p>但，学习、练习、测试时，直接使用 scanf 很方便，可暂时屏蔽该错误。</p>
+
+<ul><li><strong>方法 1：</strong>在项目中设置：工程名→右键→属性→C/C++→预处理器→预处理器定义→编辑→将  _CRT_SECURE_NO_WARNINGS 加入“预处理定义” 中</li><li><strong>方法 2：</strong>在每个.c文件开头（第一行）添加宏：#define _CRT_SECURE_NO_WARNINGS</li></ul>
+</article>

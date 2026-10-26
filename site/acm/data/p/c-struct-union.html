@@ -1,0 +1,630 @@
+<article data-learn-content>
+<h2 id="s1">1. Heap 空间操作：二级指针对应的 heap 空间</h2>
+
+<pre><code>int **p  ==  int *p[3]  ==&gt;  [int *, int *, int *]  ==&gt;  [[1,2,3,54,5], int *, int *]</code></pre>
+
+<pre><code>int main(void)
+{
+    // 给外层空间 malloc 申请内存
+    int **p = malloc(sizeof(int *) * 3);
+    if (p == NULL)
+    {
+        printf("malloc error!\n");
+        return -1;
+    }
+
+    // 给内层指针申请 malloc 空间
+    for (size_t i = 0; i &lt; 3; i++)
+    {
+        p[i] = malloc(sizeof(int) * 5);
+        if (p[i] == NULL)
+        {
+            printf("malloc p[i] error!\n");
+            return -1;
+        }
+    }
+
+    // 使用空间 —— 写
+    for (size_t i = 0; i &lt; 3; i++)
+    {
+        for (size_t j = 0; j &lt; 5; j++)
+        {
+            p[i][j] = i + j;    // 随意初始化值
+        }
+    }
+
+    // 使用空间 —— 读
+    for (size_t i = 0; i &lt; 3; i++)
+    {
+        for (size_t j = 0; j &lt; 5; j++)
+        {
+            printf("%d ", *(*(p + i) + j));     // p[i][j] == *(*(p+i)+j)
+        }
+        printf("\n");
+    }
+
+    // free 空间时：应该先释放内层空间，再释放外层
+    for (size_t i = 0; i &lt; 3; i++)
+    {
+        free(p[i]);
+        p[i] = NULL;
+    }
+    // 释放外层空间
+    free(p);
+    p = NULL;
+
+    system("pause");
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<h3 id="s2">以 <code>char **p</code> 为例</h3>
+
+<pre><code>// 先申请外层指针
+char **p = malloc(sizeof(char *) * 5);
+
+// 申请内层指针
+for (int i = 0; i &lt; 5; i++)
+{
+    p[i] = malloc(sizeof(char) * 10);   // 字符串长度 &lt;= 10 个字符
+}
+
+// 写
+for (int i = 0; i &lt; 5; i++)
+{
+    // p[i] = "hello";  错误！
+    strcpy(p[i], "hello");
+}
+
+// 释放内层
+for (int i = 0; i &lt; 5; i++)
+{
+    free(p[i]);
+    p[i] = NULL;
+}
+
+// 释放外层
+free(p);
+p = NULL;</code></pre>
+
+<blockquote>记忆点：<strong>申请时先外层后内层，释放时先内层后外层。</strong></blockquote>
+
+<hr>
+
+<h2 id="s3">2. 内存操作函数（补充）</h2>
+
+<blockquote>以下 4 个函数专门用来操作 <strong>heap</strong> 内存。stack 由系统自动申请、自动释放。基础用法见第 09 章，这里补充细节。</blockquote>
+
+<h3 id="s4">memset</h3>
+
+<p>绝大多数情况下，<code>memset</code> 用来将申请好的 heap 内存<strong>置 0</strong> —— 单位：<strong>字节</strong>。</p>
+
+<ul><li><code>memset</code> 函数按"字节"设置。</li><li>置 0 ——&gt; 每一个字节都为 0。</li><li>【了解】置 1 ——&gt; 每一个字节都为 1 —— 4 字节 == <code>0x01010101</code> == <code>16843009</code></li></ul>
+
+<pre><code>#include &lt;string.h&gt;
+void *memset(void *s, int c, size_t n);
+
+// 参1：内存首地址
+// 参2：置成什么，一般传 0
+// 参3：内存大小，单位：字节
+// 返回值：成功 —— 设置后的地址；失败 —— NULL
+
+// 常用写法
+memset(首地址, 0, 空间大小);</code></pre>
+
+<pre><code>int *p = (int *)malloc(sizeof(int) * 10);
+if (p == NULL)
+{
+    printf("malloc error");
+    return -1;
+}
+
+// 将申请好的内存，全部置 0
+memset(p, 0, sizeof(int) * 10);
+
+// 直接打印申请好的空间内容
+for (size_t i = 0; i &lt; 10; i++)
+{
+    printf("%d ", p[i]);
+}
+
+free(p);
+p = NULL;</code></pre>
+
+<h3 id="s5">memcpy</h3>
+
+<p>以字节为单元做内存拷贝。<code>strcpy</code> 只能拷贝字符串，<code>memcpy</code> 什么都能拷。</p>
+
+<pre><code>void *memcpy(void *dest, const void *src, size_t n);</code></pre>
+
+<pre><code>// 拷贝内存中的整型数据
+int arr[10] = {1, 2, 3, 4, 5};
+int arr2[10];
+memcpy(arr2, arr, sizeof(int) * 10);
+for (size_t i = 0; i &lt; 10; i++)
+{
+    printf("%d ", arr2[i]);
+}
+printf("\n");
+
+// 拷贝内存中的字符串
+char str[] = "hello world";
+char p[100];
+// memcpy(p, str, strlen(str) + 1);    // 按内存拷贝
+strcpy(p, str);                        // 字符串拷贝
+strncpy(p, str, strlen(str) + 1);
+printf("p = %s\n", p);</code></pre>
+
+<h3 id="s6">memmove</h3>
+
+<p>作用<strong>完全等同于 <code>memcpy</code></strong>：以字节为单元做内存拷贝，但是<strong>安全的</strong>！</p>
+
+<blockquote>如果 <code>src</code> 和 <code>dest</code> 之间有重叠，<code>memcpy</code> 由于底层实现原因有可能出错，<strong>推荐使用 <code>memmove</code></strong>。</blockquote>
+
+<pre><code>void *memmove(void *dest, const void *src, size_t n);</code></pre>
+
+<h3 id="s7">memcmp</h3>
+
+<p>以字节为单位比较内存！作用可以完全参照 <code>strncmp</code>。</p>
+
+<p><strong>规则</strong>：<code>s1 == s2</code> ——&gt; <code>0</code>；<code>s1 &gt; s2</code> ——&gt; <code>1</code>；<code>s1 &lt; s2</code> ——&gt; <code>-1</code></p>
+
+<pre><code>int memcmp(const void *s1, const void *s2, size_t n);</code></pre>
+
+<pre><code>int arr1[] = {14, 56, 22, 59, 21, 49, 25, 86, 89, 66, 71, 31, 98};
+int arr2[] = {14, 56, 29, 59, 21};
+
+int ret = memcmp(arr1, arr2, 5 * sizeof(int));
+printf("ret = %d\n", ret);</code></pre>
+
+<hr>
+
+<h2 id="s8">3. 内存常见问题（重点）</h2>
+
+<h3 id="s9">1）申请 0 字节空间</h3>
+
+<p>C 语言中允许申请 0 字节的内存空间，但是 <strong>0 字节的空间不能拿来使用</strong>。</p>
+
+<pre><code>int *p = malloc(0);
+free(p);  p = NULL;   // 可以 free，但不应该使用</code></pre>
+
+<h3 id="s10">2）free 空指针</h3>
+
+<ul><li><strong>空指针（NULL）反复 <code>free</code> 不会报错。</strong></li><li><strong>非空指针反复 <code>free</code> 会报错！！！</strong></li><li>—— 推荐 <code>free</code> 后的指针<strong>一定置 <code>NULL</code></strong>。</li></ul>
+
+<h3 id="s11">3）越界访问</h3>
+
+<p>不允许！！！会导致程序崩溃。</p>
+
+<h3 id="s12">4）free <code>++</code> 后的地址</h3>
+
+<p>不能正常释放（因为 <code>free</code> 要求的是 <code>malloc</code> 返回的原始地址）。</p>
+
+<blockquote>如果程序中必须要使用 <code>p++</code>，请<strong>定义临时变量保存 <code>p</code> 的原始值</strong>，以便 <code>free</code> 释放。</blockquote>
+
+<hr>
+
+<h2 id="s13">4. 函数内申请空间、函数外使用</h2>
+
+<h3 id="s14">模式一：A 函数内申请，A 函数使用</h3>
+
+<p>注意上述 4 点即可。</p>
+
+<pre><code>int *p = malloc(10);
+free(p);  p = NULL;</code></pre>
+
+<h3 id="s15">模式二：A 函数申请空间，B 函数使用（返回指针）</h3>
+
+<pre><code>// A 函数申请空间，B 函数使用
+int *func1(void)
+{
+    int *p = malloc(4);
+    *p = 456;
+    return p;       // 返回的是 heap 堆空间的地址值，函数调用结束，地址依然有效
+
+    // return &amp;p;   // 返回 stack 栈空间的地址值，函数调用结束，地址失效！
+}
+
+int main(void)
+{
+    int *ret = NULL;
+    ret = func1();
+    printf("%d\n", *ret);
+
+    free(ret);
+    ret = NULL;
+
+    system("pause");
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<h3 id="s16">模式二（变体）：通过参数返回</h3>
+
+<pre><code>// A 函数申请空间，B 函数使用
+int *func2(int *p)
+{
+    p = malloc(4);
+    return p;
+}
+
+int main(void)
+{
+    int *ret = NULL;
+    ret = func2(ret);
+    *ret = 345;             // 写
+    printf("%d\n", *ret);   // 读
+
+    free(ret);
+    ret = NULL;
+
+    system("pause");
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<h3 id="s17">模式三：传二级指针（推荐）</h3>
+
+<pre><code>void func3(int **p)     // int ** 是一级指针的地址
+{
+    *p = malloc(4);
+}
+
+int main(void)
+{
+    int *ret = NULL;
+    func3(&amp;ret);        // 传一级指针的地址
+
+    // func3 函数调用完成后，ret 指针不再为 NULL，而是指向一块有效的 heap 空间
+    *ret = 789;
+    printf("%d\n", *ret);
+
+    free(ret);
+    ret = NULL;
+
+    system("pause");
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<hr>
+
+<h2 id="s18">5. 结构体</h2>
+
+<h3 id="s19">结构体定义语法</h3>
+
+<ul><li><strong>复合类型</strong>（用户自定义类型）：<code>int []</code>、<code>int *</code>、<code>char **</code>、<code>struct student</code></li><li>以上定义了一个结构体<strong>类型</strong>，名字叫 <code>struct student</code>。</li><li><code>struct student</code> 的地位等同于 <code>int</code>、<code>char</code>、<code>short</code>、<code>char *</code>、<code>int[]</code>、<code>long long</code>。</li><li>通常结构体类型定义在<strong>全局位置</strong>，或者放到 <code>xxx.h</code> 头文件。</li></ul>
+
+<pre><code>// 定义结构体类型
+struct student {
+    int age;        // 成员变量 —— 属性。不能被赋初值
+    int num;
+    char name[10];
+};
+
+// 用结构体类型定义变量
+struct student a;   // 定义了一个结构体类型的变量 a</code></pre>
+
+<h4 id="s20">头文件写法</h4>
+
+<pre><code>// 头文件守卫
+#ifndef _XXX_H_
+#define _XXX_H_
+
+// 4 种内容：#include、宏定义、函数声明、类型定义（结构体类型）
+
+#endif</code></pre>
+
+<h3 id="s21">普通结构体变量</h3>
+
+<pre><code>struct student stu1, stu2, stu3;            // 一次定义 3 个变量，没赋初值
+struct student stu = {18, 1, "Andy"};       // 定义并赋初值</code></pre>
+
+<h4 id="s22">访问成员方法</h4>
+
+<p><strong>使用 <code>.</code> 访问成员。</strong></p>
+
+<pre><code>// 定义一个结构体变量，赋初值
+struct student stu = {18, 1, "Andy"};
+printf("first：age = %d, name = %s, num = %d\n", stu.age, stu.name, stu.num);
+
+stu.age = 118;
+stu.num = 119;
+// stu.name = "cuihua";     // name 为地址常量，不能被赋值
+strcpy(stu.name, "cuihua");
+
+printf("last：age = %d, name = %s, num = %d\n", stu.age, stu.name, stu.num);</code></pre>
+
+<pre><code>// 普通变量使用 "-&gt;" 访问成员 —— 不常用！
+(&amp;stu)-&gt;age = 118;
+(&amp;stu)-&gt;num = 119;</code></pre>
+
+<h3 id="s23">结构体指针变量</h3>
+
+<pre><code>struct student *p1, *p2, *p3;        // 一次定义 3 个指针变量 —— 野指针！！！
+
+struct student stu, *p1;             // 一次定义两个：普通变量 stu 和指针变量 p1
+p1 = &amp;stu;                           // 给指针初始化</code></pre>
+
+<pre><code>// 或者指向 heap 空间
+struct student *p1;
+p1 = (struct student *)malloc(sizeof(struct student));</code></pre>
+
+<h4 id="s24">访问成员方法</h4>
+
+<p><strong>使用 <code>-&gt;</code> 访问成员。</strong></p>
+
+<pre><code>(*p1).age = 18;
+strcpy((*p1).name, "cuihua");
+(*p1).num = 119;</code></pre>
+
+<blockquote>注意避免野指针、空指针：1. 指针必须初始化（指向有效变量或 heap 空间）。2. 使用 <code>-&gt;</code> 之前先判断指针是否为 <code>NULL</code>。指针使用 <code>.</code> 访问成员 —— 不常用（需先 <code>(*p)</code> 解引用）。</blockquote>
+
+<h3 id="s25">非常规定义语法（了解）</h3>
+
+<pre><code>// 定义结构体类型的同时，定义 1 个结构体变量 s1，一个指针变量 s2
+struct student {
+    int age;
+    int num;
+    char name[10];
+} s1, *s2;
+
+// 匿名结构体：定义类型的同时定义 1 个结构体变量 s3，一个指针变量 s4
+struct {
+    int age;
+    int num;
+    char name[10];
+} s3, *s4;      // 无法再定义其他变量</code></pre>
+
+<h3 id="s26">结构体数组</h3>
+
+<pre><code>struct student {
+    int age;
+    int num;
+    char name[10];
+};
+
+struct student stu[5] = {{18, 1, "Andy"}, {19, 2, "Lucy"}, {118, 3, "李四"}};
+
+int n = sizeof(stu) / sizeof(stu[0]);
+for (int i = 0; i &lt; n; i++)
+{
+    printf("age=%d,num=%d,name=%s\n", stu[i].age, stu[i].num, stu[i].name);
+}</code></pre>
+
+<pre><code>struct student *stu;                             // 野指针
+// 得到的 heap 堆空间，当成数组使用
+stu = malloc(sizeof(struct student) * 3);       // 等价于 struct student stu[3];
+
+// 给数组的第 1 个元素赋值
+stu[0].age = 11;
+stu[0].num = 111;
+strcpy(stu[0].name, "aaa");
+
+// 给数组的第 2 个元素赋值
+stu[1].age = 22;
+stu[1].num = 222;
+strcpy(stu[1].name, "bbb");
+
+// 给数组的第 3 个元素赋值
+stu[2].age = 33;
+stu[2].num = 333;
+strcpy(stu[2].name, "ccc");
+
+// int n = sizeof(stu) / sizeof(stu[0]);   // 指针不能求元素个数！
+for (int i = 0; i &lt; 3; i++)
+{
+    printf("age=%d,num=%d,name=%s\n", stu[i].age, stu[i].num, stu[i].name);
+}
+
+free(stu);
+stu = NULL;</code></pre>
+
+<h3 id="s27">结构体嵌套</h3>
+
+<pre><code>struct person {
+    int age;
+    char name[10];
+};  // 类型
+
+struct student {
+    struct person man;      // person 类型的变量，作为 student 类型的成员
+    int id;
+    char addr[100];
+};
+
+int main(void)
+{
+    struct student stu = {{18, "zhaoliu"}, 1, "北京朝阳区"};
+
+    printf("age = %d\n", stu.man.age);
+    printf("name = %s\n", stu.man.name);
+    printf("addr = %s\n", stu.addr);
+
+    // 修改
+    stu.man.age = 119;
+    strcpy(stu.man.name, "张三丰");
+    strcpy(stu.addr, "武当山");
+
+    printf("\nage = %d\n", stu.man.age);
+    printf("name = %s\n", stu.man.name);
+    printf("addr = %s\n", stu.addr);
+
+    system("pause");
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<h3 id="s28">结构体变量赋值</h3>
+
+<p>主要应用于函数调用期间，实参给形参赋值。</p>
+
+<p><strong>要求</strong>：结构体变量赋值时，必须<strong>类型相同、成员个数一致、顺序一致</strong>。</p>
+
+<h3 id="s29">做函数参数、返回值</h3>
+
+<table><thead><tr><th>方式</th><th>说明</th></tr></thead><tbody><tr><td><strong>传值</strong></td><td>结构体变量做函数参数，将结构体变量的值（实参）拷贝一份给形参，<strong>形参、实参共 2 份结构体</strong></td></tr><tr><td><strong>传址</strong></td><td>结构体指针变量做函数参数，将结构体的地址值做实参拷贝一份给形参，<strong>形参、实参共 1 份结构体</strong></td></tr></tbody></table>
+
+<blockquote><strong>结论</strong>：结构体做函数参数、返回值时，通常采用<strong>"传址"</strong>方式，节省空间。</blockquote>
+
+<h3 id="s30">含有指针成员的结构体</h3>
+
+<pre><code>struct student {
+    int age;
+    int num;
+    char *name;     // 野指针
+};
+
+int main(void)
+{
+    struct student *p;      // 野指针
+
+    // 给 p 初始化堆空间
+    p = malloc(sizeof(struct student));
+    if (NULL == p)
+    {
+        printf("malloc p error\n");
+        return -1;
+    }
+
+    // 给成员变量 name 开辟堆空间
+    p-&gt;name = malloc(sizeof(char) * 100);
+    if (NULL == p-&gt;name)
+    {
+        printf("malloc p-&gt;name error\n");
+        return -1;
+    }
+
+    // 写数据到结构体中
+    p-&gt;age = 100;
+    p-&gt;num = 10;
+    strcpy(p-&gt;name, "张三丰");
+    printf("age=%d, name=%s, num=%d\n", p-&gt;age, p-&gt;name, p-&gt;num);
+
+    // 先释放内层空间
+    free(p-&gt;name);
+    p-&gt;name = NULL;
+
+    // 再释放外层
+    free(p);
+    p = NULL;
+
+    return 0;
+}</code></pre>
+
+<blockquote>记忆点：<strong>申请内存：先申请外层空间，再申请内层空间；释放内存：先释放内层空间，再释放外层空间。</strong></blockquote>
+
+<h3 id="s31">用二级指针给结构体指针分配空间</h3>
+
+<pre><code>void func08(struct student **m)
+{
+    *m = malloc(sizeof(struct student));
+    if (NULL == *m)
+    {
+        printf("malloc error\n");
+        return -1;
+    }
+
+    (*m)-&gt;age = 100;
+    (*m)-&gt;num = 1;
+    strcpy((*m)-&gt;name, "zyx");
+}
+
+int main(void)
+{
+    struct student *p = NULL;   // 空指针
+    func08(&amp;p);
+
+    printf("age=%d, name=%s, num=%d\n", p-&gt;age, p-&gt;name, p-&gt;num);
+
+    free(p);
+    p = NULL;
+
+    system("pause");
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<hr>
+
+<h2 id="s32">6. typedef 关键字</h2>
+
+<p><strong>作用</strong>：给现有的数据类型起别名。【注意】：<strong>不能定义新数据类型。</strong></p>
+
+<blockquote>通常使用 <code>typedef</code> 定义过的类型，添加一个 <code>_t</code> 结尾。</blockquote>
+
+<p><strong>定义语法</strong>：<code>typedef 旧类型名 新类型名 _t;</code></p>
+
+<pre><code>typedef unsigned int size_t;    // 给 unsigned int 起别名叫 size_t
+
+int a;              // a 是变量名
+typedef int a;      // a 变成了类型名
+a b;                // 定义一个整型变量 b（可读性差，不推荐这样用）</code></pre>
+
+<pre><code>typedef struct student {
+    int age;
+    int num;
+    char *name;     // 野指针
+} stu_t;            // 新类型名：stu_t
+
+// 定义变量
+struct student stu1;    // 依然可以正常使用
+stu_t stu2;             // 定义一个 struct student 类型的变量</code></pre>
+
+<pre><code>typedef long long int32_t;  // int 《----》 long long
+
+struct student {
+    int age;
+    int32_t num;
+    char *name;     // 野指针
+    int32_t num1;
+    int32_t num2;
+    int32_t num3;
+    int32_t num4;
+} stu_t;</code></pre>
+
+<h3 id="s33">使用 typedef 的好处</h3>
+
+<ol><li><strong>简化类型名。</strong></li><li><strong>便于代码的修改和维护。</strong></li></ol>
+
+<hr>
+
+<h2 id="s34">7. 共用体（联合体）</h2>
+
+<h3 id="s35">特性</h3>
+
+<ol><li>内部所有成员变量的<strong>地址一致</strong>，等同于整个联合体的地址。</li><li>联合体的<strong>大小</strong>，是内部成员变量中<strong>最大的那个成员的大小</strong>（对齐）。</li><li><strong>修改其中一个成员的值，其他成员的值也跟着变化。</strong></li></ol>
+
+<pre><code>union test {
+    char ch;
+    short sh;
+    int var;
+};  // 创建一个联合体类型</code></pre>
+
+<pre><code>typedef union test {
+    char ch;
+    short sh;
+    int var;
+} test_t;
+
+int main(void)
+{
+    test_t obj;
+    obj.var = 0x87654321;
+
+    printf("&amp;obj    = %p\n", &amp;obj);
+    printf("&amp;obj.ch = %p\n", &amp;obj.ch);
+    printf("&amp;obj.sh = %p\n", &amp;obj.sh);
+    printf("&amp;obj.var= %p\n", &amp;obj.var);
+
+    printf("sizeof(test_t) = %u\n", sizeof(test_t));
+
+    printf("var = %#x\n", obj.var);
+    printf("sh  = %#x\n", obj.sh);
+    printf("ch  = %#x\n", obj.ch);
+
+    obj.ch = 0xAA;                  // 只改了一个字节
+    printf("var = %#x\n", obj.var); // 其他成员也跟着变
+    printf("sh  = %#x\n", obj.sh);
+    printf("ch  = %#x\n", obj.ch);
+
+    system("pause");
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<blockquote>小端序机器上可以观察到：<code>obj.ch = 0xAA</code> 之后，<code>obj.var</code> 的最低字节变成了 <code>0xAA</code>（即 <code>0x876543AA</code>），说明三个成员共用同一块内存。</blockquote>
+</article>

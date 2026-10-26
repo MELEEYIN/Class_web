@@ -1,0 +1,386 @@
+<article data-learn-content>
+<h3 id="s1">1、注释</h3>
+
+<h4 id="s2">1.1 单行注释</h4>
+
+<ul><li>语法：// 待注释的内容</li><li>位置：可放在代码后，称之为行尾注释； 也可放代码上一行，称作行上注释。</li></ul>
+
+<pre><code>// 这是单行注释文字</code></pre>
+
+<h4 id="s3">1.2 多行注释</h4>
+
+<ul><li>语法：/<em> 待注释的内容 </em>/</li><li>注意：多⾏注释内，可以嵌套单⾏注释。 多⾏注释之间不能嵌套。</li></ul>
+
+<pre><code>/*
+这是多行注释文字
+这是多行注释文字
+这是多行注释文字
+*/
+注意：多行注释不能嵌套使用。</code></pre>
+
+<h4 id="s4">1.3 示例</h4>
+
+<pre><code>#include &lt;stdio.h&gt;
+/*
+这里
+是多行
+注释
+书写的内容
+*/
+int main(void) {
+    printf("HelloWorld\n");	// 这是单行注释，此行为输出 HelloWorld
+
+    // 单行注释，可以放在代码行尾，也可以放在行上
+	return 0;
+}</code></pre>
+
+<h4 id="s5">1.4 注释的小扩展</h4>
+
+<ul><li>注释的快捷键：Ctrl + K，Ctrl + C/U</li><li>注释擦除：注释的内容，不参与运行</li><li>注释的嵌套：不管是单行还是多行，最好都不要嵌套</li></ul>
+
+<h3 id="s6">2，关键字</h3>
+
+<p>关键字：在C语言中被赋予了特定含义的英文单词，一共有32个关键字</p>
+
+<p>但是不需要背，后面会挨个讲解，现在只要只有关键字的两个特点即可：</p>
+
+<ul><li>关键字全部小写</li><li>在特定的编译器中，关键字是高亮显示的</li></ul>
+
+<p>vs：蓝色或者紫色</p>
+
+<p>vs：蓝色</p>
+
+<pre><code>auto  break  case  char  const  continue  default  do  double else  enum
+extern float  for  goto  if  int  long  register   return  short  signed
+sizeof  static struct  switch  typedef union  unsigned  void  volatile  while</code></pre>
+
+<p>现在知道两个关键字即可：</p>
+
+<p>int：表示整数</p>
+
+<p>return：表示程序结束了</p>
+
+<h3 id="s7">3, 常量</h3>
+
+<h4 id="s8">3.1 什么是常量</h4>
+
+<p>​	程序运行的过程中，其值永远不会发生改变的数据</p>
+
+<h4 id="s9">3.2 常量的分类</h4>
+
+<p>&lt;img src="img\常量.png" style="zoom:50%"&gt;</p>
+
+<h4 id="s10">3.3 练习</h4>
+
+<p>​	给你一组数据，说出下面每组数据中，分别是哪种类型的常量</p>
+
+<pre><code>0	:整形常量
+0.0	:实型常量
+-25	:整形常量
+123 :整形常量
+17.0:实型常量
+‘’  :语法错误
+‘ ’ :字符常量
+‘a’ :字符常量
+‘!’ :字符常量
+‘#’ :字符常量
+‘ab’:语法错误
+‘题’:语法错误
+‘￥’:语法错误
+“”  :字符串常量
+“你好”:字符串常量</code></pre>
+
+<h4 id="s11">3.4 细节补充</h4>
+
+<p>实型常量的小细节：</p>
+
+<ul><li>小数点前后，如果只有0，可以省略不写</li></ul>
+
+<pre><code>0.93 可以写成 .93
+18.0 可以写成 18.</code></pre>
+
+<ul><li>科学计数法是实型常量，但是要写E</li></ul>
+
+<pre><code>12340000 可以写成 1.2340000E7
+但是写成 1.234 * 10的7次方就错误了，因为这是一个计算过程，不是最终的数字</code></pre>
+
+<h4 id="s12">3.5 练习</h4>
+
+<ol><li>选择题：</li></ol>
+
+<pre><code>1. 以下选项中正确的整型常量是：B
+A） 12.		B) -20		C)  1,000		   D) 4 5 6</code></pre>
+
+<ol><li>选择题：</li></ol>
+
+<pre><code>2.以下选项中正确的实型常量是：D
+A） 0		B) -31		C)  0.329×102	  D) .871</code></pre>
+
+<ol><li>选择题</li></ol>
+
+<pre><code>3.以下选项中不正确的实型常量是:B
+A） 2.607E-1	B) 0.8103e 2	C)  -77.77	 D) 456e-2</code></pre>
+
+<ol><li>选择题</li></ol>
+
+<pre><code>4. 想要进行数学计算，下面正确的写法是： C
+A）“12”+ 13	B)“23”+“13” 	C) 13 + 23 	D)“1.2”+ 3.7</code></pre>
+
+<h4 id="s13">3.6 输出常量</h4>
+
+<p>利用printf集合占位符的方式可以输出常量</p>
+
+<p><strong>格式：</strong></p>
+
+<p>​	printf（参数1，参数2）；</p>
+
+<p>​	参数1：输出内容的最终样式，以字符串的形式体现 <strong>（必填）</strong></p>
+
+<p>​	参数2：填补的内容 <strong>（选填）</strong></p>
+
+<p><strong>占位符：</strong></p>
+
+<table><thead><tr><th>占位符</th><th>说明</th></tr></thead><tbody><tr><td>整形</td><td>%d</td></tr><tr><td>实型</td><td>%f</td></tr><tr><td>字符</td><td>%c</td></tr><tr><td>字符串</td><td>%s</td></tr></tbody></table>
+
+<p>举例1：</p>
+
+<p>​	输出一个整数</p>
+
+<pre><code>#include &lt;stdio.h&gt;
+int main()
+{
+    printf("%d", 10);
+    return 0;
+}</code></pre>
+
+<p>举例2：</p>
+
+<p>​	输出一个小数</p>
+
+<pre><code>#include &lt;stdio.h&gt;
+int main()
+{
+    printf("%f", 1.93);
+    return 0;
+}</code></pre>
+
+<p>举例3：</p>
+
+<p>​	输出一个字符</p>
+
+<pre><code>#include &lt;stdio.h&gt;
+int main()
+{
+    printf("%c", 'A');
+    return 0;
+}</code></pre>
+
+<p>举例4：</p>
+
+<p>​	输出一个字符串</p>
+
+<pre><code>#include &lt;stdio.h&gt;
+int main()
+{
+    // 第一种方式:
+    printf("Hello World!");
+    // 第二种方式：
+    printf("我的名字为：%s","尼古拉斯·纯情·暖男·天真·阿玮");
+    return 0;
+}</code></pre>
+
+<p>举例3：</p>
+
+<p>​	输出一段话</p>
+
+<pre><code>#include &lt;stdio.h&gt;
+int main()
+{
+    printf("阿玮的身高为：%f米", 1.93);
+    return 0;
+}</code></pre>
+
+<pre><code>#include &lt;stdio.h&gt;
+int main()
+{
+    printf("阿玮的年龄为：%d岁", 1.93);   // 【错误】%d 对应 int，实参却是 double
+    return 0;
+}</code></pre>
+
+<blockquote>上面这个 <code>%d</code> 配 <code>1.93</code> 是反面例子。<code>%d</code> 只从整数寄存器取值，而 <code>double</code> 走的是浮点寄存器，两者对不上，输出是随机值（编译时会警告 <code>format '%d' expects argument of type 'int', but argument 2 has type 'double'</code>）。存身高、体重这类小数，一律用 <code>%f</code>，见上面举例 3。</blockquote>
+
+<p><strong>作业练习：</strong></p>
+
+<p>按照要求输出以下内容：</p>
+
+<p>1，我学校的名字为：XXXXX</p>
+
+<p>​      要求：学校的名字需要结合占位符的形式进行输出</p>
+
+<p>2，我高考的总分为：XXX分</p>
+
+<p>​       要求：总分需要结合占位符的形式进行输出</p>
+
+<p>3，我亲亲女朋友的名字是：XXX</p>
+
+<p>​       要求：女朋友的名字需要结合占位符的形式进行输出</p>
+
+<pre><code>#include &lt;stdio.h&gt;
+int main()
+{
+    // 练习1：打印学校的名字
+    printf("我学校的名字为:%s","珞珈山职业技术学院");
+
+    // 练习2：打印高考的成绩
+    printf("我高考的总分为：%f分", 666.0);
+    return 0;
+}</code></pre>
+
+<h4 id="s14">3.7 输出多个常量</h4>
+
+<p>一个printf中可以同时输出多个数据，占位符和后面的数据要一一对应</p>
+
+<p>练习：输出以下内容：</p>
+
+<p>​	我亲亲女朋友的姓名是：小诗诗。性别：女。年龄：18岁。身高：1米82。体重：110斤。</p>
+
+<p>​	要求：女朋友的姓名，性别，年龄，身高，体重等信息需要结合占位符的形式进行输出</p>
+
+<pre><code>#include &lt;stdio.h&gt;
+int main()
+{
+    printf("我亲亲女朋友的姓名是：%s。性别：%s。年龄：%d岁。身高：%f。体重：%d斤", "小诗诗","女",18,1.82,110);
+    return 0;
+}</code></pre>
+
+<h4 id="s15">3.8 输出并换行</h4>
+
+<table><thead><tr><th>操作系统</th><th>换行符</th></tr></thead><tbody><tr><td>windows</td><td>\r\n</td></tr><tr><td>mac</td><td>\r</td></tr><tr><td>Linux</td><td>\n</td></tr></tbody></table>
+
+<p>平时写代码的时候，想要换行直接写\n即可，C语言会根据不同的操作系统解析成对应的换行符</p>
+
+<p>练习：输出以下内容</p>
+
+<p>​	我亲亲女朋友的姓名是：小丹丹。性别：女。年龄：19岁。身高：1米63。体重：90斤。</p>
+
+<p>要求1：女朋友的姓名，性别，年龄，身高，体重等信息需要结合占位符的形式进行输出</p>
+
+<p>要求2：每一个数据单独成一行</p>
+
+<pre><code>#include &lt;stdio.h&gt;
+
+int main()
+{
+	printf("我亲亲女朋友的姓名是：%s\n", "小丹丹");
+	printf("性别：%s\n", "女");
+	printf("年龄：%d岁\n", 19);
+	printf("身高：%f\n", 1.63);
+	printf("体重：%d斤\n", 90);
+	return 0;
+}</code></pre>
+
+<h3 id="s16">4，变量</h3>
+
+<h4 id="s17">4.1 变量的三要素</h4>
+
+<ol><li>变量名：用来在程序中使用。</li><li>变量类型：开辟内存空间大小。</li><li>变量值：存储的实际数据</li></ol>
+
+<p>&lt;img src="img\变量.png"&gt;</p>
+
+<h4 id="s18">4.2 变量定义：</h4>
+
+<p>​	类型名 变量名 = 变量值（一般都这么写）</p>
+
+<p>​	举例：</p>
+
+<p>​	int m = 57;</p>
+
+<p>会开辟内存空间给变量。变量声明不会开辟内存空间。</p>
+
+<p>代码演示：</p>
+
+<pre><code>#include &lt;stdio.h&gt;
+
+int main()
+{
+	// 1. 定义格式：
+    // 数据类型 变量名;
+    int a;
+    // 2. 赋值/修改值
+    // 变量名 = 数据值；
+    a = 10;
+
+    // 3. 如果定义的时候已经知道了变量中要存储什么样的数据
+    // 数据类型 变量名 = 数据值；
+    int b = 20;
+    return 0;
+}</code></pre>
+
+<p><strong>变量的练习</strong></p>
+
+<ol><li>两数相加</li></ol>
+
+<pre><code>#include &lt;stdio.h&gt;
+
+int main()
+{
+	//定义两个变量相加并求和
+    int a = 10;
+    int b = 20;
+    printf("%d\n", a + b);
+    return 0;
+}</code></pre>
+
+<ol><li>微信余额</li></ol>
+
+<p>用一个变量表示微信的余额需求:一开始微信的余额为100元，</p>
+
+<p>收到了一个2元的红包</p>
+
+<p>经常发生改变的数据，我们可以用变量来表示</p>
+
+<pre><code>#include &lt;stdio.h&gt;
+
+int main()
+{
+	//定义变量表示余额
+    int money = 100;
+    money = money + 2;
+    printf("%d\n", money);
+    return 0;
+}</code></pre>
+
+<h4 id="s19">4.3 变量的注意事项</h4>
+
+<ul><li>只能存一个值</li><li>变量名不允许重复定义</li><li>一条语句可以定义多个变量</li><li>变量在使用之前一定要进行赋值</li><li>变量的作用域范围</li></ul>
+
+<pre><code>#include &lt;stdio.h&gt;
+
+int main()
+{
+	// 1. 变量中只能存一个值
+	int a = 10;
+	printf("%d\n", a);
+
+	a = 20;
+	printf("%d\n", a);// 20
+
+	// 2. 变量名不允许重复
+	// int a = 20;
+	// printf("%d\n", a);
+
+	// 3.一条语句可以定义多个变量（了解）
+	int b = 10, c = 20, d = 30;
+	printf("%d\n", b);
+	printf("%d\n", c);
+	printf("%d\n", d);
+
+	// 4.变量在使用之前，一定要赋值
+	//int e;
+	//printf("%d\n", e);
+
+	// 5.变量的作用范围(暂时不讲)
+
+	return 0;
+}</code></pre>
+</article>

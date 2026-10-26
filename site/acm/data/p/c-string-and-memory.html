@@ -1,0 +1,561 @@
+<article data-learn-content>
+<h2 id="s1">1. 字符串练习（实现）</h2>
+
+<h3 id="s2">统计子串出现次数</h3>
+
+<pre><code>str    = "hellollolloabcllollollo"
+substr = "llo"
+写函数测试，"llo" 在 str 中出现了多少次。</code></pre>
+
+<h4 id="s3">先用 strstr() 函数</h4>
+
+<pre><code>#include &lt;string.h&gt;
+char *strstr(const char *haystack, const char *needle);
+char *strstr(const char *str, const char *substr);
+
+// 参1：原串
+// 参2：子串
+// 返回值：
+//     成功：返回子串在原串中的位置（地址值）
+//     失败：NULL</code></pre>
+
+<h4 id="s4">封装函数实现</h4>
+
+<pre><code>// 封装函数，统计 str 字符串中 substr 出现的次数
+int substr_times(char *str, char *substr)
+{
+    int count = 0;                      // 统计 substr 出现的次数
+    char *p = strstr(str, substr);      // ---&gt; "llolloabclloxyzllollo"
+
+    // 循环截取 str 串，判断剩余 str 串中是否包含 substr
+    while (p != NULL)                   // while (p)
+    {
+        count++;
+        p += strlen(substr);            // 跳过刚找到的子串
+        p = strstr(p, substr);
+    }
+    return count;
+}
+
+// 在 str 字符串中，找子串 substr 出现的次数
+int main(void)
+{
+    char str[] = "hell9oqqqlloabclloxyzlmlollo";
+    char substr[] = "llo";
+
+    int ret = substr_times(str, substr);
+    printf("%s 串中，%s 子串出现 %d 次\n", str, substr, ret);
+
+    system("pause");
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<h3 id="s5">求字符串中非空格元素个数</h3>
+
+<pre><code>// 统计非空格数
+int no_space_num(char *str)
+{
+    int count = 0;
+    // 指针方式实现
+    char *p = str;
+    while (*p)
+    {
+        if (*p != ' ')
+        {
+            count++;
+        }
+        p++;
+    }
+    return count;
+}
+
+int main(void)
+{
+    char str[] = "hello ni hao ma world?";
+    int ret = no_space_num(str);
+    printf("ret = %d\n", ret);
+
+    system("pause");
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<h3 id="s6">字符串逆置</h3>
+
+<pre><code>"hello" ---&gt; "olleh"
+"word"  ---&gt; "drow"</code></pre>
+
+<blockquote>参考"数组逆置"实现（day05）。</blockquote>
+
+<pre><code>// 字符串的逆序   h e l l o
+void str_inverse(char *str)
+{
+    char *start = str;                      // 记录首个元素的地址
+    char *end = str + strlen(str) - 1;      // 记录最后一个元素的地址
+
+    // 循环交换字符串首尾元素
+    while (start &lt; end)
+    {
+        char tmp = *start;  // 三杯水交换字符元素
+        *start = *end;
+        *end = tmp;
+
+        start++;    // 首元素指针后移
+        end--;      // 尾元素指针前移
+    }
+}
+
+int main(void)
+{
+    char str[] = "this is a test";
+    str_inverse(str);
+    printf("%s\n", str);
+
+    system("pause");
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<h3 id="s7">判断字符串是否为回文</h3>
+
+<pre><code>abcba       --- 是回文
+amkilolikma --- 是回文
+abccba      --- 是回文
+abcdba      --- 不是回文</code></pre>
+
+<pre><code>// 判断字符串是否是回文
+int str_is_abcba(char *str)
+{
+    char *start = str;
+    char *end = str + strlen(str) - 1;
+
+    while (start &lt; end)
+    {
+        if (*start != *end)
+        {
+            return 0;   // 不是回文
+        }
+        start++;
+        end--;
+    }
+    return 1;
+}
+
+int main(void)
+{
+    char str[] = "abcmnmcba";
+    int ret = str_is_abcba(str);
+
+    if (ret == 1)       // 是回文
+    {
+        printf("%s 是回文！\n", str);
+    }
+    else if (ret == 0)
+    {
+        printf("%s 不是回文！\n", str);
+    }
+
+    system("pause");
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<hr>
+
+<h2 id="s8">2. 字符串处理函数</h2>
+
+<blockquote>全部是标准 C 库函数，使用头文件 <code>#include &lt;string.h&gt;</code>。</blockquote>
+
+<h3 id="s9">字符串拷贝</h3>
+
+<h4 id="s10">strcpy</h4>
+
+<p>将 <code>src</code> 的内容拷贝给 <code>dest</code>，返回 <code>dest</code>。<strong><code>dest</code> 空间要足够大。</strong></p>
+
+<blockquote><code>strcpy</code> 函数<strong>不去检查</strong> <code>dest</code> 是否足够大 —— 【不安全函数】</blockquote>
+
+<pre><code>char *strcpy(char *dest, const char *src);    // src: source   dest: destination</code></pre>
+
+<pre><code>// 字符串拷贝
+int main(void)
+{
+    char str[] = "you will be die if you copy me!";
+    char dst[100] = {0};
+
+    char *p = strcpy(dst, str);
+    printf("dest = %s\n", dst);
+    printf("p = %s\n", p);
+
+    system("pause");
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<blockquote>函数调用结束，返回值与 <code>dest</code> 结果一致。</blockquote>
+
+<h4 id="s11">strncpy</h4>
+
+<p>将 <code>src</code> 的内容拷贝给 <code>dest</code>，<strong>只拷贝 n 个字节</strong>。<code>dest</code> 空间要足够大，通常 <code>n</code> 与 <code>dest</code> 的空间大小一致。</p>
+
+<p><strong>特性</strong>：</p>
+
+<ul><li><code>n &gt; src</code>：只拷贝 <code>src</code> 的大小。</li><li><code>n &lt; src</code>：只拷贝 <code>n</code> 个字节，<strong>不会自动添加 <code>\0</code></strong>。</li></ul>
+
+<pre><code>char *strncpy(char *dest, const char *src, size_t n);   // 安全</code></pre>
+
+<pre><code>// 测试
+int main(void)
+{
+    char str[] = "hello world";
+    char dst[100] = {0};
+
+    char *p = strncpy(dst, str, sizeof(dst));
+    printf("%s\n", p);
+
+    system("pause");
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<h3 id="s12">字符串拼接</h3>
+
+<h4 id="s13">strcat</h4>
+
+<p>将 <code>src</code> 中内容拼接到 <code>dest</code> 后，返回拼接成功的字符串。<strong>需要保证 <code>dest</code> 空间足够大。</strong>函数调用结束后，<code>dest</code> 和返回值结果相同。</p>
+
+<pre><code>char *strcat(char *dest, const char *src);</code></pre>
+
+<pre><code>int main(void)
+{
+    char str[] = "hello world";
+    char dst[100] = "haha hoho xixi";
+
+    char *p = strcat(dst, str);
+    printf("p = %s\n", p);
+    printf("dst = %s\n", dst);
+
+    system("pause");
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<h4 id="s14">strncat</h4>
+
+<p>将 <code>src</code> 中前 <code>n</code> 个字符拼接到 <code>dest</code> 后，返回拼接成功的字符串。<strong>需要保证 <code>dest</code> 空间足够大。</strong></p>
+
+<pre><code>char *strncat(char *dest, const char *src, size_t n);</code></pre>
+
+<pre><code>// 字符串拼接 strncat
+int main(void)
+{
+    char str[] = "hello world";
+    char dst[100] = "haha hoho xixi";
+
+    char *p = strncat(dst, str, 7);
+    printf("p = %s\n", p);
+    printf("dst = %s\n", dst);
+
+    system("pause");
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<h3 id="s15">字符串比较</h3>
+
+<blockquote>字符比较可以使用 <code>&gt; &lt; &lt;= &gt;= == !=</code>，<strong>字符串比较不允许使用</strong>。</blockquote>
+
+<h4 id="s16">strcmp</h4>
+
+<p>比较 <code>s1</code> 和 <code>s2</code> 两个字符串：</p>
+
+<ul><li>如果相等，返回 <code>0</code>；</li><li>如果不相等，进一步比 <code>s1</code> 和 <code>s2</code> 对应位上的 <strong>ASCII 码值</strong>：  <code>s1 &gt; s2</code> 返回 <code>1</code>，<code>s1 &lt; s2</code> 返回 <code>-1</code>。</li></ul>
+
+<pre><code>int strcmp(const char *s1, const char *s2);</code></pre>
+
+<pre><code>int main(void)
+{
+    char s1[] = "helloz";
+    char s2[] = "helloaworld";
+    printf("ret = %d\n", strcmp(s1, s2));   // 不比较 ASCII 的和
+
+    system("pause");
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<h4 id="s17">strncmp</h4>
+
+<p>比较 <code>s1</code> 和 <code>s2</code> 两个字符串的<strong>前 n 个字符</strong>：相等返回 <code>0</code>；否则继续比对应位的 ASCII 码值。</p>
+
+<pre><code>int strncmp(const char *s1, const char *s2, size_t n);</code></pre>
+
+<pre><code>char s1[] = "helloz";
+char s2[] = "helloaworld";
+printf("ret = %d\n", strncmp(s1, s2, 5));   // ---&gt; 0</code></pre>
+
+<h3 id="s18">字符串格式化输入、输出</h3>
+
+<blockquote><code>s</code> 代表 string（字符串）。</blockquote>
+
+<h4 id="s19">sprintf</h4>
+
+<p>对应 <code>printf</code> 记忆。作用：将原来输出到屏幕的"格式化字符串"，写到参1的 <code>str</code> 中。</p>
+
+<pre><code>int sprintf(char *str, const char *format, ...);
+// ... 代表这是一个参数可变的函数</code></pre>
+
+<pre><code>// printf("%d + %d = %d\n", 10, 24, 10+24);
+char str[1024] = {0};   // 保证空间足够大
+sprintf(str, "%d + %d = %d\n", 10, 24, 10 + 24);    // 写到 str 中，不打印屏幕
+puts(str);
+printf("---%s", str);</code></pre>
+
+<h4 id="s20">sscanf</h4>
+
+<p>对应 <code>scanf</code> 记忆。作用：将原来从键盘获取的"格式化字符串"，从参1的 <code>str</code> 中获取。</p>
+
+<pre><code>int sscanf(const char *str, const char *format, ...);</code></pre>
+
+<pre><code>int a, b, c;
+// scanf("%d+%d=%d", &amp;a, &amp;b, &amp;c);   // 从键盘 stdin 读取
+
+char str[] = "10+20=30";            // 提供给 sscanf 参1 使用
+int ret = sscanf(str, "%d+%d=%d", &amp;a, &amp;b, &amp;c);
+
+printf("a = %d\n", a);
+printf("b = %d\n", b);
+printf("c = %d\n", c);</code></pre>
+
+<h3 id="s21">字符串查找字符、子串</h3>
+
+<h4 id="s22">strchr</h4>
+
+<p>在字符串 <code>s</code> 中，找字符 <code>c</code> 出现的位置，返回字符在字符串中的地址。</p>
+
+<pre><code>char *strchr(const char *s, int c);</code></pre>
+
+<h4 id="s23">strrchr</h4>
+
+<p><code>r</code> 代表 right：<strong>自右向左</strong>在字符串 <code>s</code> 中找字符 <code>c</code> 出现的位置，返回该字符在字符串中的地址。</p>
+
+<pre><code>char *strrchr(const char *s, int c);</code></pre>
+
+<h4 id="s24">strstr</h4>
+
+<p>在字符串 <code>str</code> 中，找寻子串 <code>substr</code> <strong>第一次出现</strong>的位置，返回地址。</p>
+
+<pre><code>char *strstr(const char *str, const char *substr);</code></pre>
+
+<h3 id="s25">字符串分割</h3>
+
+<h4 id="s26">strtok</h4>
+
+<p>按照（参2）既定的分割符来拆分字符串。如 <code>www.baidu.com</code> 按 <code>"."</code> 拆分。</p>
+
+<pre><code>char *strtok(char *str, const char *delim);
+// 参1：待拆分字符串
+// 参2：分割符组成的字符串。strtok("www.baidu.com", ".");   // 写成 '.' 是错的！</code></pre>
+
+<p><strong>结论：</strong></p>
+
+<ol><li><code>strtok()</code> 函数<strong>直接在原串上</strong>对字符串分割，<strong>不能分割字符串常量</strong>（如 <code>char *str = "hello";</code>）。</li><li><code>strtok()</code> 函数调用结束，会将<strong>分割符替换成 <code>'\0'</code></strong>。</li><li>第一次用 <code>strtok</code> 拆分，参1 传待拆分的原串；第 <code>1+</code> 次拆分，参1 传 <code>NULL</code>。</li></ol>
+
+<pre><code>// 测试 1：
+int main(void)
+{
+    char str[] = "www.itcast.cn";       // ---&gt; "www\0itcast.cn"
+    char *p = strtok(str, ".");         // strtok 调用完成，会将分割符用 \0 替换
+    printf("p = %s\n", p);
+
+    // 调用一次 strtok 分割之后，再去打印原串 str
+    for (size_t i = 0; i &lt; 13; i++)
+    {
+        printf("%d\n", str[i]);         // 打印每个字符的 ASCII 码
+    }
+
+    system("pause");
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<p><strong>练习</strong>：拆分字符串 <code>"www.itcast.cn$This is a test$for strtok"</code>，按分割符 <code>". $"</code> 拆分。</p>
+
+<h3 id="s27">字符串转换</h3>
+
+<blockquote><code>a</code> 代表字符串 string。将字符串转整数、小数、长整数、长长整型。</blockquote>
+
+<p><strong>使用要求</strong>：原串必须是<strong>可转换</strong>的字符串。错误用法：<code>"abc123"</code>、<code>"xyac123"</code>、<code>"1245dke89"</code> 不能正确转换。</p>
+
+<pre><code>#include &lt;stdlib.h&gt;
+int atoi(const char *nptr);
+double atof(const char *nptr);
+long atol(const char *nptr);
+long long atoll(const char *nptr);</code></pre>
+
+<pre><code>char str1[] = "12abc3456";
+int num = atoi(str1);
+printf("num = %d\n", num);
+
+char str2[] = "3.14";
+double num2 = atof(str2);
+printf("num2 = %lf\n", num2);
+
+char str3[] = "34568490354";
+long long num3 = atoll(str3);
+printf("num3 = %lld\n", num3);</code></pre>
+
+<hr>
+
+<h2 id="s28">3. 内存管理</h2>
+
+<h3 id="s29">局部变量</h3>
+
+<ul><li><strong>概念</strong>：定义在函数内部的变量。</li><li><strong>作用域</strong>：从定义位置开始，到包裹该变量的第一个右大括号结束（函数作用域、块作用域）。</li></ul>
+
+<pre><code>void test(void)
+{
+    {
+        int m = 10;     // 局部变量 —— 块作用域，出了 } 不能使用
+    }
+    // printf("---m = %d\n", m);    // 错误
+
+    for (size_t i = 0; i &lt; 10; i++)
+    {
+        printf("i = %d\n", i);
+    }
+    // printf("i = %d\n", i);       // 错误：i 的作用域只在 for 内
+}</code></pre>
+
+<h3 id="s30">全局变量</h3>
+
+<ul><li><strong>概念</strong>：定义在函数外部的变量。</li><li><strong>作用域</strong>：从定义位置开始，默认到本文件内部。其他文件如果想使用，  可以通过"声明"的方式将作用域导出。</li></ul>
+
+<h3 id="s31">static 变量</h3>
+
+<h4 id="s32">static 全局变量</h4>
+
+<ul><li><strong>定义语法</strong>：在全局变量定义之前添加 <code>static</code> 关键字，如 <code>static int a = 10;</code></li><li><strong>作用域</strong>：被限制在<strong>本文件内部</strong>，不允许通过"声明"方式导出作用域。（Java 不同）</li></ul>
+
+<h4 id="s33">static 局部变量</h4>
+
+<ul><li><strong>定义语法</strong>：在局部变量定义之前添加 <code>static</code> 关键字。</li><li><strong>作用域</strong>：从定义位置开始，到包裹该变量的第一个右大括号结束。</li><li><strong>特性</strong>：静态局部变量<strong>只定义一次</strong>，相当于在全局位置定义。<strong>通常用来做计数器。</strong></li></ul>
+
+<h3 id="s34">static 函数</h3>
+
+<ul><li><strong>全局函数</strong>：就是我们说的"函数"。定义语法：函数原型 + 函数体。</li><li><strong>static 函数</strong>：定义语法：<code>static</code> + 函数原型 + 函数体。</li><li><strong>特性</strong>：<code>static</code> 函数只能在<strong>本文件内</strong>使用，其他文件即使声明也无法使用。</li></ul>
+
+<pre><code>// A.c 文件中有如下代码
+// static 关键字能将 test09 函数限制在本文件内，外部文件不能访问
+static void test09(void)
+{
+    for (size_t i = 0; i &lt; 5; i++)
+    {
+        printf("i = %d\n", i);
+    }
+}</code></pre>
+
+<pre><code>// B.c 文件中调用上述函数：由于 static，B.c 不能使用 test09 函数，会报错！
+#define _CRT_SECURE_NO_WARNINGS
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdlib.h&gt;
+
+// void test09(void);           // 声明函数（普通声明）
+extern void test09(void);       // 声明函数（extern 声明）
+
+int main(void)
+{
+    test09();
+    system("pause");
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<h3 id="s35">xxxxxxxxxx int a[] = {10};int b[] = {20};int c[] = {30};​int <em>arr[] = {a, b, c};             // 存地址​printf("arr[0][0] = %d\n", arr[0][0]);printf("</em>(<em>(arr+0)) = %d\n", </em>(*(arr + 0)));printf("<strong>arr = %d\n", </strong>arr);      // 二级指针的间接引用c</h3>
+
+<blockquote><strong>助记</strong>：生命周期 —— 出生到死亡（80 岁），就是这 80 年；作用域 —— 班长管全班，村长管全村，县长管全县。</blockquote>
+
+<ol><li><strong>局部变量</strong>：定义位置开始，函数调用结束（存储在栈 stack 上）—— 函数被调用期间。</li><li><strong>全局变量</strong>：从程序启动开始（早于 <code>main()</code> 函数），程序终止结束 —— 程序执行期间。</li><li><strong>static 局部变量</strong>：从程序启动开始，程序终止结束（定义在全局位置）—— 程序执行期间。</li><li><strong>static 全局变量</strong>：从程序启动开始，程序终止结束 —— 程序执行期间。</li><li><strong>全局函数</strong>：从程序启动开始，程序终止结束 —— 程序执行期间。</li><li><strong>static 函数</strong>：从程序启动开始，程序终止结束 —— 程序执行期间。</li></ol>
+
+<h3 id="s36">命名冲突</h3>
+
+<p>如果全局变量和局部变量命名冲突，采用<strong>就近原则</strong>。</p>
+
+<blockquote><strong>强烈不推荐！</strong></blockquote>
+
+<hr>
+
+<h2 id="s37">4. 内存 4 区模型</h2>
+
+<table><thead><tr><th>区域</th><th>说明</th></tr></thead><tbody><tr><td><strong>代码段</strong></td><td><code>.text</code> 段，存储程序源码（二进制形式）</td></tr><tr><td><strong>数据段</strong></td><td>只读数据段 <code>.rodata</code>、初始化数据段 <code>.data</code>、未初始化数据段 <code>.bss</code></td></tr><tr><td><strong>stack 栈</strong></td><td>在其之上开辟栈帧。（较小：Windows 1M~10M，Linux 8M~16M）&lt;br&gt;存储特性：后进先出 FILO（LIFO）</td></tr><tr><td><strong>heap 堆</strong></td><td>给用户自定义提供空间。（较大：约 1.3G 上下）</td></tr></tbody></table>
+
+<hr>
+
+<h2 id="s38">5. Heap 堆空间</h2>
+
+<h3 id="s39">在 heap 上开辟空间</h3>
+
+<pre><code>#include &lt;stdlib.h&gt;
+void *malloc(size_t size);      // 向系统申请内存空间，在 heap 上。单位：字节
+
+// 参数：申请空间的大小
+// 返回值：
+//     成功：heap 上内存空间的首地址
+//     失败：NULL
+
+// 申请成功的内存，通常拿来当成"数组"使用</code></pre>
+
+<h3 id="s40">释放 heap 申请的空间</h3>
+
+<pre><code>void free(void *ptr);
+// 参：就是 malloc 函数的返回值</code></pre>
+
+<h3 id="s41">示例</h3>
+
+<pre><code>int main(void)
+{
+    // int arr[10];
+    // 申请能存储 10 个 int 数的空间，40 字节
+    int *p = (int *)malloc(sizeof(int) * 10);   // 强转的目的：方便阅读代码
+
+    if (p == NULL)
+    {
+        printf("malloc error\n");
+        return -1;      // 退出程序。-1 表示非正常结束
+    }
+
+    // 写数据到 malloc 申请的空间
+    for (size_t i = 0; i &lt; 10; i++)
+    {
+        p[i] = i + 10;
+    }
+
+    // 从 malloc 申请的空间中读数据
+    for (size_t i = 0; i &lt; 10; i++)
+    {
+        printf("%d ", *(p + i));
+    }
+    printf("\n");
+
+    // 释放 malloc 申请的空间
+    free(p);
+
+    system("pause");
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<h3 id="s42">使用 heap 空间注意事项</h3>
+
+<ol><li>申请的 heap 堆内存空间<strong>连续</strong>，当成"数组"使用。</li><li><code>free</code> 后的空间<strong>不会立即失效</strong>。通常将 <code>free</code> 后的地址置为 <code>NULL</code>。</li><li><code>free</code> 的地址<strong>必须是 <code>malloc</code> 函数返回的地址</strong>，否则报错！</li><li>如果 <code>malloc</code> 后的地址一定会变化，通常使用临时变量 <code>tmp</code> 保存。</li></ol>
+
+<blockquote>补充：二级指针对应的 heap 空间用法同理。</blockquote>
+
+<hr>
+
+<h2 id="s43">6. 内存操作函数</h2>
+
+<pre><code>#include &lt;string.h&gt;
+
+void *memset(void *s, int c, size_t n);
+void *memcpy(void *dest, const void *src, size_t n);
+void *memmove(void *dest, const void *src, size_t n);
+int   memcmp(const void *s1, const void *s2, size_t n);</code></pre>
+
+<table><thead><tr><th>函数</th><th>作用</th></tr></thead><tbody><tr><td><code>memset</code></td><td>把一块内存的前 n 个字节都设置为某个值</td></tr><tr><td><code>memcpy</code></td><td>内存拷贝（源与目标<strong>不重叠</strong>时使用）</td></tr><tr><td><code>memmove</code></td><td>内存拷贝（源与目标<strong>可重叠</strong>，更安全）</td></tr><tr><td><code>memcmp</code></td><td>按字节比较两块内存</td></tr></tbody></table>
+
+<hr>
+
+<h2 id="s44">7. 内存常见问题（提醒）</h2>
+
+<ul><li>使用未初始化的指针（野指针）。</li><li><code>malloc</code> 之后不 <code>free</code>（内存泄漏）。</li><li><code>free</code> 之后继续使用（悬空指针）。</li><li><code>free</code> 非 <code>malloc</code> 返回的地址。</li><li>数组越界读写。</li></ul>
+</article>

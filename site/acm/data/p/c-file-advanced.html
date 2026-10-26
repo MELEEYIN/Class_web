@@ -1,0 +1,494 @@
+<article data-learn-content>
+<h2 id="s1">1. 格式化读写文件</h2>
+
+<h3 id="s2">fprintf 函数</h3>
+
+<blockquote>记忆链条：<code>printf</code> ---- <code>sprintf</code> ---- <code>fprintf</code></blockquote>
+
+<p><strong>变参函数</strong>：参数列表中有 <code>...</code>，最后一个固定参数通常是一个模式描述串（包含格式匹配符）；函数实际调用时传递的参数的<strong>个数、类型、顺序</strong>，由这个固定参数决定。</p>
+
+<pre><code>printf("hello");
+printf("%s", "hello");
+printf("%d = %d%c%d\n", 10 + 5, 10, '+', 5);        // ----&gt; 屏幕
+
+char buf[1024];                                      // 内存空间 —— 缓冲区
+sprintf(buf, "%d = %d%c%d\n", 10 + 5, 10, '+', 5);   // ----&gt; buf 中</code></pre>
+
+<pre><code>#include &lt;stdio.h&gt;
+int fprintf(FILE *stream, const char *format, ...);  // ----&gt; 文件 fp 中</code></pre>
+
+<pre><code>FILE *fp = fopen("abc", "w");   // 相对路径法
+if (!fp)                        // 等价于 NULL == fp
+{
+    perror("fopen error");
+    return -1;
+}
+
+fprintf(fp, "%d%c%d=%d\n", 10, '+', 7, 10 + 7);
+
+fclose(fp);</code></pre>
+
+<h3 id="s3">fscanf 函数</h3>
+
+<blockquote>记忆链条：<code>scanf</code> ---- <code>sscanf</code> ----- <code>fscanf</code></blockquote>
+
+<pre><code>int m;
+scanf("%d", &amp;m);            // 键盘 ---&gt; m
+
+char str[] = "98";
+sscanf(str, "%d", &amp;m);      // str ----&gt; m
+
+FILE *fp = fopen("r");
+fscanf(fp, "%d", &amp;m);       // fp 指向的文件中 ---&gt; m</code></pre>
+
+<pre><code>int a, b, c;
+char ch;
+
+FILE *fp = fopen("abc", "r");   // 相对路径法
+if (!fp)
+{
+    perror("fopen error");
+    return -1;
+}
+
+(void)fscanf(fp, "%d%c%d=%d\n", &amp;a, &amp;ch, &amp;b, &amp;c);
+
+printf("a = %d\n", a);
+printf("b = %d\n", b);
+printf("c = %d\n", c);
+printf("ch = %c\n", ch);
+printf("%d%c%d=%d\n", a, ch, b, c);
+
+fclose(fp);</code></pre>
+
+<h3 id="s4">格式化读写特性（扩展知识）</h3>
+
+<h4 id="s5">返回值</h4>
+
+<ul><li><strong><code>fprintf()</code> 的返回值</strong>：成功 —— 实际写入文件的字符个数；失败 —— <code>-1</code></li><li><strong><code>fscanf()</code> 的返回值</strong>：成功 —— 正确匹配的个数；失败 —— <code>-1</code></li></ul>
+
+<h4 id="s6">fscanf 读取特性</h4>
+
+<ol><li><strong>边界溢出问题</strong>：存储读取数据的空间，在使用之前应该进行清空，否则会出现边界溢出异常。  清空方法：<code>memset(buf, 0, sizeof(buf));</code></li><li><code>fscanf</code> 函数每次在调用的同时，都会判断下一次调用是否能成功匹配参2；  如果不匹配，<strong>提前结束读取文件</strong>（此时 <code>feof(fp)</code> 为真）。</li></ol>
+
+<pre><code>int fprintf(FILE *stream, const char *format, ...);
+int fscanf(FILE *stream, const char *format, ...);</code></pre>
+
+<hr>
+
+<h2 id="s7">2. 练习：文件版排序</h2>
+
+<p><strong>要求</strong>：生成随机数写入文件；将文件内乱序随机数读出，排好序再写回文件。</p>
+
+<pre><code>// 生成随机数，写入文件
+void write_rand(void)
+{
+    FILE *fp = fopen("test03.txt", "w");    // 相对路径法
+    if (!fp)
+    {
+        perror("fopen error");
+        return;
+    }
+
+    // 播种随机数种子
+    srand(time(NULL));
+    for (size_t i = 0; i &lt; 10; i++)
+    {
+        // int num = rand() % 100;              // 0 -- 99
+        fprintf(fp, "%d\n", rand() % 100);      // 将生成的随机数写入文件
+    }
+
+    fclose(fp);
+}
+
+void BubbleSort(int *src, int len)
+{
+    for (int i = 0; i &lt; len - 1; i++)
+    {
+        for (int j = 0; j &lt; len - 1 - i; j++)
+        {
+            if (src[j] &gt; src[j + 1])
+            {
+                int temp = src[j];
+                src[j] = src[j + 1];
+                src[j + 1] = temp;
+            }
+        }
+    }
+}
+
+// 从文件中读取随机数
+void read_rand(void)
+{
+    // 定义数组，存储 10 个随机数
+    int arr[10] = {0}, i = 0;
+
+    FILE *fp = fopen("test03.txt", "r");    // 相对路径法
+    if (!fp)
+    {
+        perror("fopen error");
+        return;
+    }
+
+    // 循环读取文件内的随机数
+    while (1)
+    {
+        (void)fscanf(fp, "%d\n", &amp;arr[i]);
+        i++;
+        if (feof(fp))       // 先存储，后判断，防止最后一个元素丢失
+            break;
+    }
+
+    // 使用冒泡排序
+    BubbleSort(arr, sizeof(arr) / sizeof(arr[0]));
+    fclose(fp);             // 关闭随机数据的文件
+
+    // 清空随机数据的文件
+    fp = fopen("test03.txt", "w");
+    if (!fp)
+    {
+        perror("fopen error");
+        return;
+    }
+
+    for (size_t i = 0; i &lt; 10; i++)
+    {
+        fprintf(fp, "%d\n", arr[i]);    // 将排好序的数组写入文件
+    }
+    fclose(fp);
+}
+
+int main(void)
+{
+    write_rand();
+    getchar();      // 从键盘获取一个字符，用户不输入则阻塞程序，不向下执行
+    read_rand();
+    printf("--------------finish\n");
+
+    system("pause");
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<blockquote><strong>关键点</strong>：<code>feof</code> 要"先存储、后判断"，否则会丢掉最后一个元素。</blockquote>
+
+<hr>
+
+<h2 id="s8">3. 按块读写文件</h2>
+
+<table><thead><tr><th>函数组</th><th>适用</th></tr></thead><tbody><tr><td><code>fgetc</code> - <code>fputc</code></td><td>默认用来处理<strong>文本文件</strong></td></tr><tr><td><code>fgets</code> - <code>fputs</code></td><td>默认用来处理<strong>文本文件</strong></td></tr><tr><td><code>fprintf</code> - <code>fscanf</code></td><td>默认用来处理<strong>文本文件</strong></td></tr><tr><td><strong><code>fwrite</code> - <code>fread</code></strong></td><td><strong>既可以处理文本文件，也可以处理二进制文件</strong></td></tr></tbody></table>
+
+<h3 id="s9">fwrite 函数</h3>
+
+<p>写出数据到文件中。</p>
+
+<pre><code>#include &lt;stdio.h&gt;
+size_t fwrite(const void *ptr, size_t size, size_t nmemb, FILE *stream);
+
+// 参1：待写出数据的首地址
+// 参2：待写出数据的大小（一次写多大）
+// 参3：写出的个数（写多少次）    写出数据的总大小 = 参2 x 参3
+// 参4：文件 fp
+// 返回值：
+//     成功：永远返回参3。通常调用函数时把参2 传 1，参3 代表实际写出的字节数
+//     失败：0</code></pre>
+
+<blockquote><code>fwrite</code> 函数写入数据到文件时，是<strong>按二进制写入</strong>。</blockquote>
+
+<pre><code>typedef struct student {
+    int age;
+    char name[10];
+    int num;
+} stu_t;
+
+// 按块写文件，fwrite
+void write_struct(void)
+{
+    // 定义结构体数组
+    stu_t stu[4] = {
+        18, "afei", 10,
+        20, "andy", 20,
+        30, "lily", 30,
+        16, "james", 40
+    };
+
+    FILE *fp = fopen("test04.txt", "w");    // 相对路径法
+    if (!fp)
+    {
+        perror("fopen error");
+        return;
+    }
+
+    int ret = fwrite(&amp;stu[0], 1, sizeof(stu_t) * 4, fp);
+    if (ret == 0)
+    {
+        perror("fwrite error");
+        return;
+    }
+    printf("ret = %d\n", ret);
+
+    fclose(fp);
+}</code></pre>
+
+<h3 id="s10">fread 函数</h3>
+
+<p>从文件 <code>fp</code> 中读取数据。</p>
+
+<pre><code>size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream);
+
+// 参1：读取到的数据存放的地址
+// 参2：一次读取数据的字节数（一次读多大）
+// 参3：读多少次              读出数据的总大小 = 参2 x 参3
+// 参4：文件 fp
+// 返回值：
+//     成功：永远返回参3。通常把参2 传 1，参3 代表实际读出的字节数
+//     0 ： 1）读失败
+//          2）到达文件结尾 == feof(fp) 为真</code></pre>
+
+<pre><code>typedef struct student {
+    int age;
+    char name[10];
+    int num;
+    // char addr[100];
+} stu_t;
+
+// 按块读文件，fread，一次读一个 stu_t 元素
+void read_struct(void)
+{
+    FILE *fp = fopen("test04.txt", "r");    // 相对路径法
+    if (!fp)
+    {
+        perror("fopen error");
+        return;
+    }
+
+    stu_t s1;
+    // 从文件中按块读取
+    int ret = fread(&amp;s1, 1, sizeof(stu_t), fp);
+    printf("ret = %d\n", ret);
+    printf("age=%d, name=%s, num=%d\n", s1.age, s1.name, s1.num);
+
+    fclose(fp);
+}
+
+// 按块读文件，fread，一次读所有 stu_t 元素
+void read_struct2(void)
+{
+    FILE *fp = fopen("test04.txt", "r");    // 相对路径法
+    if (!fp)
+    {
+        perror("fopen error");
+        return;
+    }
+
+    stu_t s1[10];   // 也可写成 stu_t *s1 = malloc(sizeof(stu_t) * 1024);
+    int i = 0;
+
+    // 从文件中循环按块读取
+    while (1)
+    {
+        int ret = fread(&amp;s1[i], 1, sizeof(stu_t), fp);
+        // if (ret == 0)                // 效果一样
+        if (feof(fp))                   // 效果一样
+        {
+            printf("读取到文件结尾\n");
+            break;
+        }
+        printf("age=%d, name=%s, num=%d\n", s1[i].age, s1[i].name, s1[i].num);
+        i++;
+    }
+
+    fclose(fp);
+}</code></pre>
+
+<hr>
+
+<h2 id="s11">4. 练习：大文件拷贝</h2>
+
+<p><strong>要求</strong>：已知一个任意类型的文件，对该文件复制，产生一个相同的新文件。</p>
+
+<h3 id="s12">实现思路</h3>
+
+<ol><li>打开两个文件，一个 <code>"r"</code>，另一个 <code>"w"</code>。</li><li>从 <code>r</code> 中 <code>fread</code>，<code>fwrite</code> 写到 <code>w</code> 文件中。</li><li>循环读，判断到达文件结尾，跳出循环。</li><li>关闭 2 个文件。</li></ol>
+
+<blockquote><strong>注意</strong>：在 Windows 下，打开二进制文件（mp4、MP3、avi、jpg）读写需要加 <code>"b"</code>，如 <code>"rb"</code>、<code>"wb"</code>。</blockquote>
+
+<pre><code>int main(void)
+{
+    // 创建一个缓冲区（内存空间），用来存储读到的数据
+    char buf[4096] = {0};
+    int ret = 0;
+
+    FILE *rfp = fopen("C:\\Users\\afei\\Desktop\\TTTTTT\\11-午后回顾.avi", "rb");
+    if (!rfp)
+    {
+        perror("fopen error");
+        return -1;
+    }
+
+    FILE *wfp = fopen("mycopy.avi", "wb");
+    if (!wfp)
+    {
+        perror("fopen error");
+        return -1;
+    }
+
+    // 循环从文件中读，写到另一个文件中
+    while (1)
+    {
+        ret = fread(buf, 1, sizeof(buf), rfp);
+        if (ret == 0)
+        {
+            break;      // 读到文件末尾
+        }
+        printf("ret = %d\n", ret);
+
+        // 没有读到文件末尾，将实际读到的数据"原封不动地"写入 wfp 中
+        fwrite(buf, 1, ret, wfp);
+    }
+
+    fclose(rfp);
+    fclose(wfp);
+
+    system("pause");
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<hr>
+
+<h2 id="s13">5. 随机位置读写文件</h2>
+
+<blockquote><strong>强调</strong>：文件读写指针在一个文件内<strong>只有一个</strong>，读、写都使用这一个。</blockquote>
+
+<h3 id="s14">fseek</h3>
+
+<pre><code>#include &lt;stdio.h&gt;
+int fseek(FILE *stream, long offset, int whence);   // 修改文件偏移量（文件读写指针）
+
+// 参1：文件 fp
+// 参2：偏移量（矢量：正数向后，负数向前）
+// 参3：偏移的起始位置
+//         SEEK_SET：文件开头位置
+//         SEEK_CUR：当前位置
+//         SEEK_END：文件结尾位置
+// 返回值：成功 0，失败 -1</code></pre>
+
+<h3 id="s15">ftell</h3>
+
+<pre><code>long ftell(FILE *stream);   // 获取文件偏移量（文件读写指针位置）
+
+// 返回值：从当前读写位置到文件起始位置的偏移量</code></pre>
+
+<blockquote>借助 <code>ftell(fp)</code> + <code>fseek(fp, 0, SEEK_END)</code> 可以获取文件大小。</blockquote>
+
+<h3 id="s16">rewind</h3>
+
+<pre><code>void rewind(FILE *stream);  // 回卷文件读写指针，将文件读写指针移动到起始位置
+// 相当于：fseek(fp, 0, SEEK_SET);</code></pre>
+
+<hr>
+
+<h2 id="s17">6. 其他文件相关操作</h2>
+
+<h3 id="s18">Linux 和 Windows 文件区别</h3>
+
+<ol><li>对于二进制文件操作，<strong>Windows 下必须要使用 <code>"b"</code></strong>；Linux 下二进制文件和文本文件操作没区别。</li><li><strong>Windows 下的回车换行是 <code>\r\n</code></strong>（回车 <code>\r</code>、换行 <code>\n</code>）；<strong>Linux 下回车换行是 <code>\n</code></strong>。</li><li>对文件指针：  <strong>先写后读</strong>：可以直接操作，Windows 和 Linux 一致。 <strong>先读后写</strong>：Linux 无需修改；<strong>Windows 下需要在写操作之前添加 <code>fseek(fp, 0, SEEK_CUR)</code> 函数调用</strong>，获取文件读写指针，再来写才能生效。</li></ol>
+
+<pre><code>int main(int argc, char *argv[])
+{
+    FILE *fp = fopen("test1.txt", "r+");
+    char buf[6] = {0};
+    char *ptr = fgets(buf, 6, fp);
+    printf("buf=%s, ptr=%s\n", ptr, buf);
+
+    fseek(fp, 0, SEEK_CUR);     // 获取文件读写指针。如果没有这行，Win 下程序会崩溃
+
+    int ret = fputs("AAAAA", fp);
+    printf("ret = %d\n", ret);
+
+    fclose(fp);
+    return 0;
+}</code></pre>
+
+<h3 id="s19">获取文件状态（文件大小）</h3>
+
+<pre><code>#include &lt;sys/types.h&gt;
+#include &lt;sys/stat.h&gt;
+int stat(const char *path, struct stat *buf);   // status
+
+// 参1：文件访问路径
+// 参2：文件属性结构体指针（传出参数：函数调用结束时，充当函数返回值）
+// 返回值：成功 0，失败 -1</code></pre>
+
+<pre><code>// 示例
+struct stat buf;
+int ret = stat("test06.txt", &amp;buf);     // buf 是传出参数
+printf("ret = %d\n", ret);
+printf("获取文件的大小为：%d\n", buf.st_size);</code></pre>
+
+<blockquote><code>ftell(fp)</code> + <code>fseek(fp, 0, SEEK_END)</code> 也可以获取文件大小，但<strong>必须打开文件</strong>；而文件打开、关闭操作对系统而言资源消耗较大，所以 <code>stat</code> 更省资源。</blockquote>
+
+<h3 id="s20">删除、重命名文件</h3>
+
+<pre><code>int remove(const char *pathname);                       // 删除
+int rename(const char *oldpath, const char *newpath);   // 重命名</code></pre>
+
+<pre><code>// 重命名：
+// int ret = rename("test06.txt", "哼哼哈嘿.txt");
+// printf("ret = %d\n", ret);
+
+// 删除文件
+int ret = remove("哼哼哈嘿.txt");
+printf("ret = %d\n", ret);</code></pre>
+
+<hr>
+
+<h2 id="s21">7. 缓冲区刷新</h2>
+
+<ul><li><strong>标准输出 <code>stdout</code></strong>：标准输出缓冲区。写给屏幕的数据都是先存入缓冲区，  由缓冲区一次性刷新到物理设备（屏幕）。</li><li><strong>标准输入 <code>stdin</code></strong>：标准输入缓冲区。从键盘读取的数据直接读到缓冲区，  由缓冲区给程序提供数据。</li></ul>
+
+<h3 id="s22">缓冲机制</h3>
+
+<table><thead><tr><th>类型</th><th>说明</th></tr></thead><tbody><tr><td><strong>行缓冲</strong></td><td>遇到 <code>\n</code> 刷新缓冲区的数据到物理设备上。如 <code>printf();</code></td></tr><tr><td><strong>全缓冲</strong></td><td>缓冲区存满，数据才刷新到物理设备上。如文件</td></tr><tr><td><strong>无缓冲</strong></td><td>缓冲区中只要有数据，立即刷新到物理设备。如 <code>perror</code></td></tr></tbody></table>
+
+<h3 id="s23">手动刷新缓冲区</h3>
+
+<pre><code>#include &lt;stdio.h&gt;
+int fflush(FILE *stream);
+// 参：文件 fp
+// 返回值：成功 0，失败 -1</code></pre>
+
+<pre><code>int main(void)
+{
+    FILE *fp = fopen("test10.txt", "w+");
+    if (!fp)
+    {
+        perror("fopen error");
+        return -1;
+    }
+
+    char ch = 0;
+    while (1)
+    {
+        (void)scanf("%c", &amp;ch);
+        if (ch == ':')
+        {
+            break;
+        }
+        fputc(ch, fp);
+
+        // 手动刷新缓冲区，写入物理磁盘
+        fflush(fp);
+    }
+
+    fclose(fp);     // 当文件关闭时，会强制刷新缓冲区，写入磁盘
+
+    system("pause");
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<h3 id="s24">隐式回收</h3>
+
+<p><strong>当文件关闭时，会强制刷新缓冲区，写入磁盘。</strong></p>
+
+<blockquote><strong>隐式回收</strong>包含三件事：1. 关闭文件（刷新缓冲区）2. 刷新缓冲区3. 释放 <code>malloc</code> 申请的内存</blockquote>
+</article>

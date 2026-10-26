@@ -1,0 +1,554 @@
+<article data-learn-content>
+<h2 id="s1">1. 二维数组</h2>
+
+<h3 id="s2">基本使用</h3>
+
+<pre><code>{1,2,3,4,5,6,7}
+{1,2,3,4,5,6,7}
+{1,2,3,4,5,6,7}   // 多个一维数组，组成二维数组</code></pre>
+
+<h3 id="s3">定义语法</h3>
+
+<pre><code>int arr[行][列] = {数组元素}</code></pre>
+
+<pre><code>int arr[2][3] =
+{
+    {2, 5, 8},          // 第 0 行
+    {7, 9, 10}          // 第 1 行
+};
+
+// 常规写法（一行写开）：
+int arr[3][5] = {{2, 3, 54, 56, 7}, {2, 67, 4, 35, 9}, {1, 4, 9, 3, 78}};</code></pre>
+
+<h3 id="s4">打印（遍历）</h3>
+
+<blockquote><code>size_t</code> 的来源：<code>for</code> 循环自动补全时用的是 <code>size_t</code>。查看方法：右键 —— 转到定义；或直接按 <code>F12</code>。本质是类型别名：<code>typedef unsigned int size_t;</code></blockquote>
+
+<pre><code>int arr[3][5] = {{2, 3, 54, 56, 7}, {2, 67, 4, 35, 9}, {1, 4, 9, 3, 78}};
+
+for (size_t i = 0; i &lt; 3; i++)      // 行
+{
+    for (size_t j = 0; j &lt; 5; j++)  // 列
+    {
+        printf("%d ", arr[i][j]);
+    }
+    printf("\n");
+}</code></pre>
+
+<h3 id="s5">特性</h3>
+
+<h4 id="s6">数组大小</h4>
+
+<pre><code>printf("数组大小：%u\n", sizeof(arr));            // 整个二维数组的字节数
+printf("数组一行大小：%u\n", sizeof(arr[0]));      // 一行的字节数
+printf("数组一个元素大小：%u\n", sizeof(arr[0][0]));// 一个元素的字节数</code></pre>
+
+<h4 id="s7">行数与列数</h4>
+
+<pre><code>int row = sizeof(arr) / sizeof(arr[0]);              // 数组总大小 / 每行大小
+int col = sizeof(arr[0]) / sizeof(arr[0][0]);        // 一行大小  / 每个元素大小</code></pre>
+
+<h4 id="s8">地址合一</h4>
+
+<pre><code>// 数组的地址 == 数组的首元素地址 == 数组的首行地址
+printf("%p\n", arr);          // 数组的首地址
+printf("%p\n", arr[0]);       // 数组首行地址
+printf("%p\n", &amp;arr[0][0]);   // 数组首元素的地址</code></pre>
+
+<h3 id="s9">初始化</h3>
+
+<pre><code>// 常规初始化
+int arr[3][5] = {{2, 3, 54, 56, 7}, {2, 67, 4, 35, 9}, {1, 4, 9, 3, 78}};
+
+// 不完全初始化：未被初始化的数值为 0
+int arr[3][5] = {{2, 3}, {2, 67, 4}, {1, 4, 16, 78}};
+
+// 初值全部为 0 的二维数组
+int arr[3][5] = {0};
+
+// 【少见】系统自动按行分配
+int arr[3][5] = {2, 3, 4, 5, 6, 7, 8, 9, 99, 2, 16, 78};</code></pre>
+
+<h4 id="s10">不完全指定行列</h4>
+
+<pre><code>int arr[][] = {1, 23, 4, 56, 7, 8};   // 【错误】二维数组定义，至少需要指定"列值"
+
+int arr[][2] = {1, 23, 4, 56, 7, 8, 10};  // 可以不指定行值</code></pre>
+
+<pre><code>int row = sizeof(arr) / sizeof(arr[0]);
+int col = sizeof(arr[0]) / sizeof(arr[0][0]);
+
+for (size_t i = 0; i &lt; row; i++)        // 行
+{
+    for (size_t j = 0; j &lt; col; j++)    // 列
+    {
+        printf("%d ", arr[i][j]);
+    }
+    printf("\n");
+}</code></pre>
+
+<h3 id="s11">练习：求 5 名学生 3 门功课的总成绩</h3>
+
+<blockquote>要求：既要算<strong>一个学生</strong>的总成绩，也要算<strong>一门功课</strong>的总成绩。</blockquote>
+
+<pre><code>int main(void)
+{
+    int scores[5][3];   // 5 个学生，3 门功课
+    int row = sizeof(scores) / sizeof(scores[0]);
+    int col = sizeof(scores[0]) / sizeof(scores[0][0]);
+
+    // 获取 5 个学生 3 门功课成绩
+    for (size_t i = 0; i &lt; row; i++)
+    {
+        for (size_t j = 0; j &lt; col; j++)
+        {
+            scanf("%d", &amp;scores[i][j]);
+        }
+    }
+
+    // 一门功课的总成绩：列固定，遍历行
+    for (size_t i = 0; i &lt; col; i++)
+    {
+        int sum = 0;    // 累加每门功课的分数
+        for (size_t j = 0; j &lt; row; j++)    // 每门功课的第几个学生
+        {
+            sum += scores[j][i];
+        }
+        printf("第 %d 门功课总成绩：%d\n", i + 1, sum);
+    }
+
+    // 每个学生的总成绩：行固定，遍历列
+    for (size_t i = 0; i &lt; row; i++)
+    {
+        int sum = 0;    // 累加每个学生的成绩
+        for (size_t j = 0; j &lt; col; j++)
+        {
+            sum += scores[i][j];    // sum = sum + scores[i][j];
+        }
+        printf("第 %d 个学生的总成绩为：%d\n", i + 1, sum);
+    }
+
+    system("pause");
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<blockquote>记忆点：<strong>按行求和改 <code>scores[i][j]</code>，按列求和改成 <code>scores[j][i]</code></strong>（把两个下标换个位置就行）。</blockquote>
+
+<hr>
+
+<h2 id="s12">2. 多维数组（了解）</h2>
+
+<h3 id="s13">三维数组：[层][行][列]</h3>
+
+<p><strong>语法</strong>：<code>类型名 数组名[层][行][列]</code></p>
+
+<pre><code>int arr[3][3][4] =
+{
+    {
+        {{12, 3, 4, 5}},    // 第 0 行
+        {{12, 3, 4, 5}},    // 第 1 行
+        {{12, 3, 4, 5}}     // 第 2 行
+    },                      // 第 0 层
+    {
+        {},                 // 第 0 行
+        {},                 // 第 1 行
+        {}                  // 第 2 行
+    }                       // 第 1 层
+};</code></pre>
+
+<h3 id="s14">打印</h3>
+
+<pre><code>int main(void)
+{
+    int arr[3][4][2] =
+    {
+        { {1, 2},   {3, 4},   {5, 6},    {7, 8}   },
+        { {12, 24}, {31, 49}, {5, 46},   {17, 88} },
+        { {122, 24},{311, 419},{15, 46}, {17, 188}}
+    };
+
+    for (size_t i = 0; i &lt; 3; i++)          // 层
+    {
+        for (size_t j = 0; j &lt; 4; j++)      // 行
+        {
+            for (size_t k = 0; k &lt; 2; k++)  // 列
+            {
+                printf("%d ", arr[i][j][k]);
+            }
+            printf("\n");
+        }
+        printf("\n\n");
+    }
+
+    system("pause");
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<h3 id="s15">补充</h3>
+
+<pre><code>int arr[2][3][4] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+int arr[][3][4] = {1, 2, 3, 4, 5, 6, 7, 8, 9};  // 层数可以省略</code></pre>
+
+<ul><li>数组首地址 == 首层地址 == 首层首行地址 == 首元素地址。</li><li>4 维、5 维、6 维 …… N 维同理。</li></ul>
+
+<pre><code>int arr[2][3]
+short arr[2][3]
+float arr[2]
+long long arr[2][3][5]</code></pre>
+
+<hr>
+
+<h2 id="s16">3. 字符串</h2>
+
+<h3 id="s17">概念</h3>
+
+<p>一串字符。<strong>C 语言中，一定使用 <code>'\0'</code> 结束。</strong></p>
+
+<h3 id="s18">字符数组和字符串的区别</h3>
+
+<pre><code>char str1[5] = {'h', 'e', 'l', 'l', 'o'};            // 不是字符串，没有 '\0'
+char str2[6] = {'h', 'e', 'l', 'l', 'o', '\0'};      // 【麻烦】手动补 '\0'
+char str3[6] = "hello";                              // 自动带有 '\0' 结束标志</code></pre>
+
+<blockquote>易错点：- <code>'a' != "a"</code> —— 后者是 <code>{'a', '\0'}</code> 两个字符。- <code>'abc'</code> 是<strong>错误</strong>定义！既不是字符串，也不是有效字符。</blockquote>
+
+<h3 id="s19">字符串输出</h3>
+
+<p><code>printf("%s", ...)</code>：打印字符串时，挨着从第一个字符顺序向后打印，<strong>打印到 <code>'\0'</code> 结束</strong>；没碰到 <code>'\0'</code> 就不会结束。</p>
+
+<h3 id="s20">其他格式匹配符</h3>
+
+<table><thead><tr><th>格式符</th><th>作用</th></tr></thead><tbody><tr><td><code>%Ns</code></td><td>显示 N 个字符的字符串，不足 N 用空格向<strong>右</strong>填充</td></tr><tr><td><code>%0Ns</code></td><td>显示 N 个字符的字符串，不足 N 用 <code>0</code> 向<strong>左</strong>填充</td></tr><tr><td><code>%-Ns</code></td><td>显示 N 个字符的字符串，不足 N 用空格向<strong>左</strong>填充</td></tr><tr><td><code>%%</code></td><td>显示一个 <code>%</code>（转义字符 <code>\</code> 对 <code>%</code> 无效，转义 <code>%</code> 要用 <code>%</code> 本身）</td></tr></tbody></table>
+
+<pre><code>printf("|%9s|\n", str);
+printf("|%09s|\n", str);
+printf("|%-9s|\n", str);
+
+// 输出【10 % 3 = 1】
+printf("10 %% 3 = 1\n");</code></pre>
+
+<h3 id="s21">练习：统计每个字母出现的次数</h3>
+
+<pre><code>int main(void)
+{
+    char str[1024] = {0};   // 定义有 1024 个元素的字符数组，初值均为 0
+    for (size_t i = 0; i &lt; 11; i++)
+    {
+        scanf("%c", &amp;str[i]);   // helloworld
+    }
+
+    // 定义一个有 26 个元素的数组，初始化成 0 —— 记录 26 个英文字符出现的次数
+    char count[26] = {0};
+
+    for (size_t i = 0; i &lt; 11; i++)
+    {
+        int index = str[i] - 'a';   // 提取每个字符，在 count 表中对应的下标
+        count[index]++;             // 对应字符位置 ++，代表该字符出现了一次
+    }
+
+    // 循环遍历 count 数组，打印出每个字符出现的次数
+    for (size_t i = 0; i &lt; 26; i++)
+    {
+        if (count[i] != 0)
+        {
+            printf("%c 字符，在字符串 %s 中，出现了 %d 次\n", i + 'a', str, count[i]);
+        }
+    }
+
+    system("pause");
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<blockquote>核心技巧：<strong>用 <code>str[i] - 'a'</code> 把字符映射成数组下标</strong>（计数排序/哈希的思想）。</blockquote>
+
+<hr>
+
+<h2 id="s22">4. scanf 获取字符串</h2>
+
+<h3 id="s23">注意事项</h3>
+
+<ol><li>用于存储字符串的空间，<strong>必须足够大</strong>！防止溢出。</li><li><code>%s</code> 遇到<strong>空格</strong>和 <code>\n</code> 就终止。</li><li>借助"正则表达式"，可以获取带有空格的字符串：<code>scanf("%[^\n]", str);</code></li></ol>
+
+<pre><code>char str[1024] = {0};   // 定义字符串存储的空间，保证足够大
+scanf("%s", str);</code></pre>
+
+<pre><code>char str[1024] = {0};
+scanf("%s", str);          // 输入 "hello world haha xixi"
+printf("%s", str);         // 输出 hello（后面的被丢弃）</code></pre>
+
+<hr>
+
+<h2 id="s24">5. 字符串操作函数</h2>
+
+<h3 id="s25">gets</h3>
+
+<p>从（键盘）标准输入 <code>stdin</code> 获取字符串。</p>
+
+<ul><li>返回字符串首地址。</li><li>可以获取带有空格的字符串。</li><li><strong>不保存 <code>\n</code></strong>，将其替换为 <code>\0</code>。</li></ul>
+
+<pre><code>#include &lt;stdio.h&gt;
+char *gets(char *s);        // char * 等价于 char []
+
+// 参数：用来存储字符串的空间地址
+// 返回值：返回实际获取到的字符串的首地址
+
+// 示例
+char str[1024] = {0};
+printf("获取的字符串为：%s\n", gets(str));</code></pre>
+
+<h3 id="s26">fgets</h3>
+
+<p>从（键盘）标准输入 <code>stdin</code> 获取字符串。</p>
+
+<ul><li><strong>一定会给字符串预留 <code>\0</code> 空间</strong>。</li><li>可以获取带有空格的字符串。</li><li>如果空间足够，保留 <code>\n</code>；如果空间不足，不保留 <code>\n</code>。</li></ul>
+
+<pre><code>#include &lt;stdio.h&gt;
+char *fgets(char *s, int size, FILE *stream);   // char * 等价于 char []
+
+// 参1：用来存储字符串的空间地址
+// 参2：空间的大小（严格对应实际空间的大小）
+// 参3：读取字符串的位置 —— stdin（键盘）
+// 返回值：返回实际获取到的字符串的首地址
+
+// 示例
+char str[15];
+int len = sizeof(str);
+printf("获取到的字符串为：%s\n", fgets(str, len, stdin));</code></pre>
+
+<h3 id="s27">puts</h3>
+
+<p>将字符串输出到屏幕标准输出 <code>stdout</code>。<strong>输出后会自动向屏幕输出 <code>\n</code>。</strong></p>
+
+<pre><code>#include &lt;stdio.h&gt;
+int puts(const char *s);
+
+// 参：待写入到屏幕的字符串
+// 返回值：成功 0，失败 -1
+
+// 示例
+char str[] = "hello world";
+int ret = puts(str);
+printf("ret = %d\n", ret);
+// 等价于 printf("%s\n", "hello")</code></pre>
+
+<h3 id="s28">fputs</h3>
+
+<p>将字符串输出到屏幕标准输出 <code>stdout</code>。<strong>不自动添加 <code>\n</code> 字符。</strong></p>
+
+<pre><code>#include &lt;stdio.h&gt;
+int fputs(const char *str, FILE *stream);
+
+// 参1：待写出到屏幕的字符串
+// 参2：写出的位置 —— stdout 标准输出（屏幕）
+// 返回值：成功 0，失败 -1
+
+// 示例
+char str[] = "hello world\n";
+int ret = fputs(str, stdout);
+printf("ret = %d\n", ret);</code></pre>
+
+<h3 id="s29">strlen</h3>
+
+<p><strong>作用</strong>：获取一个字符串的有效字符个数（字符串长度），<strong>不含 <code>\0</code></strong>（碰到 <code>\0</code> 结束）。</p>
+
+<pre><code>#include &lt;string.h&gt;
+size_t strlen(const char *s);
+
+// 参：待求长度的字符串
+// 返回：有效字符个数
+
+// 示例
+char str[] = "hello world\n";
+printf("有效长度 = %u\n", strlen(str));   // 不含有 '\0' 的长度
+printf("sizeof  = %u\n", sizeof(str));    // 含有 '\0' 的长度</code></pre>
+
+<h4 id="s30">自己实现 strlen</h4>
+
+<pre><code>int main(void)
+{
+    char str[] = "hello world";
+    int i = 0;
+
+    while (str[i] != '\0')
+    {
+        i++;
+    }
+
+    printf("不含 \\0 的字符串长度为：%d\n", i);
+    printf("strlen = %d\n", strlen(str));
+
+    system("pause");
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<h4 id="s31">字符串追加（手写实现）</h4>
+
+<pre><code>int main(void)
+{
+    char str1[] = "hello";
+    char str2[] = "world";
+    char str3[100];
+
+    // 循环将 str1 中的字符，依次写入到 str3 中
+    int i = 0;
+    while (str1[i] != '\0')
+    {
+        str3[i] = str1[i];
+        i++;
+    }   // 循环结束，str3 = 【hello】无 '\0'
+
+    // 循环将 str2 中的字符，接着 str1 的内容顺序写入到 str3 中
+    int j = 0;
+    while (str2[j])     // 等价于 while (str2[j] != '\0')
+    {
+        str3[i + j] = str2[j];
+        j++;
+    }   // 循环结束，str3 = 【helloworld】无 '\0'
+
+    // 手动添加 '\0' 结束标记
+    str3[i + j] = '\0';
+
+    printf("str3 = %s\n", str3);
+
+    system("pause");
+    return EXIT_SUCCESS;
+}</code></pre>
+
+<hr>
+
+<h2 id="s32">6. 函数</h2>
+
+<h3 id="s33">函数的作用</h3>
+
+<ul><li>提高代码<strong>复用率</strong>。</li><li>提高程序<strong>模块化</strong>组织性。</li></ul>
+
+<h3 id="s34">函数分类</h3>
+
+<p><strong>系统库函数</strong>：标准 C 库 <code>libc</code>。</p>
+
+<ol><li>必须要引入头文件 <code>#include &lt;xxx.h&gt;</code> —— 其中包含函数声明。</li><li>根据库函数原型，调用函数。</li></ol>
+
+<p><strong>用户自定义函数</strong>：如 <code>bubble_sort()</code>、<code>myPrint()</code>。</p>
+
+<ul><li>除了需要提供函数原型之外，还需要提供<strong>函数实现</strong>。</li></ul>
+
+<h3 id="s35">xxxxxxxxxx int a[] = {10};int b[] = {20};int c[] = {30};​int <em>arr[] = {a, b, c};             // 存地址​printf("arr[0][0] = %d\n", arr[0][0]);printf("</em>(<em>(arr+0)) = %d\n", </em>(*(arr + 0)));printf("<strong>arr = %d\n", </strong>arr);      // 二级指针的间接引用c</h3>
+
+<p>函数<strong>定义</strong>、函数<strong>声明</strong>、函数<strong>调用</strong>。</p>
+
+<h3 id="s36">函数定义</h3>
+
+<p>函数定义必须包含"函数原型"和"函数体"。</p>
+
+<ul><li><strong>函数原型</strong>：返回值类型 + 函数名 + 形参列表</li><li><strong>形参列表</strong>：形式参数列表，一定包含类型名、形参名</li><li><strong>函数体</strong>：一对 <code>{}</code> 包裹函数实现</li></ul>
+
+<pre><code>// 加法函数
+int add(int a, int b)
+{
+    int ret = a + b;
+    return ret;
+}
+
+// 形参列表的例子
+// int test(char ch, short b, int arr[], int m)</code></pre>
+
+<h3 id="s37">函数调用</h3>
+
+<p>包含：<code>函数名(实参列表);</code></p>
+
+<ul><li><strong>实参</strong>（实际参数）：在调用时，传参必须严格按照形参填充（参数<strong>个数、类型、顺序</strong>）。</li><li>实参在调用时，<strong>没有类型描述符</strong>。</li></ul>
+
+<pre><code>// 例子
+int m = 10;
+int n = 20;
+int ret = add(m, n);</code></pre>
+
+<h3 id="s38">函数声明</h3>
+
+<p>包含：函数原型（返回值类型 + 函数名 + 形参列表）+ <code>;</code></p>
+
+<p><strong>要求</strong>：在函数调用之前，编译器必须见过函数定义。否则需要函数声明。</p>
+
+<pre><code>// 例子
+int add(int a, int b);</code></pre>
+
+<h4 id="s39">隐式声明【不要依赖】</h4>
+
+<p>如果<strong>没有</strong>函数声明，编译默认做"隐式声明"：</p>
+
+<ul><li>编译认为所有的函数，返回值都是 <code>int</code>。</li><li>可以根据函数调用，推测函数原型。</li></ul>
+
+<blockquote><code>#include &lt;xxx.h&gt;</code> 内部，就包含了函数声明。</blockquote>
+
+<h3 id="s40">return 与 exit</h3>
+
+<ul><li><strong>return 关键字</strong>：返回当前函数调用，将返回值返回调用者。  （在底层，会调用 <code>_exit()</code> 函数。）</li><li><strong>exit() 函数</strong>：退出当前程序。（使用 <code>#include &lt;stdlib.h&gt;</code>）</li></ul>
+
+<pre><code>// 函数声明
+// int test(int a, char ch);
+int test(int, char);    // 函数声明的简化写法：声明时形参名可以省略
+
+int main(void)
+{
+    // 函数调用
+    int ret = test(10, 'a');    // test 函数调用结束，return 给 main
+    printf("test 函数返回：ret = %d\n", ret);
+
+    // return 0;    // 返回给调用者（启动例程）—— 作用：结束程序
+    exit(0);        // 结束程序
+}
+
+// 函数定义
+int test(int a, char ch)
+{
+    printf("a = %d\n", a);
+    printf("ch = %c\n", ch);
+
+    // return 97;   // 返回给调用者，程序不结束
+    exit(97);       // 结束程序，使用 #include &lt;stdlib.h&gt;
+}</code></pre>
+
+<h3 id="s41">多文件编程</h3>
+
+<h4 id="s42">头文件守卫</h4>
+
+<p>作用：<strong>防止头文件被重复包含</strong>（以 <code>head.h</code> 为例）。</p>
+
+<ol><li><code>#pragma once</code> 是 VS 自动生成的，<strong>只应用于 Windows 系统</strong>。</li><li>标准写法（跨平台）：</li></ol>
+
+<pre><code>#ifndef _HEAD_H_    // 习惯写成这样
+#define _HEAD_H_
+
+// 头文件内容： #include &lt;xx.h&gt; / 宏定义 #define PI 3.14 / 函数声明 / 类型定义
+
+#endif</code></pre>
+
+<h4 id="s43">示例</h4>
+
+<pre><code>// head.h
+#ifndef _HEAD_H_    // 标准引入"头文件守卫"
+#define _HEAD_H_
+
+// include 头文件
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;math.h&gt;
+#include &lt;time.h&gt;
+
+// 函数声明
+int add(int a, int b);
+int sub(int a, int b);
+
+// 宏定义
+#define PI 3.14
+
+// 类型定义
+
+#endif</code></pre>
+
+<pre><code>// main 函数所在的 .c 文件中
+#include "head.h"</code></pre>
+
+<blockquote>记忆点：- <code>&lt;&gt;</code> 包裹的是<strong>系统库</strong>头文件。- <code>""</code> 包裹的是<strong>用户自定义</strong>头文件。</blockquote>
+</article>

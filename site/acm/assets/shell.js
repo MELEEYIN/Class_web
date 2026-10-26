@@ -329,7 +329,12 @@
     $('#scroll').scrollTop = 0;
   }
   function lessonsDone() {
-    return courseDone() + pyDone();
+    return courseDone() + pyDone() + modDone('c');
+  }
+  function modDone(mid) {
+    var m = modOf(mid), c = 0;
+    if (m) m.items.forEach(function (it) { if (it.no && LEARNED[it.id]) c++; });
+    return c;
   }
   function courseDone() {
     var m = modOf('course'), c = 0;
@@ -344,7 +349,7 @@
   /* 计入进度的只有「有编号的节」：course 60 + py 26（py 的导读不算一章） */
   function lessonsTotal() {
     var n = 0;
-    ['course', 'py'].forEach(function (mid) {
+    ['course', 'py', 'c'].forEach(function (mid) {
       var m = modOf(mid);
       if (m) m.items.forEach(function (it) { if (it.no) n++; });
     });
@@ -610,7 +615,7 @@
         (item.sub && !isCount(item.sub) ? '<p class="lede">' + esc(item.sub) + '</p>' : '') +
         chips(item, mod) + '</header>';
       doc.innerHTML = head + funcsTable(item) + '<div class="docbody">' + html + '</div>';
-      if (mod.id === 'py') { doc.className = 'doc py-doc'; }
+      if (mod.id === 'py' || mod.id === 'c') { doc.className = 'doc py-doc'; }
       afterRender(doc);
       if (mod.id === 'py' && window.LEARN_CODE) {
         try { window.LEARN_CODE.decorate(doc); } catch (e) { }
@@ -667,7 +672,7 @@
       one(t);
     });
     if (isCount(item.sub)) c += '<span class="chipk">' + esc(item.sub) + '</span>';
-    if (mod.id === 'course' || mod.id === 'py') {
+    if (mod.id === 'course' || mod.id === 'py' || mod.id === 'c') {
       var isDone = !!LEARNED[item.id];
       c += '<span class="head-act"><button class="btn-done' + (isDone ? ' on' : '') + '" id="doneBtn" type="button">' +
            ICON.check + '<span>' + (isDone ? '已学' : '标记已学') + '</span></button></span>';

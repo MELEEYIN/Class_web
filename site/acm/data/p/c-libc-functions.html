@@ -1,0 +1,41 @@
+<article data-learn-content>
+<h4 id="s1">输入输出函数&lt;stdio.h&gt;</h4>
+
+<ul><li><code>printf()</code>: 格式化输出到标准输出（stdout）。</li><li><code>scanf()</code>: 从标准输入（stdin）读取格式化输入。</li><li><code>sprintf()</code>: 格式化输出到字符串。</li><li><code>sscanf()</code>: 从字符串读取格式化输入。</li><li><code>fprintf()</code>: 格式化输出到文件。</li><li><code>fscanf()</code>: 从文件读取格式化输入。</li></ul>
+
+<h4 id="s2">字符串处理函数&lt;string.h&gt;</h4>
+
+<ul><li><code>strlen()</code>: 计算字符串长度。</li><li><code>strcpy()</code>: 复制字符串。</li><li><code>strncpy()</code>: 复制指定长度的字符串。</li><li><code>strcat()</code>: 连接两个字符串。</li><li><code>strncat()</code>: 连接指定长度的字符串。</li><li><code>strcmp()</code>: 比较两个字符串。</li><li><code>strncmp()</code>: 比较指定长度的两个字符串。</li><li><code>strstr()</code>: 查找子字符串首次出现的位置。</li><li><code>strchr()</code>: 查找字符串中首次出现指定字符的位置。</li><li><code>strrchr()</code>: 查找字符串中最后一次出现指定字符的位置。</li><li><code>strtok()</code>: 分割字符串。</li><li><code>strerror()</code>: 获取错误信息的字符串表示。</li><li><code>strerror_r()</code>: 线程安全的获取错误信息的字符串表示。</li></ul>
+
+<h4 id="s3">内存管理函数&lt;stdlib.h&gt;</h4>
+
+<ul><li><code>malloc()</code>: 动态内存分配。</li><li><code>calloc()</code>: 动态内存分配并初始化为零。</li><li><code>realloc()</code>: 调整已分配内存的大小。</li><li><code>free()</code>: 释放动态分配的内存。</li><li><code>aligned_alloc()</code>: 分配对齐的内存。</li></ul>
+
+<h4 id="s4">数学函数&lt;math.h&gt;</h4>
+
+<ul><li><code>sin()</code>: 计算正弦值。</li><li><code>cos()</code>: 计算余弦值。</li><li><code>tan()</code>: 计算正切值。</li><li><code>asin()</code>: 计算反正弦值。</li><li><code>acos()</code>: 计算反余弦值。</li><li><code>atan()</code>: 计算反正切值。</li><li><code>atan2()</code>: 计算两个参数的反正切值。</li><li><code>exp()</code>: 计算自然指数。</li><li><code>log()</code>: 计算自然对数。</li><li><code>log10()</code>: 计算以10为底的对数。</li><li><code>pow()</code>: 计算幂。</li><li><code>sqrt()</code>: 计算平方根。</li><li><code>ceil()</code>: 向上取整。</li><li><code>floor()</code>: 向下取整。</li><li><code>abs()</code>: 计算整数值的绝对值。</li><li><code>fabs()</code>: 计算浮点数的绝对值。</li><li><code>ldexp()</code>: 计算浮点数的幂。</li><li><code>frexp()</code>: 分解浮点数为尾数和指数。</li><li><code>modf()</code>: 将浮点数分解为整数部分和小数部分。</li></ul>
+
+<h4 id="s5">动态数组函数&lt;stdlib.h&gt;</h4>
+
+<ul><li><code>bsearch()</code>: 二分查找。</li><li><code>qsort()</code>: 快速排序。</li></ul>
+
+<h4 id="s6">时间函数&lt;time.h&gt;</h4>
+
+<ul><li><code>time()</code>: 获取当前时间（以从C语言开始的秒数表示）。</li><li><code>ctime()</code>: 将时间转换为本地时间的字符串表示。</li><li><code>difftime()</code>: 计算两个时间点之间的差值。</li><li><code>mktime()</code>: 将分解的时间转换为time_t表示。</li><li><code>strftime()</code>: 将时间格式化为字符串。</li><li><code>strptime()</code>: 将字符串解析为时间。</li></ul>
+
+<h4 id="s7">文件操作函数&lt;stdio.h&gt;</h4>
+
+<ul><li><code>fopen()</code>: 打开文件。</li><li><code>fclose()</code>: 关闭文件。</li><li><code>fread()</code>: 从文件读取数据。</li><li><code>fwrite()</code>: 写入数据到文件。</li><li><code>fseek()</code>: 设置文件位置指针。</li><li><code>ftell()</code>: 获取文件位置指针。</li><li><code>rewind()</code>: 将文件位置指针重置到文件开头。</li><li><code>fgetc()</code>: 从文件读取一个字符。</li><li><code>fputc()</code>: 写入一个字符到文件。</li><li><code>fgets()</code>: 从文件读取一行。</li><li><code>fputs()</code>: 写入一行到文件。</li><li><code>getc()</code>: 从文件读取一个字符（宏）。</li><li><code>putc()</code>: 写入一个字符到文件（宏）。</li><li><code>ungetc()</code>: 将字符推回文件。</li><li><code>fileno()</code>: 获取文件流的文件描述符。</li><li><code>clearerr()</code>: 重置文件流的错误和结束标志。</li><li><code>feof()</code>: 检测文件流</li></ul>
+
+<h4 id="s8">控制流程函数&lt;stdlib.h&gt;</h4>
+
+<ul><li><code>abort()</code>: 异常终止程序。</li><li><code>atexit()</code>: 注册程序正常终止时调用的函数。</li><li><code>exit()</code>: 终止程序。</li><li><code>system()</code>: 执行shell命令。</li><li><code>assert()</code>: 断言，用于调试。</li></ul>
+
+<h4 id="s9">错误处理函数</h4>
+
+<ul><li><code>perror()</code>: 打印上一个系统错误的描述。	&lt;stdio.h&gt;</li><li><code>errno</code>: 获取或设置系统错误的编号。         &lt;errno.h&gt;</li></ul>
+
+<h4 id="s10">随机数&lt;stdlib.h&gt;</h4>
+
+<ul><li><code>rand()</code>: 生成随机数。</li><li><code>srand()</code>: 设置随机数生成器的种子。</li></ul>
+</article>
