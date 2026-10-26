@@ -663,3 +663,128 @@ ul.tight li { margin: 3px 0; }
 .doc-study table.seg td:first-child { width: auto; }
 .doc-study table.seg td { font-size: 12.8px; line-height: 1.75; }
 .doc-study table.seg td:nth-child(2) { font-family: var(--mono); font-size: 12.1px; }
+
+/* ---------------------------------------------------------- 15. 首页（课程学习站）
+   首页直接用 acm 首页那套组件（.hero / .hero-stats / .sec-t / .paths / .mods），
+   但外壳里多了 .doc-study 作用域，content.css 的 h1 / h2 规则会把标题压小、加左竖条，
+   所以这里按组件原样再声明一遍（选择器多一层，优先级压得住）。 */
+.doc-study .hero h1 {
+  margin: 14px 0 12px;
+  padding: 0;
+  border: 0;
+  font-size: clamp(30px, 3.4vw, 44px);
+  line-height: 1.2;
+  letter-spacing: -.028em;
+  font-weight: 780;
+}
+.doc-study .hero h1 span {
+  background: linear-gradient(100deg, #6fa4ff, var(--accent) 42%, #4bd6c4 96%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.doc-study .hero p { font-size: 15.4px; line-height: 1.8; }
+.doc-study .sec-t h2 {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
+.doc-study .sec-t { margin: 34px 0 14px; }
+.doc-study .sec-t::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.doc-study .paths .path { text-decoration: none; }
+.doc-study .paths .path:hover { text-decoration: none; }
+.doc-study .mods .mod-c { text-decoration: none; }
+.doc-study .mods .mod-c .mt b { font-size: 14.5px; }
+.doc-study .mods .mod-c .md { font-size: 12.8px; line-height: 1.75; }
+
+/* 四册书单 */
+.books {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+@media (max-width: 1040px) { .books { grid-template-columns: 1fr; } }
+.book {
+  padding: 16px 18px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+}
+.book .bn {
+  font: 600 10.6px/1.6 var(--mono);
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.doc-study .book h3 {
+  margin: 6px 0 6px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.book p {
+  margin: 0 0 11px;
+  font-size: 12.8px;
+  line-height: 1.75;
+  color: var(--ink-3);
+}
+.ugrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+  margin-bottom: 10px;
+}
+@media (max-width: 560px) { .ugrid { grid-template-columns: 1fr; } }
+.ug {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  text-decoration: none;
+  transition: border-color .16s var(--ease), background .16s var(--ease);
+}
+.ug:hover {
+  border-color: rgb(var(--accent-rgb) / .5);
+  background: rgb(var(--accent-rgb) / .08);
+  text-decoration: none;
+}
+.ug b { font-size: 12.5px; font-weight: 600; color: var(--ink); line-height: 1.5; }
+.ug span { font-size: 11.8px; color: var(--ink-4); }
+.book .enter { font-size: 12.4px; color: var(--accent); }
+
+/* 页脚 */
+.home-foot {
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 12.1px;
+  line-height: 1.7;
+  color: var(--ink-4);
+}
+
+/* 表格里第一列加粗（数据源表沿用旧页的 td.p） */
+.doc-study table td.p { font-weight: 600; color: var(--ink); }
+
+/* 首页小节标题不要「标题前竖条 + 下边框」（content.css 的 .doc h2 默认带这两样） */
+.doc-study .sec-t h2::before { display: none; }
+
+/* 首页：数据源表（第一列窄、第二列装长 URL，必须允许断行） */
+.doc-study table.srctbl { table-layout: fixed; }
+.doc-study table.srctbl th,
+.doc-study table.srctbl td { padding: 9px 11px; font-size: 12.7px; line-height: 1.75; vertical-align: top; }
+.doc-study table.srctbl td.p { font-size: 12.6px; line-height: 1.6; }
+.doc-study table.srctbl td:last-child {
+  color: var(--ink-2);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}

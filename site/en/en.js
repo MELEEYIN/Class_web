@@ -101,6 +101,17 @@
   function applyFilter(q) {
     q = (q || '').trim().toLowerCase();
     var hit = 0;
+    if (!units.length) {
+      /* 首页：按册过滤，命中的册整块保留 */
+      $$('.book').forEach(function (b) {
+        var ok = !q || (b.textContent || '').toLowerCase().indexOf(q) > -1;
+        b.style.display = ok ? '' : 'none';
+        if (ok) hit++;
+      });
+      $$('.sec-t, .books, .paths, .mods').forEach(function (el) { el.style.display = ''; });
+      if (emptyTip) emptyTip.style.display = (!hit && q) ? '' : 'none';
+      return hit;
+    }
     units.forEach(function (u) {
       var ok = !q || (u.textContent || '').toLowerCase().indexOf(q) > -1;
       u.style.display = ok ? '' : 'none';
@@ -136,18 +147,24 @@
   var tocBox = $('#tocList');
   if (tocBox) {
     var html = '';
-    $$('.unit').forEach(function (u) {
-      var t = u.getAttribute('data-title') || (u.id || '').toUpperCase();
-      var zh = $('.uzh', u);
-      html += '<a class="lv2" href="#' + u.id + '">' + t + '</a>';
-    });
+    if (units.length) {
+      units.forEach(function (u) {
+        var t = u.getAttribute('data-title') || (u.id || '').toUpperCase();
+        html += '<a class="lv2" href="#' + u.id + '">' + t + '</a>';
+      });
+    } else {
+      /* 首页这类没有「单元」的页面：目录取小节标题（h2[id]） */
+      $$('.sec-t h2[id]').forEach(function (h) {
+        html += '<a class="lv2" href="#' + h.id + '">' + h.textContent.replace(/\s+/g, ' ').trim() + '</a>';
+      });
+    }
     tocBox.innerHTML = html;
   }
 
   var readBar = $('#readBar');
   var toTop = $('#toTop');
   var navLinks = $$('#tocList a');
-  var secs = $$('.unit');
+  var secs = units.length ? units : $$('.sec-t');
   var sideLinks = $$('#nav a.nv-i[data-unit]');
 
   function onScroll() {
@@ -165,7 +182,8 @@
     }
     navLinks.forEach(function (a, i) { a.classList.toggle('on', i === idx); });
 
-    var cur = idx >= 0 ? secs[idx].id : '';
+    var curEl = idx >= 0 ? secs[idx] : null;
+    var cur = curEl ? (curEl.id || ($('h2[id]', curEl) ? $('h2[id]', curEl).id : '')) : '';
     sideLinks.forEach(function (a) { a.classList.toggle('on', a.getAttribute('data-unit') === cur); });
   }
   var scrollHost = $('#scroll');

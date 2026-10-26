@@ -11,7 +11,7 @@
    更新流程：新 SW install 后**不自动接管**，由页面提示「有新版本，点一下更新」，
    用户点了才 skipWaiting + reload（避免像以前那样用户长期跑在旧代码上）。
    ========================================================================== */
-var VERSION = 'v20';  // 改样式/脚本时记得 +1（v20：新增高等数学页，英语子站更名课程学习站）
+var VERSION = 'v21';  // 改样式/脚本时记得 +1（v21：课程学习站首页改用 acm 全屏外壳）
 var SHELL_CACHE = 'cw-shell-' + VERSION;
 var RUNTIME_CACHE = 'cw-runtime-' + VERSION;
 
