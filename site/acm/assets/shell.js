@@ -100,7 +100,7 @@
 
   /* 侧栏把「学习手册 / 算竞教程 / 学习计划」合成一个模块展示，
      但每个条目的 route 不变（hb/…、course/…、plan/…），所以路由、进度、样式都不受影响 */
-  var MERGE_MIDS = ['hb', 'course', 'plan'];
+  var MERGE_MIDS = ['hb', 'course', 'plan', 'dev', 'sol'];
   function renderModules() {
     var out = [], merged = null;
     NAV.modules.forEach(function (m) {
