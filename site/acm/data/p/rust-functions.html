@@ -1,0 +1,67 @@
+<article data-learn-content>
+<p>Rust 的函数没什么惊喜，但有两个细节和 C 很不一样：<strong>表达式有值</strong>（不加分号就是返回值），以及 <code>if</code>/<code>loop</code>/<code>match</code> 本身都是表达式，可以直接赋值。</p>
+
+<h2 id="s1">一、函数与返回值</h2>
+
+<pre><code>fn add(a: i32, b: i32) -&gt; i32 {
+    a + b            // 注意：没有分号，这一行的值就是返回值
+}
+
+fn nothing() {       // 没有 -&gt;，返回 ()
+    println!("hi");
+}
+
+fn main() {
+    let s = add(1, 2);   // 3
+    nothing();
+}</code></pre>
+
+<table><thead><tr><th>写法</th><th>结果</th></tr></thead><tbody>
+<tr><td><code>a + b</code>（无分号）</td><td>表达式的值作为返回值</td></tr>
+<tr><td><code>a + b;</code>（有分号）</td><td>变成语句，函数返回 <code>()</code>，类型不匹配就报错</td></tr>
+<tr><td><code>return a + b;</code></td><td>显式提前返回，用于循环里跳出</td></tr>
+</tbody></table>
+
+<blockquote>新手最常见的编译错误就是「少写/多写分号」：<code>expected `i32`, found `()`</code> 基本等于“你把返回值那一行的分号加上了”。</blockquote>
+
+<h2 id="s2">二、if 是表达式</h2>
+
+<pre><code>let n = 7;
+let kind = if n % 2 == 0 { "偶数" } else { "奇数" };   // 直接赋值
+
+// 条件必须是 bool，不能用 0/1
+// if n { ... }        // 编译错误</code></pre>
+
+<p>因为 <code>if</code> 有值，两个分支的类型必须一致；<code>else</code> 不能省（除非整体是 <code>()</code>）。Rust 没有三元运算符 <code>? :</code>，用 <code>if/else</code> 就够。</p>
+
+<h2 id="s3">三、三种循环</h2>
+
+<pre><code>// loop：无限循环，靠 break 带值退出
+let mut i = 0;
+let result = loop {
+    i += 1;
+    if i == 5 { break i * 2; }
+};
+
+// while
+while i &gt; 0 { i -= 1; }
+
+// for：最常用，遍历迭代器
+for k in 0..5 { println!("{}", k); }        // 0 1 2 3 4
+for k in (0..5).rev() { }                   // 逆序
+for x in &amp;vec![1, 2, 3] { }                 // 借用遍历，不移动</code></pre>
+
+<p><code>loop { break value; }</code> 是 Rust 独有的写法，比“先声明一个变量再 while 赋值”干净得多。</p>
+
+<h2 id="s4">四、常见坑</h2>
+<ol>
+<li>返回值那行加了 <code>;</code>，函数返回 <code>()</code>，报类型不匹配。</li>
+<li><code>if</code> 条件写数字：Rust 不做隐式布尔转换，必须写 <code>n != 0</code>。</li>
+<li><code>for k in 0..=5</code> 与 <code>0..5</code> 差一个右端点：<code>..=</code> 含 5。</li>
+<li>在 <code>for x in v</code> 之后再访问 <code>v</code>：<code>v</code> 已被移动，改成 <code>&amp;v</code>。</li>
+<li>函数参数没写类型：Rust 要求函数签名必须标注类型（函数体内可以推断）。</li>
+</ol>
+
+<h2 id="s5">五、小结</h2>
+<p><strong>表达式优先</strong>是 Rust 的表达风格：能用一个表达式算出来的，就不要先声明变量再赋值。下一章把这些表达式装进结构体，开始写“有类型的数据”。</p>
+</article>

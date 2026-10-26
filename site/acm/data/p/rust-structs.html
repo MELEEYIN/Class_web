@@ -1,0 +1,72 @@
+<article data-learn-content>
+<p>结构体是把几个值打包成一个有名字的整体。Rust 的结构体没有类继承，方法靠 <code>impl</code> 块挂上去——这决定了它后面“用组合代替继承”的设计取向。</p>
+
+<h2 id="s1">一、定义与实例化</h2>
+
+<pre><code>struct User {
+    name: String,
+    age: u32,
+    active: bool,
+}
+
+let u = User {
+    name: String::from("小明"),
+    age: 18,
+    active: true,
+};
+
+println!("{}", u.name);      // 字段访问
+let u2 = User { age: 20, ..u };   // 更新语法：其余字段从 u 复制/移动过来</code></pre>
+
+<p><code>..u</code> 不是“复制整个 u”：实现了 <code>Copy</code> 的字段按值复制，<code>String</code> 这类会被<strong>移动</strong>，之后 <code>u.name</code> 就不能用了。</p>
+
+<h2 id="s2">二、方法：impl 块</h2>
+
+<pre><code>impl User {
+    fn new(name: &amp;str, age: u32) -&gt; Self {      // 关联函数，没有 self
+        Self { name: name.to_string(), age, active: true }
+    }
+
+    fn birthday(&amp;mut self) {                     // &amp;mut self：要改字段
+        self.age += 1;
+    }
+
+    fn is_adult(&amp;self) -&gt; bool {                 // &amp;self：只读
+        self.age &gt;= 18
+    }
+}
+
+let mut u = User::new("小明", 17);
+u.birthday();
+println!("{}", u.is_adult());</code></pre>
+
+<table><thead><tr><th>接收者</th><th>能不能改字段</th><th>调用后原变量</th></tr></thead><tbody>
+<tr><td><code>self</code></td><td>能，但会<strong>消耗</strong>所有权</td><td>不能再用</td></tr>
+<tr><td><code>&amp;mut self</code></td><td>能</td><td>可以继续用</td></tr>
+<tr><td><code>&amp;self</code></td><td>不能</td><td>可以继续用</td></tr>
+</tbody></table>
+
+<h2 id="s3">三、派生常用 trait</h2>
+
+<pre><code>#[derive(Debug, Clone, PartialEq)]
+struct Point { x: i32, y: i32 }
+
+let p = Point { x: 1, y: 2 };
+println!("{:?}", p);          // 需要 Debug
+let q = p.clone();            // 需要 Clone
+println!("{}", p == q);       // 需要 PartialEq</code></pre>
+
+<p><code>#[derive(...)]</code> 让编译器自动生成这些 trait 的实现，是 Rust 最常用的“零成本样板消除”。</p>
+
+<h2 id="s4">四、常见坑</h2>
+<ol>
+<li>方法里忘写 <code>&amp;</code>：<code>fn f(self)</code> 会消耗对象，调用一次后原变量失效。</li>
+<li>只读方法写成了 <code>&amp;mut self</code>，导致同一作用域内无法与其它借用共存。</li>
+<li><code>..u</code> 之后又用 <code>u.name</code>：String 已被移动。</li>
+<li>结构体字段全是私有（默认），跨模块访问要么 <code>pub</code>，要么用方法。</li>
+<li>忘了 <code>#[derive(Debug)]</code> 就 <code>println!("{:?}", x)</code>，编译直接报错。</li>
+</ol>
+
+<h2 id="s5">五、小结</h2>
+<p><strong>结构体管数据，impl 管行为，derive 管样板。</strong>下一章讲枚举——Rust 的枚举比 C 的 <code>enum</code> 强大得多，每个变体可以带不同的数据。</p>
+</article>

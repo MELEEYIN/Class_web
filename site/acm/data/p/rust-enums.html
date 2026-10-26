@@ -1,0 +1,67 @@
+<article data-learn-content>
+<p>Rust 的 <code>enum</code> 不是“一组整型常量”，而是<strong>一组可能形态</strong>：每个变体可以携带不同类型的数据。配合 <code>match</code> 的穷尽检查，它替代了 C 里的 tagged union + switch，而且不会忘写分支。</p>
+
+<h2 id="s1">一、带数据的枚举</h2>
+
+<pre><code>enum Shape {
+    Circle(f64),                 // 半径
+    Rect(f64, f64),              // 宽、高
+    Triangle { base: f64, h: f64 },
+    Empty,
+}
+
+fn area(s: &amp;Shape) -&gt; f64 {
+    match s {
+        Shape::Circle(r) =&gt; 3.14159 * r * r,
+        Shape::Rect(w, h) =&gt; w * h,
+        Shape::Triangle { base, h } =&gt; 0.5 * base * h,
+        Shape::Empty =&gt; 0.0,
+    }
+}</code></pre>
+
+<p>四个变体带了三种不同的载荷（一个值、两个值、命名字段、没有值），C 里要写一个 <code>struct + union + tag</code> 才能做到，还得自己记得检查 <code>tag</code>。</p>
+
+<h2 id="s2">二、match 的穷尽性</h2>
+
+<pre><code>let n = 3;
+let desc = match n {
+    0 =&gt; "零",
+    1 | 2 =&gt; "小",
+    3..=9 =&gt; "中",
+    _ =&gt; "大",          // 必须覆盖所有可能，否则编译失败
+};</code></pre>
+
+<table><thead><tr><th>模式</th><th>含义</th></tr></thead><tbody>
+<tr><td><code>0</code></td><td>字面量</td></tr>
+<tr><td><code>1 | 2</code></td><td>或模式</td></tr>
+<tr><td><code>3..=9</code></td><td>区间（含右端）</td></tr>
+<tr><td><code>x</code></td><td>绑定变量，匹配一切</td></tr>
+<tr><td><code>_</code></td><td>忽略，不绑定</td></tr>
+</tbody></table>
+
+<p><strong>编译器会检查所有变体都覆盖到</strong>——这正是 Rust 里“加了一个枚举变体，代码编译不过”成为好事的原因：它逼你处理新情况，而不是运行时漏掉。</p>
+
+<h2 id="s3">三、Option 与 Result 就是枚举</h2>
+
+<pre><code>enum Option&lt;T&gt; { Some(T), None }
+
+let v = vec![1, 2, 3];
+match v.get(5) {
+    Some(x) =&gt; println!("{}", x),
+    None =&gt; println!("越界了"),
+}</code></pre>
+
+<p>所以“可能为空”在 Rust 里不是靠 <code>null</code>，而是一个必须处理的值；<code>?</code> 运算符只是在 <code>Result</code> 上做了“失败就提前返回”的语法糖。</p>
+
+<h2 id="s4">四、常见坑</h2>
+<ol>
+<li><code>match</code> 少写分支：报 <code>non-exhaustive patterns</code>，加 <code>_ =&gt; ...</code> 或补全。</li>
+<li>把 <code>Some(x)</code> 写成 <code>Some</code>：漏了括号里的绑定。</li>
+<li><code>if let</code> 只处理一种情况，剩下的静默忽略——需要分支时老实用 <code>match</code>。</li>
+<li>匹配引用时类型不匹配：对 <code>&amp;Option&lt;T&gt;</code> 要写 <code>Some(x) =&gt; ...</code>（自动解引用）或先 <code>*</code>。</li>
+<li>以为 <code>_ =&gt; ()</code> 是“什么都不做很安全”：它同样会吞掉本该处理的错误。</li>
+</ol>
+
+<h2 id="s5">五、小结</h2>
+<p><strong>枚举表达“几种可能”，match 保证“一种不漏”。</strong>到这里语法主干已通，下一批进入集合（Vec / String / HashMap）与错误处理。</p>
+</article>

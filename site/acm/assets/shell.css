@@ -1072,3 +1072,8 @@ html[data-theme="light"] {
   --code-line: rgba(148, 163, 184, .2);
 }
 .doc pre, .doc pre code { color: var(--code-text); }
+
+/* 顶栏「返回主站」：稍微弱化，和站内功能按钮区分 */
+.top-btn.top-home { color: var(--ink-3); }
+.top-btn.top-home:hover { color: var(--accent); }
+@media (max-width: 620px) { .top-btn.top-home .tl { display: none; } }
