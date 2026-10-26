@@ -11,7 +11,7 @@
    更新流程：新 SW install 后**不自动接管**，由页面提示「有新版本，点一下更新」，
    用户点了才 skipWaiting + reload（避免像以前那样用户长期跑在旧代码上）。
    ========================================================================== */
-var VERSION = 'v17';  // 改样式/脚本时记得 +1（v17：ACM 子站改版——函数表 + 背景自定义）
+var VERSION = 'v18';  // 改样式/脚本时记得 +1（v18：Python 语法教程并入编程学习站）
 var SHELL_CACHE = 'cw-shell-' + VERSION;
 var RUNTIME_CACHE = 'cw-runtime-' + VERSION;
 
@@ -49,7 +49,13 @@ var SHELL = [
   './assets/favicon.svg',
   './assets/icon-192.png',
   './assets/icon-512.png',
-  './assets/apple-touch-icon-180.png'
+  './assets/apple-touch-icon-180.png',
+  // ACM 子站（编程学习站）：C++ 教程片段按需 fetch 走 runtime 缓存，
+  // 这里只预缓存 Python 章节要用的样式与高亮脚本
+  './acm/learn.css',
+  './acm/learn-code.css',
+  './acm/assets/python.css',
+  './js/learn-code.js'
 ];
 
 self.addEventListener('install', function (e) {

@@ -3,14 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ACM 算法站 · 学习手册 / 计划 / 60 节教程</title>
-<meta name="description" content="ACM 算法学习站：学习手册 122 张算法卡片、按 12 周推进的学习计划 125 张卡片、日常开发基本功，以及 60 节重构版算竞教程（含三场赛事题解）。全屏侧栏布局，支持站内检索与逐节进度。">
+<title>编程学习站 · C++ 算法竞赛 + Python 语法教程</title>
+<meta name="description" content="编程学习站：C++ 算法竞赛（122 张算法卡片、按 12 周推进的学习计划、60 节算竞教程、日常开发基本功、三场赛事题解）与 Python 语法教程（27 篇，从解释器与缩进讲到装饰器、生成器、并发、typing 与测试）。全屏侧栏布局，两套内容共用一套目录、检索与进度。">
 <meta name="theme-color" content="#060d1a">
 <meta name="color-scheme" content="dark light">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%234d8dff'/%3E%3Ctext x='32' y='44' font-family='monospace' font-size='30' font-weight='700' fill='%23041020' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%234d8dff'/%3E%3Ctext x='32' y='46' font-family='system-ui,sans-serif' font-size='30' font-weight='700' fill='%23041020' text-anchor='middle'%3E%E5%AD%A6%3C/text%3E%3C/svg%3E">
 <script src="../js/boot.js"></script>
 <link rel="stylesheet" href="assets/shell.css?v=47d07441">
 <link rel="stylesheet" href="assets/content.css?v=47d07441">
+<!-- Python 语法教程片段沿用学习站自己的样式层（类名全部带前缀，不影响 C++ 页面） -->
+<link rel="stylesheet" href="learn.css">
+<link rel="stylesheet" href="learn-code.css">
+<link rel="stylesheet" href="assets/python.css">
 </head>
 <body>
 
@@ -22,10 +26,10 @@
   <aside class="side" id="side">
     <div class="side-top">
       <a class="brand" href="#/">
-        <span class="brand-mark">A</span>
+        <span class="brand-mark">学</span>
         <span class="brand-txt">
-          <b>ACM 算法站</b>
-          <small>手册 · 计划 · 60 节教程</small>
+          <b>编程学习站</b>
+          <small>C++ 算法 · Python 教程</small>
         </span>
       </a>
       <button class="side-x" id="sideX" type="button" aria-label="收起侧栏">✕</button>
@@ -33,14 +37,14 @@
 
     <div class="side-search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>
-      <input id="sideSearch" type="search" placeholder="搜索算法、章节、题号…" autocomplete="off" aria-label="搜索">
+      <input id="sideSearch" type="search" placeholder="搜索算法、语法、章节…" autocomplete="off" aria-label="搜索">
       <kbd>Ctrl K</kbd>
     </div>
 
     <nav class="side-nav" id="nav" aria-label="站点目录"></nav>
 
     <div class="side-foot">
-      <div class="pg-t"><span>教程进度</span><b id="pgNum">0 / 60</b></div>
+      <div class="pg-t"><span>学习进度</span><b id="pgNum">0 / 86</b></div>
       <div class="pg-bar"><i id="pgBar"></i></div>
       <div class="side-tools">
         <button class="mini-btn" id="wallBtn" type="button" title="背景与外观">
@@ -120,18 +124,18 @@
 <!-- ============================ 首页模板 ============================ -->
 <template id="tpl-home">
   <header class="hero">
-    <div class="eyebrow">Campus · ACM 算法子站</div>
-    <h1>把算法学成<span>能默写的手感</span></h1>
-    <p>手册负责「查」，计划负责「按周推进」，教程负责「从零讲清」，日常开发负责「别在细节上翻车」。四块内容共用一套目录、一套检索、一套进度。</p>
+    <div class="eyebrow">Campus · 编程学习子站</div>
+    <h1>把语法和算法<span>练成能默写的手感</span></h1>
+    <p>C++ 一侧：手册负责「查」，计划负责「按周推进」，算竞教程负责「从零讲清」，日常开发负责「别在细节上翻车」。Python 一侧：27 篇语法教程，每章都能独立跑通、独立验收。两侧共用一套目录、一套检索、一套进度。</p>
     <div class="hero-stats">
       <div><b data-hs="total">0</b><span>内容页</span></div>
       <div><b>122</b><span>算法卡片</span></div>
-      <div><b data-hs="lessons">60</b><span>教程小节</span></div>
+      <div><b data-hs="lessons">86</b><span>教程小节</span></div>
       <div><b data-hs="done">0</b><span>已学（节）</span></div>
     </div>
   </header>
 
-  <div class="sec-t"><h2>从哪开始</h2><em>三条路线，挑一条走完</em></div>
+  <div class="sec-t"><h2>从哪开始</h2><em>四条路线，挑一条走完</em></div>
   <div class="paths">
     <a class="path" href="#/course/1">
       <span class="pk">零基础 / 大一上</span>
@@ -151,9 +155,15 @@
       <p>122 张卡片：一句话本质 + 可默写的模板 + 分级题单。入门 10 项思维动作，基础与进阶按数据结构 / DP / 图论 / 数学分类。</p>
       <span class="go">进入手册 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
     </a>
+    <a class="path" href="#/py/guide">
+      <span class="pk">会一点 C++ / 想上手 Python</span>
+      <b>从 Python 导读读起</b>
+      <p>环境与解释器 → 缩进 → 数据类型 → 容器 → 推导式 → 函数与闭包 → 装饰器 → 迭代器与生成器 → 异常 → 文件 → OOP → 模块 → typing → 并发 → 测试与性能。</p>
+      <span class="go">打开导读 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    </a>
   </div>
 
-  <div class="sec-t"><h2>四个模块</h2><em>侧栏可直达任意小节</em></div>
+  <div class="sec-t"><h2>五个模块</h2><em>侧栏按 C++ / Python 两个大类排列，可直达任意小节</em></div>
   <div class="mods">
     <a class="mod-c" href="#/hb/entry">
       <div class="mt"><b>学习手册</b><em>7 章 · 122 张</em></div>
@@ -176,6 +186,11 @@
       <div class="md">复杂度分析、脚手架与快读快写、对拍、常见错误字典、离散化、术语词典。都是「不写会一直扣分」的基本功。</div>
       <div class="mrow"><span>复杂度</span><span>对拍</span><span>离散化</span><span>词典</span></div>
     </a>
+    <a class="mod-c" href="#/py/guide">
+      <div class="mt"><b>Python 语法教程</b><em>27 篇 · 26 章</em></div>
+      <div class="md">从「解释器怎么跑你的代码」讲到装饰器、生成器、异常、文件、OOP、模块与包、typing、并发、pytest 与性能剖析。每章都可独立运行、独立验收。</div>
+      <div class="mrow"><span>语法 → 工程</span><span>实跑输出</span><span>常见坑</span><span>含导读</span></div>
+    </a>
   </div>
 
   <div class="sec-t"><h2>最近浏览</h2><em>存在本机，不上传</em></div>
@@ -192,8 +207,8 @@
   </div>
 
   <div class="home-foot">
-    <span>内容来源：校园主页 ACM 子站 · 学习手册 / 学习计划 / 日常开发</span>
-    <span>教程与题解：Learning Group · 算竞教程（60 节）</span>
+    <span>内容来源：校园主页 · 学习手册 / 学习计划 / 日常开发 / 算竞教程</span>
+    <span>教程与题解：Learning Group · 算竞教程（60 节）· Python 语法教程（26 章）</span>
   </div>
 </template>
 
@@ -248,6 +263,7 @@
   </div>
 </div>
 
+<script src="../js/learn-code.js" defer></script>
 <script src="assets/shell.js?v=47d07441" defer></script>
 </body>
 </html>
