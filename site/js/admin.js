@@ -235,20 +235,27 @@
 
   function renderStoreBadge() {
     var b = $('#storeBadge');
-    if (!b) return;
+    var b2 = $('#storeBadge2');
+    if (!b && !b2) return;
+    var label, cls;
     if (state.storage === 'kv') {
-      b.textContent = 'KV 存储 · 可在线发布';
-      b.className = 'badge badge-ok';
+      label = 'KV 存储 · 可在线发布';
+      cls = 'badge badge-ok';
     } else if (state.storage === 'local') {
-      b.textContent = '本机预览 · 可发布（存 .preview-notify.json）';
-      b.className = 'badge badge-ok';
+      label = '本机预览 · 可发布（存 .preview-notify.json）';
+      cls = 'badge badge-ok';
     } else if (state.storage === 'file') {
-      b.textContent = '只读 · 来自 hosts.json';
-      b.className = 'badge badge-warn';
+      label = '只读 · 来自 hosts.json';
+      cls = 'badge badge-warn';
     } else {
-      b.textContent = '状态未知';
-      b.className = 'badge badge-plain';
+      label = '状态未知';
+      cls = 'badge badge-plain';
     }
+    [b, b2].forEach(function (el) {
+      if (!el) return;
+      el.textContent = label;
+      el.className = cls;
+    });
   }
 
   /* ======================================================================

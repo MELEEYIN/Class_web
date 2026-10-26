@@ -58,6 +58,7 @@
 
   <!-- ============ 登录 / 首次初始化 ============ -->
   <section class="card admin-login" id="loginCard" data-reveal>
+    <div class="admin-login-logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><use href="#i-bell"/></svg></div>
     <h1 class="admin-h1">
       <svg class="ico" aria-hidden="true"><use href="#i-lock"/></svg>
       <span id="loginTitle">进入通知管理</span>
@@ -98,6 +99,17 @@
 
   <!-- ============ 发布区 ============ -->
   <section id="console" hidden>
+    <div class="admin-hero" data-reveal>
+      <div>
+        <p class="eyebrow">Notify Center</p>
+        <h1>通知管理台</h1>
+        <p class="small muted">发布全站通知，管理公共事务与投票，查看访问统计。改动即时同步，访客页面最迟一分钟内自动更新。</p>
+      </div>
+      <div class="hero-tags">
+        <span class="badge badge-plain" id="storeBadge2">—</span>
+      </div>
+    </div>
+
     <div class="admin-grid">
 
       <div class="card" data-reveal>
@@ -171,15 +183,17 @@
         <div class="row-list" id="itemList" style="margin-top:10px"></div>
 
         <hr style="margin:18px 0">
-        <div class="card-head">
-          <h3 class="card-title" style="font-size:14px"><svg class="ico" aria-hidden="true"><use href="#i-alert"/></svg>危险操作</h3>
+        <div class="danger-zone">
+          <div class="card-head">
+            <h3 class="card-title" style="font-size:14px"><svg class="ico" aria-hidden="true"><use href="#i-alert"/></svg>危险操作</h3>
+          </div>
+          <button class="btn btn-sm btn-danger" type="button" id="clearAll">
+            <svg class="ico" aria-hidden="true"><use href="#i-trash"/></svg>清空全部通知
+          </button>
+          <p class="hint" style="margin-top:8px">
+            清空后首页通知栏会变成「暂无通知」。导出过 hosts.json 的话，随时可以用它恢复。
+          </p>
         </div>
-        <button class="btn btn-sm btn-danger" type="button" id="clearAll">
-          <svg class="ico" aria-hidden="true"><use href="#i-trash"/></svg>清空全部通知
-        </button>
-        <p class="hint" style="margin-top:8px">
-          清空后首页通知栏会变成「暂无通知」。导出过 hosts.json 的话，随时可以用它恢复。
-        </p>
       </div>
 
       <!-- ============ 公共事务（全班共用的一份清单，存在 KV 里） ============ -->
@@ -200,12 +214,14 @@
         </p>
 
         <hr style="margin:18px 0">
-        <button class="btn btn-sm btn-danger" type="button" id="pubClearAll">
-          <svg class="ico" aria-hidden="true"><use href="#i-trash"/></svg>清空全部公共事务
-        </button>
-        <p class="hint" style="margin-top:8px">
-          清掉服务器上的整份清单（不影响别人已经加进自己日程里的那几条）。
-        </p>
+        <div class="danger-zone">
+          <button class="btn btn-sm btn-danger" type="button" id="pubClearAll">
+            <svg class="ico" aria-hidden="true"><use href="#i-trash"/></svg>清空全部公共事务
+          </button>
+          <p class="hint" style="margin-top:8px">
+            清掉服务器上的整份清单（不影响别人已经加进自己日程里的那几条）。
+          </p>
+        </div>
       </div>
 
       <!-- ============ 投票管理（建 / 暂停 / 结束 / 删除） ============ -->

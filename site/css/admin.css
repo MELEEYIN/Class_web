@@ -5,7 +5,7 @@
    ========================================================================== */
 
 .admin-body {
-  background: var(--bg);
+  background: var(--bg-tint);
   color: var(--ink);
   min-height: 100dvh;
 }
@@ -55,7 +55,6 @@
    -------------------------------------------------------------------------- */
 #console { display: grid; gap: 22px; padding-bottom: 60px; }
 #loginCard { max-width: 560px; margin: 40px auto 80px; padding: 26px 26px 22px; }
-
 .admin-h1 {
   display: flex;
   align-items: center;
@@ -157,4 +156,80 @@
 .stat-table th, .stat-table td { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--line); }
 .stat-table th { color: var(--faint); font-weight: 600; }
 .stat-table td:last-child, .stat-table th:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* --------------------------------------------------------------------------
+   设计优化：hero、卡片分组、危险区、登录卡、统计卡片
+   -------------------------------------------------------------------------- */
+
+/* 控制台顶部 hero */
+.admin-hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding: 2px 4px 6px;
+}
+.admin-hero h1 {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  margin: 3px 0 7px;
+}
+.admin-hero .eyebrow { margin: 0; }
+.admin-hero .small { max-width: 58ch; }
+.admin-hero .hero-tags { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; flex: none; }
+
+/* 卡片更统一：轻微阴影、主标题下加分隔线 */
+#console .card { box-shadow: var(--sh-2); }
+#console .card > .card-head {
+  padding-bottom: 12px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+}
+
+/* 访问统计占满整行 */
+#statsCard { grid-column: 1 / -1; }
+
+/* 危险操作：淡红提示区 */
+.danger-zone {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--danger) 28%, var(--line));
+  border-radius: var(--r-sm);
+  background: color-mix(in srgb, var(--danger) 5%, transparent);
+}
+.danger-zone .hint { color: var(--muted); }
+
+/* 登录卡：居中品牌 + 柔光 */
+#loginCard {
+  margin: 6vh auto 80px;
+  border: 1px solid var(--accent-line);
+  box-shadow: var(--sh-3);
+}
+#loginCard .admin-h1 { justify-content: center; text-align: center; }
+#loginCard .admin-h1 + p.small { text-align: center; }
+#loginForm .admin-form-actions { justify-content: center; }
+.admin-login-logo {
+  width: 58px; height: 58px;
+  margin: 0 auto 18px;
+  display: grid; place-items: center;
+  border-radius: 16px;
+  color: #fff;
+  background: linear-gradient(140deg, var(--blue-500), var(--blue-700));
+  box-shadow: 0 10px 26px rgba(37, 99, 235, .35);
+}
+.admin-login-logo svg { width: 28px; height: 28px; }
+
+/* 统计小卡 hover 反馈 */
+.stat-tile { transition: border-color var(--t) var(--ease), transform var(--t) var(--ease); }
+.stat-tile:hover { border-color: var(--accent-line); transform: translateY(-2px); }
+
+/* 主按钮：柔和渐变，更醒目 */
+.btn-primary {
+  --btn-bg: linear-gradient(140deg, var(--blue-500), var(--blue-600));
+}
+.btn-primary:hover {
+  --btn-bg: linear-gradient(140deg, var(--blue-600), var(--blue-700));
+}
 
