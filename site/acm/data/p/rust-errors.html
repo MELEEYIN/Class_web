@@ -1,0 +1,78 @@
+<article data-learn-content>
+<p>Rust 把错误分成两类：<strong>不可恢复的 panic</strong> 和<strong>可恢复的 Result</strong>。原则很简单：程序 bug 用 panic，外部输入/IO 用 Result。</p>
+
+<h2 id="s1">一、panic! 与栈展开</h2>
+
+<pre><code>fn main() {
+    let v = vec![1, 2, 3];
+    println!("{}", v[9]);      // panic: index out of bounds
+}</code></pre>
+
+<p>panic 默认<strong>展开栈</strong>（跑 drop 释放内存）；在 <code>Cargo.toml</code> 里设 <code>panic = "abort"</code> 可以直接终止，二进制更小，但没法被 <code>catch_unwind</code> 捕获。</p>
+
+<h2 id="s2">二、Result 与 ? 运算符</h2>
+
+<pre><code>use std::fs::File;
+use std::io::{self, Read};
+
+fn read_file(path: &amp;str) -&gt; Result&lt;String, io::Error&gt; {
+    let mut f = File::open(path)?;    // 失败就 return Err(...)
+    let mut s = String::new();
+    f.read_to_string(&amp;mut s)?;
+    Ok(s)
+}
+
+fn main() {
+    match read_file("a.txt") {
+        Ok(s) =&gt; println!("{}", s),
+        Err(e) =&gt; eprintln!("读取失败: {}", e),
+    }
+}</code></pre>
+
+<table><thead><tr><th>写法</th><th>行为</th></tr></thead><tbody>
+<tr><td><code>expr?</code></td><td><code>Ok(v)</code> 取出 v；<code>Err(e)</code> 立即返回（会做 <code>From</code> 类型转换）</td></tr>
+<tr><td><code>unwrap()</code></td><td>失败就 panic，仅适合原型/测试</td></tr>
+<tr><td><code>expect("msg")</code></td><td>同上，但 panic 信息更清楚</td></tr>
+<tr><td><code>unwrap_or(default)</code></td><td>失败给默认值，不 panic</td></tr>
+<tr><td><code>map_err(|e| ...)</code></td><td>转换错误类型</td></tr>
+</tbody></table>
+
+<blockquote><code>?</code> 只能用在返回 <code>Result</code>（或 <code>Option</code>）的函数里。在 <code>main</code> 里用也行——把 <code>fn main()</code> 写成 <code>fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt;</code>。</blockquote>
+
+<h2 id="s3">三、自定义错误类型</h2>
+
+<pre><code>#[derive(Debug)]
+enum AppError {
+    Io(io::Error),
+    Parse(std::num::ParseIntError),
+}
+
+impl From&lt;io::Error&gt; for AppError {
+    fn from(e: io::Error) -&gt; Self { AppError::Io(e) }
+}
+impl From&lt;std::num::ParseIntError&gt; for AppError {
+    fn from(e: std::num::ParseIntError) -&gt; Self { AppError::Parse(e) }
+}</code></pre>
+
+<p>有了 <code>From</code> 实现，<code>?</code> 就能自动把底层错误“装箱”成你的错误类型，函数签名统一成 <code>Result&lt;T, AppError&gt;</code>。实际项目里通常直接用 <code>thiserror</code> / <code>anyhow</code> 两个 crate 省掉样板。</p>
+
+<h2 id="s4">四、什么时候不该 panic</h2>
+
+<ul>
+<li>库代码：不要替调用者决定“这算致命”，返回 <code>Result</code> 让他选。</li>
+<li>用户输入：解析失败是常态，用 <code>match</code>/<code>?</code> 而不是 <code>unwrap</code>。</li>
+<li>能证明不可能失败时（如刚检查过长度），<code>unwrap</code> 可以接受，但更推荐 <code>expect("不变量说明")</code>。</li>
+</ul>
+
+<h2 id="s5">五、常见坑</h2>
+<ol>
+<li><code>?</code> 用在返回 <code>()</code> 的函数里，报 <code>the `?` operator can only be used in a function that returns Result</code>。</li>
+<li><code>unwrap</code> 遍地：正式代码里每多一个 <code>unwrap</code> 就多一个潜在崩溃点。</li>
+<li>错误类型不匹配：<code>?</code> 需要 <code>From</code> 转换，没实现就要 <code>map_err</code>。</li>
+<li>把 <code>Err</code> 吞掉：<code>let _ = f();</code> 会静默丢弃错误。</li>
+<li>在 <code>eprintln!</code> 与 <code>println!</code> 之间纠结：错误信息走 stderr，别污染正常输出。</li>
+</ol>
+
+<h2 id="s6">六、小结</h2>
+<p><strong>panic 表示“程序错了”，Result 表示“这次操作失败了”。</strong>下一章讲泛型与 trait，这是 Rust 抽象能力的核心。</p>
+</article>

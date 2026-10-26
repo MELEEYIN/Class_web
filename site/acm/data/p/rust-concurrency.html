@@ -1,0 +1,61 @@
+<article data-learn-content>
+<p>Rust 的并发口号是“无畏并发”：数据竞争在<strong>编译期</strong>就被所有权与 <code>Send</code>/<code>Sync</code> 挡住，而不是靠运行时调试。</p>
+
+<h2 id="s1">一、线程</h2>
+
+<pre><code>use std::thread;
+use std::time::Duration;
+
+let h = thread::spawn(|| {
+    for i in 0..3 { println!("子线程 {}", i); thread::sleep(Duration::from_millis(10)); }
+});
+h.join().unwrap();            // 等它结束
+
+// 需要把数据搬进线程就用 move
+let v = vec![1, 2, 3];
+let h2 = thread::spawn(move || println!("{:?}", v));</code></pre>
+
+<h2 id="s2">二、channel：线程间通信</h2>
+
+<pre><code>use std::sync::mpsc;
+
+let (tx, rx) = mpsc::channel();
+thread::spawn(move || { tx.send("hi").unwrap(); });
+println!("{}", rx.recv().unwrap());     // 阻塞直到收到或通道关闭</code></pre>
+
+<p>“不要通过共享内存来通信，要通过通信来共享内存”——channel 把所有权传过去，天然避免了竞争。</p>
+
+<h2 id="s3">三、共享状态：Arc + Mutex</h2>
+
+<pre><code>use std::sync::{Arc, Mutex};
+
+let counter = Arc::new(Mutex::new(0));
+let mut handles = vec![];
+
+for _ in 0..10 {
+    let c = Arc::clone(&amp;counter);
+    handles.push(thread::spawn(move || {
+        let mut n = c.lock().unwrap();
+        *n += 1;
+    }));
+}
+for h in handles { h.join().unwrap(); }
+println!("{}", *counter.lock().unwrap());   // 10</code></pre>
+
+<table><thead><tr><th>trait</th><th>含义</th><th>谁需要实现</th></tr></thead><tbody>
+<tr><td><code>Send</code></td><td>值可以移动到另一个线程</td><td><code>Rc</code> 不实现，<code>Arc</code> 实现</td></tr>
+<tr><td><code>Sync</code></td><td><code>&amp;T</code> 可以安全地被多个线程共享</td><td><code>RefCell</code> 不实现，<code>Mutex</code> 实现</td></tr>
+</tbody></table>
+
+<h2 id="s4">四、常见坑</h2>
+<ol>
+<li>忘了 <code>move</code>：闭包借用栈上变量，编译器会报“可能比函数活得更久”。</li>
+<li>死锁：两个 <code>Mutex</code> 加锁顺序不一致，固定顺序即可。</li>
+<li><code>lock()</code> 返回 <code>Result</code>：持锁线程 panic 会导致中毒，需要处理 <code>PoisonError</code>。</li>
+<li>用 <code>Rc</code> 跨线程：<code>Rc</code> 没有 <code>Send</code>，必须 <code>Arc</code>。</li>
+<li>以为加锁就万事大吉：锁保护的是“数据访问”，不是“业务逻辑顺序”。</li>
+</ol>
+
+<h2 id="s5">五、小结</h2>
+<p><strong>spawn 起线程、channel 传数据、Arc+Mutex 共享状态。</strong>最后一章把它们拼成一个能跑的小服务器。</p>
+</article>

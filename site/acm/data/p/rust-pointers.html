@@ -1,0 +1,48 @@
+<article data-learn-content>
+<p>普通引用只能借用，不能“拥有”。当需要共享所有权、堆分配或运行时借用检查时，就用智能指针：<code>Box&lt;T&gt;</code>、<code>Rc&lt;T&gt;</code>、<code>RefCell&lt;T&gt;</code>、<code>Arc&lt;T&gt;</code>。</p>
+
+<h2 id="s1">一、Box：把数据放到堆上</h2>
+
+<pre><code>let b = Box::new(5);          // 值在堆上，b 在栈上
+println!("{}", *b);           // 解引用
+
+// 典型用途：递归类型（否则大小无法确定）
+enum List {
+    Cons(i32, Box&lt;List&gt;),
+    Nil,
+}</code></pre>
+
+<h2 id="s2">二、Rc 与 RefCell</h2>
+
+<pre><code>use std::rc::Rc;
+use std::cell::RefCell;
+
+let a = Rc::new(RefCell::new(vec![1, 2]));
+let b = Rc::clone(&amp;a);        // 引用计数 +1，不是深拷贝
+b.borrow_mut().push(3);       // 运行时借用检查
+println!("{:?}", a.borrow()); // [1, 2, 3]
+
+println!("{}", Rc::strong_count(&amp;a));   // 2</code></pre>
+
+<table><thead><tr><th>类型</th><th>所有权</th><th>可变性</th><th>线程安全</th></tr></thead><tbody>
+<tr><td><code>Box&lt;T&gt;</code></td><td>唯一</td><td>编译期检查</td><td>是（T: Send 时）</td></tr>
+<tr><td><code>Rc&lt;T&gt;</code></td><td>共享（单线程）</td><td>不可变</td><td><strong>否</strong></td></tr>
+<tr><td><code>RefCell&lt;T&gt;</code></td><td>唯一</td><td>运行时检查</td><td>否</td></tr>
+<tr><td><code>Arc&lt;T&gt;</code></td><td>共享（多线程）</td><td>不可变</td><td>是</td></tr>
+<tr><td><code>Mutex&lt;T&gt;</code></td><td>唯一</td><td>加锁后可改</td><td>是</td></tr>
+</tbody></table>
+
+<p>常见组合：<strong><code>Rc&lt;RefCell&lt;T&gt;&gt;</code></strong> 解决单线程下的“多处共享 + 可变”；<strong><code>Arc&lt;Mutex&lt;T&gt;&gt;</code></strong> 是它在线程版的对偶。</p>
+
+<h2 id="s3">三、常见坑</h2>
+<ol>
+<li>用 <code>Rc</code> 跨线程：编译直接拒绝（<code>Rc</code> 不是 <code>Send</code>），要换 <code>Arc</code>。</li>
+<li><code>RefCell</code> 运行时 panic：<code>already borrowed</code>，说明同一作用域内同时存在 <code>borrow()</code> 和 <code>borrow_mut()</code>。</li>
+<li>循环引用导致内存泄漏：<code>Rc</code> 计数永不归零，需要 <code>Weak</code> 打破环。</li>
+<li>以为 <code>Rc::clone</code> 是深拷贝：它只增加计数，代价极小。</li>
+<li>在 <code>Mutex</code> 上忘记 <code>lock().unwrap()</code>，拿到的是锁本身而不是数据。</li>
+</ol>
+
+<h2 id="s4">四、小结</h2>
+<p><strong>Box 上堆、Rc 共享、RefCell 内部可变、Arc/Mutex 跨线程。</strong>下一章正式进入并发。</p>
+</article>

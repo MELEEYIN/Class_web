@@ -1,0 +1,80 @@
+<article data-learn-content>
+<p>最后一章把前面学过的东西拼起来：一个多线程 HTTP 服务器。它足够小（百来行），但用到了所有权、trait、Result、线程池、Arc/Mutex 和迭代器。</p>
+
+<h2 id="s1">一、整体结构</h2>
+
+<pre><code>src/
+├── main.rs        // 监听端口，把连接交给线程池
+├── lib.rs         // 公开 ThreadPool 给集成测试用
+└── bin/main.rs    // 也可以拆成 bin
+
+ThreadPool::new(4) → 固定 4 个 worker 线程
+每个 TcpListener::incoming() 得到的连接 = 一个 Job
+Job 通过 mpsc::channel 发给空闲 worker</code></pre>
+
+<h2 id="s2">二、线程池核心</h2>
+
+<pre><code>use std::sync::{mpsc, Arc, Mutex};
+use std::thread;
+
+type Job = Box&lt;dyn FnOnce() + Send + 'static&gt;;
+
+pub struct ThreadPool {
+    workers: Vec&lt;Worker&gt;,
+    sender: mpsc::Sender&lt;Job&gt;,
+}
+
+impl ThreadPool {
+    pub fn new(size: usize) -&gt; ThreadPool {
+        let (sender, receiver) = mpsc::channel();
+        let receiver = Arc::new(Mutex::new(receiver));
+        let workers = (0..size)
+            .map(|id| Worker::new(id, Arc::clone(&amp;receiver)))
+            .collect();
+        ThreadPool { workers, sender }
+    }
+
+    pub fn execute&lt;F&gt;(&amp;self, f: F)
+    where F: FnOnce() + Send + 'static {
+        self.sender.send(Box::new(f)).unwrap();
+    }
+}</code></pre>
+
+<p>关键点：<code>mpsc</code> 的 <strong>Receiver 不能克隆</strong>，所以用 <code>Arc&lt;Mutex&lt;Receiver&gt;&gt;</code> 让多个 worker 轮流取任务——这正是 “Arc + Mutex 共享可变状态” 的教科书用法。</p>
+
+<h2 id="s3">三、处理请求</h2>
+
+<pre><code>fn handle_connection(mut stream: TcpStream) {
+    let buf_reader = BufReader::new(&amp;stream);
+    let request_line = buf_reader.lines().next().unwrap().unwrap();
+
+    let (status, filename) = match &amp;request_line[..] {
+        "GET / HTTP/1.1" =&gt; ("HTTP/1.1 200 OK", "hello.html"),
+        _ =&gt; ("HTTP/1.1 404 NOT FOUND", "404.html"),
+    };
+    let body = fs::read_to_string(filename).unwrap();
+    let resp = format!("{status}\r\nContent-Length: {}\r\n\r\n{body}", body.len());
+    stream.write_all(resp.as_bytes()).unwrap();
+}</code></pre>
+
+<h2 id="s4">四、还能往哪扩展</h2>
+
+<table><thead><tr><th>方向</th><th>用到的知识</th></tr></thead><tbody>
+<tr><td>优雅关闭（Drop 时 join）</td><td>Drop trait + Option 取走 sender</td></tr>
+<tr><td>路由表</td><td>HashMap + 闭包做 handler</td></tr>
+<tr><td>异步版</td><td><code>tokio</code> + <code>async/await</code></td></tr>
+<tr><td>日志与错误</td><td><code>tracing</code> / <code>anyhow</code></td></tr>
+</tbody></table>
+
+<h2 id="s5">五、常见坑</h2>
+<ol>
+<li><code>Job</code> 忘了 <code>Send + 'static</code>：跨线程传递必须满足。</li>
+<li>worker 里 <code>lock()</code> 的作用域过大，导致所有 worker 串行。</li>
+<li>用 <code>unwrap</code> 处理请求：一个畸形请求就能让线程 panic。</li>
+<li>忘记 <code>\r\n\r\n</code>：HTTP 头与体之间必须有空行，否则浏览器一直转圈。</li>
+<li>没有限制线程数：每个连接一个线程，高并发时直接耗尽资源。</li>
+</ol>
+
+<h2 id="s6">六、收尾</h2>
+<p>到这里 Rust 的主干走完了：<strong>所有权保证安全，trait 提供抽象，Result 处理失败，线程 + channel/Mutex 做并发。</strong>接下来最好的练习是找个小工具重写一遍——比如一个日志统计器、一个命令行 TODO。</p>
+</article>

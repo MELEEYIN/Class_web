@@ -1,0 +1,44 @@
+<article data-learn-content>
+<p>迭代器是 Rust 里替代手写循环的主力：<code>map</code>、<code>filter</code>、<code>fold</code> 这些适配器<strong>惰性求值</strong>，只有遇到消费型方法（<code>collect</code>/<code>sum</code>/<code>for</code>）才真正执行，而且编译后与手写循环几乎同速。</p>
+
+<h2 id="s1">一、闭包</h2>
+
+<pre><code>let add = |a, b| a + b;                 // 类型可推断
+let n = 10;
+let plus_n = |x: i32| x + n;            // 捕获外部变量（默认按引用借用）
+
+fn apply(f: impl Fn(i32) -&gt; i32, v: i32) -&gt; i32 { f(v) }
+apply(|x| x * 2, 5);                     // 10</code></pre>
+
+<table><thead><tr><th>trait</th><th>捕获方式</th><th>能调用几次</th></tr></thead><tbody>
+<tr><td><code>Fn</code></td><td>按引用</td><td>多次，只读</td></tr>
+<tr><td><code>FnMut</code></td><td>按可变引用</td><td>多次，可改捕获值</td></tr>
+<tr><td><code>FnOnce</code></td><td>按值（移动）</td><td>一次</td></tr>
+</tbody></table>
+
+<h2 id="s2">二、迭代器适配器</h2>
+
+<pre><code>let v = vec![1, 2, 3, 4, 5];
+
+let doubled: Vec&lt;i32&gt; = v.iter().map(|x| x * 2).collect();
+let evens: Vec&lt;&amp;i32&gt; = v.iter().filter(|x| *x % 2 == 0).collect();
+let sum: i32 = v.iter().sum();
+let total = v.iter().fold(0, |acc, x| acc + x);
+
+// 链式：前 3 个偶数的平方和
+let r: i32 = v.iter().filter(|x| **x % 2 == 0).take(3).map(|x| x * x).sum();</code></pre>
+
+<p>注意 <code>iter()</code>（借 <code>&amp;T</code>）、<code>iter_mut()</code>（<code>&amp;mut T</code>）、<code>into_iter()</code>（消耗，拿 <code>T</code>）三者的区别——<code>for x in v</code> 等价于 <code>into_iter()</code>。</p>
+
+<h2 id="s3">三、常见坑</h2>
+<ol>
+<li>适配器不消费就不执行：<code>v.iter().map(...);</code> 什么都不会发生（还有 <code>unused_must_use</code> 警告）。</li>
+<li><code>filter</code> 里的 <code>x</code> 是 <code>&amp;&amp;T</code>，比较要 <code>**x</code> 或 <code>*x</code>。</li>
+<li><code>collect()</code> 需要目标类型，写 <code>let v: Vec&lt;_&gt; = ...collect();</code> 或标注返回类型。</li>
+<li>闭包借用外部变量导致借用冲突：需要时用 <code>move</code> 把所有权搬进闭包。</li>
+<li>在闭包里改外部变量必须 <code>let mut f = || {...}</code>，且闭包本身要可 <code>FnMut</code>。</li>
+</ol>
+
+<h2 id="s4">四、小结</h2>
+<p><strong>闭包捕获环境，迭代器组合变换。</strong>下一章讲智能指针，处理“一个值多个所有者”这类场景。</p>
+</article>

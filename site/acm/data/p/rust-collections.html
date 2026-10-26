@@ -1,0 +1,71 @@
+<article data-learn-content>
+<p>三种集合覆盖了绝大多数场景：<code>Vec&lt;T&gt;</code> 有序可变长、<code>String</code> 是 UTF-8 字节序列、<code>HashMap&lt;K,V&gt;</code> 做键值查找。它们的共同点是<strong>数据在堆上，所以赋值是移动而非复制</strong>。</p>
+
+<h2 id="s1">一、Vec：能长大的数组</h2>
+
+<pre><code>let mut v: Vec&lt;i32&gt; = Vec::new();
+v.push(1); v.push(2);
+
+let v2 = vec![1, 2, 3];            // 宏写法
+println!("{}", v2[0]);             // 下标越界会 panic
+match v2.get(5) {                  // 安全访问，返回 Option
+    Some(x) =&gt; println!("{}", x),
+    None =&gt; println!("越界"),
+}
+
+for x in &amp;v2 { println!("{}", x); }   // 借用遍历
+v2.iter().sum::&lt;i32&gt;();              // 迭代器求和</code></pre>
+
+<table><thead><tr><th>操作</th><th>注意点</th></tr></thead><tbody>
+<tr><td><code>v[i]</code></td><td>越界 panic，仅用于确定下标合法时</td></tr>
+<tr><td><code>v.get(i)</code></td><td>返回 <code>Option&lt;&amp;T&gt;</code>，适合不确定</td></tr>
+<tr><td><code>v.push(x)</code></td><td>可能触发扩容（重新分配 + 搬数据）</td></tr>
+<tr><td><code>for x in v</code></td><td>消耗 v；<code>for x in &amp;v</code> 只借用</td></tr>
+</tbody></table>
+
+<h2 id="s2">二、String 与 &amp;str</h2>
+
+<pre><code>let mut s = String::from("hello");
+s.push_str(" world");       // 追加 &amp;str
+s.push('!');                // 追加 char
+let t = format!("{}-{}", s, 42);   // 不消耗 s
+
+// 不能按下标取字符：UTF-8 变长
+// let c = s[0];            // 编译错误
+for ch in s.chars() { }     // 按 Unicode 标量遍历
+for b in s.bytes() { }      // 按字节遍历</code></pre>
+
+<p><code>&amp;str</code> 是“借来的字符串切片”，<code>String</code> 是“拥有所有权的可变字符串”。函数参数优先用 <code>&amp;str</code>，因为它能同时接受两者。</p>
+
+<h2 id="s3">三、HashMap</h2>
+
+<pre><code>use std::collections::HashMap;
+
+let mut m = HashMap::new();
+m.insert("a", 1);
+m.insert("b", 2);
+
+match m.get("a") {
+    Some(v) =&gt; println!("{}", v),
+    None =&gt; println!("没有"),
+}
+
+// 不存在才插入
+m.entry("c").or_insert(3);
+
+for (k, v) in &amp;m { println!("{} = {}", k, v); }</code></pre>
+
+<p><code>entry(k).or_insert(v)</code> 是统计词频的标准写法：只查一次哈希，避免了“先 get 再 insert”的两次查找。</p>
+
+<h2 id="s4">四、常见坑</h2>
+<ol>
+<li><code>s[0]</code> 取字符：UTF-8 不定长，编译期就不允许；用 <code>chars()</code> 或 <code>char_indices()</code>。</li>
+<li><code>&amp;s + "x"</code>：<code>+</code> 会消耗左边的 String，改用 <code>push_str</code> 或 <code>format!</code>。</li>
+<li>遍历 <code>HashMap</code> 的顺序是随机的（每次运行都可能不同），别依赖顺序。</li>
+<li>借用 <code>v[0]</code> 之后又 <code>v.push</code>：扩容会让旧引用失效，编译器会拦下来。</li>
+<li>用 <code>Vec&lt;bool&gt;</code> 当标记数组时忘了清零，逻辑错得很难查。</li>
+</ol>
+
+<h2 id="s5">五、小结</h2>
+<p><strong>Vec 管顺序、String 管文本、HashMap 管查找。</strong>下一章讲错误处理——这两种集合的很多方法都返回 <code>Option</code>/<code>Result</code>，正好衔接。</p>
+</article>

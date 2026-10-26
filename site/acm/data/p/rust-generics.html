@@ -1,0 +1,67 @@
+<article data-learn-content>
+<p>泛型解决“同一套逻辑适配多种类型”，trait 解决“多种类型共享同一种行为”，生命周期解决“引用能活多久”。这三件事构成了 Rust 的抽象体系，也是它零成本抽象的来源。</p>
+
+<h2 id="s1">一、泛型函数与结构体</h2>
+
+<pre><code>fn largest&lt;T: PartialOrd&gt;(list: &amp;[T]) -&gt; &amp;T {
+    let mut max = &amp;list[0];
+    for item in &amp;list[1..] {
+        if item &gt; max { max = item; }
+    }
+    max
+}
+
+struct Point&lt;T&gt; { x: T, y: T }
+
+impl&lt;T&gt; Point&lt;T&gt; {
+    fn x(&amp;self) -&gt; &amp;T { &amp;self.x }
+}</code></pre>
+
+<p><code>&lt;T: PartialOrd&gt;</code> 是“约束”：不是所有类型都能比大小，所以必须声明 T 至少实现了 <code>PartialOrd</code>。泛型在编译期<strong>单态化</strong>（每个具体类型生成一份代码），运行时没有额外开销。</p>
+
+<h2 id="s2">二、trait：行为的契约</h2>
+
+<pre><code>trait Summary {
+    fn summarize(&amp;self) -&gt; String;
+
+    fn preview(&amp;self) -&gt; String {          // 默认实现
+        format!("{}...", &amp;self.summarize()[..10.min(self.summarize().len())])
+    }
+}
+
+impl Summary for Point&lt;i32&gt; {
+    fn summarize(&amp;self) -&gt; String { format!("({}, {})", self.x, self.y) }
+}
+
+// 参数用 impl Trait 或泛型都行
+fn show(s: &amp;impl Summary) { println!("{}", s.summarize()); }</code></pre>
+
+<table><thead><tr><th>写法</th><th>含义</th></tr></thead><tbody>
+<tr><td><code>impl Trait</code>（参数位）</td><td>静态分发，编译期确定具体类型</td></tr>
+<tr><td><code>dyn Trait</code>（<code>&amp;dyn Trait</code>）</td><td>动态分发，运行时查虚表，可装不同类型</td></tr>
+<tr><td><code>where T: A + B</code></td><td>约束太多时移到 where 子句，提升可读性</td></tr>
+</tbody></table>
+
+<h2 id="s3">三、生命周期：引用能活多久</h2>
+
+<pre><code>// 返回值的引用来自 a 还是 b？编译器需要你说明
+fn longer&lt;'a&gt;(a: &amp;'a str, b: &amp;'a str) -&gt; &amp;'a str {
+    if a.len() &gt; b.len() { a } else { b }
+}</code></pre>
+
+<p><code>'a</code> 不是“让变量活更久”，而是<strong>声明两个入参和返回值至少活一样长</strong>。多数情况下编译器能自动推断（生命周期省略规则），只有“返回引用且来源不唯一”时才要手写。</p>
+
+<blockquote>结构体里存引用必须标生命周期：<code>struct Parser&lt;'a&gt; { input: &amp;'a str }</code>，因为它不能比被借用的数据活得更久。</blockquote>
+
+<h2 id="s4">四、常见坑</h2>
+<ol>
+<li>泛型没加约束就调用 <code>&gt;</code>、<code>+</code>：编译器不知道 T 支持什么操作。</li>
+<li>trait 方法忘了 <code>pub</code>？trait 本身要可见，方法默认随 trait 可见。</li>
+<li><code>&amp;dyn Trait</code> 忘了 <code>&amp;</code>：<code>dyn Trait</code> 是 unsized，不能按值传。</li>
+<li>生命周期标注写在返回值上却漏了入参，报“missing lifetime specifier”。</li>
+<li>以为 <code>'static</code> 是“全局变量”：它表示“活得和程序一样久”，字面量字符串就是 <code>&amp;'static str</code>。</li>
+</ol>
+
+<h2 id="s5">五、小结</h2>
+<p><strong>泛型写一次适配多种类型，trait 描述共享行为，生命周期保证引用安全。</strong>下一章讲测试，把前面写的东西都验证一遍。</p>
+</article>

@@ -1,0 +1,54 @@
+<article data-learn-content>
+<p>Rust 把测试做进了语言和 cargo：<code>#[test]</code> 标注函数，<code>cargo test</code> 编译并运行。测试代码和生产代码可以写在一起（<code>#[cfg(test)]</code>），也可以放 <code>tests/</code> 做集成测试。</p>
+
+<h2 id="s1">一、单元测试</h2>
+
+<pre><code>fn add(a: i32, b: i32) -&gt; i32 { a + b }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn adds_two_numbers() {
+        assert_eq!(add(2, 3), 5);
+    }
+
+    #[test]
+    fn negative_works() {
+        assert_eq!(add(-2, -3), -5);
+    }
+}</code></pre>
+
+<table><thead><tr><th>断言</th><th>用途</th></tr></thead><tbody>
+<tr><td><code>assert!(cond)</code></td><td>条件不成立则失败</td></tr>
+<tr><td><code>assert_eq!(a, b)</code></td><td>相等，失败时打印两个值（需要 <code>Debug</code>）</td></tr>
+<tr><td><code>assert_ne!(a, b)</code></td><td>不相等</td></tr>
+<tr><td><code>#[should_panic]</code></td><td>断言“这段代码应当 panic”</td></tr>
+<tr><td><code>Result&lt;(), E&gt;</code> 作为返回</td><td>用 <code>?</code> 在测试里传播错误</td></tr>
+</tbody></table>
+
+<h2 id="s2">二、集成测试</h2>
+
+<pre><code>// tests/integration.rs —— 只能访问 crate 的 pub 接口
+use my_crate::add;
+
+#[test]
+fn works_via_public_api() {
+    assert_eq!(add(1, 1), 2);
+}</code></pre>
+
+<p><code>cargo test</code> 还会跑文档注释里的示例（<code>cargo test --doc</code>），所以例子写错也会被发现。</p>
+
+<h2 id="s3">三、常见坑</h2>
+<ol>
+<li>忘了 <code>#[cfg(test)]</code>：测试模块会被编进 release 二进制。</li>
+<li><code>assert_eq!</code> 比较自定义类型却忘了 <code>#[derive(Debug, PartialEq)]</code>。</li>
+<li>集成测试放在 <code>src/</code> 里：应在 <code>tests/</code>，且只测 <code>pub</code> 接口。</li>
+<li>测试之间共享全局状态：测试默认多线程并行，互相污染就随机失败。</li>
+<li>只测 happy path：边界（空、0、负数、极大值）才是 bug 高发区。</li>
+</ol>
+
+<h2 id="s4">四、小结</h2>
+<p><strong>单元测试验证内部逻辑，集成测试验证对外契约。</strong>下一章讲迭代器与闭包，把循环写得更“函数式”。</p>
+</article>
