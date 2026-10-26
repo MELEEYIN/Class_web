@@ -1,0 +1,293 @@
+<!--EXPL:m3-s1--><div class="explain" data-expl="m3-s1">
+<h4 class="expl-h">一、这一节要解决什么问题</h4>
+<p>先看一个日常现象：一辆车 8:00 从 A 地出发，9:00 到达 120 km 外的 B 地，全程平均速度是 120 km/h。司机中途可能加速到 140，也可能堵车降到 60，但只要速度是连续变化的（没有瞬间跳变），就一定存在某一时刻，速度表恰好指着 120。这个时刻没法预先指出，但它的存在是确定的。中值定理说的就是这件事：<b>平均变化率必在某一点被瞬时变化率取到</b>。</p>
+<p>几何上更直观：画出曲线弧 AB，把 A、B 连成一条割线，则弧上必有一点，其切线平行于这条割线。罗尔定理是割线水平时的特例：两端等高，中间必有水平切线。这一节的全部内容，就是把这句话在越来越弱的条件下说严格。</p>
+<h4 class="expl-h">二、费马引理：极值点处切线水平</h4>
+<p><b>费马引理</b>　设 f 在 x₀ 的某邻域内有定义，在 x₀ 处可导。若对该邻域内一切 x 都有 f(x) ≤ f(x₀)（即 x₀ 为极大值点），则 f′(x₀) = 0；极小值点同理。</p>
+<p>证明只用左右导数。当 Δx &gt; 0 时 f(x₀ + Δx) ≤ f(x₀)，差商 ≤ 0，令 Δx→0⁺ 得右导数 f′₊(x₀) ≤ 0；当 Δx &lt; 0 时，分母为负而分子非正，差商 ≥ 0，令 Δx→0⁻ 得左导数 f′₋(x₀) ≥ 0。可导意味着左右导数相等，于是只能等于 0。</p>
+<p>两个前提都不能少：端点处只谈单侧导数，没有这个结论；<span class="fm">f(x) = |x|</span> 在 0 处取极小但不可导，也就没有 f′(0) = 0。这个引理本身用处不大，它的全部价值在于——它是罗尔定理证明中唯一需要「动脑」的一步。</p>
+<h4 class="expl-h">三、罗尔定理</h4>
+<p><b>罗尔定理</b>　若 f 满足三个条件：（1）在闭区间 [a,b] 上连续；（2）在开区间 (a,b) 内可导；（3）f(a) = f(b)，则至少存在一点 ξ ∈ (a,b)，使 f′(ξ) = 0。</p>
+<p><b>证明思路</b>分两步，这条主线必须记牢。第一步，闭区间上连续的函数必取得最大值 M 与最小值 m（最值定理）。第二步，若 M = m，则 f 恒为常数，f′(x) ≡ 0，任取 ξ 即可。若 M &gt; m，注意 f(a) = f(b)，最大值与最小值不可能都在端点处取到（否则两端函数值同为 M 又同为 m，与 M &gt; m 矛盾），故 M 与 m 中至少有一个是在 (a,b) 内部取得的。设这个内点为 ξ，则 ξ 是极值点且 f 在 ξ 可导，由费马引理得 f′(ξ) = 0。</p>
+<p>三个条件是用来「卡」的，各举一例：<span class="fm">f(x) = x</span> 在 [0,1] 上不满足 f(a) = f(b)，结论不成立；<span class="fm">f(x) = |x|</span> 在 [−1,1] 上不满足可导，弧上没有水平切线；若区间是开区间且函数在端点附近无界（如 1/x 型的挖洞），连续性条件失效，同样不行。</p>
+<h4 class="expl-h">四、拉格朗日中值定理</h4>
+<p><b>拉格朗日中值定理</b>　若 f 在 [a,b] 上连续、(a,b) 内可导，则存在 ξ ∈ (a,b)，使</p>
+<p><span class="fm">f(b) − f(a) = f′(ξ)(b − a)，即 <span class="fr"><span class="n">f(b) − f(a)</span><span class="d">b − a</span></span> = f′(ξ)</span></p>
+<p>它是罗尔的推广：把「两端等高」换成「用一条斜线把两端连起来」。所以证明办法就是把这根斜线减掉，造一个两端等高的函数。令</p>
+<p><span class="fm">F(x) = f(x) − f(a) − <span class="fr"><span class="n">f(b) − f(a)</span><span class="d">b − a</span></span>(x − a)</span></p>
+<p>则 F 在 [a,b] 连续、(a,b) 可导，且 F(a) = 0，F(b) = f(b) − f(a) − [f(b) − f(a)] = 0。由罗尔定理，存在 ξ 使 F′(ξ) = 0，即 f′(ξ) = [f(b) − f(a)]/(b − a)。</p>
+<p>写成「有限增量」形式更常用：<span class="fm">f(x + Δx) − f(x) = f′(ξ)Δx</span>，其中 ξ 介于 x 与 x + Δx 之间。注意 ξ 依赖 Δx，不能当成常数搬来搬去。三个推论后面证不等式全靠它们：在区间 I 上 f′(x) ≡ 0，则 f 为常数；f′ &gt; 0 则严格增，f′ &lt; 0 则严格减；若 |f′(x)| ≤ M，则 |f(x) − f(y)| ≤ M|x − y|。</p>
+<h4 class="expl-h">五、柯西中值定理</h4>
+<p><b>柯西中值定理</b>　若 f、g 在 [a,b] 上连续、(a,b) 内可导，且 g′(x) ≠ 0（x ∈ (a,b)），则存在 ξ ∈ (a,b)，使</p>
+<p><span class="fm"><span class="fr"><span class="n">f(b) − f(a)</span><span class="d">g(b) − g(a)</span></span> = <span class="fr"><span class="n">f′(ξ)</span><span class="d">g′(ξ)</span></span></span></p>
+<p>条件 g′ ≠ 0 自动保证了 g(b) ≠ g(a)（否则由罗尔定理 g′ 在内部有零点），所以分母有意义。证明完全平行：令</p>
+<p><span class="fm">F(x) = f(x) − f(a) − <span class="fr"><span class="n">f(b) − f(a)</span><span class="d">g(b) − g(a)</span></span>[g(x) − g(a)]</span></p>
+<p>则 F(a) = F(b) = 0，用罗尔定理即得。把 g(x) = x 代回去就退回拉格朗日，所以柯西是拉格朗日的「参数化」版本：它比较的是两个函数在同一点处变化率之比。这正是下一节洛必达法则的理论来源——洛必达本质上就是让区间端点 a 与 x 合并，把柯西定理取极限。</p>
+<h4 class="expl-h">六、辅助函数：看见结论就知道造什么</h4>
+<p>考试里的证明题，九成是「证明存在 ξ 使某个含 f(ξ)、f′(ξ) 的式子成立」。套路是：把 ξ 换成 x，移项成等式，再把它认成某个 F′(x) = 0。常见对照如下：</p>
+<ul>
+<li>要证 f′(ξ) = 0：取 F(x) = f(x)，直接用罗尔定理。</li>
+<li>要证 f′(ξ) + k f(ξ) = 0：取 F(x) = e<sup>kx</sup>f(x)，因为 F′ = e<sup>kx</sup>[f′ + kf]。</li>
+<li>要证 f′(ξ) − k f(ξ) = 0：取 F(x) = e<sup>−kx</sup>f(x)。</li>
+<li>要证 ξ f′(ξ) + f(ξ) = 0：取 F(x) = x f(x)，因为 F′ = f + x f′。</li>
+<li>要证 ξ f′(ξ) − f(ξ) = 0：取 F(x) = f(x)/x。</li>
+<li>要证 f′(ξ) + 2ξ f(ξ) = 0：取 F(x) = e<sup>x²</sup>f(x)。</li>
+</ul>
+<p>记法是：<b>看到 f′ 与 f 的线性组合，就想 e 的指数；看到 ξ 乘 f′ 再加 f，就想 x 乘 f</b>。乘上去的因子必须恒不为零，这样 F′(ξ) = 0 才能约掉它、推出括号为零。</p>
+<h4 class="expl-h">七、例题</h4>
+<div class="expl-eg"><p class="expl-q"><b>例 1</b>　证明：当 x &gt; 0 时，<span class="fm"><span class="fr"><span class="n">x</span><span class="d">1 + x</span></span> &lt; ln(1 + x) &lt; x</span>。</p>
+<p class="expl-s"><b>解</b>　在 [0, x] 上对 f(t) = ln(1 + t) 用拉格朗日中值定理。f 在 [0,x] 连续、在 (0,x) 内可导，f′(t) = 1/(1 + t)，于是存在 ξ ∈ (0,x)，使<br>
+<span class="fm">ln(1 + x) − ln 1 = <span class="fr"><span class="n">1</span><span class="d">1 + ξ</span></span>·x</span><br>
+因为 0 &lt; ξ &lt; x，所以 <span class="fm"><span class="fr"><span class="n">1</span><span class="d">1 + x</span></span> &lt; <span class="fr"><span class="n">1</span><span class="d">1 + ξ</span></span> &lt; 1</span>。两边同乘 x &gt; 0，得<br>
+<span class="fm"><span class="fr"><span class="n">x</span><span class="d">1 + x</span></span> &lt; ln(1 + x) &lt; x</span>。</p>
+<p class="expl-t">两边都被卡住，这种「双侧估计」很常考。关键是把 1/(1 + ξ) 中的 ξ 夹在 0 与 x 之间再放缩，绝不要去解 ξ。</p></div>
+<div class="expl-eg"><p class="expl-q"><b>例 2</b>　设 0 &lt; a &lt; b，f 在 [a,b] 上连续、(a,b) 内可导。证明存在 ξ ∈ (a,b)，使 <span class="fm">f(b) − f(a) = ξ f′(ξ) ln<span class="fr"><span class="n">b</span><span class="d">a</span></span></span>。</p>
+<p class="expl-s"><b>解</b>　结论右边出现了 ln(b/a)，这是极明确的信号：取 g(x) = ln x。g 在 [a,b] 上连续、(a,b) 内可导，且 g′(x) = 1/x ≠ 0。对 f 与 g 用柯西中值定理，存在 ξ ∈ (a,b)，使<br>
+<span class="fm"><span class="fr"><span class="n">f(b) − f(a)</span><span class="d">ln b − ln a</span></span> = <span class="fr"><span class="n">f′(ξ)</span><span class="d">1/ξ</span></span> = ξ f′(ξ)</span><br>
+而 ln b − ln a = ln(b/a)，两边同乘即得结论。</p>
+<p class="expl-t">识别信号：结论里有 ln(b/a) 就配 g = ln x，有 b² − a² 就配 g = x²，有 arctan b − arctan a 就配 g = arctan x。分母不再是 b − a 时，八成要用柯西。</p></div>
+<div class="expl-eg"><p class="expl-q"><b>例 3</b>　设 f 在 [0,1] 上连续、(0,1) 内可导，且 f(0) = f(1) = 0。证明存在 ξ ∈ (0,1)，使 <span class="fm">f′(ξ) + 2ξ f(ξ) = 0</span>。</p>
+<p class="expl-s"><b>解</b>　结论是 f′ + 2x f 的形状，对应因子 e<sup>∫2x dx</sup> = e<sup>x²</sup>。令<br>
+<span class="fm">F(x) = e<sup>x²</sup> f(x)</span><br>
+则 F 在 [0,1] 上连续、(0,1) 内可导，且 F(0) = e⁰f(0) = 0，F(1) = e·f(1) = 0。由罗尔定理，存在 ξ ∈ (0,1) 使 F′(ξ) = 0。而<br>
+<span class="fm">F′(x) = e<sup>x²</sup>[f′(x) + 2x f(x)]</span><br>
+因 e<sup>ξ²</sup> 恒不为零，故 f′(ξ) + 2ξ f(ξ) = 0。</p>
+<p class="expl-t">最后一步靠的正是「因子恒正才能约掉」。若构造的是 x f(x)，就必须保证 x ≠ 0，所以题目给的区间不能含 0 作为内点。</p></div>
+<h4 class="expl-h">八、与后文的联系与易错提醒</h4>
+<p>这一节的四个定理是一条链：费马 → 罗尔 → 拉格朗日 → 柯西，后一个是前一个的推广，每步只放宽一点条件。它往下接三处：柯西定理取极限就是洛必达法则；拉格朗日定理加上「二阶导」就是泰勒公式（n = 0 的泰勒就是拉格朗日）；单调性判定（第四节）的证明也直接来自拉格朗日定理。</p>
+<p>易错有三：一是<b>把 ξ 当常数</b>，写成 f′(ξ) = 常数后再对 x 求导；二是<b>忘记验证三个条件</b>，尤其是「开区间可导」——遇到带绝对值、分段点的函数，先看可导性；三是<b>混淆存在性与唯一性</b>，中值定理只保证存在，题目问「唯一」时必须另加单调性论证。做题时建议先写「因为 f 在 [a,b] 连续、在 (a,b) 可导」这一句，条件写全了，分就稳了。</p>
+</div><!--/EXPL:m3-s1-->
+
+<!--EXPL:m3-s2--><div class="explain" data-expl="m3-s2">
+<h4 class="expl-h">一、为什么 0/0 不能直接算</h4>
+<p>两个无穷小之比，结果取决于谁更快趋于零：<span class="fm">x/x → 1</span>，<span class="fm">x²/x → 0</span>，<span class="fm">x/x² → ∞</span>。三者的分子分母都趋于 0，答案却完全不同。可见「0/0」只是一个记号，不是数，它本身不含任何信息，必须比较两者的阶才能定值。</p>
+<p>比较阶最顺手的工具是导数。在 a 附近，f(x) ≈ f′(a)(x − a)，g(x) ≈ g′(a)(x − a)，两式相除，(x − a) 被约掉，只剩 f′(a)/g′(a)。这就是洛必达法则的全部直觉：<b>函数之比的极限，等于导数之比的极限</b>。</p>
+<h4 class="expl-h">二、定理的精确表述</h4>
+<p><b>洛必达法则（0/0 型）</b>　设<br>
+（1）<span class="fm"><span class="lm">lim<span class="s">x→a</span></span> f(x) = 0，<span class="lm">lim<span class="s">x→a</span></span> g(x) = 0</span>；<br>
+（2）在 a 的某去心邻域内 f′(x)、g′(x) 存在，且 g′(x) ≠ 0；<br>
+（3）<span class="fm"><span class="lm">lim<span class="s">x→a</span></span> <span class="fr"><span class="n">f′(x)</span><span class="d">g′(x)</span></span> = A</span>（A 为有限数或 ±∞），<br>
+则 <span class="fm"><span class="lm">lim<span class="s">x→a</span></span> <span class="fr"><span class="n">f(x)</span><span class="d">g(x)</span></span> = A</span>。</p>
+<p>∞/∞ 型只需把条件（1）换成 f、g 都趋于 ∞，结论完全相同。x→a⁺、x→a⁻、x→∞ 各情形都成立；数列极限也可用（把 n 换成连续变量 x）。</p>
+<h4 class="expl-h">三、证明思路：柯西定理取极限</h4>
+<p>补定义 f(a) = g(a) = 0，则 f、g 在 a 处也连续。对 a 附近的 x，在 [a,x]（或 [x,a]）上用柯西中值定理：存在 ξ 介于 a 与 x 之间，使</p>
+<p><span class="fm"><span class="fr"><span class="n">f(x)</span><span class="d">g(x)</span></span> = <span class="fr"><span class="n">f(x) − f(a)</span><span class="d">g(x) − g(a)</span></span> = <span class="fr"><span class="n">f′(ξ)</span><span class="d">g′(ξ)</span></span></span></p>
+<p>当 x→a 时 ξ→a，右端趋于 A，左端就是所求，证毕。这里藏着洛必达的「软肋」：它只保证「若导数比的极限存在，则原极限等于它」，反过来不成立。所以条件（3）必须单独验证，不能想当然。</p>
+<h4 class="expl-h">四、六种未定式与转化</h4>
+<p>能直接用的只有 0/0 与 ∞/∞ 两种。其余四种必须先变形，这是洛必达题的真正难点：</p>
+<ul>
+<li><b>0·∞</b>　把其中一个因子写成倒数放进分母，化成 0/0 或 ∞/∞。选谁进分母有讲究：谁求导后更简单就让谁下去。常见选择是把 ln x 留在分子（因为 (1/x)′ 很干净），把幂函数放到分母。</li>
+<li><b>∞ − ∞</b>　通分（分式之差）、有理化（根式之差）、或提取公因子，先化成商，再用洛必达。</li>
+<li><b>1<sup>∞</sup>、0<sup>0</sup>、∞<sup>0</sup></b>　都是幂指函数，一律先取对数。设 y = f<sup>g</sup>，则 ln y = g ln f，指数型立刻降级成 0·∞，再化成分式。最后别忘了把答案取回指数：<span class="fm">lim y = e<sup>lim ln y</sup></span>。</li>
+</ul>
+<h4 class="expl-h">五、使用纪律</h4>
+<ol>
+<li><b>先验型，再动笔。</b>没确认是 0/0 或 ∞/∞ 就求导，是扣分第一名。例如 <span class="fm"><span class="lm">lim<span class="s">x→0</span></span> <span class="fr"><span class="n">x + 1</span><span class="d">x + 2</span></span> = <span class="fr"><span class="n">1</span><span class="d">2</span></span></span>，分子分母都不趋于零，直接代入即可，求导反而错。</li>
+<li><b>每求一次导，回头看一眼</b>是否仍是未定式；不是就停手，直接代值。</li>
+<li><b>能化简先化简。</b>约掉非零因子、先用等价无穷小替换乘除因子，再洛必达，计算量常能减一半。但等价替换只对乘除因子有效，加减项里替换必须谨慎。</li>
+<li><b>失效就换法。</b>若 lim f′/g′ 不存在（含振荡），洛必达给不出任何结论，原极限却可能存在。典型例子：<span class="fm"><span class="lm">lim<span class="s">x→∞</span></span> <span class="fr"><span class="n">x + sin x</span><span class="d">x</span></span> = 1</span>，但导数比 1 + cos x 的极限不存在。此时应回到夹逼或直接做除法：原式 = 1 + sin x / x → 1。另外，若求导后越变越复杂（如含 e<sup>x²</sup>、高阶幂），立刻改用泰勒公式。</li>
+</ol>
+<h4 class="expl-h">六、例题</h4>
+<div class="expl-eg"><p class="expl-q"><b>例 1</b>　求 <span class="fm"><span class="lm">lim<span class="s">x→0</span></span> <span class="fr"><span class="n">tan x − x</span><span class="d">x³</span></span></span>。</p>
+<p class="expl-s"><b>解</b>　x→0 时分子分母都趋于 0，是 0/0 型。用一次洛必达：<br>
+<span class="fm"><span class="lm">lim<span class="s">x→0</span></span> <span class="fr"><span class="n">sec²x − 1</span><span class="d">3x²</span></span></span><br>
+用恒等式 sec²x − 1 = tan²x，得 <span class="fm"><span class="lm">lim<span class="s">x→0</span></span> <span class="fr"><span class="n">tan²x</span><span class="d">3x²</span></span></span>。此时不必再洛必达，用等价无穷小 tan x ~ x，得 tan²x ~ x²，故原式 = 1/3。</p>
+<p class="expl-t">若硬做第二次洛必达：分子导数为 2sec²x tan x，分母为 6x，再用 tan x ~ x，同样得 2x/(6x) = 1/3。两种走法都要会，考场上选省事的那条。</p></div>
+<div class="expl-eg"><p class="expl-q"><b>例 2</b>　求 <span class="fm"><span class="lm">lim<span class="s">x→0⁺</span></span> x ln x</span>。</p>
+<p class="expl-s"><b>解</b>　这是 0·∞ 型（x→0⁺ 时 x→0，ln x→−∞），不能直接用。把 x 写成 1/(1/x) 放进分母：<br>
+<span class="fm"><span class="lm">lim<span class="s">x→0⁺</span></span> <span class="fr"><span class="n">ln x</span><span class="d">1/x</span></span></span><br>
+化为 ∞/∞ 型。洛必达一次：分子导数 1/x，分母导数 −1/x²，比值为<br>
+<span class="fm"><span class="fr"><span class="n">1/x</span><span class="d">−1/x²</span></span> = −x → 0</span><br>
+故原极限为 0。</p>
+<p class="expl-t">注意方向：如果反过来把 ln x 放进分母（写成 x/(1/ln x)），求导会得到一个更乱的式子，越做越繁。0·∞ 型「让谁下去」是成败关键。</p></div>
+<div class="expl-eg"><p class="expl-q"><b>例 3</b>　求 <span class="fm"><span class="lm">lim<span class="s">x→0</span></span> <span class="fr"><span class="n">1</span><span class="d">sin x</span></span> − <span class="fr"><span class="n">1</span><span class="d">x</span></span></span>。</p>
+<p class="expl-s"><b>解</b>　这是 ∞ − ∞ 型，先通分：<br>
+<span class="fm"><span class="fr"><span class="n">x − sin x</span><span class="d">x sin x</span></span></span><br>
+化为 0/0 型。用等价无穷小：分母 x sin x ~ x²；分子 x − sin x ~ x³/6。故原式 ~ (x³/6)/x² = x/6 → 0。</p>
+<p class="expl-t">若不用等价无穷小，就洛必达两次：一次得 (1 − cos x)/(sin x + x cos x)，仍是 0/0；再导得 sin x/(2cos x − x sin x) → 0/2 = 0。两个办法答案一致，但泰勒或等价无穷小快得多。</p></div>
+<div class="expl-eg"><p class="expl-q"><b>例 4</b>　求 <span class="fm"><span class="lm">lim<span class="s">x→0</span></span> (1 + x)<sup>1/x</sup></span>。</p>
+<p class="expl-s"><b>解</b>　这是 1<sup>∞</sup> 型。设 y = (1 + x)<sup>1/x</sup>，取对数：<br>
+<span class="fm">ln y = <span class="fr"><span class="n">ln(1 + x)</span><span class="d">x</span></span></span><br>
+x→0 时这是 0/0 型，洛必达一次：<span class="fm"><span class="fr"><span class="n">1/(1 + x)</span><span class="d">1</span></span> → 1</span>，故 ln y → 1，于是 y → e<sup>1</sup> = e。</p>
+<p class="expl-t">1<sup>∞</sup> 型的答案一定形如 e<sup>A</sup>，先把 A 求出来再取指数，千万别把 A 直接当答案。这是最经典的「两个重要极限」之一，用洛必达验证最省事。</p></div>
+<h4 class="expl-h">七、与后文的联系与易错提醒</h4>
+<p>洛必达是「急救包」而不是「万能药」：能立刻判断型、求导后变简单的，用它最快；遇到振荡、求导变复杂、或需要精确到某阶的，交给下一节的泰勒公式。两者的分工要清楚——<b>洛必达看趋势，泰勒看阶数</b>。</p>
+<p>易错集中在四点：一是没验型就求导；二是一路求导不回头，最后算出一个不是未定式的式子还继续导；三是忘了 0·∞、∞ − ∞、1<sup>∞</sup> 需要先转化；四是在 lim f′/g′ 不存在时错误地断言「原极限不存在」。记住：洛必达失效只说明「此路不通」，不说明「极限不存在」。</p>
+</div><!--/EXPL:m3-s2-->
+
+<!--EXPL:m3-s3--><div class="explain" data-expl="m3-s3">
+<h4 class="expl-h">一、从切线到抛物线</h4>
+<p>用 <span class="fm">f(x₀) + f′(x₀)(x − x₀)</span> 近似 f，只在 x₀ 附近一小段靠谱，因为直线不会弯。想让它弯，就加一个二次项；还想更贴合，就继续加三次、四次项。一路加下去得到的是一条多项式——而多项式是唯一能只靠加减乘就算出精确值的函数。泰勒公式回答的就是：<b>用多项式模仿一个函数，每一阶该配多大的系数，剩下的误差有多大</b>。</p>
+<p>一个具体感受：sin x 在原点附近几乎等于 x，但 x 稍大就有偏差；加上 −x³/6 后，在 x = 1 处已经准到小数点后四位。这就是「阶数越高越像」的量化版本。</p>
+<h4 class="expl-h">二、系数是怎么定出来的</h4>
+<p>设 <span class="fm">P<sub>n</sub>(x) = a₀ + a₁(x − x₀) + a₂(x − x₀)² + … + a<sub>n</sub>(x − x₀)<sup>n</sup></span>，要求 P<sub>n</sub> 与 f 在 x₀ 处的函数值及各阶导数全部相等。令 x = x₀，所有含 (x − x₀) 的项消失，得 a₀ = f(x₀)；两边求一次导再令 x = x₀，得 a₁ = f′(x₀)；求两次导，二次项贡献出 2a₂，得 a₂ = f″(x₀)/2!；一般地，求 k 次导后只剩 k!a<sub>k</sub> = f<sup>(k)</sup>(x₀)，于是</p>
+<p><span class="fm">a<sub>k</sub> = <span class="fr"><span class="n">f<sup>(k)</sup>(x₀)</span><span class="d">k!</span></span></span></p>
+<p>阶乘不是天上掉下来的，是求导 k 次时从 (x − x₀)<sup>k</sup> 里滚出来的 k(k − 1)…1。理解了这一点，六个展开式就不必死记系数。</p>
+<h4 class="expl-h">三、两个定理：两种余项，两种用途</h4>
+<p><b>泰勒中值定理一（佩亚诺余项）</b>　若 f 在 x₀ 处有 n 阶导数，则当 x→x₀ 时</p>
+<p><span class="fm">f(x) = <span class="op">Σ</span><sub>k=0</sub><sup>n</sup> <span class="fr"><span class="n">f<sup>(k)</sup>(x₀)</span><span class="d">k!</span></span>(x − x₀)<sup>k</sup> + o((x − x₀)<sup>n</sup>)</span></p>
+<p>它只断言余项是比 (x − x₀)<sup>n</sup> 高阶的无穷小，不指出 ξ 在哪，所以<b>只能用于求极限</b>，不能用来估计误差。</p>
+<p><b>泰勒中值定理二（拉格朗日余项）</b>　若 f 在含 x₀ 的开区间 (a,b) 内有 n + 1 阶导数，则对任意 x ∈ (a,b)，存在 ξ 介于 x₀ 与 x 之间，使</p>
+<p><span class="fm">f(x) = P<sub>n</sub>(x) + <span class="fr"><span class="n">f<sup>(n+1)</sup>(ξ)</span><span class="d">(n+1)!</span></span>(x − x₀)<sup>n+1</sup></span></p>
+<p>余项是一个「具体的值」，虽然 ξ 未知，但只要知道 f<sup>(n+1)</sup> 的界，就能给出误差上界——所以<b>估计误差与证明不等式用它</b>。当 n = 0 时它退化成拉格朗日中值定理，可见泰勒是拉格朗日的推广。</p>
+<h4 class="expl-h">四、证明思路</h4>
+<p><b>佩亚诺余项</b>：令 R<sub>n</sub>(x) = f(x) − P<sub>n</sub>(x)，由构造方式知 R<sub>n</sub>(x₀) = R′<sub>n</sub>(x₀) = … = R<sub>n</sub><sup>(n)</sup>(x₀) = 0。对 R<sub>n</sub>(x)/(x − x₀)<sup>n</sup> 反复用洛必达（等价地反复用柯西定理）n − 1 次，分子最后剩下 R<sub>n</sub><sup>(n−1)</sup>(x) − R<sub>n</sub><sup>(n−1)</sup>(x₀)，再用导数定义即知其趋于 0，故 R<sub>n</sub> = o((x − x₀)<sup>n</sup>)。</p>
+<p><b>拉格朗日余项</b>：对 R<sub>n</sub>(x) 与 (x − x₀)<sup>n+1</sup> 反复用柯西定理 n + 1 次，每次在端点 x₀ 处的值都为零，最后一步得</p>
+<p><span class="fm"><span class="fr"><span class="n">R<sub>n</sub>(x)</span><span class="d">(x − x₀)<sup>n+1</sup></span></span> = <span class="fr"><span class="n">f<sup>(n+1)</sup>(ξ)</span><span class="d">(n+1)!</span></span></span></p>
+<p>移项即得。注意每用一次柯西，ξ 都可能换一个，最后停在某个介于 x₀ 与 x 之间的 ξ 上。</p>
+<h4 class="expl-h">五、六条必背的麦克劳林展开</h4>
+<p>以下都取 x₀ = 0，考试基本只考这六个，必须能默写：</p>
+<p><span class="fm">e<sup>x</sup> = 1 + x + <span class="fr"><span class="n">x²</span><span class="d">2!</span></span> + … + <span class="fr"><span class="n">x<sup>n</sup></span><span class="d">n!</span></span> + o(x<sup>n</sup>)</span></p>
+<p><span class="fm">sin x = x − <span class="fr"><span class="n">x³</span><span class="d">3!</span></span> + <span class="fr"><span class="n">x⁵</span><span class="d">5!</span></span> − … + (−1)<sup>n</sup><span class="fr"><span class="n">x<sup>2n+1</sup></span><span class="d">(2n+1)!</span></span> + o(x<sup>2n+1</sup>)</span></p>
+<p><span class="fm">cos x = 1 − <span class="fr"><span class="n">x²</span><span class="d">2!</span></span> + <span class="fr"><span class="n">x⁴</span><span class="d">4!</span></span> − … + (−1)<sup>n</sup><span class="fr"><span class="n">x<sup>2n</sup></span><span class="d">(2n)!</span></span> + o(x<sup>2n</sup>)</span></p>
+<p><span class="fm">ln(1 + x) = x − <span class="fr"><span class="n">x²</span><span class="d">2</span></span> + <span class="fr"><span class="n">x³</span><span class="d">3</span></span> − … + (−1)<sup>n−1</sup><span class="fr"><span class="n">x<sup>n</sup></span><span class="d">n</span></span> + o(x<sup>n</sup>)</span></p>
+<p><span class="fm">(1 + x)<sup>α</sup> = 1 + αx + <span class="fr"><span class="n">α(α − 1)</span><span class="d">2!</span></span>x² + … + <span class="fr"><span class="n">α(α − 1)…(α − n + 1)</span><span class="d">n!</span></span>x<sup>n</sup> + o(x<sup>n</sup>)</span></p>
+<p><span class="fm"><span class="fr"><span class="n">1</span><span class="d">1 − x</span></span> = 1 + x + x² + … + x<sup>n</sup> + o(x<sup>n</sup>)　（|x| &lt; 1）</span></p>
+<p>记忆要点：e<sup>x</sup> 全是加号、系数是 1/n!；sin 只取奇次且符号交替；cos 只取偶次且符号交替；ln(1 + x) 的分母是 1、2、3 而不是阶乘，符号从第二项起交替；最后两条其实是同一个等比求和公式的正反两用。</p>
+<h4 class="expl-h">六、展开到几阶才够</h4>
+<p>两条原则就够了。<b>第一，看分母</b>：分母是 x<sup>n</sup>，就展到 x<sup>n</sup>，低一阶结论必错。<b>第二，看抵消</b>：两项相减时，要展到「第一个不抵消的项」为止。例如 (tan x − sin x)/x³，两者首项都是 x，抵消；下一项 tan x 贡献 x³/3，sin x 贡献 −x³/6，相减得 x³/2，不再抵消，故展到 x³ 已足够。</p>
+<p><b>最致命的错误</b>是：在加减运算里各自使用等价无穷小替换。x − sin x 若换成 x − x = 0，就把真正的最低阶 x³/6 整个扔掉了。等价替换只在乘除因子中安全；出现加减，必须展开到不抵消的那一阶。</p>
+<h4 class="expl-h">七、例题</h4>
+<div class="expl-eg"><p class="expl-q"><b>例 1</b>　求 <span class="fm"><span class="lm">lim<span class="s">x→0</span></span> <span class="fr"><span class="n">cos x − e<sup>−x²/2</sup></span><span class="d">x⁴</span></span></span>。</p>
+<p class="expl-s"><b>解</b>　分母是 x⁴，故每个函数都展到 x⁴。<br>
+<span class="fm">cos x = 1 − <span class="fr"><span class="n">x²</span><span class="d">2</span></span> + <span class="fr"><span class="n">x⁴</span><span class="d">24</span></span> + o(x⁴)</span><br>
+对 e<sup>−x²/2</sup>，令 u = −x²/2，用 e<sup>u</sup> = 1 + u + u²/2 + o(u²)：<br>
+<span class="fm">e<sup>−x²/2</sup> = 1 − <span class="fr"><span class="n">x²</span><span class="d">2</span></span> + <span class="fr"><span class="n">x⁴</span><span class="d">8</span></span> + o(x⁴)</span><br>
+两式相减，1 与 −x²/2 都抵消，剩<br>
+<span class="fm">(cos x − e<sup>−x²/2</sup>) = (<span class="fr"><span class="n">1</span><span class="d">24</span></span> − <span class="fr"><span class="n">1</span><span class="d">8</span></span>)x⁴ + o(x⁴) = −<span class="fr"><span class="n">x⁴</span><span class="d">12</span></span> + o(x⁴)</span><br>
+故原式 = −1/12。</p>
+<p class="expl-t">注意 u²/2 = x⁴/8 这一步不能漏——正是这一项决定了系数。若只把 e<sup>u</sup> 展到 u，余项就是 o(x²)，不够用。这就是「展到第一个不抵消的项」的含义。</p></div>
+<div class="expl-eg"><p class="expl-q"><b>例 2</b>　证明：当 x &gt; 0 时，<span class="fm">e<sup>x</sup> &gt; 1 + x + <span class="fr"><span class="n">x²</span><span class="d">2</span></span> + <span class="fr"><span class="n">x³</span><span class="d">6</span></span></span>。</p>
+<p class="expl-s"><b>解</b>　用带拉格朗日余项的泰勒公式，取 n = 3、x₀ = 0：存在 ξ ∈ (0,x)，使<br>
+<span class="fm">e<sup>x</sup> = 1 + x + <span class="fr"><span class="n">x²</span><span class="d">2!</span></span> + <span class="fr"><span class="n">x³</span><span class="d">3!</span></span> + <span class="fr"><span class="n">e<sup>ξ</sup></span><span class="d">4!</span></span>x⁴</span><br>
+因为 ξ &gt; 0，所以 e<sup>ξ</sup> &gt; 1 &gt; 0，而 x⁴ &gt; 0，故余项严格大于 0，于是<br>
+<span class="fm">e<sup>x</sup> &gt; 1 + x + <span class="fr"><span class="n">x²</span><span class="d">2</span></span> + <span class="fr"><span class="n">x³</span><span class="d">6</span></span></span>。</p>
+<p class="expl-t">证不等式时只需要「余项的符号」，不需要 ξ 的具体位置——这正是拉格朗日余项存在的意义。若用佩亚诺余项，只能得到 o(x³)，符号未知，证不出严格大于。</p></div>
+<div class="expl-eg"><p class="expl-q"><b>例 3</b>　求 <span class="fm"><span class="lm">lim<span class="s">x→0</span></span> <span class="fr"><span class="n">1</span><span class="d">x²</span></span> − <span class="fr"><span class="n">1</span><span class="d">sin²x</span></span></span>。</p>
+<p class="expl-s"><b>解</b>　先通分：<br>
+<span class="fm"><span class="fr"><span class="n">sin²x − x²</span><span class="d">x² sin²x</span></span></span><br>
+由 sin x = x − x³/6 + o(x³)，平方得<br>
+<span class="fm">sin²x = x² − <span class="fr"><span class="n">x⁴</span><span class="d">3</span></span> + o(x⁴)</span><br>
+故分子 sin²x − x² = −x⁴/3 + o(x⁴)；分母 x² sin²x = x²·x² + o(x⁴) = x⁴ + o(x⁴)。相除得<br>
+<span class="fm"><span class="fr"><span class="n">−x⁴/3</span><span class="d">x⁴</span></span> → −<span class="fr"><span class="n">1</span><span class="d">3</span></span></span><br>
+故原式 = −1/3。</p>
+<p class="expl-t">把 (x − x³/6)² 展开时，中间项 2·x·(−x³/6) = −x³/3 就是全部来源，x⁶ 项属于 o(x⁴) 可以不管。这类题用洛必达要做六七次，泰勒两步到位。</p></div>
+<h4 class="expl-h">八、与后文的联系与易错提醒</h4>
+<p>泰勒公式是本章的制高点：洛必达是它的「一阶特例」，中值定理是它的「零阶特例」，而下一节判断极值的第二充分条件本质上也是泰勒展开到二阶。学完它，极限、误差、不等式三类题都有了统一武器。</p>
+<p>三个高频错误：一是<b>阶数不够</b>，分母 x⁴ 却只展到 x²，余项写 o(x²) 就下结论；二是<b>加减中滥用等价替换</b>，把 x − sin x 算成 0；三是<b>余项类型用错</b>，求极限用佩亚诺、证不等式用拉格朗日，两者不能互换。做题前先问自己一句：这题要的是「极限值」还是「大小关系」？答案立刻分明。</p>
+</div><!--/EXPL:m3-s3-->
+
+<!--EXPL:m3-s4--><div class="explain" data-expl="m3-s4">
+<h4 class="expl-h">一、直观理解</h4>
+<p>导数刻画的是瞬时变化率，所以它的符号天然对应函数在往哪儿走：f′ &gt; 0 的地方，x 增大时曲线上升；f′ &lt; 0 的地方下降。二阶导刻画的是「变化率自己怎么变」，对应曲线往哪边弯：f″ &gt; 0 时斜率在增大，曲线向上翘，像开口向上的抛物线；f″ &lt; 0 时向下弯。</p>
+<p>用开车打比方：f′ 是速度（前进还是倒车），f″ 是方向盘（往左打还是往右打）。拐点就是打方向换边的那一瞬间。这一节要做的，就是把「上升下降」和「往哪边弯」这两件事，用导数的符号精确判定，并据此画图。</p>
+<h4 class="expl-h">二、单调性定理</h4>
+<p><b>定理</b>　设 f 在 [a,b] 上连续，在 (a,b) 内可导。<br>
+（1）若在 (a,b) 内 f′(x) &gt; 0，则 f 在 [a,b] 上严格单调增加；<br>
+（2）若在 (a,b) 内 f′(x) &lt; 0，则 f 在 [a,b] 上严格单调减少。</p>
+<p><b>证明</b>　任取 x₁ &lt; x₂ ∈ [a,b]，在 [x₁,x₂] 上用拉格朗日中值定理：存在 ξ ∈ (x₁,x₂)，使 f(x₂) − f(x₁) = f′(ξ)(x₂ − x₁)。由于 x₂ − x₁ &gt; 0 且 f′(ξ) &gt; 0，得 f(x₂) &gt; f(x₁)，故严格增。减的情形同理。</p>
+<p>条件可以放宽：f′(x) ≥ 0 且 f′ 在任何子区间上不恒为零，结论仍是严格增。这就解释了为什么 f(x) = x³ 在 0 处虽有 f′(0) = 0，整体仍严格增——个别点导数为零不妨碍单调性。</p>
+<p><b>求单调区间的标准流程</b>：<br>
+① 写出定义域，这一步最容易被忽略，也是错误的头号来源；<br>
+② 求 f′(x) 并化简，尽量因式分解，便于判号；<br>
+③ 找出 f′(x) = 0 的点，以及 f′(x) 不存在的点；<br>
+④ 用这些点把定义域切成若干区间，每段内代入一个试验点判断 f′ 的符号。</p>
+<p><b>写法提醒</b>：单调区间必须是定义域内的区间。若定义域被间断点分开（如 f(x) = 1/x 在 x = 0 处断开），要写成 (−∞,0) 和 (0,+∞) 两个区间，中间用逗号或「和」连接，<b>不要写成并集符号</b>。因为并集只表示「这些点合在一起」，并不保证函数在并集上整体单调（1/x 在整个并集上显然不是单调的）。</p>
+<h4 class="expl-h">三、凹凸性与拐点</h4>
+<p><b>定义</b>　设 f 在区间 I 上连续。若对 I 上任意两点 x₁、x₂，曲线弧总位于弦的下方，即</p>
+<p><span class="fm">f(<span class="fr"><span class="n">x₁ + x₂</span><span class="d">2</span></span>) &lt; <span class="fr"><span class="n">f(x₁) + f(x₂)</span><span class="d">2</span></span></span></p>
+<p>则称曲线在 I 上是<b>凹</b>的（也叫凹向上、下凸）；若弧位于弦的上方，则称<b>凸</b>的（凸向上、上凸）。</p>
+<p>教材的约定要记牢：<b>f″ &gt; 0 是凹（下凸），f″ &lt; 0 是凸（上凸）</b>。不同教材的中文用词可能正好相反，做题时以「f″ 的符号 + 曲线在切线上方还是下方」这套几何描述为准，别只背一个中文字。</p>
+<p><b>判定定理</b>　若在 (a,b) 内 f″(x) &gt; 0，则曲线在 (a,b) 内是凹的；若 f″(x) &lt; 0，则是凸的。</p>
+<p><b>证明思路</b>（用泰勒一步到位）：任取 x₀ ∈ (a,b)，把 f 在 x₀ 处展开到一阶并带拉格朗日余项：</p>
+<p><span class="fm">f(x) = f(x₀) + f′(x₀)(x − x₀) + <span class="fr"><span class="n">f″(ξ)</span><span class="d">2!</span></span>(x − x₀)²</span></p>
+<p>右端前两项正是曲线在 x₀ 处的切线。当 f″ &gt; 0 时余项恒大于 0，所以 f(x) 恒大于切线值——曲线整体跑到了切线上方，这就是「凹」的几何含义。f″ &lt; 0 时同理在切线下方。</p>
+<p><b>拐点</b>　连续曲线上凹与凸的分界点称为拐点。判定步骤：① 求 f″；② 找出 f″ = 0 的点与 f″ 不存在的点；③ 逐点检查<b>左右两侧 f″ 是否变号</b>；④ 只有变号的点才是拐点，且拐点要写成坐标 <span class="fm">(x₀, f(x₀))</span>，只写 x₀ 是错的。</p>
+<p>两个反例必须记住。f(x) = x⁴ 在 0 处 f″(0) = 0，但两侧 f″ 都为正，<b>不是</b>拐点；f(x) = x<sup>1/3</sup> 在 0 处 f″ 不存在，但两侧符号相反，<b>是</b>拐点。所以「f″ = 0」既不是拐点的充分条件，也不是必要条件，唯一的标准是「两侧变号」。</p>
+<h4 class="expl-h">四、三个常见用途</h4>
+<ul>
+<li><b>证明不等式</b>：移项构造 F(x)，证明 F 单调，再用端点值定符号。这是最常用的套路。</li>
+<li><b>比较大小</b>：把两个数看成同一个函数在两点处的函数值，由单调性传递大小关系。</li>
+<li><b>讨论方程根的个数</b>：单调性保证「至多一个」，零点定理（介值定理）保证「至少一个」，两者合起来就是「恰有一个」。</li>
+</ul>
+<h4 class="expl-h">五、例题</h4>
+<div class="expl-eg"><p class="expl-q"><b>例 1</b>　求 f(x) = x³ − 3x 的单调区间、凹凸区间与拐点。</p>
+<p class="expl-s"><b>解</b>　定义域为全体实数。f′(x) = 3x² − 3 = 3(x − 1)(x + 1)，零点为 x = ±1。按 ±1 分三段判号：<br>
+x &lt; −1 时 f′ &gt; 0，递增；−1 &lt; x &lt; 1 时 f′ &lt; 0，递减；x &gt; 1 时 f′ &gt; 0，递增。<br>
+再看二阶导：f″(x) = 6x，零点为 x = 0。x &lt; 0 时 f″ &lt; 0，曲线为凸（上凸）；x &gt; 0 时 f″ &gt; 0，曲线为凹（下凸）。x = 0 两侧变号，故 (0, f(0)) = (0, 0) 是拐点。</p>
+<p class="expl-t">结论汇总：增区间 (−∞,−1) 与 (1,+∞)，减区间 (−1,1)；凸区间 (−∞,0)，凹区间 (0,+∞)；拐点 (0,0)。注意凹凸用的是二阶导，别和单调性混在一起。</p></div>
+<div class="expl-eg"><p class="expl-q"><b>例 2</b>　证明：当 x &gt; 0 时，<span class="fm">x − <span class="fr"><span class="n">x²</span><span class="d">2</span></span> &lt; ln(1 + x)</span>。</p>
+<p class="expl-s"><b>解</b>　令 F(x) = ln(1 + x) − x + x²/2，只需证 F(x) &gt; 0（x &gt; 0）。求导：<br>
+<span class="fm">F′(x) = <span class="fr"><span class="n">1</span><span class="d">1 + x</span></span> − 1 + x = <span class="fr"><span class="n">1 − (1 + x) + x(1 + x)</span><span class="d">1 + x</span></span> = <span class="fr"><span class="n">x²</span><span class="d">1 + x</span></span></span><br>
+当 x &gt; 0 时 F′(x) &gt; 0，故 F 在 [0,+∞) 上严格增。又 F(0) = ln 1 − 0 + 0 = 0，所以 x &gt; 0 时 F(x) &gt; F(0) = 0，即 ln(1 + x) &gt; x − x²/2。</p>
+<p class="expl-t">这类题的关键是「移项造 F，让 F(0) = 0」，然后只需证 F 单调增。若 F′(x) 的符号不好判断，可再求一次导（即用 F″）辅助判号——这正是凹凸性的用处。</p></div>
+<div class="expl-eg"><p class="expl-q"><b>例 3</b>　证明方程 x = cos x 在 (0,1) 内有且仅有一个实根。</p>
+<p class="expl-s"><b>解</b>　令 f(x) = x − cos x，在 [0,1] 上连续。先证「至少一个」：f(0) = 0 − 1 = −1 &lt; 0，f(1) = 1 − cos 1 &gt; 0（因 cos 1 &lt; 1），由零点定理，存在 x₀ ∈ (0,1) 使 f(x₀) = 0。<br>
+再证「至多一个」：f′(x) = 1 + sin x。对一切 x 有 sin x ≥ −1，故 f′(x) ≥ 0，且等号只在孤立点成立，因此 f 在 [0,1] 上严格增，零点唯一。</p>
+<p class="expl-t">「存在性用零点定理、唯一性用单调性」是证明根的唯一性的固定两段式，缺一段都要扣分。写严格增时要说清「f′ ≥ 0 且不恒为零」，不能只写 f′ ≥ 0 就下严格结论。</p></div>
+<h4 class="expl-h">六、与后文的联系与易错提醒</h4>
+<p>单调性判定是下一节求极值的基础：第一充分条件说的就是「f′ 左正右负」，本质上是把单调性用在 x₀ 的两侧。凹凸性则接上泰勒公式与函数作图：知道了升降、极值、凹凸、拐点、渐近线，一条曲线就画全了。</p>
+<p>四个易错点：一是<b>不求定义域就分区间</b>，导致把不在定义域内的点当成分界点；二是<b>单调区间用并集符号连接</b>；三是<b>把 f″ = 0 一律当成拐点</b>，忘了验两侧变号；四是<b>把凹凸和单调混淆</b>——f 递增与 f 是凹是凸毫无关系，一个看一阶导，一个看二阶导，必须分开写。</p>
+</div><!--/EXPL:m3-s4-->
+
+<!--EXPL:m3-s5--><div class="explain" data-expl="m3-s5">
+<h4 class="expl-h">一、直观理解：局部最高点与全局最高点</h4>
+<p>山坡上有许多小丘和小谷。站在某个小丘顶上，你比附近任何一点都高，但未必比远处的山峰高——这就是「极值」与「最值」的区别：极值是<b>局部</b>概念，只跟一个邻域内的点比；最值是<b>整体</b>概念，要跟整个区间内的点比。一个函数可以有多个极大值，而且某个极大值还可能小于另一个极小值。</p>
+<p>生活中的版本：某商店把单价定为 p 时利润最大，这个 p 是「极值点」；但如果价格有上限、有成本约束，真正能取到的最优价格还要在闭区间上比较，那才是「最值」。</p>
+<h4 class="expl-h">二、定义</h4>
+<p><b>定义</b>　设 f 在 x₀ 的某邻域 U(x₀, δ) 内有定义。若对一切 x ∈ U(x₀, δ) 都有 f(x) ≤ f(x₀)，则称 f(x₀) 为 f 的<b>极大值</b>，x₀ 为极大值点；若都有 f(x) ≥ f(x₀)，则称为<b>极小值</b>。</p>
+<p>三点注意：邻域必须是双侧的，所以端点不谈极值；极值点是 x 坐标，极值是函数值，问「极值点」要答 x₀，问「极值」要答 f(x₀)；极大值不一定大于极小值，两者只是各自邻域内的「老大」和「老小」。</p>
+<h4 class="expl-h">三、必要条件：极值只可能藏在两类点里</h4>
+<p><b>定理（必要条件）</b>　若 f 在 x₀ 处可导且取得极值，则 f′(x₀) = 0。这正是第一节的费马引理。</p>
+<p>逆命题不成立：f(x) = x³ 在 0 处 f′(0) = 0，但 0 的两侧函数都在增，0 不是极值点。反过来，极值也可能出现在不可导点：f(x) = |x| 在 0 处不可导，却是极小值点。</p>
+<p>于是得到一条极重要的结论：<b>极值的可疑点 = 驻点（f′ = 0 的点）∪ 不可导点</b>。求极值时这两类必须都找出来，漏掉不可导点是常见失分点。</p>
+<h4 class="expl-h">四、两个充分条件</h4>
+<p><b>第一充分条件（看 f′ 的符号变化）</b>　设 f 在 x₀ 处连续，在 x₀ 的某去心邻域内可导：<br>
+（1）x &lt; x₀ 时 f′(x) &gt; 0，x &gt; x₀ 时 f′(x) &lt; 0，则 f(x₀) 为极大值；<br>
+（2）左负右正，则 f(x₀) 为极小值；<br>
+（3）两侧同号，则 f(x₀) 不是极值。</p>
+<p>理由很直接：左增右减，x₀ 就是「山顶」；左减右增，就是「谷底」；一直增或一直减，就没有转折。这条条件对不可导点同样适用，是适用范围最广的一条。</p>
+<p><b>第二充分条件（看 f″ 的符号）</b>　设 f′(x₀) = 0，f″(x₀) ≠ 0：<br>
+（1）f″(x₀) &lt; 0，则 f(x₀) 为极大值；（2）f″(x₀) &gt; 0，则 f(x₀) 为极小值。</p>
+<p><b>证明</b>（用导数定义，非常漂亮）：由 f′(x₀) = 0，</p>
+<p><span class="fm">f″(x₀) = <span class="lm">lim<span class="s">x→x₀</span></span> <span class="fr"><span class="n">f′(x) − f′(x₀)</span><span class="d">x − x₀</span></span> = <span class="lm">lim<span class="s">x→x₀</span></span> <span class="fr"><span class="n">f′(x)</span><span class="d">x − x₀</span></span></span></p>
+<p>若 f″(x₀) &lt; 0，由极限的保号性，在 x₀ 的某去心邻域内该比值 &lt; 0。于是当 x &lt; x₀ 时分母为负，故 f′(x) &gt; 0；当 x &gt; x₀ 时分母为正，故 f′(x) &lt; 0。左正右负，由第一充分条件知 f(x₀) 为极大值。</p>
+<p><b>失效情形</b>：f″(x₀) = 0 时第二条件什么也说不出来。f(x) = x³ 在 0 处 f′ = f″ = 0，不是极值；f(x) = x⁴ 在 0 处 f′ = f″ = 0，却是极小值。此时必须回到第一充分条件，看 f′ 的符号。</p>
+<h4 class="expl-h">五、闭区间上的最值</h4>
+<p>闭区间上连续的函数一定取得最大值与最小值（最值定理），而且只可能在以下三类点取到：<b>驻点、不可导点、区间端点</b>。所以标准做法是：求出全部可疑点，逐个算出函数值，再比大小。</p>
+<p>注意不是「先求极值再挑最大的」。端点的函数值完全可能比所有极值都大，漏掉端点就是漏掉正确答案。</p>
+<h4 class="expl-h">六、应用题的标准流程</h4>
+<ol>
+<li>设变量，写出<b>目标函数</b>，即要最大或最小的那个量。</li>
+<li>写出<b>约束条件</b>，用它把目标函数化成<b>一元</b>函数。</li>
+<li>确定自变量的<b>实际取值范围</b>，如长度 &gt; 0、角度落在 (0, π/2)。</li>
+<li>求导、找驻点。若在范围内<b>只有一个驻点</b>，且实际问题必有最值，则该驻点就是所求，不必再验证二阶导。</li>
+<li>作答时带上单位，并看清题目问的是「最大值是多少」还是「取得最大值时条件是什么」。</li>
+</ol>
+<h4 class="expl-h">七、例题</h4>
+<div class="expl-eg"><p class="expl-q"><b>例 1</b>　求 f(x) = x³ − 3x 的极值。</p>
+<p class="expl-s"><b>解</b>　f′(x) = 3x² − 3 = 3(x − 1)(x + 1)，驻点为 x = ±1，无不可导点。f″(x) = 6x。<br>
+在 x = −1：f′(−1) = 0，f″(−1) = −6 &lt; 0，故 f(−1) = −1 + 3 = 2 为极大值；<br>
+在 x = 1：f′(1) = 0，f″(1) = 6 &gt; 0，故 f(1) = 1 − 3 = −2 为极小值。</p>
+<p class="expl-t">用第二充分条件最快。若改用第一条件：x &lt; −1 时 f′ &gt; 0，−1 &lt; x &lt; 1 时 f′ &lt; 0，故 −1 处取极大；1 的两侧由负变正，取极小。结论一致。</p></div>
+<div class="expl-eg"><p class="expl-q"><b>例 2</b>　求 <span class="fm">f(x) = x<sup>2/3</sup>(x − 3)</span> 的极值。</p>
+<p class="expl-s"><b>解</b>　先展开求导：f(x) = x<sup>5/3</sup> − 3x<sup>2/3</sup>，故<br>
+<span class="fm">f′(x) = <span class="fr"><span class="n">5</span><span class="d">3</span></span>x<sup>2/3</sup> − 2x<sup>−1/3</sup> = <span class="fr"><span class="n">5x − 6</span><span class="d">3x<sup>1/3</sup></span></span></span><br>
+令 f′ = 0 得驻点 x = 6/5；x = 0 处 f′ 不存在，但 f 在 0 处有定义，故两类可疑点都要查。<br>
+判号：x &lt; 0 时分子 5x − 6 &lt; 0、分母 3x<sup>1/3</sup> &lt; 0，比值 &gt; 0，递增；0 &lt; x &lt; 6/5 时分子 &lt; 0、分母 &gt; 0，比值 &lt; 0，递减；x &gt; 6/5 时两者同为正，比值 &gt; 0，递增。<br>
+所以 x = 0 处左增右减，取极大值 f(0) = 0；x = 6/5 处左减右增，取极小值<br>
+<span class="fm">f(<span class="fr"><span class="n">6</span><span class="d">5</span></span>) = (<span class="fr"><span class="n">6</span><span class="d">5</span></span>)<sup>2/3</sup>(<span class="fr"><span class="n">6</span><span class="d">5</span></span> − 3) = −<span class="fr"><span class="n">9</span><span class="d">5</span></span>(<span class="fr"><span class="n">6</span><span class="d">5</span></span>)<sup>2/3</sup></span></p>
+<p class="expl-t">本题的价值在于 x = 0：它不在 f′ = 0 的解里，只出现在分母为零处。若只解 f′ = 0，就会漏掉这个极大值。这是「不可导点也可能是极值点」最典型的例子。</p></div>
+<div class="expl-eg"><p class="expl-q"><b>例 3</b>　用铁皮做一个无盖圆柱形容器，容积为 V，问底面半径取多少时用料最省（即表面积最小）？</p>
+<p class="expl-s"><b>解</b>　设底面半径为 r，高为 h。由体积条件 V = πr²h 得 h = V/(πr²)。表面积（有底无盖）为<br>
+<span class="fm">S = πr² + 2πrh = πr² + <span class="fr"><span class="n">2V</span><span class="d">r</span></span>，r &gt; 0</span><br>
+求导：S′(r) = 2πr − 2V/r²。令 S′ = 0，得 πr³ = V，即<br>
+<span class="fm">r = (<span class="fr"><span class="n">V</span><span class="d">π</span></span>)<sup>1/3</sup></span><br>
+又 S″(r) = 2π + 4V/r³ &gt; 0，故该点为极小值点。由于在 (0,+∞) 内只有一个驻点，且实际问题必有最小表面积，所以它就是最小值点。此时<br>
+<span class="fm">h = <span class="fr"><span class="n">V</span><span class="d">πr²</span></span> = <span class="fr"><span class="n">πr³</span><span class="d">πr²</span></span> = r</span><br>
+即底面半径等于高时用料最省。</p>
+<p class="expl-t">应用题的三个易漏点全在这一题里：定义域 r &gt; 0、用约束消元化成一元、以及「唯一驻点 + 实际意义」代替二阶导验证。最后别忘回答「半径等于高的圆柱」，而不只是甩出一个 r 的表达式。</p></div>
+<h4 class="expl-h">八、与后文的联系与易错提醒</h4>
+<p>极值是本章的落点：单调性用来定「升降」，极值条件用来定「转折」，最值再在转折与端点中挑出全局最优。再往后（不定积分与定积分应用）求最大利润、最小成本、最优尺寸，用的都是这一套流程。</p>
+<p>四个高频错误：一是<b>只解 f′ = 0</b>，漏掉不可导点；二是<b>把驻点当极值点</b>，忘了 x³ 型反例；三是<b>闭区间求最值漏掉端点</b>；四是<b>应用题不写定义域</b>，或求出驻点后不说明它为什么是最值。记住一句话：<b>可疑点找全，比较之后再下结论</b>。</p>
+</div><!--/EXPL:m3-s5-->

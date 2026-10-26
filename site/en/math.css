@@ -504,3 +504,61 @@ details.ex-a > summary:hover { color: var(--kpt-label); }
 }
 .exset .ex-q { color: var(--kpt-label); }
 .exset .ex-a-body { color: var(--kpt-ink); }
+
+/* ---------------------------------------------------------- 13. 逐节讲解 */
+.explain {
+  margin: 14px 0 6px;
+  padding: 4px 18px 10px;
+  border: 1px solid var(--line);
+  border-left: 3px solid rgb(var(--accent-rgb) / .55);
+  border-radius: 0 10px 10px 0;
+  background: var(--surface-2);
+  font-size: 13.9px;
+  line-height: 2.02;
+  color: var(--kpt-ink);
+}
+.explain > p { margin: 11px 0; }
+.explain > p:first-child { margin-top: 14px; }
+.explain b { color: var(--kpt-label); }
+.explain .expl-h {
+  margin: 18px 0 4px;
+  font-size: 13.4px;
+  font-weight: 700;
+  color: var(--kpt-label);
+  position: relative;
+  padding-left: 13px;
+}
+.explain .expl-h::before {
+  content: "";
+  position: absolute;
+  left: 1px;
+  top: .72em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.explain ul, .explain ol { margin: 8px 0 8px 22px; padding: 0; }
+.explain li { margin: 5px 0; }
+.explain .fm { white-space: normal; }
+.explain .expl-eg {
+  margin: 14px 0;
+  padding: 11px 14px 12px;
+  border: 1px solid rgb(var(--accent-rgb) / .18);
+  border-radius: 8px;
+  background: rgb(var(--accent-rgb) / .055);
+  font-size: 13.4px;
+}
+.explain .expl-q { margin: 0 0 7px; color: var(--kpt-label); }
+.explain .expl-s { margin: 0; }
+.explain .expl-t {
+  margin: 9px 0 0;
+  padding-top: 8px;
+  border-top: 1px dashed var(--line);
+  font-size: 12.6px;
+  color: var(--ink-4);
+}
+@media (max-width: 760px) {
+  .explain { padding: 2px 13px 8px; font-size: 13.4px; line-height: 1.95; }
+  .explain .expl-eg { padding: 9px 11px 10px; font-size: 13px; }
+}

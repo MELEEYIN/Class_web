@@ -1,0 +1,233 @@
+<!--EXPL:m2-s1--><div class="explain" data-expl="m2-s1">
+<h4 class="expl-h">一、这一节要解决什么</h4>
+<p>开车时仪表盘上那个速度读数，并不是「走了一段路除以时间」——那是平均速度，指针指的是此时此刻的快慢。要把「此刻」变成可以计算的数，只能先算一小段时间内的平均速度，再让这段时间不断缩短，看平均值是否稳定到某个数；稳定到的那个数就是瞬时速度，也就是导数。</p>
+<p>几何上，平均速度对应曲线上两点连成的<b>割线</b>斜率；缩短时间段，就是让第二个点沿曲线滑向第一个点，割线转到极限位置就是<b>切线</b>。导数的几何身份就是切线斜率，整章的公式都从这句话长出来。</p>
+
+<h4 class="expl-h">二、定义与定理的精确表述</h4>
+<p>设 y = f(x) 在点 x₀ 的某个邻域内有定义。给 x₀ 一个增量 Δx（Δx ≠ 0，且 x₀ + Δx 仍在邻域内），相应的函数增量为 <span class="fm">Δy = f(x₀ + Δx) − f(x₀)</span>。若极限</p>
+<p><span class="fm">f′(x₀) = <span class="lm">lim<span class="s">Δx→0</span></span><span class="fr"><span class="n">Δy</span><span class="d">Δx</span></span> = <span class="lm">lim<span class="s">Δx→0</span></span><span class="fr"><span class="n">f(x₀ + Δx) − f(x₀)</span><span class="d">Δx</span></span></span></p>
+<p>存在，则称 f(x) 在 x₀ 处<b>可导</b>，这个极限值称为 f(x) 在 x₀ 处的导数，记作 f′(x₀)，也记作 <span class="fm">dy/dx</span> 在 x = x₀ 处的取值。若令 x = x₀ + Δx，就得到等价的第二种写法：</p>
+<p><span class="fm">f′(x₀) = <span class="lm">lim<span class="s">x→x₀</span></span><span class="fr"><span class="n">f(x) − f(x₀)</span><span class="d">x − x₀</span></span></span></p>
+<p>两种写法都要会，因为题目给的增量形式五花八门（f(x₀ + 2h)、f(x₀ − h) 之类），认得出它是差商才做得动。</p>
+<p><b>单侧导数。</b>把 Δx→0 换成 Δx→0⁻ 或 Δx→0⁺，分别得到左导数 f′₋(x₀) 与右导数 f′₊(x₀)。<b>定理：</b>f′(x₀) 存在，当且仅当左右导数都存在且相等。这条定理基本只在分段点上用。</p>
+<p><b>几何与物理意义。</b>f′(x₀) 是曲线 y = f(x) 在点 (x₀, f(x₀)) 处切线的斜率，切线方程为 <span class="fm">y − f(x₀) = f′(x₀)(x − x₀)</span>；当 f′(x₀) ≠ 0 时，法线斜率为 −1/f′(x₀)。若 s = s(t) 表示位移，则 v = s′(t) 是瞬时速度。</p>
+<p><b>可导与连续。</b>f 在 x₀ 可导，则 f 在 x₀ 必连续；反之不真。这个箭头只有一个方向，用反了就是全章第一大错。</p>
+
+<h4 class="expl-h">三、三个关键推导</h4>
+<p><b>(1) 可导为什么一定连续。</b>可导意味着差商 Δy/Δx 有极限 f′(x₀)。把函数增量拆成两个因子的乘积：<span class="fm">Δy = <span class="fr"><span class="n">Δy</span><span class="d">Δx</span></span> · Δx</span>。当 Δx→0 时，第一个因子趋于有限数 f′(x₀)，第二个因子趋于 0，乘积趋于 f′(x₀)·0 = 0，即 f(x₀ + Δx) → f(x₀)，这正是 f 在 x₀ 连续的定义。</p>
+<p>反过来走不通：连续只保证 Δy→0，而差商是「0 比 0」型，可能有极限也可能没有。</p>
+<p><b>(2) 连续为什么不保证可导。</b>看 y = |x| 在 0 点。它显然连续，但差商在 x &gt; 0 时恒为 1、在 x &lt; 0 时恒为 −1，左右极限不相等，故 f′(0) 不存在。图像上，原点是尖角：从右侧滑来的割线斜率趋于 1，从左侧滑来的割线斜率趋于 −1，切线无法唯一确定。更极端的例子 f(x) = x sin(1/x)（补定义 f(0) = 0）虽然连续，但差商 sin(1/x) 无限振荡，极限不存在。</p>
+<p><b>(3) 分段点为什么必须回到定义。</b>求 f′(x₀) 要同时用到 f(x₀) 与 f(x₀ + Δx)。当 Δx 取正、取负时，x₀ + Δx 可能落进不同的分支，必须按分支分别代入，再分别求左右极限。很多人先把两侧表达式各自求导、再把 x₀ 代进去，那算的是「导函数在两侧的极限」，只有当导函数在 x₀ 连续时它才等于 f′(x₀)。</p>
+
+<h4 class="expl-h">四、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b>　用定义求 f(x) = 1/x 在 x = 2 处的导数，并写出曲线在该点的切线方程。</p>
+<p class="expl-s"><b>解</b>　先算函数值 f(2) = 1/2。函数增量为<br><span class="fm">Δy = <span class="fr"><span class="n">1</span><span class="d">2 + Δx</span></span> − <span class="fr"><span class="n">1</span><span class="d">2</span></span> = <span class="fr"><span class="n">2 − (2 + Δx)</span><span class="d">2(2 + Δx)</span></span> = <span class="fr"><span class="n">−Δx</span><span class="d">2(2 + Δx)</span></span></span><br>再算差商，此时 Δx 被约掉：<span class="fm"><span class="fr"><span class="n">Δy</span><span class="d">Δx</span></span> = <span class="fr"><span class="n">−1</span><span class="d">2(2 + Δx)</span></span></span>。<br>取极限：<span class="fm">f′(2) = <span class="lm">lim<span class="s">Δx→0</span></span><span class="fr"><span class="n">−1</span><span class="d">2(2 + Δx)</span></span> = −<span class="fr"><span class="n">1</span><span class="d">4</span></span></span>。<br>切线斜率 k = −1/4，过点 (2, 1/2)，切线为 y − 1/2 = −(1/4)(x − 2)，即 <b>x + 4y − 4 = 0</b>。</p>
+<p class="expl-t">定义法固定三步：写增量、算差商、约掉 Δx 后取极限。Δx 没约掉之前不能代 0。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b>　设 f(x) = x² sin(1/x)（x ≠ 0），f(0) = 0。求 f′(0)，并说明 f′(x) 在 x = 0 处不连续。</p>
+<p class="expl-s"><b>解</b>　0 点是分段点，只能用定义：<br><span class="fm">f′(0) = <span class="lm">lim<span class="s">x→0</span></span><span class="fr"><span class="n">f(x) − f(0)</span><span class="d">x − 0</span></span> = <span class="lm">lim<span class="s">x→0</span></span><span class="fr"><span class="n">x² sin(1/x)</span><span class="d">x</span></span> = <span class="lm">lim<span class="s">x→0</span></span> x sin(1/x) = 0</span><br>最后一步用「无穷小乘有界量还是无穷小」：|sin(1/x)| ≤ 1 有界。<br>再看 x ≠ 0 处的导函数：<br><span class="fm">f′(x) = 2x sin(1/x) + x² · cos(1/x) · (−1/x²) = 2x sin(1/x) − cos(1/x)</span><br>当 x→0 时第一项趋于 0，第二项 cos(1/x) 在 −1 与 1 之间振荡而没有极限，所以 lim f′(x) 不存在，f′ 在 0 点不连续。</p>
+<p class="expl-t">要分清两件事：f′(0) 存在，f′ 在 0 点不连续，二者并不矛盾。这题是「导函数未必连续」的标准反例。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b>　设 f′(x₀) 存在，求 <span class="fm"><span class="lm">lim<span class="s">h→0</span></span><span class="fr"><span class="n">f(x₀ + 2h) − f(x₀ − h)</span><span class="d">h</span></span></span>。</p>
+<p class="expl-s"><b>解</b>　在分子中减去 f(x₀) 再加回去，拆成两个差商：<br>原式 = <span class="fm"><span class="lm">lim<span class="s">h→0</span></span><span class="fr"><span class="n">f(x₀ + 2h) − f(x₀)</span><span class="d">h</span></span> + <span class="lm">lim<span class="s">h→0</span></span><span class="fr"><span class="n">f(x₀) − f(x₀ − h)</span><span class="d">h</span></span></span><br>第一项把 2h 整体看作增量，分母应配成 2h，故等于 <span class="fm">2 · <span class="lm">lim<span class="s">h→0</span></span><span class="fr"><span class="n">f(x₀ + 2h) − f(x₀)</span><span class="d">2h</span></span> = 2f′(x₀)</span>；<br>第二项把 −h 整体看作增量，分母应配成 −h，故等于 <span class="fm"><span class="lm">lim<span class="s">h→0</span></span><span class="fr"><span class="n">f(x₀ − h) − f(x₀)</span><span class="d">−h</span></span> = f′(x₀)</span>。<br>所以原式 = 2f′(x₀) + f′(x₀) = <b>3f′(x₀)</b>。</p>
+<p class="expl-t">套路叫「凑定义」：分子的两个函数值必须以 x₀ 为公共参照点，分母必须与括号内的增量完全一致，缺什么乘什么、多什么除什么。直接说「上面跨了 3h 所以是 3f′」，结论对但过程不给分。</p>
+</div>
+
+<h4 class="expl-h">五、与后文的联系和提醒</h4>
+<ul>
+<li>这一节是「立法」的一节：后面所有公式都由定义推出，忘了公式可以退回定义自救；反过来，定义题也不能用公式糊弄过去。</li>
+<li>常见错误：把 f′(x₀) 写成 [f(x₀)]′（恒等于 0）；lim 下的 Δx→0 与 x→x₀ 混用；分子分母增量不对应。</li>
+<li>后文走向：第二节把极限算完制成表，第三节对 f′ 再求导，第五节把线性主部 f′(x₀)Δx 抽出来叫微分。</li>
+</ul>
+</div><!--/EXPL:m2-s1-->
+
+<!--EXPL:m2-s2--><div class="explain" data-expl="m2-s2">
+<h4 class="expl-h">一、为什么需要一套法则</h4>
+<p>用定义求 (sin x)′，要先用和差化积，再用重要极限 lim (sin h)/h = 1，算得出来但很费事；求 (tan x)′、(arcsin x)′ 就更麻烦。而实际遇到的函数几乎全是「拼」出来的：ln(1 + √(1 + x²)) 是三层复合，x arctan x 是乘积，√((x − 1)/(x + 1)) 是商套根号。每个都回定义，成本无法接受。这一节给出一套运算法则，把求导降级为「查表加套公式」。</p>
+<p>其中最核心的是链式法则。可以类比齿轮组：主动轮转一圈，末轮转的圈数是各级传动比的连乘；复合函数每穿过一层，导数就乘上这一层的「传动比」。</p>
+
+<h4 class="expl-h">二、定理的精确表述</h4>
+<p><b>四则运算。</b>设 u = u(x)、v = v(x) 在 x 处可导，则 u ± v、uv、u/v（v ≠ 0）都在 x 处可导，且</p>
+<p><span class="fm">(u ± v)′ = u′ ± v′　　(uv)′ = u′v + uv′　　(<span class="fr"><span class="n">u</span><span class="d">v</span></span>)′ = <span class="fr"><span class="n">u′v − uv′</span><span class="d">v²</span></span></span></p>
+<p><b>复合函数（链式法则）。</b>设 u = g(x) 在 x 处可导，y = f(u) 在对应的点 u = g(x) 处可导，则复合函数 y = f(g(x)) 在 x 处可导，且</p>
+<p><span class="fm"><span class="fr"><span class="n">dy</span><span class="d">dx</span></span> = f′(u) · g′(x) = <span class="fr"><span class="n">dy</span><span class="d">du</span></span> · <span class="fr"><span class="n">du</span><span class="d">dx</span></span></span></p>
+<p>多层复合继续连乘：<span class="fm">dy/dx = (dy/du)(du/dv)(dv/dx)</span>。注意条件写的是「外层在内层对应的那一点可导」，不是「外层处处可导」。</p>
+<p><b>反函数求导。</b>设 y = f(x) 在某区间上单调、连续，f′(x₀) ≠ 0，则其反函数 x = f⁻¹(y) 在 y₀ = f(x₀) 处可导，且 <span class="fm">[f⁻¹(y₀)]′ = 1/f′(x₀)</span>。用莱布尼茨记号最直观：<span class="fm">dx/dy = 1/(dy/dx)</span>。</p>
+<p><b>基本导数表</b>（必须默写）：(x<sup>α</sup>)′ = αx<sup>α−1</sup>；(a<sup>x</sup>)′ = a<sup>x</sup> ln a；(e<sup>x</sup>)′ = e<sup>x</sup>；(log<sub>a</sub>x)′ = 1/(x ln a)；(ln x)′ = 1/x；(sin x)′ = cos x；(cos x)′ = −sin x；(tan x)′ = sec²x；(cot x)′ = −csc²x；(sec x)′ = sec x tan x；(csc x)′ = −csc x cot x；(arcsin x)′ = 1/√(1 − x²)；(arccos x)′ = −1/√(1 − x²)；(arctan x)′ = 1/(1 + x²)；(arccot x)′ = −1/(1 + x²)。</p>
+
+<h4 class="expl-h">三、四条法则的推导</h4>
+<p><b>(1) 乘积法则。</b>记 Δu = u(x + Δx) − u(x)，Δv 同理。函数增量为<br><span class="fm">Δ(uv) = (u + Δu)(v + Δv) − uv = uΔv + vΔu + ΔuΔv</span><br>两边除以 Δx：<span class="fm">Δ(uv)/Δx = u(Δv/Δx) + v(Δu/Δx) + Δu · (Δv/Δx)</span>。取极限时，前两项分别给出 uv′ 与 vu′；第三项里 Δu→0（u 可导故连续），而 Δv/Δx→v′ 有界，故整项趋于 0。于是 (uv)′ = u′v + uv′。那个「多出来的 ΔuΔv」是二阶小量，正是它解释了乘积法则为什么不是 u′v′。</p>
+<p><b>(2) 商的法则。</b>把 u/v 看成 u · (1/v)。先用链式求 (1/v)′ = (v<sup>−1</sup>)′ = −v<sup>−2</sup>v′ = −v′/v²，再用乘积法则：u′/v + u(−v′/v²) = (u′v − uv′)/v²。所以商法则不必单独背，它是乘积法则加链式法则的推论。</p>
+<p><b>(3) 链式法则。</b>由 f 在 u₀ 可导，可写成 <span class="fm">Δy = f′(u₀)Δu + αΔu</span>，其中 α→0（当 Δu→0）。两边除以 Δx 得 <span class="fm">Δy/Δx = f′(u₀)(Δu/Δx) + α(Δu/Δx)</span>。当 Δx→0 时 Δu→0（g 连续），故 α→0；又 Δu/Δx→g′(x₀)，于是极限为 f′(u₀)g′(x₀)。这个写法把「乘起来」的直觉变成了严格证明。</p>
+<p><b>(4) 反函数法则。</b>Δy/Δx 与 Δx/Δy 互为倒数（只要两者都不为零）。令 Δx→0，则 Δy→0（f 连续），两边取极限得 f′(x₀)·(f⁻¹)′(y₀) = 1。</p>
+
+<h4 class="expl-h">四、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b>　求 y = ln(1 + √(1 + x²)) 的导数。</p>
+<p class="expl-s"><b>解</b>　先认清复合结构，共三层：外层 y = ln u，中层 u = 1 + √v，内层 v = 1 + x²。<br>逐层求导：<span class="fm">y′ = <span class="fr"><span class="n">1</span><span class="d">u</span></span> · u′</span>，<span class="fm">u′ = <span class="fr"><span class="n">1</span><span class="d">2√v</span></span> · v′</span>，<span class="fm">v′ = 2x</span>。<br>连乘并代回：<br><span class="fm">y′ = <span class="fr"><span class="n">1</span><span class="d">1 + √(1 + x²)</span></span> · <span class="fr"><span class="n">1</span><span class="d">2√(1 + x²)</span></span> · 2x = <span class="fr"><span class="n">x</span><span class="d">(1 + √(1 + x²))√(1 + x²)</span></span></span></p>
+<p class="expl-t">三层结构就该出现三个因子，数因子个数是自检的好办法。结果可以有理化化简，但化简不是必须的，考试更看重层次清楚。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b>　求 y = x arctan x − <span class="fm"><span class="fr"><span class="n">1</span><span class="d">2</span></span></span>ln(1 + x²) 的导数。</p>
+<p class="expl-s"><b>解</b>　第一项是乘积，用乘积法则：<span class="fm">(x arctan x)′ = arctan x + x · <span class="fr"><span class="n">1</span><span class="d">1 + x²</span></span></span>。<br>第二项用链式：<span class="fm">(−<span class="fr"><span class="n">1</span><span class="d">2</span></span>ln(1 + x²))′ = −<span class="fr"><span class="n">1</span><span class="d">2</span></span> · <span class="fr"><span class="n">2x</span><span class="d">1 + x²</span></span> = −<span class="fr"><span class="n">x</span><span class="d">1 + x²</span></span></span>。<br>两者相加，中间两项正好抵消，得 <b>y′ = arctan x</b>。</p>
+<p class="expl-t">这题是人工「凑」出来的：反向看，arctan x 的原函数就可以取 x arctan x − ½ln(1 + x²)。它也提醒你记住 (ln(1 + x²))′ = 2x/(1 + x²) 这个常用小块。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b>　用反函数求导法则推出 (arcsin x)′。</p>
+<p class="expl-s"><b>解</b>　设 y = arcsin x，其中 x ∈ (−1, 1)，则等价地 x = sin y，且 y ∈ (−π/2, π/2)。<br>在该区间上 cos y &gt; 0，故 <span class="fm">dx/dy = cos y</span>，且它不为零，满足反函数法则的条件。<br>由 cos²y + sin²y = 1 及 cos y &gt; 0，得 <span class="fm">cos y = √(1 − sin²y) = √(1 − x²)</span>。<br>于是 <span class="fm">(arcsin x)′ = <span class="fr"><span class="n">1</span><span class="d">dx/dy</span></span> = <span class="fr"><span class="n">1</span><span class="d">√(1 − x²)</span></span></span>。</p>
+<p class="expl-t">反函数求导是在 y 点求值再取倒数，最后必须把结果换回 x。arccos 的负号来自它的值域 (0, π) 上 sin y 为正，而求导时正好是对 sin y 取倒数的相反数；arctan 则因为 1 + tan²y = sec²y 而得到 1/(1 + x²)。</p>
+</div>
+
+<h4 class="expl-h">五、常考套路与易错</h4>
+<ul>
+<li>固定动作：由外向内，一层一层剥，每剥一层乘一个因子，剥完检查因子个数是否等于复合层数。</li>
+<li>先化简再求导往往更快：对数里的乘除拆成加减、根号写成分数指数、分式先约分，能省掉一大半计算。</li>
+<li>易错清单：漏最内层的导数（把 (sin 2x)′ 写成 cos 2x）；商法则分子写成 uv′ − u′v；(a<sup>x</sup>)′ 漏掉 ln a；(tan x)′ 写成 sec x tan x（那是 sec x 的导数）；把 (arcsin x)′ 与 (arccos x)′ 的符号弄反。</li>
+<li>这一节是全章的工具栏：隐函数求导、参数方程求导、高阶导数、微分，全是在这套法则上做文章，所以基本表要练到条件反射。</li>
+</ul>
+</div><!--/EXPL:m2-s2-->
+
+<!--EXPL:m2-s3--><div class="explain" data-expl="m2-s3">
+<h4 class="expl-h">一、从「再求一次导」说起</h4>
+<p>位移对时间求导得速度，速度再对时间求导得加速度，这是中学就知道的事。加速度还有它自己的导数（工程上叫急动度），电梯启动时那一下「顿挫」就与它有关。几何上，二阶导数的正负决定曲线弯曲的方向：f″ &gt; 0 时曲线下凸（像碗，凹向上），f″ &lt; 0 时上凸（像拱）。所以高阶导数不是「算着玩」，每一阶都有自己的含义。</p>
+<p>技术上的难点不在「再算一次」，而在写出 n 阶的一般公式：要么从 y′、y″、y‴ 看出规律再用归纳法，要么用莱布尼茨公式把乘积的 n 阶导拆成有限项之和。</p>
+
+<h4 class="expl-h">二、定义与公式</h4>
+<p><b>定义。</b>若 f′(x) 在 x 处可导，则它的导数称为 f 的二阶导数，记作 f″(x)、y″、<span class="fm">d²y/dx²</span>。一般地，n − 1 阶导数的导数称为 n 阶导数，记作 f<sup>(n)</sup>(x)、y<sup>(n)</sup>，并约定 f<sup>(0)</sup> = f。二阶及以上的导数统称高阶导数。</p>
+<p>记号必须分清：<span class="fm">d²y/dx²</span> 是「对 x 求两次导」的缩写（算子 d/dx 作用两次），既不是 (dy/dx)²，也不是 d(y²)/d(x²)。</p>
+<p><b>莱布尼茨公式。</b>若 u、v 都有 n 阶导数，则</p>
+<p><span class="fm">(uv)<sup>(n)</sup> = <span class="op">Σ</span><sub>k=0</sub><sup>n</sup> C(n, k) u<sup>(n−k)</sup> v<sup>(k)</sup></span></p>
+<p>其中 C(n, k) = n!/[k!(n − k)!]。它长得像二项式定理，系数排开就是杨辉三角。</p>
+<p><b>常用 n 阶导：</b>(e<sup>ax</sup>)<sup>(n)</sup> = a<sup>n</sup>e<sup>ax</sup>；(sin x)<sup>(n)</sup> = sin(x + nπ/2)；(cos x)<sup>(n)</sup> = cos(x + nπ/2)；(ln(1 + x))<sup>(n)</sup> = (−1)<sup>n−1</sup>(n − 1)!/(1 + x)<sup>n</sup>；(1/(1 + x))<sup>(n)</sup> = (−1)<sup>n</sup>n!/(1 + x)<sup>n+1</sup>；(x<sup>μ</sup>)<sup>(n)</sup> = μ(μ − 1)…(μ − n + 1)x<sup>μ−n</sup>。</p>
+
+<h4 class="expl-h">三、几条公式的来历</h4>
+<p><b>(1) 莱布尼茨公式用归纳法。</b>n = 1 时它就是乘积法则。n = 2 时 (uv)″ = u″v + 2u′v′ + uv″，系数是 1, 2, 1。设 n 时成立，两边再对 x 求一次导，每项分裂成两项，把同类项 u<sup>(n+1−k)</sup>v<sup>(k)</sup> 合并，系数用组合恒等式 C(n, k − 1) + C(n, k) = C(n + 1, k) 相加，正好得到 n + 1 阶的形式。这就是它与杨辉三角同构的原因。</p>
+<p><b>(2) sin 的 n 阶导靠相位。</b>每求一次导，sin 的相位前进 π/2：sin x → cos x = sin(x + π/2) → −sin x = sin(x + π) → −cos x = sin(x + 3π/2)。相位每步加 π/2，故归纳得 (sin x)<sup>(n)</sup> = sin(x + nπ/2)，cos 完全同理。</p>
+<p><b>(3) 1/(1 + x) 的 n 阶导靠数规律。</b>y′ = −(1 + x)<sup>−2</sup>，y″ = 2(1 + x)<sup>−3</sup>，y‴ = −6(1 + x)<sup>−4</sup>。符号每步变一次，系数是阶乘，指数比阶数多 1，故 y<sup>(n)</sup> = (−1)<sup>n</sup>n!/(1 + x)<sup>n+1</sup>。</p>
+<p><b>(4) 只求 f<sup>(n)</sup>(0) 时的捷径。</b>若已知 f 的幂级数展开 f(x) = <span class="op">Σ</span> a<sub>n</sub>x<sup>n</sup>，则 a<sub>n</sub> = f<sup>(n)</sup>(0)/n!，即 f<sup>(n)</sup>(0) = n!a<sub>n</sub>。所以与其硬求 n 阶导再代 0，不如把函数拆成已知展开式的形状，直接读系数。这一条与第 3 章的泰勒公式是同一件事的两面，也是考研里求 f<sup>(n)</sup>(0) 最快的路。</p>
+
+<h4 class="expl-h">四、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b>　设 y = x²e<sup>2x</sup>，求 y<sup>(20)</sup>。</p>
+<p class="expl-s"><b>解</b>　用莱布尼茨公式，取 u = x²、v = e<sup>2x</sup>。因为 u 的三阶及以上导数全为 0，求和只剩三项：<br><span class="fm">y<sup>(20)</sup> = C(20,0)x²(e<sup>2x</sup>)<sup>(20)</sup> + C(20,1)(x²)′(e<sup>2x</sup>)<sup>(19)</sup> + C(20,2)(x²)″(e<sup>2x</sup>)<sup>(18)</sup></span><br>代入 (e<sup>2x</sup>)<sup>(n)</sup> = 2<sup>n</sup>e<sup>2x</sup>、(x²)′ = 2x、(x²)″ = 2：<br><span class="fm">y<sup>(20)</sup> = x²·2<sup>20</sup>e<sup>2x</sup> + 20·2x·2<sup>19</sup>e<sup>2x</sup> + 190·2·2<sup>18</sup>e<sup>2x</sup></span><br>提取 2<sup>20</sup>e<sup>2x</sup> 并整理系数：第二项 20·2x·2<sup>19</sup> = 20x·2<sup>20</sup>，第三项 190·2·2<sup>18</sup> = 95·2<sup>20</sup>，故<br><b>y<sup>(20)</sup> = 2<sup>20</sup>e<sup>2x</sup>(x² + 20x + 95)</b>。</p>
+<p class="expl-t">多项式乘超越函数一律走莱布尼茨，且只保留到多项式那一侧导数不为零的项。数项前先看 C(n, k) 的值，20 选 2 是 190，别心算错。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b>　设 y = 1/(x² − 1)，求 y<sup>(n)</sup>。</p>
+<p class="expl-s"><b>解</b>　先做部分分式，把分母拆成两个一次因式之和：<br><span class="fm"><span class="fr"><span class="n">1</span><span class="d">x² − 1</span></span> = <span class="fr"><span class="n">1</span><span class="d">2</span></span>(<span class="fr"><span class="n">1</span><span class="d">x − 1</span></span> − <span class="fr"><span class="n">1</span><span class="d">x + 1</span></span>)</span><br>再用公式 (1/(x + a))<sup>(n)</sup> = (−1)<sup>n</sup>n!/(x + a)<sup>n+1</sup>，逐项求 n 阶导：<br><b>y<sup>(n)</sup> = <span class="fr"><span class="n">(−1)<sup>n</sup>n!</span><span class="d">2</span></span>[<span class="fr"><span class="n">1</span><span class="d">(x − 1)<sup>n+1</sup></span></span> − <span class="fr"><span class="n">1</span><span class="d">(x + 1)<sup>n+1</sup></span></span>]</b>。</p>
+<p class="expl-t">若只要 f<sup>(n)</sup>(0)，还有更快的路：−1/(1 − x²) = −(1 + x² + x<sup>4</sup> + …)，故 n 为奇数时 f<sup>(n)</sup>(0) = 0，n = 2k 时 f<sup>(2k)</sup>(0) = −(2k)!。用上面的通式代 x = 0 可以验证：½(−1)<sup>2k</sup>(2k)![(−1)<sup>−(2k+1)</sup> − 1] = −(2k)!，两法一致。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b>　设 y = sin²x，求 y<sup>(n)</sup>（n ≥ 1）。</p>
+<p class="expl-s"><b>解</b>　平方不好直接求导，先降幂：<span class="fm">sin²x = <span class="fr"><span class="n">1 − cos 2x</span><span class="d">2</span></span></span>。<br>常数项求导后消失，只需要处理 cos 2x。由 (cos x)<sup>(n)</sup> = cos(x + nπ/2)，把 x 换成 2x 时每层链式再乘一个 2，共乘 2<sup>n</sup>：<br><span class="fm">(cos 2x)<sup>(n)</sup> = 2<sup>n</sup>cos(2x + nπ/2)</span><br>故 <b>y<sup>(n)</sup> = −<span class="fr"><span class="n">1</span><span class="d">2</span></span>·2<sup>n</sup>cos(2x + nπ/2) = −2<sup>n−1</sup>cos(2x + nπ/2)</b>（n ≥ 1）。<br>验算 n = 1：−2<sup>0</sup>cos(2x + π/2) = sin 2x，而 y′ = 2 sin x cos x = sin 2x，一致。</p>
+<p class="expl-t">三招记牢：直接归纳、莱布尼茨（多项式乘超越函数）、拆项或降幂化成基本型。结果必须验 n = 1 或 n = 2，这是最省时间的自检。</p>
+</div>
+
+<h4 class="expl-h">五、与后文的联系和提醒</h4>
+<ul>
+<li>二阶导的符号用途在第四章：判断单调性之后还要判断凹凸与拐点；二阶导的绝对值用途在曲率。所以「会算」之外还要「会读」。</li>
+<li>n 阶导的公式与泰勒展开互为表里：a<sub>n</sub> = f<sup>(n)</sup>(0)/n!。求 f<sup>(n)</sup>(0) 时优先想展开式，其次想拆项，最后才硬求导。</li>
+<li>易错：把 d²y/dx² 当成 (dy/dx)²；莱布尼茨漏项或漏 C(n, k)；拆项时忘记前面的 1/2 系数；n 阶公式的适用起点（如 sin²x 的公式在 n = 0 时不成立）。</li>
+<li>下一节把高阶导用于隐函数与参数方程，那里「对谁求导」比「怎么求导」更容易出错。</li>
+</ul>
+</div><!--/EXPL:m2-s3-->
+
+<!--EXPL:m2-s4--><div class="explain" data-expl="m2-s4">
+<h4 class="expl-h">一、这一节要解决什么</h4>
+<p>圆的方程 x² + y² = 25 里，y 并不是 x 的显函数：解出来要开方，而且分上下两支，一个 x 对应两个 y。更麻烦的是 y + e<sup>y</sup> = x 这类方程，y 根本解不出来。可是圆上每一点都有切线，斜率总该存在。于是要有一种办法：不解出 y，直接对等式两边求导。这就是隐函数求导。</p>
+<p>另一类来自运动。摆线 x = t − sin t、y = 1 − cos t 描述的是车轮边缘一点的轨迹，t 是时间，x 与 y 都由 t 决定。要求轨迹的切线斜率，就得借 t 做中转：先分别求 y 与 x 对 t 的导数，再相除。这就是参数方程求导。</p>
+
+<h4 class="expl-h">二、方法、定理与公式</h4>
+<p><b>隐函数存在定理（了解条件即可）。</b>若 F(x, y) 在点 (x₀, y₀) 的某邻域内有连续偏导数，F(x₀, y₀) = 0，且 F<sub>y</sub>(x₀, y₀) ≠ 0，则方程 F(x, y) = 0 在 x₀ 附近唯一确定一个可导函数 y = y(x)，且 <span class="fm">y′ = −F<sub>x</sub>/F<sub>y</sub></span>。考研只需知道：F<sub>y</sub> ≠ 0 是「能解出 y」的保证。</p>
+<p><b>隐函数求导法。</b>把 y 看作 x 的函数，方程两边同时对 x 求导，遇到 y 就用链式（y² 求导得 2yy′，sin y 求导得 cos y · y′），得到一个含 y′ 的方程，再解出 y′。结果中允许含 y，这是正常的。</p>
+<p><b>对数求导法。</b>适用于两类：幂指函数 u(x)<sup>v(x)</sup>，以及多因子连乘除、带根号的式子。步骤：两边取对数（必要时取 ln|y|），用对数性质把乘除拆成加减、把指数拉下来，两边对 x 求导，最后乘回 y。</p>
+<p><b>参数方程求导。</b>设 x = φ(t)、y = ψ(t) 都可导，且 φ′(t) ≠ 0，则</p>
+<p><span class="fm"><span class="fr"><span class="n">dy</span><span class="d">dx</span></span> = <span class="fr"><span class="n">ψ′(t)</span><span class="d">φ′(t)</span></span>　，　<span class="fr"><span class="n">d²y</span><span class="d">dx²</span></span> = <span class="fr"><span class="n">d</span><span class="d">dt</span></span>(<span class="fr"><span class="n">ψ′(t)</span><span class="d">φ′(t)</span></span>) · <span class="fr"><span class="n">1</span><span class="d">φ′(t)</span></span></span></p>
+<p>注意二阶公式里那个再乘一次的 1/φ′(t)：它是本节第一号丢分点。</p>
+
+<h4 class="expl-h">三、公式是怎么来的</h4>
+<p><b>(1) 一阶为什么是相除。</b>若 x = φ(t) 可逆，则 t = φ<sup>−1</sup>(x)，于是 y = ψ(φ<sup>−1</sup>(x)) 是 x 的复合函数。由链式法则 <span class="fm">dy/dx = ψ′(t) · dt/dx</span>，而反函数求导给出 <span class="fm">dt/dx = 1/φ′(t)</span>，两式相乘即得 dy/dx = ψ′(t)/φ′(t)。也可以记成 <span class="fm">dy/dx = (dy/dt)/(dx/dt)</span>，形式上好记，含义也清楚。</p>
+<p><b>(2) 二阶为什么还要再除一次。</b>dy/dx = ψ′(t)/φ′(t) 仍然是 t 的函数，而要求的 d²y/dx² 是对 <b>x</b> 求导。于是<br><span class="fm"><span class="fr"><span class="n">d²y</span><span class="d">dx²</span></span> = <span class="fr"><span class="n">d</span><span class="d">dx</span></span>(<span class="fr"><span class="n">dy</span><span class="d">dx</span></span>) = <span class="fr"><span class="n">d</span><span class="d">dt</span></span>(<span class="fr"><span class="n">dy</span><span class="d">dx</span></span>) · <span class="fr"><span class="n">dt</span><span class="d">dx</span></span> = <span class="fr"><span class="n">d</span><span class="d">dt</span></span>(<span class="fr"><span class="n">ψ′(t)</span><span class="d">φ′(t)</span></span>) · <span class="fr"><span class="n">1</span><span class="d">φ′(t)</span></span></span><br>所以「再除一次」不是背出来的口诀，而是链式法则的必然结果：对 x 求导必须先对 t 求导，再乘 dt/dx。</p>
+<p><b>(3) 隐函数二阶怎么处理。</b>y′ 的表达式里同时含 x 与 y，对 x 再求一次导时，那个 y 还要再乘一个 y′。算完得到一个含 x、y、y′ 的式子，把一阶的结果代进去，化到只含 x 与 y。</p>
+
+<h4 class="expl-h">四、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b>　设 x² + y² = 25，求 dy/dx，并求曲线在点 (3, 4) 处的切线方程与二阶导数。</p>
+<p class="expl-s"><b>解</b>　两边对 x 求导，注意 y² 是复合函数：<span class="fm">2x + 2y · y′ = 0</span>，解得 <span class="fm">y′ = −x/y</span>（y ≠ 0）。<br>在点 (3, 4)：y′ = −3/4，切线为 y − 4 = −(3/4)(x − 3)，即 <b>3x + 4y = 25</b>。<br>再求二阶：对 y′ = −x/y 两边对 x 求导，商法则中那个 y 也要乘 y′：<br><span class="fm">y″ = −<span class="fr"><span class="n">1 · y − x · y′</span><span class="d">y²</span></span></span><br>代入 y′ = −x/y：<span class="fm">y″ = −<span class="fr"><span class="n">y + x²/y</span><span class="d">y²</span></span> = −<span class="fr"><span class="n">x² + y²</span><span class="d">y³</span></span> = −<span class="fr"><span class="n">25</span><span class="d">y³</span></span></span>。<br>在 (3, 4) 处，y″ = −25/64。</p>
+<p class="expl-t">隐函数求二阶导的标准顺序：先写出一阶的显式表达式（把 y′ 解出来），再对 x 求导，最后把 y′ 代回去。千万不要在 2x + 2yy′ = 0 上直接再求导却忘了 y′ 的链式项。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b>　设摆线 x = t − sin t，y = 1 − cos t，求 <span class="fm">d²y/dx²</span>。</p>
+<p class="expl-s"><b>解</b>　先各自对 t 求导：<span class="fm">dx/dt = 1 − cos t</span>，<span class="fm">dy/dt = sin t</span>。因此<br><span class="fm"><span class="fr"><span class="n">dy</span><span class="d">dx</span></span> = <span class="fr"><span class="n">sin t</span><span class="d">1 − cos t</span></span></span><br>再对 t 求导（商法则）：<br><span class="fm"><span class="fr"><span class="n">d</span><span class="d">dt</span></span>(<span class="fr"><span class="n">sin t</span><span class="d">1 − cos t</span></span>) = <span class="fr"><span class="n">cos t(1 − cos t) − sin t · sin t</span><span class="d">(1 − cos t)²</span></span> = <span class="fr"><span class="n">cos t − 1</span><span class="d">(1 − cos t)²</span></span> = −<span class="fr"><span class="n">1</span><span class="d">1 − cos t</span></span></span><br>最后再除一次 φ′(t) = 1 − cos t：<br><b><span class="fm"><span class="fr"><span class="n">d²y</span><span class="d">dx²</span></span> = −<span class="fr"><span class="n">1</span><span class="d">(1 − cos t)²</span></span></span></b>。</p>
+<p class="expl-t">注意分子化简用的恒等式 cos t − cos²t − sin²t = cos t − 1，不少人在这一步卡住。最后那次「除以 1 − cos t」不能省，省了就得到错误答案 −1/(1 − cos t)。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b>　设 y = (sin x)<sup>x</sup>（0 &lt; x &lt; π），求 y′。</p>
+<p class="expl-s"><b>解</b>　这是幂指函数，底数与指数都含 x，不能用幂函数公式，也不能用指数函数公式。两边取对数：<br><span class="fm">ln y = x ln sin x</span><br>两边对 x 求导，左边是复合函数（ln y 对 x 求导得 y′/y），右边用乘积法则：<br><span class="fm"><span class="fr"><span class="n">y′</span><span class="d">y</span></span> = ln sin x + x · <span class="fr"><span class="n">cos x</span><span class="d">sin x</span></span> = ln sin x + x cot x</span><br>两边乘回 y = (sin x)<sup>x</sup>：<br><b>y′ = (sin x)<sup>x</sup>(ln sin x + x cot x)</b>。</p>
+<p class="expl-t">等价写法是 y = e<sup>x ln sin x</sup>，直接用链式，结果相同；两条路都可以，但取对数更不容易漏项。对数求导的最后一步「乘回 y」千万别忘，很多人把 y′/y 当成答案。</p>
+</div>
+
+<h4 class="expl-h">五、常考套路与易错</h4>
+<ul>
+<li>隐函数求导三步：两边对 x 求导（y 当函数）、整理成 y′ 的一次方程、解出 y′。要求某点斜率时，先把该点坐标代进去算，比先化简再代省力。</li>
+<li>参数方程二阶导只有一条准则：结果的分子分母都以 t 为参数，最后必须再除一次 φ′(t)。</li>
+<li>易错：幂指函数套用 (u<sup>v</sup>)′ = vu<sup>v−1</sup>u′（那是把指数当常数）；对数求导漏乘回 y；隐函数二阶漏掉 y′ 的链式项；参数方程把 d²y/dx² 算成 (d/dt)(dy/dx)。</li>
+<li>后文联系：第五节的一阶微分形式不变性正是「参数方程、隐函数都能求导」的统一解释；再往后第五章的相关变化率问题，本质上也是隐函数求导。</li>
+</ul>
+</div><!--/EXPL:m2-s4-->
+
+<!--EXPL:m2-s5--><div class="explain" data-expl="m2-s5">
+<h4 class="expl-h">一、这一节要解决什么</h4>
+<p>√1.02 手算不出来，但一句「约等于 1.01」几乎人人会说。凭什么？因为 x 从 1 变到 1.02 时，函数值的增量 Δy 主要由一个线性项贡献，剩下的部分比 Δx 小得多，可以忽略。把这个线性主部单独抽出来，就叫函数的微分。</p>
+<p>工程上它更是刚需。测得圆球直径 D = 10 cm，误差不超过 0.05 cm，算出来的体积会差多少？不需要重新算一遍体积，只要用微分把「输入的误差」线性地传过去，就能估出「输出的误差」。这类误差传播、近似计算，全靠微分。</p>
+
+<h4 class="expl-h">二、定义与定理</h4>
+<p><b>定义。</b>设 y = f(x) 在 x₀ 的某邻域内有定义。若函数增量可以写成</p>
+<p><span class="fm">Δy = A · Δx + o(Δx)</span></p>
+<p>其中 A 是与 Δx 无关的常数，则称 f 在 x₀ <b>可微</b>，并称 AΔx 为 f 在 x₀ 处的<b>微分</b>，记作 <span class="fm">dy = AΔx</span>。</p>
+<p><b>定理（可微与可导等价）。</b>一元函数 y = f(x) 在 x₀ 可微，当且仅当它在 x₀ 可导，且此时 A = f′(x₀)，于是</p>
+<p><span class="fm">dy = f′(x₀)Δx = f′(x₀)dx</span></p>
+<p>这里规定自变量的微分 dx = Δx，所以导数可以写成 dy/dx 的形式——「微商」这个叫法从此有了依据。</p>
+<p><b>几何意义。</b>Δy 是曲线在 x₀ + Δx 处的纵坐标增量，dy 是切线在同一点的纵坐标增量，两者相差一个 o(Δx)：曲线与切线在局部几乎重合，这正是「以直代曲」。</p>
+<p><b>一阶微分形式不变性。</b>无论 u 是自变量还是中间变量，都有 <span class="fm">dy = f′(u)du</span>。它是不定积分里「凑微分」的理论依据。</p>
+<p><b>微分法则。</b><span class="fm">d(u ± v) = du ± dv</span>，<span class="fm">d(uv) = u dv + v du</span>，<span class="fm">d(u/v) = (v du − u dv)/v²</span>。<b>近似公式。</b><span class="fm">f(x₀ + Δx) ≈ f(x₀) + f′(x₀)Δx</span>，误差约为 <span class="fm">|f′(x₀)| · |Δx|</span>。</p>
+
+<h4 class="expl-h">三、三个推导</h4>
+<p><b>(1) 可微必可导。</b>由 Δy = AΔx + o(Δx)，两边除以 Δx 得 <span class="fm">Δy/Δx = A + o(Δx)/Δx</span>。当 Δx→0 时最后一项趋于 0，故 Δy/Δx → A，即 f′(x₀) 存在且等于 A。这说明 A 不但存在，而且唯一，只能是导数。</p>
+<p><b>(2) 可导必可微。</b>由 f′(x₀) = lim Δy/Δx，可写成 <span class="fm">Δy/Δx = f′(x₀) + α</span>，其中 α→0（Δx→0）。两边乘 Δx：<span class="fm">Δy = f′(x₀)Δx + αΔx</span>，而 αΔx = o(Δx)，故 Δy = f′(x₀)Δx + o(Δx)，f 可微且 A = f′(x₀)。两段合起来就是等价性定理。</p>
+<p><b>(3) 形式不变性。</b>设 y = f(u)、u = g(x)。若 u 是自变量，则 dy = f′(u)du。若 u 是中间变量，由链式法则 dy/dx = f′(u)g′(x)，两边乘 dx 得 dy = f′(u)g′(x)dx；而 du = g′(x)dx，代回即 dy = f′(u)du。两种情形下式子的形状完全一样，这就是「形式不变」四个字的含义。</p>
+<p><b>提醒：</b>二阶微分写成 <span class="fm">d²y = f″(x)dx²</span>（把 dx 看作与 x 无关的常量），这里的 dx² 指的是 (dx)²，与 d(x²) 完全不同；而且二阶微分<b>没有</b>形式不变性。把 d²y 当成 (dy)² 或当成 d(dy) 时把 dx 也求导，都是常见错误。</p>
+
+<h4 class="expl-h">四、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b>　设 y = ln(1 + x²)，求 dy；并求 x = 1、Δx = 0.01 时 dy 的值。</p>
+<p class="expl-s"><b>解</b>　先求导：<span class="fm">y′ = <span class="fr"><span class="n">2x</span><span class="d">1 + x²</span></span></span>，故 <span class="fm">dy = <span class="fr"><span class="n">2x</span><span class="d">1 + x²</span></span>dx</span>。<br>在 x = 1 处，y′ = 2/2 = 1，取 dx = Δx = 0.01，得 <b>dy = 1 × 0.01 = 0.01</b>。<br>对照真实增量：Δy = ln(1 + 1.01²) − ln 2 = ln(2.0201/2) ≈ 0.009975，与 dy 相差约 2.5×10<sup>−5</sup>，正是 o(Δx) 的量级。</p>
+<p class="expl-t">求 dy 只有两步：求导、乘 dx。若问的是 Δy 的近似值，答 dy；若问「精确」的 Δy，仍然得算函数值之差，别混。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b>　求 √1.02 的近似值。</p>
+<p class="expl-s"><b>解</b>　取 f(x) = √x，x₀ = 1，Δx = 0.02。此时 f(x₀) = 1，<span class="fm">f′(x) = <span class="fr"><span class="n">1</span><span class="d">2√x</span></span></span>，f′(1) = 1/2。<br>由近似公式 f(x₀ + Δx) ≈ f(x₀) + f′(x₀)Δx：<br><span class="fm">√1.02 ≈ 1 + <span class="fr"><span class="n">1</span><span class="d">2</span></span> × 0.02 = 1.01</span><br>（真值约 1.009950，绝对误差约 5×10<sup>−5</sup>。）</p>
+<p class="expl-t">用微分做近似，关键是选好 x₀：要选一个函数值与导数都容易算的点（1、4、9、0、π/6 之类），再把待求点写成 x₀ + Δx，且 Δx 越小越准。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b>　测得圆球直径 D = 10 cm，绝对误差限为 0.05 cm。求用 V = πD³/6 计算体积时，体积的绝对误差与相对误差。</p>
+<p class="expl-s"><b>解</b>　把 D 看作自变量，V 是 D 的函数。先求微分：<br><span class="fm">dV = V′(D)dD = <span class="fr"><span class="n">πD²</span><span class="d">2</span></span>dD</span><br>取 D = 10、|dD| = 0.05：<br><span class="fm">|dV| ≈ <span class="fr"><span class="n">π × 100</span><span class="d">2</span></span> × 0.05 = 2.5π ≈ 7.85</span>（cm³）<br>体积本身 V = π × 1000/6 ≈ 523.6（cm³），故相对误差<br><span class="fm"><span class="fr"><span class="n">|dV|</span><span class="d">V</span></span> = <span class="fr"><span class="n">(πD²/2)dD</span><span class="d">πD³/6</span></span> = 3 · <span class="fr"><span class="n">|dD|</span><span class="d">D</span></span> = 3 × 0.005 = 1.5%</span></p>
+<p class="expl-t">结论有一般性：V 与 D 的三次方成正比，直径的相对误差传到体积上要放大 3 倍。凡是幂函数 y = x<sup>n</sup>，都有相对误差的放大倍数等于 n，这条在物理实验与工程估算里很常用。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 4</b>　求 <span class="fm"><span class="lm">lim<span class="s">x→0</span></span><span class="fr"><span class="n">e<sup>x</sup> − e<sup>sin x</sup></span><span class="d">x − sin x</span></span></span>。</p>
+<p class="expl-s"><b>解</b>　把分子看作函数 f(u) = e<sup>u</sup> 在两点 u₁ = sin x、u₂ = x 处的函数值之差。当 x→0 时 sin x 与 x 都趋于 0，两点靠得很近，增量为 Δu = x − sin x。<br>由微分近似 <span class="fm">e<sup>u+Δu</sup> − e<sup>u</sup> ≈ e<sup>u</sup>Δu</span>，取 u = sin x：<br><span class="fm">e<sup>x</sup> − e<sup>sin x</sup> ≈ e<sup>sin x</sup>(x − sin x)</span><br>代回原式：<span class="fm">原式 = <span class="lm">lim<span class="s">x→0</span></span>e<sup>sin x</sup> · <span class="fr"><span class="n">x − sin x</span><span class="d">x − sin x</span></span> = <span class="lm">lim<span class="s">x→0</span></span>e<sup>sin x</sup> = 1</span>。<br>（严格写法是用拉格朗日中值定理：e<sup>x</sup> − e<sup>sin x</sup> = e<sup>ξ</sup>(x − sin x)，ξ 在 sin x 与 x 之间，ξ→0。）</p>
+<p class="expl-t">核心动作是「把函数值之差换成导数乘增量」，换完往往整体约掉。严格工具是拉格朗日中值定理，考试写它更稳妥。</p>
+</div>
+
+<h4 class="expl-h">五、与后文的联系和提醒</h4>
+<ul>
+<li>dy = f′(x)dx 让 dy/dx 成为「两个微分之比」，这是莱布尼茨记号好用的根源，也是后面凑微分、换元积分的依据。</li>
+<li>近似公式 f(x₀ + Δx) ≈ f(x₀) + f′(x₀)Δx 就是泰勒公式取一阶。Δx 大时必须补二阶项，否则误差不可控。</li>
+<li>易错：把 dy 与 Δy 混为一谈（差一个 o(Δx)）；把 d²y 写成 (dy)²；在 d(uv) = udv + vdu 里漏项；求误差时忘了取绝对值。</li>
+<li>本章到此闭环：定义（第一节）→ 计算（第二节）→ 高阶（第三节）→ 隐函数与参数（第四节）→ 线性主部（第五节）。下一章把这些工具反过来用：由导数推函数的性质。</li>
+</ul>
+</div><!--/EXPL:m2-s5-->

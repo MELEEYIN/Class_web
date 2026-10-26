@@ -167,6 +167,8 @@
           .replace(/^第[一二三四五六七八九十]+节\s*/, '');
         var sec = { id: h.id, title: t, pts: [] };
         var ol = h.nextElementSibling;
+        /* 节标题后面可能先插了「逐节讲解」块，跳过它再找知识点列表 */
+        while (ol && ol.nodeType === 1 && !ol.classList.contains('kpt')) ol = ol.nextElementSibling;
         if (ol && ol.classList.contains('kpt')) {
           $$('li', ol).forEach(function (li) {
             var bb = li.querySelector('b');

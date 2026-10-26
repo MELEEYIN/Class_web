@@ -1,0 +1,233 @@
+<!--EXPL:m12-s1--><div class="explain" data-expl="m12-s1">
+<h4 class="expl-h">一、从「薄壳的质量」说起</h4>
+<p>一根细铁丝有质量，我们用一元积分把它的质量「积」出来。现在把铁丝换成一张薄曲面片——半球形的金属罩、蒙在框架上的肥皂膜、结了一层霜的球面——而且它每一点的密度还不一样。要求它的质量，就得把曲面切成无数小块，每小块近似看成平面，用「该块密度 × 该块面积」作和，再让分割无限变细取极限。这样得到的就是<b>对面积的曲面积分</b>，也叫第一类曲面积分。</p>
+<p>和弧长积分 <span class="fm"><span class="op">∫</span><sub>L</sub> f ds</span> 对照着记最省力：那里的微元 ds 是「一小段弧长」，这里的微元 dS 是「一小片面积」；曲线是一维的、能像绳子一样抻直，曲面是二维的、得靠投影压到平面上去算。这个差别决定了本节全部技巧都围绕一个问题：<b>面积怎么折算成投影面积</b>。</p>
+
+<h4 class="expl-h">二、定义与性质</h4>
+<p>设 Σ 是光滑（或分片光滑）的有界曲面，f(x,y,z) 在 Σ 上有界。把 Σ 任意分成 n 小块 ΔS<sub>1</sub>, ΔS<sub>2</sub>, …, ΔS<sub>n</sub>（ΔS<sub>i</sub> 同时表示该块的面积），在第 i 块上任取一点 (ξ<sub>i</sub>, η<sub>i</sub>, ζ<sub>i</sub>)，作和 <span class="fm">Σ f(ξ<sub>i</sub>,η<sub>i</sub>,ζ<sub>i</sub>)ΔS<sub>i</sub></span>。令各块直径的最大值 λ 趋于 0，若这个和的极限存在、且与分法与取点都无关，就称它为 f 在 Σ 上对面积的曲面积分，记作</p>
+<p><span class="fm"><span class="op">∬</span><sub>Σ</sub> f(x,y,z) dS</span></p>
+<p>三条性质必须熟练。① <b>线性</b>：常数可提出，和可拆开。② <b>可加</b>：Σ 分成 Σ<sub>1</sub> 与 Σ<sub>2</sub>，积分等于两块之和——这就是球面必须分上下两半算的依据。③ <b>与侧无关</b>：ΔS<sub>i</sub> 是正面积，从哪一侧看都一样。第 ③ 条正是它与下一节「对坐标的曲面积分」最根本的区别，那边一换侧就整体变号。</p>
+<p>两个特例记牢：f ≡ 1 时 <span class="fm"><span class="op">∬</span><sub>Σ</sub> dS</span> 就是曲面面积；f 取面密度 ρ 时，积分就是薄壳的质量。</p>
+
+<h4 class="expl-h">三、核心公式：把 dS 换成 dxdy</h4>
+<p>设 Σ: z = z(x,y)，(x,y) ∈ D<sub>xy</sub>，z 有连续偏导。Σ 上小块的法向量取 <b>n</b> = (−z<sub>x</sub>, −z<sub>y</sub>, 1)，它与 z 轴的夹角 γ 满足</p>
+<p><span class="fm">cos γ = <span class="fr"><span class="n">1</span><span class="d"><span class="op">√</span>(1 + z<sub>x</sub><sup>2</sup> + z<sub>y</sub><sup>2</sup>)</span></span></span></p>
+<p>而小块在 xOy 面上的投影面积 Δσ 与自身面积的关系是 Δσ = ΔS·|cos γ|，于是 ΔS = √(1+z<sub>x</sub><sup>2</sup>+z<sub>y</sub><sup>2</sup>)·Δσ。取极限得</p>
+<p><span class="fm"><span class="op">∬</span><sub>Σ</sub> f dS = <span class="op">∬</span><sub>D<sub>xy</sub></sub> f(x, y, z(x,y)) <span class="op">√</span>(1 + z<sub>x</sub><sup>2</sup> + z<sub>y</sub><sup>2</sup>) dxdy</span></p>
+<p>口诀是「<b>一投、二代、三换 dS</b>」：把 Σ 投到坐标面得 D；把曲面方程代进被积函数（f 里的 z 必须换成 z(x,y)）；把 dS 换成带根号的 dxdy。若 Σ 给成 x = x(y,z) 或 y = y(x,z)，根式里换成对应的两个偏导，结构完全一样。</p>
+
+<h4 class="expl-h">四、投到哪个坐标面</h4>
+<p>原则：投影不重叠、不退化成曲线，且根式好算。法向量与哪个坐标轴夹角小（|cos| 大），就往那个坐标面投——此时折算系数最小，投影区域也最大最规整。典型反例：柱面 x<sup>2</sup>+y<sup>2</sup> = R<sup>2</sup> 投到 xOy 面只剩一个圆，面积为 0，dS 根本无法用 dxdy 表示，必须投到 yOz 面，用 <span class="fm">dS = <span class="fr"><span class="n">R</span><span class="d"><span class="op">√</span>(R<sup>2</sup> − y<sup>2</sup>)</span></span> dydz</span> 这类式子。球面整体投到 xOy 面会上下重叠，必须拆成 z = ±√(a<sup>2</sup>−x<sup>2</sup>−y<sup>2</sup>) 两片分别算再相加。</p>
+
+<h4 class="expl-h">五、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b> 计算 <span class="fm"><span class="op">∬</span><sub>Σ</sub> z dS</span>，其中 Σ 是锥面 z = <span class="op">√</span>(x<sup>2</sup>+y<sup>2</sup>) 被平面 z = 1 截下的部分。</p>
+<p class="expl-s"><b>解</b> 曲面 z = √(x<sup>2</sup>+y<sup>2</sup>)，故 z<sub>x</sub> = x/√(x<sup>2</sup>+y<sup>2</sup>)，z<sub>y</sub> = y/√(x<sup>2</sup>+y<sup>2</sup>)，于是<br><span class="fm"><span class="op">√</span>(1 + z<sub>x</sub><sup>2</sup> + z<sub>y</sub><sup>2</sup>) = <span class="op">√</span>2</span>，是常数。投影区域 D: x<sup>2</sup>+y<sup>2</sup> ≤ 1。代入公式并对 D 用极坐标：<br><span class="fm">原式 = <span class="op">√</span>2 <span class="op">∬</span><sub>D</sub> <span class="op">√</span>(x<sup>2</sup>+y<sup>2</sup>) dxdy = <span class="op">√</span>2 <span class="op">∫</span><sub>0</sub><sup>2π</sup> dθ <span class="op">∫</span><sub>0</sub><sup>1</sup> r·r dr</span><br>= √2 · 2π · <span class="fr"><span class="n">1</span><span class="d">3</span></span> = <b><span class="fr"><span class="n">2<span class="op">√</span>2</span><span class="d">3</span></span> π</b>。</p>
+<p class="expl-t">锥面的折算系数恒为 √2，这是它好算的原因；换成别的曲面，根式里往往带变量。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b> 计算 <span class="fm"><span class="op">∬</span><sub>Σ</sub> z dS</span>，Σ 为上半球面 z = <span class="op">√</span>(a<sup>2</sup>−x<sup>2</sup>−y<sup>2</sup>)。</p>
+<p class="expl-s"><b>解</b> z<sub>x</sub> = −x/z，z<sub>y</sub> = −y/z，于是<br><span class="fm">1 + z<sub>x</sub><sup>2</sup> + z<sub>y</sub><sup>2</sup> = 1 + <span class="fr"><span class="n">x<sup>2</sup>+y<sup>2</sup></span><span class="d">z<sup>2</sup></span></span> = <span class="fr"><span class="n">a<sup>2</sup></span><span class="d">z<sup>2</sup></span></span></span>，故根式 = a/z。代入：<br><span class="fm">原式 = <span class="op">∬</span><sub>D</sub> z · <span class="fr"><span class="n">a</span><span class="d">z</span></span> dxdy = a <span class="op">∬</span><sub>D</sub> dxdy = a · πa<sup>2</sup> = <b>πa<sup>3</sup></b></span>。</p>
+<p class="expl-t">z 与根式里的 z 恰好约掉，这是球面题的标准捷径。不要一上来就把 z 展开成根式硬积，那会算到没脾气。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b> 求半径为 a、面密度为常数的上半球壳的质心。</p>
+<p class="expl-s"><b>解</b> 质量 m = ∬<sub>Σ</sub> dS = 2πa<sup>2</sup>（半球面面积）。由关于 z 轴的旋转对称性，x̄ = ȳ = 0。再由例 2 得 <span class="fm"><span class="op">∬</span><sub>Σ</sub> z dS = πa<sup>3</sup></span>，故<br><span class="fm">z̄ = <span class="fr"><span class="n">πa<sup>3</sup></span><span class="d">2πa<sup>2</sup></span></span> = <span class="fr"><span class="n">a</span><span class="d">2</span></span></span>。</p>
+<p class="expl-t">均匀半球壳的质心距球心 a/2；均匀半球体的质心距球心 5a/8（距底面 3a/8）。两个数别混，考选择题时常拿它们做干扰项。</p>
+</div>
+
+<h4 class="expl-h">六、与后文的联系与易错提醒</h4>
+<ul>
+<li>下一节给曲面指定一侧、把 dS 换成有向投影 dydz、dzdx、dxdy，就得到第二类曲面积分；两者的桥是 cos α、cos β、cos γ。</li>
+<li>闭曲面上的第二类积分用高斯公式转成三重积分，而题目常把被积函数写成第一类形式，此时要先用 <span class="fm">cos γ dS = dxdy</span> 换过去。</li>
+<li>易错一：忘记乘 <span class="fm"><span class="op">√</span>(1 + z<sub>x</sub><sup>2</sup> + z<sub>y</sub><sup>2</sup>)</span>，直接把 dS 当成 dxdy。</li>
+<li>易错二：投影区域写错——要先从曲面方程与边界条件里消去 z，再定 D 的边界。</li>
+<li>易错三：曲面需要分片时漏片，或分片后忘了每片代入各自的曲面方程（上下两半的 z 符号不同）。</li>
+</ul>
+</div><!--/EXPL:m12-s1-->
+
+<!--EXPL:m12-s2--><div class="explain" data-expl="m12-s2">
+<h4 class="expl-h">一、从「穿过一张网的流量」说起</h4>
+<p>河水里斜插一张网，问单位时间有多少水穿过它。这既取决于流速 <b>v</b>，也取决于网面的朝向与大小。把网分成小块，每块近似平面、单位法向量 <b>n</b>，则穿过这一小块的流量约为 <b>v</b>·<b>n</b> 乘以小块面积；求和取极限就是总流量。这里出现了一个新东西：<b>网朝哪一边，流量就取哪个符号</b>。所以曲面必须先<b>定向</b>——指定一侧，法向量才有确定指向。这类积分叫对坐标的曲面积分（第二类曲面积分），物理上就是<b>通量</b>。</p>
+<p>和第一类比：第一类只问「这一小片有多大」，第二类还要问「它朝哪儿」。所以第一类与侧无关，第二类换侧就整体变号。</p>
+
+<h4 class="expl-h">二、定义</h4>
+<p>设 Σ 是光滑的双侧曲面并取定一侧。把 Σ 分成 n 小块，ΔS<sub>i</sub> 在 yOz、zOx、xOy 三个坐标面上的投影面积依次记为 Δσ<sub>yz</sub>、Δσ<sub>zx</sub>、Δσ<sub>xy</sub>，它们<b>带符号</b>：小块法向量与相应坐标轴成锐角时取正，成钝角时取负。在第 i 块取点 (ξ,η,ζ)，作和</p>
+<p><span class="fm">Σ ( P Δσ<sub>yz</sub> + Q Δσ<sub>zx</sub> + R Δσ<sub>xy</sub> )</span></p>
+<p>令 λ 趋于 0，若极限存在且与分法取点无关，就记作 <span class="fm"><span class="op">∬</span><sub>Σ</sub> P dydz + Q dzdx + R dxdy</span>。它是三项之和，每一项都是独立的第二类曲面积分，可以分开算再相加。</p>
+<p>性质：线性；对曲面可加；<b>换侧整体变号</b>。还有一条常被忽略——若 Σ 垂直于某坐标面（比如整个落在平面 z = c 上），它在对应坐标面上的投影面积为 0，那一项就是 0，这不是漏算，而是真的为零。</p>
+
+<h4 class="expl-h">三、投影法：一投、二代、三定号</h4>
+<p>以 <span class="fm"><span class="op">∬</span><sub>Σ</sub> R dxdy</span> 为例。设 Σ: z = z(x,y)，投影为 D<sub>xy</sub>。取上侧时法向量与 z 轴成锐角，cos γ &gt; 0，取正号；取下侧时 cos γ &lt; 0，取负号。于是</p>
+<p><span class="fm"><span class="op">∬</span><sub>Σ</sub> R dxdy = ± <span class="op">∬</span><sub>D<sub>xy</sub></sub> R(x, y, z(x,y)) dxdy</span></p>
+<p>同理，<span class="fm"><span class="op">∬</span><sub>Σ</sub> P dydz</span> 投到 yOz 面：<b>前侧</b>（法向量的 x 分量为正，cos α &gt; 0）取正，<b>后侧</b>取负；<span class="fm"><span class="op">∬</span><sub>Σ</sub> Q dzdx</span> 投到 zOx 面：<b>右侧</b>（cos β &gt; 0）取正，<b>左侧</b>取负。</p>
+<p>三项各投各的面、各定各的号，这是本节最容易出错的地方，绝不能三项共用一个符号。另外要注意投影重叠：封闭曲面整体投到 xOy 面会上下重叠，必须分片（上片取上侧、下片取下侧）分别算再相加。</p>
+
+<h4 class="expl-h">四、两类积分的关系</h4>
+<p>关键是把「投影面积」和「曲面面积」接起来。小块上法向量 <b>n</b> = (cos α, cos β, cos γ)，而它在三个坐标面上的投影面积分别是 |cos α|ΔS、|cos β|ΔS、|cos γ|ΔS，带上侧的正负号就得到</p>
+<p><span class="fm">dydz = cos α dS，　dzdx = cos β dS，　dxdy = cos γ dS</span></p>
+<p>代入定义立刻得到</p>
+<p><span class="fm"><span class="op">∬</span><sub>Σ</sub> P dydz + Q dzdx + R dxdy = <span class="op">∬</span><sub>Σ</sub> (P cos α + Q cos β + R cos γ) dS</span></p>
+<p>写成向量形式就是 <span class="fm"><span class="op">∬</span><sub>Σ</sub> (<b>v</b>·<b>n</b>) dS</span>，其中 <b>v</b> = (P, Q, R)，右端的 Σ 必须取同一侧。这条关系有两个用处：一是当 dS 好算（球面、柱面、平面）时把第二类化成第一类；二是当曲面在某个坐标面上投影退化时，用它把死路走活。</p>
+
+<h4 class="expl-h">五、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b> 计算 <span class="fm"><span class="op">∬</span><sub>Σ</sub> x dydz + y dzdx + z dxdy</span>，Σ 为上半球面 z = √(a<sup>2</sup>−x<sup>2</sup>−y<sup>2</sup>) 的上侧。</p>
+<p class="expl-s"><b>解</b> 上半球面取上侧，恰是球面的外法向，故 <b>n</b> = (x, y, z)/a（模为 1）。于是<br><span class="fm">P cos α + Q cos β + R cos γ = <span class="fr"><span class="n">x<sup>2</sup>+y<sup>2</sup>+z<sup>2</sup></span><span class="d">a</span></span> = <span class="fr"><span class="n">a<sup>2</sup></span><span class="d">a</span></span> = a</span>。<br>所以原式 = <span class="fm"><span class="op">∬</span><sub>Σ</sub> a dS = a · 2πa<sup>2</sup> = <b>2πa<sup>3</sup></b></span>。</p>
+<p class="expl-t">若改用投影法，三项要投到三个面、还要分片定号，非常繁。这里用两类关系一步到位——看到「球面 + 一次齐次被积函数」，优先想这条路。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b> 计算 <span class="fm"><span class="op">∬</span><sub>Σ</sub> z dxdy</span>，Σ 为锥面 z = √(x<sup>2</sup>+y<sup>2</sup>)（0 ≤ z ≤ 1）的下侧。</p>
+<p class="expl-s"><b>解</b> 投到 xOy 面，D: x<sup>2</sup>+y<sup>2</sup> ≤ 1，曲面上 z = √(x<sup>2</sup>+y<sup>2</sup>)。因取下侧，cos γ &lt; 0，取负号：<br><span class="fm">原式 = − <span class="op">∬</span><sub>D</sub> <span class="op">√</span>(x<sup>2</sup>+y<sup>2</sup>) dxdy = − <span class="op">∫</span><sub>0</sub><sup>2π</sup> dθ <span class="op">∫</span><sub>0</sub><sup>1</sup> r · r dr = <b>−<span class="fr"><span class="n">2π</span><span class="d">3</span></span></b>。</span></p>
+<p class="expl-t">同一条曲线上的积分，取上侧就变成 +2π/3。判号只问一句：法向量的 z 分量是正还是负。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b> 计算 <span class="fm"><span class="op">∬</span><sub>Σ</sub> x dydz + y dzdx</span>，Σ 为柱面 x<sup>2</sup>+y<sup>2</sup> = 1（0 ≤ z ≤ 1）的外侧。</p>
+<p class="expl-s"><b>解</b> 柱面的外法向量 <b>n</b> = (x, y, 0)（因 x<sup>2</sup>+y<sup>2</sup> = 1，模为 1）。于是 P cos α + Q cos β + R cos γ = x<sup>2</sup>+y<sup>2</sup> = 1。所以<br><span class="fm">原式 = <span class="op">∬</span><sub>Σ</sub> 1 dS = 侧面积 = 2π · 1 · 1 = <b>2π</b></span>。</p>
+<p class="expl-t">柱面投到 xOy 面退化，直接投影做不了；用两类关系后只剩「算面积」。这类「投不了就用 cos 换」是标准套路。</p>
+</div>
+
+<h4 class="expl-h">六、联系与易错</h4>
+<ul>
+<li>记忆法：dxdy 对应上、下侧（沿 z 轴看），dydz 对应前、后侧（沿 x 轴看），dzdx 对应右、左侧（沿 y 轴看）——<b>缺哪个字母，就沿哪个轴看</b>。</li>
+<li>下一节高斯公式：把闭曲面上的这类积分降成三重积分，前提是「闭 + 外侧 + 偏导连续」。</li>
+<li>易错一：侧与符号不统一，取上侧却写了负号；易错二：三项共用一个符号；易错三：投影重叠不分片；易错四：把 Σ 的边界方程当成 D 的边界。</li>
+</ul>
+</div><!--/EXPL:m12-s2-->
+
+<!--EXPL:m12-s3--><div class="explain" data-expl="m12-s3">
+<h4 class="expl-h">一、直观理解：通量等于内部源的总和</h4>
+<p>球形容器里放一个水龙头，单位时间从球面流出的水，等于水龙头喷出的水——「边界的通量 = 内部源的总和」。把区域 Ω 切成无数小立方体，每块自己「产生」的流量正比于它的体积，比例系数就是<b>散度</b>：单位体积在单位时间内向外的净流出量。把所有小块的贡献加起来，内部公共面上一进一出正好抵消，只剩最外面的边界 Σ 有净流出。于是 <span class="fm"><span class="op">∯</span><sub>Σ</sub> <b>v</b>·<b>n</b> dS = <span class="op">∭</span><sub>Ω</sub> div <b>v</b> dV</span>。这就是高斯公式，格林公式在三维的推广（也叫奥斯特洛格拉德斯基—高斯公式）。</p>
+
+<h4 class="expl-h">二、公式的精确表述</h4>
+<p><b>高斯公式</b> 设空间闭区域 Ω 由分片光滑的闭曲面 Σ 围成，函数 P、Q、R 在 Ω 上具有一阶连续偏导数，Σ 取<b>外侧</b>，则</p>
+<p><span class="fm"><span class="op">∯</span><sub>Σ</sub> P dydz + Q dzdx + R dxdy = <span class="op">∭</span><sub>Ω</sub> (P<sub>x</sub> + Q<sub>y</sub> + R<sub>z</sub>) dV</span></p>
+<p>三个条件缺一不可：① Σ 是<b>闭</b>曲面；② 取<b>外侧</b>（若取内侧，右边整体加负号）；③ P、Q、R 在 Ω 上有<b>一阶连续偏导</b>（内部不能有奇点）。</p>
+<p><b>散度</b>：向量场 <b>v</b> = (P,Q,R) 的散度定义为 <span class="fm">div <b>v</b> = <span class="fr"><span class="n">∂P</span><span class="d">∂x</span></span> + <span class="fr"><span class="n">∂Q</span><span class="d">∂y</span></span> + <span class="fr"><span class="n">∂R</span><span class="d">∂z</span></span></span>，记作 ∇·<b>v</b>。于是高斯公式可写成 <span class="fm"><span class="op">∯</span><sub>Σ</sub> <b>v</b>·<b>n</b> dS = <span class="op">∭</span><sub>Ω</sub> div <b>v</b> dV</span>：<b>通量 = 散度的三重积分</b>。散度为正的点是「源」，为负的是「汇」。</p>
+
+<h4 class="expl-h">三、证明思路：切片与抵消</h4>
+<p>先设 Ω 是 z 型区域：Ω = { (x,y,z) | (x,y) ∈ D<sub>xy</sub>, z<sub>1</sub>(x,y) ≤ z ≤ z<sub>2</sub>(x,y) }，Σ 由下曲面 Σ<sub>1</sub>: z = z<sub>1</sub>、上曲面 Σ<sub>2</sub>: z = z<sub>2</sub> 与侧面组成，侧面垂直于 xOy 面。只证第三项，先对 z 积分：</p>
+<p><span class="fm"><span class="op">∭</span><sub>Ω</sub> R<sub>z</sub> dV = <span class="op">∬</span><sub>D</sub> [ R(x,y,z<sub>2</sub>) − R(x,y,z<sub>1</sub>) ] dxdy</span></p>
+<p>再看左边。Σ<sub>2</sub> 取上侧、Σ<sub>1</sub> 取下侧；侧面法向量与 z 轴垂直，cos γ = 0，那一项积分为 0。所以</p>
+<p><span class="fm"><span class="op">∯</span><sub>Σ</sub> R dxdy = <span class="op">∬</span><sub>D</sub> R(x,y,z<sub>2</sub>) dxdy − <span class="op">∬</span><sub>D</sub> R(x,y,z<sub>1</sub>) dxdy</span></p>
+<p>两式右边完全相同，第三项成立。同理把 Ω 看成 x 型、y 型区域，得第一、二项，三式相加即得公式。一般区域则用平行于坐标面的辅助面把它切成若干 z 型区域，公共面上的两次积分方向相反、互相抵消，公式仍成立——这正是「内部抵消、边界留下」的严格版本。</p>
+
+<h4 class="expl-h">四、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b> 计算 <span class="fm"><span class="op">∯</span><sub>Σ</sub> x<sup>3</sup> dydz + y<sup>3</sup> dzdx + z<sup>3</sup> dxdy</span>，Σ 为球面 x<sup>2</sup>+y<sup>2</sup>+z<sup>2</sup> = a<sup>2</sup> 的外侧。</p>
+<p class="expl-s"><b>解</b> 闭曲面 + 外侧 + 被积函数是多项式（处处光滑），三条件齐备。散度 P<sub>x</sub>+Q<sub>y</sub>+R<sub>z</sub> = 3x<sup>2</sup>+3y<sup>2</sup>+3z<sup>2</sup> = 3r<sup>2</sup>。用球坐标（体积元 r<sup>2</sup>sin φ dr dφ dθ）：<br><span class="fm">原式 = 3 <span class="op">∭</span><sub>Ω</sub> r<sup>2</sup> dV = 3 <span class="op">∫</span><sub>0</sub><sup>2π</sup> dθ <span class="op">∫</span><sub>0</sub><sup>π</sup> dφ <span class="op">∫</span><sub>0</sub><sup>a</sup> r<sup>2</sup>·r<sup>2</sup> sin φ dr</span><br>= 3 · 2π · 2 · <span class="fr"><span class="n">a<sup>5</sup></span><span class="d">5</span></span> = <b><span class="fr"><span class="n">12πa<sup>5</sup></span><span class="d">5</span></span></b>。</p>
+<p class="expl-t">换球坐标别丢 sin φ：被积函数是 r<sup>2</sup>，体积元自带 r<sup>2</sup>sin φ，合起来是 r<sup>4</sup>sin φ。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2（补面）</b> 计算 <span class="fm"><span class="op">∬</span><sub>Σ</sub> x dydz + y dzdx + z dxdy</span>，Σ 为上半球面 z = √(a<sup>2</sup>−x<sup>2</sup>−y<sup>2</sup>) 的上侧。</p>
+<p class="expl-s"><b>解</b> 曲面不闭，先补面。补 <span class="fm">Σ<sub>1</sub>: z = 0, x<sup>2</sup>+y<sup>2</sup> ≤ a<sup>2</sup></span>，<b>取下侧</b>，使 Σ 与 Σ<sub>1</sub> 合起来构成上半球的闭曲面外侧。对它用高斯公式：<br><span class="fm"><span class="op">∯</span><sub>Σ+Σ<sub>1</sub></sub> = <span class="op">∭</span><sub>Ω</sub> (1+1+1) dV = 3 · <span class="fr"><span class="n">2</span><span class="d">3</span></span> πa<sup>3</sup> = 2πa<sup>3</sup></span>。<br>再算 Σ<sub>1</sub> 上的积分：该面垂直于 yOz 与 zOx，前两项为 0；面上 z = 0，第三项也为 0。故 <span class="fm"><span class="op">∬</span><sub>Σ<sub>1</sub></sub> = 0</span>，<b>原式 = 2πa<sup>3</sup></b>。</p>
+<p class="expl-t">补面的两个要点：补的面要和原曲面拼成「闭 + 外侧」；最后要<b>减去</b>补面上的积分（这里恰好为 0）。结果与上一节用两类关系算出的 2πa<sup>3</sup> 一致，可互相印证。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3（挖奇点）</b> 计算 <span class="fm"><span class="op">∯</span><sub>Σ</sub> <span class="fr"><span class="n">x dydz + y dzdx + z dxdy</span><span class="d">(x<sup>2</sup>+y<sup>2</sup>+z<sup>2</sup>)<sup>3/2</sup></span></span></span>，Σ 是任一包含原点的闭曲面，取外侧。</p>
+<p class="expl-s"><b>解</b> 原点处分母为 0，被积函数无定义，不能直接套高斯。先算散度：记 r = √(x<sup>2</sup>+y<sup>2</sup>+z<sup>2</sup>)，P = x/r<sup>3</sup>，则 P<sub>x</sub> = 1/r<sup>3</sup> − 3x<sup>2</sup>/r<sup>5</sup>，同理写出 Q<sub>y</sub>、R<sub>z</sub>，三项相加得<br><span class="fm">P<sub>x</sub>+Q<sub>y</sub>+R<sub>z</sub> = <span class="fr"><span class="n">3</span><span class="d">r<sup>3</sup></span></span> − <span class="fr"><span class="n">3(x<sup>2</sup>+y<sup>2</sup>+z<sup>2</sup>)</span><span class="d">r<sup>5</sup></span></span> = 0</span>（在原点以外处处为 0）。<br>作小球面 <span class="fm">Σ<sub>ε</sub>: x<sup>2</sup>+y<sup>2</sup>+z<sup>2</sup> = ε<sup>2</sup></span>，取<b>内侧</b>（把原点留在外面），则 Σ 与 Σ<sub>ε</sub> 围成的区域 Ω<sub>ε</sub> 内场光滑，用高斯得 <span class="fm"><span class="op">∯</span><sub>Σ</sub> + <span class="op">∯</span><sub>Σ<sub>ε</sub>（内）</sub> = 0</span>，即 <span class="fm"><span class="op">∯</span><sub>Σ</sub> = <span class="op">∯</span><sub>Σ<sub>ε</sub>（外）</sub></span>。在 Σ<sub>ε</sub> 上 r = ε、<b>n</b> = (x,y,z)/ε，用两类关系得被积函数变成 <span class="fm">(x<sup>2</sup>+y<sup>2</sup>+z<sup>2</sup>)/(ε · ε<sup>3</sup>) = 1/ε<sup>2</sup></span>，故<br><span class="fm">原式 = <span class="fr"><span class="n">1</span><span class="d">ε<sup>2</sup></span></span> <span class="op">∬</span> dS = <span class="fr"><span class="n">4πε<sup>2</sup></span><span class="d">ε<sup>2</sup></span></span> = <b>4π</b></span>。</p>
+<p class="expl-t">结论与 ε 无关、与 Σ 的形状无关，这是电磁学里点电荷通量 4π 的数学来源。挖球的要点：<b>小球取内侧</b>，让奇点留在挖空区域之外。</p>
+</div>
+
+<h4 class="expl-h">五、联系与易错提醒</h4>
+<ul>
+<li>格林公式是高斯公式的特例：取 R ≡ 0、区域是柱体，公式就退化成平面上的一组式子。</li>
+<li>易错一：曲面取内侧忘了整体加负号。易错二：曲面不闭就硬套（必须补面，补完再减）。易错三：有奇点不挖。易错四：补面方向与原曲面拼不出外侧。易错五：偏导求错，尤其被积函数是分式时要按商法则逐项算，别漏项。</li>
+<li>用法提示：被积函数里出现 x、y、z 的高次项或指数函数时，先想高斯——往往把一个很难的曲面积分变成一次三重积分。</li>
+</ul>
+</div><!--/EXPL:m12-s3-->
+
+<!--EXPL:m12-s4--><div class="explain" data-expl="m12-s4">
+<h4 class="expl-h">一、直观理解：环流量与旋度</h4>
+<p>水池里有个旋涡。沿着一条闭合曲线走一圈，把水流在前进方向上的「推力」累积起来，就是<b>环流量</b> <span class="fm"><span class="op">∮</span><sub>Γ</sub> <b>v</b>·<b>τ</b> ds</span>。旋涡越强，环流量越大。而「旋涡的强度」是分布在曲面上的：每一点有一个<b>旋度</b> rot <b>v</b>，描述该点附近流体绕轴自转的剧烈程度与转轴方向。把曲面上所有点的旋度沿法向加起来，就等于沿边界的环流量。这就是斯托克斯公式。格林公式把「平面闭曲线的环流」换成「平面区域上的二重积分」，斯托克斯把它推广成「空间闭曲线的环流」换成「以它为边界的曲面上的曲面积分」。</p>
+
+<h4 class="expl-h">二、公式的精确表述</h4>
+<p><b>斯托克斯公式</b> 设 Σ 是分片光滑的有向曲面，其边界 Γ 是分段光滑的闭曲线，P、Q、R 在包含 Σ 的某个空间区域内具有一阶连续偏导数，Γ 的方向与 Σ 的法向量符合<b>右手法则</b>，则</p>
+<p><span class="fm"><span class="op">∮</span><sub>Γ</sub> P dx + Q dy + R dz = <span class="op">∬</span><sub>Σ</sub> (R<sub>y</sub> − Q<sub>z</sub>) dydz + (P<sub>z</sub> − R<sub>x</sub>) dzdx + (Q<sub>x</sub> − P<sub>y</sub>) dxdy</span></p>
+<p><b>右手法则</b>：右手四指沿 Γ 的走向弯曲，拇指所指的一侧就是 Σ 的法向量方向。通俗说，从法向量那一侧看过去，Γ 是逆时针的。方向弄反，整题差一个负号，这是本节第一大坑。</p>
+<p><b>旋度</b>：<span class="fm">rot <b>v</b> = ( R<sub>y</sub> − Q<sub>z</sub>,　P<sub>z</sub> − R<sub>x</sub>,　Q<sub>x</sub> − P<sub>y</sub> )</span>，记作 ∇×<b>v</b>。公式的向量形式是</p>
+<p><span class="fm"><span class="op">∮</span><sub>Γ</sub> <b>v</b>·<b>τ</b> ds = <span class="op">∬</span><sub>Σ</sub> (rot <b>v</b> · <b>n</b>) dS</span></p>
+<p>一句话：<b>环流量 = 旋度的通量</b>。</p>
+
+<h4 class="expl-h">三、行列式记法与证明思路</h4>
+<p>用行列式记最不容易错：第一行是 <b>i</b>、<b>j</b>、<b>k</b>，第二行是对 x、y、z 的偏导算子，第三行是 P、Q、R，按第一行展开即得三个分量：</p>
+<p><span class="fm">|<b>i</b>　　<b>j</b>　　<b>k</b>|<br>|<span class="fr"><span class="n">∂</span><span class="d">∂x</span></span>　<span class="fr"><span class="n">∂</span><span class="d">∂y</span></span>　<span class="fr"><span class="n">∂</span><span class="d">∂z</span></span>|<br>| P 　 Q 　 R |</span></p>
+<p>证明只看第一项就够。把 Σ 表成 z = z(x,y)，Γ 在 xOy 面上的投影为 L（取逆时针），要证 <span class="fm"><span class="op">∮</span><sub>Γ</sub> P dx = <span class="op">∬</span><sub>Σ</sub> (P<sub>z</sub> dzdx − P<sub>y</sub> dxdy)</span>。代入曲面方程后，Γ 上的积分变成 L 上的平面曲线积分 <span class="fm"><span class="op">∮</span><sub>L</sub> P(x, y, z(x,y)) dx</span>，用格林公式得 <span class="fm">−<span class="op">∬</span><sub>D</sub> (P<sub>y</sub> + P<sub>z</sub> z<sub>y</sub>) dxdy</span>；另一方面，Σ 取上侧时有 <span class="fm">dzdx = −z<sub>y</sub> dxdy</span>、<span class="fm">dxdy = dxdy</span>，右端两项投影下来正是同一个二重积分。第二、三项由 x、y、z 轮换得到。</p>
+
+<h4 class="expl-h">四、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b> 计算 <span class="fm"><span class="op">∮</span><sub>Γ</sub> y dx + z dy + x dz</span>，Γ 是平面 x+y+z = 1 与三个坐标面的交线，从 z 轴正向看去取逆时针方向。</p>
+<p class="expl-s"><b>解</b> 取 Σ 为该平面被截出的三角形，顶点为 (1,0,0)、(0,1,0)、(0,0,1)。法向量朝上 <b>n</b> = (1,1,1)/√3，此时从上方看 Γ 正是逆时针，符合右手法则。P = y，Q = z，R = x，则<br><span class="fm">R<sub>y</sub> − Q<sub>z</sub> = 0 − 1 = −1，P<sub>z</sub> − R<sub>x</sub> = 0 − 1 = −1，Q<sub>x</sub> − P<sub>y</sub> = 0 − 1 = −1</span>，<br>即 rot <b>v</b> = (−1,−1,−1)，于是 <span class="fm">rot <b>v</b>·<b>n</b> = <span class="fr"><span class="n">−3</span><span class="d"><span class="op">√</span>3</span></span> = −<span class="op">√</span>3</span>，在 Σ 上是常数。Σ 是边长 √2 的正三角形，面积 = (√3/4)·2 = √3/2。故<br><span class="fm">原式 = −<span class="op">√</span>3 · <span class="fr"><span class="n"><span class="op">√</span>3</span><span class="d">2</span></span> = <b>−<span class="fr"><span class="n">3</span><span class="d">2</span></span></b>。</span></p>
+<p class="expl-t">可用直接分段积分验证：三段各得 −1/2，合计 −3/2。结果为负，是因为给定的走向使法向朝上、而旋度朝下，两者点积为负。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b> 计算 <span class="fm"><span class="op">∮</span><sub>Γ</sub> (y<sup>2</sup>−z<sup>2</sup>) dx + (z<sup>2</sup>−x<sup>2</sup>) dy + (x<sup>2</sup>−y<sup>2</sup>) dz</span>，Γ 同上题。</p>
+<p class="expl-s"><b>解</b> 仍取那个三角形 Σ，<b>n</b> = (1,1,1)/√3。P = y<sup>2</sup>−z<sup>2</sup>，Q = z<sup>2</sup>−x<sup>2</sup>，R = x<sup>2</sup>−y<sup>2</sup>，则<br><span class="fm">R<sub>y</sub> − Q<sub>z</sub> = −2y − 2z，P<sub>z</sub> − R<sub>x</sub> = −2z − 2x，Q<sub>x</sub> − P<sub>y</sub> = −2x − 2y</span>。<br>与 <b>n</b> 作内积：<span class="fm"><span class="fr"><span class="n">−4(x+y+z)</span><span class="d"><span class="op">√</span>3</span></span></span>，在平面 x+y+z = 1 上恒等于 −4/√3。于是<br><span class="fm">原式 = <span class="fr"><span class="n">−4</span><span class="d"><span class="op">√</span>3</span></span> · <span class="fr"><span class="n"><span class="op">√</span>3</span><span class="d">2</span></span> = <b>−2</b></span>。</p>
+<p class="expl-t">被积函数在平面上是常数，这是「选平面片」最大的好处。若硬把空间曲线参数化，运算量会翻好几倍。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b> 计算 <span class="fm"><span class="op">∮</span><sub>Γ</sub> 2y dx + 3x dy + z<sup>2</sup> dz</span>，Γ 为圆周 x<sup>2</sup>+y<sup>2</sup> = a<sup>2</sup>、z = 0，从 z 轴正向看取逆时针。</p>
+<p class="expl-s"><b>解</b> 取 Σ 为圆盘 z = 0、x<sup>2</sup>+y<sup>2</sup> ≤ a<sup>2</sup>，上侧，<b>n</b> = (0,0,1)。P = 2y，Q = 3x，R = z<sup>2</sup>：<br><span class="fm">R<sub>y</sub> − Q<sub>z</sub> = 0，P<sub>z</sub> − R<sub>x</sub> = 0，Q<sub>x</sub> − P<sub>y</sub> = 3 − 2 = 1</span>。<br>故原式 = <span class="fm"><span class="op">∬</span><sub>Σ</sub> 1 dxdy = <b>πa<sup>2</sup></b></span>。</p>
+<p class="expl-t">这说明：只要边界 Γ 相同、旋度相同，Σ 怎么选都行——右端只与 Γ 有关。由此也得出一条重要结论：rot <b>v</b> ≡ <b>0</b> 时，任何闭曲线上的环流量都为 0，此时曲线积分与路径无关。</p>
+</div>
+
+<h4 class="expl-h">五、联系与易错提醒</h4>
+<ul>
+<li>三大公式是一家：格林（平面闭区域 ↔ 边界曲线）、高斯（空间区域 ↔ 闭曲面）、斯托克斯（曲面 ↔ 边界曲线），本质都是「区域上的积分 = 边界上的积分」。</li>
+<li>常考套路：空间闭曲线积分难算时，找一张以 Γ 为边界的<b>平面片</b>（常是平面被截出的多边形），算出常向量 rot <b>v</b>·<b>n</b>，积分就退化成「算面积」。若 rot <b>v</b>·<b>n</b> ≡ 0，直接得 0。</li>
+<li>易错一：右手法则搞反。易错二：行列式展开的符号，第一分量是 R<sub>y</sub> − Q<sub>z</sub>，别写成 Q<sub>z</sub> − R<sub>y</sub>。易错三：Γ 不是 Σ 的整个边界就硬套。易错四：法向量没单位化就与 dS 相乘——建议一律用单位法向量，先算 rot <b>v</b>·<b>n</b> 再乘 dS。</li>
+</ul>
+</div><!--/EXPL:m12-s4-->
+
+<!--EXPL:m12-s5--><div class="explain" data-expl="m12-s5">
+<h4 class="expl-h">一、这节干什么</h4>
+<p>前四节把「怎么算」讲完了，这一节把曲面积分放回物理与几何里用：算薄壳的质量、质心、转动惯量，算流速场穿过曲面的流量，算涡旋沿闭曲线的环流量。考试里很少单独出一道「纯应用」大题，更常见的是把它们作为综合题的第一步——所以真正的重点是<b>判断与选择</b>：拿到一个曲面积分，先看它闭不闭、侧对不对、有没有奇点，再决定走哪条路。</p>
+
+<h4 class="expl-h">二、常用公式</h4>
+<p>设曲面 Σ 上面密度为 ρ(x,y,z)，用第一类曲面积分算几何量与质量：</p>
+<ul>
+<li>质量 <span class="fm">m = <span class="op">∬</span><sub>Σ</sub> ρ dS</span></li>
+<li>质心 <span class="fm">x̄ = <span class="fr"><span class="n">1</span><span class="d">m</span></span> <span class="op">∬</span><sub>Σ</sub> xρ dS</span>，ȳ、z̄ 把 x 换成 y、z 即可</li>
+<li>对 z 轴的转动惯量 <span class="fm">I<sub>z</sub> = <span class="op">∬</span><sub>Σ</sub> (x<sup>2</sup>+y<sup>2</sup>) ρ dS</span>（对 x 轴、y 轴则换成到该轴距离的平方）</li>
+<li>曲面面积 <span class="fm">S = <span class="op">∬</span><sub>Σ</sub> dS</span></li>
+</ul>
+<p>流速场 <b>v</b> = (P,Q,R) 穿过 Σ 的流量（通量）用第二类曲面积分：</p>
+<p><span class="fm">Φ = <span class="op">∬</span><sub>Σ</sub> (P cos α + Q cos β + R cos γ) dS = <span class="op">∬</span><sub>Σ</sub> P dydz + Q dzdx + R dxdy</span></p>
+<p>若 Σ 是闭曲面取外侧，则 <span class="fm">Φ = <span class="op">∭</span><sub>Ω</sub> div <b>v</b> dV</span>；沿闭曲线 Γ 的环流量为 <span class="fm"><span class="op">∮</span><sub>Γ</sub> <b>v</b>·<b>τ</b> ds = <span class="op">∬</span><sub>Σ</sub> rot <b>v</b>·<b>n</b> dS</span>。散度是「源强度」，旋度是「涡强度」，正好对应「通量」与「环流量」这两个物理量。</p>
+
+<h4 class="expl-h">三、综合题的判断流程</h4>
+<ol>
+<li>看<b>闭不闭</b>。闭曲面 → 想高斯公式；不闭 → 想「补一张简单的面（通常是平面）补成闭的」。</li>
+<li>看<b>侧</b>。外侧为正，内侧整体加负号；补上去的那张面，方向必须让它与 Σ 一起构成外侧。</li>
+<li>看<b>光滑性</b>。P、Q、R 在 Ω 内有无奇点（分母为零的点）。有 → 先挖去（作小球面），在挖空后的区域上用高斯。</li>
+<li>看<b>投影</b>。曲面在某个坐标面上投影退化（柱面、垂直于坐标面的平面）时别硬投影，改用两类关系或参数化。</li>
+<li>看<b>对称性</b>。球面、柱面、轮换对称的被积函数，先用对称性把三项并成一项，或把区域化简。</li>
+</ol>
+<p>这五问的顺序不能颠倒：先判闭否，决定用不用高斯；再判侧，决定符号；再判光滑性，决定挖不挖；最后才轮到投影与对称性这些「算得动」的技巧。很多失分不是算错，而是第一步就选错了路——把不闭的曲面当成闭的套高斯，或者对内部有奇点的场直接套公式。</p>
+
+<h4 class="expl-h">四、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1（质量与质心）</b> 上半球面 z = √(a<sup>2</sup>−x<sup>2</sup>−y<sup>2</sup>) 上面密度 ρ = z，求它的质量与质心高度。</p>
+<p class="expl-s"><b>解</b> 用第一节例 2 的结论 <span class="fm">dS = <span class="fr"><span class="n">a</span><span class="d">z</span></span> dxdy</span>。质量<br><span class="fm">m = <span class="op">∬</span><sub>Σ</sub> z dS = <span class="op">∬</span><sub>D</sub> z · <span class="fr"><span class="n">a</span><span class="d">z</span></span> dxdy = a · πa<sup>2</sup> = πa<sup>3</sup></span>。<br>再算 <span class="fm"><span class="op">∬</span><sub>Σ</sub> z<sup>2</sup> dS</span>：同样约掉一个 z，得<br><span class="fm">a <span class="op">∬</span><sub>D</sub> z dxdy = a <span class="op">∫</span><sub>0</sub><sup>2π</sup> dθ <span class="op">∫</span><sub>0</sub><sup>a</sup> <span class="op">√</span>(a<sup>2</sup>−r<sup>2</sup>) r dr = a · 2π · <span class="fr"><span class="n">a<sup>3</sup></span><span class="d">3</span></span> = <span class="fr"><span class="n">2πa<sup>4</sup></span><span class="d">3</span></span></span>。<br>故 z̄ = (2πa<sup>4</sup>/3) ÷ (πa<sup>3</sup>) = <b>2a/3</b>；由对称性 x̄ = ȳ = 0。</p>
+<p class="expl-t">密度高处更重，质心 2a/3 高于均匀半球壳的 a/2，符合直觉。这类题先把 dS 化简再积，能省掉一大堆积不出的根式。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2（流量）</b> 流速场 <b>v</b> = (x, y, z)，Σ 为锥面 z = √(x<sup>2</sup>+y<sup>2</sup>)（0 ≤ z ≤ 1）与平面 z = 1 围成的闭曲面，取外侧，求流量。</p>
+<p class="expl-s"><b>解</b> div <b>v</b> = 1 + 1 + 1 = 3。Ω 是底半径 1、高 1 的圆锥，体积 V = (1/3)π·1<sup>2</sup>·1 = π/3。由高斯公式<br><span class="fm">Φ = <span class="op">∭</span><sub>Ω</sub> 3 dV = 3 · <span class="fr"><span class="n">π</span><span class="d">3</span></span> = <b>π</b></span>。</p>
+<p class="expl-t">可作校验：锥面上 <b>n</b> ∝ (−x/r, −y/r, 1)，<b>v</b>·<b>n</b> ∝ −r + r = 0，锥面通量为 0；顶盖上 <b>n</b> = (0,0,1)，<b>v</b>·<b>n</b> = z = 1，面积 π，合计 π，一致。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3（转动惯量）</b> 均匀球壳 x<sup>2</sup>+y<sup>2</sup>+z<sup>2</sup> = a<sup>2</sup>（面密度为 1），求它对 z 轴的转动惯量。</p>
+<p class="expl-s"><b>解</b> <span class="fm">I<sub>z</sub> = <span class="op">∬</span><sub>Σ</sub> (x<sup>2</sup>+y<sup>2</sup>) dS</span>。由轮换对称性，∬x<sup>2</sup>dS = ∬y<sup>2</sup>dS = ∬z<sup>2</sup>dS，三者之和为<br><span class="fm"><span class="op">∬</span><sub>Σ</sub> (x<sup>2</sup>+y<sup>2</sup>+z<sup>2</sup>) dS = a<sup>2</sup> <span class="op">∬</span><sub>Σ</sub> dS = a<sup>2</sup> · 4πa<sup>2</sup> = 4πa<sup>4</sup></span>，<br>故每个都是 4πa<sup>4</sup>/3，<b>I<sub>z</sub> = 8πa<sup>4</sup>/3</b>。</p>
+<p class="expl-t">球面的轮换对称是白送的分：凡被积函数是 x<sup>2</sup>、y<sup>2</sup>、z<sup>2</sup> 的对称组合，一律先合并再算，别一项一项积。</p>
+</div>
+
+<h4 class="expl-h">五、全章地图与易错提醒</h4>
+<p>把五节串成一条线：第一类（面积、无向）与第二类（坐标、有向、通量）由 cos α、cos β、cos γ 互化；闭曲面上的第二类用高斯公式降成三重积分；空间闭曲线用斯托克斯公式化成曲面积分；应用节负责把公式接回物理量。做题时先在草稿上写三问：「<b>闭否？侧对否？有奇点否？</b>」——三问答完，路线就定了。</p>
+<ul>
+<li>第一类别忘根号 √(1+z<sub>x</sub><sup>2</sup>+z<sub>y</sub><sup>2</sup>)；第二类别忘定号。</li>
+<li>高斯公式：内侧加负号；补面后要减去补面上的积分，且补面方向要与原曲面拼成外侧。</li>
+<li>斯托克斯：右手法则定方向，旋度三个分量的符号别记反。</li>
+<li>投影：法向量与哪个轴夹角小就往哪个坐标面投；投影退化就改用两类积分的关系。</li>
+</ul>
+</div><!--/EXPL:m12-s5-->

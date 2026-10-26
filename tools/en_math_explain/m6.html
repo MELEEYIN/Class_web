@@ -1,0 +1,105 @@
+<!--EXPL:m6-s1--><div class="explain" data-expl="m6-s1">
+<h4 class="expl-h">一、这节解决什么问题</h4>
+<p>中学里我们会算矩形、三角形、圆的面积，也会算柱体、锥体的体积。可只要边界变成曲线，比如抛物线 <span class="fm">y = x<sup>2</sup></span> 与 <span class="fm">y = 2 − x<sup>2</sup></span> 围出的那块地，初等公式就全部失效了。定积分给出的正是这类「曲边图形」的统一度量办法，四个字：<b>分割、近似、求和、取极限</b>。本节所有公式都从同一个想法长出来：把要求的量切成无数小片，让每一小片细到几乎就是规则图形，写出它的微元，再积分累加。</p>
+<p>为什么可以这样？因为小片足够细时，曲边在小范围内几乎是直的，用直边代替曲边产生的误差是比 <span class="fm">dx</span> 更高阶的无穷小，积分取极限后被「抹平」。这句话是元素法能成立的根本理由，也是判断「微元写对没有」的标准。</p>
+<h4 class="expl-h">二、元素法的精确表述</h4>
+<p>设所求量 <span class="fm">Q</span> 与区间 <span class="fm">[a, b]</span> 有关。若它满足下面两条，就可以写成定积分：</p>
+<ul>
+<li><b>可加性</b>：区间分成两段时，量也相加，即 <span class="fm">Q[a, b] = Q[a, c] + Q[c, b]</span>。面积、体积、功、压力都满足。</li>
+<li><b>微元性</b>：在任一小区间 <span class="fm">[x, x + dx]</span> 上，部分量能写成 <span class="fm">ΔQ = f(x)dx + o(dx)</span>，其中 <span class="fm">f</span> 在 <span class="fm">[a, b]</span> 上连续。</li>
+</ul>
+<p>则 <span class="fm">Q = <span class="op">∫</span><sub>a</sub><sup>b</sup> f(x)dx</span>。注意条件里的「<span class="fm">o(dx)</span>」不能省：如果误差和 <span class="fm">dx</span> 同阶，累加之后不会消失，公式就是错的。</p>
+<h4 class="expl-h">三、本节六条公式及其条件</h4>
+<ul>
+<li><b>直角坐标面积</b>：设 <span class="fm">f, g</span> 在 <span class="fm">[a, b]</span> 上连续，则两曲线与 <span class="fm">x = a</span>、<span class="fm">x = b</span> 围成的面积 <span class="fm">A = <span class="op">∫</span><sub>a</sub><sup>b</sup> |f(x) − g(x)|dx</span>。上下限取交点，谁在上面不影响结果，绝对值会自动处理。</li>
+<li><b>极坐标面积</b>：曲线 <span class="fm">r = r(θ)</span> 在 <span class="fm">[α, β]</span> 上与两条射线围成的扇形面积 <span class="fm">A = <span class="fr"><span class="n">1</span><span class="d">2</span></span><span class="op">∫</span><sub>α</sub><sup>β</sup> r<sup>2</sup>(θ)dθ</span>。理由是扇形微元 <span class="fm">dA = <span class="fr"><span class="n">1</span><span class="d">2</span></span>r<sup>2</sup>dθ</span>：把 <span class="fm">dθ</span> 那一小条看成半径 <span class="fm">r</span>、圆心角 <span class="fm">dθ</span> 的扇形。</li>
+<li><b>旋转体体积</b>：曲边梯形绕 <span class="fm">x</span> 轴旋转，<span class="fm">V = π<span class="op">∫</span><sub>a</sub><sup>b</sup> y<sup>2</sup>dx</span>（圆盘法，微元是厚 <span class="fm">dx</span>、半径 <span class="fm">y</span> 的薄圆盘）；若区域夹在 <span class="fm">y = Y(x)</span> 与 <span class="fm">y = y(x)</span> 之间，则 <span class="fm">V = π<span class="op">∫</span><sub>a</sub><sup>b</sup> (Y<sup>2</sup> − y<sup>2</sup>)dx</span>（垫圈法）。</li>
+<li><b>柱壳法</b>：曲边梯形（<span class="fm">0 ≤ a ≤ x ≤ b</span>，<span class="fm">y = f(x) ≥ 0</span>）绕 <span class="fm">y</span> 轴旋转，<span class="fm">V = 2π<span class="op">∫</span><sub>a</sub><sup>b</sup> x f(x)dx</span>。微元是半径 <span class="fm">x</span>、高 <span class="fm">f(x)</span>、厚 <span class="fm">dx</span> 的薄壁圆筒，展开后是长 <span class="fm">2πx</span>、宽 <span class="fm">dx</span>、高 <span class="fm">f(x)</span> 的长方体。</li>
+<li><b>弧长</b>：<span class="fm">s = <span class="op">∫</span><sub>a</sub><sup>b</sup> √(1 + y′<sup>2</sup>)dx</span>；参数方程 <span class="fm">x = x(t), y = y(t)</span> 时为 <span class="fm">s = <span class="op">∫</span><sub>α</sub><sup>β</sup> √(x′<sup>2</sup> + y′<sup>2</sup>)dt</span>；极坐标 <span class="fm">r = r(θ)</span> 时为 <span class="fm">s = <span class="op">∫</span><sub>α</sub><sup>β</sup> √(r<sup>2</sup> + r′<sup>2</sup>)dθ</span>。三者其实是同一个弧微分 <span class="fm">ds = √(dx<sup>2</sup> + dy<sup>2</sup>)</span> 的三种写法。</li>
+<li><b>旋转曲面面积</b>：<span class="fm">S = 2π<span class="op">∫</span><sub>a</sub><sup>b</sup> |y|√(1 + y′<sup>2</sup>)dx = 2π<span class="op">∫</span><sub>a</sub><sup>b</sup> |y|ds</span>。被积函数是「周长 <span class="fm">2π|y|</span> 乘弧长微元 <span class="fm">ds</span>」。</li>
+<li><b>平均值</b>：<span class="fm">f</span> 在 <span class="fm">[a, b]</span> 上的平均值 <span class="fm">f̄ = <span class="fr"><span class="n">1</span><span class="d">b − a</span></span><span class="op">∫</span><sub>a</sub><sup>b</sup> f(x)dx</span>。它来自积分中值定理：连续函数必能取到平均值。</li>
+</ul>
+<h4 class="expl-h">四、两个容易被问倒的推导</h4>
+<p><b>1. 弧微分为什么是 <span class="fm">√(dx<sup>2</sup> + dy<sup>2</sup>)</span>。</b>在曲线上一小段两端 <span class="fm">M(x, y)</span>、<span class="fm">M′(x + dx, y + dy)</span>，弦长 <span class="fm">√(dx<sup>2</sup> + dy<sup>2</sup>)</span>。当 <span class="fm">dx → 0</span> 时，弦长与弧长之比趋于 1，两者之差是 <span class="fm">dx</span> 的高阶无穷小，所以用弦长做微元合法。再提出 <span class="fm">dx</span>，得 <span class="fm">ds = √(1 + y′<sup>2</sup>)dx</span>。</p>
+<p><b>2. 旋转曲面面积为什么用 <span class="fm">ds</span> 而不是 <span class="fm">dx</span>。</b>这是本节最典型的错。把一小段曲线绕 <span class="fm">x</span> 轴旋转，得到的是一个<b>圆台</b>，其侧面积是 <span class="fm">π(y<sub>1</sub> + y<sub>2</sub>)·l</span>，其中 <span class="fm">l</span> 是母线长，也就是弧长微元 <span class="fm">ds</span>，不是水平宽度 <span class="fm">dx</span>。所以 <span class="fm">dS = 2πy·ds</span>。若误写成 <span class="fm">2πy·dx</span>，算出来的是「投影面积」而非曲面面积，斜线越陡错得越多。</p>
+<h4 class="expl-h">五、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b>　求 <span class="fm">y = x<sup>2</sup></span> 与 <span class="fm">y = 2 − x<sup>2</sup></span> 所围图形的面积。</p>
+<p class="expl-s"><b>解</b>　第一步，求交点：令 <span class="fm">x<sup>2</sup> = 2 − x<sup>2</sup></span>，得 <span class="fm">x<sup>2</sup> = 1</span>，即 <span class="fm">x = ±1</span>，交点为 <span class="fm">(−1, 1)</span> 与 <span class="fm">(1, 1)</span>。</p>
+<p class="expl-s">第二步，判断上下位置。在 <span class="fm">(−1, 1)</span> 内取 <span class="fm">x = 0</span>：<span class="fm">x<sup>2</sup> = 0</span>，<span class="fm">2 − x<sup>2</sup> = 2</span>，故抛物线 <span class="fm">y = 2 − x<sup>2</sup></span> 在上，<span class="fm">y = x<sup>2</sup></span> 在下，被积函数取 <span class="fm">(2 − x<sup>2</sup>) − x<sup>2</sup> = 2 − 2x<sup>2</sup></span>。</p>
+<p class="expl-s">第三步，积分：<span class="fm">A = <span class="op">∫</span><sub>−1</sub><sup>1</sup> (2 − 2x<sup>2</sup>)dx = [2x − <span class="fr"><span class="n">2</span><span class="d">3</span></span>x<sup>3</sup>]<sub>−1</sub><sup>1</sup></span>。代入上限得 <span class="fm">2 − <span class="fr"><span class="n">2</span><span class="d">3</span></span> = <span class="fr"><span class="n">4</span><span class="d">3</span></span></span>，代入下限得 <span class="fm">−2 + <span class="fr"><span class="n">2</span><span class="d">3</span></span> = −<span class="fr"><span class="n">4</span><span class="d">3</span></span></span>，相减得 <span class="fm">A = <span class="fr"><span class="n">8</span><span class="d">3</span></span></span>。</p>
+<p class="expl-t"><b>提醒</b>　区域关于 <span class="fm">y</span> 轴对称，可写成 <span class="fm">2<span class="op">∫</span><sub>0</sub><sup>1</sup>(2 − 2x<sup>2</sup>)dx</span> 验证，结果一致。若两曲线在区间内部再次相交，必须按交点分段，因为上下位置会在交点处交换。</p>
+</div>
+<p><b>极坐标的变式</b>：心形线 <span class="fm">r = a(1 + cos θ)</span>（<span class="fm">a &gt; 0</span>）所围面积，取 <span class="fm">θ ∈ [0, 2π]</span>，<span class="fm">A = <span class="fr"><span class="n">1</span><span class="d">2</span></span><span class="op">∫</span><sub>0</sub><sup>2π</sup> a<sup>2</sup>(1 + cos θ)<sup>2</sup>dθ = <span class="fr"><span class="n">a<sup>2</sup></span><span class="d">2</span></span><span class="op">∫</span><sub>0</sub><sup>2π</sup>(1 + 2cos θ + cos<sup>2</sup>θ)dθ</span>。用 <span class="fm"><span class="op">∫</span><sub>0</sub><sup>2π</sup>cos θ dθ = 0</span>、<span class="fm"><span class="op">∫</span><sub>0</sub><sup>2π</sup>cos<sup>2</sup>θ dθ = π</span>，得 <span class="fm">A = <span class="fr"><span class="n">a<sup>2</sup></span><span class="d">2</span></span>(2π + π) = <span class="fr"><span class="n">3πa<sup>2</sup></span><span class="d">2</span></span></span>。极坐标题的关键是先把 <span class="fm">r</span> 的取值区间定对，再套 <span class="fr"><span class="n">1</span><span class="d">2</span></span>。</p>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b>　设平面图形由 <span class="fm">y = x<sup>2</sup></span>、<span class="fm">y = 0</span>、<span class="fm">x = 1</span> 围成，求它绕 <span class="fm">y</span> 轴旋转所得旋转体的体积。</p>
+<p class="expl-s"><b>解</b>　用柱壳法。竖着切：在 <span class="fm">x</span> 处取厚 <span class="fm">dx</span> 的竖条，绕 <span class="fm">y</span> 轴转出的薄壁圆筒半径是 <span class="fm">x</span>，高是 <span class="fm">x<sup>2</sup></span>，于是 <span class="fm">dV = 2πx·x<sup>2</sup>dx</span>，<span class="fm">x</span> 从 <span class="fm">0</span> 到 <span class="fm">1</span>。</p>
+<p class="expl-s"><span class="fm">V = 2π<span class="op">∫</span><sub>0</sub><sup>1</sup> x<sup>3</sup>dx = 2π·<span class="fr"><span class="n">1</span><span class="d">4</span></span> = <span class="fr"><span class="n">π</span><span class="d">2</span></span></span>。</p>
+<p class="expl-s"><b>验算</b>（垫圈法，改对 <span class="fm">y</span> 积分）：图形在 <span class="fm">y ∈ [0, 1]</span> 上左边界 <span class="fm">x = √y</span>、右边界 <span class="fm">x = 1</span>，绕 <span class="fm">y</span> 轴的外半径 <span class="fm">R = 1</span>、内半径 <span class="fm">r = √y</span>，故 <span class="fm">V = π<span class="op">∫</span><sub>0</sub><sup>1</sup> (1 − y)dy = π(1 − <span class="fr"><span class="n">1</span><span class="d">2</span></span>) = <span class="fr"><span class="n">π</span><span class="d">2</span></span></span>。两法一致。</p>
+<p class="expl-t"><b>提醒</b>　柱壳法的半径必须是「到旋转轴的距离」。绕 <span class="fm">y</span> 轴是 <span class="fm">x</span>；若绕 <span class="fm">x = a</span> 转，半径写成 <span class="fm">|x − a|</span>，并且要注意 <span class="fm">x &lt; a</span> 时圆筒在轴左侧，别把半径写成 <span class="fm">a − x</span> 后再丢负号。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b>　求摆线 <span class="fm">x = a(t − sin t)</span>、<span class="fm">y = a(1 − cos t)</span>（<span class="fm">a &gt; 0</span>）一拱 <span class="fm">t ∈ [0, 2π]</span> 的弧长。</p>
+<p class="expl-s"><b>解</b>　先求导：<span class="fm">x′ = a(1 − cos t)</span>，<span class="fm">y′ = a sin t</span>。</p>
+<p class="expl-s">再算 <span class="fm">x′<sup>2</sup> + y′<sup>2</sup> = a<sup>2</sup>[(1 − cos t)<sup>2</sup> + sin<sup>2</sup>t] = a<sup>2</sup>(1 − 2cos t + cos<sup>2</sup>t + sin<sup>2</sup>t) = 2a<sup>2</sup>(1 − cos t)</span>。</p>
+<p class="expl-s">用半角公式 <span class="fm">1 − cos t = 2sin<sup>2</sup><span class="fr"><span class="n">t</span><span class="d">2</span></span></span>，得 <span class="fm">√(x′<sup>2</sup> + y′<sup>2</sup>) = 2a|sin<span class="fr"><span class="n">t</span><span class="d">2</span></span>|</span>。在 <span class="fm">[0, 2π]</span> 上 <span class="fm">sin<span class="fr"><span class="n">t</span><span class="d">2</span></span> ≥ 0</span>，绝对值可直接去掉。</p>
+<p class="expl-s">于是 <span class="fm">s = <span class="op">∫</span><sub>0</sub><sup>2π</sup> 2a sin<span class="fr"><span class="n">t</span><span class="d">2</span></span> dt = 2a[−2cos<span class="fr"><span class="n">t</span><span class="d">2</span></span>]<sub>0</sub><sup>2π</sup> = 2a(2 + 2) = 8a</span>。</p>
+<p class="expl-t"><b>提醒</b>　摆线一拱的水平长度是 <span class="fm">2πa</span>，弧长 <span class="fm">8a</span> 比它大，量级合理。开方后出现 <span class="fm">|sin(t/2)|</span> 时，要看积分区间决定能否去绝对值；若区间跨过使根号内为零的点，必须分段。</p>
+</div>
+<h4 class="expl-h">六、常考套路与易错提醒</h4>
+<ul>
+<li><b>先画图、先求交点。</b>上下限来自交点，而不是题目给的数字。图形大致画出来，上下位置一目了然，能避免大量返工。</li>
+<li><b>选对积分变量。</b>同一题对 <span class="fm">x</span> 积分要分段、对 <span class="fm">y</span> 积分一次成功，就该换变量；体积题在圆盘法与柱壳法之间挑「少分段」的那个。</li>
+<li><b>极坐标面积别漏 <span class="fr"><span class="n">1</span><span class="d">2</span></span></b>，也别把 <span class="fm">r</span> 的区间写反；对称图形可只算一半再乘 2，但乘之前要确认对称性真的成立。</li>
+<li><b>旋转面面积用 <span class="fm">ds</span>，体积用 <span class="fm">dx</span></b>。这两者混用是本节最高频的错误。</li>
+<li>本节是元素法的「几何训练场」，下一节把它原封不动搬到物理量上：功、压力、引力、质心、转动惯量，微元的写法完全同构。<b>掌握了「切—近似—积」，两节就一起通了。</b></li>
+</ul>
+</div><!--/EXPL:m6-s1-->
+<!--EXPL:m6-s2--><div class="explain" data-expl="m6-s2">
+<h4 class="expl-h">一、这节解决什么问题</h4>
+<p>物理里很多量不是「力乘距离」这么简单：弹簧拉伸过程中力一直在变；把一池水抽到池口，不同深度的水要提升的高度不一样；闸门上不同深度的压强也不同。这些量的共同点是<b>被积的因子随位置连续变化</b>，初等公式只能处理「常力、常压强」，处理不了它们。定积分的元素法正好补上这一块：把物体切成薄片，在薄片内把变化的量当常数，写出微元，再积分。</p>
+<p>本节的全部工作就是练一件事：<b>为每个物理量写出正确的微元，并定对上下限</b>。公式本身很好记，难的是坐标系怎么取、微元里的「距离」到底是谁。</p>
+<h4 class="expl-h">二、五类问题的微元与公式</h4>
+<ul>
+<li><b>变力做功</b>：力 <span class="fm">F(x)</span> 沿 <span class="fm">x</span> 轴作用，物体从 <span class="fm">a</span> 移到 <span class="fm">b</span>，则 <span class="fm">W = <span class="op">∫</span><sub>a</sub><sup>b</sup> F(x)dx</span>。微元 <span class="fm">dW = F(x)dx</span> 就是「位移 <span class="fm">dx</span> 上力几乎不变」。特例：弹簧服从胡克定律 <span class="fm">F = kx</span>（<span class="fm">x</span> 为伸长量），从自然长度拉到 <span class="fm">λ</span> 做功 <span class="fm">W = <span class="op">∫</span><sub>0</sub><sup>λ</sup> kx dx = <span class="fr"><span class="n">1</span><span class="d">2</span></span>kλ<sup>2</sup></span>。</li>
+<li><b>抽水做功</b>：设容器中水的自由面为深度 <span class="fm">0</span>、<span class="fm">x</span> 轴竖直向下，容器在深度 <span class="fm">x</span> 处的水平截面积为 <span class="fm">A(x)</span>，要把水抽到高度 <span class="fm">H</span>（<span class="fm">H ≤ 0</span> 时即抽到池口之上），则 <span class="fm">W = <span class="op">∫</span><sub>a</sub><sup>b</sup> ρg A(x)(H − x)dx</span>，其中 <span class="fm">ρg A(x)dx</span> 是薄层水的重量，<span class="fm">(H − x)</span> 是它要提升的竖直距离。若抽到池口（<span class="fm">H = 0</span>），因子就是 <span class="fm">−x</span>，即深度本身。</li>
+<li><b>水压力</b>：竖直放置的薄板，取 <span class="fm">y</span> 轴竖直向下、水面为原点，深度 <span class="fm">h</span> 处板宽 <span class="fm">L(h)</span>，则 <span class="fm">P = <span class="op">∫</span><sub>a</sub><sup>b</sup> ρg h L(h)dh</span>。依据是帕斯卡定律：深度 <span class="fm">h</span> 处压强 <span class="fm">p = ρgh</span>，微元面积 <span class="fm">dA = L(h)dh</span>，故 <span class="fm">dP = p·dA</span>。</li>
+<li><b>引力</b>：质量 <span class="fm">m</span> 的质点与线密度 <span class="fm">λ</span> 的细杆（沿 <span class="fm">x</span> 轴，<span class="fm">x ∈ [a, b]</span>），质点在 <span class="fm">(0, 0)</span>，则 <span class="fm">F = <span class="op">∫</span><sub>a</sub><sup>b</sup> <span class="fr"><span class="n">k m λ</span><span class="d">x<sup>2</sup></span></span>dx</span>。微元是「把 <span class="fm">dx</span> 段看成质点」，<span class="fm">dm = λdx</span>，距离为 <span class="fm">x</span>。若质点在杆的中垂线上，还要把 <span class="fm">dF</span> 分解，垂直于杆的分量互相抵消，只剩沿杆方向的分量再积分。</li>
+<li><b>质心与形心</b>：平面薄片（面密度 <span class="fm">ρ</span> 为常数）的质心 <span class="fm">x̄ = <span class="fr"><span class="n"><span class="op">∫</span>x dA</span><span class="d"><span class="op">∫</span>dA</span></span></span>、<span class="fm">ȳ = <span class="fr"><span class="n"><span class="op">∫</span>y dA</span><span class="d"><span class="op">∫</span>dA</span></span></span>，其中 <span class="fm"><span class="op">∫</span>dA</span> 就是面积。常数面密度约掉了，所以均匀薄片的质心与形心重合。有对称轴时，质心必在对称轴上，只需算一个坐标。</li>
+<li><b>转动惯量</b>：<span class="fm">I = <span class="op">∫</span> r<sup>2</sup>dm</span>，<span class="fm">r</span> 是质量元到转轴的垂直距离。先写清转轴，再写 <span class="fm">dm</span>（细杆 <span class="fm">dm = λdx</span>，薄片 <span class="fm">dm = ρ·dA</span>），最后把 <span class="fm">r</span> 用积分变量表示。</li>
+</ul>
+<h4 class="expl-h">三、坐标系怎么取：三条经验</h4>
+<p>物理应用题的失分，八成不是算错，而是坐标系取坏了。三条经验：<b>①</b> 让「变化的量」成为积分变量，比如抽水取深度、水压力取深度；<b>②</b> 让边界变成简单的数，水面取 <span class="fm">0</span>、池底取 <span class="fm">H</span>；<b>③</b> 让被积函数尽量简单，水压力把 <span class="fm">y</span> 轴放在水面，压强就直接是 <span class="fm">ρgy</span>，不用写 <span class="fm">ρg(h<sub>0</sub> + y)</span>。</p>
+<p>上下限的确定方法：画出容器或薄板的剖面图，标出「要算的那一层」在最上和最下时的位置，就是积分限。抽水题是水面的深度到池底的深度；水压力题是板顶到板底的深度。</p>
+<h4 class="expl-h">四、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b>　圆柱形水池底面半径 <span class="fm">R = 2</span> m、深 <span class="fm">H = 5</span> m，池内盛满水。把水全部抽到池口，需做功多少？（取 <span class="fm">ρ = 1000</span> kg/m<sup>3</sup>，<span class="fm">g = 9.8</span> m/s<sup>2</sup>）</p>
+<p class="expl-s"><b>解</b>　取水面为深度原点、<span class="fm">x</span> 轴竖直向下。在深度 <span class="fm">x</span> 处取厚 <span class="fm">dx</span> 的水平薄层，它是半径 <span class="fm">R</span>、高 <span class="fm">dx</span> 的圆盘，体积 <span class="fm">πR<sup>2</sup>dx</span>，重量 <span class="fm">ρgπR<sup>2</sup>dx</span>。该层到池口的高度差是 <span class="fm">x</span>，故微元 <span class="fm">dW = ρgπR<sup>2</sup>x dx</span>。</p>
+<p class="expl-s">水深从 <span class="fm">0</span> 到 <span class="fm">H</span>，故 <span class="fm">W = ρgπR<sup>2</sup><span class="op">∫</span><sub>0</sub><sup>H</sup> x dx = ρgπR<sup>2</sup>·<span class="fr"><span class="n">H<sup>2</sup></span><span class="d">2</span></span></span>。</p>
+<p class="expl-s">代入数据：<span class="fm">W = 1000 × 9.8 × π × 4 × <span class="fr"><span class="n">25</span><span class="d">2</span></span> = 4.9 × 10<sup>5</sup>π ≈ 1.54 × 10<sup>6</sup></span> J。</p>
+<p class="expl-t"><b>提醒</b>　常见错误是把提升高度写成 <span class="fm">H</span>（当成整池水都在池底）或写成 <span class="fm">H − x</span>（那是抽到池底下方，方向反了）。判断办法：池口附近的水几乎不用提升，所以因子在 <span class="fm">x = 0</span> 处应为 <span class="fm">0</span>，<span class="fm">x</span> 最合适。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b>　一半圆形闸门半径 <span class="fm">R</span>，直径与水面齐平，垂直放置。求闸门一侧所受的水压力。</p>
+<p class="expl-s"><b>解</b>　取水面为原点、<span class="fm">y</span> 轴竖直向下，则闸门占据 <span class="fm">y ∈ [0, R]</span>，在深度 <span class="fm">y</span> 处的水面宽度为 <span class="fm">L(y) = 2√(R<sup>2</sup> − y<sup>2</sup>)</span>（这是圆 <span class="fm">x<sup>2</sup> + y<sup>2</sup> = R<sup>2</sup></span> 在该高度处的弦长）。</p>
+<p class="expl-s">压强 <span class="fm">p = ρgy</span>，微元面积 <span class="fm">L(y)dy</span>，故 <span class="fm">dP = ρg y·2√(R<sup>2</sup> − y<sup>2</sup>)dy</span>。</p>
+<p class="expl-s">积分：<span class="fm">P = 2ρg<span class="op">∫</span><sub>0</sub><sup>R</sup> y√(R<sup>2</sup> − y<sup>2</sup>)dy</span>。令 <span class="fm">u = R<sup>2</sup> − y<sup>2</sup></span>，<span class="fm">du = −2y dy</span>，则 <span class="fm"><span class="op">∫</span> y√(R<sup>2</sup> − y<sup>2</sup>)dy = −<span class="fr"><span class="n">1</span><span class="d">2</span></span><span class="op">∫</span> u<sup>1/2</sup>du = −<span class="fr"><span class="n">1</span><span class="d">3</span></span>(R<sup>2</sup> − y<sup>2</sup>)<sup>3/2</sup></span>。</p>
+<p class="expl-s">代入上下限：<span class="fm">[−<span class="fr"><span class="n">1</span><span class="d">3</span></span>(R<sup>2</sup> − y<sup>2</sup>)<sup>3/2</sup>]<sub>0</sub><sup>R</sup> = 0 − (−<span class="fr"><span class="n">1</span><span class="d">3</span></span>R<sup>3</sup>) = <span class="fr"><span class="n">R<sup>3</sup></span><span class="d">3</span></span></span>，故 <span class="fm">P = <span class="fr"><span class="n">2</span><span class="d">3</span></span>ρgR<sup>3</sup></span>。</p>
+<p class="expl-t"><b>提醒</b>　若闸门不是从水面开始，而是圆心在水深 <span class="fm">h<sub>0</sub></span> 处，则压强因子要写成 <span class="fm">ρg(h<sub>0</sub> + y)</span>，积分变成两项；这时用「压力等于形心处压强乘面积」的结论 <span class="fm">P = ρg·h<sub>C</sub>·A</span> 更快，可用来验算。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b>　求半径 <span class="fm">R</span> 的均匀半圆形薄片（直径在 <span class="fm">x</span> 轴上，位于上半平面）的形心纵坐标 <span class="fm">ȳ</span>。</p>
+<p class="expl-s"><b>解</b>　区域关于 <span class="fm">y</span> 轴对称，故 <span class="fm">x̄ = 0</span>，只算 <span class="fm">ȳ</span>。面积 <span class="fm">A = <span class="fr"><span class="n">πR<sup>2</sup></span><span class="d">2</span></span></span>。</p>
+<p class="expl-s">分子 <span class="fm"><span class="op">∫</span> y dA</span>：把薄片横着切成宽 <span class="fm">2√(R<sup>2</sup> − y<sup>2</sup>)</span>、高 <span class="fm">dy</span> 的横条，则 <span class="fm"><span class="op">∫</span> y dA = <span class="op">∫</span><sub>0</sub><sup>R</sup> y·2√(R<sup>2</sup> − y<sup>2</sup>)dy = <span class="fr"><span class="n">2R<sup>3</sup></span><span class="d">3</span></span></span>（这个积分与例 2 完全相同）。</p>
+<p class="expl-s">故 <span class="fm">ȳ = <span class="fr"><span class="n">2R<sup>3</sup>/3</span><span class="d">πR<sup>2</sup>/2</span></span> = <span class="fr"><span class="n">4R</span><span class="d">3π</span></span></span>。因 <span class="fm">4/(3π) ≈ 0.42</span>，形心在半圆「偏低」处（靠近直径），符合直觉。</p>
+<p class="expl-t"><b>提醒</b>　只有均匀薄片才能用面积代替质量；若面密度 <span class="fm">ρ(y)</span> 随位置变化，分子分母都要带上 <span class="fm">ρ</span>，不能约掉。另外转动惯量 <span class="fm">I = <span class="op">∫</span>r<sup>2</sup>dm</span> 里的 <span class="fm">r</span> 是到<b>转轴</b>的距离，不是到原点的距离，写微元前先把轴定下来。</p>
+</div>
+<h4 class="expl-h">五、与后文的联系 · 常考套路</h4>
+<ul>
+<li><b>本节是元素法的第二次演练。</b>几何节练「切面积、切体积」，物理节练「切质量、切薄层」，方法完全同构：选变量 → 取微元 → 写近似 → 定上下限 → 积分。后面的微分方程、多元积分里的物理应用，仍是这套动作。</li>
+<li><b>四步答题模板</b>：建系并写明变量含义 → 画出微元并写出 <span class="fm">dW</span>、<span class="fm">dP</span>、<span class="fm">dF</span> 或 <span class="fm">dm</span> → 写出积分式与上下限 → 计算并带单位。评分时「微元写对」通常占大头，算错只是小扣分。</li>
+<li><b>抽水与闸门是最高频的两类</b>，几乎年年出现。抽水题抓「薄层重量 × 提升距离」，闸门题抓「压强 × 条带面积」，两句话就能起手。</li>
+<li><b>易错三连</b>：① 深度方向取反（水面在上、<span class="fm">x</span> 向下时，提升距离是 <span class="fm">x</span> 而不是 <span class="fm">H − x</span>）；② 忘了 <span class="fm">ρg</span> 或漏乘 <span class="fm">g</span>；③ 把「宽度函数」写成常数（圆形、三角形闸门的宽度随深度变，必须写成 <span class="fm">L(h)</span>）。</li>
+<li><b>善用结论验算</b>：水压力 <span class="fm">P = ρg·h<sub>C</sub>·A</span>（<span class="fm">h<sub>C</sub></span> 为形心深度），质心 <span class="fm">ȳ = <span class="fr"><span class="n">∫</span>y dA</span><span class="d">A</span></span>，两者互为工具；半圆 <span class="fm">ȳ = 4R/(3π)</span>、半圆闸门 <span class="fm">P = 2ρgR<sup>3</sup>/3</span> 建议直接记住，选择填空题能省一半时间。</li>
+</ul>
+</div><!--/EXPL:m6-s2-->

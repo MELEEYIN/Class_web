@@ -1,0 +1,174 @@
+<!--EXPL:m5-s1--><div class="explain" data-expl="m5-s1">
+<h4 class="expl-h">一、这节解决什么问题</h4>
+<p>矩形面积好算，可"一边是曲线"的图形就不好算。设 f(x) 在 [a,b] 上非负，由曲线 y=f(x)、x 轴及直线 x=a、x=b 围成的图形叫<b>曲边梯形</b>。求它的面积只有一条路：<b>以直代曲</b>。把 [a,b] 切成很多小段，每段上曲线几乎不变，就用一个小矩形顶替那条曲边条；切得越细误差越小，细到"最大段长趋于零"，小矩形面积之和的极限就是曲边梯形面积。定积分就是把这个极限用记号固化下来——它的本质是<b>和式的极限</b>，是一个数，不是函数。</p>
+<h4 class="expl-h">二、定义：分割、近似、求和、取极限</h4>
+<p>设 f(x) 在 [a,b] 上有界。</p>
+<ol>
+<li><b>分割</b>：插入分点 <span class="fm">a = x<sub>0</sub> &lt; x<sub>1</sub> &lt; … &lt; x<sub>n</sub> = b</span>，第 i 段长 <span class="fm">Δx<sub>i</sub> = x<sub>i</sub> − x<sub>i−1</sub></span>，记 <span class="fm">λ = max{Δx<sub>1</sub>, …, Δx<sub>n</sub>}</span>。</li>
+<li><b>近似代替</b>：在第 i 段任取 <span class="fm">ξ<sub>i</sub> ∈ [x<sub>i−1</sub>, x<sub>i</sub>]</span>，以 <span class="fm">f(ξ<sub>i</sub>)Δx<sub>i</sub></span> 作那一小条面积的近似。</li>
+<li><b>求和</b>：<span class="fm">S<sub>n</sub> = <span class="op">Σ</span> f(ξ<sub>i</sub>)Δx<sub>i</sub></span>。</li>
+<li><b>取极限</b>：若 <span class="fm">λ → 0</span> 时 S<sub>n</sub> 的极限存在，且<b>与分法、与 ξ<sub>i</sub> 的取法都无关</b>，则称 f 在 [a,b] 上可积，并记 <span class="fm"><span class="op">∫</span><sub>a</sub><sup>b</sup> f(x) dx = <span class="lm">lim<span class="s">λ→0</span></span> <span class="op">Σ</span> f(ξ<sub>i</sub>)Δx<sub>i</sub></span>。</li>
+</ol>
+<p>三个要害：是 <span class="fm">λ → 0</span> 而<b>不是</b> <span class="fm">n → ∞</span>，等分只是取极限的一种方式；ξ<sub>i</sub> 任意取，正说明可积是函数本身的性质；f 有界是可积的<b>必要</b>条件。</p>
+<h4 class="expl-h">三、可积的充分条件</h4>
+<p>定理 1　若 f(x) 在 [a,b] 上<b>连续</b>，则 f 在 [a,b] 上可积。</p>
+<p>定理 2　若 f(x) 在 [a,b] 上有界，且只有<b>有限个第一类间断点</b>（左右极限都存在的跳跃或可去间断点），则 f 可积。推论：单调有界函数可积。</p>
+<p>注意：有界只是必要条件；狄利克雷函数（有理点取 1、无理点取 0）即不可积。为方便，规定 <span class="fm"><span class="op">∫</span><sub>a</sub><sup>a</sup> f dx = 0</span>，<span class="fm"><span class="op">∫</span><sub>a</sub><sup>b</sup> f dx = −<span class="op">∫</span><sub>b</sub><sup>a</sup> f dx</span>。</p>
+<h4 class="expl-h">四、七条性质</h4>
+<ol>
+<li><b>线性</b>：<span class="fm"><span class="op">∫</span>(αf + βg) dx = α<span class="op">∫</span>f dx + β<span class="op">∫</span>g dx</span>。</li>
+<li><b>区间可加</b>：<span class="fm"><span class="op">∫</span><sub>a</sub><sup>b</sup> = <span class="op">∫</span><sub>a</sub><sup>c</sup> + <span class="op">∫</span><sub>c</sub><sup>b</sup></span>，c 在区间内、外都成立（靠上面的符号约定）。</li>
+<li><b>保号性</b>：f ≥ 0 ⟹ ∫ ≥ 0；进而 f ≤ g ⟹ <span class="fm"><span class="op">∫</span>f ≤ <span class="op">∫</span>g</span>。</li>
+<li><b>绝对值不等式</b>：<span class="fm">|<span class="op">∫</span><sub>a</sub><sup>b</sup> f dx| ≤ <span class="op">∫</span><sub>a</sub><sup>b</sup> |f| dx</span>。</li>
+<li><b>估值定理</b>：m ≤ f ≤ M ⟹ <span class="fm">m(b−a) ≤ <span class="op">∫</span><sub>a</sub><sup>b</sup> f dx ≤ M(b−a)</span>。</li>
+<li><b>积分中值定理</b>：f 连续 ⟹ ∃ξ ∈ [a,b]，使 <span class="fm"><span class="op">∫</span><sub>a</sub><sup>b</sup> f dx = f(ξ)(b−a)</span>。</li>
+<li><b>几何意义</b>：∫ 是各块面积的<b>代数和</b>，x 轴上方取正、下方取负。</li>
+</ol>
+<p>中值定理的证明只需两行：由估值定理 <span class="fm">m ≤ <span class="fr"><span class="n">1</span><span class="d">b−a</span></span><span class="op">∫</span><sub>a</sub><sup>b</sup> f dx ≤ M</span>，中间这个数夹在最小值与最大值之间，再由连续函数的<b>介值定理</b>，必有 ξ 使 f(ξ) 等于它。所以"平均值 × 长度 = 积分值"，这就是函数平均值概念的来源。</p>
+<h4 class="expl-h">五、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b>　用定义计算 <span class="fm"><span class="op">∫</span><sub>0</sub><sup>1</sup> x dx</span>。</p>
+<p class="expl-s"><b>解</b>　把 [0,1] n 等分，取右端点 ξ<sub>i</sub> = i/n，则 <span class="fm">S<sub>n</sub> = <span class="op">Σ</span> (i/n)(1/n) = <span class="fr"><span class="n">1</span><span class="d">2</span></span>(1 + <span class="fr"><span class="n">1</span><span class="d">n</span></span>)</span>。n → ∞ 时 λ = 1/n → 0，S<sub>n</sub> → 1/2；f(x)=x 连续可积，极限与分法无关，得 <span class="fm"><span class="op">∫</span><sub>0</sub><sup>1</sup> x dx = <span class="fr"><span class="n">1</span><span class="d">2</span></span></span>。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b>　求 <span class="fm"><span class="lm">lim<span class="s">n→∞</span></span> <span class="fr"><span class="n">1</span><span class="d">n</span></span>[sin<span class="fr"><span class="n">π</span><span class="d">n</span></span> + sin<span class="fr"><span class="n">2π</span><span class="d">n</span></span> + … + sin<span class="fr"><span class="n">nπ</span><span class="d">n</span></span>]</span>。</p>
+<p class="expl-s"><b>解</b>　1/n 就是 Δx，kπ/n 就是采样点 x。把它写成 <span class="fm"><span class="fr"><span class="n">1</span><span class="d">π</span></span>·<span class="op">Σ</span> sin(<span class="fr"><span class="n">kπ</span><span class="d">n</span></span>)·<span class="fr"><span class="n">π</span><span class="d">n</span></span></span>，方括号里正是 f(x)=sin x 在 [0,π] 上等分、取右端点的和式。故原式 <span class="fm">= <span class="fr"><span class="n">1</span><span class="d">π</span></span><span class="op">∫</span><sub>0</sub><sup>π</sup> sin x dx = <span class="fr"><span class="n">1</span><span class="d">π</span></span>[−cos x]<sub>0</sub><sup>π</sup> = <span class="fr"><span class="n">2</span><span class="d">π</span></span></span>。</p>
+<p class="expl-t">识别标志：见到 1/n 与 k/n 并存的"步长 + 采样点"结构，先凑比例因子再定区间。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b>　比较 <span class="fm"><span class="op">∫</span><sub>0</sub><sup>1</sup> e<sup>−x</sup> dx</span> 与 <span class="fm"><span class="op">∫</span><sub>0</sub><sup>1</sup> e<sup>−x²</sup> dx</span> 的大小。</p>
+<p class="expl-s"><b>解</b>　在 [0,1] 上 <span class="fm">x ≥ x²</span>，e<sup>u</sup> 单调增，故 <span class="fm">e<sup>−x</sup> ≤ e<sup>−x²</sup></span>（(0,1) 内严格小）。由保号性得 <span class="fm"><span class="op">∫</span><sub>0</sub><sup>1</sup> e<sup>−x</sup> dx &lt; <span class="op">∫</span><sub>0</sub><sup>1</sup> e<sup>−x²</sup> dx</span>。</p>
+</div>
+<h4 class="expl-h">六、与后文的联系</h4>
+<p>本节只回答了"是什么"，还没回答"怎么算"——按定义算和式极限，除多项式外几乎无路。下一节的牛顿-莱布尼茨公式给出通道：求原函数、代端点。在此之前，两件工具够用：<b>和式极限写成定积分</b>、<b>用性质比较大小或估值</b>。</p>
+<ul>
+<li><span class="fm">λ → 0</span> 与 <span class="fm">n → ∞</span> 不是一回事，只有等分时才同步；∫<sub>a</sub><sup>b</sup> f(x)dx 中 x 是哑变量，写成 f(t)dt 完全一样。</li>
+<li>保号性只能正推：∫ ≥ 0 推不出 f ≥ 0；f 连续且 ∫ = 0 才能断言 f ≡ 0。</li>
+<li>中值定理要"连续"这个条件，仅有可积不够。</li>
+</ul>
+</div><!--/EXPL:m5-s1-->
+<!--EXPL:m5-s2--><div class="explain" data-expl="m5-s2">
+<h4 class="expl-h">一、这节解决什么问题</h4>
+<p>按定义算定积分要和式再取极限，除极少数函数外算不动。有没有捷径？注意：曲边梯形面积随右端点移动而变，是个<b>函数</b>；对它求导，导数恰是被积函数本身。这就把"面积"与"原函数"接上了。而同一函数的两个原函数只差常数，代两端点相减时自动消掉——这就是<b>牛顿-莱布尼茨公式</b>，整章枢纽，也是微积分基本定理。</p>
+<h4 class="expl-h">二、变上限积分与原函数存在定理</h4>
+<p>定义　设 f 在 [a,b] 上可积，令 <span class="fm">Φ(x) = <span class="op">∫</span><sub>a</sub><sup>x</sup> f(t) dt</span>，x ∈ [a,b]，称 Φ 为<b>变上限积分</b>。t 是积分变量（哑变量），x 是上限，出现在积分号外，二者切勿混同。</p>
+<p>定理（原函数存在定理）　若 f 在 [a,b] 上<b>连续</b>，则 Φ(x) 在 [a,b] 上可导，且 <span class="fm">Φ′(x) = f(x)</span>。即：连续函数必有原函数，Φ 就是其中一个。</p>
+<p>证明思路分三步：</p>
+<ol>
+<li><b>算增量</b>：<span class="fm">ΔΦ = Φ(x+Δx) − Φ(x) = <span class="op">∫</span><sub>x</sub><sup>x+Δx</sup> f(t) dt</span>，这一步用的是区间可加性。</li>
+<li><b>用中值定理</b>：上式 <span class="fm">= f(ξ)Δx</span>，其中 ξ 介于 x 与 x+Δx 之间。</li>
+<li><b>取极限</b>：<span class="fm"><span class="fr"><span class="n">ΔΦ</span><span class="d">Δx</span></span> = f(ξ)</span>，当 Δx → 0 时 ξ → x，再由 f 连续得 f(ξ) → f(x)，故 Φ′(x) = f(x)。</li>
+</ol>
+<p>"f 连续"这个条件只在最后一步用：把 f(ξ) 换成 f(x)。若仅有可积，结论不成立。</p>
+<h4 class="expl-h">三、变限求导的一般公式</h4>
+<p>当上下限都是 x 的函数时，先拆成两个变上限积分，再用复合函数求导：</p>
+<p><span class="fm"><span class="fr"><span class="n">d</span><span class="d">dx</span></span> <span class="op">∫</span><sub>φ(x)</sub><sup>ψ(x)</sup> f(t) dt = f(ψ(x))·ψ′(x) − f(φ(x))·φ′(x)</span>。</p>
+<p>结构记法：<b>上限代入乘上限导数，减去下限代入乘下限导数</b>。下限为常数时后一项为 0；被积函数里若还含 x，必须先把它提到积分号外（见例 2）。</p>
+<h4 class="expl-h">四、牛顿-莱布尼茨公式</h4>
+<p>定理　设 f 在 [a,b] 上连续，F 是 f 在 [a,b] 上的<b>任一</b>原函数，则</p>
+<p><span class="fm"><span class="op">∫</span><sub>a</sub><sup>b</sup> f(x) dx = F(b) − F(a) = [F(x)]<sub>a</sub><sup>b</sup></span>。</p>
+<p>证明：由上面定理，Φ 是 f 的原函数；F 也是。两个原函数之差为常数，设 <span class="fm">F(x) − Φ(x) ≡ C</span>。令 x = a，因 Φ(a) = 0，得 C = F(a)。再令 x = b：<span class="fm">F(b) − Φ(b) = F(a)</span>，即 Φ(b) = F(b) − F(a)，此即所求。</p>
+<p>公式把"和式的极限"彻底换成了"求原函数 + 代端点"。注意它要求 f 在 [a,b] 上连续（或分段连续且原函数在分界点连续），否则要拆区间。</p>
+<h4 class="expl-h">五、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b>　设 <span class="fm">F(x) = <span class="op">∫</span><sub>0</sub><sup>x²</sup> sin t² dt</span>，求 F′(x)。</p>
+<p class="expl-s"><b>解</b>　上限是 x²，按变限公式，被积函数中的 t 要整体换成上限 x²，再乘上限的导数 2x：<span class="fm">F′(x) = sin(x²)²·(x²)′ = sin(x⁴)·2x = 2x sin(x⁴)</span>。两个替换——换被积变量、乘上限导数——最容易漏掉一个。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b>　设 <span class="fm">F(x) = <span class="op">∫</span><sub>0</sub><sup>x</sup> (x−t)f(t) dt</span>，f 连续，求 F″(x)。</p>
+<p class="expl-s"><b>解</b>　被积函数含 x，先把 x 提出积分号：<span class="fm">F(x) = x<span class="op">∫</span><sub>0</sub><sup>x</sup> f(t) dt − <span class="op">∫</span><sub>0</sub><sup>x</sup> t f(t) dt</span>。求导（第一项用乘积法则）：<span class="fm">F′(x) = <span class="op">∫</span><sub>0</sub><sup>x</sup> f(t) dt + x f(x) − x f(x) = <span class="op">∫</span><sub>0</sub><sup>x</sup> f(t) dt</span>。再求导得 <span class="fm">F″(x) = f(x)</span>。注意两个 x f(x) 恰好抵消，这是本题的设计。</p>
+<p class="expl-t">不能直接对 (x−t)f(t) 用变限公式——公式只适用于被积函数不含 x 的情形。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b>　求 <span class="fm"><span class="lm">lim<span class="s">x→0</span></span> <span class="fr"><span class="n"><span class="op">∫</span><sub>0</sub><sup>x</sup> ln(1+t) dt</span><span class="d">x²</span></span></span>。</p>
+<p class="expl-s"><b>解</b>　x → 0 时分子 → 0，分母 → 0，属 0/0 型。用洛必达法则，分子求导用变限公式（把上限 x 代入）：<span class="fm">= <span class="lm">lim<span class="s">x→0</span></span> <span class="fr"><span class="n">ln(1+x)</span><span class="d">2x</span></span> = <span class="lm">lim<span class="s">x→0</span></span> <span class="fr"><span class="n">x</span><span class="d">2x</span></span> = <span class="fr"><span class="n">1</span><span class="d">2</span></span></span>。</p>
+<p class="expl-t">变限积分配洛必达是固定搭配，几乎必考。</p>
+</div>
+<h4 class="expl-h">六、常考套路与易错</h4>
+<ul>
+<li><b>三个套路</b>：变限积分求导；变限积分 + 洛必达求极限；把 N-L 用于分段函数（按分界点拆区间）。</li>
+<li>上限是复合函数（如 x²、sin x）时，务必"代入 + 乘导"两步都做。</li>
+<li>被积函数含 x 时先分离，不能套变限公式。</li>
+<li>用 N-L 前确认 f 在 [a,b] 上连续；若 f 在 c 处有间断，要 <span class="fm"><span class="op">∫</span><sub>a</sub><sup>c</sup> + <span class="op">∫</span><sub>c</sub><sup>b</sup></span> 分开算。</li>
+<li>Φ(x) 与 f(x) 的关系是"导与逆"：Φ′ = f，但 Φ 未必等于某个具体初等函数，别硬求。</li>
+</ul>
+</div><!--/EXPL:m5-s2-->
+<!--EXPL:m5-s3--><div class="explain" data-expl="m5-s3">
+<h4 class="expl-h">一、换元为什么必须换限</h4>
+<p>不定积分换元后要"回代"成 x 的表达式，因为答案是一个函数；定积分是<b>数</b>，只由 f 在 [a,b] 上的取值决定，与积分变量用什么字母无关。所以换元时把上下限一并换成 t 的对应值，算完直接得数，<b>不必回代</b>。这是两者最大的差别，也是最常扣分处——换了元不换限，答案必错。</p>
+<h4 class="expl-h">二、换元公式</h4>
+<p>定理　设 f 在 [a,b] 上连续，x = φ(t) 在 [α,β] 上有连续导数，且 φ(α) = a、φ(β) = b，φ 的值域含于 [a,b]，则</p>
+<p><span class="fm"><span class="op">∫</span><sub>a</sub><sup>b</sup> f(x) dx = <span class="op">∫</span><sub>α</sub><sup>β</sup> f(φ(t))·φ′(t) dt</span>。</p>
+<p>三个要点：φ 只要求"端点对上、值域不越界"，不要求单调、不要求一一对应；实际计算时习惯取单调的 φ；公式从左到右是"换元"，从右到左是"凑微分"。</p>
+<h4 class="expl-h">三、对称性、周期性与华里士公式</h4>
+<p><b>对称区间</b>：若 f 在 [−a,a] 上连续，则 f 为奇函数时 <span class="fm"><span class="op">∫</span><sub>−a</sub><sup>a</sup> f dx = 0</span>；f 为偶函数时 <span class="fm"><span class="op">∫</span><sub>−a</sub><sup>a</sup> f dx = 2<span class="op">∫</span><sub>0</sub><sup>a</sup> f dx</span>。证法：拆成 <span class="fm"><span class="op">∫</span><sub>−a</sub><sup>0</sup> + <span class="op">∫</span><sub>0</sub><sup>a</sup></span>，前者令 x = −t。更一般地有 <span class="fm"><span class="op">∫</span><sub>−a</sub><sup>a</sup> f dx = <span class="op">∫</span><sub>0</sub><sup>a</sup> [f(x) + f(−x)] dx</span>。</p>
+<p><b>周期函数</b>：f 以 T 为周期时，<span class="fm"><span class="op">∫</span><sub>a</sub><sup>a+T</sup> f dx = <span class="op">∫</span><sub>0</sub><sup>T</sup> f dx</span>——长度为一个周期的积分与起点无关。</p>
+<p><b>对称变换</b>：形如 <span class="fm"><span class="op">∫</span><sub>0</sub><sup>π</sup> x f(sin x) dx</span> 的题，令 x = π − t，可得 <span class="fm"><span class="op">∫</span><sub>0</sub><sup>π</sup> x f(sin x) dx = <span class="fr"><span class="n">π</span><span class="d">2</span></span><span class="op">∫</span><sub>0</sub><sup>π</sup> f(sin x) dx</span>，把讨厌的因子 x 消掉。</p>
+<p><b>华里士公式</b>　记 <span class="fm">I<sub>n</sub> = <span class="op">∫</span><sub>0</sub><sup>π/2</sup> sin<sup>n</sup>x dx = <span class="op">∫</span><sub>0</sub><sup>π/2</sup> cos<sup>n</sup>x dx</span>（n 为非负整数）。分部积分得递推：<span class="fm">I<sub>n</sub> = <span class="fr"><span class="n">n−1</span><span class="d">n</span></span> I<sub>n−2</sub></span>，配合 I<sub>0</sub> = π/2、I<sub>1</sub> = 1，得</p>
+<p><span class="fm">I<sub>n</sub> = <span class="fr"><span class="n">(n−1)!!</span><span class="d">n!!</span></span></span>（n 为奇数）；　<span class="fm">I<sub>n</sub> = <span class="fr"><span class="n">(n−1)!!</span><span class="d">n!!</span></span>·<span class="fr"><span class="n">π</span><span class="d">2</span></span></span>（n 为偶数）。</p>
+<p>推导只需一步：<span class="fm">I<sub>n</sub> = <span class="op">∫</span><sub>0</sub><sup>π/2</sup> sin<sup>n−1</sup>x d(−cos x)</span>，分部后得 <span class="fm">I<sub>n</sub> = (n−1)<span class="op">∫</span><sub>0</sub><sup>π/2</sup> sin<sup>n−2</sup>x cos²x dx = (n−1)(I<sub>n−2</sub> − I<sub>n</sub>)</span>，移项即得递推式。</p>
+<h4 class="expl-h">四、分部积分公式</h4>
+<p><span class="fm"><span class="op">∫</span><sub>a</sub><sup>b</sup> u dv = [uv]<sub>a</sub><sup>b</sup> − <span class="op">∫</span><sub>a</sub><sup>b</sup> v du</span>。与不定积分的唯一差别是：<b>边界项必须代值</b>，不能留成 uv + C。例：<span class="fm"><span class="op">∫</span><sub>0</sub><sup>1</sup> x e<sup>x</sup> dx = [x e<sup>x</sup>]<sub>0</sub><sup>1</sup> − <span class="op">∫</span><sub>0</sub><sup>1</sup> e<sup>x</sup> dx = e − (e − 1) = 1</span>。</p>
+<h4 class="expl-h">五、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b>　求 <span class="fm"><span class="op">∫</span><sub>0</sub><sup>4</sup> <span class="fr"><span class="n">dx</span><span class="d">1 + √x</span></span></span>。</p>
+<p class="expl-s"><b>解</b>　令 <span class="fm">√x = t</span>，则 x = t²，dx = 2t dt；x: 0 → 4 对应 t: 0 → 2。于是原式 <span class="fm">= <span class="op">∫</span><sub>0</sub><sup>2</sup> <span class="fr"><span class="n">2t</span><span class="d">1+t</span></span> dt = 2<span class="op">∫</span><sub>0</sub><sup>2</sup>(1 − <span class="fr"><span class="n">1</span><span class="d">1+t</span></span>) dt = 2[ t − ln(1+t) ]<sub>0</sub><sup>2</sup> = 4 − 2ln3</span>。这里换了元就换了限，最后直接得数，没有回代。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b>　求 <span class="fm"><span class="op">∫</span><sub>0</sub><sup>π/2</sup> sin<sup>5</sup>x dx</span>。</p>
+<p class="expl-s"><b>解</b>　n = 5 为奇数，用华里士公式：<span class="fm">I<sub>5</sub> = <span class="fr"><span class="n">4!!</span><span class="d">5!!</span></span> = <span class="fr"><span class="n">4·2</span><span class="d">5·3·1</span></span> = <span class="fr"><span class="n">8</span><span class="d">15</span></span></span>。</p>
+<p class="expl-t">公式只对 0 到 π/2 的纯 sin<sup>n</sup> 或 cos<sup>n</sup> 成立；n 为偶数时别忘再乘 π/2；若是 sin<sup>3</sup>x cos<sup>2</sup>x，要先用 sin²x = 1 − cos²x 化成同一个函数再降幂。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b>　求 <span class="fm">I = <span class="op">∫</span><sub>0</sub><sup>π</sup> <span class="fr"><span class="n">x sin x</span><span class="d">1 + cos²x</span></span> dx</span>。</p>
+<p class="expl-s"><b>解</b>　令 x = π − t，则 sin x = sin t，cos²x = cos²t，dx = −dt，x: 0 → π 对应 t: π → 0。代入并把上下限换回升序：<span class="fm">I = <span class="op">∫</span><sub>0</sub><sup>π</sup> <span class="fr"><span class="n">(π−t) sin t</span><span class="d">1 + cos²t</span></span> dt = π<span class="op">∫</span><sub>0</sub><sup>π</sup> <span class="fr"><span class="n">sin t</span><span class="d">1+cos²t</span></span> dt − I</span>。于是 <span class="fm">2I = π<span class="op">∫</span><sub>0</sub><sup>π</sup> <span class="fr"><span class="n">sin x</span><span class="d">1+cos²x</span></span> dx</span>。再令 u = cos x（du = −sin x dx，x: 0 → π 对应 u: 1 → −1）：<span class="fm"><span class="op">∫</span><sub>0</sub><sup>π</sup> <span class="fr"><span class="n">sin x</span><span class="d">1+cos²x</span></span> dx = <span class="op">∫</span><sub>−1</sub><sup>1</sup> <span class="fr"><span class="n">du</span><span class="d">1+u²</span></span> = [arctan u]<sub>−1</sub><sup>1</sup> = <span class="fr"><span class="n">π</span><span class="d">2</span></span></span>。故 <span class="fm">2I = π·<span class="fr"><span class="n">π</span><span class="d">2</span></span></span>，即 <span class="fm">I = <span class="fr"><span class="n">π²</span><span class="d">4</span></span></span>。</p>
+<p class="expl-t">套路：被积函数含 x，且其余部分是 x 的偶对称（或 π 对称）函数，就用 x → π − t 造出与原式相同的一项，相加除以 2。</p>
+</div>
+<h4 class="expl-h">六、易错提醒</h4>
+<ul>
+<li>换元必换限；若忘记把 dx 也换成 φ′(t)dt，答案一样会错。</li>
+<li>对称性只在<b>对称区间</b>且函数有<b>相应奇偶性</b>时可用，区间不对称就别用。</li>
+<li>华里士公式的区间固定是 [0, π/2]，上下限一变，公式失效，要先用对称性或周期性化过去。</li>
+<li>分部积分的边界项要代值；选 u 的顺序遵循"反、对、幂、指、三"，u 取的应是求导后变简单的那个。</li>
+</ul>
+</div><!--/EXPL:m5-s3-->
+<!--EXPL:m5-s4--><div class="explain" data-expl="m5-s4">
+<h4 class="expl-h">一、这节解决什么问题</h4>
+<p>前面要求区间有限、函数有界。可实际问题里两样都会破：面积可延伸到无穷远（如 y = 1/x² 向右无限延伸），函数也可在端点附近冲到无穷（如 y = 1/√x 在 0 附近）。这类积分还能算吗？能，办法是<b>先按正常积分算到有限处，再取极限</b>。有趣的是，无限大的面积可能是有限的：<span class="fm"><span class="op">∫</span><sub>1</sub><sup>∞</sup> <span class="fr"><span class="n">dx</span><span class="d">x²</span></span> = 1</span>，而 <span class="fm"><span class="op">∫</span><sub>1</sub><sup>∞</sup> <span class="fr"><span class="n">dx</span><span class="d">x</span></span></span> 是无穷——收敛与否，看函数衰减得够不够快。</p>
+<h4 class="expl-h">二、无穷限反常积分</h4>
+<p>定义　设 f 在 [a, +∞) 上连续，称 <span class="fm"><span class="op">∫</span><sub>a</sub><sup>+∞</sup> f(x) dx = <span class="lm">lim<span class="s">b→+∞</span></span> <span class="op">∫</span><sub>a</sub><sup>b</sup> f(x) dx</span>，若右端极限存在且有限，称积分<b>收敛</b>，否则称<b>发散</b>。下限为 −∞ 同理。</p>
+<p>对 <span class="fm"><span class="op">∫</span><sub>−∞</sub><sup>+∞</sup></span>，须任取 c 拆成 <span class="fm"><span class="op">∫</span><sub>−∞</sub><sup>c</sup> + <span class="op">∫</span><sub>c</sub><sup>+∞</sup></span>，<b>两段都收敛</b>才算收敛。</p>
+<p>例：<span class="fm"><span class="op">∫</span><sub>1</sub><sup>+∞</sup> <span class="fr"><span class="n">dx</span><span class="d">x²</span></span> = <span class="lm">lim<span class="s">b→+∞</span></span> [−<span class="fr"><span class="n">1</span><span class="d">x</span></span>]<sub>1</sub><sup>b</sup> = <span class="lm">lim<span class="s">b→+∞</span></span>(1 − <span class="fr"><span class="n">1</span><span class="d">b</span></span>) = 1</span>。</p>
+<h4 class="expl-h">三、无界函数的反常积分（瑕积分）</h4>
+<p>若 f 在 a 的右邻域内无界，a 称为<b>瑕点</b>，定义 <span class="fm"><span class="op">∫</span><sub>a</sub><sup>b</sup> f(x) dx = <span class="lm">lim<span class="s">ε→0⁺</span></span> <span class="op">∫</span><sub>a+ε</sub><sup>b</sup> f(x) dx</span>。瑕点在 b 端、或在内部 c 处，做法相同：<b>内部瑕点必须拆成 <span class="fm"><span class="op">∫</span><sub>a</sub><sup>c</sup> + <span class="op">∫</span><sub>c</sub><sup>b</sup></span>，两块都收敛才算收敛</b>。</p>
+<p>为什么非要拆？因为 <span class="fm"><span class="lm">lim<span class="s">ε→0⁺</span></span> (<span class="op">∫</span><sub>−1</sub><sup>−ε</sup> <span class="fr"><span class="n">dx</span><span class="d">x</span></span> + <span class="op">∫</span><sub>ε</sub><sup>1</sup> <span class="fr"><span class="n">dx</span><span class="d">x</span></span>) = 0</span>，但 <span class="fm"><span class="op">∫</span><sub>−1</sub><sup>1</sup> <span class="fr"><span class="n">dx</span><span class="d">x</span></span></span> 其实发散——两个无穷大恰好抵消，那是柯西主值，不是积分值。</p>
+<h4 class="expl-h">四、两个 p-积分（判敛的尺子）</h4>
+<p>p ≠ 1 时，<span class="fm"><span class="op">∫</span><sub>1</sub><sup>b</sup> x<sup>−p</sup>dx = <span class="fr"><span class="n">b<sup>1−p</sup> − 1</span><span class="d">1 − p</span></span></span>。p &gt; 1 时 1 − p &lt; 0，b<sup>1−p</sup> → 0，极限为 1/(p−1)；p &lt; 1 时 b<sup>1−p</sup> → +∞，发散；p = 1 时 <span class="fm"><span class="op">∫</span><sub>1</sub><sup>b</sup> <span class="fr"><span class="n">dx</span><span class="d">x</span></span> = ln b → +∞</span>，发散。于是</p>
+<p><span class="fm"><span class="op">∫</span><sub>1</sub><sup>+∞</sup> <span class="fr"><span class="n">dx</span><span class="d">x<sup>p</sup></span></span> 收敛 ⟺ p &gt; 1</span>；而 <span class="fm"><span class="op">∫</span><sub>0</sub><sup>1</sup> <span class="fr"><span class="n">dx</span><span class="d">x<sup>p</sup></span></span> 收敛 ⟺ p &lt; 1</span>。</p>
+<p>两把尺子方向<b>相反</b>，这是最容易记混的一处。原因很直观：趋向无穷时，分母的幂次越大衰减越快，所以 p 要大；趋向 0 时，分母的幂次越大爆得越猛，所以 p 要小。</p>
+<h4 class="expl-h">五、比较判别法</h4>
+<p>设 f、g 在 [a, +∞) 上非负连续，且 f(x) ≤ g(x)。则：<span class="fm"><span class="op">∫</span>g</span> 收敛 ⟹ <span class="fm"><span class="op">∫</span>f</span> 收敛；<span class="fm"><span class="op">∫</span>f</span> 发散 ⟹ <span class="fm"><span class="op">∫</span>g</span> 发散（"大的收敛，小的必收敛；小的发散，大的必发散"）。</p>
+<p>极限形式更好用：若 <span class="fm"><span class="lm">lim<span class="s">x→+∞</span></span> <span class="fr"><span class="n">f(x)</span><span class="d">g(x)</span></span> = l</span>，当 0 &lt; l &lt; +∞ 时二者<b>同敛散</b>。实战做法：抓 f 的<b>主部</b>（x → ∞ 时留下最高阶项，x → 0 时留下最低阶项），与 p-积分比阶。</p>
+<h4 class="expl-h">六、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b>　求 <span class="fm"><span class="op">∫</span><sub>0</sub><sup>+∞</sup> x e<sup>−x</sup> dx</span>。</p>
+<p class="expl-s"><b>解</b>　先算到有限上限 b，分部积分：<span class="fm"><span class="op">∫</span><sub>0</sub><sup>b</sup> x e<sup>−x</sup>dx = [−x e<sup>−x</sup>]<sub>0</sub><sup>b</sup> + <span class="op">∫</span><sub>0</sub><sup>b</sup> e<sup>−x</sup>dx = −b e<sup>−b</sup> + (1 − e<sup>−b</sup>)</span>。令 b → +∞，由洛必达 <span class="fm">b e<sup>−b</sup> → 0</span>，故原式 <span class="fm">= 0 + 1 = 1</span>。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b>　判断 <span class="fm"><span class="op">∫</span><sub>1</sub><sup>+∞</sup> <span class="fr"><span class="n">dx</span><span class="d">x√(x²+1)</span></span></span> 的敛散性。</p>
+<p class="expl-s"><b>解</b>　x → +∞ 时 <span class="fm"><span class="fr"><span class="n">1</span><span class="d">x√(x²+1)</span></span> ~ <span class="fr"><span class="n">1</span><span class="d">x²</span></span></span>。取 g(x) = 1/x²，则 <span class="fm"><span class="lm">lim<span class="s">x→+∞</span></span> <span class="fr"><span class="n">f(x)</span><span class="d">g(x)</span></span> = <span class="lm">lim<span class="s">x→+∞</span></span> <span class="fr"><span class="n">x</span><span class="d">√(x²+1)</span></span> = 1</span>。由极限比较判别法同敛散，而 <span class="fm"><span class="op">∫</span><sub>1</sub><sup>+∞</sup> <span class="fr"><span class="n">dx</span><span class="d">x²</span></span></span> 中 p = 2 &gt; 1，收敛，故原积分<b>收敛</b>。判敛不必求值。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b>　判断 <span class="fm"><span class="op">∫</span><sub>0</sub><sup>1</sup> <span class="fr"><span class="n">dx</span><span class="d">√(x(1−x))</span></span></span> 的敛散性，若收敛求其值。</p>
+<p class="expl-s"><b>解</b>　x = 0 与 x = 1 都是瑕点，取 c = 1/2 拆开分别判。x → 0⁺ 时 √(x(1−x)) ~ √x，被积函数 ~ 1/√x，p = 1/2 &lt; 1 收敛；x → 1⁻ 时同阶于 1/√(1−x)，也收敛，故整体收敛。</p>
+<p class="expl-s">求值：令 x = sin²t，t ∈ [0, π/2]，dx = 2 sin t cos t dt，且 <span class="fm">√(x(1−x)) = √(sin²t cos²t) = sin t cos t</span>。代入得 <span class="fm"><span class="op">∫</span><sub>0</sub><sup>π/2</sup> <span class="fr"><span class="n">2 sin t cos t</span><span class="d">sin t cos t</span></span> dt = <span class="op">∫</span><sub>0</sub><sup>π/2</sup> 2 dt = π</span>。</p>
+<p class="expl-t">拆开时只需判"每一块是否收敛"；求值时可整体用一个换元，没必要求两次极限。</p>
+</div>
+<h4 class="expl-h">七、易错提醒</h4>
+<ul>
+<li>不能把 +∞ 直接代入原函数：先写 <span class="fm"><span class="lm">lim<span class="s">b→+∞</span></span></span> 算有限端点，再取极限，顺序颠倒会出假结果。</li>
+<li>两个 p-积分方向相反：无穷限要 p &gt; 1 才收敛，瑕点要 p &lt; 1 才收敛。</li>
+<li>内部瑕点必须拆，两块都收敛才算收敛，抵消出的 0 不算数。</li>
+<li>比较判别法只对<b>非负函数</b>成立；有正有负时先加绝对值，或直接按定义算。判敛题只要结论，不必硬求原函数。</li>
+</ul>
+</div><!--/EXPL:m5-s4-->

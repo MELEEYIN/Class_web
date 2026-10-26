@@ -1,0 +1,440 @@
+<!--EXPL:m13-s1--><div class="explain" data-expl="m13-s1">
+<h4 class="expl-h">一、直观引入：无穷多个数能相加吗</h4>
+<p>《庄子》说「一尺之棰，日取其半，万世不竭」。每天取走剩下的一半，取走的长度依次是 <span class="fm"><span class="fr"><span class="n">1</span><span class="d">2</span></span></span>、<span class="fm"><span class="fr"><span class="n">1</span><span class="d">4</span></span></span>、<span class="fm"><span class="fr"><span class="n">1</span><span class="d">8</span></span></span>……这样无穷多个数加起来，结果到底是 1，还是一个「永远差一点」的东西？有限个数相加我们毫无困难，无穷多个数相加就必须先回答：这个「和」指什么。</p>
+<p>更麻烦的是，直觉在这里会失灵。把 1 与 −1 交替相加：<span class="fm">1 − 1 + 1 − 1 + …</span>。如果两个一组加括号，得 <span class="fm">(1 − 1) + (1 − 1) + … = 0</span>；如果从第二项开始加括号，得 <span class="fm">1 + (−1 + 1) + (−1 + 1) + … = 1</span>。同一串数算出两个不同的值，说明这串数的「和」根本不存在，问题出在「无穷多个数相加」这句话本身还没有定义。</p>
+<p>解决的办法很朴素：不去直接定义无穷和，而是先算有限和，再看有限和有没有极限。这就把级数问题转化成了数列极限问题——这正是上册极限理论的直接应用。</p>
+
+<h4 class="expl-h">二、定义：级数收敛就是部分和数列收敛</h4>
+<p>给定数列 <span class="fm">u<sub>1</sub>, u<sub>2</sub>, …, u<sub>n</sub>, …</span>，把形式上的和</p>
+<p><span class="fm"><span class="op">Σ</span><sub>n=1</sub><sup>∞</sup> u<sub>n</sub> = u<sub>1</sub> + u<sub>2</sub> + … + u<sub>n</sub> + …</span></p>
+<p>叫做常数项级数（简称级数），<span class="fm">u<sub>n</sub></span> 叫做它的通项或一般项。注意此时它只是一个记号，还没有值。</p>
+<p>截取前 n 项，得到一个普通的有限和，称为部分和：</p>
+<p><span class="fm">S<sub>n</sub> = u<sub>1</sub> + u<sub>2</sub> + … + u<sub>n</sub> = <span class="op">Σ</span><sub>k=1</sub><sup>n</sup> u<sub>k</sub></span></p>
+<p>当 n 依次取 1, 2, 3, … 时，<span class="fm">S<sub>n</sub></span> 构成一个数列 <span class="fm">{S<sub>n</sub>}</span>，称为部分和数列。</p>
+<p><b>定义</b>　若部分和数列 <span class="fm">{S<sub>n</sub>}</span> 有极限 S（S 为有限常数），则称级数 <span class="fm"><span class="op">Σ</span>u<sub>n</sub></span> <b>收敛</b>，并称 S 为该级数的<b>和</b>，记 <span class="fm"><span class="op">Σ</span><sub>n=1</sub><sup>∞</sup> u<sub>n</sub> = S</span>；若 <span class="fm">{S<sub>n</sub>}</span> 没有极限，则称级数<b>发散</b>。</p>
+<p>这个定义要读出三层意思。第一，「和」是一个极限，不是加法，所以写 <span class="fm"><span class="op">Σ</span><sub>n=1</sub><sup>∞</sup> u<sub>n</sub></span> 的时候可以放心把它当成一个数来参与运算。第二，<span class="fm">S<sub>n</sub></span> 只是近似值，前面的有限项再多也不能「等于」S。第三，由此自然引出<b>余项</b> <span class="fm">r<sub>n</sub> = S − S<sub>n</sub> = u<sub>n+1</sub> + u<sub>n+2</sub> + …</span>，收敛时必有 <span class="fm">r<sub>n</sub> → 0</span>，这是后面估计误差的工具。</p>
+
+<h4 class="expl-h">三、两把标尺：几何级数与 p-级数</h4>
+<p>几何级数（等比级数）是唯一能直接求和的一类。设 a ≠ 0，公比 q，则</p>
+<p><span class="fm">S<sub>n</sub> = a + aq + aq<sup>2</sup> + … + aq<sup>n−1</sup> = a<span class="fr"><span class="n">1 − q<sup>n</sup></span><span class="d">1 − q</span></span>　(q ≠ 1)</span></p>
+<p>逐种情形讨论：当 <span class="fm">|q| &lt; 1</span> 时 <span class="fm">q<sup>n</sup> → 0</span>，故 <span class="fm">S<sub>n</sub> → <span class="fr"><span class="n">a</span><span class="d">1 − q</span></span></span>，收敛；当 <span class="fm">|q| &gt; 1</span> 时 <span class="fm">q<sup>n</sup></span> 无界，<span class="fm">S<sub>n</sub></span> 无界，发散；当 <span class="fm">q = 1</span> 时 <span class="fm">S<sub>n</sub> = na → ∞</span>，发散；当 <span class="fm">q = −1</span> 时 <span class="fm">S<sub>n</sub></span> 在 a 与 0 之间来回跳动，无极限。于是</p>
+<p><span class="fm"><span class="op">Σ</span><sub>n=1</sub><sup>∞</sup> aq<sup>n−1</sup> 收敛 ⟺ |q| &lt; 1，且此时和为 <span class="fr"><span class="n">a</span><span class="d">1 − q</span></span></span></p>
+<p>代入 <span class="fm">a = <span class="fr"><span class="n">1</span><span class="d">2</span></span>, q = <span class="fr"><span class="n">1</span><span class="d">2</span></span></span> 得 <span class="fm"><span class="fr"><span class="n">1</span><span class="d">2</span></span> + <span class="fr"><span class="n">1</span><span class="d">4</span></span> + … = 1</span>，庄子的问题有了严格答案。</p>
+<p>第二个标尺是 <b>p-级数</b> <span class="fm"><span class="op">Σ</span><span class="fr"><span class="n">1</span><span class="d">n<sup>p</sup></span></span></span>。其中 p = 1 时叫<b>调和级数</b> <span class="fm"><span class="op">Σ</span><span class="fr"><span class="n">1</span><span class="d">n</span></span></span>，它发散，证明用分组法：</p>
+<p><span class="fm"><span class="fr"><span class="n">1</span><span class="d">3</span></span> + <span class="fr"><span class="n">1</span><span class="d">4</span></span> &gt; <span class="fr"><span class="n">1</span><span class="d">2</span></span>，　<span class="fr"><span class="n">1</span><span class="d">5</span></span> + … + <span class="fr"><span class="n">1</span><span class="d">8</span></span> &gt; <span class="fr"><span class="n">1</span><span class="d">2</span></span>，　<span class="fr"><span class="n">1</span><span class="d">9</span></span> + … + <span class="fr"><span class="n">1</span><span class="d">16</span></span> &gt; <span class="fr"><span class="n">1</span><span class="d">2</span></span></span></p>
+<p>每 2<sup>k</sup> 项合起来都不小于 1/2，所以 <span class="fm">S<sub>2<sup>m</sup></sub> &gt; 1 + <span class="fr"><span class="n">m</span><span class="d">2</span></span> → ∞</span>，部分和无界。当 p &lt; 1 时 <span class="fm"><span class="fr"><span class="n">1</span><span class="d">n<sup>p</sup></span></span> &gt; <span class="fr"><span class="n">1</span><span class="d">n</span></span></span>，更加发散；p &gt; 1 的收敛性第二节用积分判别法给出。合并成一句：</p>
+<p><span class="fm"><span class="op">Σ</span><span class="fr"><span class="n">1</span><span class="d">n<sup>p</sup></span></span> 收敛 ⟺ p &gt; 1</span></p>
+<p>这两条结论本身不复杂，但它们是后面所有比较判别法的「标准件」，必须能脱口而出。</p>
+
+<h4 class="expl-h">四、基本性质</h4>
+<ul>
+<li><b>线性性</b>　若 <span class="fm"><span class="op">Σ</span>u<sub>n</sub> = S</span>、<span class="fm"><span class="op">Σ</span>v<sub>n</sub> = T</span> 都收敛，则 <span class="fm"><span class="op">Σ</span>(au<sub>n</sub> + bv<sub>n</sub>) = aS + bT</span>。注意「收敛 + 发散 = 发散」，但「发散 + 发散」可能收敛（如 <span class="fm"><span class="op">Σ</span><span class="fr"><span class="n">1</span><span class="d">n</span></span></span> 与 <span class="fm"><span class="op">Σ</span>(−<span class="fr"><span class="n">1</span><span class="d">n</span></span>)</span>）。</li>
+<li><b>有限项无关</b>　去掉、增加或改变级数的有限项，不改变敛散性，只可能改变和的值。所以判敛时可以随手丢掉前面几项。</li>
+<li><b>加括号</b>　收敛级数任意加括号后仍收敛且和不变，因为加括号后的部分和是原部分和数列的一个子列。反之不成立：<span class="fm">(1 − 1) + (1 − 1) + …</span> 收敛于 0，原级数却发散。</li>
+<li><b>必要条件</b>　收敛 ⟹ <span class="fm">u<sub>n</sub> → 0</span>。理由是 <span class="fm">u<sub>n</sub> = S<sub>n</sub> − S<sub>n−1</sub> → S − S = 0</span>。逆命题不真，调和级数就是反例。实际使用中用它更常用的逆否形式：<b>通项不趋于 0 ⟹ 发散</b>。</li>
+</ul>
+
+<h4 class="expl-h">五、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b>　判别级数 <span class="fm"><span class="op">Σ</span><sub>n=1</sub><sup>∞</sup> <span class="fr"><span class="n">1</span><span class="d">n(n + 1)</span></span></span> 的敛散性，若收敛求出和。</p>
+<p class="expl-s"><b>解</b>　通项不能直接求和，先裂项：<span class="fm">u<sub>n</sub> = <span class="fr"><span class="n">1</span><span class="d">n(n + 1)</span></span> = <span class="fr"><span class="n">1</span><span class="d">n</span></span> − <span class="fr"><span class="n">1</span><span class="d">n + 1</span></span></span>。于是</p>
+<p class="expl-s"><span class="fm">S<sub>n</sub> = (1 − <span class="fr"><span class="n">1</span><span class="d">2</span></span>) + (<span class="fr"><span class="n">1</span><span class="d">2</span></span> − <span class="fr"><span class="n">1</span><span class="d">3</span></span>) + … + (<span class="fr"><span class="n">1</span><span class="d">n</span></span> − <span class="fr"><span class="n">1</span><span class="d">n + 1</span></span>) = 1 − <span class="fr"><span class="n">1</span><span class="d">n + 1</span></span></span></p>
+<p class="expl-s">相邻项两两抵消（这叫<b>裂项相消</b>），只剩首尾。令 <span class="fm">n → ∞</span> 得 <span class="fm">S<sub>n</sub> → 1</span>，故级数收敛，和为 1。</p>
+<p class="expl-t">裂项是少数能直接求出部分和的通项类型，见到分母是两个相邻因式之积就该想到它。<span class="fm"><span class="op">Σ</span><span class="fr"><span class="n">1</span><span class="d">n(n + 2)</span></span></span> 一类，裂项后剩下的是隔一项的两列，需要具体算，不能照搬「首尾相消」。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b>　判别级数 <span class="fm"><span class="op">Σ</span><sub>n=1</sub><sup>∞</sup> <span class="fr"><span class="n">n</span><span class="d">2n + 1</span></span></span> 的敛散性。</p>
+<p class="expl-s"><b>解</b>　先看通项：<span class="fm"><span class="lm">lim<span class="s">n→∞</span></span> <span class="fr"><span class="n">n</span><span class="d">2n + 1</span></span> = <span class="fr"><span class="n">1</span><span class="d">2</span></span> ≠ 0</span>。由收敛的必要条件（逆否），级数发散。</p>
+<p class="expl-t">这类题千万不要动笔去「比较」「求积分」，通项不趋 0 一步就结束。反过来说，只有确认了通项趋于 0，才值得往下用判别法。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b>　求级数 <span class="fm"><span class="op">Σ</span><sub>n=0</sub><sup>∞</sup> 3 · (−<span class="fr"><span class="n">1</span><span class="d">2</span></span>)<sup>n</sup></span> 的和。</p>
+<p class="expl-s"><b>解</b>　这是首项 <span class="fm">a = 3</span>、公比 <span class="fm">q = −<span class="fr"><span class="n">1</span><span class="d">2</span></span></span> 的几何级数，<span class="fm">|q| = <span class="fr"><span class="n">1</span><span class="d">2</span></span> &lt; 1</span>，收敛。由公式</p>
+<p class="expl-s"><span class="fm">S = <span class="fr"><span class="n">a</span><span class="d">1 − q</span></span> = <span class="fr"><span class="n">3</span><span class="d">1 + 1/2</span></span> = 2</span></p>
+<p class="expl-t">用几何级数公式时先确认 <span class="fm">|q| &lt; 1</span>，再代公式；另外要看清级数是从 n = 0 还是 n = 1 开始，首项 a 不同，结果会差一个 q 倍。</p>
+</div>
+
+<h4 class="expl-h">六、与后文的联系</h4>
+<p>本节只解决了「什么是收敛」和两类特殊级数。实际遇到的级数几乎都不能直接求和，所以判断敛散只能靠充分条件，这就是第二节到第三节的任务。而全章的逻辑起点在这里：所有判别法都建立在「部分和数列」这个定义之上，所有判别法的第一条检查都是「通项是否趋于 0」。常见套路有三：裂项求和（考定义）、用必要条件判发散（考 <span class="fm">u<sub>n</sub></span> 的极限）、化为几何级数求和（考公式）。易错点是：把「通项趋于 0」当判据、把「加括号后收敛」当原级数收敛、忘记去掉有限项不改变敛散性而白算半天。</p>
+</div><!--/EXPL:m13-s1-->
+
+<!--EXPL:m13-s2--><div class="explain" data-expl="m13-s2">
+<h4 class="expl-h">一、正项级数为什么好办</h4>
+<p>若 <span class="fm">u<sub>n</sub> ≥ 0</span>，则部分和满足 <span class="fm">S<sub>n+1</sub> = S<sub>n</sub> + u<sub>n+1</sub> ≥ S<sub>n</sub></span>，即 <span class="fm">{S<sub>n</sub>}</span> 单调不减。上册的单调有界准则说：单调不减数列收敛 ⟺ 有上界。于是立刻得到全节的根：</p>
+<p><b>定理（正项级数判别原理）</b>　正项级数收敛 ⟺ 它的部分和数列有上界。</p>
+<p>这条原理本身不能直接用来判敛（上界往往写不出来），但它是所有判别法的共同来源：比较判别法比的就是「有没有上界」，比值法与根值法找的是「用几何级数当上界」，积分判别法比的是「用广义积分当尺子」。理解了这一点，就不必死记硬背五条判别法，而是知道每一条在估计什么。</p>
+
+<h4 class="expl-h">二、比较判别法</h4>
+<p><b>基本形式</b>　设存在 N，当 n &gt; N 时 <span class="fm">0 ≤ u<sub>n</sub> ≤ v<sub>n</sub></span>，则</p>
+<p>（1）若 <span class="fm"><span class="op">Σ</span>v<sub>n</sub></span> 收敛，则 <span class="fm"><span class="op">Σ</span>u<sub>n</sub></span> 收敛；（2）若 <span class="fm"><span class="op">Σ</span>u<sub>n</sub></span> 发散，则 <span class="fm"><span class="op">Σ</span>v<sub>n</sub></span> 发散。</p>
+<p>证明：（1）由 <span class="fm">u<sub>n</sub> ≤ v<sub>n</sub></span> 得 <span class="fm"><span class="op">Σ</span><sub>k=1</sub><sup>n</sup> u<sub>k</sub> ≤ <span class="op">Σ</span><sub>k=1</sub><sup>n</sup> v<sub>k</sub> ≤ <span class="op">Σ</span><sub>k=1</sub><sup>∞</sup> v<sub>k</sub></span>，部分和有上界，由原理收敛；（2）是（1）的逆否命题。口诀：<b>大的收敛则小的收敛，小的发散则大的发散</b>。</p>
+<p><b>极限形式</b>（做题主要用这个）　设 <span class="fm">u<sub>n</sub> &gt; 0, v<sub>n</sub> &gt; 0</span>，<span class="fm"><span class="lm">lim<span class="s">n→∞</span></span> <span class="fr"><span class="n">u<sub>n</sub></span><span class="d">v<sub>n</sub></span></span> = c</span>，则</p>
+<ul>
+<li><span class="fm">0 &lt; c &lt; +∞</span>：两级数同敛散（u<sub>n</sub> 与 v<sub>n</sub> 同阶）；</li>
+<li><span class="fm">c = 0</span>：<span class="fm"><span class="op">Σ</span>v<sub>n</sub></span> 收敛 ⟹ <span class="fm"><span class="op">Σ</span>u<sub>n</sub></span> 收敛（u<sub>n</sub> 比 v<sub>n</sub> 小得多）；</li>
+<li><span class="fm">c = +∞</span>：<span class="fm"><span class="op">Σ</span>v<sub>n</sub></span> 发散 ⟹ <span class="fm"><span class="op">Σ</span>u<sub>n</sub></span> 发散。</li>
+</ul>
+<p>用法是「抓主部」：把 u<sub>n</sub> 里的低阶项全部丢掉，只看决定阶的那一项，取 <span class="fm">v<sub>n</sub> = <span class="fr"><span class="n">1</span><span class="d">n<sup>p</sup></span></span></span>。例如 <span class="fm"><span class="fr"><span class="n">n</span><span class="d">2n<sup>3</sup> + 1</span></span> ~ <span class="fr"><span class="n">1</span><span class="d">2n<sup>2</sup></span></span></span>，取 <span class="fm">v<sub>n</sub> = <span class="fr"><span class="n">1</span><span class="d">n<sup>2</sup></span></span></span>，<span class="fm">c = <span class="fr"><span class="n">1</span><span class="d">2</span></span></span>，故收敛。</p>
+
+<h4 class="expl-h">三、比值法与根值法</h4>
+<p><b>比值判别法（达朗贝尔）</b>　设 <span class="fm">u<sub>n</sub> &gt; 0</span>，<span class="fm"><span class="lm">lim<span class="s">n→∞</span></span> <span class="fr"><span class="n">u<sub>n+1</sub></span><span class="d">u<sub>n</sub></span></span> = ρ</span>，则 <span class="fm">ρ &lt; 1</span> 收敛，<span class="fm">ρ &gt; 1</span> 发散，<span class="fm">ρ = 1</span> 时本方法失效。</p>
+<p>证明思路（ρ &lt; 1）：取 q 满足 <span class="fm">ρ &lt; q &lt; 1</span>，则存在 N，当 n ≥ N 时 <span class="fm">u<sub>n+1</sub>/u<sub>n</sub> ≤ q</span>，连乘得</p>
+<p><span class="fm">u<sub>n</sub> ≤ u<sub>N</sub> q<sup>n−N</sup>　(n ≥ N)</span></p>
+<p>右边是收敛的几何级数，由比较判别法原级数收敛。ρ &gt; 1 时从某项起 u<sub>n</sub> 递增，通项不趋于 0，发散。</p>
+<p><b>根值判别法（柯西）</b>　设 <span class="fm">u<sub>n</sub> &gt; 0</span>，<span class="fm"><span class="lm">lim<span class="s">n→∞</span></span> <sup>n</sup>√<span class="fm">u<sub>n</sub></span> = ρ</span>，判据与比值法完全相同。证明一样：ρ &lt; 1 时 <span class="fm">u<sub>n</sub> ≤ q<sup>n</sup></span>，被几何级数控制。</p>
+<p>怎么选？出现 <span class="fm">n!</span>、<span class="fm">a<sup>n</sup></span>、<span class="fm">n<sup>n</sup></span>、连乘积，相邻项一定能大量约分，用比值法；通项整体是一个 n 次幂（如 <span class="fm">(<span class="fr"><span class="n">n</span><span class="d">2n + 1</span></span>)<sup>n</sup></span>），开 n 次方后立刻干净，用根值法。两者都是「与几何级数比」，所以对 <span class="fm">1/n<sup>p</sup></span> 这种多项式阶的通项必然失效（ρ = 1），这是理论上的必然，不是技巧问题。</p>
+
+<h4 class="expl-h">四、积分判别法</h4>
+<p>设 <span class="fm">f(x)</span> 在 <span class="fm">[1, +∞)</span> 上连续、非负、单调递减，<span class="fm">u<sub>n</sub> = f(n)</span>，则</p>
+<p><span class="fm"><span class="op">Σ</span><sub>n=1</sub><sup>∞</sup> u<sub>n</sub> 与 <span class="op">∫</span><sub>1</sub><sup>+∞</sup> f(x)dx 同敛散</span></p>
+<p>证明思路：由单调性，在 <span class="fm">[k, k+1]</span> 上 <span class="fm">f(k+1) ≤ f(x) ≤ f(k)</span>，积分得</p>
+<p><span class="fm">f(k+1) ≤ <span class="op">∫</span><sub>k</sub><sup>k+1</sup> f(x)dx ≤ f(k)</span></p>
+<p>对 k 从 1 到 n−1 求和，得 <span class="fm"><span class="op">Σ</span><sub>k=2</sub><sup>n</sup> f(k) ≤ <span class="op">∫</span><sub>1</sub><sup>n</sup> f(x)dx ≤ <span class="op">Σ</span><sub>k=1</sub><sup>n−1</sup> f(k)</span>。不等式两头互相控制，一边有界另一边也有界，故同敛散。</p>
+<p>它专治「非幂次」的通项：<span class="fm"><span class="fr"><span class="n">1</span><span class="d">n ln n</span></span></span>、<span class="fm"><span class="fr"><span class="n">1</span><span class="d">n ln<sup>2</sup>n</span></span></span>、<span class="fm"><span class="fr"><span class="n">1</span><span class="d">n<sup>2</sup> + 1</span></span></span> 这类，比较法要么难找标尺，要么找不到合适的 p-级数。</p>
+
+<h4 class="expl-h">五、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b>　判别 <span class="fm"><span class="op">Σ</span><sub>n=1</sub><sup>∞</sup> <span class="fr"><span class="n">1</span><span class="d">2n<sup>2</sup> + 3n + 5</span></span></span> 的敛散性。</p>
+<p class="expl-s"><b>解</b>　正项级数。抓主部：分母最高次是 2 次，故取 <span class="fm">v<sub>n</sub> = <span class="fr"><span class="n">1</span><span class="d">n<sup>2</sup></span></span></span>。计算</p>
+<p class="expl-s"><span class="fm"><span class="lm">lim<span class="s">n→∞</span></span> <span class="fr"><span class="n">u<sub>n</sub></span><span class="d">v<sub>n</sub></span></span> = <span class="lm">lim<span class="s">n→∞</span></span> <span class="fr"><span class="n">n<sup>2</sup></span><span class="d">2n<sup>2</sup> + 3n + 5</span></span> = <span class="fr"><span class="n">1</span><span class="d">2</span></span></span></p>
+<p class="expl-s">极限为有限正数，两式同敛散。而 <span class="fm"><span class="op">Σ</span>1/n<sup>2</sup></span> 是 p = 2 &gt; 1 的 p-级数，收敛，故原级数<b>收敛</b>。</p>
+<p class="expl-t">抓主部时只看 n 的最高次：分子次数与分母次数之差就是 p。差为 1 时（如 <span class="fm"><span class="fr"><span class="n">1</span><span class="d">2n + 3</span></span></span>）恰好落在 p = 1 的发散边界，此时要小心判断。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b>　判别 <span class="fm"><span class="op">Σ</span><sub>n=1</sub><sup>∞</sup> <span class="fr"><span class="n">n!</span><span class="d">n<sup>n</sup></span></span></span> 的敛散性。</p>
+<p class="expl-s"><b>解</b>　含 n!，首选比值法。记 <span class="fm">u<sub>n</sub> = <span class="fr"><span class="n">n!</span><span class="d">n<sup>n</sup></span></span></span>，则</p>
+<p class="expl-s"><span class="fm"><span class="fr"><span class="n">u<sub>n+1</sub></span><span class="d">u<sub>n</sub></span></span> = <span class="fr"><span class="n">(n+1)! n<sup>n</sup></span><span class="d">n! (n+1)<sup>n+1</sup></span></span> = <span class="fr"><span class="n">n<sup>n</sup></span><span class="d">(n+1)<sup>n</sup></span></span> = <span class="fr"><span class="n">1</span><span class="d">(1 + 1/n)<sup>n</sup></span></span></span></p>
+<p class="expl-s">取极限，分母趋于 e，故 <span class="fm">ρ = <span class="fr"><span class="n">1</span><span class="d">e</span></span> &lt; 1</span>，级数<b>收敛</b>。</p>
+<p class="expl-t">约分的关键一步是把 <span class="fm">(n+1)!</span> 拆成 <span class="fm">(n+1)·n!</span>，同时把 <span class="fm">(n+1)<sup>n+1</sup></span> 拆成 <span class="fm">(n+1)·(n+1)<sup>n</sup></span>，约掉 n! 与那个 (n+1)。最后一定要把 <span class="fm">(1 + 1/n)<sup>n</sup></span> 的极限算出来，它是 e，不能停在原式。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b>　判别 <span class="fm"><span class="op">Σ</span><sub>n=2</sub><sup>∞</sup> <span class="fr"><span class="n">1</span><span class="d">n ln n</span></span></span> 的敛散性。</p>
+<p class="expl-s"><b>解</b>　取 <span class="fm">f(x) = <span class="fr"><span class="n">1</span><span class="d">x ln x</span></span></span>，在 <span class="fm">[2, +∞)</span> 上连续、非负、单调递减，可用积分判别法。计算</p>
+<p class="expl-s"><span class="fm"><span class="op">∫</span><sub>2</sub><sup>+∞</sup> <span class="fr"><span class="n">1</span><span class="d">x ln x</span></span> dx = <span class="lm">lim<span class="s">b→+∞</span></span> [ln ln b − ln ln 2] = +∞</span></p>
+<p class="expl-s">广义积分发散，故原级数<b>发散</b>。</p>
+<p class="expl-t">这个例子最能说明「通项趋 0 不等于收敛」：<span class="fm"><span class="fr"><span class="n">1</span><span class="d">n ln n</span></span></span> 比 <span class="fm"><span class="fr"><span class="n">1</span><span class="d">n</span></span></span> 还小，照样发散。改用 <span class="fm"><span class="fr"><span class="n">1</span><span class="d">n ln<sup>2</sup>n</span></span></span>，积分得 <span class="fm">1/ln 2</span> 有限，就收敛了——<b>ln n 的指数决定敛散</b>。</p>
+</div>
+
+<h4 class="expl-h">六、常考套路与易错</h4>
+<p>看到级数先做三件事：看通项是否趋于 0；看通项结构（含阶乘、含 n 次幂、是分式、含 ln）；选判别法。经验顺序是：能抓主部就用极限比较法（最通用），含阶乘或指数用比值法，整体幂次用根值法，非幂次用积分法，都不行再回到不等式比较。易错点有四个：ρ = 1 时误判为收敛（其实是失效，必须换法）；比较法的不等号方向搞反（小的收敛推不出大的收敛）；极限比较法中 v<sub>n</sub> 选错阶，导致 c = 0 或 ∞ 却强行下结论；对含参数的级数忘记讨论参数范围。此外，正项级数的判别法一律不能直接用于一般项级数，必须先取绝对值，这是第三节的内容。</p>
+</div><!--/EXPL:m13-s2-->
+
+<!--EXPL:m13-s3--><div class="explain" data-expl="m13-s3">
+<h4 class="expl-h">一、直观引入：符号交替带来的抵消</h4>
+<p>正项级数的部分和只增不减，要么收敛到某个数，要么一路涨上去；一旦允许项取负号，部分和就可以上下摆动，而摆动本身会产生抵消，使级数在没有任何衰减到「足够快」的情况下也能收敛。最典型的例子是</p>
+<p><span class="fm">1 − <span class="fr"><span class="n">1</span><span class="d">2</span></span> + <span class="fr"><span class="n">1</span><span class="d">3</span></span> − <span class="fr"><span class="n">1</span><span class="d">4</span></span> + … = ln 2</span></p>
+<p>它各项的绝对值构成调和级数，是发散的；可加上交替符号以后居然收敛到一个具体的数（这个等式第五节会由 <span class="fm">ln(1 + x)</span> 的展开式给出）。这说明研究任意项级数时，「取绝对值」和「不取绝对值」会得到完全不同的结论，而这恰好是本节的两个核心概念：绝对收敛与条件收敛。</p>
+
+<h4 class="expl-h">二、交错级数与莱布尼茨判别法</h4>
+<p>形如</p>
+<p><span class="fm"><span class="op">Σ</span><sub>n=1</sub><sup>∞</sup> (−1)<sup>n−1</sup> u<sub>n</sub> = u<sub>1</sub> − u<sub>2</sub> + u<sub>3</sub> − …　(u<sub>n</sub> &gt; 0)</span></p>
+<p>的级数称为<b>交错级数</b>。</p>
+<p><b>定理（莱布尼茨判别法）</b>　若数列 <span class="fm">{u<sub>n</sub>}</span> 满足（1）<span class="fm">u<sub>n</sub> ≥ u<sub>n+1</sub></span>（n ≥ N，单调递减）；（2）<span class="fm"><span class="lm">lim<span class="s">n→∞</span></span> u<sub>n</sub> = 0</span>，则交错级数收敛，且其和 S 满足 <span class="fm">S ≤ u<sub>1</sub></span>，余项满足 <span class="fm">|r<sub>n</sub>| ≤ u<sub>n+1</sub></span>。</p>
+<p><b>证明</b>　先看偶部分和。把相邻两项配成一组：</p>
+<p><span class="fm">S<sub>2n</sub> = (u<sub>1</sub> − u<sub>2</sub>) + (u<sub>3</sub> − u<sub>4</sub>) + … + (u<sub>2n−1</sub> − u<sub>2n</sub>)</span></p>
+<p>每个括号非负，故 <span class="fm">S<sub>2n</sub></span> 单调不减。再换一种配对：</p>
+<p><span class="fm">S<sub>2n</sub> = u<sub>1</sub> − (u<sub>2</sub> − u<sub>3</sub>) − … − (u<sub>2n−2</sub> − u<sub>2n−1</sub>) − u<sub>2n</sub> ≤ u<sub>1</sub></span></p>
+<p>于是 <span class="fm">S<sub>2n</sub></span> 单调不减且有上界 u<sub>1</sub>，由单调有界准则收敛，设 <span class="fm">S<sub>2n</sub> → S</span>。再看奇部分和：<span class="fm">S<sub>2n+1</sub> = S<sub>2n</sub> + u<sub>2n+1</sub></span>，由条件（2）它也趋于 S。两个子列同极限，故 <span class="fm">S<sub>n</sub> → S</span>，级数收敛。又因 S 总夹在相邻两个部分和之间，<span class="fm">|S − S<sub>n</sub>| ≤ u<sub>n+1</sub></span>，这就是余项估计。</p>
+
+<h4 class="expl-h">三、绝对收敛与条件收敛</h4>
+<p><b>定义</b>　对任意项级数 <span class="fm"><span class="op">Σ</span>u<sub>n</sub></span>：若 <span class="fm"><span class="op">Σ</span>|u<sub>n</sub>|</span> 收敛，称 <span class="fm"><span class="op">Σ</span>u<sub>n</sub></span> <b>绝对收敛</b>；若 <span class="fm"><span class="op">Σ</span>u<sub>n</sub></span> 收敛但 <span class="fm"><span class="op">Σ</span>|u<sub>n</sub>|</span> 发散，称 <span class="fm"><span class="op">Σ</span>u<sub>n</sub></span> <b>条件收敛</b>。</p>
+<p><b>定理</b>　绝对收敛的级数必收敛。</p>
+<p><b>证明</b>　由 <span class="fm">0 ≤ u<sub>n</sub> + |u<sub>n</sub>| ≤ 2|u<sub>n</sub>|</span> 及比较判别法，<span class="fm"><span class="op">Σ</span>(u<sub>n</sub> + |u<sub>n</sub>|)</span> 收敛；而</p>
+<p><span class="fm"><span class="op">Σ</span>u<sub>n</sub> = <span class="op">Σ</span>(u<sub>n</sub> + |u<sub>n</sub>|) − <span class="op">Σ</span>|u<sub>n</sub>|</span></p>
+<p>是两个收敛级数之差，故收敛。逆命题不成立：<span class="fm"><span class="op">Σ</span>(−1)<sup>n−1</sup>/n</span> 收敛，但绝对值级数是调和级数，发散，所以它是条件收敛的。这个定理的意义在于：<b>判断任意项级数，先试绝对值级数</b>，因为绝对值级数是正项级数，第二节全套工具都能上。</p>
+
+<h4 class="expl-h">四、判敛流程（四步，形成条件反射）</h4>
+<ol>
+<li><b>看通项</b>：若 <span class="fm">u<sub>n</sub></span> 不趋于 0，由必要条件直接判发散，结束。</li>
+<li><b>判绝对值级数</b> <span class="fm"><span class="op">Σ</span>|u<sub>n</sub>|</span>：用比较、比值、根值、积分诸法。若收敛，则原级数绝对收敛，结束。</li>
+<li><b>绝对值发散，再看是否交错</b>：验证 <span class="fm">{u<sub>n</sub>}</span> 单调递减且趋于 0，用莱布尼茨得条件收敛。</li>
+<li><b>都不行</b>（如 <span class="fm"><span class="op">Σ</span><span class="fr"><span class="n">sin n</span><span class="d">n</span></span></span>）：用狄利克雷判别法或阿贝尔判别法，或直接分析部分和。</li>
+</ol>
+
+<h4 class="expl-h">五、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b>　讨论 <span class="fm"><span class="op">Σ</span><sub>n=1</sub><sup>∞</sup> <span class="fr"><span class="n">(−1)<sup>n−1</sup></span><span class="d">√n</span></span></span> 的敛散性，并指出是绝对收敛还是条件收敛。</p>
+<p class="expl-s"><b>解</b>　先判绝对值级数：<span class="fm"><span class="op">Σ</span><span class="fr"><span class="n">1</span><span class="d">√n</span></span> = <span class="op">Σ</span><span class="fr"><span class="n">1</span><span class="d">n<sup>1/2</sup></span></span></span>，这是 p = 1/2 &lt; 1 的 p-级数，<b>发散</b>。</p>
+<p class="expl-s">再判原级数：<span class="fm">u<sub>n</sub> = <span class="fr"><span class="n">1</span><span class="d">√n</span></span></span> 单调递减（分母增大），且 <span class="fm"><span class="lm">lim<span class="s">n→∞</span></span> <span class="fr"><span class="n">1</span><span class="d">√n</span></span> = 0</span>，两个条件都满足，由莱布尼茨判别法收敛。</p>
+<p class="expl-s">收敛但绝对值级数发散，故为<b>条件收敛</b>。</p>
+<p class="expl-t">这道题是全章最高频的模板题，必须能一遍写对。注意「先绝对值，后交错」的顺序：绝对值收敛就一步到位说绝对收敛，不必再验证单调性。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b>　讨论 <span class="fm"><span class="op">Σ</span><sub>n=1</sub><sup>∞</sup> (−1)<sup>n</sup> <span class="fr"><span class="n">n</span><span class="d">n<sup>2</sup> + 1</span></span></span> 的敛散性。</p>
+<p class="expl-s"><b>解</b>　绝对值级数 <span class="fm"><span class="op">Σ</span><span class="fr"><span class="n">n</span><span class="d">n<sup>2</sup> + 1</span></span></span>，与 <span class="fm"><span class="fr"><span class="n">1</span><span class="d">n</span></span></span> 相比：<span class="fm"><span class="lm">lim<span class="s">n→∞</span></span> <span class="fr"><span class="n">n/(n<sup>2</sup> + 1)</span><span class="d">1/n</span></span> = 1</span>，同敛散，而 <span class="fm"><span class="op">Σ</span>1/n</span> 发散，故绝对值级数发散。</p>
+<p class="expl-s">再验证单调性：设 <span class="fm">f(x) = <span class="fr"><span class="n">x</span><span class="d">x<sup>2</sup> + 1</span></span></span>，则 <span class="fm">f′(x) = <span class="fr"><span class="n">1 − x<sup>2</sup></span><span class="d">(x<sup>2</sup> + 1)<sup>2</sup></span></span> &lt; 0　(x &gt; 1)</span>，故 n ≥ 2 时 u<sub>n</sub> 单调递减；又 <span class="fm">u<sub>n</sub> → 0</span>。由莱布尼茨，级数收敛，且为<b>条件收敛</b>。</p>
+<p class="expl-t">「单调递减」不能只凭肉眼说「显然」。分式型通项一律求导（或作差 u<sub>n+1</sub> − u<sub>n</sub>）来证，写一句「由 f′(x) &lt; 0 知单调递减」即可得分。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b>　讨论 <span class="fm"><span class="op">Σ</span><sub>n=1</sub><sup>∞</sup> <span class="fr"><span class="n">(−1)<sup>n</sup></span><span class="d">n<sup>2</sup></span></span></span> 的敛散性。</p>
+<p class="expl-s"><b>解</b>　绝对值级数 <span class="fm"><span class="op">Σ</span>1/n<sup>2</sup></span> 是 p = 2 &gt; 1 的 p-级数，收敛，故原级数<b>绝对收敛</b>，当然也收敛。</p>
+<p class="expl-t">绝对收敛时不必再验莱布尼茨条件，写了反而显得没抓住主次。但反过来，只说「收敛」是不够的，题目问绝对 / 条件时必须明确表态。</p>
+</div>
+
+<h4 class="expl-h">六、常考套路与易错提醒</h4>
+<p>考试只有三种问法：判敛散、判绝对还是条件、求近似和（用 |r<sub>n</sub>| ≤ u<sub>n+1</sub> 估误差）。三个易错点必须记牢。第一，莱布尼茨的两个条件缺一不可，单调性不验证就下结论是典型失分；反例是 <span class="fm">u<sub>n</sub></span> 取 1/n（n 为奇数）、1/n<sup>2</sup>（n 为偶数），通项趋于 0 但不单调，级数实际发散。第二，条件收敛级数<b>不能重排</b>：黎曼定理说，条件收敛级数经过重排可以收敛到任意指定的数，甚至发散；也不能随意加括号改变和。第三，只有交错级数才能用莱布尼茨，通项符号不规则时（如 <span class="fm">sin n</span>）要另想办法。这些结论在第四节判幂级数端点和第七节判傅里叶级数收敛时都会再用一次。</p>
+</div><!--/EXPL:m13-s3-->
+
+<!--EXPL:m13-s4--><div class="explain" data-expl="m13-s4">
+<h4 class="expl-h">一、直观引入：从常数项到函数项</h4>
+<p>前面研究的级数，每一项都是数。如果把通项乘上 <span class="fm">x<sup>n</sup></span>，得到</p>
+<p><span class="fm"><span class="op">Σ</span><sub>n=0</sub><sup>∞</sup> a<sub>n</sub> x<sup>n</sup> = a<sub>0</sub> + a<sub>1</sub>x + a<sub>2</sub>x<sup>2</sup> + …</span></p>
+<p>每给定一个具体的 x，它就退化成一个常数项级数，敛散与否取决于 x 的大小。比如 <span class="fm"><span class="op">Σ</span>x<sup>n</sup></span> 在 <span class="fm">|x| &lt; 1</span> 时收敛、在 <span class="fm">|x| ≥ 1</span> 时发散。于是核心问题变成：<b>哪些 x 使级数收敛</b>？答案的形态出奇地整齐——一个以原点为中心的区间，叫作收敛域。</p>
+
+<h4 class="expl-h">二、阿贝尔定理：收敛域为什么是区间</h4>
+<p><b>定理（阿贝尔）</b>　若 <span class="fm"><span class="op">Σ</span>a<sub>n</sub>x<sub>0</sub><sup>n</sup></span> 在 <span class="fm">x<sub>0</sub> ≠ 0</span> 处收敛，则对一切满足 <span class="fm">|x| &lt; |x<sub>0</sub>|</span> 的 x，级数绝对收敛；若在 <span class="fm">x<sub>1</sub></span> 处发散，则对一切 <span class="fm">|x| &gt; |x<sub>1</sub>|</span> 的 x，级数发散。</p>
+<p><b>证明</b>　由 <span class="fm"><span class="op">Σ</span>a<sub>n</sub>x<sub>0</sub><sup>n</sup></span> 收敛知通项 <span class="fm">a<sub>n</sub>x<sub>0</sub><sup>n</sup> → 0</span>，故有界：存在 M，使 <span class="fm">|a<sub>n</sub>x<sub>0</sub><sup>n</sup>| ≤ M</span>。于是对 <span class="fm">|x| &lt; |x<sub>0</sub>|</span>，令 <span class="fm">q = |x/x<sub>0</sub>| &lt; 1</span>，</p>
+<p><span class="fm">|a<sub>n</sub>x<sup>n</sup>| = |a<sub>n</sub>x<sub>0</sub><sup>n</sup>| · |<span class="fr"><span class="n">x</span><span class="d">x<sub>0</sub></span></span>|<sup>n</sup> ≤ M q<sup>n</sup></span></p>
+<p>右端是收敛的几何级数，由比较判别法，<span class="fm"><span class="op">Σ</span>|a<sub>n</sub>x<sup>n</sup>|</span> 收敛。后半句是前半句的逆否命题。</p>
+<p>由阿贝尔定理，存在唯一的 <span class="fm">R</span>（<span class="fm">0 ≤ R ≤ +∞</span>）使得 <span class="fm">|x| &lt; R</span> 时绝对收敛、<span class="fm">|x| &gt; R</span> 时发散，称为<b>收敛半径</b>，<span class="fm">(−R, R)</span> 称为<b>收敛区间</b>。端点 <span class="fm">x = ±R</span> 是「临界点」，可能收敛也可能发散，必须单独判。</p>
+
+<h4 class="expl-h">三、求收敛半径的两个公式</h4>
+<p>对标准形 <span class="fm"><span class="op">Σ</span>a<sub>n</sub>(x − x<sub>0</sub>)<sup>n</sup></span>（把 x<sub>0</sub> 平移到原点即 <span class="fm"><span class="op">Σ</span>a<sub>n</sub>x<sup>n</sup></span>）：</p>
+<p><span class="fm">R = <span class="lm">lim<span class="s">n→∞</span></span> |<span class="fr"><span class="n">a<sub>n</sub></span><span class="d">a<sub>n+1</sub></span></span>|　或　R = <span class="fr"><span class="n">1</span><span class="d"><span class="lm">lim<span class="s">n→∞</span></span> <sup>n</sup>√|a<sub>n</sub>|</span></span></span></p>
+<p>两式来源于把比值法、根值法用在 <span class="fm"><span class="op">Σ</span>|a<sub>n</sub>x<sup>n</sup>|</span> 上：比值法要求 <span class="fm">|a<sub>n+1</sub>x|/|a<sub>n</sub>| → |x|/R &lt; 1</span>，即 <span class="fm">|x| &lt; R</span>。所以要理解公式，不要背公式。</p>
+<p>第一个公式在 <span class="fm">a<sub>n</sub> = 0</span>（缺项）时不能用，因为分子分母可能出现零。例如 <span class="fm"><span class="op">Σ</span>x<sup>2n</sup></span>，奇数项系数全为 0。此时有两个办法：令 <span class="fm">t = x<sup>2</sup></span> 化为 <span class="fm"><span class="op">Σ</span>t<sup>n</sup></span>，先求 t 的收敛范围再换回 x；或者直接对整项用比值法，令 <span class="fm">|<span class="fr"><span class="n">u<sub>n+1</sub></span><span class="d">u<sub>n</sub></span></span>| → ρ</span> 再解 <span class="fm">ρ &lt; 1</span>。</p>
+
+<h4 class="expl-h">四、求收敛域的三步</h4>
+<ol>
+<li>求 R（或直接对整项用比值法解不等式）；</li>
+<li>写出开区间，例如 <span class="fm">(x<sub>0</sub> − R, x<sub>0</sub> + R)</span>；</li>
+<li>把两个端点分别代入原级数，化回<b>常数项级数</b>逐个判敛，最后写出收敛域。</li>
+</ol>
+<p>第 3 步是幂级数题最固定的送分点，也是最大的失分点：只写开区间要扣一半分。</p>
+
+<h4 class="expl-h">五、和函数的分析性质</h4>
+<p>设 <span class="fm"><span class="op">Σ</span>a<sub>n</sub>x<sup>n</sup></span> 的收敛半径为 <span class="fm">R &gt; 0</span>，和函数为 <span class="fm">S(x)</span>，则 <span class="fm">S(x)</span> 在 <span class="fm">(−R, R)</span> 内连续，并可逐项求导与逐项积分：</p>
+<p><span class="fm">S′(x) = <span class="op">Σ</span><sub>n=1</sub><sup>∞</sup> n a<sub>n</sub> x<sup>n−1</sup>，　<span class="op">∫</span><sub>0</sub><sup>x</sup> S(t)dt = <span class="op">Σ</span><sub>n=0</sub><sup>∞</sup> <span class="fr"><span class="n">a<sub>n</sub></span><span class="d">n + 1</span></span> x<sup>n+1</sup></span></p>
+<p>两式的收敛半径仍为 R（这是幂级数的特权，一般函数项级数没有）。但<b>端点的收敛性会变</b>：<span class="fm"><span class="op">Σ</span>x<sup>n</sup></span> 在 <span class="fm">x = −1</span> 发散，逐项积分后 <span class="fm"><span class="op">Σ</span>x<sup>n+1</sup>/(n+1)</span> 在 <span class="fm">x = −1</span> 收敛（交错调和）。所以写和函数时，定义域要用<b>原级数</b>的收敛域，不能拿求导后的级数去扩大范围。</p>
+
+<h4 class="expl-h">六、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b>　求 <span class="fm"><span class="op">Σ</span><sub>n=1</sub><sup>∞</sup> <span class="fr"><span class="n">x<sup>n</sup></span><span class="d">n</span></span></span> 的收敛域。</p>
+<p class="expl-s"><b>解</b>　这里 <span class="fm">a<sub>n</sub> = 1/n</span>，</p>
+<p class="expl-s"><span class="fm">R = <span class="lm">lim<span class="s">n→∞</span></span> |<span class="fr"><span class="n">a<sub>n</sub></span><span class="d">a<sub>n+1</sub></span></span>| = <span class="lm">lim<span class="s">n→∞</span></span> <span class="fr"><span class="n">n + 1</span><span class="d">n</span></span> = 1</span></p>
+<p class="expl-s">开区间为 <span class="fm">(−1, 1)</span>。端点：<span class="fm">x = 1</span> 时级数为 <span class="fm"><span class="op">Σ</span>1/n</span>，调和级数，发散；<span class="fm">x = −1</span> 时为 <span class="fm"><span class="op">Σ</span>(−1)<sup>n</sup>/n</span>，交错且 1/n 单调递减趋于 0，收敛。故收敛域为 <span class="fm">[−1, 1)</span>。</p>
+<p class="expl-t">答案是半开半闭区间，这种「不对称」正是端点必须单判的原因。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b>　求 <span class="fm"><span class="op">Σ</span><sub>n=1</sub><sup>∞</sup> <span class="fr"><span class="n">(x − 2)<sup>n</sup></span><span class="d">n · 3<sup>n</sup></span></span></span> 的收敛域。</p>
+<p class="expl-s"><b>解</b>　记 <span class="fm">t = x − 2</span>，<span class="fm">a<sub>n</sub> = 1/(n·3<sup>n</sup>)</span>，</p>
+<p class="expl-s"><span class="fm">R = <span class="lm">lim<span class="s">n→∞</span></span> <span class="fr"><span class="n">(n+1)3<sup>n+1</sup></span><span class="d">n·3<sup>n</sup></span></span> = 3</span></p>
+<p class="expl-s">故 <span class="fm">|x − 2| &lt; 3</span>，即 <span class="fm">−1 &lt; x &lt; 5</span> 内绝对收敛。端点：<span class="fm">x = −1</span> 时 <span class="fm">t = −3</span>，级数为 <span class="fm"><span class="op">Σ</span><span class="fr"><span class="n">(−1)<sup>n</sup></span><span class="d">n</span></span></span>，交错收敛；<span class="fm">x = 5</span> 时 <span class="fm">t = 3</span>，级数为 <span class="fm"><span class="op">Σ</span>1/n</span>，发散。收敛域为 <span class="fm">[−1, 5)</span>。</p>
+<p class="expl-t">中心不在原点的题，先把 <span class="fm">x − x<sub>0</sub></span> 整体当 t 处理，最后再平移回去，能避免符号错误。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b>　求 <span class="fm"><span class="op">Σ</span><sub>n=0</sub><sup>∞</sup> n! x<sup>n</sup></span> 的收敛域。</p>
+<p class="expl-s"><b>解</b>　用比值法判绝对收敛：<span class="fm"><span class="fr"><span class="n">|u<sub>n+1</sub>|</span><span class="d">|u<sub>n</sub>|</span></span> = (n+1)|x| → +∞　(x ≠ 0)</span>，只要 x ≠ 0，比值就大于 1，级数发散；<span class="fm">x = 0</span> 时每项为 0，级数收敛。</p>
+<p class="expl-s">故 R = 0，收敛域是单点集 <span class="fm">{0}</span>。</p>
+<p class="expl-t">R = 0 与 R = +∞ 都是正常答案。反过来 <span class="fm"><span class="op">Σ</span>x<sup>n</sup>/n!</span> 的 <span class="fm">R = +∞</span>，收敛域是整个数轴，逐项求导积分照样成立。</p>
+</div>
+
+<h4 class="expl-h">七、常考套路与易错</h4>
+<p>幂级数这一节的题，八成是「求收敛域」，两成是「已知收敛域反求参数」。套路固定：求 R → 写开区间 → 端点代入 → 结论。易错点集中在四处：漏判端点；缺项级数硬套 <span class="fm">R = lim|a<sub>n</sub>/a<sub>n+1</sub>|</span>；把「收敛区间」与「收敛域」混为一谈（前者是开区间，后者含端点信息）；逐项求导后用新的收敛域代替原收敛域。下一节要反过来用：已知展开式，通过逐项求导、积分得到新的展开式，那里的合法性正是本节的性质保证的。</p>
+</div><!--/EXPL:m13-s4-->
+
+<!--EXPL:m13-s5--><div class="explain" data-expl="m13-s5">
+<h4 class="expl-h">一、直观引入：把函数换成多项式</h4>
+<p>上册学过泰勒公式：函数在一点附近可以用多项式逼近。如果把这个多项式的次数取到无穷，就成了幂级数。一旦函数被写成幂级数，求导、积分、近似计算、解微分方程全都变成对多项式逐项操作——这是级数理论最实用的出口。</p>
+<p>问题是：任何一个函数都能这样展开吗？系数怎么定？展开式唯一吗？本节回答这三个问题，并给出五个必须背熟的展开式。</p>
+
+<h4 class="expl-h">二、泰勒级数：系数唯一与收敛条件</h4>
+<p>设 <span class="fm">f(x)</span> 在 <span class="fm">x<sub>0</sub></span> 的某邻域内能展开成幂级数</p>
+<p><span class="fm">f(x) = <span class="op">Σ</span><sub>n=0</sub><sup>∞</sup> a<sub>n</sub>(x − x<sub>0</sub>)<sup>n</sup></span></p>
+<p>则逐项求导 n 次后令 <span class="fm">x = x<sub>0</sub></span>，得 <span class="fm">f<sup>(n)</sup>(x<sub>0</sub>) = n! a<sub>n</sub></span>，即</p>
+<p><span class="fm">a<sub>n</sub> = <span class="fr"><span class="n">f<sup>(n)</sup>(x<sub>0</sub>)</span><span class="d">n!</span></span></span></p>
+<p>这说明<b>展开式若存在则唯一</b>，且系数由 f 在一点处的各阶导数决定。用这组系数写出的级数叫 <span class="fm">f</span> 的<b>泰勒级数</b>（<span class="fm">x<sub>0</sub> = 0</span> 时叫麦克劳林级数）。</p>
+<p>但「写出泰勒级数」不等于「它收敛到 f」。把 f 与其 n 次泰勒多项式之差记为余项 <span class="fm">R<sub>n</sub>(x)</span>，则</p>
+<p><span class="fm">f 能展开成泰勒级数 ⟺ <span class="lm">lim<span class="s">n→∞</span></span> R<sub>n</sub>(x) = 0</span></p>
+<p>这个条件在收敛区间内成立，才是展开合法的依据。直接法就是「算系数 + 验余项」，实际很少用，因为求高阶导数往往算不动。</p>
+
+<h4 class="expl-h">三、五个必须脱口而出的展开式</h4>
+<p><span class="fm"><span class="fr"><span class="n">1</span><span class="d">1 − x</span></span> = 1 + x + x<sup>2</sup> + … = <span class="op">Σ</span><sub>n=0</sub><sup>∞</sup> x<sup>n</sup>　(|x| &lt; 1)</span></p>
+<p><span class="fm">e<sup>x</sup> = <span class="op">Σ</span><sub>n=0</sub><sup>∞</sup> <span class="fr"><span class="n">x<sup>n</sup></span><span class="d">n!</span></span>　(−∞ &lt; x &lt; +∞)</span></p>
+<p><span class="fm">sin x = <span class="op">Σ</span><sub>n=0</sub><sup>∞</sup> <span class="fr"><span class="n">(−1)<sup>n</sup>x<sup>2n+1</sup></span><span class="d">(2n + 1)!</span></span>　(−∞ &lt; x &lt; +∞)</span></p>
+<p><span class="fm">cos x = <span class="op">Σ</span><sub>n=0</sub><sup>∞</sup> <span class="fr"><span class="n">(−1)<sup>n</sup>x<sup>2n</sup></span><span class="d">(2n)!</span></span>　(−∞ &lt; x &lt; +∞)</span></p>
+<p><span class="fm">ln(1 + x) = <span class="op">Σ</span><sub>n=1</sub><sup>∞</sup> <span class="fr"><span class="n">(−1)<sup>n−1</sup>x<sup>n</sup></span><span class="d">n</span></span> = x − <span class="fr"><span class="n">x<sup>2</sup></span><span class="d">2</span></span> + <span class="fr"><span class="n">x<sup>3</sup></span><span class="d">3</span></span> − …　(−1 &lt; x ≤ 1)</span></p>
+<p><span class="fm">(1 + x)<sup>α</sup> = 1 + αx + <span class="fr"><span class="n">α(α − 1)</span><span class="d">2!</span></span>x<sup>2</sup> + …　(|x| &lt; 1)</span></p>
+<p>第一式是全章的「母式」，其余都可以由它通过代换、求导、积分得到。注意 <span class="fm">ln(1 + x)</span> 的收敛域左端开、右端闭，这个细节常在端点讨论题里出现。</p>
+
+<h4 class="expl-h">四、间接法：三种基本动作</h4>
+<p>既然展开式唯一，就不必每次都用泰勒公式，只要把待求式变形成已知式即可。手段只有三类：</p>
+<ul>
+<li><b>代换</b>　把 x 换成 <span class="fm">−x</span>、<span class="fm">x<sup>2</sup></span>、<span class="fm">2x</span>、<span class="fm">x − 1</span> 等，收敛域随之变换；</li>
+<li><b>四则运算</b>　乘常数、加减、乘除多项式，两个级数相加减时收敛域取交集；</li>
+<li><b>逐项求导 / 逐项积分</b>　对已知展开式操作，收敛半径不变，端点需另判。</li>
+</ul>
+<p>做完全部变形，最后补一句「由展开式的唯一性，此即所求」，答案才算完整。</p>
+
+<h4 class="expl-h">五、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b>　把 <span class="fm">f(x) = <span class="fr"><span class="n">1</span><span class="d">2 + x</span></span></span> 展开成 x 的幂级数。</p>
+<p class="expl-s"><b>解</b>　先提常数，把分母化成 <span class="fm">1 − t</span> 的形状：</p>
+<p class="expl-s"><span class="fm"><span class="fr"><span class="n">1</span><span class="d">2 + x</span></span> = <span class="fr"><span class="n">1</span><span class="d">2</span></span> · <span class="fr"><span class="n">1</span><span class="d">1 + x/2</span></span> = <span class="fr"><span class="n">1</span><span class="d">2</span></span> · <span class="fr"><span class="n">1</span><span class="d">1 − (−x/2)</span></span></span></p>
+<p class="expl-s">对 <span class="fm">t = −x/2</span> 用母式，得</p>
+<p class="expl-s"><span class="fm"><span class="fr"><span class="n">1</span><span class="d">2 + x</span></span> = <span class="fr"><span class="n">1</span><span class="d">2</span></span> <span class="op">Σ</span><sub>n=0</sub><sup>∞</sup> (−<span class="fr"><span class="n">x</span><span class="d">2</span></span>)<sup>n</sup> = <span class="op">Σ</span><sub>n=0</sub><sup>∞</sup> <span class="fr"><span class="n">(−1)<sup>n</sup>x<sup>n</sup></span><span class="d">2<sup>n+1</sup></span></span>　(|x| &lt; 2)</span></p>
+<p class="expl-t">收敛域由 <span class="fm">|t| &lt; 1</span> 即 <span class="fm">|x/2| &lt; 1</span> 解出，不能照抄 <span class="fm">|x| &lt; 1</span>。端点 <span class="fm">x = ±2</span> 时通项不趋于 0，故开区间就是最终答案。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b>　用积分法推出 <span class="fm">ln(1 + x)</span> 的展开式，并讨论端点 <span class="fm">x = 1</span>。</p>
+<p class="expl-s"><b>解</b>　在母式中令 <span class="fm">x → −x</span>：<span class="fm"><span class="fr"><span class="n">1</span><span class="d">1 + x</span></span> = <span class="op">Σ</span><sub>n=0</sub><sup>∞</sup> (−1)<sup>n</sup>x<sup>n</sup>　(|x| &lt; 1)</span>。两边从 0 到 x 逐项积分：</p>
+<p class="expl-s"><span class="fm">ln(1 + x) = <span class="op">∫</span><sub>0</sub><sup>x</sup> <span class="fr"><span class="n">1</span><span class="d">1 + t</span></span> dt = <span class="op">Σ</span><sub>n=0</sub><sup>∞</sup> <span class="fr"><span class="n">(−1)<sup>n</sup>x<sup>n+1</sup></span><span class="d">n + 1</span></span> = <span class="op">Σ</span><sub>n=1</sub><sup>∞</sup> <span class="fr"><span class="n">(−1)<sup>n−1</sup>x<sup>n</sup></span><span class="d">n</span></span>　(|x| &lt; 1)</span></p>
+<p class="expl-s">端点 <span class="fm">x = 1</span>：右边是 <span class="fm">1 − 1/2 + 1/3 − …</span>，交错且 1/n 递减趋于 0，收敛；左边 <span class="fm">ln 2</span> 有限，故展开式在 <span class="fm">x = 1</span> 也成立。端点 <span class="fm">x = −1</span>：右边为 <span class="fm">−<span class="op">Σ</span>1/n</span>，发散。最终 <span class="fm">−1 &lt; x ≤ 1</span>。</p>
+<p class="expl-t">逐项积分后一定要回代端点重判，这正是第四节「端点可能变」的具体体现。同时得到著名等式 <span class="fm">ln 2 = 1 − 1/2 + 1/3 − …</span>。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b>　把 <span class="fm">f(x) = e<sup>−x<sup>2</sup></sup></span> 展开成幂级数，并写出 <span class="fm"><span class="op">∫</span><sub>0</sub><sup>1</sup> e<sup>−x<sup>2</sup></sup>dx</span> 的级数表示。</p>
+<p class="expl-s"><b>解</b>　在 <span class="fm">e<sup>t</sup> = <span class="op">Σ</span>t<sup>n</sup>/n!</span> 中令 <span class="fm">t = −x<sup>2</sup></span>：</p>
+<p class="expl-s"><span class="fm">e<sup>−x<sup>2</sup></sup> = <span class="op">Σ</span><sub>n=0</sub><sup>∞</sup> <span class="fr"><span class="n">(−1)<sup>n</sup>x<sup>2n</sup></span><span class="d">n!</span></span>　(−∞ &lt; x &lt; +∞)</span></p>
+<p class="expl-s">在 <span class="fm">[0, 1]</span> 上逐项积分（收敛域是整个数轴，合法）：</p>
+<p class="expl-s"><span class="fm"><span class="op">∫</span><sub>0</sub><sup>1</sup> e<sup>−x<sup>2</sup></sup>dx = <span class="op">Σ</span><sub>n=0</sub><sup>∞</sup> <span class="fr"><span class="n">(−1)<sup>n</sup></span><span class="d">n!(2n + 1)</span></span></span></p>
+<p class="expl-t">这个积分没有初等原函数，只有级数表示——它是「用级数做积分」的标准范例。取前几项即可得近似值，误差由交错级数余项控制，这是第六节的内容。</p>
+</div>
+
+<h4 class="expl-h">六、常考套路与易错</h4>
+<p>题型只有三种：直接展开（给函数求级数）、反求（给级数求和函数，第六节）、求某点的高阶导数（用 <span class="fm">a<sub>n</sub> = f<sup>(n)</sup>(0)/n!</span> 反推）。易错点：写完级数忘写收敛区间；把 <span class="fm">1/(2 + x)</span> 这类直接套 <span class="fm">|x| &lt; 1</span>；两个展开式相加不取收敛域交集；逐项积分或求导后不重判端点。另外，含 <span class="fm">x<sup>2</sup></span> 的代换要保持级数只含偶次项，不要「补」出奇次项。</p>
+</div><!--/EXPL:m13-s5-->
+
+<!--EXPL:m13-s6--><div class="explain" data-expl="m13-s6">
+<h4 class="expl-h">一、直观引入：级数是台「变形机器」</h4>
+<p>第五节解决的是「函数 → 级数」，本节反过来：给一个幂级数，求它的和函数。表面上是求和，实质上是<b>变形</b>——把陌生的级数通过逐项求导或逐项积分，变成熟悉的几何级数，算出结果后再按相反方向还原。所以这一节不考新定理，考的是对「操作顺序」的判断。</p>
+
+<h4 class="expl-h">二、求和函数的五步法</h4>
+<ol>
+<li><b>先求收敛域</b>。和函数只在收敛域内成立，这一步不能省，也是最后答案的组成部分。</li>
+<li><b>看系数决定动作</b>：系数含 n（或 n 的幂），说明它是求导「长出来」的，应当<b>先积分</b>把它消掉；系数含 <span class="fm">1/n</span>、<span class="fm">1/(n + 1)</span>，说明它是积分「长出来」的，应当<b>先求导</b>。</li>
+<li><b>凑成母级数</b> <span class="fm"><span class="op">Σ</span>t<sup>n</sup></span> 的形状（t 可以是 x、x<sup>2</sup>、x/2 等），必要时提出常数因子或补项。</li>
+<li><b>用公式求和</b>：<span class="fm"><span class="op">Σ</span><sub>n=0</sub><sup>∞</sup> t<sup>n</sup> = <span class="fr"><span class="n">1</span><span class="d">1 − t</span></span></span>。</li>
+<li><b>还原并写定义域</b>：把第 2 步的操作反向做一遍，注明 <span class="fm">|x| &lt; R</span>。</li>
+</ol>
+<p>这套流程之所以合法，是因为第四节已证明：在收敛区间内逐项求导、逐项积分不改变收敛半径。</p>
+
+<h4 class="expl-h">三、母级数与常用派生结果</h4>
+<p><span class="fm"><span class="op">Σ</span><sub>n=0</sub><sup>∞</sup> x<sup>n</sup> = <span class="fr"><span class="n">1</span><span class="d">1 − x</span></span>　(|x| &lt; 1)</span></p>
+<p>对它逐项求导：<span class="fm"><span class="op">Σ</span><sub>n=1</sub><sup>∞</sup> n x<sup>n−1</sup> = <span class="fr"><span class="n">1</span><span class="d">(1 − x)<sup>2</sup></span></span></span>，两边乘 x 得</p>
+<p><span class="fm"><span class="op">Σ</span><sub>n=1</sub><sup>∞</sup> n x<sup>n</sup> = <span class="fr"><span class="n">x</span><span class="d">(1 − x)<sup>2</sup></span></span>　(|x| &lt; 1)</span></p>
+<p>对它逐项积分：<span class="fm"><span class="op">Σ</span><sub>n=1</sub><sup>∞</sup> <span class="fr"><span class="n">x<sup>n</sup></span><span class="d">n</span></span> = −ln(1 − x)</span>；再乘除 x 可得 <span class="fm"><span class="op">Σ</span><sub>n=0</sub><sup>∞</sup> <span class="fr"><span class="n">x<sup>n</sup></span><span class="d">n + 1</span></span> = −<span class="fr"><span class="n">ln(1 − x)</span><span class="d">x</span></span></span>。再对 <span class="fm"><span class="op">Σ</span>nx<sup>n</sup></span> 的式子求导，还能得到 <span class="fm"><span class="op">Σ</span>n<sup>2</sup>x<sup>n</sup></span> 一类。把这两条派生式记住，大半题目就是「认出它属于哪一类」。</p>
+
+<h4 class="expl-h">四、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b>　求 <span class="fm"><span class="op">Σ</span><sub>n=1</sub><sup>∞</sup> n x<sup>n</sup></span> 的和函数。</p>
+<p class="expl-s"><b>解</b>　<b>第一步</b>，收敛半径：<span class="fm">a<sub>n</sub> = n</span>，<span class="fm">R = <span class="lm">lim<span class="s">n→∞</span></span> <span class="fr"><span class="n">n</span><span class="d">n + 1</span></span> = 1</span>；<span class="fm">x = ±1</span> 时通项 <span class="fm">nx<sup>n</sup></span> 不趋于 0，发散。故收敛域为 <span class="fm">(−1, 1)</span>。</p>
+<p class="expl-s"><b>第二步</b>，系数是 n，先积分：设 <span class="fm">S(x) = <span class="op">Σ</span>nx<sup>n</sup></span>，则在 <span class="fm">(−1,1)</span> 内</p>
+<p class="expl-s"><span class="fm"><span class="op">∫</span><sub>0</sub><sup>x</sup> S(t)dt = <span class="op">Σ</span><sub>n=1</sub><sup>∞</sup> <span class="fr"><span class="n">n t<sup>n+1</sup></span><span class="d">n + 1</span></span></span></p>
+<p class="expl-s">这样并不能直接求和，说明「先积分」不是机械照搬。更省力的做法是<b>先拆出已知式</b>：由 <span class="fm"><span class="op">Σ</span>x<sup>n</sup> = <span class="fr"><span class="n">1</span><span class="d">1 − x</span></span></span> 求导得 <span class="fm"><span class="op">Σ</span>n x<sup>n−1</sup> = <span class="fr"><span class="n">1</span><span class="d">(1 − x)<sup>2</sup></span></span></span>，两边乘 x：</p>
+<p class="expl-s"><span class="fm">S(x) = x <span class="op">Σ</span>n x<sup>n−1</sup> = <span class="fr"><span class="n">x</span><span class="d">(1 − x)<sup>2</sup></span></span>　(|x| &lt; 1)</span></p>
+<p class="expl-t">关键判断：<span class="fm">nx<sup>n</sup></span> 可以看成 <span class="fm">x · (x<sup>n</sup>)′</span>，因此不必真去积分再还原，「乘 x 凑出导数」更快。做题时先看系数能否拆成 n 与 x<sup>n</sup> 的组合，别急着套流程。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b>　利用例 1 求数项级数 <span class="fm"><span class="op">Σ</span><sub>n=1</sub><sup>∞</sup> <span class="fr"><span class="n">n</span><span class="d">2<sup>n</sup></span></span></span> 的和。</p>
+<p class="expl-s"><b>解</b>　这是例 1 的和函数在 <span class="fm">x = <span class="fr"><span class="n">1</span><span class="d">2</span></span></span> 处的值，而 <span class="fm">x = 1/2</span> 落在收敛区间 <span class="fm">(−1, 1)</span> 内，可以代入：</p>
+<p class="expl-s"><span class="fm"><span class="op">Σ</span><sub>n=1</sub><sup>∞</sup> <span class="fr"><span class="n">n</span><span class="d">2<sup>n</sup></span></span> = S(<span class="fr"><span class="n">1</span><span class="d">2</span></span>) = <span class="fr"><span class="n">1/2</span><span class="d">(1 − 1/2)<sup>2</sup></span></span> = 2</span></p>
+<p class="expl-t">这类「先求和函数、再代点」的题是本章最常见的计算题。代点前必须确认该点在收敛域内；若在端点，还得单独讨论收敛性（如用阿贝尔定理说明和函数在端点单侧连续）。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b>　求 <span class="fm"><span class="op">Σ</span><sub>n=0</sub><sup>∞</sup> (n + 1)x<sup>n</sup></span> 的和函数，并求 <span class="fm"><span class="op">Σ</span><sub>n=0</sub><sup>∞</sup> <span class="fr"><span class="n">n + 1</span><span class="d">3<sup>n</sup></span></span></span>。</p>
+<p class="expl-s"><b>解</b>　注意 <span class="fm"><span class="op">Σ</span><sub>n=0</sub><sup>∞</sup> (n + 1)x<sup>n</sup> = (<span class="op">Σ</span><sub>n=0</sub><sup>∞</sup> x<sup>n+1</sup>)′ = (<span class="fr"><span class="n">x</span><span class="d">1 − x</span></span>)′</span>，故</p>
+<p class="expl-s"><span class="fm"><span class="op">Σ</span><sub>n=0</sub><sup>∞</sup> (n + 1)x<sup>n</sup> = <span class="fr"><span class="n">1</span><span class="d">(1 − x)<sup>2</sup></span></span>　(|x| &lt; 1)</span></p>
+<p class="expl-s">取 <span class="fm">x = <span class="fr"><span class="n">1</span><span class="d">3</span></span></span>（在收敛区间内），得 <span class="fm"><span class="op">Σ</span><sub>n=0</sub><sup>∞</sup> <span class="fr"><span class="n">n + 1</span><span class="d">3<sup>n</sup></span></span> = <span class="fr"><span class="n">1</span><span class="d">(2/3)<sup>2</sup></span></span> = <span class="fr"><span class="n">9</span><span class="d">4</span></span></span>。</p>
+<p class="expl-t">「先求和函数，再代值」比直接凑数项级数快得多。注意 <span class="fm">(<span class="fr"><span class="n">x</span><span class="d">1 − x</span></span>)′</span> 这一步把 <span class="fm">x<sup>n+1</sup></span> 的导数 <span class="fm">(n+1)x<sup>n</sup></span> 恰好还原了系数，这是「凑导数」的典型。</p>
+</div>
+
+<h4 class="expl-h">五、近似计算</h4>
+<p>级数的第二个用途是算数值。思路是把函数展开，取前几项作近似，再用余项估误差。两种常用估计：交错级数用 <span class="fm">|r<sub>n</sub>| ≤ u<sub>n+1</sub></span>（莱布尼茨型，最简单）；一般幂级数用拉格朗日余项 <span class="fm">|R<sub>n</sub>(x)| ≤ <span class="fr"><span class="n">M|x − x<sub>0</sub>|<sup>n+1</sup></span><span class="d">(n + 1)!</span></span></span>。</p>
+<div class="expl-eg">
+<p class="expl-q"><b>例 4</b>　用级数计算 <span class="fm">ln 1.2</span>，精确到 <span class="fm">10<sup>−4</sup></span>。</p>
+<p class="expl-s"><b>解</b>　取 <span class="fm">x = 0.2</span>，由 <span class="fm">ln(1 + x) = x − <span class="fr"><span class="n">x<sup>2</sup></span><span class="d">2</span></span> + <span class="fr"><span class="n">x<sup>3</sup></span><span class="d">3</span></span> − <span class="fr"><span class="n">x<sup>4</sup></span><span class="d">4</span></span> + …</span>，各项依次为</p>
+<p class="expl-s"><span class="fm">0.2，−0.02，0.002667，−0.0004，0.000064，…</span></p>
+<p class="expl-s">这是交错级数，余项不超过下一项的绝对值。取前 4 项，余项 <span class="fm">≤ 0.000064 &lt; 10<sup>−4</sup></span>，满足精度；于是</p>
+<p class="expl-s"><span class="fm">ln 1.2 ≈ 0.2 − 0.02 + 0.002667 − 0.0004 = 0.1823</span></p>
+<p class="expl-t">要说明「为什么取到这里就够」——必须写出余项估计，只给数值不给误差说明是常见扣分点。x 越接近 0 收敛越快，所以算 <span class="fm">ln 1.2</span> 比算 <span class="fm">ln 5</span> 合适得多（后者要先变形）。</p>
+</div>
+
+<h4 class="expl-h">六、微分方程的幂级数解</h4>
+<p>对变系数方程，初等解法往往失效，但设 <span class="fm">y = <span class="op">Σ</span><sub>n=0</sub><sup>∞</sup> a<sub>n</sub>x<sup>n</sup></span> 代入、比较同次幂系数，一定能得到系数的递推关系。步骤是：设解 → 求导代入 → 同次幂合并 → 比较系数得递推 → 由初始条件定出前几项 → 写出级数（能认出来就写成初等函数）。</p>
+<div class="expl-eg">
+<p class="expl-q"><b>例 5</b>　求 <span class="fm">y″ + y = 0</span>，<span class="fm">y(0) = 1</span>，<span class="fm">y′(0) = 0</span> 的幂级数解。</p>
+<p class="expl-s"><b>解</b>　设 <span class="fm">y = <span class="op">Σ</span><sub>n=0</sub><sup>∞</sup> a<sub>n</sub>x<sup>n</sup></span>，则 <span class="fm">y″ = <span class="op">Σ</span><sub>n=0</sub><sup>∞</sup> (n + 2)(n + 1)a<sub>n+2</sub>x<sup>n</sup></span>。代入方程并合并同次幂：</p>
+<p class="expl-s"><span class="fm"><span class="op">Σ</span><sub>n=0</sub><sup>∞</sup> [(n + 2)(n + 1)a<sub>n+2</sub> + a<sub>n</sub>] x<sup>n</sup> = 0</span></p>
+<p class="expl-s">比较系数得 <span class="fm">a<sub>n+2</sub> = −<span class="fr"><span class="n">a<sub>n</sub></span><span class="d">(n + 1)(n + 2)</span></span></span>。由初值 <span class="fm">a<sub>0</sub> = 1, a<sub>1</sub> = 0</span>，递推得 <span class="fm">a<sub>2</sub> = −1/2, a<sub>3</sub> = 0, a<sub>4</sub> = 1/24, a<sub>5</sub> = 0</span>，即</p>
+<p class="expl-s"><span class="fm">y = 1 − <span class="fr"><span class="n">x<sup>2</sup></span><span class="d">2!</span></span> + <span class="fr"><span class="n">x<sup>4</sup></span><span class="d">4!</span></span> − … = cos x</span></p>
+<p class="expl-t">比较系数时要把所有级数的下标统一成同一个 x<sup>n</sup>，这是最容易出错的地方；认出结果是 cos x 后要写一句「与已知初等解一致」作验证。</p>
+</div>
+
+<h4 class="expl-h">七、常考套路与易错</h4>
+<p>本节三类题：求和函数（必考）、数项级数求和（由和函数代点）、近似计算或级数解（偶考）。易错点：漏写收敛域；求导与积分方向搞反（含 n 先积分、含 1/n 先求导，但要先看能否直接凑导数，如例 1）；代点时没检查该点是否在收敛域内；近似计算不写误差估计；解微分方程时没把下标对齐导致递推写错。最后提醒一句：和函数的定义域永远由<b>原级数</b>决定，逐项求导或积分后范围可能变大，不能用扩大后的范围。</p>
+</div><!--/EXPL:m13-s6-->
+
+<!--EXPL:m13-s7--><div class="explain" data-expl="m13-s7">
+<h4 class="expl-h">一、直观引入：为什么用正弦和余弦</h4>
+<p>幂级数在一点附近逼近函数，是「局部」的工具；但如果研究对象本身是周期现象——琴弦的振动、交流电、热传导中的温度分布——我们希望用来表示它的「积木」也具有同样的周期。最简单的周期函数就是 <span class="fm">sin nx</span> 与 <span class="fm">cos nx</span>，它们的周期都是 <span class="fm">2π/n</span> 的整数倍，叠加起来仍是 2π 周期。傅里叶的断言是：相当广的一类 2π 周期函数，都能写成这种叠加。</p>
+<p>与幂级数相比，这里没有「在一点展开」的概念，系数由<b>整个区间上的积分</b>决定。这件事之所以可行，全靠三角函数系的正交性。</p>
+
+<h4 class="expl-h">二、三角函数系的正交性</h4>
+<p>函数系 <span class="fm">1, cos x, sin x, cos 2x, sin 2x, …, cos nx, sin nx, …</span> 在 <span class="fm">[−π, π]</span> 上满足：任意两个不同函数的乘积在该区间上积分为零；而每个函数与自身相乘的积分为</p>
+<p><span class="fm"><span class="op">∫</span><sub>−π</sub><sup>π</sup> 1 dx = 2π，　<span class="op">∫</span><sub>−π</sub><sup>π</sup> cos<sup>2</sup>nx dx = <span class="op">∫</span><sub>−π</sub><sup>π</sup> sin<sup>2</sup>nx dx = π</span></p>
+<p>正交性的来源是积化和差公式：<span class="fm">cos mx cos nx = [cos(m+n)x + cos(m−n)x]/2</span>，在一个整周期上积分都为零。这套「正交 + 归一」的结构，和线性代数里的正交基完全同构，系数公式就是「投影」。</p>
+
+<h4 class="expl-h">三、傅里叶系数公式的推导</h4>
+<p>设 <span class="fm">f(x)</span> 以 2π 为周期，且可展开为</p>
+<p><span class="fm">f(x) = <span class="fr"><span class="n">a<sub>0</sub></span><span class="d">2</span></span> + <span class="op">Σ</span><sub>n=1</sub><sup>∞</sup> (a<sub>n</sub>cos nx + b<sub>n</sub>sin nx)</span></p>
+<p>并且可以逐项积分。两边在 <span class="fm">[−π, π]</span> 上积分，所有三角函数项积分为 0，只剩常数项：</p>
+<p><span class="fm"><span class="op">∫</span><sub>−π</sub><sup>π</sup> f(x)dx = <span class="fr"><span class="n">a<sub>0</sub></span><span class="d">2</span></span> · 2π ⟹ a<sub>0</sub> = <span class="fr"><span class="n">1</span><span class="d">π</span></span><span class="op">∫</span><sub>−π</sub><sup>π</sup> f(x)dx</span></p>
+<p>两边乘 <span class="fm">cos kx</span> 再积分，由正交性只剩 <span class="fm">a<sub>k</sub></span> 那一项：<span class="fm"><span class="op">∫</span><sub>−π</sub><sup>π</sup> f cos kx dx = a<sub>k</sub>π</span>，故</p>
+<p><span class="fm">a<sub>n</sub> = <span class="fr"><span class="n">1</span><span class="d">π</span></span><span class="op">∫</span><sub>−π</sub><sup>π</sup> f(x)cos nx dx　(n = 1, 2, …)</span></p>
+<p>同理乘 <span class="fm">sin kx</span> 积分，得</p>
+<p><span class="fm">b<sub>n</sub> = <span class="fr"><span class="n">1</span><span class="d">π</span></span><span class="op">∫</span><sub>−π</sub><sup>π</sup> f(x)sin nx dx　(n = 1, 2, …)</span></p>
+<p>注意常数项写成 <span class="fm">a<sub>0</sub>/2</span> 而不是 <span class="fm">a<sub>0</sub></span>，这样 <span class="fm">a<sub>0</sub></span> 的公式与 <span class="fm">a<sub>n</sub></span> 完全统一（形式上也对 n = 0 成立）。<span class="fm">a<sub>0</sub>/2</span> 恰好是 f 在一个周期上的平均值，这是理解它的最好角度。</p>
+
+<h4 class="expl-h">四、狄利克雷收敛定理</h4>
+<p><b>狄利克雷条件</b>　设 <span class="fm">f</span> 以 2π 为周期，若它在一个周期内（1）连续，或只有有限个第一类间断点；（2）只有有限个极值点，则 <span class="fm">f</span> 的傅里叶级数处处收敛，且和函数为</p>
+<ul>
+<li>在连续点 <span class="fm">x</span> 处，和等于 <span class="fm">f(x)</span>；</li>
+<li>在间断点 <span class="fm">x</span> 处，和等于 <span class="fm"><span class="fr"><span class="n">f(x<sup>−</sup>) + f(x<sup>+</sup>)</span><span class="d">2</span></span></span>（左右极限的平均值）；</li>
+<li>在 <span class="fm">x = ±π</span> 处，和等于 <span class="fm"><span class="fr"><span class="n">f(−π<sup>+</sup>) + f(π<sup>−</sup>)</span><span class="d">2</span></span></span>。</li>
+</ul>
+<p>所以傅里叶级数不一定收敛到 f 本身，它收敛到 f 的「修正版」：间断点被拉到中点。这也是为什么写展开式时用 <span class="fm">~</span>（或明确写出和函数的取值）而不直接写等号。</p>
+
+<h4 class="expl-h">五、奇偶性与正弦 / 余弦级数</h4>
+<p>若 <span class="fm">f</span> 是奇函数，则 <span class="fm">f cos nx</span> 是奇函数，在对称区间上积分为 0，故所有 <span class="fm">a<sub>n</sub> = 0</span>，只剩正弦项，称为<b>正弦级数</b>。若 <span class="fm">f</span> 是偶函数，则 <span class="fm">f sin nx</span> 是奇函数，所有 <span class="fm">b<sub>n</sub> = 0</span>，只剩余弦项，称为<b>余弦级数</b>。这一条能省掉一半积分，做题必须先看奇偶性。</p>
+<p>若 f 只定义在 <span class="fm">(0, π)</span> 上，可以自由选择延拓方式：作<b>奇延拓</b>（周期 2π）得正弦级数，<span class="fm">b<sub>n</sub> = <span class="fr"><span class="n">2</span><span class="d">π</span></span><span class="op">∫</span><sub>0</sub><sup>π</sup> f(x)sin nx dx</span>；作<b>偶延拓</b>得余弦级数，<span class="fm">a<sub>0</sub> = <span class="fr"><span class="n">2</span><span class="d">π</span></span><span class="op">∫</span><sub>0</sub><sup>π</sup> f(x)dx</span>，<span class="fm">a<sub>n</sub> = <span class="fr"><span class="n">2</span><span class="d">π</span></span><span class="op">∫</span><sub>0</sub><sup>π</sup> f(x)cos nx dx</span>。系数前变成 <span class="fm">2/π</span>，是因为区间长度减半、被积函数为偶函数使积分加倍，两处因子恰好抵消后还剩 2。</p>
+
+<h4 class="expl-h">六、周期为 2l 的一般情形</h4>
+<p>作换元 <span class="fm">t = πx/l</span>，把 <span class="fm">[−l, l]</span> 映成 <span class="fm">[−π, π]</span>，所有公式里的 <span class="fm">nx</span> 换成 <span class="fm">nπx/l</span>，<span class="fm">1/π</span> 换成 <span class="fm">1/l</span>：</p>
+<p><span class="fm">a<sub>n</sub> = <span class="fr"><span class="n">1</span><span class="d">l</span></span><span class="op">∫</span><sub>−l</sub><sup>l</sup> f(x)cos<span class="fr"><span class="n">nπx</span><span class="d">l</span></span>dx，　b<sub>n</sub> = <span class="fr"><span class="n">1</span><span class="d">l</span></span><span class="op">∫</span><sub>−l</sub><sup>l</sup> f(x)sin<span class="fr"><span class="n">nπx</span><span class="d">l</span></span>dx</span></p>
+<p>口诀：<b>1/π 换成 1/l，nx 换成 nπx/l，积分区间换成 [−l, l]</b>。周期为 2l 时 <span class="fm">a<sub>0</sub></span> 也一样换成 <span class="fm">1/l</span> 乘积分。照搬 <span class="fm">1/π</span> 是最常见的错。</p>
+
+<h4 class="expl-h">七、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b>　把 <span class="fm">f(x) = x</span>（<span class="fm">−π &lt; x &lt; π</span>）展开成傅里叶级数。</p>
+<p class="expl-s"><b>解</b>　f 是奇函数，故 <span class="fm">a<sub>n</sub> = 0</span>（n = 0, 1, 2, …），只算 b<sub>n</sub>，且可用 <span class="fm">2/π</span> 倍的半区间积分：</p>
+<p class="expl-s"><span class="fm">b<sub>n</sub> = <span class="fr"><span class="n">2</span><span class="d">π</span></span><span class="op">∫</span><sub>0</sub><sup>π</sup> x sin nx dx</span></p>
+<p class="expl-s">分部积分，取 <span class="fm">u = x, dv = sin nx dx</span>：<span class="fm"><span class="op">∫</span><sub>0</sub><sup>π</sup> x sin nx dx = [−<span class="fr"><span class="n">x cos nx</span><span class="d">n</span></span>]<sub>0</sub><sup>π</sup> + <span class="fr"><span class="n">1</span><span class="d">n</span></span><span class="op">∫</span><sub>0</sub><sup>π</sup> cos nx dx</span>。第二项 <span class="fm">= [sin nx/n<sup>2</sup>]<sub>0</sub><sup>π</sup> = 0</span>，第一项 <span class="fm">= −<span class="fr"><span class="n">π cos nπ</span><span class="d">n</span></span> = <span class="fr"><span class="n">π(−1)<sup>n+1</sup></span><span class="d">n</span></span></span>。故</p>
+<p class="expl-s"><span class="fm">b<sub>n</sub> = <span class="fr"><span class="n">2(−1)<sup>n+1</sup></span><span class="d">n</span></span>，　x = <span class="op">Σ</span><sub>n=1</sub><sup>∞</sup> <span class="fr"><span class="n">2(−1)<sup>n+1</sup></span><span class="d">n</span></span> sin nx　(−π &lt; x &lt; π)</span></p>
+<p class="expl-s">令 <span class="fm">x = π/2</span>，左边为 π/2，右边 <span class="fm">sin(nπ/2)</span> 只在 n 为奇数时取 <span class="fm">±1</span>，化简得 <span class="fm"><span class="fr"><span class="n">π</span><span class="d">4</span></span> = 1 − <span class="fr"><span class="n">1</span><span class="d">3</span></span> + <span class="fr"><span class="n">1</span><span class="d">5</span></span> − …</span></p>
+<p class="expl-t">奇函数必先看出 <span class="fm">a<sub>n</sub> = 0</span>，否则要白算两个积分。分部积分时 <span class="fm">cos nπ = (−1)<sup>n</sup></span> 要写出来，不要留成 <span class="fm">cos nπ</span>。另外 <span class="fm">x = ±π</span> 处级数和为 0，不等于 f 的值，所以展开区间写开区间。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b>　把 <span class="fm">f(x) = x<sup>2</sup></span>（<span class="fm">−π ≤ x ≤ π</span>）展开成傅里叶级数，并由此求 <span class="fm"><span class="op">Σ</span>1/n<sup>2</sup></span>。</p>
+<p class="expl-s"><b>解</b>　f 是偶函数，故 <span class="fm">b<sub>n</sub> = 0</span>。先算常数项：</p>
+<p class="expl-s"><span class="fm">a<sub>0</sub> = <span class="fr"><span class="n">2</span><span class="d">π</span></span><span class="op">∫</span><sub>0</sub><sup>π</sup> x<sup>2</sup>dx = <span class="fr"><span class="n">2π<sup>2</sup></span><span class="d">3</span></span></span></p>
+<p class="expl-s">再算 <span class="fm">a<sub>n</sub></span>，两次分部积分：<span class="fm"><span class="op">∫</span><sub>0</sub><sup>π</sup> x<sup>2</sup>cos nx dx = [<span class="fr"><span class="n">x<sup>2</sup>sin nx</span><span class="d">n</span></span> + <span class="fr"><span class="n">2x cos nx</span><span class="d">n<sup>2</sup></span></span> − <span class="fr"><span class="n">2 sin nx</span><span class="d">n<sup>3</sup></span></span>]<sub>0</sub><sup>π</sup> = <span class="fr"><span class="n">2π(−1)<sup>n</sup></span><span class="d">n<sup>2</sup></span></span></span>，故</p>
+<p class="expl-s"><span class="fm">a<sub>n</sub> = <span class="fr"><span class="n">2</span><span class="d">π</span></span>·<span class="fr"><span class="n">2π(−1)<sup>n</sup></span><span class="d">n<sup>2</sup></span></span> = <span class="fr"><span class="n">4(−1)<sup>n</sup></span><span class="d">n<sup>2</sup></span></span></span></p>
+<p class="expl-s">于是</p>
+<p class="expl-s"><span class="fm">x<sup>2</sup> = <span class="fr"><span class="n">π<sup>2</sup></span><span class="d">3</span></span> + <span class="op">Σ</span><sub>n=1</sub><sup>∞</sup> <span class="fr"><span class="n">4(−1)<sup>n</sup></span><span class="d">n<sup>2</sup></span></span> cos nx　(−π ≤ x ≤ π)</span></p>
+<p class="expl-s">令 <span class="fm">x = π</span>，得 <span class="fm">π<sup>2</sup> = <span class="fr"><span class="n">π<sup>2</sup></span><span class="d">3</span></span> + 4<span class="op">Σ</span><sub>n=1</sub><sup>∞</sup> <span class="fr"><span class="n">1</span><span class="d">n<sup>2</sup></span></span></span>，解得</p>
+<p class="expl-s"><span class="fm"><span class="op">Σ</span><sub>n=1</sub><sup>∞</sup> <span class="fr"><span class="n">1</span><span class="d">n<sup>2</sup></span></span> = <span class="fr"><span class="n">π<sup>2</sup></span><span class="d">6</span></span></span></p>
+<p class="expl-t">这是傅里叶级数最经典的应用：用级数算 π<sup>2</sup>/6。代点时选使 <span class="fm">cos nπ = (−1)<sup>n</sup></span> 与 <span class="fm">(−1)<sup>n</sup></span> 相乘全为正的 x，才能得到同号级数，这需要事先想清楚。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b>　把 <span class="fm">f(x) = π − x</span>（<span class="fm">0 &lt; x &lt; π</span>）展开成正弦级数。</p>
+<p class="expl-s"><b>解</b>　作奇延拓，则 <span class="fm">a<sub>n</sub> = 0</span>，<span class="fm">b<sub>n</sub> = <span class="fr"><span class="n">2</span><span class="d">π</span></span><span class="op">∫</span><sub>0</sub><sup>π</sup> (π − x)sin nx dx</span>。分别算两个积分：</p>
+<p class="expl-s"><span class="fm"><span class="op">∫</span><sub>0</sub><sup>π</sup> π sin nx dx = <span class="fr"><span class="n">π(1 − (−1)<sup>n</sup>)</span><span class="d">n</span></span>，　<span class="op">∫</span><sub>0</sub><sup>π</sup> x sin nx dx = <span class="fr"><span class="n">π(−1)<sup>n+1</sup></span><span class="d">n</span></span></span></p>
+<p class="expl-s">相减得 <span class="fm"><span class="op">∫</span><sub>0</sub><sup>π</sup> (π − x)sin nx dx = <span class="fr"><span class="n">π</span><span class="d">n</span></span></span>，故 <span class="fm">b<sub>n</sub> = <span class="fr"><span class="n">2</span><span class="d">n</span></span></span>，即</p>
+<p class="expl-s"><span class="fm">π − x = <span class="op">Σ</span><sub>n=1</sub><sup>∞</sup> <span class="fr"><span class="n">2</span><span class="d">n</span></span> sin nx　(0 &lt; x &lt; π)</span></p>
+<p class="expl-t">奇延拓后 <span class="fm">f</span> 在 <span class="fm">x = 0</span> 处值为 0，而原函数 <span class="fm">π − x</span> 在 0 处为 π，所以展开区间只能写 <span class="fm">(0, π)</span>，端点不在等式内。这是延拓类题目必然涉及的细节。</p>
+</div>
+
+<h4 class="expl-h">八、常考套路与易错</h4>
+<p>题型：给 f 求展开式（含奇偶简化、延拓、求系数）、给级数求和（代特殊点得 π<sup>2</sup>/6 一类）、判断和函数在间断点的值。易错点：常数项写成 <span class="fm">a<sub>0</sub></span> 而不是 <span class="fm">a<sub>0</sub>/2</span>；周期为 2l 时忘了把 <span class="fm">1/π</span> 改成 <span class="fm">1/l</span>；间断点、端点不取平均值而直接写 <span class="fm">f(x)</span>；正弦、余弦级数前面漏掉 2 倍的因子；延拓后在端点处级数和为 0（正弦）或平均值（余弦），与 f 的端点值可能不等，区间要写开区间。掌握这一节，也就完成了从「离散求和」到「连续展开」的最后一跳。</p>
+</div><!--/EXPL:m13-s7-->

@@ -1,0 +1,204 @@
+<!--EXPL:m11-s1--><div class="explain" data-expl="m11-s1">
+<h4 class="expl-h">一、这节解决什么问题</h4>
+<p>前面学的定积分是「在直线上累加」，二重积分是「在平面上累加」。工程上还常要沿一条<b>弯曲的线</b>累加：一根线密度不均匀的细铁丝有多重？把它分成 n 小段，第 i 段长记为 Δs<sub>i</sub>，密度近似取该段上一点 (ξ<sub>i</sub>, η<sub>i</sub>) 处的值 ρ(ξ<sub>i</sub>, η<sub>i</sub>)，则质量约等于 Σρ(ξ<sub>i</sub>, η<sub>i</sub>)Δs<sub>i</sub>。让每段都缩到零，这个和的极限就是「沿弧长累加」。被积函数取 1 时它退化为弧长，取线密度时它给出质量。这就是<b>对弧长的曲线积分</b>（第一类曲线积分）的来源。</p>
+
+<h4 class="expl-h">二、定义与性质</h4>
+<p>定义：设 L 是 xOy 面上一条光滑（或分段光滑）的曲线弧，函数 f(x, y) 在 L 上有界。把 L 任意分成 n 小段，第 i 段弧长记 Δs<sub>i</sub>，在其上任取一点 (ξ<sub>i</sub>, η<sub>i</sub>)，作和 Σf(ξ<sub>i</sub>, η<sub>i</sub>)Δs<sub>i</sub>。令 λ 为各小段弧长的最大值，若 λ→0 时该和式的极限存在，且与分法、取点方式都无关，则称之为 f 沿 L 的对弧长的曲线积分，记 <span class="fm"><span class="op">∫</span><sub>L</sub> f(x, y) ds</span>。当 f 在 L 上连续时这个积分一定存在。</p>
+<p>关键一点：Δs<sub>i</sub> 是弧长，<b>恒为正</b>，所以积分与 L 的走向无关，<span class="fm"><span class="op">∫</span><sub>AB</sub> f ds = <span class="op">∫</span><sub>BA</sub> f ds</span>。这是它与第二类曲线积分最根本的区别。</p>
+<p>性质与定积分类似：线性性；对弧段可加（L 分成 L<sub>1</sub>、L<sub>2</sub> 则积分相加）；保序性（f≤g 时 ∫f ds ≤ ∫g ds）；绝对值不等式 |∫f ds| ≤ ∫|f| ds；特取 f≡1 得 L 的弧长。几何意义：f≥0 时，积分值等于以 L 为准线、高为 f(x, y) 的「曲边柱面」面积。</p>
+<p>再强调一句物理含义：把 L 看成一根线密度为 ρ(x, y) 的细线，则 m = ∫<sub>L</sub>ρ ds 就是它的质量。若密度为常数 ρ<sub>0</sub>，质量退化为 ρ<sub>0</sub> 乘弧长，与「质量等于密度乘体积（长度）」的直观一致。</p>
+
+<h4 class="expl-h">三、怎么算：参数化</h4>
+<p>设 L 由参数方程 x=φ(t), y=ψ(t)（α≤t≤β）给出，φ、ψ 有连续导数且不同时为零。一小段弧长近似等于弦长：<span class="fm">Δs ≈ √((Δx)<sup>2</sup> + (Δy)<sup>2</sup>) = √(φ′<sup>2</sup>(t) + ψ′<sup>2</sup>(t)) Δt</span>，写成微分形式即 <span class="fm">ds = √(φ′<sup>2</sup> + ψ′<sup>2</sup>) dt</span>。于是</p>
+<p><span class="fm"><span class="op">∫</span><sub>L</sub> f(x, y) ds = <span class="op">∫</span><sub>α</sub><sup>β</sup> f(φ(t), ψ(t)) √(φ′<sup>2</sup> + ψ′<sup>2</sup>) dt</span></p>
+<p>注意<b>下限 α 必须小于上限 β</b>：ds 是正的量，化成定积分后不能靠「颠倒上下限」把负号消掉。</p>
+<p>严格一点说，由拉格朗日中值定理，第 i 小段的弧长可写成 Δs<sub>i</sub> = √(φ′<sup>2</sup>(τ<sub>i</sub>) + ψ′<sup>2</sup>(τ<sub>i</sub>)) Δt<sub>i</sub>，其中 τ<sub>i</sub> 介于该段两端参数之间；再由 f 的连续性与定积分的定义，和式的极限恰好是上面那个定积分。这也说明了为什么要求 φ、ψ 有连续导数：只有导数连续，被积函数才连续，积分才一定存在。</p>
+<p>四种常用特例：① y=y(x)，a≤x≤b 时 ds=√(1+y′<sup>2</sup>)dx；② x=x(y)，c≤y≤d 时 ds=√(1+x′<sup>2</sup>)dy；③ 极坐标 r=r(θ)，θ<sub>1</sub>≤θ<sub>2</sub> 时 ds=√(r<sup>2</sup> + r′<sup>2</sup>)dθ；④ 空间曲线 x=x(t), y=y(t), z=z(t) 时 ds=√(x′<sup>2</sup>+y′<sup>2</sup>+z′<sup>2</sup>)dt。另有一个省力技巧：<b>对称性</b>。若 L 关于 y 轴对称而 f 关于 x 为奇函数，则积分为 0；f 关于 x 为偶函数则等于半弧段上积分的 2 倍。</p>
+
+<h4 class="expl-h">四、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b> 计算 <span class="fm"><span class="op">∫</span><sub>L</sub> √y ds</span>，L 为抛物线 y=x<sup>2</sup> 上从 (0,0) 到 (1,1) 的一段。</p>
+<p class="expl-s"><b>解</b> 以 x 为参数，y=x<sup>2</sup>，y′=2x，故 ds=√(1+4x<sup>2</sup>)dx，x 从 0 到 1。在 L 上 y=x<sup>2</sup>≥0，所以 √y=|x|=x。于是
+<br>原式 = <span class="op">∫</span><sub>0</sub><sup>1</sup> x√(1+4x<sup>2</sup>) dx。
+<br>令 u=1+4x<sup>2</sup>，du=8x dx，x:0→1 对应 u:1→5：
+<br>原式 = (1/8)<span class="op">∫</span><sub>1</sub><sup>5</sup> u<sup>1/2</sup> du = (1/8)·(2/3)u<sup>3/2</sup>|<sub>1</sub><sup>5</sup> = (1/12)(5√5 − 1)。</p>
+<p class="expl-t">提醒：把 √y 化成 x 时要看清弧段上 x 的符号，若弧段跨到第二象限，必须写 |x| 并分段。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b> 计算 <span class="fm"><span class="op">∫</span><sub>L</sub> (x<sup>2</sup> + y<sup>2</sup>) ds</span>，L 为圆周 x<sup>2</sup> + y<sup>2</sup> = a<sup>2</sup>。</p>
+<p class="expl-s"><b>解</b> 参数化 x=a cos t，y=a sin t，0≤t≤2π。此时 x′=−a sin t，y′=a cos t，
+<br>ds = √(a<sup>2</sup>sin<sup>2</sup>t + a<sup>2</sup>cos<sup>2</sup>t) dt = a dt。
+<br>被积函数在 L 上恒等于 a<sup>2</sup>，于是原式 = <span class="op">∫</span><sub>0</sub><sup>2π</sup> a<sup>2</sup>·a dt = 2πa<sup>3</sup>。
+<br>验算：圆周长 2πa 乘常数 a<sup>2</sup>，正是 2πa<sup>3</sup>，结果合理。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b> 计算 <span class="fm"><span class="op">∫</span><sub>L</sub> z ds</span>，L 为螺旋线 x=a cos t，y=a sin t，z=kt，0≤t≤2π（a 为正数）。</p>
+<p class="expl-s"><b>解</b> 这是空间曲线。x′=−a sin t，y′=a cos t，z′=k，故
+<br>ds = √(a<sup>2</sup>sin<sup>2</sup>t + a<sup>2</sup>cos<sup>2</sup>t + k<sup>2</sup>) dt = √(a<sup>2</sup> + k<sup>2</sup>) dt。
+<br>原式 = √(a<sup>2</sup>+k<sup>2</sup>) <span class="op">∫</span><sub>0</sub><sup>2π</sup> kt dt = k√(a<sup>2</sup>+k<sup>2</sup>)·(2π)<sup>2</sup>/2 = 2π<sup>2</sup>k√(a<sup>2</sup>+k<sup>2</sup>)。</p>
+</div>
+
+<h4 class="expl-h">五、与后文的联系、易错提醒</h4>
+<p>第一类是「无方向的累加」，后面用它算质量、质心、转动惯量与弧长。第二类引入方向之后，两者由 <span class="fm"><span class="op">∫</span><sub>L</sub> P dx + Q dy = <span class="op">∫</span><sub>L</sub> (P cos α + Q cos β) ds</span> 沟通（cos α、cos β 为切向量的方向余弦）。</p>
+<p>易错点：① 化成定积分后随手把上下限倒过来「凑正」——不允许，第一类的限必须从小到大；② 忘记乘 √(x′<sup>2</sup>+y′<sup>2</sup>)，把 dx 当成 ds；③ 被积函数含 √y、√(1−x<sup>2</sup>) 一类式子时丢绝对值；④ 误以为 AB 与 BA 差一个负号——那是第二类而不是第一类。</p>
+</div><!--/EXPL:m11-s1-->
+
+<!--EXPL:m11-s2--><div class="explain" data-expl="m11-s2">
+<h4 class="expl-h">一、这节解决什么问题</h4>
+<p>第一类只累加「大小」，不管方向。但功是有方向的：变力 F 把质点沿曲线 L 从 A 推到 B，做的功等于力在位移方向上的分量乘位移。把 L 分成小段，第 i 段位移向量 Δr<sub>i</sub>=(Δx<sub>i</sub>, Δy<sub>i</sub>)，力近似取为 F(ξ<sub>i</sub>, η<sub>i</sub>)=(P, Q)，则该段功 ΔW<sub>i</sub> ≈ P(ξ<sub>i</sub>, η<sub>i</sub>)Δx<sub>i</sub> + Q(ξ<sub>i</sub>, η<sub>i</sub>)Δy<sub>i</sub>。求和取极限就得到 W = ∫<sub>L</sub> P dx + Q dy。这里 Δx<sub>i</sub> 可正可负，<b>方向信息就藏在 dx、dy 的符号里</b>。日常也能体会：把箱子沿直路推一段与沿弯道绕一圈，后者可能白费力气却净功为零，原因正是每小段位移方向不同、正负相消。</p>
+
+<h4 class="expl-h">二、定义、方向性与两类积分的关系</h4>
+<p>定义：设 L 是从点 A 到点 B 的有向光滑曲线弧，P(x, y) 在 L 上有界。分割、取点同上，若 ΣP(ξ<sub>i</sub>, η<sub>i</sub>)Δx<sub>i</sub> 在 λ→0 时的极限存在且与分法、取点无关，则称之为 P 沿 L 对坐标 x 的曲线积分，记 <span class="fm"><span class="op">∫</span><sub>L</sub> P(x, y) dx</span>；同理有 <span class="fm"><span class="op">∫</span><sub>L</sub> Q(x, y) dy</span>。两者之和 <span class="fm"><span class="op">∫</span><sub>L</sub> P dx + Q dy</span> 称为<b>第二类曲线积分</b>。P、Q 连续且 L 光滑时存在。</p>
+<p>向量形式：记 <b>F</b>=(P, Q)，d<b>r</b>=(dx, dy)，则积分为 <span class="fm"><span class="op">∫</span><sub>L</sub> <b>F</b>·d<b>r</b></span>。若 <b>τ</b>=(cos α, cos β) 是 L 上与走向一致的单位切向量，则</p>
+<p><span class="fm"><span class="op">∫</span><sub>L</sub> P dx + Q dy = <span class="op">∫</span><sub>L</sub> (P cos α + Q cos β) ds</span></p>
+<p>这条式子把两类积分接了起来：第二类等于第一类再乘方向余弦，两者的差别全在 cos α、cos β 的符号上。</p>
+<p>方向性：记 L<sup>−</sup> 为 L 的反向弧，则 <span class="fm"><span class="op">∫</span><sub>L<sup>−</sup></sub> P dx + Q dy = −<span class="op">∫</span><sub>L</sub> P dx + Q dy</span>，因为每个 Δx<sub>i</sub> 都变号。<b>这是第二类最容易丢分的地方。</b>若 L 是闭曲线，常记 ∮<sub>L</sub>；对平面区域 D 的边界，规定<b>正向</b>为逆时针方向（沿边界前进时 D 在左手边），顺时针为负向。</p>
+
+<h4 class="expl-h">三、怎么算：参数化</h4>
+<p>设 L：x=φ(t), y=ψ(t)，起点对应 t=α，终点对应 t=β（<b>不要求 α 小于 β</b>），则</p>
+<p><span class="fm"><span class="op">∫</span><sub>L</sub> P dx + Q dy = <span class="op">∫</span><sub>α</sub><sup>β</sup> [P(φ(t), ψ(t)) φ′(t) + Q(φ(t), ψ(t)) ψ′(t)] dt</span></p>
+<p>这个公式的妙处是：<b>下限一定写起点、上限一定写终点</b>，方向自动由 α、β 的大小关系承担，不必再另加负号。特例：y=y(x)、x 从 a 到 b 时 dy=y′dx，原式化为 ∫<sub>a</sub><sup>b</sup>[P(x, y(x)) + Q(x, y(x))y′(x)]dx；x=x(y) 同理。若 L 是分段光滑的闭曲线，就按各段的走向逐段参数化，保证每一段的上下限都是「本段起点到本段终点」，再把结果相加；切不可为图省事把整圈的参数统一写成从小到大，那样方向就丢了。</p>
+
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b> 计算 <span class="fm"><span class="op">∫</span><sub>L</sub> (x<sup>2</sup> − 2xy) dx + (y<sup>2</sup> − 2xy) dy</span>，L 为抛物线 y=x<sup>2</sup> 上从 A(−1,1) 到 B(1,1) 的一段。</p>
+<p class="expl-s"><b>解</b> 取 x 为参数，y=x<sup>2</sup>，dy=2x dx，x 从 −1 到 1（起点在左，终点在右）。
+<br>被积式 = (x<sup>2</sup> − 2x·x<sup>2</sup>)dx + (x<sup>4</sup> − 2x·x<sup>2</sup>)·2x dx = (x<sup>2</sup> − 2x<sup>3</sup> + 2x<sup>5</sup> − 4x<sup>4</sup>)dx。
+<br>原式 = <span class="op">∫</span><sub>−1</sub><sup>1</sup>(x<sup>2</sup> − 2x<sup>3</sup> − 4x<sup>4</sup> + 2x<sup>5</sup>)dx。
+<br>奇次项在对称区间上积分为 0，只剩偶次项：
+<br>原式 = 2<span class="op">∫</span><sub>0</sub><sup>1</sup>(x<sup>2</sup> − 4x<sup>4</sup>)dx = 2(1/3 − 4/5) = 2·(−7/15) = −14/15。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b> 计算 <span class="fm"><span class="op">∮</span><sub>L</sub> x dy − y dx</span>，L 为圆 x<sup>2</sup> + y<sup>2</sup> = a<sup>2</sup> 的正向（逆时针）。</p>
+<p class="expl-s"><b>解</b> 参数化 x=a cos t，y=a sin t，t 从 0 到 2π（t 增大即逆时针，正是正向）。
+<br>dx=−a sin t dt，dy=a cos t dt，于是
+<br>x dy − y dx = a cos t·a cos t dt − a sin t·(−a sin t)dt = a<sup>2</sup>(cos<sup>2</sup>t + sin<sup>2</sup>t)dt = a<sup>2</sup> dt。
+<br>原式 = <span class="op">∫</span><sub>0</sub><sup>2π</sup> a<sup>2</sup> dt = 2πa<sup>2</sup>。
+<br>顺带得到一个几何结论：该圆面积 A = (1/2)∮x dy − y dx = πa<sup>2</sup>。这正是用曲线积分求面积的一般公式。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b> 计算 <span class="fm"><span class="op">∫</span><sub>L</sub> y dx</span>，其中 L 分别取：(1) 从 (0,0) 到 (1,1) 的直线段；(2) 折线 (0,0)→(1,0)→(1,1)。</p>
+<p class="expl-s"><b>解</b> (1) L：y=x，x 从 0 到 1，dx=dx，<span class="op">∫</span><sub>0</sub><sup>1</sup> x dx = 1/2。
+<br>(2) 第一段 y=0（x 从 0 到 1），被积函数为 0，积分为 0；第二段 x=1 为常数，dx=0，积分也为 0。合计 0。
+<br>两条路径端点相同，结果却不同（1/2 与 0），说明第二类曲线积分一般<b>与路径有关</b>。</p>
+<p class="expl-t">那么什么时候与路径无关？这一问正是第三节格林公式要回答的，例 3 就是它的引子。</p>
+</div>
+
+<h4 class="expl-h">四、常考套路与易错提醒</h4>
+<p>套路：见到「功」「环流量」「沿曲线做的功」，一律往第二类上想，先定方向再参数化；被积式若恰好是某个函数的全微分，直接代端点，能省掉整段积分。两类积分的换算公式与闭合曲线的正向约定，都是第三节的前置知识。</p>
+<p>易错点：① 反向忘记变号；② 参数化时把上下限按「从小到大」写，而不是「起点到终点」；③ 分段曲线漏算某一段，或某一段的方向写反；④ 把 ∮ 的顺时针当作正向；⑤ 两类混用——第一类写 ds 且无方向，第二类写 dx、dy 且有方向，不能互换着套公式。</p>
+</div><!--/EXPL:m11-s2-->
+
+<!--EXPL:m11-s3--><div class="explain" data-expl="m11-s3">
+<h4 class="expl-h">一、这节解决什么问题</h4>
+<p>沿闭曲线做第二类积分，若老老实实分段参数化，往往又长又易错。格林公式给出一条捷径：<b>沿闭曲线一圈的积分，等于曲线所围区域内部某个量累加的结果</b>。它把「边界上的积分」换成「区域上的二重积分」，地位相当于一元积分里的牛顿—莱布尼茨公式。</p>
+<p>直观理解：设 (P, Q) 是平面向量场，量 ∂Q/∂x − ∂P/∂y 刻画该点附近「微小旋转」的强弱。把区域切成许多小格子，每个小格子边界上的环流相加时，相邻格子的公共边被来回各走一次、方向相反、正好抵消，最后只剩下最外圈边界上的环流。这就是公式的几何含义：内部抵消，边界留存。</p>
+
+<h4 class="expl-h">二、定理（格林公式）与三个条件</h4>
+<p>设闭区域 D 由分段光滑的闭曲线 L 围成，函数 P(x, y)、Q(x, y) 在 D 上具有一阶连续偏导数，则</p>
+<p><span class="fm"><span class="op">∮</span><sub>L</sub> P dx + Q dy = <span class="op">∬</span><sub>D</sub> ( <span class="fr"><span class="n">∂Q</span><span class="d">∂x</span></span> − <span class="fr"><span class="n">∂P</span><span class="d">∂y</span></span> ) dxdy</span></p>
+<p>其中 L 取<b>正向</b>（逆时针，即沿 L 前进时 D 在左侧）。三个条件缺一不可：① L 是分段光滑的<b>闭</b>曲线；② L 取正向，取负向则整体加负号；③ P、Q 在 D 上有一阶连续偏导，有奇点必须先挖掉。</p>
+
+<h4 class="expl-h">三、证明思路</h4>
+<p>先设 D 是 X 型区域：a≤x≤b，φ<sub>1</sub>(x)≤y≤φ<sub>2</sub>(x)。对含 P 的那一项先对 y 积分：</p>
+<p><span class="fm"><span class="op">∬</span><sub>D</sub> <span class="fr"><span class="n">∂P</span><span class="d">∂y</span></span> dxdy = <span class="op">∫</span><sub>a</sub><sup>b</sup> [P(x, φ<sub>2</sub>(x)) − P(x, φ<sub>1</sub>(x))] dx</span></p>
+<p>右边恰是 −∮<sub>L</sub> P dx：沿上边界 y=φ<sub>2</sub>(x) 要<b>从右向左</b>（x 从 b 到 a）才是正向，贡献 −∫<sub>a</sub><sup>b</sup>P(x, φ<sub>2</sub>)dx；沿下边界 y=φ<sub>1</sub>(x) 从左向右是正向，贡献 +∫<sub>a</sub><sup>b</sup>P(x, φ<sub>1</sub>)dx。两者相加正是上式取负。于是 ∬∂P/∂y dxdy = −∮P dx。</p>
+<p>同理，把 D 看成 Y 型区域（左边界 ψ<sub>1</sub>(y)、右边界 ψ<sub>2</sub>(y)），可得 ∬∂Q/∂x dxdy = ∮Q dy。两式相减即得格林公式。一般区域用辅助线把它切成若干 X 型、Y 型小块，内部辅助线上的积分方向相反、成对抵消，结论仍然成立。</p>
+
+<h4 class="expl-h">四、三个用法</h4>
+<p><b>用法一：正向闭曲线化为二重积分。</b></p>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b> 计算 <span class="fm"><span class="op">∮</span><sub>L</sub> (x<sup>2</sup> − y) dx + (y<sup>2</sup> + x) dy</span>，L 为椭圆 x<sup>2</sup>/a<sup>2</sup> + y<sup>2</sup>/b<sup>2</sup> = 1 的正向。</p>
+<p class="expl-s"><b>解</b> P = x<sup>2</sup> − y，Q = y<sup>2</sup> + x，于是 ∂Q/∂x = 1，∂P/∂y = −1，差为 2（常数，与点无关）。
+<br>三项条件都满足：L 是光滑闭曲线、取正向、P、Q 在全平面有连续偏导。
+<br>由格林公式，原式 = <span class="op">∬</span><sub>D</sub> 2 dxdy = 2·(椭圆面积) = 2·πab = 2πab。</p>
+<p class="expl-t">关键是 ∂Q/∂x − ∂P/∂y 恰为常数，曲线积分便一步变成「常数乘面积」。</p>
+</div>
+<p><b>用法二：曲线不闭就补线。</b>补一段（通常取直线段）使整体闭合，对闭曲线用格林公式，再减去补线上的积分。</p>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b> 计算 <span class="fm"><span class="op">∫</span><sub>L</sub> (e<sup>x</sup>sin y − y) dx + (e<sup>x</sup>cos y − 1) dy</span>，L 为上半圆周 (x−1)<sup>2</sup> + y<sup>2</sup> = 1 上从 A(2,0) 到 B(0,0) 的一段。</p>
+<p class="expl-s"><b>解</b> 补上 x 轴上从 B(0,0) 到 A(2,0) 的直线段 L<sub>1</sub>。则 L 与 L<sub>1</sub> 首尾相接，围成上半圆盘 D，且沿 L 从 A 走到 B、再沿 L<sub>1</sub> 从 B 回到 A，恰好是逆时针正向。
+<br>P = e<sup>x</sup>sin y − y，Q = e<sup>x</sup>cos y − 1，故 ∂Q/∂x = e<sup>x</sup>cos y，∂P/∂y = e<sup>x</sup>cos y − 1，差为 1。
+<br>格林公式：∮<sub>L+L<sub>1</sub></sub> = <span class="op">∬</span><sub>D</sub> 1 dxdy = (1/2)π·1<sup>2</sup> = π/2。
+<br>在 L<sub>1</sub> 上 y=0，dy=0，P = e<sup>x</sup>·0 − 0 = 0，故 ∫<sub>L<sub>1</sub></sub> = 0。
+<br>所以原式 = π/2 − 0 = π/2。</p>
+<p class="expl-t">补线时最要紧的是方向：补出的线段与 L 合起来必须绕成逆时针，否则格林公式要加负号。</p>
+</div>
+<p><b>用法三：有奇点就挖洞。</b>在奇点周围作一个小闭曲线，在两条曲线之间的多连通区域上用格林公式（此时内边界须取顺时针），把难算的外边界换成好算的内边界。</p>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b> 计算 <span class="fm"><span class="op">∮</span><sub>L</sub> <span class="fr"><span class="n">x dy − y dx</span><span class="d">x<sup>2</sup> + y<sup>2</sup></span></span></span>，L 为包围原点的任意一条分段光滑正向闭曲线。</p>
+<p class="expl-s"><b>解</b> 记 P = −y/(x<sup>2</sup>+y<sup>2</sup>)，Q = x/(x<sup>2</sup>+y<sup>2</sup>)，它们在原点无定义。当 (x, y) 不为原点时，
+<br>∂Q/∂x = (y<sup>2</sup> − x<sup>2</sup>)/(x<sup>2</sup>+y<sup>2</sup>)<sup>2</sup>，∂P/∂y = (y<sup>2</sup> − x<sup>2</sup>)/(x<sup>2</sup>+y<sup>2</sup>)<sup>2</sup>，两者相等。
+<br>取小圆 L<sub>ε</sub>：x<sup>2</sup>+y<sup>2</sup>=ε<sup>2</sup>（ε 充分小，整个落在 L 内部），在 L 与 L<sub>ε</sub> 围成的环形区域上用格林公式。该环形的外边界是 L（逆时针），内边界须取顺时针，即 −L<sub>ε</sub>，于是 ∮<sub>L</sub> − ∮<sub>L<sub>ε</sub></sub> = <span class="op">∬</span>(0) dxdy = 0，即 ∮<sub>L</sub> = ∮<sub>L<sub>ε</sub></sub>。
+<br>在 L<sub>ε</sub> 上取 x=εcos t，y=εsin t，t 从 0 到 2π，则分母恒为 ε<sup>2</sup>，而 x dy − y dx = ε<sup>2</sup>dt，故 ∮<sub>L<sub>ε</sub></sub> = <span class="op">∫</span><sub>0</sub><sup>2π</sup> dt = 2π。
+<br>所以原式 = 2π，<b>与 L 的形状、大小都无关</b>。</p>
+<p class="expl-t">这就是「挖洞」的威力：偏导相等的区域里，环量只由被围住的奇点决定。</p>
+</div>
+
+<h4 class="expl-h">五、路径无关与求原函数</h4>
+<p>设 G 是<b>单连通</b>区域（没有洞），P、Q 在 G 内有一阶连续偏导。以下四条等价：</p>
+<ol>
+<li>对 G 内任意闭曲线 C，∮<sub>C</sub> P dx + Q dy = 0；</li>
+<li>积分与路径无关，只与起点、终点有关；</li>
+<li>存在 u(x, y) 使 du = P dx + Q dy，即 P dx + Q dy 是全微分；</li>
+<li>在 G 内恒有 <span class="fm"><span class="fr"><span class="n">∂P</span><span class="d">∂y</span></span> = <span class="fr"><span class="n">∂Q</span><span class="d">∂x</span></span></span>。</li>
+</ol>
+<p>证明是链条式的：①⇒② 把两条路径首尾相接拼成闭曲线；②⇒③ 固定起点 (x<sub>0</sub>, y<sub>0</sub>)，令 u(x, y)=∫<sub>(x<sub>0</sub>,y<sub>0</sub>)</sub><sup>(x,y)</sup>P dx + Q dy，再验证 u<sub>x</sub>=P、u<sub>y</sub>=Q；③⇒④ 由混合偏导相等 u<sub>xy</sub>=u<sub>yx</sub>；④⇒① 直接用格林公式。</p>
+<p>求原函数 u 的实用办法是沿折线积分：先水平后竖直，</p>
+<p><span class="fm">u(x, y) = <span class="op">∫</span><sub>x<sub>0</sub></sub><sup>x</sup> P(x, y<sub>0</sub>) dx + <span class="op">∫</span><sub>y<sub>0</sub></sub><sup>y</sup> Q(x, y) dy + C</span></p>
+<p>例如 P=2xy、Q=x<sup>2</sup> 时 ∂P/∂y=2x=∂Q/∂x 在全平面成立，取起点 (0,0) 得 u=∫<sub>0</sub><sup>x</sup>0 dx + ∫<sub>0</sub><sup>y</sup>x<sup>2</sup>dy = x<sup>2</sup>y + C，验算 u<sub>x</sub>=2xy、u<sub>y</sub>=x<sup>2</sup> 均吻合。</p>
+
+<h4 class="expl-h">六、易错提醒</h4>
+<p>① 顺时针用格林公式必须加负号；② 不闭就补线，算完要减掉补线那一段，别把补线当成本题答案；③ 有奇点不挖洞直接用格林，结论会错（上面例 3 若硬算二重积分得 0，正确答案是 2π）；④ 偏导相等只是路径无关在<b>单连通</b>区域内的充要条件，区域有洞时不足以推出无关，这是概念题的高频陷阱。</p>
+</div><!--/EXPL:m11-s3-->
+
+<!--EXPL:m11-s4--><div class="explain" data-expl="m11-s4">
+<h4 class="expl-h">一、这节解决什么问题</h4>
+<p>前两节讲清了「两类曲线积分怎么算」，这一节回答「用来算什么」。物理与几何中有四类量可以直接写成曲线积分：变力做功、流速场的环流量、曲线构件的质量与质心（及转动惯量）、平面区域的面积。判断标准很简单：<b>与方向有关的用第二类，与方向无关的用第一类</b>。</p>
+
+<h4 class="expl-h">二、变力做功</h4>
+<p>设质点在力 <b>F</b>=(P(x,y), Q(x,y)) 作用下沿有向曲线 L 从 A 运动到 B，则所做的功</p>
+<p><span class="fm">W = <span class="op">∫</span><sub>L</sub> P dx + Q dy</span></p>
+<p>理由：小段位移 d<b>r</b>=(dx, dy)，该段功为 <b>F</b>·d<b>r</b> = P dx + Q dy，累加取极限即得。若 <b>F</b> 是保守力（存在势函数 u 使 P dx + Q dy = du），则 W = u(B) − u(A)，只与首末位置有关，沿任意闭曲线一周做功为 0——这正是第三节「路径无关」的物理含义。反过来，若力场有旋（∂Q/∂x ≠ ∂P/∂y），沿闭曲线走一圈的功一般不为零，这一圈功就是环量。</p>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b> 设 <b>F</b>=(x<sup>2</sup>, xy)，质点沿抛物线 y=x<sup>2</sup> 从 (0,0) 移到 (1,1)，求 <b>F</b> 所做的功。</p>
+<p class="expl-s"><b>解</b> W = <span class="op">∫</span><sub>L</sub> x<sup>2</sup> dx + xy dy。取 x 为参数，y=x<sup>2</sup>，dy=2x dx，x 从 0 到 1：
+<br>W = <span class="op">∫</span><sub>0</sub><sup>1</sup> [x<sup>2</sup> + x·x<sup>2</sup>·2x] dx = <span class="op">∫</span><sub>0</sub><sup>1</sup> (x<sup>2</sup> + 2x<sup>4</sup>) dx = 1/3 + 2/5 = 11/15。</p>
+<p class="expl-t">先检验是否保守：∂P/∂y = 0，∂Q/∂x = y，不相等，所以功与路径有关，必须沿指定曲线算。</p>
+</div>
+
+<h4 class="expl-h">三、环流量</h4>
+<p>设 (P, Q) 是流速场，沿闭曲线 L 的积分 <span class="fm"><span class="op">∮</span><sub>L</sub> P dx + Q dy</span> 称为该场沿 L 的<b>环流量</b>（环量），它度量流体沿闭合路径「绕圈」的强弱。若 L 取正向，格林公式给出</p>
+<p><span class="fm"><span class="op">∮</span><sub>L</sub> P dx + Q dy = <span class="op">∬</span><sub>D</sub> ( <span class="fr"><span class="n">∂Q</span><span class="d">∂x</span></span> − <span class="fr"><span class="n">∂P</span><span class="d">∂y</span></span> ) dxdy</span></p>
+<p>即环量等于区域内「旋度」的累加。当 ∂Q/∂x − ∂P/∂y 恒为 0 时，无旋场沿任何闭曲线的环量都为 0。再细一层看：把闭曲线所围区域缩向一点，环量除以面积在面积趋于零时的极限恰好是 ∂Q/∂x − ∂P/∂y，这个量称为<b>环量面密度</b>（旋度的 z 分量），所以格林公式也可读作「边界环量等于内部环量面密度的面积分」。</p>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b> 求速度场 <b>F</b>=(−y, x) 沿圆 x<sup>2</sup>+y<sup>2</sup>=a<sup>2</sup> 正向的环流量。</p>
+<p class="expl-s"><b>解</b> 环量 = ∮<sub>L</sub> −y dx + x dy。参数化 x=a cos t，y=a sin t，t 从 0 到 2π：
+<br>−y dx + x dy = (−a sin t)(−a sin t)dt + a cos t·a cos t dt = a<sup>2</sup> dt，
+<br>环量 = <span class="op">∫</span><sub>0</sub><sup>2π</sup> a<sup>2</sup> dt = 2πa<sup>2</sup>。
+<br>用格林公式校验：∂Q/∂x − ∂P/∂y = 1 − (−1) = 2，环量 = 2·πa<sup>2</sup> = 2πa<sup>2</sup>，一致。</p>
+<p class="expl-t">这个场就是「绕原点匀速旋转」的流场，沿任意以原点为心的圆环量都与半径平方成正比，越大越「转得动」。</p>
+</div>
+
+<h4 class="expl-h">四、质量、质心与转动惯量</h4>
+<p>设 L 是线密度为 ρ(x, y) 的曲线构件，则</p>
+<p><span class="fm">m = <span class="op">∫</span><sub>L</sub> ρ ds</span>　　<span class="fm">x̄ = <span class="fr"><span class="n">1</span><span class="d">m</span></span> <span class="op">∫</span><sub>L</sub> xρ ds</span>　　<span class="fm">ȳ = <span class="fr"><span class="n">1</span><span class="d">m</span></span> <span class="op">∫</span><sub>L</sub> yρ ds</span></p>
+<p>对 x 轴、y 轴与原点的转动惯量分别为 <span class="fm">I<sub>x</sub> = <span class="op">∫</span><sub>L</sub> y<sup>2</sup>ρ ds</span>、<span class="fm">I<sub>y</sub> = <span class="op">∫</span><sub>L</sub> x<sup>2</sup>ρ ds</span>、<span class="fm">I<sub>O</sub> = <span class="op">∫</span><sub>L</sub> (x<sup>2</sup>+y<sup>2</sup>)ρ ds</span>。全部用第一类，因为质量、矩、惯量都与方向无关。式中 ∫xρ ds、∫yρ ds 分别称为构件对 y 轴、对 x 轴的<b>静矩</b>，质心公式就是「静矩除以总质量」；当 ρ 为常数时 ρ 在分子分母中约掉，质心只由曲线的几何形状决定。</p>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b> 求半径为 a 的上半圆周（线密度 ρ=1）的质心。</p>
+<p class="expl-s"><b>解</b> 参数化 x=a cos t，y=a sin t，0≤t≤π，ds=a dt。
+<br>m = <span class="op">∫</span><sub>0</sub><sup>π</sup> a dt = πa。
+<br>x̄ = (1/πa)<span class="op">∫</span><sub>0</sub><sup>π</sup> a cos t·a dt = (1/πa)·a<sup>2</sup>[sin t]<sub>0</sub><sup>π</sup> = 0（由关于 y 轴的对称性也能直接看出）。
+<br>ȳ = (1/πa)<span class="op">∫</span><sub>0</sub><sup>π</sup> a sin t·a dt = (1/πa)·a<sup>2</sup>[−cos t]<sub>0</sub><sup>π</sup> = (1/πa)·2a<sup>2</sup> = 2a/π。
+<br>故质心为 (0, 2a/π)。</p>
+<p class="expl-t">细圆弧的质心不在弧上，而在对称轴上，与半径之比为 2/π≈0.637，比半圆的质心 4a/(3π) 更靠上。</p>
+</div>
+
+<h4 class="expl-h">五、用曲线积分求面积</h4>
+<p>取 P=−y/2、Q=x/2，则 ∂Q/∂x − ∂P/∂y = 1，由格林公式得</p>
+<p><span class="fm">A = <span class="fr"><span class="n">1</span><span class="d">2</span></span> <span class="op">∮</span><sub>L</sub> x dy − y dx</span></p>
+<p>（等价地 A = ∮<sub>L</sub> x dy = −∮<sub>L</sub> y dx，L 均取正向）。它的几何含义很直白：把边界上「半径扫过的面积微元」绕一圈累加，正好铺满整个区域。这条公式对参数方程给出的曲线特别方便。例如椭圆 x=a cos t，y=b sin t：x dy − y dx = ab dt，故 A = (1/2)∫<sub>0</sub><sup>2π</sup>ab dt = πab。</p>
+
+<h4 class="expl-h">六、常考套路与易错提醒</h4>
+<p>套路：看到「功」「环流量」先判第二类、先定方向；看到「质量／质心／转动惯量」用第一类；看到「闭曲线围成面积」用 (1/2)∮x dy − y dx；若被积式恰为全微分，做功只与端点有关，直接代端点，能省掉大段计算。</p>
+<p>易错点：① 求功时方向弄反，功整体变号；② 求质心忘了除以总质量 m，只写了 ∫xρ ds；③ 转动惯量 I<sub>x</sub> 用的是 y<sup>2</sup>（到 x 轴距离的平方），别把 x、y 写反；④ 面积公式要求 L 取正向，顺时针算出来是负值；⑤ 环流量是第二类，别误用 ds。</p>
+</div><!--/EXPL:m11-s4-->

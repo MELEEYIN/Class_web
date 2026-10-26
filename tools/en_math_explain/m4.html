@@ -1,0 +1,226 @@
+<!--EXPL:m4-s1--><div class="explain" data-expl="m4-s1">
+<h4 class="expl-h">一、这节解决什么问题</h4>
+<p>微积分的前半程一直在做同一件事：给定函数，求它的导数。可现实里的问题常常倒着问。一辆车沿直线行驶，速度表读出 <span class="fm">v(t) = 3t<sup>2</sup></span>，问它从出发到 t 时刻一共走了多远；一条曲线上每一点的切线斜率是 <span class="fm">f(x)</span>，问这条曲线到底长什么样。前者要的是 <span class="fm">s(t)</span>，满足 <span class="fm">s′(t) = v(t)</span>；后者要的是 <span class="fm">y</span>，满足 <span class="fm">y′ = f(x)</span>。共同点是：<b>已知导数，反求原来的函数</b>。这个反问题就是本章要造的工具，叫不定积分，它是求导的逆运算，地位相当于算术里的减法、乘法里的除法。</p>
+<p>几何上先有个印象：如果 <span class="fm">F</span> 是一条满足条件的曲线，那么把 <span class="fm">F</span> 上下平移得到的每一条曲线，在同一横坐标处的切线斜率都一样。所以答案从来不是一个函数，而是<b>一整族平行曲线</b>。这个「族」的概念，就是后面那个常数 C 的来源。</p>
+
+<h4 class="expl-h">二、原函数与不定积分</h4>
+<p><b>定义 1（原函数）</b>设 f 在区间 I 上有定义。如果存在函数 F，使得对每一个 <span class="fm">x ∈ I</span> 都有</p>
+<p><span class="fm">F′(x) = f(x)</span></p>
+<p>就称 F 是 f 在 I 上的一个原函数。</p>
+<p>三个词要抠清楚：「一个」，说明原函数通常不止一个；「区间」，说明必须整段成立，只在个别点成立不算；「F′ = f」，方向不能反，是 F 求导出 f，不是 f 求导出 F。</p>
+<p><b>定理 1（原函数存在定理）</b>若 f 在区间 I 上连续，则 f 在 I 上必有原函数。</p>
+<p>这条定理只保证存在，不告诉你它长什么样——所以后面三节全部在讲「怎么找」。条件里的「连续」也不能删：含有第一类间断点的函数没有原函数，因为导数虽然不一定连续，却一定具有介值性（达布定理），跳跃型间断点做不到这一点。</p>
+<p><b>定理 2（原函数的结构）</b>若 F 是 f 的一个原函数，则 f 的全体原函数恰好是 <span class="fm">F(x) + C</span>，其中 C 取遍全体实数。</p>
+<p><b>证明思路</b>设 G 也是 f 的原函数，则 <span class="fm">(G − F)′ = f − f = 0</span>。由拉格朗日中值定理的推论，导数在区间上恒为零的函数必为常数，故 <span class="fm">G − F ≡ C</span>。反过来，对 <span class="fm">F(x) + C</span> 求导仍然得 f，所以它们确实全是原函数。两句话合起来，正好说明了为什么答案里必须写 C。</p>
+<p><b>定义 2（不定积分）</b>f 的全体原函数称为 f 的不定积分，记作</p>
+<p><span class="fm"><span class="op">∫</span> f(x) dx = F(x) + C</span></p>
+<p>记号里，f(x) 叫被积函数，f(x)dx 叫被积表达式，x 叫积分变量，C 叫积分常数。∫ 不要理解成「一条式子」，要理解成一个<b>集合</b>：它交出的是整族曲线。所以严格地说，∫f(x)dx 是一个函数族，不是一个函数，这正是它和定积分的本质区别。</p>
+
+<h4 class="expl-h">三、性质</h4>
+<p><b>（1）线性性质</b>若 <span class="fm"><span class="op">∫</span> f dx</span>、<span class="fm"><span class="op">∫</span> g dx</span> 都存在，α、β 为常数，则</p>
+<p><span class="fm"><span class="op">∫</span> [αf(x) + βg(x)] dx = α<span class="op">∫</span> f(x) dx + β<span class="op">∫</span> g(x) dx</span></p>
+<p>它只承诺两件事：常数因子可以提到积分号外，和与差可以拆成两个积分。乘积<b>没有</b>对应公式，<span class="fm"><span class="op">∫</span> fg dx</span> 与 <span class="fm"><span class="op">∫</span> f dx · <span class="op">∫</span> g dx</span> 毫无关系，这是初学者最常见的错觉。所以一碰到乘积，必须先变形（展开、拆项、凑微分、分部），绝不能「分开积」。同理，积分号里也不能随便加常数：<span class="fm"><span class="op">∫</span> (x + 1) dx ≠ <span class="op">∫</span> x dx + 1</span>，加号里的 1 必须老老实实跟着积。</p>
+<p><b>（2）与求导互逆</b></p>
+<p><span class="fm">( <span class="op">∫</span> f(x)dx )′ = f(x)，　d( <span class="op">∫</span> f(x)dx ) = f(x)dx</span><br><span class="fm"><span class="op">∫</span> F′(x) dx = F(x) + C，　<span class="op">∫</span> dF(x) = F(x) + C</span></p>
+<p>先积后导，原样还原；先导后积，差一个常数。这个不对称很关键，它是不定积分不能像导数那样「直接代数运算」的原因。</p>
+<p><b>（3）基本积分表</b>把求导公式反过来读一遍，就是积分表。例如由 <span class="fm">( x<sup>α+1</sup>/(α+1) )′ = x<sup>α</sup></span>（α ≠ −1）得到幂函数公式；α = −1 时分母为零，这一格失效，而 <span class="fm">(ln|x|)′ = 1/x</span> 正好补上，所以要单列一条 <span class="fm"><span class="op">∫</span> dx/x = ln|x| + C</span>。绝对值千万不能丢：x 取负值时 ln x 根本没有定义，而 1/x 在负数段是有定义的。</p>
+<p>表里十几条（幂函数、1/x、e<sup>x</sup>、a<sup>x</sup>、sin、cos、sec<sup>2</sup>、csc<sup>2</sup>、1/(1 + x<sup>2</sup>)、1/√(1 − x<sup>2</sup>)、sec x、csc x）必须默写到条件反射的程度，因为本章所有技巧的终点，都是把被积函数「整成表里的样子」。</p>
+
+<h4 class="expl-h">四、例题</h4>
+<div class="expl-eg"><p class="expl-q"><b>例 1</b> 求 <span class="fm"><span class="op">∫</span> ( 3x<sup>2</sup> − 2/x + 5e<sup>x</sup> − 1/(1 + x<sup>2</sup>) ) dx</span>。</p>
+
+<p class="expl-s"><b>解</b> 都是基本表里的项，用线性性质逐项拆开。<br>第一项：<span class="fm"><span class="op">∫</span> 3x<sup>2</sup> dx = 3 · x<sup>3</sup>/3 = x<sup>3</sup></span>。<br>第二项：<span class="fm"><span class="op">∫</span> 2·(1/x) dx = 2 ln|x|</span>，系数 2 是提出去的常数，不是被积函数的一部分。<br>第三项：<span class="fm"><span class="op">∫</span> 5e<sup>x</sup> dx = 5e<sup>x</sup></span>。<br>第四项：<span class="fm"><span class="op">∫</span> dx/(1 + x<sup>2</sup>) = arctan x</span>。<br>合并，只在最后写一个 C：<br><span class="fm">原式 = x<sup>3</sup> − 2ln|x| + 5e<sup>x</sup> − arctan x + C</span></p>
+<p class="expl-t">四道小题各写一个 C 是错的，常数只需一个；但每一项的符号、系数、绝对值一个都不能错。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 2</b> 已知 <span class="fm">f′(x) = 3x<sup>2</sup> + 1</span>，且曲线 <span class="fm">y = f(x)</span> 经过点 (1, 4)，求 f(x)。</p>
+<p class="expl-s"><b>解</b> 第一步，先求全体原函数（不管初始条件）：<br><span class="fm">f(x) = <span class="op">∫</span> (3x<sup>2</sup> + 1) dx = x<sup>3</sup> + x + C</span><br>第二步，用「曲线过点 (1, 4)」定常数：令 x = 1，则<br><span class="fm">f(1) = 1 + 1 + C = 4</span>，得 C = 2。<br>所以 <span class="fm">f(x) = x<sup>3</sup> + x + 2</span>。</p>
+<p class="expl-t">这类题的标准两步是「先积出带 C 的通解，再代点定 C」。顺序不能反：先代点就丢了 C，等于假设 C = 0。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 3</b> 求 <span class="fm"><span class="op">∫</span> tan<sup>2</sup>x dx</span>。</p>
+<p class="expl-s"><b>解</b> 表里没有 tan<sup>2</sup>，不能硬套。先做恒等变形，用 <span class="fm">tan<sup>2</sup>x = sec<sup>2</sup>x − 1</span>：<br><span class="fm"><span class="op">∫</span> tan<sup>2</sup>x dx = <span class="op">∫</span> (sec<sup>2</sup>x − 1) dx = <span class="op">∫</span> sec<sup>2</sup>x dx − <span class="op">∫</span> dx</span><br>两项都在表里：<br><span class="fm">= tan x − x + C</span></p>
+<p class="expl-t">「先变形、再查表」是全章的通用起手式。同类的还有 1 = sin<sup>2</sup>x + cos<sup>2</sup>x、cos 2x 的倍角公式、分子加减一项凑分母的导数。</p></div>
+
+<h4 class="expl-h">五、易错提醒与后文联系</h4>
+<ul>
+<li><b>漏写 + C。</b>不定积分的结果是函数族，不是单个函数，漏 C 直接扣分。</li>
+<li><b>把 1/x 积成 ln x。</b>正确写法是 <span class="fm">ln|x|</span>，负半轴就靠这个绝对值。</li>
+<li><b>把 ∫f·g 拆成 ∫f · ∫g。</b>乘积没有分配律，必须先变形。</li>
+<li><b>以为任何函数都有原函数。</b>连续才有；谈原函数之前先确认函数在区间上连续。</li>
+<li><b>初始条件忘代。</b>给了点、给了 f(0) 这类信息，就是用来定 C 的，不代等于没做完。</li>
+</ul>
+<p>这一节只解决了「被积函数正好在表里」的情形。可考试给的偏偏不在表里——复合的、带根号的、两类函数相乘的。于是下一节造第一件工具：换元，把陌生的积分改写成表里的积分。</p>
+</div><!--/EXPL:m4-s1-->
+
+<!--EXPL:m4-s2--><div class="explain" data-expl="m4-s2">
+<h4 class="expl-h">一、为什么必然会有换元法</h4>
+<p>基本积分表只覆盖那十几个基本初等函数。但实际给出的被积函数往往是复合的，比如 <span class="fm"><span class="op">∫</span> 2x e<sup>x²</sup> dx</span>。表里只有 <span class="fm"><span class="op">∫</span> e<sup>u</sup> du = e<sup>u</sup> + C</span>，没有 e 的 x<sup>2</sup> 次方这一项。可你注意到，被积函数里那个 <span class="fm">2x</span> 恰好是 <span class="fm">x<sup>2</sup></span> 的导数——这不是巧合，而是复合函数求导的必然产物：</p>
+<p><span class="fm">[ F(φ(x)) ]′ = F′(φ(x)) · φ′(x)</span></p>
+<p>链式法则多产生一个「内层导数」因子 φ′(x)。把这条公式<b>倒着读</b>，就是换元积分法。所以换元法的本质不是新技巧，而是「认出链式法则留下的脚印」。</p>
+
+<h4 class="expl-h">二、第一类换元法（凑微分）</h4>
+<p><b>定理 3</b>设 f 有原函数 F，φ 可导，则</p>
+<p><span class="fm"><span class="op">∫</span> f(φ(x)) φ′(x) dx = F(φ(x)) + C</span></p>
+<p><b>证明</b>对右端求导，用链式法则：<span class="fm">[F(φ(x))]′ = F′(φ(x))·φ′(x) = f(φ(x))·φ′(x)</span>，正好是被积函数。故右端是左端被积函数的一个原函数，等式成立。证明只有一行，难的是<b>用</b>：要能把 <span class="fm">φ′(x)dx</span> 认出来，凑成微分 <span class="fm">dφ(x)</span>，整个积分就变成 <span class="fm"><span class="op">∫</span> f(u) du</span> 的标准形状。</p>
+<p><b>常用凑法清单</b>（缺系数就乘一个、外面除回来）</p>
+<ul>
+<li><span class="fm">x dx = ½ d(x<sup>2</sup>)</span>，一般地 <span class="fm">x<sup>n</sup> dx = d(x<sup>n+1</sup>)/(n + 1)</span></li>
+<li><span class="fm">dx/x = d(ln|x|)</span>；<span class="fm">dx/x<sup>2</sup> = −d(1/x)</span></li>
+<li><span class="fm">e<sup>x</sup> dx = d(e<sup>x</sup>)</span>；<span class="fm">a<sup>x</sup> dx = d(a<sup>x</sup>)/ln a</span></li>
+<li><span class="fm">cos x dx = d(sin x)</span>；<span class="fm">sin x dx = −d(cos x)</span>；<span class="fm">sec<sup>2</sup>x dx = d(tan x)</span></li>
+<li><span class="fm">dx/(1 + x<sup>2</sup>) = d(arctan x)</span>；<span class="fm">dx/√(1 − x<sup>2</sup>) = d(arcsin x)</span></li>
+<li><span class="fm">dx/√x = 2d(√x)</span>；<span class="fm">dx/(2√x) = d(√x)</span></li>
+</ul>
+<p>记法一句话：<b>谁的导数在旁边，就把谁塞进 d 里</b>。凑的时候乘进去的常数，必须在外面对应除回来，这一步最容易漏。</p>
+
+<h4 class="expl-h">三、第二类换元法（主动换 x）</h4>
+<p>如果被积函数里有一坨很难受的结构（根号、分母次数很高、指数是分式），那就反过来——不等它凑，主动把 x 写成 t 的函数。</p>
+<p><b>定理 4</b>设 <span class="fm">x = ψ(t)</span> 单调、可导且 <span class="fm">ψ′(t) ≠ 0</span>，又设 <span class="fm">f(ψ(t))ψ′(t)</span> 有原函数 Φ(t)，则</p>
+<p><span class="fm"><span class="op">∫</span> f(x) dx = Φ( ψ<sup>−1</sup>(x) ) + C</span></p>
+<p>为什么非要「单调」：只有单调才存在反函数 ψ<sup>−1</sup>，最后才能把 t 换回 x。这正是易错点「换元后必须回代」的根源——不定积分没有上下限，没法像定积分那样换个限就完事，只能靠反函数走回来。</p>
+<p><b>三种三角代换是被根号逼出来的</b>，不是硬背的：</p>
+<ul>
+<li>见到 <span class="fm">√(a<sup>2</sup> − x<sup>2</sup>)</span>，令 <span class="fm">x = a sin t</span>，因为 <span class="fm">1 − sin<sup>2</sup>t = cos<sup>2</sup>t</span>，根号一开就消失；</li>
+<li>见到 <span class="fm">√(a<sup>2</sup> + x<sup>2</sup>)</span>，令 <span class="fm">x = a tan t</span>，用 <span class="fm">1 + tan<sup>2</sup>t = sec<sup>2</sup>t</span>；</li>
+<li>见到 <span class="fm">√(x<sup>2</sup> − a<sup>2</sup>)</span>，令 <span class="fm">x = a sec t</span>，用 <span class="fm">sec<sup>2</sup>t − 1 = tan<sup>2</sup>t</span>。</li>
+</ul>
+<p><b>回代技巧</b>：不要去套反三角公式。画一个直角三角形，把 t 当一个锐角，按 <span class="fm">sin t = x/a</span> 把对边标成 x、斜边标成 a，邻边自然是 <span class="fm">√(a<sup>2</sup> − x<sup>2</sup>)</span>；sin t、cos t、tan t 直接读出来就是 x 的式子。这一步能省掉大量三角变形，考场上尤其值钱。</p>
+<p><b>倒代换</b>：当分母次数明显高于分子、又带根号时，令 <span class="fm">x = 1/t</span> 往往一步到位，典型是 <span class="fm"><span class="op">∫</span> dx/(x<sup>2</sup>√(x<sup>2</sup> + 1))</span> 和 <span class="fm"><span class="op">∫</span> dx/(x√(x<sup>2</sup> − 1))</span>。<b>根式代换</b>则专治 <span class="fm">√(ax + b)</span> 型：令 <span class="fm">t = √(ax + b)</span> 把根号整体消掉，例如令 t = √x 得 <span class="fm"><span class="op">∫</span> dx/(1 + √x) = 2√x − 2ln(1 + √x) + C</span>。</p>
+
+<h4 class="expl-h">四、例题</h4>
+<div class="expl-eg"><p class="expl-q"><b>例 1</b> 求 <span class="fm"><span class="op">∫</span> x e<sup>x²</sup> dx</span>。</p>
+<p class="expl-s"><b>解</b> 观察：x<sup>2</sup> 的导数是 2x，被积函数里有个 x，差一个常数 2。<br>令 <span class="fm">u = x<sup>2</sup></span>，则 <span class="fm">du = 2x dx</span>，即 <span class="fm">x dx = ½ du</span>。<br>于是<br><span class="fm">原式 = ½ <span class="op">∫</span> e<sup>u</sup> du = ½ e<sup>u</sup> + C = ½ e<sup>x²</sup> + C</span><br>验算：<span class="fm">(½ e<sup>x²</sup>)′ = ½ e<sup>x²</sup> · 2x = x e<sup>x²</sup></span>，与被积函数一致。</p>
+<p class="expl-t">那个 ½ 是「凑」的代价：d(x<sup>2</sup>) = 2x dx，所以 x dx 只能凑成 ½d(x<sup>2</sup>)。少写这个 ½ 是本节最高频的失分点。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 2</b> 求 <span class="fm"><span class="op">∫</span> dx/√(x<sup>2</sup> + a<sup>2</sup>)</span>（a &gt; 0）。</p>
+<p class="expl-s"><b>解</b> 根号是 <span class="fm">√(a<sup>2</sup> + x<sup>2</sup>)</span> 型，用 <span class="fm">x = a tan t</span>，t ∈ (−π/2, π/2)。此时 <span class="fm">dx = a sec<sup>2</sup>t dt</span>，且 <span class="fm">√(x<sup>2</sup> + a<sup>2</sup>) = a sec t</span>（因为 sec t &gt; 0）。<br>代入化简：<br><span class="fm">原式 = <span class="op">∫</span> a sec<sup>2</sup>t dt / (a sec t) = <span class="op">∫</span> sec t dt = ln|sec t + tan t| + C</span><br>回代。画直角三角形：tan t = x/a，故对边 x、邻边 a、斜边 <span class="fm">√(x<sup>2</sup> + a<sup>2</sup>)</span>，于是 <span class="fm">tan t = x/a</span>，<span class="fm">sec t = √(x<sup>2</sup> + a<sup>2</sup>)/a</span>。代入得<br><span class="fm">ln| (√(x<sup>2</sup> + a<sup>2</sup>) + x)/a | + C = ln( x + √(x<sup>2</sup> + a<sup>2</sup>) ) + C</span><br>后一步把常数 −ln a 并进了 C 里，这是允许的，因为 C 本来就是任意常数。</p>
+<p class="expl-t">最后那个「把 −ln a 吞进 C」的动作很常用，但要说清楚：定积分里不能这么干，不定积分里可以，因为常数项本来就不确定。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 3</b> 求 <span class="fm"><span class="op">∫</span> dx/(x<sup>2</sup>√(x<sup>2</sup> + 1))</span>（x &gt; 0）。</p>
+<p class="expl-s"><b>解</b> 分母次数远高于分子，且有根号，用倒代换。令 <span class="fm">x = 1/t</span>（t &gt; 0），则 <span class="fm">dx = −dt/t<sup>2</sup></span>，且<br><span class="fm">x<sup>2</sup> = 1/t<sup>2</sup>，√(x<sup>2</sup> + 1) = √(1 + t<sup>2</sup>)/t</span><br>分母 = <span class="fm">(1/t<sup>2</sup>)·√(1 + t<sup>2</sup>)/t = √(1 + t<sup>2</sup>)/t<sup>3</sup></span>。<br>代入：<br><span class="fm">原式 = <span class="op">∫</span> (−dt/t<sup>2</sup>) · t<sup>3</sup>/√(1 + t<sup>2</sup>) = −<span class="op">∫</span> t dt/√(1 + t<sup>2</sup>)</span><br>此时分子 t 正好是 <span class="fm">1 + t<sup>2</sup></span> 导数的一半，凑微分：<br><span class="fm">= −½ <span class="op">∫</span> d(1 + t<sup>2</sup>)/√(1 + t<sup>2</sup>) = −√(1 + t<sup>2</sup>) + C</span><br>回代 t = 1/x：<br><span class="fm">= −√(1 + 1/x<sup>2</sup>) + C = −√(x<sup>2</sup> + 1)/x + C</span></p>
+<p class="expl-t">倒代换的威力在于「次数翻转」：原本 x 在分母上是二次加根号，换成 1/t 之后 t 跑到了分子上，结构立刻变简单。换完记得把 t 换回 x。</p></div>
+
+<h4 class="expl-h">五、套路与易错</h4>
+<ul>
+<li><b>换完必须回代。</b>不定积分没有积分限可换，最后一定要把 t 换回 x，否则答案不算完成。</li>
+<li><b>忘乘/忘除常数。</b>凑微分时 <span class="fm">x dx = ½d(x<sup>2</sup>)</span> 这种系数调整必须对称。</li>
+<li><b>三角函数代换忘限定范围。</b>x = a sin t 要取 t ∈ [−π/2, π/2] 才能保证 cos t ≥ 0、开根号不出绝对值。</li>
+<li><b>根号开出来要带绝对值。</b><span class="fm">√(x<sup>2</sup>) = |x|</span>，不是 x。</li>
+</ul>
+<p>换元法解决的是「复合」和「根号」。但还有一类被积函数是<b>两类不同函数相乘</b>，比如 <span class="fm">x e<sup>x</sup></span>、<span class="fm">ln x</span>、<span class="fm">e<sup>x</sup>sin x</span>，凑微分凑不出来。下一节用乘积求导法则来解决它们。</p>
+</div><!--/EXPL:m4-s2-->
+
+<!--EXPL:m4-s3--><div class="explain" data-expl="m4-s3">
+<h4 class="expl-h">一、这节解决什么问题</h4>
+<p>换元法能处理复合和根号，但有一类积分它束手无策：被积函数是<b>两类不同函数相乘</b>，而且乘得「不配套」。比如 <span class="fm"><span class="op">∫</span> x e<sup>x</sup> dx</span>，x 和 e<sup>x</sup> 之间没有导数关系，凑不出微分；再比如 <span class="fm"><span class="op">∫</span> ln x dx</span>，连乘积都不是，可表里也没有 ln x 这一项。这类积分要用分部积分法。</p>
+<p>思路来源很朴素：乘积求导法则 <span class="fm">(uv)′ = u′v + uv′</span> 里出现了两个乘积，把其中一个移项，就得到积分的对称公式。这是「把难积的项，换成好积的项」。</p>
+
+<h4 class="expl-h">二、公式与推导</h4>
+<p>由微分公式 <span class="fm">d(uv) = u dv + v du</span>，移项得</p>
+<p><span class="fm">u dv = d(uv) − v du</span></p>
+<p>两边同时取不定积分（左边正好是 <span class="fm"><span class="op">∫</span> d(uv) = uv</span>），即得</p>
+<p><span class="fm"><span class="op">∫</span> u dv = uv − <span class="op">∫</span> v du</span></p>
+<p>这就是<b>分部积分公式</b>。它可以等价地写成 <span class="fm"><span class="op">∫</span> u(x)v′(x) dx = u(x)v(x) − <span class="op">∫</span> u′(x)v(x) dx</span>。注意：公式本身没有降低难度，它只是把「积 u·dv」换成了「积 v·du」。用它的前提是<b>后者比前者好积</b>。这个判断，就是选 u 的全部学问。</p>
+
+<h4 class="expl-h">三、u 怎么选：反对幂指三</h4>
+<p>选 u 的两条标准：<b>求导后要变简单</b>（这样 du 变小），<b>剩下的 dv 要容易积</b>（这样 v 立刻能写出）。两条往往冲突，于是有经验顺序：</p>
+<p><span class="fm">反三角 → 对数 → 幂 → 指数 → 三角</span>（口诀「反对幂指三」）</p>
+<p>排在<b>前面</b>的当 u。理由：反三角和对数函数求导后都变成有理式或根式，确实「变简单」了；而指数和三角函数无论求导积分多少次还是自己，最适合当 dv 反复消耗。幂函数居中，视对方而定。</p>
+<p><b>四种常见类型</b></p>
+<ul>
+<li><b>降次型</b>（幂 × 指数／三角）：<span class="fm"><span class="op">∫</span> x<sup>n</sup>e<sup>x</sup> dx</span>、<span class="fm"><span class="op">∫</span> x<sup>n</sup>sin x dx</span>。取幂作 u，每分部一次幂次降一，做 n 次收工。</li>
+<li><b>只含对数／反三角</b>：<span class="fm"><span class="op">∫</span> ln x dx</span>、<span class="fm"><span class="op">∫</span> arctan x dx</span>。把 dv 取成 dx（即 v = x），u 就是 ln x 或 arctan x。</li>
+<li><b>循环型</b>：<span class="fm"><span class="op">∫</span> e<sup>x</sup>sin x dx</span>、<span class="fm"><span class="op">∫</span> sec<sup>3</sup>x dx</span>。分部两次后原积分重新出现，移项解方程。</li>
+<li><b>递推型</b>：<span class="fm">I<sub>n</sub> = <span class="op">∫</span> sin<sup>n</sup>x dx</span> 这类，用分部建立 I<sub>n</sub> 与 I<sub>n−2</sub> 的关系。</li>
+</ul>
+
+<h4 class="expl-h">四、例题</h4>
+<div class="expl-eg"><p class="expl-q"><b>例 1</b> 求 <span class="fm"><span class="op">∫</span> x<sup>2</sup>e<sup>x</sup> dx</span>。</p>
+<p class="expl-s"><b>解</b> 幂 × 指数，取幂作 u，降次。第一次：令 <span class="fm">u = x<sup>2</sup></span>，<span class="fm">dv = e<sup>x</sup>dx</span>，则 <span class="fm">du = 2x dx</span>，<span class="fm">v = e<sup>x</sup></span>。<br><span class="fm">原式 = x<sup>2</sup>e<sup>x</sup> − <span class="op">∫</span> e<sup>x</sup>·2x dx = x<sup>2</sup>e<sup>x</sup> − 2<span class="op">∫</span> x e<sup>x</sup> dx</span><br>对 <span class="fm"><span class="op">∫</span> x e<sup>x</sup> dx</span> 再来一次：<span class="fm">u = x</span>，<span class="fm">dv = e<sup>x</sup>dx</span>，得 <span class="fm">x e<sup>x</sup> − <span class="op">∫</span> e<sup>x</sup> dx = x e<sup>x</sup> − e<sup>x</sup></span>。<br>代回：<br><span class="fm">原式 = x<sup>2</sup>e<sup>x</sup> − 2(x e<sup>x</sup> − e<sup>x</sup>) + C = e<sup>x</sup>(x<sup>2</sup> − 2x + 2) + C</span><br>验算：<span class="fm">[e<sup>x</sup>(x<sup>2</sup> − 2x + 2)]′ = e<sup>x</sup>(x<sup>2</sup> − 2x + 2) + e<sup>x</sup>(2x − 2) = e<sup>x</sup>x<sup>2</sup></span>，正确。</p>
+<p class="expl-t">几次分部后，收尾处的常数要一起并进 C；括号一定要展开检查，否则容易漏符号。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 2</b> 求 <span class="fm"><span class="op">∫</span> ln x dx</span>。</p>
+<p class="expl-s"><b>解</b> 被积函数只有 ln x 一项，看起来无从下手。办法是把 dv 取成 dx：令 <span class="fm">u = ln x</span>，<span class="fm">dv = dx</span>，则 <span class="fm">du = dx/x</span>，<span class="fm">v = x</span>。<br><span class="fm">原式 = x ln x − <span class="op">∫</span> x · (1/x) dx = x ln x − <span class="op">∫</span> dx = x ln x − x + C</span><br>验算：<span class="fm">(x ln x − x)′ = ln x + x·(1/x) − 1 = ln x</span>，正确。</p>
+<p class="expl-t">「只含 ln 或反三角」时，dv = dx 是唯一出路，这个套路要形成条件反射。同理 <span class="fm"><span class="op">∫</span> arctan x dx = x arctan x − ½ln(1 + x<sup>2</sup>) + C</span>。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 3</b> 求 <span class="fm"><span class="op">∫</span> e<sup>x</sup>sin x dx</span>。</p>
+<p class="expl-s"><b>解</b> 指数与三角「地位相当」，取谁都行，关键是两次都取同一类。记原积分为 I。<br>第一次：令 <span class="fm">u = sin x</span>，<span class="fm">dv = e<sup>x</sup>dx</span>，则 <span class="fm">du = cos x dx</span>，<span class="fm">v = e<sup>x</sup></span>：<br><span class="fm">I = e<sup>x</sup>sin x − <span class="op">∫</span> e<sup>x</sup>cos x dx</span><br>第二次，对后一项仍取三角作 u：<span class="fm">u = cos x</span>，<span class="fm">dv = e<sup>x</sup>dx</span>，则 <span class="fm">du = −sin x dx</span>：<br><span class="fm"><span class="op">∫</span> e<sup>x</sup>cos x dx = e<sup>x</sup>cos x + <span class="op">∫</span> e<sup>x</sup>sin x dx = e<sup>x</sup>cos x + I</span><br>代回：<br><span class="fm">I = e<sup>x</sup>sin x − e<sup>x</sup>cos x − I</span><br>把 −I 移到左边：<span class="fm">2I = e<sup>x</sup>(sin x − cos x)</span>，故<br><span class="fm">I = ½ e<sup>x</sup>(sin x − cos x) + C</span></p>
+<p class="expl-t">循环型的关键是「认出来」：第二次分部后 I 重新出现，就要停手移项，绝不能再分下去，否则会无限循环。移项后别忘了除以 2，常数在最后补。</p></div>
+
+<h4 class="expl-h">五、常考套路与易错</h4>
+<ul>
+<li><b>u 选错会越算越长。</b>比如 <span class="fm"><span class="op">∫</span> x ln x dx</span> 若取 u = x，则 du = dx、v = ½x<sup>2</sup>，得到 <span class="fm">½x<sup>2</sup>ln x − ½<span class="op">∫</span> x dx</span> 也能算，但若遇到 <span class="fm"><span class="op">∫</span> x<sup>2</sup>ln x dx</span>，取错方向会让幂次一路升上去，永远积不完。判断标准只有一条：分部后的 ∫v du 是否比原积分更简单。</li>
+<li><b>循环型忘记移项或忘记除以 2。</b></li>
+<li><b>分部后 ∫v du 积不出来，说明 u 选反了</b>，退回去换一种选法，不要硬撑。</li>
+<li><b>多次分部时符号串联错误。</b>每分部一次带一个负号，建议每步单独写一行再代入，别一步跨两级。</li>
+</ul>
+<p><b>补充：递推型怎么写。</b>以 <span class="fm">I<sub>n</sub> = <span class="op">∫</span> sec<sup>n</sup>x dx</span>（n ≥ 3）为例，先把一次 sec<sup>2</sup>x 拆出来作 dv：<span class="fm">I<sub>n</sub> = <span class="op">∫</span> sec<sup>n−2</sup>x d(tan x)</span>，分部得 <span class="fm">I<sub>n</sub> = sec<sup>n−2</sup>x tan x − (n − 2)<span class="op">∫</span> sec<sup>n−2</sup>x tan<sup>2</sup>x dx</span>，再用 <span class="fm">tan<sup>2</sup>x = sec<sup>2</sup>x − 1</span>，右边就出现 <span class="fm">I<sub>n</sub></span> 与 <span class="fm">I<sub>n−2</sub></span> 的关系，移项即得递推式。套路是固定的：<b>拆出一个平方因子当 dv，剩下的升次项用恒等式压回去</b>。</p>
+<p>还有一点要习惯：分部与换元经常连着用。碰到 <span class="fm"><span class="op">∫</span> e<sup>√x</sup> dx</span> 这种，先令 t = √x 换成 <span class="fm"><span class="op">∫</span> 2t e<sup>t</sup> dt</span>，再分部；顺序反了会难算得多。</p>
+<p>分部积分把「乘积」这一大类打通了，但它每次分部都会把问题往「有理函数」的方向推——<span class="fm"><span class="op">∫</span> x arctan x dx</span> 分部一次就变成有理函数积分。所以本章的最后一节，是把有理函数这一「兜底类型」彻底解决。</p>
+</div><!--/EXPL:m4-s3-->
+
+<!--EXPL:m4-s4--><div class="explain" data-expl="m4-s4">
+<h4 class="expl-h">一、这节解决什么问题</h4>
+<p>前三节给了两类工具：换元、分部。它们各有局限，但有一个共同点——都在把问题往同一个方向推：<b>化成一个有理函数的积分</b>。比如分部之后出现 <span class="fm"><span class="op">∫</span> dx/(x<sup>2</sup> + 1)</span>，三角代换之后出现 <span class="fm"><span class="op">∫</span> dt/(1 + t<sup>2</sup>)</span>，都是有理函数。</p>
+<p>这一节要说明一件让人安心的事：<b>任何有理函数都能积出来，而且方法固定、不需要灵感</b>。所谓有理函数，就是两个多项式的商 <span class="fm">P(x)/Q(x)</span>。它不像 <span class="fm">e<sup>−x²</sup></span> 那样「积不出来」（那类函数的原函数不是初等函数），有理函数是初等函数世界里的「封闭类」。所以这一节是整章的收口，也是考试里最稳的得分点。</p>
+
+<h4 class="expl-h">二、第一步：先看次数</h4>
+<p><b>定义</b>若分子次数小于分母次数，称 <span class="fm">P/Q</span> 为<b>真分式</b>；否则称为<b>假分式</b>。</p>
+<p><b>规则</b>：遇到假分式（分子次数 ≥ 分母次数），必须先做<b>多项式长除法</b>，把它拆成</p>
+<p><span class="fm">P(x)/Q(x) = 多项式 + 真分式</span></p>
+<p>多项式部分直接逐项积分，剩下的真分式才做部分分式分解。<b>不能跳这一步</b>：部分分式分解的公式只对真分式成立，对假分式硬拆，待定系数会解不出来（方程个数与未知数个数对不上）。这就是易错点里「假分式先除」的由来。</p>
+
+<h4 class="expl-h">三、第二步：分母分解到实系数不可约</h4>
+<p>先把分母 Q(x) 在实数范围内彻底分解，只可能剩下两种因子：</p>
+<ul>
+<li><b>一次因子</b> <span class="fm">(x − a)<sup>k</sup></span>；</li>
+<li><b>不可约二次因子</b> <span class="fm">(x<sup>2</sup> + px + q)<sup>m</sup></span>，其中 <span class="fm">p<sup>2</sup> − 4q &lt; 0</span>（判别式为负，不能再用实根拆开）。</li>
+</ul>
+<p><b>分解规则</b>（这是本节唯一需要背的东西）：</p>
+<ul>
+<li>每个 <span class="fm">(x − a)<sup>k</sup></span> 贡献 k 项：<span class="fm">A<sub>1</sub>/(x − a) + A<sub>2</sub>/(x − a)<sup>2</sup> + … + A<sub>k</sub>/(x − a)<sup>k</sup></span>；</li>
+<li>每个 <span class="fm">(x<sup>2</sup> + px + q)<sup>m</sup></span> 贡献 m 项：每项分子是一次式 <span class="fm">B<sub>j</sub>x + C<sub>j</sub></span>，分母是 <span class="fm">(x<sup>2</sup> + px + q)<sup>j</sup></span>。</li>
+</ul>
+<p>系数用<b>待定系数法</b>求：通分后比较同次幂的系数（解线性方程组），或者给 x 赋几个特殊值（尤其是分母的根）直接算出部分系数。两种方法可以混用，赋特殊值通常更快。</p>
+<p><b>关键提醒</b>：分解之前必须确认分母已经分解到实系数不可约。若把 <span class="fm">x<sup>2</sup> − 1</span> 当成不可约二次因子写 <span class="fm">(Bx + C)/(x<sup>2</sup> − 1)</span>，虽然形式上也对，但系数解出来会出现矛盾——因为它其实能继续拆成 <span class="fm">(x − 1)(x + 1)</span>。</p>
+
+<h4 class="expl-h">四、第三步：两类基本积分</h4>
+<p>分解完，只剩四种形状的项，全都有固定解法：</p>
+<ul>
+<li><span class="fm"><span class="op">∫</span> A/(x − a) dx = A ln|x − a| + C</span>；</li>
+<li><span class="fm"><span class="op">∫</span> A/(x − a)<sup>k</sup> dx = A(x − a)<sup>1−k</sup>/(1 − k) + C</span>（k ≥ 2）；</li>
+<li><span class="fm"><span class="op">∫</span> (Ax + B)/(x<sup>2</sup> + px + q) dx</span>：先配方，再<b>拆成两项</b>——一项凑成 <span class="fm">ln</span>（分子配出分母的导数 2x + p），一项凑成 <span class="fm">arctan</span>；</li>
+<li>重二次因子 <span class="fm">(x<sup>2</sup> + px + q)<sup>m</sup></span>（m ≥ 2）：先配方换元成 <span class="fm"><span class="op">∫</span> dt/(t<sup>2</sup> + c<sup>2</sup>)<sup>m</sup></span>，再用递推公式降 m。</li>
+</ul>
+<p>最核心的一条是第三项。以 <span class="fm">x<sup>2</sup> + px + q</span> 为例，配方得 <span class="fm">(x + p/2)<sup>2</sup> + c<sup>2</sup></span>，其中 <span class="fm">c<sup>2</sup> = q − p<sup>2</sup>/4 &gt; 0</span>。然后把分子写成</p>
+<p><span class="fm">Ax + B = (A/2)(2x + p) + (B − Ap/2)</span></p>
+<p>前半部分正好是分母导数的倍数，积出 ln；后半部分是常数，配方后积出 arctan。</p>
+
+<h4 class="expl-h">五、例题</h4>
+<div class="expl-eg"><p class="expl-q"><b>例 1</b> 求 <span class="fm"><span class="op">∫</span> (x<sup>3</sup> + 1)/(x<sup>2</sup> − 1) dx</span>。</p>
+<p class="expl-s"><b>解</b> 分子三次、分母二次，是假分式，先做多项式除法：<br><span class="fm">x<sup>3</sup> + 1 = x(x<sup>2</sup> − 1) + (x + 1)</span><br>所以<br><span class="fm">(x<sup>3</sup> + 1)/(x<sup>2</sup> − 1) = x + (x + 1)/(x<sup>2</sup> − 1)</span><br>再把真分式的分母分解：<span class="fm">x<sup>2</sup> − 1 = (x − 1)(x + 1)</span>，分子正好含因子 x + 1，约掉：<br><span class="fm">(x + 1)/(x<sup>2</sup> − 1) = 1/(x − 1)</span><br>于是<br><span class="fm">原式 = <span class="op">∫</span> x dx + <span class="op">∫</span> dx/(x − 1) = x<sup>2</sup>/2 + ln|x − 1| + C</span></p>
+<p class="expl-t">先除、再约、后积——三步的顺序不能颠倒。约分这一步别漏，否则会白白多算一遍待定系数。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 2</b> 求 <span class="fm"><span class="op">∫</span> (x + 1)/(x<sup>2</sup> − 3x + 2) dx</span>。</p>
+<p class="expl-s"><b>解</b> 分子一次、分母二次，已是真分式。分母分解：<span class="fm">x<sup>2</sup> − 3x + 2 = (x − 1)(x − 2)</span>，两个不同一次因子，设<br><span class="fm">(x + 1)/[(x − 1)(x − 2)] = A/(x − 1) + B/(x − 2)</span><br>去分母：<span class="fm">x + 1 = A(x − 2) + B(x − 1)</span>。<br>赋特殊值：令 x = 1，左边 2，右边 A(−1)，得 <span class="fm">A = −2</span>；令 x = 2，左边 3，右边 B(1)，得 <span class="fm">B = 3</span>。<br>所以<br><span class="fm">原式 = <span class="op">∫</span> [ −2/(x − 1) + 3/(x − 2) ] dx = −2ln|x − 1| + 3ln|x − 2| + C</span></p>
+<p class="expl-t">赋特殊值比比较系数快得多，尤其分母是互异一次因子时。但要注意：赋的值必须在定义域内验证过，且每项只能定一个系数。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 3</b> 求 <span class="fm"><span class="op">∫</span> (x + 3)/(x<sup>2</sup> + 2x + 5) dx</span>。</p>
+<p class="expl-s"><b>解</b> 分母判别式 <span class="fm">4 − 20 = −16 &lt; 0</span>，不可约，无法再拆一次因子。这是「一次分子 + 不可约二次分母」型，配方 + 拆项。<br>配方：<span class="fm">x<sup>2</sup> + 2x + 5 = (x + 1)<sup>2</sup> + 4</span>，分母导数为 <span class="fm">2x + 2</span>。<br>把分子凑成分母导数的倍数加常数：<br><span class="fm">x + 3 = ½(2x + 2) + 2</span><br>于是拆成两个积分：<br><span class="fm">原式 = ½<span class="op">∫</span> (2x + 2)dx/(x<sup>2</sup> + 2x + 5) + 2<span class="op">∫</span> dx/[(x + 1)<sup>2</sup> + 4]</span><br>第一个用凑微分：<span class="fm">½ ln(x<sup>2</sup> + 2x + 5)</span>（真分式且分母恒正，可省绝对值）。<br>第二个套表 <span class="fm"><span class="op">∫</span> du/(u<sup>2</sup> + a<sup>2</sup>) = (1/a)arctan(u/a)</span>，此处 u = x + 1，a = 2：<br><span class="fm">2 · (1/2) arctan((x + 1)/2) = arctan((x + 1)/2)</span><br>合并：<br><span class="fm">原式 = ½ln(x<sup>2</sup> + 2x + 5) + arctan((x + 1)/2) + C</span></p>
+<p class="expl-t">「配出分母导数」是这一型的固定动作：分子先写成 (A/2)(分母导数) + 常数，一个 ln 一个 arctan，缺一不可。外面那个 1/a 也常被漏掉。</p></div>
+
+<h4 class="expl-h">六、可化为有理函数的类型与易错</h4>
+<p>有些被积函数看着不像有理函数，但<b>换元后就是</b>，这类题在考试里常与本节合并出现：</p>
+<ul>
+<li><b>根式型</b>：含 <span class="fm">√(ax + b)</span> 或 <span class="fm">(ax + b)<sup>1/n</sup></span>，令 <span class="fm">t = √(ax + b)</span> 或 <span class="fm">t = (ax + b)<sup>1/n</sup></span>，把根号整体消掉；若同时出现 <span class="fm">√[n](ax + b)</span> 与 <span class="fm">√[m](ax + b)</span>，取 n、m 的最小公倍数作根指数。</li>
+<li><b>三角有理式</b>：只含 sin x、cos x 的有理式，令 <span class="fm">t = tan(x/2)</span>（万能代换），则 <span class="fm">sin x = 2t/(1 + t<sup>2</sup>)</span>、<span class="fm">cos x = (1 − t<sup>2</sup>)/(1 + t<sup>2</sup>)</span>、<span class="fm">dx = 2dt/(1 + t<sup>2</sup>)</span>，一定化为有理函数。万能代换万能但计算量大，能凑微分时优先凑微分。</li>
+</ul>
+<p><b>易错清单</b></p>
+<ul>
+<li><b>假分式不先除就分解</b>，方程个数不够，系数解不出。</li>
+<li><b>分母没分解到底</b>，把可约二次当不可约，或漏掉重因子的高次项。</li>
+<li><b>重因子只写一项</b>，如 <span class="fm">(x − 1)<sup>2</sup></span> 必须写 <span class="fm">A/(x − 1) + B/(x − 1)<sup>2</sup></span> 两项。</li>
+<li><b>把 1/(x<sup>2</sup> − a<sup>2</sup>) 直接套 arctan 公式</b>。arctan 公式对应的是「加号」<span class="fm">x<sup>2</sup> + a<sup>2</sup></span>；减号必须拆成 <span class="fm">(1/2a)[1/(x − a) − 1/(x + a)]</span>，积出对数。</li>
+<li><b>漏 + C、漏绝对值、漏 1/a</b>，这三样在本节出现频率最高。</li>
+</ul>
+<p>学完这四节，整章的地图就完整了：<b>查表 → 凑微分 → 换元 → 分部 → 有理函数</b>。拿到一个积分，先扫一眼能不能查表，再判断属于哪一类，最后才动笔。这个判断顺序，比任何一条公式都重要。</p>
+</div><!--/EXPL:m4-s4-->

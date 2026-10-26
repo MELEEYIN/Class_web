@@ -1,0 +1,329 @@
+<!--EXPL:m8-s1--><div class="explain" data-expl="m8-s1">
+<h4 class="expl-h">一、这节要解决什么问题</h4>
+<p>现实里很多量只有大小是不够的。你说「走了 5 公里」，别人还是不知道你在哪儿，还得说清往哪个方向走；力、速度、加速度、电场强度也都是这样——既有大小，又有方向。数学上把这种量抽象出来就叫<b>向量</b>（也叫矢量），画成一条有向线段：线段的长度是它的<b>模</b>，箭头指的是它的方向。</p>
+<p>可是光会画图没法计算。于是要做一件事：把几何翻译成代数。在空间里取一个定点 O 作原点，作三条两两垂直的数轴 x、y、z，就有空间直角坐标系。这时每个点 P 都唯一对应一个从原点出发的向量 <b>OP</b>，称为点 P 的<b>向径</b>。点和向量一一对应，向量问题就变成了三个数的运算问题。这是整章的出发点，也是后面所有公式的底座。</p>
+<p>本节四条知识点看似零散，其实是同一件事的四个侧面：坐标运算（怎么算）、模与方向余弦（量大小和朝向）、单位向量（只要方向）、定比分点（用向量表示点的位置）。</p>
+
+<h4 class="expl-h">二、定义与定理</h4>
+<p><b>定义 1（自由向量）</b> 只有大小和方向、与起点位置无关的向量叫自由向量。两个向量只要模相等、方向相同就视为相等，可以任意平移。模记作 |<b>a</b>|；模为 1 的叫单位向量；模为 0 的叫零向量 <b>0</b>，它的方向是任意的。</p>
+<p><b>定义 2（线性运算）</b> 加法用三角形法则（首尾相接，从起点指向终点）或平行四边形法则；数乘 λ<b>a</b>：λ 为正时与 <b>a</b> 同向、模为 λ|<b>a</b>|，λ 为负时反向，λ = 0 得零向量。运算满足交换律、结合律与分配律：<span class="fm"><b>a</b> + <b>b</b> = <b>b</b> + <b>a</b>，(λ + μ)<b>a</b> = λ<b>a</b> + μ<b>a</b>，λ(<b>a</b> + <b>b</b>) = λ<b>a</b> + λ<b>b</b></span>。</p>
+<p><b>定理 1（共线判据）</b> 设 <b>b</b> 不是零向量，则 <b>a</b> 与 <b>b</b> 平行（共线）的充要条件是存在数 λ，使 <span class="fm"><b>a</b> = λ<b>b</b></span>。用坐标说，就是对应分量成比例——注意遇到分量为 0 时比例式无意义，下一节用叉积判断更保险。</p>
+<p><b>定理 2（坐标表示）</b> 取 x、y、z 轴上的单位向量 <b>i</b>、<b>j</b>、<b>k</b>，任一向量可唯一写成</p>
+<p><span class="fm"><b>a</b> = a<sub>1</sub><b>i</b> + a<sub>2</sub><b>j</b> + a<sub>3</sub><b>k</b> = (a<sub>1</sub>, a<sub>2</sub>, a<sub>3</sub>)</span></p>
+<p>并且加减、数乘全部按分量走：<span class="fm"><b>a</b> ± <b>b</b> = (a<sub>1</sub> ± b<sub>1</sub>, a<sub>2</sub> ± b<sub>2</sub>, a<sub>3</sub> ± b<sub>3</sub>)，λ<b>a</b> = (λa<sub>1</sub>, λa<sub>2</sub>, λa<sub>3</sub>)</span>。</p>
+<p><b>定理 3（模与方向余弦）</b> 设 <b>a</b> = (a<sub>1</sub>, a<sub>2</sub>, a<sub>3</sub>)，则</p>
+<p><span class="fm">|<b>a</b>| = √(a<sub>1</sub><sup>2</sup> + a<sub>2</sub><sup>2</sup> + a<sub>3</sub><sup>2</sup>)</span></p>
+<p>设 <b>a</b> 与 x、y、z 轴正向的夹角依次为 α、β、γ（称为方向角，取值在 0 到 π 之间），则这三个角的余弦叫方向余弦：</p>
+<p><span class="fm">cos α = <span class="fr"><span class="n">a<sub>1</sub></span><span class="d">|<b>a</b>|</span></span>，cos β = <span class="fr"><span class="n">a<sub>2</sub></span><span class="d">|<b>a</b>|</span></span>，cos γ = <span class="fr"><span class="n">a<sub>3</sub></span><span class="d">|<b>a</b>|</span></span></span></p>
+<p>它们之间恒有关系 <span class="fm">cos<sup>2</sup>α + cos<sup>2</sup>β + cos<sup>2</sup>γ = 1</span>。</p>
+<p><b>定理 4（单位向量）</b> 若 <b>a</b> 不是零向量，则与 <b>a</b> 同方向的单位向量是</p>
+<p><span class="fm"><b>e</b><sub>a</sub> = <span class="fr"><span class="n"><b>a</b></span><span class="d">|<b>a</b>|</span></span> = (cos α, cos β, cos γ)</span></p>
+<p><b>定理 5（定比分点）</b> M 在有向线段 AB 上，且 <b>AM</b> = λ<b>MB</b>（λ ≠ −1），O 是任意一点，则</p>
+<p><span class="fm"><b>OM</b> = <span class="fr"><span class="n"><b>OA</b> + λ<b>OB</b></span><span class="d">1 + λ</span></span></span></p>
+<p>按坐标写，就是 x、y、z 三个分量各做一次同样的加权平均；λ = 1 时得到中点公式。</p>
+
+<h4 class="expl-h">三、关键推导</h4>
+<p><b>模的公式</b>靠两次勾股定理：先看点 P(a<sub>1</sub>, a<sub>2</sub>, a<sub>3</sub>) 在 xOy 面上的投影 P′(a<sub>1</sub>, a<sub>2</sub>, 0)，则 |OP′|<sup>2</sup> = a<sub>1</sub><sup>2</sup> + a<sub>2</sub><sup>2</sup>；再在直角三角形 OPP′ 中用一次勾股：|<b>a</b>|<sup>2</sup> = |OP′|<sup>2</sup> + a<sub>3</sub><sup>2</sup>。两步合起来就是上面那个根式。</p>
+<p><b>方向余弦平方和为 1</b>：由定理 4，<b>e</b><sub>a</sub> = (cos α, cos β, cos γ) 本身是单位向量，它的模当然等于 1，代入模的公式立刻得到该恒等式。所以这个式子不是新公式，只是「单位向量的模是 1」的翻译。</p>
+<p><b>定比分点公式</b>：把 <b>AM</b> = λ<b>MB</b> 用 O 点拆开，即 <b>OM</b> − <b>OA</b> = λ(<b>OB</b> − <b>OM</b>)，移项得 (1 + λ)<b>OM</b> = <b>OA</b> + λ<b>OB</b>，两边除以 1 + λ 即可。这个「拆成同一个起点」的手法在本章反复出现，务必熟练。</p>
+<p><b>三角不等式</b> |<b>a</b> + <b>b</b>| ≤ |<b>a</b>| + |<b>b</b>|：由余弦定理算出 |<b>a</b> + <b>b</b>|<sup>2</sup> = |<b>a</b>|<sup>2</sup> + |<b>b</b>|<sup>2</sup> + 2|<b>a</b>||<b>b</b>|cos θ，因为 cos θ ≤ 1，右边不超过 (|<b>a</b>| + |<b>b</b>|)<sup>2</sup>。几何上就是「两点之间直线段最短」。</p>
+
+<h4 class="expl-h">四、例题</h4>
+<div class="expl-eg"><p class="expl-q"><b>例 1</b> 已知 A(1, 2, 3)、B(3, 0, −1)，求向量 <b>AB</b> 的坐标、模、方向余弦与单位向量。</p>
+<p class="expl-s"><b>解</b> 第一步，终点减起点：<span class="fm"><b>AB</b> = (3 − 1, 0 − 2, −1 − 3) = (2, −2, −4)</span>。这一步最容易写成起点减终点，方向就整体反了。</p>
+<p class="expl-s">第二步，求模：<span class="fm">|<b>AB</b>| = √(4 + 4 + 16) = √24 = 2√6</span>。</p>
+<p class="expl-s">第三步，分量逐个除以模得方向余弦：<span class="fm">cos α = <span class="fr"><span class="n">2</span><span class="d">2√6</span></span> = <span class="fr"><span class="n">√6</span><span class="d">6</span></span>，cos β = −<span class="fr"><span class="n">√6</span><span class="d">6</span></span>，cos γ = <span class="fr"><span class="n">−4</span><span class="d">2√6</span></span> = −<span class="fr"><span class="n">√6</span><span class="d">3</span></span></span>。</p>
+<p class="expl-s">第四步，单位向量就是这三个数排成的向量：<span class="fm"><b>e</b> = (<span class="fr"><span class="n">√6</span><span class="d">6</span></span>, −<span class="fr"><span class="n">√6</span><span class="d">6</span></span>, −<span class="fr"><span class="n">√6</span><span class="d">3</span></span>)</span>。验算：1/6 + 1/6 + 4/6 = 1，平方和为 1，说明没算错。</p>
+</div>
+<div class="expl-eg"><p class="expl-q"><b>例 2</b> 已知 |<b>a</b>| = 6，<b>a</b> 与 x 轴正向成 60°、与 y 轴正向成 45°，求 <b>a</b> 的坐标。</p>
+<p class="expl-s"><b>解</b> 已知两个方向角，第三个由平方和恒等式定。由 <span class="fm">cos<sup>2</sup>α + cos<sup>2</sup>β + cos<sup>2</sup>γ = 1</span> 得 <span class="fm">cos<sup>2</sup>γ = 1 − <span class="fr"><span class="n">1</span><span class="d">4</span></span> − <span class="fr"><span class="n">1</span><span class="d">2</span></span> = <span class="fr"><span class="n">1</span><span class="d">4</span></span></span>，故 cos γ = ±1/2，γ = 60° 或 120°。</p>
+<p class="expl-s">再由 <b>a</b> = |<b>a</b>|(cos α, cos β, cos γ) 得 <span class="fm"><b>a</b> = 6(<span class="fr"><span class="n">1</span><span class="d">2</span></span>, <span class="fr"><span class="n">√2</span><span class="d">2</span></span>, ±<span class="fr"><span class="n">1</span><span class="d">2</span></span>) = (3, 3√2, ±3)</span>。两组解都符合题设，因为与 z 轴成锐角还是钝角题目没有限制。</p>
+<p class="expl-t">这题提醒：方向余弦三个数不是独立的，知道两个必能定第三个的绝对值；符号要由题设或图形判断，不能只写正号。</p>
+</div>
+<div class="expl-eg"><p class="expl-q"><b>例 3</b> 已知 A(1, 0, 1)、B(4, 3, −2)，点 M 分 <b>AB</b> 成 2 比 1（即 <b>AM</b> = 2<b>MB</b>），求 M 的坐标，并求 AB 的中点 N。</p>
+<p class="expl-s"><b>解</b> 直接套定比分点公式，λ = 2：<span class="fm"><b>OM</b> = <span class="fr"><span class="n"><b>OA</b> + 2<b>OB</b></span><span class="d">3</span></span> = <span class="fr"><span class="n">(1, 0, 1) + (8, 6, −4)</span><span class="d">3</span></span> = (3, 2, −1)</span>，故 M(3, 2, −1)。</p>
+<p class="expl-s">检验一下比例：<b>AM</b> = (2, 2, −2)，<b>MB</b> = (1, 1, −1)，确实 <b>AM</b> = 2<b>MB</b>。</p>
+<p class="expl-s">中点取 λ = 1：<span class="fm">N(<span class="fr"><span class="n">1 + 4</span><span class="d">2</span></span>, <span class="fr"><span class="n">0 + 3</span><span class="d">2</span></span>, <span class="fr"><span class="n">1 − 2</span><span class="d">2</span></span>) = (<span class="fr"><span class="n">5</span><span class="d">2</span></span>, <span class="fr"><span class="n">3</span><span class="d">2</span></span>, −<span class="fr"><span class="n">1</span><span class="d">2</span></span>)</span>。</p>
+</div>
+
+<h4 class="expl-h">五、与后文的联系与易错提醒</h4>
+<p>单位向量是后面求「法向量」「方向向量」的最后一步：任何向量除以它的模，就得到了能直接塞进平面或直线方程的方向。定比分点则用来求交点、重心与分割比例，第四节求直线与平面的交点时会再用一次。</p>
+<ul>
+<li>方向余弦是「分量 ÷ 模」，不是分量本身；写完一定要用平方和为 1 验一遍。</li>
+<li>零向量没有方向，不能求单位向量，也不能拿来定直线方向。</li>
+<li>共线写成坐标成比例时，若某个分量为 0 会失效（例如 (1, 0, 2) 与 (2, 0, 4)），这时改用下一节的叉积判据最稳。</li>
+</ul>
+</div><!--/EXPL:m8-s1-->
+
+<!--EXPL:m8-s2--><div class="explain" data-expl="m8-s2">
+<h4 class="expl-h">一、这节要解决什么问题</h4>
+<p>向量的加法回答「合起来是什么」，但很多问题问的是别的东西。比如恒力 <b>F</b> 拉着物体沿直线走了位移 <b>s</b>，做了多少功？只有 <b>F</b> 沿 <b>s</b> 方向的那部分起作用，大小是 |<b>F</b>|cos θ，所以功 W = |<b>F</b>||<b>s</b>|cos θ。这个「一个向量的模乘上另一个向量在它上面的投影」的运算，就是<b>数量积</b>，结果是一个数。</p>
+<p>再比如用扳手拧螺母，力矩的大小是力臂乘力，方向垂直于力和力臂张成的平面，由右手定则决定。这个「大小等于两向量张成的平行四边形面积、方向垂直两者」的运算，就是<b>向量积</b>，结果是一个向量。</p>
+<p>两个向量再加一个，问它们张成的平行六面体有多大、或者问三个点是否共面，就要用<b>混合积</b>。这三种乘法把向量的几何关系全部代数化了：垂直、平行、共面、面积、体积、夹角，全都可以用坐标算出来。这一节是整章的工具箱，务必背到能默写。</p>
+
+<h4 class="expl-h">二、定义与定理</h4>
+<p><b>定义 1（数量积）</b> 两个向量 <b>a</b>、<b>b</b> 的夹角记作 θ，规定 θ 取 0 到 π。称</p>
+<p><span class="fm"><b>a</b> · <b>b</b> = |<b>a</b>||<b>b</b>|cos θ</span></p>
+<p>为数量积（内积、点积），结果是一个<b>数</b>。若 <b>a</b> = (a<sub>1</sub>, a<sub>2</sub>, a<sub>3</sub>)，<b>b</b> = (b<sub>1</sub>, b<sub>2</sub>, b<sub>3</sub>)，则</p>
+<p><span class="fm"><b>a</b> · <b>b</b> = a<sub>1</sub>b<sub>1</sub> + a<sub>2</sub>b<sub>2</sub> + a<sub>3</sub>b<sub>3</sub></span></p>
+<p>性质：交换律 <b>a</b>·<b>b</b> = <b>b</b>·<b>a</b>；分配律 (<b>a</b> + <b>b</b>)·<b>c</b> = <b>a</b>·<b>c</b> + <b>b</b>·<b>c</b>；数乘可提出 (λ<b>a</b>)·<b>b</b> = λ(<b>a</b>·<b>b</b>)；特别地 <b>a</b>·<b>a</b> = |<b>a</b>|<sup>2</sup>。</p>
+<p><b>定理 1（垂直判据）</b> <b>a</b> ⊥ <b>b</b> ⟺ <b>a</b> · <b>b</b> = 0（这里允许其中一个为零向量）。</p>
+<p><b>定义 2（向量积）</b> <b>a</b> 与 <b>b</b> 的向量积 <b>a</b> × <b>b</b> 是一个向量，规定：模为</p>
+<p><span class="fm">|<b>a</b> × <b>b</b>| = |<b>a</b>||<b>b</b>|sin θ</span></p>
+<p>方向同时垂直于 <b>a</b> 与 <b>b</b>，且 <b>a</b>、<b>b</b>、<b>a</b> × <b>b</b> 依次构成右手系（右手四指从 <b>a</b> 弯向 <b>b</b>，拇指指向即结果方向）。坐标公式为</p>
+<p><span class="fm"><b>a</b> × <b>b</b> = (a<sub>2</sub>b<sub>3</sub> − a<sub>3</sub>b<sub>2</sub>, a<sub>3</sub>b<sub>1</sub> − a<sub>1</sub>b<sub>3</sub>, a<sub>1</sub>b<sub>2</sub> − a<sub>2</sub>b<sub>1</sub>)</span></p>
+<p>最好这样记：第一行写 <b>i</b>、<b>j</b>、<b>k</b>，第二行写 <b>a</b> 的三个坐标，第三行写 <b>b</b> 的三个坐标，作三阶行列式并按第一行展开。性质：反交换 <b>a</b> × <b>b</b> = −<b>b</b> × <b>a</b>；分配律成立；<b>a</b> × <b>a</b> = <b>0</b>。</p>
+<p><b>定理 2（平行判据与面积）</b> <b>a</b> ∥ <b>b</b> ⟺ <b>a</b> × <b>b</b> = <b>0</b>，且 |<b>a</b> × <b>b</b>| 等于以 <b>a</b>、<b>b</b> 为邻边的平行四边形的面积，故以它们为两边的三角形面积为 |<b>a</b> × <b>b</b>| 的一半。</p>
+<p><b>定义 3（混合积）</b> 三个向量先作叉积再作点积，得数</p>
+<p><span class="fm">(<b>a</b> <b>b</b> <b>c</b>) = <b>a</b> · (<b>b</b> × <b>c</b>) = a<sub>1</sub>(b<sub>2</sub>c<sub>3</sub> − b<sub>3</sub>c<sub>2</sub>) − a<sub>2</sub>(b<sub>1</sub>c<sub>3</sub> − b<sub>3</sub>c<sub>1</sub>) + a<sub>3</sub>(b<sub>1</sub>c<sub>2</sub> − b<sub>2</sub>c<sub>1</sub>)</span></p>
+<p>其绝对值等于以三向量为棱的平行六面体的体积；三向量共面 ⟺ 混合积为零。轮换三个向量不改变值：(<b>a</b> <b>b</b> <b>c</b>) = (<b>b</b> <b>c</b> <b>a</b>) = (<b>c</b> <b>a</b> <b>b</b>)；任意对调两个则变号。</p>
+
+<h4 class="expl-h">三、关键推导</h4>
+<p><b>点积的坐标式</b>：把 <b>a</b>、<b>b</b> 用 <b>i</b>、<b>j</b>、<b>k</b> 展开，按分配律逐项相乘一共九项。注意 <b>i</b>·<b>i</b> = <b>j</b>·<b>j</b> = <b>k</b>·<b>k</b> = 1，而 <b>i</b>·<b>j</b> = <b>j</b>·<b>k</b> = <b>k</b>·<b>i</b> = 0（互相垂直），九项里只剩三个「同名」的，于是得到 a<sub>1</sub>b<sub>1</sub> + a<sub>2</sub>b<sub>2</sub> + a<sub>3</sub>b<sub>3</sub>。</p>
+<p><b>叉积的坐标式</b>：同样展开，但要记住基向量的乘法表 <b>i</b> × <b>j</b> = <b>k</b>，<b>j</b> × <b>k</b> = <b>i</b>，<b>k</b> × <b>i</b> = <b>j</b>（顺序轮换为正），反序全变号，例如 <b>j</b> × <b>i</b> = −<b>k</b>。九项合并后即得上式。这就是行列式记法的来历。</p>
+<p><b>面积为什么是 |<b>a</b> × <b>b</b>|</b>：把 <b>b</b> 当底，高就是 <b>a</b> 在垂直于 <b>b</b> 方向上的分量，等于 |<b>a</b>|sin θ，底乘高正是 |<b>a</b>||<b>b</b>|sin θ。</p>
+<p><b>体积为什么是混合积</b>：以 <b>b</b>、<b>c</b> 为底，底面积 S = |<b>b</b> × <b>c</b>|，高 h 是 <b>a</b> 在 <b>b</b> × <b>c</b> 方向上的投影的绝对值，即 |<b>a</b>||cos φ|。于是 V = S·h = |<b>b</b> × <b>c</b>|·|<b>a</b>||cos φ| = |<b>a</b> · (<b>b</b> × <b>c</b>)|。体积为 0 就说明三个向量压在同一张平面内，得到共面判据。</p>
+
+<h4 class="expl-h">四、例题</h4>
+<div class="expl-eg"><p class="expl-q"><b>例 1</b> 设 <b>a</b> = (1, 2, 2)，<b>b</b> = (2, −1, 0)。求 <b>a</b>·<b>b</b>、两向量夹角、以它们为邻边的平行四边形面积与三角形面积。</p>
+<p class="expl-s"><b>解</b> 先算点积：<span class="fm"><b>a</b> · <b>b</b> = 1×2 + 2×(−1) + 2×0 = 0</span>，由定理 1 立即得 <b>a</b> ⊥ <b>b</b>，夹角 θ = 90°，不必再套夹角公式。这正是点积判垂直的用法。</p>
+<p class="expl-s">再算叉积，按分量逐个来：第一分量 2×0 − 2×(−1) = 2；第二分量 2×2 − 1×0 = 4；第三分量 1×(−1) − 2×2 = −5。所以 <span class="fm"><b>a</b> × <b>b</b> = (2, 4, −5)</span>。</p>
+<p class="expl-s">平行四边形面积 <span class="fm">S = |<b>a</b> × <b>b</b>| = √(4 + 16 + 25) = √45 = 3√5</span>；三角形面积是它的一半，即 <span class="fm"><span class="fr"><span class="n">3√5</span><span class="d">2</span></span></span>。</p>
+<p class="expl-t">注意：算面积一定取模，别把 (2, 4, −5) 当成答案；反过来，若题目只要方向（例如求平面法向量），就保留向量、不要取模。</p>
+</div>
+<div class="expl-eg"><p class="expl-q"><b>例 2</b> 判断四点 A(1, 0, 0)、B(0, 1, 1)、C(1, 1, 1)、D(0, 0, 2) 是否共面；若不共面，求四面体 ABCD 的体积。</p>
+<p class="expl-s"><b>解</b> 把四点化成同一个起点 A 的三个向量：<span class="fm"><b>AB</b> = (−1, 1, 1)，<b>AC</b> = (0, 1, 1)，<b>AD</b> = (−1, 0, 2)</span>。</p>
+<p class="expl-s">算混合积，按第一行展开：<span class="fm">(<b>AB</b> <b>AC</b> <b>AD</b>) = −1×(1×2 − 1×0) − 1×(0×2 − 1×(−1)) + 1×(0×0 − 1×(−1))</span>，逐项化简为 −2 − 1 + 1 = −2。</p>
+<p class="expl-s">混合积不为零，三向量不共面，四点不共面。平行六面体体积为 |−2| = 2，而四面体体积是它的六分之一：<span class="fm">V = <span class="fr"><span class="n">1</span><span class="d">6</span></span> × 2 = <span class="fr"><span class="n">1</span><span class="d">3</span></span></span>。</p>
+<p class="expl-t">两个易错点：一是必须先把三个向量统一到同一个起点，直接用 AB、BC、CD 会算错；二是判别只用「是否为零」，符号（这里是负号）没有几何意义，体积要加绝对值。</p>
+</div>
+<div class="expl-eg"><p class="expl-q"><b>例 3</b> 已知 |<b>a</b>| = 3，|<b>b</b>| = 2，<b>a</b> 与 <b>b</b> 的夹角为 60°。求 |<b>a</b> + <b>b</b>|、|<b>a</b> × <b>b</b>| 以及 <b>a</b> 在 <b>b</b> 上的投影。</p>
+<p class="expl-s"><b>解</b> 求模先平方：<span class="fm">|<b>a</b> + <b>b</b>|<sup>2</sup> = |<b>a</b>|<sup>2</sup> + 2<b>a</b>·<b>b</b> + |<b>b</b>|<sup>2</sup> = 9 + 2×3×2×cos 60° + 4 = 9 + 6 + 4 = 19</span>，故 |<b>a</b> + <b>b</b>| = √19。</p>
+<p class="expl-s">叉积取模只需要 sin：<span class="fm">|<b>a</b> × <b>b</b>| = 3 × 2 × sin 60° = 3√3</span>。</p>
+<p class="expl-s">投影公式：<b>a</b> 在 <b>b</b> 上的投影为 <span class="fm"><span class="fr"><span class="n"><b>a</b> · <b>b</b></span><span class="d">|<b>b</b>|</span></span> = <span class="fr"><span class="n">3</span><span class="d">2</span></span></span>（因为 <b>a</b>·<b>b</b> = 3，|<b>b</b>| = 2）。注意投影是带符号的数，投影向量才等于「投影乘上 <b>b</b> 的单位向量」。</p>
+</div>
+
+<h4 class="expl-h">五、与后文的联系与易错提醒</h4>
+<p>这三种乘法是后面所有「构造」的发动机：求平面的法向量用叉积，求直线的方向向量（一般式时）也用叉积，判断四点共面用混合积，算点到直线的距离仍旧是叉积。第二章还有平行六面体、四面体体积的计算题，考的就是混合积。</p>
+<ul>
+<li>叉积不满足交换律，<b>a</b> × <b>b</b> 与 <b>b</b> × <b>a</b> 方向相反，写反了整道题方向都错。</li>
+<li>数量积的结果是数，向量积的结果是向量，答题时不要把两者混着写。</li>
+<li>夹角公式 cos θ = <b>a</b>·<b>b</b> 除以两个模，分母漏掉一个模是最常见的丢分点。</li>
+<li>混合积判断共面时，三个向量必须同起点；写成行列式后轮换顺序值不变，但随意对调会变号。</li>
+</ul>
+</div><!--/EXPL:m8-s2-->
+
+<!--EXPL:m8-s3--><div class="explain" data-expl="m8-s3">
+<h4 class="expl-h">一、这节要解决什么问题</h4>
+<p>一块平板要固定住，需要什么条件？只要知道它「朝哪边」——也就是垂直于它的那个方向——再知道它经过哪一个点，这块板的位置就唯一确定了。反过来，过一点而方向不同的板有无数块；方向定死而不过该点的板也有一块唯一与之平行。所以<b>一点 + 一个法方向</b>是平面的最小信息量。</p>
+<p>这个「法方向」用向量表示，叫<b>法向量</b>。平面方程的一切形式都是围绕它转的：点法式直接写它，一般式从系数里读它，截距式是它在三个坐标轴上的落脚点。掌握一个观念——「平面方程就是法向量与平面上任意一点连线的垂直条件」——本节所有公式都不必死记。</p>
+
+<h4 class="expl-h">二、定义与定理</h4>
+<p><b>定义 1（点法式）</b> 平面过点 M<sub>0</sub>(x<sub>0</sub>, y<sub>0</sub>, z<sub>0</sub>)，法向量 <b>n</b> = (A, B, C) 非零。点 M(x, y, z) 在该平面上 ⟺ <b>M</b><sub>0</sub><b>M</b> ⊥ <b>n</b> ⟺ <b>n</b> · <b>M</b><sub>0</sub><b>M</b> = 0，即</p>
+<p><span class="fm">A(x − x<sub>0</sub>) + B(y − y<sub>0</sub>) + C(z − z<sub>0</sub>) = 0</span></p>
+<p>这就是平面的<b>点法式方程</b>。</p>
+<p><b>定理 1（一般式）</b> 任何平面都可写成 <span class="fm">Ax + By + Cz + D = 0</span>（A、B、C 不全为零），反之任何这样的三元一次方程都表示一张平面，且其法向量直接就是 (A, B, C)。</p>
+<p><b>定理 2（截距式）</b> 若平面在 x、y、z 轴上的截距分别为 a、b、c（都非零），则</p>
+<p><span class="fm"><span class="fr"><span class="n">x</span><span class="d">a</span></span> + <span class="fr"><span class="n">y</span><span class="d">b</span></span> + <span class="fr"><span class="n">z</span><span class="d">c</span></span> = 1</span></p>
+<p>它适合「已知三个轴上的截距」或「求四面体体积」的题。</p>
+<p><b>定理 3（两平面夹角）</b> 两平面的夹角规定为锐角（或直角），由法向量决定：</p>
+<p><span class="fm">cos θ = <span class="fr"><span class="n">|<b>n</b><sub>1</sub> · <b>n</b><sub>2</sub>|</span><span class="d">|<b>n</b><sub>1</sub>||<b>n</b><sub>2</sub>|</span></span></span></p>
+<p>平行 ⟺ <b>n</b><sub>1</sub> ∥ <b>n</b><sub>2</sub>，即 A<sub>1</sub>/A<sub>2</sub> = B<sub>1</sub>/B<sub>2</sub> = C<sub>1</sub>/C<sub>2</sub>；垂直 ⟺ <b>n</b><sub>1</sub> · <b>n</b><sub>2</sub> = 0，即 A<sub>1</sub>A<sub>2</sub> + B<sub>1</sub>B<sub>2</sub> + C<sub>1</sub>C<sub>2</sub> = 0。</p>
+<p><b>定理 4（点到平面的距离）</b> 点 M<sub>0</sub>(x<sub>0</sub>, y<sub>0</sub>, z<sub>0</sub>) 到平面 Ax + By + Cz + D = 0 的距离为</p>
+<p><span class="fm">d = <span class="fr"><span class="n">|Ax<sub>0</sub> + By<sub>0</sub> + Cz<sub>0</sub> + D|</span><span class="d">√(A<sup>2</sup> + B<sup>2</sup> + C<sup>2</sup>)</span></span></span></p>
+
+<h4 class="expl-h">三、关键推导</h4>
+<p><b>点法式变一般式</b>：把点法式展开，A x + B y + C z 后面那个常数就是 −(Ax<sub>0</sub> + By<sub>0</sub> + Cz<sub>0</sub>)，记作 D。反过来，由一般式取任一满足方程的点即可还原点法式，所以两种形式是等价的。</p>
+<p><b>一般式的系数为什么是法向量</b>：在平面上任取两点 M<sub>1</sub>、M<sub>2</sub>，两条方程相减得 <span class="fm">A(x<sub>1</sub> − x<sub>2</sub>) + B(y<sub>1</sub> − y<sub>2</sub>) + C(z<sub>1</sub> − z<sub>2</sub>) = 0</span>，这正是 (A, B, C) · <b>M</b><sub>2</sub><b>M</b><sub>1</sub> = 0。也就是说 (A, B, C) 垂直于平面内任意一条连线，按定义它就是法向量。这个证明说明「读系数得法向量」不是巧合。</p>
+<p><b>距离公式</b>：在平面上取一点 M<sub>1</sub>，则 M<sub>0</sub> 到平面的距离等于 <b>M</b><sub>1</sub><b>M</b><sub>0</sub> 在 <b>n</b> 方向上的投影的绝对值，即 <span class="fm">d = <span class="fr"><span class="n">|<b>n</b> · <b>M</b><sub>1</sub><b>M</b><sub>0</sub>|</span><span class="d">|<b>n</b>|</span></span></span>。而 <b>n</b> · <b>M</b><sub>1</sub><b>M</b><sub>0</sub> = A(x<sub>0</sub> − x<sub>1</sub>) + B(y<sub>0</sub> − y<sub>1</sub>) + C(z<sub>0</sub> − z<sub>1</sub>)，又因 M<sub>1</sub> 在平面上有 Ax<sub>1</sub> + By<sub>1</sub> + Cz<sub>1</sub> = −D，代入得 Ax<sub>0</sub> + By<sub>0</sub> + Cz<sub>0</sub> + D。分母必须除 |<b>n</b>|，因为 <b>n</b> 不必是单位向量。</p>
+<p><b>三点定平面</b>：设三点 A、B、C，则 <b>AB</b>、<b>AC</b> 是平面内两个（不共线的）向量，<b>n</b> = <b>AB</b> × <b>AC</b> 就垂直于平面，再套点法式即可。</p>
+<p><b>特殊位置</b>：D = 0 时平面过原点；缺哪个变量，平面就平行于哪条轴（例如 C = 0 即方程不含 z，平面平行于 z 轴）；两个变量都缺时（如 x = 1）平面垂直于对应的坐标轴。</p>
+
+<h4 class="expl-h">四、例题</h4>
+<div class="expl-eg"><p class="expl-q"><b>例 1</b> 求过 A(2, 0, 0)、B(0, −1, 0)、C(0, 0, 4) 的平面方程。</p>
+<p class="expl-s"><b>解一（截距式）</b> 三点正好是三个轴上的截距，a = 2、b = −1、c = 4，直接写 <span class="fm"><span class="fr"><span class="n">x</span><span class="d">2</span></span> + <span class="fr"><span class="n">y</span><span class="d">−1</span></span> + <span class="fr"><span class="n">z</span><span class="d">4</span></span> = 1</span>，两边乘 4 得 <span class="fm">2x − 4y + z = 4</span>。</p>
+<p class="expl-s"><b>解二（叉乘验证）</b> <b>AB</b> = (−2, −1, 0)，<b>AC</b> = (−2, 0, 4)。叉乘：第一分量 (−1)(4) − 0 = −4，第二分量 0 − (−2)(4) = 8，第三分量 (−2)(0) − (−1)(−2) = −2，即 (−4, 8, −2)，与 (2, −4, 1) 平行，正是上面方程的系数。代入 A 点：2×2 − 0 + 0 = 4 成立。</p>
+<p class="expl-t">截距式的条件是三个截距都不为零；若某截距为零（平面过原点），必须改用点法式。</p>
+</div>
+<div class="expl-eg"><p class="expl-q"><b>例 2</b> 求过点 P(1, 2, −1) 且与平面 2x − 3y + z = 5 平行的平面方程，并求 P 到原平面的距离。</p>
+<p class="expl-s"><b>解</b> 平行则法向量共用，取 <b>n</b> = (2, −3, 1)。点法式：<span class="fm">2(x − 1) − 3(y − 2) + 1(z + 1) = 0</span>，展开得 <span class="fm">2x − 3y + z + 5 = 0</span>。代回 P：2 − 6 − 1 + 5 = 0，正确。</p>
+<p class="expl-s">距离用公式：<span class="fm">d = <span class="fr"><span class="n">|2×1 − 3×2 + 1×(−1) − 5|</span><span class="d">√(4 + 9 + 1)</span></span> = <span class="fr"><span class="n">10</span><span class="d">√14</span></span> = <span class="fr"><span class="n">5√14</span><span class="d">7</span></span></span>。</p>
+<p class="expl-s">也可直接用两平行平面的距离公式：|D<sub>1</sub> − D<sub>2</sub>| 除以 |<b>n</b>|，即 |5 − (−5)|/√14，结果一致。注意两个方程的 A、B、C 必须已经化到相同（或成比例）才行。</p>
+</div>
+<div class="expl-eg"><p class="expl-q"><b>例 3</b> 求平面 π<sub>1</sub>：2x − y + 2z = 3 与 π<sub>2</sub>：x + y + z = 0 的夹角。</p>
+<p class="expl-s"><b>解</b> 读出法向量 <b>n</b><sub>1</sub> = (2, −1, 2)，|<b>n</b><sub>1</sub>| = 3；<b>n</b><sub>2</sub> = (1, 1, 1)，|<b>n</b><sub>2</sub>| = √3。</p>
+<p class="expl-s">点积：<span class="fm"><b>n</b><sub>1</sub> · <b>n</b><sub>2</sub> = 2 − 1 + 2 = 3</span>。</p>
+<p class="expl-s">代入夹角公式：<span class="fm">cos θ = <span class="fr"><span class="n">3</span><span class="d">3√3</span></span> = <span class="fr"><span class="n">1</span><span class="d">√3</span></span> = <span class="fr"><span class="n">√3</span><span class="d">3</span></span></span>，故 θ = arccos(√3/3) ≈ 54.7°。</p>
+<p class="expl-t">两平面夹角按定义取锐角，所以公式里必须加绝对值。若算出的点积为负而不取绝对值，得到的就是钝角（法向量的夹角），答案直接判错。</p>
+</div>
+
+<h4 class="expl-h">五、与后文的联系与易错提醒</h4>
+<p>平面方程是第四节的基础：空间直线的一般式就是两张平面的联立，方向向量靠两法向量叉乘得到。再往后，二重积分、三重积分的积分区域边界常常是平面，曲面积分里也要写切平面。</p>
+<ul>
+<li>求法向量要靠平面内两个不共线向量的叉乘，不能把两点连线直接当法向量——这是本节最高频的错误。</li>
+<li>法向量可以任意伸缩，所以平面方程不唯一，只差一个非零倍数，判卷时不必纠结系数形式。</li>
+<li>距离公式分母是 √(A<sup>2</sup> + B<sup>2</sup> + C<sup>2</sup>)，漏掉它等于把法向量当成了单位向量。</li>
+<li>「过直线且垂直于某平面」这类题，法向量要同时垂直于直线方向与该平面法向量，用叉乘构造。</li>
+</ul>
+</div><!--/EXPL:m8-s3-->
+
+<!--EXPL:m8-s4--><div class="explain" data-expl="m8-s4">
+<h4 class="expl-h">一、这节要解决什么问题</h4>
+<p>与平面不同，直线的信息量更小：它只要<b>一个点</b>和<b>一个方向</b>就定死了，不需要「法向量」。拉开弓射出的箭，起点加方向就是一条射线；空间中一根拉直的钢丝，也是起点加方向。把这个想法写成方程，就是本节的主线。</p>
+<p>但直线还有一个特点：它既可以被「一点一方向」描述（对称式、参数式），也可以被「两张平面的交线」描述（一般式）。同一根线有两种身份证，考试常要求互相转换，转换的钥匙是叉乘——交线的方向同时垂直于两张平面的法向量。</p>
+<p>本节最后要解决三类「关系与距离」的问题：线与线的夹角、线与面的夹角、点到线以及异面直线间的距离。它们的公式全都由前两节的点积、叉积、混合积直接翻译而来，理解了来源就不用背。</p>
+
+<h4 class="expl-h">二、定义与定理</h4>
+<p><b>定义 1（对称式 / 点向式）</b> 直线过点 M<sub>0</sub>(x<sub>0</sub>, y<sub>0</sub>, z<sub>0</sub>)，方向向量 <b>s</b> = (m, n, p) 非零，则</p>
+<p><span class="fm"><span class="fr"><span class="n">x − x<sub>0</sub></span><span class="d">m</span></span> = <span class="fr"><span class="n">y − y<sub>0</sub></span><span class="d">n</span></span> = <span class="fr"><span class="n">z − z<sub>0</sub></span><span class="d">p</span></span></span></p>
+<p>约定：若某个分母为零（例如 m = 0），则该式应理解为 x = x<sub>0</sub>，其余两个分式仍然相等。这个约定必须记住，否则遇到平行于坐标面的直线就写不下去。</p>
+<p><b>定义 2（参数式）</b> 令上述公共比值为 t，得</p>
+<p><span class="fm">x = x<sub>0</sub> + mt，y = y<sub>0</sub> + nt，z = z<sub>0</sub> + pt</span></p>
+<p>参数式最大的好处是「一个字母管三个坐标」，求交点、代入曲面方程时最方便。</p>
+<p><b>定义 3（一般式）</b> 两张不平行的平面联立：</p>
+<p><span class="fm">A<sub>1</sub>x + B<sub>1</sub>y + C<sub>1</sub>z + D<sub>1</sub> = 0，A<sub>2</sub>x + B<sub>2</sub>y + C<sub>2</sub>z + D<sub>2</sub> = 0</span></p>
+<p>它的方向向量是两法向量的叉乘 <span class="fm"><b>s</b> = <b>n</b><sub>1</sub> × <b>n</b><sub>2</sub></span>。</p>
+<p><b>定理 1（线线角）</b> 两直线夹角取锐角，由方向向量决定：<span class="fm">cos θ = <span class="fr"><span class="n">|<b>s</b><sub>1</sub> · <b>s</b><sub>2</sub>|</span><span class="d">|<b>s</b><sub>1</sub>||<b>s</b><sub>2</sub>|</span></span></span>。</p>
+<p><b>定理 2（线面角）</b> 直线与平面夹角 φ 取 0 到 π/2，则</p>
+<p><span class="fm">sin φ = <span class="fr"><span class="n">|<b>s</b> · <b>n</b>|</span><span class="d">|<b>s</b>||<b>n</b>|</span></span></span></p>
+<p>注意这里是正弦不是余弦。因为 φ 是直线与它在平面上投影的夹角，而方向向量与法向量的夹角与 φ 互余，所以余弦换成正弦。</p>
+<p><b>定理 3（位置关系）</b> 直线与平面：<b>s</b> · <b>n</b> = 0 时平行（直线上的点不在平面上）或直线在平面内（点在平面上）；<b>s</b> ∥ <b>n</b> 时垂直。两直线：<b>s</b><sub>1</sub> ∥ <b>s</b><sub>2</sub> 平行，<b>s</b><sub>1</sub> · <b>s</b><sub>2</sub> = 0 垂直。</p>
+<p><b>定理 4（距离）</b> 点 M<sub>1</sub> 到过 M<sub>0</sub>、方向 <b>s</b> 的直线：</p>
+<p><span class="fm">d = <span class="fr"><span class="n">|<b>M</b><sub>0</sub><b>M</b><sub>1</sub> × <b>s</b>|</span><span class="d">|<b>s</b>|</span></span></span></p>
+<p>异面直线（过 M<sub>1</sub> 方向 <b>s</b><sub>1</sub>、过 M<sub>2</sub> 方向 <b>s</b><sub>2</sub>）：</p>
+<p><span class="fm">d = <span class="fr"><span class="n">|<b>M</b><sub>1</sub><b>M</b><sub>2</sub> · (<b>s</b><sub>1</sub> × <b>s</b><sub>2</sub>)|</span><span class="d">|<b>s</b><sub>1</sub> × <b>s</b><sub>2</sub>|</span></span></span></p>
+
+<h4 class="expl-h">三、关键推导</h4>
+<p><b>一般式的方向向量为什么是叉乘</b>：直线是两张平面的交线，所以它的方向向量必须同时垂直于 <b>n</b><sub>1</sub> 与 <b>n</b><sub>2</sub>。而同时垂直于两个向量的向量正是它们的叉乘，故 <b>s</b> = <b>n</b><sub>1</sub> × <b>n</b><sub>2</sub>。若叉乘为零，说明两平面平行或重合，不构成直线。</p>
+<p><b>线面角公式</b>：设方向向量与法向量的夹角为 ψ，把 <b>s</b> 投影到平面上，投影线与 <b>n</b> 垂直，于是 φ + ψ = 90°。因此 sin φ = cos ψ = |<b>s</b> · <b>n</b>| 除以两个模。这也解释了为什么答案必须用反正弦。</p>
+<p><b>点到直线的距离</b>：以 <b>M</b><sub>0</sub><b>M</b><sub>1</sub> 与 <b>s</b> 为邻边作平行四边形，底边是 |<b>s</b>|，高就是所求距离 d。面积既等于 |<b>s</b>|·d，又等于叉积的模，两式相等即得公式。</p>
+<p><b>异面直线的距离</b>：<b>n</b> = <b>s</b><sub>1</sub> × <b>s</b><sub>2</sub> 同时垂直于两条直线，是公垂线的方向。把两直线上各取一点连成 <b>M</b><sub>1</sub><b>M</b><sub>2</sub>，它在这方向上的投影长度就是两线间的最短距离，即混合积除以 |<b>n</b>|。若混合积为零，说明两线共面，距离为零（相交或平行）。</p>
+
+<h4 class="expl-h">四、例题</h4>
+<div class="expl-eg"><p class="expl-q"><b>例 1</b> 求过点 P(1, −2, 3) 且与两平面 x + y − z = 1、2x − y + z = 2 都平行的直线方程。</p>
+<p class="expl-s"><b>解</b> 两平面法向量 <b>n</b><sub>1</sub> = (1, 1, −1)，<b>n</b><sub>2</sub> = (2, −1, 1)。所求直线与两平面都平行，故方向向量同时垂直于两法向量：</p>
+<p class="expl-s"><span class="fm"><b>s</b> = <b>n</b><sub>1</sub> × <b>n</b><sub>2</sub> = (1×1 − (−1)(−1), (−1)×2 − 1×1, 1×(−1) − 1×2) = (0, −3, −3)</span>，取 (0, 1, 1) 即可（可任意伸缩）。</p>
+<p class="expl-s">第一个分量为零，按约定不能写成分母为零的分式，应写成 <span class="fm">x = 1，<span class="fr"><span class="n">y + 2</span><span class="d">1</span></span> = <span class="fr"><span class="n">z − 3</span><span class="d">1</span></span></span>；参数式为 x = 1，y = −2 + t，z = 3 + t。</p>
+<p class="expl-t">方向向量只要「非零且成比例」都对，用 (0, 1, 1) 比 (0, −3, −3) 简洁；但分母为零的处理千万别省，写成 x/0 会直接失分。</p>
+</div>
+<div class="expl-eg"><p class="expl-q"><b>例 2</b> 直线 L：<span class="fm"><span class="fr"><span class="n">x − 1</span><span class="d">2</span></span> = <span class="fr"><span class="n">y</span><span class="d">1</span></span> = <span class="fr"><span class="n">z + 1</span><span class="d">−1</span></span></span>，平面 π：x + y + 2z = 3。判断位置关系；若相交，求交点与夹角。</p>
+<p class="expl-s"><b>解</b> 方向向量 <b>s</b> = (2, 1, −1)，法向量 <b>n</b> = (1, 1, 2)，<span class="fm"><b>s</b> · <b>n</b> = 2 + 1 − 2 = 1</span> 不为零，故不平行，必相交于一。<b>s</b> 也不平行于 <b>n</b>，所以不是垂直关系。</p>
+<p class="expl-s">求交点用参数式最快：x = 1 + 2t，y = t，z = −1 − t。代入平面方程：<span class="fm">(1 + 2t) + t + 2(−1 − t) = t − 1 = 3</span>，得 t = 4。</p>
+<p class="expl-s">回代得交点 (9, 4, −5)。验算：9 + 4 + 2×(−5) = 3，成立。</p>
+<p class="expl-s">夹角：<span class="fm">sin φ = <span class="fr"><span class="n">|<b>s</b> · <b>n</b>|</span><span class="d">|<b>s</b>||<b>n</b>|</span></span> = <span class="fr"><span class="n">1</span><span class="d">√6 · √6</span></span> = <span class="fr"><span class="n">1</span><span class="d">6</span></span></span>，故 φ = arcsin(1/6) ≈ 9.6°。</p>
+</div>
+<div class="expl-eg"><p class="expl-q"><b>例 3</b> 求点 P(1, 2, 3) 到直线 <span class="fm"><span class="fr"><span class="n">x</span><span class="d">1</span></span> = <span class="fr"><span class="n">y − 1</span><span class="d">2</span></span> = <span class="fr"><span class="n">z − 2</span><span class="d">2</span></span></span> 的距离。</p>
+<p class="expl-s"><b>解</b> 直线过 M<sub>0</sub>(0, 1, 2)，方向 <b>s</b> = (1, 2, 2)，|<b>s</b>| = 3。</p>
+<p class="expl-s">连向量：<b>M</b><sub>0</sub><b>P</b> = (1, 1, 1)。叉乘：第一分量 1×2 − 1×2 = 0，第二分量 1×1 − 1×2 = −1，第三分量 1×2 − 1×1 = 1，即 (0, −1, 1)，模为 √2。</p>
+<p class="expl-s">代入公式：<span class="fm">d = <span class="fr"><span class="n">√2</span><span class="d">3</span></span></span>。</p>
+<p class="expl-t">分母必须除 |<b>s</b>|：|<b>M</b><sub>0</sub><b>P</b> × <b>s</b>| 本身是以它们为邻边的平行四边形面积，除以底边 |<b>s</b>| 才是高。若两直线平行，在一条上任取一点算到另一条的距离即可；若两直线异面，则改用混合积除以叉积模的公式。</p>
+</div>
+
+<h4 class="expl-h">五、与后文的联系与易错提醒</h4>
+<p>参数式是第六章曲线参数方程的直接前身；方向向量在第九章方向导数与梯度、以及后面曲线积分里都会反复出现。异面直线距离的公式本质就是一个混合积除以叉积模，与第二节完全一致。</p>
+<ul>
+<li>线面角用反正弦，线线角、面面角用反余弦，三者混用是本单元最典型的错误。</li>
+<li>对称式分母为零时不能写分式，要按约定改成「x = x<sub>0</sub>」再与其余两个分式联立。</li>
+<li>一般式化对称式时，千万别把 (A<sub>1</sub>, B<sub>1</sub>, C<sub>1</sub>) 当方向向量，必须用两法向量的叉乘。</li>
+<li>判断线在面内还是平行于面，除了 <b>s</b> · <b>n</b> = 0，还要代一个点进平面方程看是否满足。</li>
+</ul>
+</div><!--/EXPL:m8-s4-->
+
+<!--EXPL:m8-s5--><div class="explain" data-expl="m8-s5">
+<h4 class="expl-h">一、这节要解决什么问题</h4>
+<p>这一节换了个方向：不再由「点」和「方向」造图形，而是由<b>方程</b>认图形。给你一个三元方程 F(x, y, z) = 0，它代表空间中一张曲面，就像二元方程在平面上代表一条曲线一样。球面 x<sup>2</sup> + y<sup>2</sup> + z<sup>2</sup> = R<sup>2</sup> 是最简单的例子。</p>
+<p>但曲面千千万，考试只考两类：一类是「由曲线运动生成的曲面」，即柱面与旋转曲面，考的是<b>怎样写方程</b>；另一类是「二次曲面」，考的是<b>看到方程能否说出形状</b>。前者靠口诀与推导，后者靠截痕法与系数符号，两条路都要走通。</p>
+<p>为什么这一节重要？因为后面三重积分要选坐标系、要画积分区域，曲线积分要知道曲面的边界。区域画错了，积分限就全错。</p>
+
+<h4 class="expl-h">二、定义与定理</h4>
+<p><b>定义 1（柱面）</b> 一条动直线（母线）沿一条定曲线（准线）平行移动所形成的曲面叫柱面。若母线平行于 z 轴，则曲面方程中不含 z，形如 <span class="fm">F(x, y) = 0</span>。口诀：<b>方程缺哪个字母，母线就平行于哪条轴</b>。</p>
+<p>例如 x<sup>2</sup> + y<sup>2</sup> = R<sup>2</sup> 是圆柱面，y<sup>2</sup> = 2x 是抛物柱面，x<sup>2</sup>/a<sup>2</sup> − y<sup>2</sup>/b<sup>2</sup> = 1 是双曲柱面。注意它们在三维里是曲面，不是曲线。</p>
+<p><b>定义 2（旋转曲面）</b> 一条曲线 C 绕一条定直线（轴）旋转一周所形成的曲面。设 C 在 yOz 平面内，方程为 f(y, z) = 0，它绕 z 轴旋转，则所得曲面方程为</p>
+<p><span class="fm">f(±√(x<sup>2</sup> + y<sup>2</sup>), z) = 0</span></p>
+<p>一般只出现偶次幂，可直接写成 f(√(x<sup>2</sup> + y<sup>2</sup>), z) = 0。口诀：<b>绕哪个轴转，那个轴的变量不动，另一个变量换成 ±√(另两个变量的平方和)</b>。</p>
+<p><b>定理 1（常见二次曲面）</b> 椭球面 <span class="fm"><span class="fr"><span class="n">x<sup>2</sup></span><span class="d">a<sup>2</sup></span></span> + <span class="fr"><span class="n">y<sup>2</sup></span><span class="d">b<sup>2</sup></span></span> + <span class="fr"><span class="n">z<sup>2</sup></span><span class="d">c<sup>2</sup></span></span> = 1</span>；椭圆抛物面 <span class="fm">z = <span class="fr"><span class="n">x<sup>2</sup></span><span class="d">a<sup>2</sup></span></span> + <span class="fr"><span class="n">y<sup>2</sup></span><span class="d">b<sup>2</sup></span></span></span>（碗状）；双曲抛物面 <span class="fm">z = <span class="fr"><span class="n">x<sup>2</sup></span><span class="d">a<sup>2</sup></span></span> − <span class="fr"><span class="n">y<sup>2</sup></span><span class="d">b<sup>2</sup></span></span></span>（马鞍面）；圆锥面 <span class="fm">z<sup>2</sup> = a<sup>2</sup>(x<sup>2</sup> + y<sup>2</sup>)</span>；单叶双曲面 <span class="fm"><span class="fr"><span class="n">x<sup>2</sup></span><span class="d">a<sup>2</sup></span></span> + <span class="fr"><span class="n">y<sup>2</sup></span><span class="d">b<sup>2</sup></span></span> − <span class="fr"><span class="n">z<sup>2</sup></span><span class="d">c<sup>2</sup></span></span> = 1</span>（腰细不断，像冷却塔）；双叶双曲面把等号右边写成 −1（分成上下两瓣）。</p>
+<p><b>定理 2（识别法）</b> 把方程化成标准形后看平方项的系数符号：三个都正且右边为正，是椭球面；两正一负，是单叶双曲面；一正两负，是双叶双曲面；缺某个变量的平方项而另一个变量是一次，是抛物面；只剩两个变量，是柱面。</p>
+
+<h4 class="expl-h">三、关键推导</h4>
+<p><b>柱面方程为什么缺变量</b>：母线平行于 z 轴，意味着过曲面上任一点 (x<sub>0</sub>, y<sub>0</sub>, z<sub>0</sub>) 的那条与 z 轴平行的整条直线 {(x<sub>0</sub>, y<sub>0</sub>, z) : z 为任意实数} 都在曲面上。所以一个点的 z 坐标取什么值都不影响「是否在曲面上」，方程自然不含 z。反过来，不含 z 的方程必定是母线平行 z 轴的柱面。</p>
+<p><b>旋转曲面公式的来历</b>：设曲线在 yOz 平面内，点 M<sub>0</sub>(0, y<sub>0</sub>, z<sub>0</sub>) 在曲线上，绕 z 轴转一圈得到一个圆。转到位置 (x, y, z) 时，有两个量不变：一是高度 z = z<sub>0</sub>，二是到 z 轴的距离 √(x<sup>2</sup> + y<sup>2</sup>) = |y<sub>0</sub>|。把这两个关系代回原方程 f(y<sub>0</sub>, z<sub>0</sub>) = 0，就得到 f(±√(x<sup>2</sup> + y<sup>2</sup>), z) = 0。可见「换变量」只是「距离不变」的代数翻译，理解这一点就不会绕错轴。</p>
+<p><b>截痕法</b>：用平行于坐标面的平面去截曲面，看截痕是什么曲线，几种截痕拼起来就是曲面的形状。例如用 z = h 截 z = x<sup>2</sup>/a<sup>2</sup> + y<sup>2</sup>/b<sup>2</sup>，得到椭圆，h 越大椭圆越大，所以是开口向上的椭圆抛物面。</p>
+
+<h4 class="expl-h">四、例题</h4>
+<div class="expl-eg"><p class="expl-q"><b>例 1</b> yOz 平面内的直线 z = y 绕 z 轴旋转一周，求所得曲面方程并指出曲面类型。</p>
+<p class="expl-s"><b>解</b> 绕 z 轴转，z 不动，把 y 换成 ±√(x<sup>2</sup> + y<sup>2</sup>)：<span class="fm">z = ±√(x<sup>2</sup> + y<sup>2</sup>)</span>。</p>
+<p class="expl-s">两边平方：<span class="fm">z<sup>2</sup> = x<sup>2</sup> + y<sup>2</sup></span>。这是顶点在原点、以 z 轴为轴、半顶角 45° 的圆锥面。平方把 ± 两支合并了，正好构成完整的双锥。</p>
+<p class="expl-t">如果题目改成「绕 y 轴旋转」，则 y 不动，z 换成 ±√(x<sup>2</sup> + z<sup>2</sup>)，方程为 y = ±√(x<sup>2</sup> + z<sup>2</sup>)，平方得 y<sup>2</sup> = x<sup>2</sup> + z<sup>2</sup>，仍是圆锥面，但轴变成了 y 轴。同一条直线绕不同轴转，结果不同，务必先看清轴。</p>
+</div>
+<div class="expl-eg"><p class="expl-q"><b>例 2</b> xOy 平面内的椭圆 <span class="fm"><span class="fr"><span class="n">x<sup>2</sup></span><span class="d">4</span></span> + <span class="fr"><span class="n">y<sup>2</sup></span><span class="d">9</span></span> = 1</span> 绕 x 轴旋转，求曲面方程。</p>
+<p class="expl-s"><b>解</b> 绕 x 轴转，x 不动，把 y 换成 ±√(y<sup>2</sup> + z<sup>2</sup>)：</p>
+<p class="expl-s"><span class="fm"><span class="fr"><span class="n">x<sup>2</sup></span><span class="d">4</span></span> + <span class="fr"><span class="n">y<sup>2</sup> + z<sup>2</sup></span><span class="d">9</span></span> = 1</span>，即 <span class="fm"><span class="fr"><span class="n">x<sup>2</sup></span><span class="d">4</span></span> + <span class="fr"><span class="n">y<sup>2</sup></span><span class="d">9</span></span> + <span class="fr"><span class="n">z<sup>2</sup></span><span class="d">9</span></span> = 1</span></p>
+<p class="expl-s">这是旋转椭球面（因为 y、z 两个半轴相等，都是 3）。若绕 y 轴转，则得到 x<sup>2</sup>/4 + z<sup>2</sup>/4 + y<sup>2</sup>/9 = 1，形状变成沿 y 方向拉长的旋转椭球。</p>
+<p class="expl-t">旋转曲面的方程必然有两个平方项的系数相同——这是检验答案对不对的快捷办法。</p>
+</div>
+<div class="expl-eg"><p class="expl-q"><b>例 3</b> 判别下列方程表示什么曲面：(1) x<sup>2</sup> + 4y<sup>2</sup> − z<sup>2</sup> = 4；(2) z = x<sup>2</sup> − y<sup>2</sup>；(3) x<sup>2</sup> + z<sup>2</sup> = 1。</p>
+<p class="expl-s"><b>解（1）</b> 两边除以 4 化成标准形：<span class="fm"><span class="fr"><span class="n">x<sup>2</sup></span><span class="d">4</span></span> + <span class="fr"><span class="n">y<sup>2</sup></span><span class="d">1</span></span> − <span class="fr"><span class="n">z<sup>2</sup></span><span class="d">4</span></span> = 1</span>。两个正号一个负号、右边为正，是<b>单叶双曲面</b>，z 轴是它的轴，用 z = h 去截总得椭圆，越靠近原点椭圆越小但永不为零。</p>
+<p class="expl-s"><b>解（2）</b> 平方项一正一负且 z 是一次项，是<b>双曲抛物面（马鞍面）</b>。检验：用 y = 0 截得 z = x<sup>2</sup>（开口向上的抛物线），用 x = 0 截得 z = −y<sup>2</sup>（开口向下的抛物线），一上一下正是马鞍的形状。</p>
+<p class="expl-s"><b>解（3）</b> 方程不含 y，按柱面口诀，母线平行于 y 轴，准线是 xOz 平面内的圆 x<sup>2</sup> + z<sup>2</sup> = 1，故为<b>圆柱面</b>。</p>
+</div>
+
+<h4 class="expl-h">五、与后文的联系与易错提醒</h4>
+<p>三重积分里最常见的积分区域就是球、锥、抛物面围成的立体；曲面积分里要认出面并写出它的方程。第 9 章求条件极值时，约束曲面常常就是这些二次曲面。</p>
+<ul>
+<li>旋转曲面「换错变量」是最高频错误：绕 z 轴转，z 必须原样保留，绝不能把 z 也换掉。</li>
+<li>平方前别丢掉 ±，平方后才合并；若题目只要一支（如上半锥面），必须写 z ≥ 0 加以限制。</li>
+<li>「缺变量」的方程在三维中是柱面而不是曲线，别把它当二维图形处理。</li>
+<li>单叶与双叶只差等号右边一个符号，画图前先化标准形，把右边的 1 与 −1 看清。</li>
+</ul>
+</div><!--/EXPL:m8-s5-->
+
+<!--EXPL:m8-s6--><div class="explain" data-expl="m8-s6">
+<h4 class="expl-h">一、这节要解决什么问题</h4>
+<p>曲面是一张「皮」，曲线是它上面的一条「线」。空间中一条曲线可以看成两张曲面的交线：比如球面与一张平面相交，交线是一个圆；圆柱面与一张斜平面相交，交线是一段椭圆。所以最自然的表示法就是把两个曲面方程联立起来，这叫曲线的<b>一般式方程</b>。</p>
+<p>但联立方程不好算。求切线、求弧长、算曲线积分，都希望三个坐标由一个参数统一管起来，于是有了<b>参数方程</b>：x、y、z 都是同一个 t 的函数，就像质点运动时三个坐标随时间的改变。螺旋线就是最典型的例子——弹簧、盘山公路、螺纹，都是它。</p>
+<p>最后是本节的重头戏：<b>投影</b>。把一条空间曲线「压」到坐标面上看它的影子，这在重积分确定积分区域、在画图时都必需。方法只有一句话：<b>投影到哪个面，就消去哪个变量</b>。</p>
+
+<h4 class="expl-h">二、定义与定理</h4>
+<p><b>定义 1（一般式）</b> 曲线 C 可表示为两曲面交线</p>
+<p><span class="fm">F(x, y, z) = 0，G(x, y, z) = 0</span></p>
+<p>它不唯一：同一条曲线可以用无数对曲面去截它。</p>
+<p><b>定义 2（参数式）</b> 若</p>
+<p><span class="fm">x = x(t)，y = y(t)，z = z(t)（t 在区间 I 内）</span></p>
+<p>当 t 变动时点 (x(t), y(t), z(t)) 描绘出曲线 C，则称之为参数方程。最常见的例子是螺旋线：<span class="fm">x = a cos t，y = a sin t，z = bt</span>，它在 xOy 面上的投影是圆，高度与转角成正比。</p>
+<p><b>定义 3（投影曲线与投影柱面）</b> 设曲线 C 的一般式已知。从两个方程中消去 z，得到只含 x、y 的方程 H(x, y) = 0，它表示母线平行于 z 轴的柱面，称为 C 关于 xOy 面的<b>投影柱面</b>；该柱面与 xOy 面的交线</p>
+<p><span class="fm">H(x, y) = 0，z = 0</span></p>
+<p>称为 C 在 xOy 面上的<b>投影曲线</b>。同理，消去 x 得在 yOz 面上的投影，消去 y 得在 zOx 面上的投影。</p>
+<p><b>定理 1（三种表示的关系）</b> 参数式可化为一般式（消去参数 t）；一般式在能解出参数时可化为参数式；投影柱面是消元的结果，而投影曲线必须再加上「坐标面方程」这一条，二者不可混淆。</p>
+
+<h4 class="expl-h">三、关键推导</h4>
+<p><b>消元为什么得到投影柱面</b>：设 C 上有一点 (x<sub>0</sub>, y<sub>0</sub>, z<sub>0</sub>)，它同时满足两个曲面方程。消去 z 后得到的 H(x<sub>0</sub>, y<sub>0</sub>) = 0 只涉及前两个坐标，与 z<sub>0</sub> 取何值无关。因此，过 (x<sub>0</sub>, y<sub>0</sub>, z<sub>0</sub>) 且平行于 z 轴的那整条直线上所有点都满足 H = 0，这正是柱面的特征。又因为 C 上每一点都在这个柱面上，且柱面的每条母线与 C 至少交于一点，所以它就是 C 的投影柱面。</p>
+<p><b>投影曲线为什么还要加 z = 0</b>：柱面是三维的「筒」，投影只是这个筒在 xOy 面上的「脚印」，是一条平面曲线。柱面方程本身在空间中表示一整张曲面，只有把它与 z = 0 联立，才把范围压缩到坐标面上那一条线。</p>
+<p><b>参数式与一般式互化</b>：由参数式消 t 得一般式；反过来，若一般式中能看出某个坐标与另两个的关系（例如出现 x<sup>2</sup> + y<sup>2</sup> = 1），就令 x = cos t、y = sin t，再代入另一方程解出 z，即得参数式。这是解空间曲线题最实用的技巧。</p>
+
+<h4 class="expl-h">四、例题</h4>
+<div class="expl-eg"><p class="expl-q"><b>例 1</b> 求旋转抛物面 z = x<sup>2</sup> + y<sup>2</sup> 与平面 z = 1 的交线在 xOy 面上的投影曲线与投影柱面。</p>
+<p class="expl-s"><b>解</b> 交线由两方程联立给出。消去 z：把 z = 1 代入第一个方程，得 <span class="fm">x<sup>2</sup> + y<sup>2</sup> = 1</span>，这就是投影柱面（母线平行 z 轴的圆柱面）。</p>
+<p class="expl-s">投影曲线要再加上坐标面方程：<span class="fm">x<sup>2</sup> + y<sup>2</sup> = 1，z = 0</span>，是 xOy 面上的单位圆。</p>
+<p class="expl-t">只写 x<sup>2</sup> + y<sup>2</sup> = 1 会被判为「投影柱面」，题目若问投影曲线，必须补上 z = 0。这一条几乎是必考的细节。</p>
+</div>
+<div class="expl-eg"><p class="expl-q"><b>例 2</b> 求球面 x<sup>2</sup> + y<sup>2</sup> + z<sup>2</sup> = 1 与平面 x + z = 1 的交线在 xOy 面上的投影。</p>
+<p class="expl-s"><b>解</b> 由平面方程解出 z = 1 − x，代入球面方程：<span class="fm">x<sup>2</sup> + y<sup>2</sup> + (1 − x)<sup>2</sup> = 1</span>。</p>
+<p class="expl-s">展开整理：2x<sup>2</sup> − 2x + y<sup>2</sup> = 0，配方得 <span class="fm">2(x − <span class="fr"><span class="n">1</span><span class="d">2</span></span>)<sup>2</sup> + y<sup>2</sup> = <span class="fr"><span class="n">1</span><span class="d">2</span></span></span>，即 <span class="fm"><span class="fr"><span class="n">(x − 1/2)<sup>2</sup></span><span class="d">1/4</span></span> + <span class="fr"><span class="n">y<sup>2</sup></span><span class="d">1/2</span></span> = 1</span>。</p>
+<p class="expl-s">所以投影柱面是母线平行 z 轴的椭圆柱面，投影曲线为 <span class="fm">2(x − <span class="fr"><span class="n">1</span><span class="d">2</span></span>)<sup>2</sup> + y<sup>2</sup> = <span class="fr"><span class="n">1</span><span class="d">2</span></span>，z = 0</span>，是一个椭圆。</p>
+<p class="expl-t">空间圆投影到坐标面一般变成椭圆，别想当然地写成圆。判断依据就是配方后的两个半轴是否相等。</p>
+</div>
+<div class="expl-eg"><p class="expl-q"><b>例 3</b> 已知螺旋线 x = 2cos t，y = 2sin t，z = 3t。求它在 xOy 面与 yOz 面上的投影，并把一般式 x<sup>2</sup> + y<sup>2</sup> = 1、z = xy 化为参数式。</p>
+<p class="expl-s"><b>解</b> 对螺旋线，消去 t：由 x<sup>2</sup> + y<sup>2</sup> = 4cos<sup>2</sup>t + 4sin<sup>2</sup>t = 4，得 xOy 面上的投影曲线为 <span class="fm">x<sup>2</sup> + y<sup>2</sup> = 4，z = 0</span>，是半径 2 的圆。</p>
+<p class="expl-s">投影到 yOz 面要消去 x：由 x = 2cos t 知 cos t = x/2，而 y = 2sin t、z = 3t，故 y = 2sin(z/3)，取绝对值后写成 <span class="fm">y<sup>2</sup> = 4sin<sup>2</sup>(z/3)</span>，即 yOz 面上的一条正弦曲线，而非常见的圆——螺旋线投影到侧面上才是「波浪」。</p>
+<p class="expl-s">化参数式：由 x<sup>2</sup> + y<sup>2</sup> = 1 令 x = cos t，y = sin t，代入 z = xy 得 z = sin t cos t = <span class="fr"><span class="n">1</span><span class="d">2</span></span> sin 2t。故参数方程为 <span class="fm">x = cos t，y = sin t，z = <span class="fr"><span class="n">1</span><span class="d">2</span></span> sin 2t</span>。</p>
+</div>
+
+<h4 class="expl-h">五、与后文的联系与易错提醒</h4>
+<p>参数式里的 (x′(t), y′(t), z′(t)) 就是曲线的切向量，第 9 章求曲线切线、后面算曲线积分与弧长都要用它。投影柱面则是三重积分「先一后二」定限的关键——把空间区域压到坐标面上，积分限才写得出来。</p>
+<ul>
+<li>投影到 xOy 面就消 z，投影到 yOz 面就消 x，投影到 zOx 面就消 y，方向弄反则全错。</li>
+<li>投影柱面不等于投影曲线，问曲线必须补上坐标面方程（如 z = 0）。</li>
+<li>消元后若含根号或绝对值，要按实际范围讨论取正取负，不能直接平方了事。</li>
+<li>一般式化参数式时，优先找形如 x<sup>2</sup> + y<sup>2</sup> = R<sup>2</sup> 的现成结构，再令其为三角函数。</li>
+</ul>
+</div><!--/EXPL:m8-s6-->

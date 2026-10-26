@@ -75,3 +75,17 @@ node tools/timetable-helper.mjs --timeout 900    # 最多等多久（秒）
 - 抓到的课表只写到本机文件、或直接填进你自己的浏览器页面，**不上传任何地方**。
 - 浏览器配置目录 `.timetable-exports/browser-profile/`（以及自动版用的 `browser-profile-auto/`）
   里有你的登录 cookie，**不要提交、不要外传**。
+
+## 高等数学页的「逐节讲解」注入
+
+`site/en/math.html` 是 `tools/build_en_math.py` 生成的；每节 900–1600 字的讲义式正文
+（定义 / 定理 / 推导 / 例题）体量太大，单独放在 `tools/en_math_explain/mN.html`，
+生成之后再注进去：
+
+```powershell
+python tools/math_explain.py           # 注入 / 覆盖旧块（幂等）
+python tools/math_explain.py --check   # 只报告覆盖情况，不写文件
+```
+
+讲解块插在 `<div class="sect-h">` 与 `<ol class="kpt">` 之间，右栏目录仍是「章 → 节 → 知识点」。
+**重跑 `build_en_math.py` 之后必须再跑一次本脚本**，否则页面会退回没有讲解的状态。

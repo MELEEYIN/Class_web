@@ -1,0 +1,435 @@
+<!--EXPL:m1-s1--><div class="explain" data-expl="m1-s1">
+<h4 class="expl-h">一、先把「函数」这两个字钉死</h4>
+<p>中学里说「y 随 x 变化」，这句话在微积分里不够用，因为它没交代「怎么变」。教材把它钉成一个对应关系：设 <span class="fm">D</span> 是一个非空数集，若对 <span class="fm">D</span> 中每一个 <span class="fm">x</span>，按某个法则 <span class="fm">f</span> 都有<b>唯一确定</b>的 <span class="fm">y</span> 与之对应，则称 <span class="fm">f</span> 是定义在 <span class="fm">D</span> 上的函数，记作 <span class="fm">y = f(x)</span>，<span class="fm">x ∈ D</span>。<span class="fm">D</span> 叫定义域，全体函数值构成的集合叫值域。</p>
+<p>把它想成一台自动售货机：投进去的 <span class="fm">x</span> 是硬币，吐出来的 <span class="fm">y</span> 是饮料。合格的机器要满足两条——<b>每投必出</b>（定义域里每个 x 都有对应）、<b>只出一瓶</b>（唯一性）。机器内部怎么运作，就是「对应法则」。所以判断两个函数是不是同一个，只看两件事：定义域、对应法则；字母写成 <span class="fm">t</span> 还是 <span class="fm">x</span>、叫 <span class="fm">f</span> 还是 <span class="fm">g</span>，都不算数。</p>
+
+<h4 class="expl-h">二、定义域：五道关卡，按顺序卡完取交集</h4>
+<p>求定义域是本章唯一「纯机械」的活儿，但也是丢分最多的地方。把五个条件背成一条流水线：</p>
+<ul>
+<li><b>分母不为零</b>：<span class="fm">1/g(x)</span> 要求 <span class="fm">g(x) ≠ 0</span>；</li>
+<li><b>偶次根号内非负</b>：<span class="fm">√(g(x))</span> 要求 <span class="fm">g(x) ≥ 0</span>；</li>
+<li><b>对数真数为正</b>：<span class="fm">ln g(x)</span> 要求 <span class="fm">g(x) &gt; 0</span>；</li>
+<li><b>arcsin、arccos 的括号内落在 [−1, 1]</b>：<span class="fm">−1 ≤ g(x) ≤ 1</span>；</li>
+<li><b>tan 的角不等于 π/2 + kπ</b>，cot 的角不等于 <span class="fm">kπ</span>。</li>
+</ul>
+<p>每条只贡献一个不等式，最后<b>全部取交集</b>。有一个动作千万不能做：<b>先化简再卡条件</b>。例如 <span class="fm">y = (x² − 1)/(x − 1)</span>，先约成 <span class="fm">x + 1</span> 再求定义域，就得到「全体实数」，错了。原式分母要求 <span class="fm">x ≠ 1</span>，正确的定义域是 <span class="fm">x ≠ 1</span>。约分改变定义域，这在后面判断间断点时还会再咬你一次。</p>
+
+<h4 class="expl-h">三、「两个函数相同」的判据，以及 ln x² 与 2ln x</h4>
+<p>两个函数相同，必须<b>定义域相同</b>并且<b>对应法则相同</b>，缺一不可。教材的经典反例是 <span class="fm">y = ln x²</span> 与 <span class="fm">y = 2 ln x</span>：前者定义域是 <span class="fm">x ≠ 0</span>，后者是 <span class="fm">x &gt; 0</span>；在 <span class="fm">x &lt; 0</span> 时前者有值、后者没定义，所以是两个不同的函数。同理 <span class="fm">y = x</span> 与 <span class="fm">y = √(x²)</span> 也不同（后者等于 <span class="fm">|x|</span>，法则不同）。</p>
+
+<h4 class="expl-h">四、复合与分解：由外向内剥洋葱</h4>
+<p>由几个函数套起来得到的 <span class="fm">y = f[g(x)]</span> 叫复合函数，<span class="fm">u = g(x)</span> 是内层，<span class="fm">y = f(u)</span> 是外层。复合不是随便套的，<b>必须内层的值域落在外层的定义域内</b>，否则式子在某处就没意义。分解的动作是「由外向内」：拿到 <span class="fm">y = ln sin(2x + 1)</span>，最外层是 <span class="fm">ln u</span>，往内是 <span class="fm">u = sin v</span>，再往内是 <span class="fm">v = 2x + 1</span>。后面讲复合函数求导、求积分，靠的就是这个剥法。</p>
+
+<h4 class="expl-h">五、反函数：解出来、换字母、看对称</h4>
+<p>若 <span class="fm">y = f(x)</span> 在定义域上是一一对应（严格单调就够），则可反解出唯一的 <span class="fm">x</span>，记 <span class="fm">x = f<sup>−1</sup>(y)</span>。求反函数三步：① 由 <span class="fm">y = f(x)</span> 解出 <span class="fm">x</span>；② 把 <span class="fm">x</span> 与 <span class="fm">y</span> 互换字母；③ 写出反函数的定义域（正好是原函数的值域）。两个必须记住的事实：<span class="fm">f<sup>−1</sup>[f(x)] = x</span>，且 <span class="fm">y = f(x)</span> 与 <span class="fm">y = f<sup>−1</sup>(x)</span> 的图形<b>关于直线 y = x 对称</b>。反函数的定义域 = 原函数的值域，这条在求值域时特别好用。</p>
+
+<h4 class="expl-h">六、奇偶性、周期性、有界性：三条「形状」性质</h4>
+<p><b>奇偶性</b>：定义域必须关于原点对称，这是前提。<span class="fm">f(−x) = f(x)</span> 为偶函数（图形关于 y 轴对称），<span class="fm">f(−x) = −f(x)</span> 为奇函数（关于原点对称）。奇函数若在 0 处有定义，则必有 <span class="fm">f(0) = 0</span>——这条可以直接用来快速排除选项。乘法的规律：奇 × 奇 = 偶，奇 × 偶 = 奇，偶 × 偶 = 偶。<b>周期性</b>：存在 <span class="fm">T ≠ 0</span> 使 <span class="fm">f(x + T) = f(x)</span>，最小的正 <span class="fm">T</span> 叫最小正周期。sin x、cos x 是 2π，tan x、cot x 是 π；而 <span class="fm">sin ωx</span> 的周期是 <span class="fm">2π/|ω|</span>，ω 越大周期越短。所以把 sin x 换成 sin 2x，周期由 2π 压到 π；但别反过来说 sin 2x 的周期是 2π——2π 只是它的一个周期，不是最小的。<b>有界性</b>：存在 <span class="fm">M &gt; 0</span> 使区间上恒有 <span class="fm">|f(x)| ≤ M</span>。sin x、cos x、arctan x 在 <span class="fm">R</span> 上有界；<span class="fm">1/x</span> 在 <span class="fm">(0, 1)</span> 内无界（越靠近 0 越大）。注意有界性必须<b>指明区间</b>，脱离区间谈有界没有意义。</p>
+
+<div class="expl-eg"><p class="expl-q"><b>例 1</b>　求 <span class="fm">f(x) = √(2 − x) + ln(x − 1) + arcsin<span class="fr"><span class="n">x − 3</span><span class="d">2</span></span></span> 的定义域。</p>
+<p class="expl-s"><b>解</b>　逐条卡：<br>根号：<span class="fm">2 − x ≥ 0</span>，即 <span class="fm">x ≤ 2</span>；<br>对数：<span class="fm">x − 1 &gt; 0</span>，即 <span class="fm">x &gt; 1</span>；<br>反正弦：<span class="fm">−1 ≤ (x − 3)/2 ≤ 1</span>，即 <span class="fm">1 ≤ x ≤ 5</span>。<br>三者取交集：<span class="fm">1 &lt; x ≤ 2</span>，定义域为 <span class="fm">(1, 2]</span>。</p>
+<p class="expl-t">易错在 arcsin 那一步：它是 <span class="fm">−1 ≤ 括号内 ≤ 1</span>，不是「括号内 ≥ 0」；另外交集时别忘了 <span class="fm">x &gt; 1</span> 是开、<span class="fm">x ≤ 2</span> 是闭，端点归属要写清。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 2</b>　判断 <span class="fm">f(x) = ln(x + √(1 + x²))</span> 的奇偶性。</p>
+<p class="expl-s"><b>解</b>　先看定义域：对任意 <span class="fm">x</span> 有 <span class="fm">√(1 + x²) &gt; |x|</span>，所以 <span class="fm">x + √(1 + x²) &gt; 0</span> 恒成立，定义域是 <span class="fm">R</span>，关于原点对称，可以谈奇偶。<br>计算 <span class="fm">f(−x) = ln(−x + √(1 + x²))</span>。分子有理化：<br><span class="fm">(−x + √(1 + x²)) · (x + √(1 + x²)) = (1 + x²) − x² = 1</span>，<br>故 <span class="fm">−x + √(1 + x²) = 1/(x + √(1 + x²))</span>，于是<br><span class="fm">f(−x) = ln<span class="fr"><span class="n">1</span><span class="d">x + √(1 + x²)</span></span> = −ln(x + √(1 + x²)) = −f(x)</span>。<br>所以 <span class="fm">f</span> 是<b>奇函数</b>。</p>
+<p class="expl-t">手法是「有理化造出倒数」：把根式减根式变成分式，取对数后正好出负号。这个函数是反双曲正弦，后面求导、求积分会反复出现。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 3</b>　求 <span class="fm">y = <span class="fr"><span class="n">2<sup>x</sup></span><span class="d">1 + 2<sup>x</sup></span></span></span> 的反函数。</p>
+<p class="expl-s"><b>解</b>　先解出 <span class="fm">x</span>：由 <span class="fm">y(1 + 2<sup>x</sup>) = 2<sup>x</sup></span> 得 <span class="fm">2<sup>x</sup>(1 − y) = y</span>，即 <span class="fm">2<sup>x</sup> = y/(1 − y)</span>，故 <span class="fm">x = log<sub>2</sub><span class="fr"><span class="n">y</span><span class="d">1 − y</span></span></span>。<br>交换字母得 <span class="fm">y = log<sub>2</sub><span class="fr"><span class="n">x</span><span class="d">1 − x</span></span></span>，定义域 <span class="fm">0 &lt; x &lt; 1</span>。<br>验算：原函数值域正是 <span class="fm">(0, 1)</span>（因为 <span class="fm">2<sup>x</sup> &gt; 0</span>，分式恒在 0 与 1 之间），与反函数定义域一致。</p>
+<p class="expl-t">最后一步「验算值域」不是多余的：反函数的定义域就是原函数的值域，两边对不上说明前面解错了。</p></div>
+
+<h4 class="expl-h">七、这节和后文的关系</h4>
+<p>定义域决定了后面所有极限的「可讨论范围」；奇偶性、周期性决定了图形只要画一半或者一个周期；有界性在第五节比较无穷小、第十节最值定理里都要用。判断「两个函数是否相同」的思维，会在讲等价无穷小（第七节）时以另一种形式重现：<b>能不能换，先看范围</b>。</p>
+<p><b>易错提醒</b>：① 求定义域先卡条件、后化简；② 谈奇偶性前先看定义域是否对称，不对称的直接「非奇非偶」；③ 反函数别忘写定义域。</p>
+</div><!--/EXPL:m1-s1-->
+
+<!--EXPL:m1-s2--><div class="explain" data-expl="m1-s2">
+<h4 class="expl-h">一、从「割圆术」说起：极限不是算出来大概是几</h4>
+<p>刘徽用正多边形逼近圆：正六边形、正十二边形、正二十四边形……边数越多，多边形越像圆，但永远不是圆。数列的极限就是把这个「越来越像」讲成一句可以被检验的话。数列 <span class="fm">{a<sub>n</sub>}</span> 不过是按自然数排好队的一串数：<span class="fm">a<sub>1</sub>, a<sub>2</sub>, a<sub>3</sub>, …</span>。问它「趋于什么」，问的是<b>当 n 无限变大时，a<sub>n</sub> 与某个定数 a 的距离能不能要多少小有多少小</b>。</p>
+
+<h4 class="expl-h">二、ε–N 定义：把「要多少小有多少小」写成不等式</h4>
+<p><b>定义</b>　设 <span class="fm">{a<sub>n</sub>}</span> 为一数列，<span class="fm">a</span> 为常数。若对任意给定的 <span class="fm">ε &gt; 0</span>，总存在正整数 <span class="fm">N</span>，使得当 <span class="fm">n &gt; N</span> 时，都有</p>
+<p><span class="fm">|a<sub>n</sub> − a| &lt; ε</span>，</p>
+<p>则称数列 <span class="fm">{a<sub>n</sub>}</span> 收敛于 <span class="fm">a</span>，记作 <span class="fm"><span class="lm">lim<span class="s">n→∞</span></span> a<sub>n</sub> = a</span>。</p>
+<p>读法要读出三层意思。第一，<b>ε 是任意的</b>：别人给你多小的 ε 你都得接住，0.1 行、0.0001 也行。第二，<b>N 是依赖 ε 的</b>：ε 越小，N 一般越大，所以 N 不能事先定死，只能「对每个 ε 找一个」。第三，<b>只要 n 超过 N</b>，后面无穷多项全都落进 <span class="fm">(a − ε, a + ε)</span> 这个 ε 邻域。几何意义一句话：<b>a 的任意 ε 邻域之外，至多只有有限项</b>。这句话是判断「不收敛」的利器——如果某个区间外还有无穷多项，就不收敛。</p>
+
+<h4 class="expl-h">三、用定义证极限：倒着找 N，正着写</h4>
+<p>课本例题看着玄，其实就两步。<b>第一步（草稿）</b>：从目标不等式出发倒推，把 <span class="fm">|a<sub>n</sub> − a| &lt; ε</span> 解成 <span class="fm">n &gt; φ(ε)</span>。手法是「放大分母、缩小分子」，把含 n 的式子换成一个更简单的、只含 n 一次方的上界。<b>第二步（正写）</b>：对任给 <span class="fm">ε &gt; 0</span>，取 <span class="fm">N = [φ(ε)]</span>（取整），则当 <span class="fm">n &gt; N</span> 时，把上面的放大过程反向抄一遍，得到 <span class="fm">|a<sub>n</sub> − a| &lt; ε</span>。注意正写时 N 必须用方括号取整，且要写「当 n &gt; N 时」而不是「当 n ≥ N 时」——虽然差别不大，但按定义写最稳。</p>
+
+<h4 class="expl-h">四、收敛数列的四条性质</h4>
+<p><b>（1）唯一性</b>：极限若存在则唯一。反证：假设 <span class="fm">a<sub>n</sub> → a</span> 又 <span class="fm">a<sub>n</sub> → b</span>，<span class="fm">a ≠ b</span>，取 <span class="fm">ε = |a − b|/2</span>，两个邻域互不相交，而 n 充分大时 <span class="fm">a<sub>n</sub></span> 要同时落进两个邻域，矛盾。</p>
+<p><b>（2）有界性</b>：收敛必有界。取 <span class="fm">ε = 1</span>，存在 N 使 <span class="fm">n &gt; N</span> 时 <span class="fm">|a<sub>n</sub>| &lt; |a| + 1</span>；前 N 项只有有限个，取 <span class="fm">M = max{|a<sub>1</sub>|, …, |a<sub>N</sub>|, |a| + 1}</span> 即可。反过来不成立：有界不一定收敛，<span class="fm">{(−1)<sup>n</sup>}</span> 有界但发散。所以「有界」只是收敛的必要条件，考试里常拿它做排除。</p>
+<p><b>（3）保号性</b>：若 <span class="fm">a &gt; 0</span>，则存在 N，当 <span class="fm">n &gt; N</span> 时 <span class="fm">a<sub>n</sub> &gt; 0</span>。证明取 <span class="fm">ε = a/2</span>，则 <span class="fm">a<sub>n</sub> &gt; a − a/2 = a/2 &gt; 0</span>。注意方向：<b>由极限的符号推出项的符号</b>，不能倒过来。但有反过来的弱版本：若从某项起 <span class="fm">a<sub>n</sub> ≥ 0</span>，则 <span class="fm">a ≥ 0</span>（不能写 &gt; 0）。</p>
+<p><b>（4）子列同极限</b>：若 <span class="fm">a<sub>n</sub> → a</span>，则任一子列 <span class="fm">a<sub>n<sub>k</sub></sub> → a</span>。因为 <span class="fm">n<sub>k</sub> ≥ k</span>，k 一大，<span class="fm">n<sub>k</sub></span> 更大。这条最常用的用法是<b>反着用</b>：只要找出两个子列极限不同（比如奇数项趋于 1、偶数项趋于 −1），原数列必发散。</p>
+
+<h4 class="expl-h">五、无穷小乘有界：一个便宜好用的工具</h4>
+<p><b>定理</b>　若 <span class="fm">{a<sub>n</sub>}</span> 是无穷小（即 <span class="fm">a<sub>n</sub> → 0</span>），<span class="fm">{b<sub>n</sub>}</span> 有界，则 <span class="fm">{a<sub>n</sub>b<sub>n</sub>}</span> 也是无穷小。证明只用一句：设 <span class="fm">|b<sub>n</sub>| ≤ M</span>，则 <span class="fm">|a<sub>n</sub>b<sub>n</sub>| ≤ M|a<sub>n</sub>|</span>，右边趋零。典型例子 <span class="fm">(1/n)·sin n → 0</span>：<span class="fm">1/n</span> 是无穷小，<span class="fm">sin n</span> 被 1 卡住。凡是「无穷小 × 震荡因子」的题，一律走这条路，不要去算 sin n 到底是多少。</p>
+
+<h4 class="expl-h">六、单调有界准则：递推数列的唯一通用入口</h4>
+<p><b>准则</b>　单调增加且有上界的数列必收敛；单调减少且有下界的数列必收敛。它的价值在于：<b>不需要事先知道极限是多少</b>，就能断定极限存在。而对递推数列 <span class="fm">a<sub>n+1</sub> = f(a<sub>n</sub>)</span>，这往往是唯一的路。标准三步：① 用数学归纳法证有界（猜一个界，比如 2）；② 作差 <span class="fm">a<sub>n+1</sub> − a<sub>n</sub></span> 判单调（或作商，注意正负）；③ 既然收敛，设极限为 A，对递推式两边取极限解方程，再把不合理的根舍掉（比如负数、或与界矛盾的那个）。</p>
+<p>还有几条要背熟的常用结论：<span class="fm">|q| &lt; 1</span> 时 <span class="fm">q<sup>n</sup> → 0</span>；<span class="fm">n<sup>1/n</sup> → 1</span>；<span class="fm">a<sup>1/n</sup> → 1</span>（<span class="fm">a &gt; 0</span>）；<span class="fm">n<sup>k</sup>/a<sup>n</sup> → 0</span>（<span class="fm">a &gt; 1</span>，幂函数跑不过指数函数）；<span class="fm">ln n / n → 0</span>。这几条在第五节、第六节会当「已知」直接用。</p>
+
+<div class="expl-eg"><p class="expl-q"><b>例 1</b>　用定义证明 <span class="fm"><span class="lm">lim<span class="s">n→∞</span></span> <span class="fr"><span class="n">3n + 1</span><span class="d">2n − 1</span></span> = <span class="fr"><span class="n">3</span><span class="d">2</span></span></span>。</p>
+<p class="expl-s"><b>解</b>　先做草稿（放大）：<br><span class="fm">|<span class="fr"><span class="n">3n + 1</span><span class="d">2n − 1</span></span> − <span class="fr"><span class="n">3</span><span class="d">2</span></span>| = |<span class="fr"><span class="n">2(3n + 1) − 3(2n − 1)</span><span class="d">2(2n − 1)</span></span>| = <span class="fr"><span class="n">5</span><span class="d">2(2n − 1)</span></span></span>。<br>因为 <span class="fm">n ≥ 1</span> 时 <span class="fm">2n − 1 ≥ n</span>，所以上式 <span class="fm">≤ <span class="fr"><span class="n">5</span><span class="d">2n</span></span></span>。令 <span class="fm"><span class="fr"><span class="n">5</span><span class="d">2n</span></span> &lt; ε</span>，得 <span class="fm">n &gt; <span class="fr"><span class="n">5</span><span class="d">2ε</span></span></span>。<br>正式写：对任给 <span class="fm">ε &gt; 0</span>，取 <span class="fm">N = [<span class="fr"><span class="n">5</span><span class="d">2ε</span></span>]</span>，则当 <span class="fm">n &gt; N</span> 时 <span class="fm">n &gt; 5/(2ε)</span>，从而 <span class="fm">|<span class="fr"><span class="n">3n + 1</span><span class="d">2n − 1</span></span> − <span class="fr"><span class="n">3</span><span class="d">2</span></span>| ≤ <span class="fr"><span class="n">5</span><span class="d">2n</span></span> &lt; ε</span>。由定义，极限为 <span class="fm">3/2</span>。</p>
+<p class="expl-t">放大那一步的关键是「分母变小、分数变大」，把 <span class="fm">2n − 1</span> 换成 <span class="fm">n</span>。别把保住等号方向搞反。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 2</b>　求 <span class="fm"><span class="lm">lim<span class="s">n→∞</span></span> <span class="fr"><span class="n">sin n</span><span class="d">n</span></span></span>。</p>
+<p class="expl-s"><b>解</b>　<span class="fm">1/n → 0</span> 是无穷小；<span class="fm">|sin n| ≤ 1</span>，<span class="fm">{sin n}</span> 有界。由「无穷小 × 有界仍为无穷小」，<span class="fm">(sin n)/n → 0</span>。</p>
+<p class="expl-t">常见错误是写 <span class="fm">sin n → 0</span>——sin n 根本不收敛，它在 [−1, 1] 里来回跳。结论对，理由错，一步扣光。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 3</b>　证明 <span class="fm">a<sub>n</sub> = 1 + <span class="fr"><span class="n">1</span><span class="d">2²</span></span> + <span class="fr"><span class="n">1</span><span class="d">3²</span></span> + … + <span class="fr"><span class="n">1</span><span class="d">n²</span></span></span> 收敛。</p>
+<p class="expl-s"><b>解</b>　<b>单调</b>：<span class="fm">a<sub>n+1</sub> − a<sub>n</sub> = 1/(n+1)² &gt; 0</span>，故单调增加。<br><b>有界</b>：当 <span class="fm">k ≥ 2</span> 时 <span class="fm"><span class="fr"><span class="n">1</span><span class="d">k²</span></span> &lt; <span class="fr"><span class="n">1</span><span class="d">k(k − 1)</span></span> = <span class="fr"><span class="n">1</span><span class="d">k − 1</span></span> − <span class="fr"><span class="n">1</span><span class="d">k</span></span></span>，裂项相加得<br><span class="fm">a<sub>n</sub> &lt; 1 + (1 − <span class="fr"><span class="n">1</span><span class="d">2</span></span>) + (<span class="fr"><span class="n">1</span><span class="d">2</span></span> − <span class="fr"><span class="n">1</span><span class="d">3</span></span>) + … + (<span class="fr"><span class="n">1</span><span class="d">n − 1</span></span> − <span class="fr"><span class="n">1</span><span class="d">n</span></span>) = 2 − <span class="fr"><span class="n">1</span><span class="d">n</span></span> &lt; 2</span>。<br>单调增加且有上界 2，由准则知 <span class="fm">{a<sub>n</sub>}</span> 收敛（其极限为 <span class="fm">π²/6 ≈ 1.645</span>，但本题不需要求出来）。</p>
+<p class="expl-t">「裂项放缩」是估界的标准动作：把 <span class="fm">1/k²</span> 放大成 <span class="fm">1/k(k−1)</span>，分母拆开就能逐项抵消。用准则证收敛，本来就不必知道极限值。</p></div>
+
+<p><b>易错提醒</b>：① ε–N 里 N 必须依赖 ε，写成常数 N 就错了；② 有界是收敛的必要条件，不能拿来证明收敛；③ 保号性只能从极限推项，不能从项推严格大于；④ 递推数列求出两个根时，必须用有界性、单调性、非负性舍掉一个。</p>
+</div><!--/EXPL:m1-s2-->
+
+<!--EXPL:m1-s3--><div class="explain" data-expl="m1-s3">
+<h4 class="expl-h">一、从「一个方向」到「四面八方」</h4>
+<p>数列只有一个跑法：n 一路往无穷大走。函数不一样，自变量可以由左边贴近 <span class="fm">x<sub>0</sub></span>，也可以由右边贴近，还可以一路往正无穷、负无穷跑，甚至两边都跑。所以第三节要把上一节的 ε–N 扩写成两套语言：一套管「靠近某一点」，一套管「跑向无穷远」。这两套定义是本章后面所有定理的地基，但考试更爱考的是它们的<b>推论</b>——左右极限和抓大头。</p>
+
+<h4 class="expl-h">二、x → x₀ 的极限：ε–δ 与「去心」邻域</h4>
+<p><b>定义</b>　设函数 <span class="fm">f</span> 在点 <span class="fm">x<sub>0</sub></span> 的某个去心邻域内有定义。若存在常数 <span class="fm">A</span>，对任意 <span class="fm">ε &gt; 0</span>，总存在 <span class="fm">δ &gt; 0</span>，使得当</p>
+<p><span class="fm">0 &lt; |x − x<sub>0</sub>| &lt; δ</span></p>
+<p>时，都有 <span class="fm">|f(x) − A| &lt; ε</span>，则称 <span class="fm">x → x<sub>0</sub></span> 时 <span class="fm">f(x)</span> 以 <span class="fm">A</span> 为极限。</p>
+<p>三个细节必须抠。<b>其一</b>，「去心」：<span class="fm">0 &lt; |x − x<sub>0</sub>|</span> 把 <span class="fm">x = x<sub>0</sub></span> 本身排除在外。这意味着极限存在与否、等于几，<b>与 f 在 x₀ 处有没有定义、定义成什么，完全无关</b>。这为后面「可去间断点补一个值就连续」埋好了伏笔。<b>其二</b>，<span class="fm">δ</span> 依赖 <span class="fm">ε</span>，<span class="fm">ε</span> 是任给的。<b>其三</b>，与数列的 N 不同，<span class="fm">δ</span> 是正数不是整数，所以不用取整。</p>
+
+<h4 class="expl-h">三、x → ∞ 的极限：ε–X</h4>
+<p><b>定义</b>　若对任意 <span class="fm">ε &gt; 0</span>，存在 <span class="fm">X &gt; 0</span>，使得当 <span class="fm">|x| &gt; X</span> 时都有 <span class="fm">|f(x) − A| &lt; ε</span>，则称 <span class="fm">x → ∞</span> 时 <span class="fm">f(x) → A</span>。这里的 <span class="fm">|x| &gt; X</span> 是<b>双侧</b>写法，等价于 <span class="fm">x &gt; X</span> 或 <span class="fm">x &lt; −X</span>。若只要 <span class="fm">x &gt; X</span>，就写成 <span class="fm">x → +∞</span>；只要 <span class="fm">x &lt; −X</span>，写成 <span class="fm">x → −∞</span>。<b>三个记号不能混用</b>：<span class="fm">x → ∞</span> 要求两侧都趋于同一个 A；只证了一侧不等于证了双侧。</p>
+
+<h4 class="expl-h">四、左右极限：极限存在的「双门卫」</h4>
+<p><b>左极限</b>记 <span class="fm">f(x<sub>0</sub><sup>−</sup>)</span> 或 <span class="fm">f(x<sub>0</sub> − 0)</span>，条件改成 <span class="fm">x<sub>0</sub> − δ &lt; x &lt; x<sub>0</sub></span>；<b>右极限</b>记 <span class="fm">f(x<sub>0</sub><sup>+</sup>)</span>，条件改成 <span class="fm">x<sub>0</sub> &lt; x &lt; x<sub>0</sub> + δ</span>。核心定理：</p>
+<p><span class="fm"><span class="lm">lim<span class="s">x→x₀</span></span> f(x) = A</span> ⟺ <span class="fm">f(x<sub>0</sub><sup>−</sup>) = f(x<sub>0</sub><sup>+</sup>) = A</span>。</p>
+<p>于是「极限不存在」被拆成两种可操作的情形：<b>左右都存在但不相等</b>（跳跃），<b>至少一侧不存在</b>（比如趋于无穷）。三类题必须两边都算：<b>分段函数在分界点</b>；<b>含 |x − a| 的式子</b>（去掉绝对值要分正负）；<b>含取整 [x] 的式子</b>（在整数点两侧取值不同）。只代入一侧就下结论，是这一节最典型的失分。</p>
+
+<h4 class="expl-h">五、局部保号与局部有界</h4>
+<p><b>局部保号性</b>：若 <span class="fm"><span class="lm">lim<span class="s">x→x₀</span></span> f(x) = A &gt; 0</span>，则存在去心邻域，在其中 <span class="fm">f(x) &gt; 0</span>。证明取 <span class="fm">ε = A/2</span>，则 <span class="fm">f(x) &gt; A − A/2 = A/2 &gt; 0</span>。它说明「极限的符号可以遗传给附近的值」，是后面证不等式、证根存在的常用工具。<b>局部有界性</b>：若 <span class="fm">x → x<sub>0</sub></span> 时极限存在，则 <span class="fm">f</span> 在 <span class="fm">x<sub>0</sub></span> 的某去心邻域内有界。取 <span class="fm">ε = 1</span>，则 <span class="fm">|f(x)| &lt; |A| + 1</span>。注意这两个性质都是「局部」的，只管一小段邻域，不管整个定义域。</p>
+
+<h4 class="expl-h">六、x → ∞ 的抓大头</h4>
+<p>有理式在无穷远处的极限，只看分子分母的<b>最高次项</b>，其余全可以扔：</p>
+<ul>
+<li>分子分母同次：极限 = 最高次项系数之比；</li>
+<li>分子次数低：极限 = 0；</li>
+<li>分子次数高：极限 = ∞（不存在）。</li>
+</ul>
+<p>原理是分子分母同除最高次幂，让所有低次项都变成「常数 / x<sup>k</sup>」这种趋于零的东西。含根式时先同除最高次幂，再小心把 <span class="fm">x</span> 从根号里拿出来时要不要加负号——这正是 <span class="fm">x → +∞</span> 与 <span class="fm">x → −∞</span> 经常给出不同答案的根源。</p>
+
+<div class="expl-eg"><p class="expl-q"><b>例 1</b>　设 <span class="fm">f(x) = x − 1</span>（<span class="fm">x &lt; 0</span>），<span class="fm">f(x) = 0</span>（<span class="fm">x = 0</span>），<span class="fm">f(x) = x + 1</span>（<span class="fm">x &gt; 0</span>），讨论 <span class="fm">x → 0</span> 时的极限。</p>
+<p class="expl-s"><b>解</b>　分界点在 0，必须两侧分别用不同的表达式。<br>左极限：<span class="fm">x → 0<sup>−</sup></span> 时用 <span class="fm">x − 1</span>，得 <span class="fm">f(0<sup>−</sup>) = −1</span>。<br>右极限：<span class="fm">x → 0<sup>+</sup></span> 时用 <span class="fm">x + 1</span>，得 <span class="fm">f(0<sup>+</sup>) = 1</span>。<br>左右都存在但 <span class="fm">−1 ≠ 1</span>，故 <span class="fm"><span class="lm">lim<span class="s">x→0</span></span> f(x)</span> <b>不存在</b>（属于跳跃型）。</p>
+<p class="expl-t">注意 <span class="fm">f(0) = 0</span> 这个信息在求极限时完全没用——极限与函数在该点的取值无关。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 2</b>　分别求 <span class="fm"><span class="lm">lim<span class="s">x→+∞</span></span> (√(x² + x) − x)</span> 与 <span class="fm"><span class="lm">lim<span class="s">x→−∞</span></span> (√(x² + x) + x)</span>。</p>
+<p class="expl-s"><b>解</b>　<b>（1）</b> 有理化：<span class="fm">√(x² + x) − x = <span class="fr"><span class="n">(x² + x) − x²</span><span class="d">√(x² + x) + x</span></span> = <span class="fr"><span class="n">x</span><span class="d">√(x² + x) + x</span></span></span>。分子分母同除 <span class="fm">x</span>（此时 <span class="fm">x &gt; 0</span>，<span class="fm">x = √(x²)</span>）：<span class="fm"><span class="fr"><span class="n">1</span><span class="d">√(1 + 1/x) + 1</span></span> → <span class="fr"><span class="n">1</span><span class="d">2</span></span></span>。<br><b>（2）</b> 令 <span class="fm">t = −x → +∞</span>，则 <span class="fm">x = −t</span>，<span class="fm">√(x² + x) = √(t² − t)</span>，原式 <span class="fm">= √(t² − t) − t = <span class="fr"><span class="n">−t</span><span class="d">√(t² − t) + t</span></span> = <span class="fr"><span class="n">−1</span><span class="d">√(1 − 1/t) + 1</span></span> → −<span class="fr"><span class="n">1</span><span class="d">2</span></span></span>。</p>
+<p class="expl-t">第（2）问最容易错的地方是直接把 <span class="fm">√(x²)</span> 当成 <span class="fm">x</span>：<span class="fm">x &lt; 0</span> 时其实 <span class="fm">√(x²) = −x</span>。用换元 <span class="fm">t = −x</span> 把负方向转成正方向，是最不容易翻车的写法。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 3</b>　求 <span class="fm"><span class="lm">lim<span class="s">x→1</span></span> [x]</span>，其中 <span class="fm">[x]</span> 表示不超过 <span class="fm">x</span> 的最大整数。</p>
+<p class="expl-s"><b>解</b>　取整函数在整数点两侧取值不同。<br>左极限：<span class="fm">x → 1<sup>−</sup></span> 时 <span class="fm">0.9 &lt; x &lt; 1</span>，<span class="fm">[x] = 0</span>，故左极限为 0。<br>右极限：<span class="fm">x → 1<sup>+</sup></span> 时 <span class="fm">1 &lt; x &lt; 1.1</span>，<span class="fm">[x] = 1</span>，故右极限为 1。<br>左右不相等，极限不存在。</p>
+<p class="expl-t">同类的还有 <span class="fm">|x|/x</span> 在 0 处（左 −1、右 1）、符号函数 <span class="fm">sgn x</span> 在 0 处。凡是「分段定义隐藏在符号里」的，都要按左右两套解析式算。</p></div>
+
+<p><b>易错提醒</b>：① <span class="fm">x → ∞</span> 不是 <span class="fm">x → +∞</span>，两侧要分别看；② 从根号里提出 <span class="fm">x</span> 时先判断正负；③ 极限与函数值无关，别拿 <span class="fm">f(x<sub>0</sub>)</span> 去凑极限。</p>
+</div><!--/EXPL:m1-s3-->
+
+<!--EXPL:m1-s4--><div class="explain" data-expl="m1-s4">
+<h4 class="expl-h">一、望远镜里的星星：趋零的变量，不是很小的数</h4>
+<p>用望远镜看远处的塔，越走越远，塔在视野里越来越小，但塔本身高度一点没变——变小的是「视角」，是一个随距离变化、可以任意接近零的量。这就是无穷小的原型：<b>无穷小是一个以 0 为极限的变量，不是「很小的数」</b>。所以 <span class="fm">0.000001</span> 不是无穷小，它就是个常数；而 <span class="fm">1/n</span>、<span class="fm">sin x</span>（当 <span class="fm">x → 0</span>）、<span class="fm">x − 1</span>（当 <span class="fm">x → 1</span>）都是无穷小。</p>
+
+<h4 class="expl-h">二、定义与那条「A + α」定理</h4>
+<p><b>定义</b>　若 <span class="fm"><span class="lm">lim<span class="s">x→x₀</span></span> α(x) = 0</span>（或 <span class="fm">x → ∞</span>），则称 <span class="fm">α(x)</span> 为当 <span class="fm">x → x₀</span> 时的无穷小。</p>
+<p><b>定理</b>　<span class="fm"><span class="lm">lim<span class="s">x→x₀</span></span> f(x) = A</span> ⟺ <span class="fm">f(x) = A + α(x)</span>，其中 <span class="fm">α</span> 是无穷小。证明只一步：令 <span class="fm">α(x) = f(x) − A</span>，则 <span class="fm">|f(x) − A| &lt; ε</span> 与 <span class="fm">|α(x)| &lt; ε</span> 是同一句话。这条定理把「求极限」翻译成「做分解」：任何一个有极限的量，都能拆成「极限值 + 一个趋零的尾巴」。它在第五节证明四则运算法则时是主力工具。</p>
+<p><b>性质</b>（都带「有限个」三个字）：有限个无穷小之和仍是无穷小；有限个无穷小之积仍是无穷小；<b>无穷小 × 有界量仍是无穷小</b>；常数与无穷小之积仍是无穷小。注意第三条是「有界」，不是「有极限」——<span class="fm">sin(1/x)</span> 在 0 附近没有极限，但它有界，配上 <span class="fm">x</span> 就有 <span class="fm">x sin(1/x) → 0</span>。还有一条要记：<b>0 是唯一的常数无穷小</b>。</p>
+
+<h4 class="expl-h">三、无穷大：记号，不是数</h4>
+<p><b>定义</b>　若对任意 <span class="fm">M &gt; 0</span>，总存在相应时刻之后使 <span class="fm">|f(x)| &gt; M</span>，则称 <span class="fm">f(x)</span> 为无穷大，记 <span class="fm"><span class="lm">lim<span class="s">x→x₀</span></span> f(x) = ∞</span>。这里必须强调：<b>∞ 不是数</b>，它是一句「绝对值可以要多大有多大」的缩写。所以 <span class="fm">∞ − ∞</span>、<span class="fm">∞/∞</span>、<span class="fm">0 · ∞</span> 都不能当成算术来算，它们是不定式，必须变形。<b>倒数关系</b>：在同一变化过程中，若 <span class="fm">f ≠ 0</span>，则 <span class="fm">f</span> 为无穷大 ⟺ <span class="fm">1/f</span> 为无穷小。这条把两类问题互相转化，做题时很省事。</p>
+<p><b>无界 ≠ 无穷大</b>，这是最容易混的一对。无穷大要求「最终一直很大」，无界只要求「存在任意大的点」。反例：<span class="fm">f(x) = x sin x</span> 在 <span class="fm">(0, +∞)</span> 上。取 <span class="fm">x = 2kπ + π/2</span>，<span class="fm">f = x</span> 可以任意大，所以无界；但取 <span class="fm">x = kπ</span>，<span class="fm">f = 0</span>，它一次又一次回到 0，永远不满足「最终 |f| &gt; M」，所以不是无穷大。<b>无穷大 ⟹ 无界，反过来不成立。</b></p>
+
+<h4 class="expl-h">四、曲线的渐近线：三类，各有各的算法</h4>
+<p><b>（1）垂直渐近线</b>：若 <span class="fm"><span class="lm">lim<span class="s">x→a⁺</span></span> f(x) = ∞</span> 或 <span class="fm">−∞</span>（一侧就够），则 <span class="fm">x = a</span> 是垂直渐近线。可疑点：分母的零点、对数的真数零点、tan 的极点。<b>（2）水平渐近线</b>：若 <span class="fm"><span class="lm">lim<span class="s">x→+∞</span></span> f(x) = b</span>，则 <span class="fm">y = b</span>；<span class="fm">x → −∞</span> 单独算，两侧的 b 可以不同，也可以一侧有一侧没有。<b>（3）斜渐近线</b>：先算斜率 <span class="fm">k = <span class="lm">lim<span class="s">x→∞</span></span> <span class="fr"><span class="n">f(x)</span><span class="d">x</span></span></span>，要求 <span class="fm">k</span> 存在、有限且 <span class="fm">k ≠ 0</span>；再算截距 <span class="fm">b = <span class="lm">lim<span class="s">x→∞</span></span> [f(x) − kx]</span>，则 <span class="fm">y = kx + b</span>。</p>
+<p>三者的关系要说清：<b>斜渐近线是「一般情形」，水平是 k = 0 的退化情形</b>。所以算的时候先算 k：k 存在且为 0，就是水平；k 存在且非零，就再算 b 得斜渐近线；k 不存在（比如趋于无穷），就没有斜渐近线。同一侧不可能既有水平又有斜的，因为 k 只能有一个值。垂直渐近线则完全可以和它们共存。</p>
+
+<div class="expl-eg"><p class="expl-q"><b>例 1</b>　求曲线 <span class="fm">y = <span class="fr"><span class="n">x² + 1</span><span class="d">x − 1</span></span></span> 的所有渐近线。</p>
+<p class="expl-s"><b>解</b>　<b>垂直</b>：分母零点 <span class="fm">x = 1</span>。<span class="fm">x → 1<sup>+</sup></span> 时分子 <span class="fm">→ 2 &gt; 0</span>、分母 <span class="fm">→ 0<sup>+</sup></span>，故 <span class="fm">y → +∞</span>；<span class="fm">x → 1<sup>−</sup></span> 时 <span class="fm">y → −∞</span>。所以 <span class="fm">x = 1</span> 是垂直渐近线。<br><b>斜</b>：<span class="fm">k = <span class="lm">lim<span class="s">x→∞</span></span> <span class="fr"><span class="n">x² + 1</span><span class="d">x(x − 1)</span></span> = 1</span>（抓大头）。<br><span class="fm">b = <span class="lm">lim<span class="s">x→∞</span></span> [<span class="fr"><span class="n">x² + 1</span><span class="d">x − 1</span></span> − x] = <span class="lm">lim<span class="s">x→∞</span></span> <span class="fr"><span class="n">x + 1</span><span class="d">x − 1</span></span> = 1</span>。<br>所以 <span class="fm">y = x + 1</span> 是斜渐近线（两侧同一条，因为两侧极限相同）。</p>
+<p class="expl-t">验算弧线关系：做除法 <span class="fm">x² + 1 = (x − 1)(x + 1) + 2</span>，即 <span class="fm">y = x + 1 + 2/(x − 1)</span>，尾巴 <span class="fm">2/(x − 1) → 0</span>，一眼看出渐近线是 <span class="fm">y = x + 1</span>。会做多项式除法，斜渐近线不用算极限。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 2</b>　求 <span class="fm">y = x + arctan x</span> 的渐近线。</p>
+<p class="expl-s"><b>解</b>　无分母、无对数，没有垂直渐近线。<br><span class="fm">k = <span class="lm">lim<span class="s">x→∞</span></span> <span class="fr"><span class="n">x + arctan x</span><span class="d">x</span></span> = <span class="lm">lim<span class="s">x→∞</span></span> (1 + <span class="fr"><span class="n">arctan x</span><span class="d">x</span></span>) = 1</span>（因为 arctan x 有界）。<br>两侧分别算 b：<br><span class="fm">x → +∞</span>：<span class="fm">b = <span class="lm">lim<span class="s">x→+∞</span></span> arctan x = <span class="fr"><span class="n">π</span><span class="d">2</span></span></span>，得 <span class="fm">y = x + π/2</span>；<br><span class="fm">x → −∞</span>：<span class="fm">b = <span class="lm">lim<span class="s">x→−∞</span></span> arctan x = −<span class="fr"><span class="n">π</span><span class="d">2</span></span></span>，得 <span class="fm">y = x − π/2</span>。<br>两条斜渐近线，右侧一条、左侧一条。</p>
+<p class="expl-t">这是「两侧 b 不同」的标准例子。只写一条就错了一半。凡是含 arctan、含根号、含 <span class="fm">|x|</span> 的函数，都要把 <span class="fm">+∞</span> 与 <span class="fm">−∞</span> 分开算 b。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 3</b>　说明 <span class="fm">f(x) = x sin x</span> 在 <span class="fm">(0, +∞)</span> 内无界，但不是无穷大。</p>
+<p class="expl-s"><b>解</b>　<b>无界</b>：取 <span class="fm">x<sub>k</sub> = 2kπ + π/2</span>，则 <span class="fm">f(x<sub>k</sub>) = 2kπ + π/2 → +∞</span>。对任意 <span class="fm">M &gt; 0</span> 都能找到点使 <span class="fm">f &gt; M</span>，故无界。<br><b>不是无穷大</b>：取 <span class="fm">x<sub>k</sub> = kπ</span>，则 <span class="fm">f(x<sub>k</sub>) = 0</span>。无论 X 取多大，总有 <span class="fm">x &gt; X</span> 使 <span class="fm">f(x) = 0</span>，不满足「最终 |f| &gt; M」，所以不是无穷大。</p>
+<p class="expl-t">判「不是无穷大」的通用手法：<b>构造一列点让函数值不增大</b>（回到 0、或趋于某个有限数）。判「无界」则构造一列点让它冲上去。两个方向用两列不同的点，是这个题型的定式。</p></div>
+
+<p><b>易错提醒</b>：① 无穷小是变量不是小数，<span class="fm">0</span> 是唯一常数无穷小；② 「无界」不能推出「无穷大」；③ 求斜渐近线必须先验 <span class="fm">k ≠ 0</span>，k = 0 时要回到水平渐近线的写法；④ 垂直渐近线只要一侧趋于 ∞ 就成立。</p>
+</div><!--/EXPL:m1-s4-->
+
+<!--EXPL:m1-s5--><div class="explain" data-expl="m1-s5">
+<h4 class="expl-h">一、极限为什么能「进」运算里</h4>
+<p>前两节把极限定义清楚了，但真要靠定义一个个证，谁也受不了。所以必须证明一批「运算规则」：只要每个部分的极限都存在，整体的极限就等于各部分极限做同样的运算。有了这套规则，求极限就变成算术——先代入，代不进去就变形，变完再代入。这一节的全部技术，都围绕「代不进去怎么办」展开。</p>
+
+<h4 class="expl-h">二、四则运算法则及其证明思路</h4>
+<p><b>定理</b>　设 <span class="fm"><span class="lm">lim<span class="s">x→x₀</span></span> f(x) = A</span>，<span class="fm"><span class="lm">lim<span class="s">x→x₀</span></span> g(x) = B</span>（两个极限都必须存在），则</p>
+<p><span class="fm"><span class="lm">lim<span class="s">x→x₀</span></span> [f(x) ± g(x)] = A ± B</span>，<span class="fm"><span class="lm">lim<span class="s">x→x₀</span></span> [f(x)g(x)] = AB</span>，且当 <span class="fm">B ≠ 0</span> 时 <span class="fm"><span class="lm">lim<span class="s">x→x₀</span></span> <span class="fr"><span class="n">f(x)</span><span class="d">g(x)</span></span> = <span class="fr"><span class="n">A</span><span class="d">B</span></span></span>。</p>
+<p><b>证明思路（只写乘积，其余同理）</b>：由上一节的定理，写 <span class="fm">f = A + α</span>，<span class="fm">g = B + β</span>，其中 <span class="fm">α, β</span> 是无穷小。于是 <span class="fm">fg = AB + (Aβ + Bα + αβ)</span>。括号里三项：<span class="fm">Aβ</span> 是常数乘无穷小，<span class="fm">Bα</span> 同理，<span class="fm">αβ</span> 是无穷小乘无穷小，三者都是无穷小，它们的和仍是无穷小。所以 <span class="fm">fg = AB + 无穷小</span>，即 <span class="fm">fg → AB</span>。商的证明多一步：先证 <span class="fm">1/g → 1/B</span>，再用乘积。</p>
+<p>这个证明说明了一件重要的事：<b>法则的每一项都在用「有界 × 无穷小」</b>。所以前提「极限存在」不能省——<span class="fm">lim (sin x − sin x)</span> 你当然可以算成 0，但如果你写成 <span class="fm">lim sin x − lim sin x</span> 就毫无意义，因为 <span class="fm">lim sin x</span> 在 <span class="fm">x → ∞</span> 时不存在。<b>拆开之前，先确认每一块都收敛</b>。</p>
+<p><b>推论</b>：法则可推广到有限个函数；常数因子可提出 <span class="fm">lim [c f] = cA</span>；正整数次幂 <span class="fm">lim f<sup>n</sup> = A<sup>n</sup></span>；方根 <span class="fm">lim <sup>n</sup>√f = <sup>n</sup>√A</span>（A ≥ 0，偶次根号要求 A ≥ 0）。</p>
+
+<h4 class="expl-h">三、代入优先，然后只盯七种不定式</h4>
+<p>因为初等函数在定义点连续（第九节会证），所以拿到极限<b>先直接代入</b>。代入结果只有两类：<b>能算出确定的数</b>（包括 0），那就结束了；<b>算出七种不定式</b>，才需要变形。七种是：<span class="fm"><span class="fr"><span class="n">0</span><span class="d">0</span></span></span>、<span class="fm"><span class="fr"><span class="n">∞</span><span class="d">∞</span></span></span>、<span class="fm">∞ − ∞</span>、<span class="fm">0 · ∞</span>、<span class="fm">1<sup>∞</sup></span>、<span class="fm">0<sup>0</sup></span>、<span class="fm">∞<sup>0</sup></span>。前三节练过的「抓大头」管 <span class="fm">∞/∞</span>，有理化管 <span class="fm">∞ − ∞</span> 里的根式，本节补上 <span class="fm">0/0</span> 的三种手法。</p>
+<p><b>0/0 的三板斧</b>：① <b>因式分解</b>，约掉造成零的因子（<span class="fm">x − a</span>）；② <b>有理化</b>，含根号时乘共轭，把「根号减根号」变成「分式」；③ <b>等价无穷小</b>，含 sin、tan、ln、e 的优先用它（下一节展开讲）。三条按顺序试，绝大多数题前三步之内一定出来。</p>
+
+<h4 class="expl-h">四、复合函数的极限：把 lim 搬进函数</h4>
+<p><b>定理</b>　若 <span class="fm"><span class="lm">lim<span class="s">x→x₀</span></span> g(x) = u<sub>0</sub></span>，且 <span class="fm">f</span> 在 <span class="fm">u<sub>0</sub></span> 处连续，则 <span class="fm"><span class="lm">lim<span class="s">x→x₀</span></span> f[g(x)] = f(u<sub>0</sub>) = f[<span class="lm">lim<span class="s">x→x₀</span></span> g(x)]</span>。通俗说：<b>外层连续时，极限可以穿过函数符号</b>。这条是「先算内层、再代外层」的依据，第九节会再正式讲一遍。要注意条件：外层必须在 <span class="fm">u<sub>0</sub></span> 处连续；如果外层不连续（比如 <span class="fm">f = [u]</span> 取整），就不能随便穿。</p>
+
+<h4 class="expl-h">五、幂指函数：一律化到 e 的指数上</h4>
+<p><span class="fm">u<sup>v</sup></span> 这种底数和指数都在动的式子，不能分别求极限。标准动作是恒等变形</p>
+<p><span class="fm">u<sup>v</sup> = e<sup>v ln u</sup></span>（要求 <span class="fm">u &gt; 0</span>），</p>
+<p>于是 <span class="fm">lim u<sup>v</sup> = e<sup>lim (v ln u)</sup></span>（指数函数连续，极限可以搬进 e 的指数）。这样 <span class="fm">1<sup>∞</sup></span>、<span class="fm">0<sup>0</sup></span>、<span class="fm">∞<sup>0</sup></span> 全都被统一成「指数上的乘积极限」，而 <span class="fm">v ln u</span> 往往是 <span class="fm">0 · ∞</span> 或 <span class="fm">∞ · 0</span>，再化成 <span class="fm">0/0</span> 或 <span class="fm">∞/∞</span> 即可。这条是通法，下一节的「1<sup>∞</sup> 速算公式」只是它的快捷方式。</p>
+
+<div class="expl-eg"><p class="expl-q"><b>例 1</b>　求 <span class="fm"><span class="lm">lim<span class="s">x→3</span></span> <span class="fr"><span class="n">x² − 9</span><span class="d">x − 3</span></span></span>。</p>
+<p class="expl-s"><b>解</b>　代入得 <span class="fm">0/0</span>，属不定式。分子因式分解：<span class="fm">x² − 9 = (x − 3)(x + 3)</span>，约去零因子 <span class="fm">x − 3</span>（因 <span class="fm">x → 3</span> 时 <span class="fm">x ≠ 3</span>，约分合法）：<br><span class="fm"><span class="lm">lim<span class="s">x→3</span></span> <span class="fr"><span class="n">(x − 3)(x + 3)</span><span class="d">x − 3</span></span> = <span class="lm">lim<span class="s">x→3</span></span> (x + 3) = 6</span>。</p>
+<p class="expl-t">「约去零因子合法」这句话要会讲：极限是去心邻域里的事，<span class="fm">x ≠ 3</span>，所以除法有意义。这就是第三节「去心」二字的回报。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 2</b>　求 <span class="fm"><span class="lm">lim<span class="s">x→0</span></span> <span class="fr"><span class="n">√(1 + x) − 1</span><span class="d">x</span></span></span>。</p>
+<p class="expl-s"><b>解</b>　代入得 <span class="fm">0/0</span>。乘共轭有理化：<br><span class="fm"><span class="fr"><span class="n">√(1 + x) − 1</span><span class="d">x</span></span> = <span class="fr"><span class="n">(1 + x) − 1</span><span class="d">x[√(1 + x) + 1]</span></span> = <span class="fr"><span class="n">1</span><span class="d">√(1 + x) + 1</span></span> → <span class="fr"><span class="n">1</span><span class="d">2</span></span></span>。</p>
+<p class="expl-t">有理化的通用写法是「上下同乘共轭」，并记住 <span class="fm">(√a − √b)(√a + √b) = a − b</span>。本题也可用等价无穷小 <span class="fm">(1 + x)<sup>1/2</sup> − 1 ~ x/2</span>，一步得 <span class="fm">1/2</span>。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 3</b>　求 <span class="fm"><span class="lm">lim<span class="s">x→1</span></span> (<span class="fr"><span class="n">1</span><span class="d">x − 1</span></span> − <span class="fr"><span class="n">2</span><span class="d">x² − 1</span></span>)</span>。</p>
+<p class="expl-s"><b>解</b>　代入是 <span class="fm">∞ − ∞</span>，先通分把它变成 <span class="fm">0/0</span>：<br><span class="fm"><span class="fr"><span class="n">1</span><span class="d">x − 1</span></span> − <span class="fr"><span class="n">2</span><span class="d">(x − 1)(x + 1)</span></span> = <span class="fr"><span class="n">(x + 1) − 2</span><span class="d">(x − 1)(x + 1)</span></span> = <span class="fr"><span class="n">x − 1</span><span class="d">(x − 1)(x + 1)</span></span></span>，<br>约去 <span class="fm">x − 1</span> 得 <span class="fm"><span class="fr"><span class="n">1</span><span class="d">x + 1</span></span> → <span class="fr"><span class="n">1</span><span class="d">2</span></span></span>。</p>
+<p class="expl-t">「∞ − ∞」的第一反应永远是<b>通分</b>（分式减分式）或<b>有理化</b>（根式减根式），把它压成 <span class="fm">0/0</span> 或 <span class="fm">∞/∞</span>，不要在两个无穷大上做文章。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 4</b>　求 <span class="fm"><span class="lm">lim<span class="s">x→0</span></span> (1 + x)<sup>1/x</sup></span>。</p>
+<p class="expl-s"><b>解</b>　这是 <span class="fm">1<sup>∞</sup></span>。用 <span class="fm">u<sup>v</sup> = e<sup>v ln u</sup></span>：<br>原式 <span class="fm">= e<sup>lim<sub>x→0</sub> <span class="fr"><span class="n">ln(1 + x)</span><span class="d">x</span></span></sup></span>。而 <span class="fm"><span class="lm">lim<span class="s">x→0</span></span> <span class="fr"><span class="n">ln(1 + x)</span><span class="d">x</span></span> = 1</span>（等价无穷小 <span class="fm">ln(1 + x) ~ x</span>），<br>故原式 <span class="fm">= e<sup>1</sup> = e</span>。</p>
+<p class="expl-t">写的时候别丢 <span class="fm">e</span>：不少同学算出指数上的极限是 1，就直接写答案 1。指数量是 <span class="fm">e</span> 的指数，不是结果本身。</p></div>
+
+<p><b>易错提醒</b>：① 拆项前先确认每一块极限都存在，否则 <span class="fm">∞ − ∞</span> 会被你算成 0；② 商法则要求分母极限非零；③ 幂指函数不能「底数极限的指数极限次方」直接算，那是把 <span class="fm">1<sup>∞</sup></span> 当成了 1。</p>
+</div><!--/EXPL:m1-s5-->
+
+<!--EXPL:m1-s6--><div class="explain" data-expl="m1-s6">
+<h4 class="expl-h">一、有些极限，算术是算不出来的</h4>
+<p>前面所有方法都建立在「已知某些极限」和「四则运算」上。但 <span class="fm">sin x / x</span> 这种式子，分子分母都趋零，四则法则给不出答案（分母极限是 0，商法则直接作废）。这时候需要两条「存在性准则」：不直接算，而是<b>证明它一定收敛，并且把它夹住</b>。夹逼准则管「上下一夹」，单调有界准则管「一路往上但不越界」。而这两个准则各自带出一个必须背下来的重要极限。</p>
+
+<h4 class="expl-h">二、夹逼准则</h4>
+<p><b>准则</b>　若在某过程中（<span class="fm">n &gt; N</span> 或 <span class="fm">0 &lt; |x − x<sub>0</sub>| &lt; δ</span>）有</p>
+<p><span class="fm">g(x) ≤ f(x) ≤ h(x)</span>，且 <span class="fm"><span class="lm">lim<span class="s">x→x₀</span></span> g(x) = <span class="lm">lim<span class="s">x→x₀</span></span> h(x) = A</span>，</p>
+<p>则 <span class="fm"><span class="lm">lim<span class="s">x→x₀</span></span> f(x) = A</span>。最常用的特例是 <span class="fm">A = 0</span> 且 <span class="fm">0 ≤ f ≤ h</span>：只要能用一个趋零的量把 <span class="fm">|f|</span> 压住，<span class="fm">f</span> 就趋零。典型场景：<b>n 项和</b>（把每项都放大成最大项、缩小成最小项，得到上下界）与<b>含 (−1)<sup>n</sup>、sin n 的震荡项</b>（用 |·| ≤ 1 压住）。</p>
+
+<h4 class="expl-h">三、单调有界准则</h4>
+<p><b>准则</b>　单调增加且有上界的数列必有极限；单调减少且有下界的数列必有极限。它和夹逼准则的分工是：夹逼准则是「两边都已知」，单调有界准则是「只知道一边、且知道方向」。递推数列 <span class="fm">a<sub>n+1</sub> = f(a<sub>n</sub>)</span> 的题只有这一条路可走，三步走法：<b>① 归纳证有界</b>（先猜界，通常由递推式解不动点猜出来）；<b>② 作差或作商证单调</b>；<b>③ 设极限为 A，代入递推式解方程，舍去不合理的根</b>。</p>
+
+<h4 class="expl-h">四、第一个重要极限：sin x / x → 1</h4>
+<p><b>结论</b>　<span class="fm"><span class="lm">lim<span class="s">x→0</span></span> <span class="fr"><span class="n">sin x</span><span class="d">x</span></span> = 1</span>，更一般地 <span class="fm"><span class="lm">lim<span class="s">u→0</span></span> <span class="fr"><span class="n">sin u</span><span class="d">u</span></span> = 1</span>，其中 <span class="fm">u</span> 可以是任何趋于 0 的式子。</p>
+<p><b>几何证明思路</b>（先看 <span class="fm">0 &lt; x &lt; π/2</span>）：在单位圆里，设圆心角为 <span class="fm">x</span>（弧度），比较三块面积——三角形 <span class="fm">OAB</span> 的面积 <span class="fm">= <span class="fr"><span class="n">1</span><span class="d">2</span></span> sin x</span>，扇形 <span class="fm">OAB</span> 的面积 <span class="fm">= <span class="fr"><span class="n">1</span><span class="d">2</span></span> x</span>，三角形 <span class="fm">OAC</span>（<span class="fm">AC</span> 为切线）的面积 <span class="fm">= <span class="fr"><span class="n">1</span><span class="d">2</span></span> tan x</span>。图形上嵌套关系给出</p>
+<p><span class="fm">sin x &lt; x &lt; tan x</span>。</p>
+<p>三边同除 <span class="fm">sin x &gt; 0</span> 得 <span class="fm">1 &lt; <span class="fr"><span class="n">x</span><span class="d">sin x</span></span> &lt; <span class="fr"><span class="n">1</span><span class="d">cos x</span></span></span>，取倒数翻转得 <span class="fm">cos x &lt; <span class="fr"><span class="n">sin x</span><span class="d">x</span></span> &lt; 1</span>。因为 <span class="fm">cos x → 1</span>（<span class="fm">x → 0</span>），由夹逼准则 <span class="fm">sin x / x → 1</span>。<span class="fm">x &lt; 0</span> 时用偶函数性质 <span class="fm">sin(−x)/(−x) = sin x / x</span> 化归。这个证明的意义远超结论本身：<b>它是「弧度制」被定义成这样的原因</b>——只有弧度制下弧长才等于 <span class="fm">x</span>，扇形面积才是 <span class="fm">x/2</span>。</p>
+<p><b>三角型配套变形</b>：见到 <span class="fm">1 − cos x</span>，先化 <span class="fm">2sin²(x/2)</span>；见到 <span class="fm">tan x</span>，先拆 <span class="fm">sin x / cos x</span>，再用 <span class="fm">cos x → 1</span> 收尾；见到 <span class="fm">arcsin x</span>、<span class="fm">arctan x</span>，令 <span class="fm">t = arcsin x</span>（或 <span class="fm">t = arctan x</span>）换元，把反三角转成正三角。</p>
+
+<h4 class="expl-h">五、第二个重要极限：e 的诞生</h4>
+<p><b>结论</b>　<span class="fm"><span class="lm">lim<span class="s">x→∞</span></span> (1 + <span class="fr"><span class="n">1</span><span class="d">x</span></span>)<sup>x</sup> = e</span>，等价写法 <span class="fm"><span class="lm">lim<span class="s">u→0</span></span> (1 + u)<sup>1/u</sup> = e</span>，其中 <span class="fm">e ≈ 2.718281828</span> 是无理数。</p>
+<p><b>证明思路</b>（先看数列版）：展开 <span class="fm">(1 + 1/n)<sup>n</sup> = Σ C(n,k)/n<sup>k</sup></span>，逐项可证它随 n 单调增加；再把每一项放大成 <span class="fm">1/k!</span>，得 <span class="fm">(1 + 1/n)<sup>n</sup> &lt; 1 + 1 + 1/2! + … + 1/n! &lt; 3</span>，有上界。于是由单调有界准则收敛，把这个极限<b>定义为 e</b>。所以 e 不是「先有数再求极限」，而是「先证极限存在，再给它起名」。这也解释了为什么 <span class="fm">e</span> 会出现在复利、人口增长、放射性衰变里——凡是「连续不断地按比例增长」的模型，极限都是这个式子。</p>
+
+<h4 class="expl-h">六、1<sup>∞</sup> 型速算公式</h4>
+<p>若 <span class="fm">u(x) → 1</span>、<span class="fm">v(x) → ∞</span>，则</p>
+<p><span class="fm"><span class="lm">lim<span class="s">x→x₀</span></span> u<sup>v</sup> = e<sup><span class="lm">lim<span class="s">x→x₀</span></span> v(u − 1)</sup></span>。</p>
+<p><b>推导</b>：<span class="fm">u<sup>v</sup> = [(1 + (u − 1))<sup>1/(u−1)</sup>]<sup>v(u−1)</sup></span>。令 <span class="fm">t = u − 1 → 0</span>，方括号里的部分正是 <span class="fm">(1 + t)<sup>1/t</sup> → e</span>，剩下的指数 <span class="fm">v(u − 1)</span> 照算，由复合极限得 <span class="fm">e<sup>lim v(u−1)</sup></span>。用的时候只记两件事：<b>底数减 1</b>、<b>乘上指数</b>、<b>取极限</b>、<b>放到 e 的肩上</b>。</p>
+<p>注意这个公式只对 <span class="fm">1<sup>∞</sup></span> 有效。先确认底数确实趋于 1、指数确实趋于 ∞，两者缺一，公式就不能用。</p>
+
+<div class="expl-eg"><p class="expl-q"><b>例 1</b>　求 <span class="fm"><span class="lm">lim<span class="s">x→0</span></span> <span class="fr"><span class="n">sin 3x</span><span class="d">tan 5x</span></span></span>。</p>
+<p class="expl-s"><b>解</b>　拆开凑第一个重要极限：<br><span class="fm"><span class="fr"><span class="n">sin 3x</span><span class="d">tan 5x</span></span> = <span class="fr"><span class="n">sin 3x</span><span class="d">3x</span></span> · <span class="fr"><span class="n">5x</span><span class="d">tan 5x</span></span> · <span class="fr"><span class="n">3x</span><span class="d">5x</span></span></span>。<br>第一个因子 <span class="fm">→ 1</span>，第二个因子 <span class="fm">= <span class="fr"><span class="n">5x</span><span class="d">sin 5x</span></span> · cos 5x → 1 · 1 = 1</span>，第三个因子 <span class="fm">= 3/5</span>。<br>故原式 <span class="fm">= <span class="fr"><span class="n">3</span><span class="d">5</span></span></span>。</p>
+<p class="expl-t">口诀：<b>缺什么补什么</b>。要凑成 <span class="fm">sin u / u</span>，就把 <span class="fm">3x</span> 补到分母，再在分子补一个 <span class="fm">3x</span> 抵消。用等价无穷小 <span class="fm">sin 3x ~ 3x</span>、<span class="fm">tan 5x ~ 5x</span> 也能一步得 <span class="fm">3/5</span>，但先练熟「凑」的手法，等价替换才用得放心。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 2</b>　求 <span class="fm"><span class="lm">lim<span class="s">x→0</span></span> <span class="fr"><span class="n">1 − cos x</span><span class="d">x²</span></span></span>。</p>
+<p class="expl-s"><b>解</b>　用半角公式降次：<span class="fm">1 − cos x = 2 sin²(x/2)</span>，于是<br><span class="fm"><span class="fr"><span class="n">1 − cos x</span><span class="d">x²</span></span> = <span class="fr"><span class="n">2 sin²(x/2)</span><span class="d">x²</span></span> = <span class="fr"><span class="n">1</span><span class="d">2</span></span> · [<span class="fr"><span class="n">sin(x/2)</span><span class="d">x/2</span></span>]<sup>2</sup></span>。<br>方括号内 <span class="fm">→ 1</span>，故原式 <span class="fm">= <span class="fr"><span class="n">1</span><span class="d">2</span></span></span>。</p>
+<p class="expl-t">这个结果要当公式记住：<span class="fm">1 − cos x ~ x²/2</span>。它是下一节等价替换表里唯一的「二阶」项，凡出现 <span class="fm">1 − cos</span> 就该条件反射。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 3</b>　求 <span class="fm"><span class="lm">lim<span class="s">x→∞</span></span> (<span class="fr"><span class="n">x² + 1</span><span class="d">x² − 1</span></span>)<sup>x²</sup></span>。</p>
+<p class="expl-s"><b>解</b>　底数 <span class="fm">→ 1</span>、指数 <span class="fm">→ ∞</span>，是 <span class="fm">1<sup>∞</sup></span>。先算 <span class="fm">u − 1</span>：<br><span class="fm">u − 1 = <span class="fr"><span class="n">x² + 1</span><span class="d">x² − 1</span></span> − 1 = <span class="fr"><span class="n">2</span><span class="d">x² − 1</span></span></span>。<br>于是 <span class="fm">v(u − 1) = x² · <span class="fr"><span class="n">2</span><span class="d">x² − 1</span></span> = <span class="fr"><span class="n">2x²</span><span class="d">x² − 1</span></span> → 2</span>。<br>由速算公式，原式 <span class="fm">= e<sup>2</sup></span>。</p>
+<p class="expl-t">另一条路是凑标准形：<span class="fm">u = 1 + 2/(x² − 1)</span>，写成 <span class="fm">[(1 + 2/(x²−1))<sup>(x²−1)/2</sup>]<sup>2x²/(x²−1)</sup></span>，方括号内 <span class="fm">→ e</span>，指数 <span class="fm">→ 2</span>，答案 <span class="fm">e²</span>。两条路都可以，但凑标准形更容易在考场上写清楚。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 4</b>　求 <span class="fm"><span class="lm">lim<span class="s">n→∞</span></span> (<span class="fr"><span class="n">1</span><span class="d">√(n² + 1)</span></span> + <span class="fr"><span class="n">1</span><span class="d">√(n² + 2)</span></span> + … + <span class="fr"><span class="n">1</span><span class="d">√(n² + n)</span></span>)</span>。</p>
+<p class="expl-s"><b>解</b>　共 n 项，每项分母都在 <span class="fm">√(n² + 1)</span> 与 <span class="fm">√(n² + n)</span> 之间。用最小的分母放大、最大的分母缩小：<br><span class="fm"><span class="fr"><span class="n">n</span><span class="d">√(n² + n)</span></span> ≤ 原式 ≤ <span class="fr"><span class="n">n</span><span class="d">√(n² + 1)</span></span></span>。<br>右端 <span class="fm">= <span class="fr"><span class="n">1</span><span class="d">√(1 + 1/n²)</span></span> → 1</span>；左端 <span class="fm">= <span class="fr"><span class="n">1</span><span class="d">√(1 + 1/n)</span></span> → 1</span>。<br>由夹逼准则，原式 <span class="fm">= 1</span>。</p>
+<p class="expl-t">n 项和的夹逼定式：<b>每项都替换成最大项得下界，替换成最小项得上界</b>，两项数都乘 n。最后两个界必须趋于同一个值，否则夹逼失效，得改用定积分定义（那是第六章的事）。</p></div>
+
+<p><b>易错提醒</b>：① <span class="fm">sin x / x → 1</span> 只在 <span class="fm">x → 0</span> 时成立，<span class="fm">x → ∞</span> 时是 0；② <span class="fm">1<sup>∞</sup></span> 不能用「底的极限的指数极限次方」；③ 速算公式里是 <span class="fm">u − 1</span> 不是 <span class="fm">u</span>；④ 递推数列解出两个根，要结合有界性舍掉一个。</p>
+</div><!--/EXPL:m1-s6-->
+
+<!--EXPL:m1-s7--><div class="explain" data-expl="m1-s7">
+<h4 class="expl-h">一、都在趋零，但快慢不一样</h4>
+<p><span class="fm">x</span>、<span class="fm">x²</span>、<span class="fm">x³</span> 当 <span class="fm">x → 0</span> 时都是无穷小。可 <span class="fm">x = 0.01</span> 时，<span class="fm">x² = 0.0001</span>，<span class="fm">x³ = 0.000001</span>——<span class="fm">x³</span> 掉得快得多。既然都趋零，就不能用「谁更接近 0」来分，只能用<b>它们相互的比值</b>来分。这一节就是把「趋零的速度」做成一套可比大小的刻度，然后把刻度变成计算的捷径。它是本章性价比最高的一节：「等价无穷小替换」能让一道三行的题变成一行。</p>
+
+<h4 class="expl-h">二、四个等级：用比值定性</h4>
+<p>设 <span class="fm">α, β</span> 是同一过程中的无穷小，且 <span class="fm">α ≠ 0</span>，考察 <span class="fm">β/α</span>：</p>
+<ul>
+<li><span class="fm"><span class="lm">lim<span class="s">x→x₀</span></span> <span class="fr"><span class="n">β</span><span class="d">α</span></span> = 0</span>：称 <span class="fm">β</span> 是 <span class="fm">α</span> 的<b>高阶</b>无穷小，记 <span class="fm">β = o(α)</span>，读作「β 比 α 掉得快」；</li>
+<li><span class="fm"><span class="lm">lim<span class="s">x→x₀</span></span> <span class="fr"><span class="n">β</span><span class="d">α</span></span> = ∞</span>：<b>低阶</b>；</li>
+<li><span class="fm"><span class="lm">lim<span class="s">x→x₀</span></span> <span class="fr"><span class="n">β</span><span class="d">α</span></span> = c ≠ 0</span>：<b>同阶</b>；</li>
+<li>特别地 <span class="fm">c = 1</span>，即 <span class="fm"><span class="lm">lim<span class="s">x→x₀</span></span> <span class="fr"><span class="n">β</span><span class="d">α</span></span> = 1</span>：称 <span class="fm">α</span> 与 <span class="fm">β</span> <b>等价</b>，记 <span class="fm">α ~ β</span>。</li>
+</ul>
+<p>四个等级里，等价最强：它不是「差不多」，而是「比值趋于 1」，意味着在乘除结构里可以互相顶替而<b>不改变极限</b>。还有一条补充记号：若 <span class="fm">β/α<sup>k</sup> → c ≠ 0</span>，则称 <span class="fm">β</span> 是 <span class="fm">α</span> 的 <span class="fm">k</span> 阶无穷小。<span class="fm">x²</span> 是 <span class="fm">x</span> 的二阶无穷小，<span class="fm">1 − cos x</span> 也是 <span class="fm">x</span> 的二阶无穷小——这个「阶」的概念，就是后面泰勒展开的雏形。</p>
+
+<h4 class="expl-h">三、等价替换定理：为什么只能换乘除因子</h4>
+<p><b>定理</b>　设 <span class="fm">α ~ α′</span>，<span class="fm">β ~ β′</span>，且 <span class="fm"><span class="lm">lim<span class="s">x→x₀</span></span> <span class="fr"><span class="n">β′</span><span class="d">α′</span></span></span> 存在，则 <span class="fm"><span class="lm">lim<span class="s">x→x₀</span></span> <span class="fr"><span class="n">β</span><span class="d">α</span></span> = <span class="lm">lim<span class="s">x→x₀</span></span> <span class="fr"><span class="n">β′</span><span class="d">α′</span></span></span>。</p>
+<p><b>证明</b>：把比值拆成三段 <span class="fm"><span class="fr"><span class="n">β</span><span class="d">α</span></span> = <span class="fr"><span class="n">β</span><span class="d">β′</span></span> · <span class="fr"><span class="n">β′</span><span class="d">α′</span></span> · <span class="fr"><span class="n">α′</span><span class="d">α</span></span></span>。由等价定义，第一段 <span class="fm">→ 1</span>，第三段也 <span class="fm">→ 1</span>，中间那段就是我们要的。三段极限都存在，用乘积法则乘起来即可。这个证明同时暴露了限制：<b>拆分只在乘除结构里成立</b>。</p>
+<p>为什么加减里不能换？看 <span class="fm"><span class="lm">lim<span class="s">x→0</span></span> <span class="fr"><span class="n">tan x − sin x</span><span class="d">x³</span></span></span>。若把 <span class="fm">tan x</span> 和 <span class="fm">sin x</span> 都换成 <span class="fm">x</span>，分子变成 <span class="fm">x − x = 0</span>，答案 0——但正确结果是 <span class="fm">1/2</span>。错在哪？<b>把两个都换掉，等于把它们的「差」当成 0 处理，而同阶项相减后剩下的正是那个被扔掉的二阶三阶小量</b>。<span class="fm">tan x − sin x ~ x³/2</span>，这个 <span class="fm">x³/2</span> 恰恰是全部答案，却被 <span class="fm">x − x</span> 抹掉了。所以规则要背成一句狠话：<b>乘除随便换，加减一个都不许换</b>。</p>
+
+<h4 class="expl-h">四、必须背下来的替换表（x → 0）</h4>
+<p><b>一阶（最常用）</b>：</p>
+<p><span class="fm">sin x ~ tan x ~ arcsin x ~ arctan x ~ ln(1 + x) ~ e<sup>x</sup> − 1 ~ x</span>。</p>
+<p><b>二阶</b>：<span class="fm">1 − cos x ~ <span class="fr"><span class="n">x²</span><span class="d">2</span></span></span>，<span class="fm">x − ln(1 + x) ~ <span class="fr"><span class="n">x²</span><span class="d">2</span></span></span>，<span class="fm">(1 + x)<sup>α</sup> − 1 ~ αx</span>（注意这个是一阶的），<span class="fm">a<sup>x</sup> − 1 ~ x ln a</span>（一阶）。</p>
+<p><b>三阶</b>：<span class="fm">x − sin x ~ <span class="fr"><span class="n">x³</span><span class="d">6</span></span></span>，<span class="fm">tan x − x ~ <span class="fr"><span class="n">x³</span><span class="d">3</span></span></span>，<span class="fm">tan x − sin x ~ <span class="fr"><span class="n">x³</span><span class="d">2</span></span></span>，<span class="fm">arcsin x − x ~ <span class="fr"><span class="n">x³</span><span class="d">6</span></span></span>，<span class="fm">x − arctan x ~ <span class="fr"><span class="n">x³</span><span class="d">3</span></span></span>。</p>
+<p>背法建议：别硬背，记<b>泰勒首项</b>。<span class="fm">sin x = x − x³/6 + …</span>，所以 <span class="fm">x − sin x ~ x³/6</span>；<span class="fm">tan x = x + x³/3 + …</span>，所以 <span class="fm">tan x − x ~ x³/3</span>；两者相减 <span class="fm">(x³/3) − (−x³/6) = x³/2</span>，正是 <span class="fm">tan x − sin x</span> 的首项。会推就不用怕记错。</p>
+
+<h4 class="expl-h">五、复合换元：内层是什么都行</h4>
+<p>替换表的条件是「括号里趋零」。所以 <span class="fm">sin(x²) ~ x²</span>、<span class="fm">ln(1 + 3x) ~ 3x</span>、<span class="fm">e<sup>sin x</sup> − 1 ~ sin x ~ x</span>、<span class="fm">1 − cos(2x) ~ (2x)²/2 = 2x²</span>。规则一句话：<b>若 <span class="fm">u → 0</span> 且 <span class="fm">f(u) ~ u</span>，则 <span class="fm">f(g(x)) ~ g(x)</span>，只要 <span class="fm">g(x) → 0</span></b>。整体替身，别只替一半：<span class="fm">1 − cos(2x)</span> 要整体换成 <span class="fm">2x²</span>，不能写成 <span class="fm">1 − 2x</span> 之类。</p>
+
+<h4 class="expl-h">六、加减型的三条出路</h4>
+<p>遇到加减，不许直接换，但有三个合法动作：<b>① 提公因式</b>——把主导项提出来，剩下的变成加减但量级更低，再换；<b>② 通分/有理化</b>——把「分式减分式」「根式减根式」压成乘除；<b>③ 合并同类项</b>——先做代数化简，把能抵消的抵消掉。三条都走不通，就<b>上泰勒，展到足够阶</b>。判断展到几阶的标准是：分子分母同阶。这是最稳的后手，也是区分「会做」和「做得漂亮」的地方。</p>
+
+<div class="expl-eg"><p class="expl-q"><b>例 1</b>　求 <span class="fm"><span class="lm">lim<span class="s">x→0</span></span> <span class="fr"><span class="n">1 − cos x</span><span class="d">x sin x</span></span></span>。</p>
+<p class="expl-s"><b>解</b>　分母 <span class="fm">x sin x</span> 是乘积，<span class="fm">sin x ~ x</span>，故分母 <span class="fm">~ x²</span>；分子 <span class="fm">1 − cos x ~ x²/2</span>。都是乘除结构，直接换：<br>原式 <span class="fm">= <span class="lm">lim<span class="s">x→0</span></span> <span class="fr"><span class="n">x²/2</span><span class="d">x²</span></span> = <span class="fr"><span class="n">1</span><span class="d">2</span></span></span>。</p>
+<p class="expl-t">换的时候要确认「谁是因子」：分母是 <span class="fm">x</span> 乘 <span class="fm">sin x</span>，两个都是因子，<span class="fm">sin x</span> 可以换。如果分母写成 <span class="fm">x + sin x</span>，那就只能提出 <span class="fm">x</span> 变成 <span class="fm">x(1 + sin x/x)</span>，不能直接换 <span class="fm">sin x</span>。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 2</b>　求 <span class="fm"><span class="lm">lim<span class="s">x→0</span></span> <span class="fr"><span class="n">tan x − sin x</span><span class="d">x³</span></span></span>。</p>
+<p class="expl-s"><b>解</b>　<b>不能</b>把 tan x、sin x 都换成 x。正确做法是先提公因式：<br><span class="fm">tan x − sin x = sin x (<span class="fr"><span class="n">1</span><span class="d">cos x</span></span> − 1) = sin x · <span class="fr"><span class="n">1 − cos x</span><span class="d">cos x</span></span></span>。<br>现在全是乘除结构：<span class="fm">sin x ~ x</span>，<span class="fm">1 − cos x ~ x²/2</span>，<span class="fm">cos x → 1</span>，于是<br>原式 <span class="fm">= <span class="lm">lim<span class="s">x→0</span></span> <span class="fr"><span class="n">x · (x²/2)</span><span class="d">x³ · 1</span></span> = <span class="fr"><span class="n">1</span><span class="d">2</span></span></span>。</p>
+<p class="expl-t">「提公因式」是化加减为乘除的万能第一招。也可以直接用表：<span class="fm">tan x − sin x ~ x³/2</span>，但只有把推导走一遍才知道那张表为什么长这样。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 3</b>　求 <span class="fm"><span class="lm">lim<span class="s">x→0</span></span> <span class="fr"><span class="n">e<sup>x²</sup> − 1</span><span class="d">1 − cos x</span></span></span>。</p>
+<p class="expl-s"><b>解</b>　<b>分子</b>：令 <span class="fm">u = x² → 0</span>，由 <span class="fm">e<sup>u</sup> − 1 ~ u</span> 得 <span class="fm">e<sup>x²</sup> − 1 ~ x²</span>。<br><b>分母</b>：<span class="fm">1 − cos x ~ x²/2</span>。<br>原式 <span class="fm">= <span class="lm">lim<span class="s">x→0</span></span> <span class="fr"><span class="n">x²</span><span class="d">x²/2</span></span> = 2</span>。</p>
+<p class="expl-t">复合换元的关键是「整体」：<span class="fm">e<sup>x²</sup> − 1</span> 里的 <span class="fm">x²</span> 是一个整体 <span class="fm">u</span>，不能写成 <span class="fm">e<sup>x</sup> − 1</span> 那种半截替换。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 4（提高）</b>　求 <span class="fm"><span class="lm">lim<span class="s">x→0</span></span> (<span class="fr"><span class="n">1</span><span class="d">sin²x</span></span> − <span class="fr"><span class="n">1</span><span class="d">x²</span></span>)</span>。</p>
+<p class="expl-s"><b>解</b>　<span class="fm">∞ − ∞</span> 型，先通分：<br><span class="fm"><span class="fr"><span class="n">x² − sin²x</span><span class="d">x² sin²x</span></span></span>。分母 <span class="fm">x² sin²x ~ x<sup>4</sup></span>；分子用平方差：<span class="fm">x² − sin²x = (x + sin x)(x − sin x)</span>。<br><span class="fm">x + sin x ~ 2x</span>，<span class="fm">x − sin x ~ x³/6</span>，故分子 <span class="fm">~ 2x · x³/6 = x<sup>4</sup>/3</span>。<br>原式 <span class="fm">= <span class="lm">lim<span class="s">x→0</span></span> <span class="fr"><span class="n">x<sup>4</sup>/3</span><span class="d">x<sup>4</sup></span></span> = <span class="fr"><span class="n">1</span><span class="d">3</span></span></span>。</p>
+<p class="expl-t">这题的陷阱是「<span class="fm">sin x ~ x</span>，所以 <span class="fm">1/sin²x − 1/x² → 0</span>」。又是同阶相减被抹掉：<span class="fm">sin²x</span> 与 <span class="fm">x²</span> 的差是四阶的小量，正好是答案的全部。加减结构一律先变形，再换。</p></div>
+
+<p><b>易错提醒</b>：① 替换只在乘除因子中做，加减里做必错；② 复合要整体换，不能拆开一半；③ 表里所有式子都要求「括号内趋于 0」，<span class="fm">sin x ~ x</span> 在 <span class="fm">x → 1</span> 时不成立；④ 等价不是相等，写在等号链里时最好标注「~」而不是「=」。</p>
+</div><!--/EXPL:m1-s7-->
+
+<!--EXPL:m1-s8--><div class="explain" data-expl="m1-s8">
+<h4 class="expl-h">一、笔不离纸：连续就是「不用抬笔」</h4>
+<p>画 <span class="fm">y = x²</span> 可以一笔画到底；画 <span class="fm">y = 1/x</span> 到 <span class="fm">x = 0</span> 附近，笔必须飞起来；画 <span class="fm">y = sin(1/x)</span> 靠近 0 的地方，笔抖得根本落不下去。三种「不连续」的样子，正好对应三种间断点。数学上不能靠「抬不抬笔」下定义，得用极限：<b>函数在一点连续，说的是当 x 靠近这一点时，f(x) 靠近的正好是这一点处的函数值</b>。注意这里「正好是」三个字，把极限值和函数值绑在了一起——这正是连续与「极限存在」的唯一区别。</p>
+
+<h4 class="expl-h">二、连续的三条件与三种等价说法</h4>
+<p><b>定义</b>　设 <span class="fm">f</span> 在 <span class="fm">x<sub>0</sub></span> 的某邻域内有定义。若</p>
+<p><span class="fm"><span class="lm">lim<span class="s">x→x₀</span></span> f(x) = f(x<sub>0</sub>)</span>，</p>
+<p>则称 <span class="fm">f</span> 在 <span class="fm">x<sub>0</sub></span> 处连续。这个式子拆开是三条，缺一不可：<b>① f 在 x<sub>0</sub> 处有定义</b>（右边才写得出来）；<b>② 极限存在</b>（左边才存在）；<b>③ 二者相等</b>。三条里少一条，就叫间断。</p>
+<p>等价说法有两种，考试都用。<b>增量式</b>：记 <span class="fm">Δx = x − x<sub>0</sub></span>，<span class="fm">Δy = f(x<sub>0</sub> + Δx) − f(x<sub>0</sub>)</span>，则连续 ⟺ <span class="fm"><span class="lm">lim<span class="s">Δx→0</span></span> Δy = 0</span>。这句话的物理味很浓：自变量的微小变化只引起函数值的微小变化。导数那一章就是从它出发，把 <span class="fm">Δy/Δx</span> 的极限定义成导数。<b>ε–δ 式</b>：对任意 <span class="fm">ε &gt; 0</span>，存在 <span class="fm">δ &gt; 0</span>，当 <span class="fm">|x − x<sub>0</sub>| &lt; δ</span> 时 <span class="fm">|f(x) − f(x<sub>0</sub>)| &lt; ε</span>。注意这里<b>没有「去心」</b>，<span class="fm">x = x<sub>0</sub></span> 也被包含在内，这是与极限定义最直观的差别。</p>
+<p><b>单侧连续</b>：左连续 <span class="fm">f(x<sub>0</sub><sup>−</sup>) = f(x<sub>0</sub>)</span>，右连续 <span class="fm">f(x<sub>0</sub><sup>+</sup>) = f(x<sub>0</sub>)</span>。定理：<b>连续 ⟺ 既左连续又右连续</b>。这条在分段函数处至关重要：分界点要连续，必须左右两边的表达式算出的极限都等于该点的函数值，两个等式都要成立。</p>
+
+<h4 class="expl-h">三、间断点：两类四种，判据是「左右极限在不在」</h4>
+<p><b>定义</b>　若 <span class="fm">f</span> 在 <span class="fm">x<sub>0</sub></span> 的某去心邻域内有定义而不连续，则称 <span class="fm">x<sub>0</sub></span> 为间断点。分类只看一件事：<b>左右极限存不存在</b>。</p>
+<ul>
+<li><b>第一类</b>（左右极限都存在）：
+<ul>
+<li>若 <span class="fm">f(x<sub>0</sub><sup>−</sup>) = f(x<sub>0</sub><sup>+</sup>) ≠ f(x<sub>0</sub>)</span>，或 <span class="fm">f</span> 在 <span class="fm">x<sub>0</sub></span> 无定义 —— <b>可去间断点</b>。名字的由来：只要补充或修改 <span class="fm">f(x<sub>0</sub>)</span> 为那个公共极限值，就连续了，这个点是「可以去掉的缺陷」。</li>
+<li>若 <span class="fm">f(x<sub>0</sub><sup>−</sup>) ≠ f(x<sub>0</sub><sup>+</sup>)</span> —— <b>跳跃间断点</b>。图形在这里断开一截，跳的高度是 <span class="fm">|f(x<sub>0</sub><sup>+</sup>) − f(x<sub>0</sub><sup>−</sup>)|</span>，无论怎么补定义都接不上。</li>
+</ul>
+</li>
+<li><b>第二类</b>（至少一侧极限不存在）：
+<ul>
+<li>趋于无穷（一侧或两侧）—— <b>无穷间断点</b>，如 <span class="fm">1/x</span> 在 0 处。</li>
+<li>来回震荡不趋于任何值 —— <b>振荡间断点</b>，如 <span class="fm">sin(1/x)</span> 在 0 处。</li>
+</ul>
+</li>
+</ul>
+
+<h4 class="expl-h">四、判断流程：三步走，不要跳</h4>
+<p><b>第一步，找可疑点</b>：分母的零点、对数的真数零点、偶次根号的边界、分段函数的分界点、取整函数与绝对值的折点。<b>第二步，逐个算左右极限</b>：注意在可疑点两侧要用各自那一支的表达式；含 <span class="fm">|x − a|</span> 的先去掉绝对值再算。<b>第三步，按表定性并写出结论</b>：先写「左右极限都存在/有一侧不存在」，再说「属于第几类、哪一种」。答题时把「因为 <span class="fm">f(x<sub>0</sub><sup>−</sup>) = …</span>，<span class="fm">f(x<sub>0</sub><sup>+</sup>) = …</span>，所以……」写全，过程分才拿得到。</p>
+<p><b>含参的连续题</b>：分段点连续 ⟺ 左极限 = 右极限 = 函数值，据此列方程解参数。若题目再要求可导，则还要左右导数相等——那是第二章的事，但连续是可导的前提，先把连续的条件用足。</p>
+
+<div class="expl-eg"><p class="expl-q"><b>例 1</b>　讨论 <span class="fm">f(x) = <span class="fr"><span class="n">x² − 1</span><span class="d">x − 1</span></span></span> 在 <span class="fm">x = 1</span> 处的连续性，并说明间断点类型。</p>
+<p class="expl-s"><b>解</b>　<span class="fm">f</span> 在 <span class="fm">x = 1</span> 处无定义，所以一定不连续，<span class="fm">x = 1</span> 是间断点。<br>求极限（<span class="fm">x ≠ 1</span> 时可约分）：<span class="fm"><span class="lm">lim<span class="s">x→1</span></span> <span class="fr"><span class="n">(x − 1)(x + 1)</span><span class="d">x − 1</span></span> = <span class="lm">lim<span class="s">x→1</span></span> (x + 1) = 2</span>。<br>左右极限都存在且都等于 2，故为<b>可去间断点</b>。补充定义 <span class="fm">f(1) = 2</span> 后，<span class="fm">f</span> 在 <span class="fm">x = 1</span> 处连续。</p>
+<p class="expl-t">「可去」的判据是「左右极限相等」，不是「函数值等于极限」——这里函数值根本不存在，仍然可去。相反，若极限是 2 而 <span class="fm">f(1) = 5</span>，也是可去，把 <span class="fm">f(1)</span> 改成 2 即可。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 2</b>　讨论 <span class="fm">f(x) = sin<span class="fr"><span class="n">1</span><span class="d">x</span></span></span> 在 <span class="fm">x = 0</span> 处的间断类型。</p>
+<p class="expl-s"><b>解</b>　<span class="fm">f</span> 在 0 处无定义。取 <span class="fm">x<sub>n</sub> = <span class="fr"><span class="n">1</span><span class="d">2nπ + π/2</span></span> → 0</span>，则 <span class="fm">f(x<sub>n</sub>) = 1</span>；取 <span class="fm">y<sub>n</sub> = <span class="fr"><span class="n">1</span><span class="d">nπ</span></span> → 0</span>，则 <span class="fm">f(y<sub>n</sub>) = 0</span>。<br>两列点都趋于 0，但函数值趋于不同的数，故 <span class="fm">x → 0</span> 时极限不存在；且函数值在 [−1, 1] 内反复震荡，属于<b>第二类振荡间断点</b>。</p>
+<p class="expl-t">「证明极限不存在」的通用手法：<b>造两列趋于同一点但函数值趋于不同极限的点列</b>。这个手法在第三节判左右极限、在第八节判振荡，都是主力。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 3</b>　讨论 <span class="fm">f(x) = [x]</span> 在整数点 <span class="fm">x = n</span> 处的间断类型。</p>
+<p class="expl-s"><b>解</b>　左极限：<span class="fm">x → n<sup>−</sup></span> 时 <span class="fm">n − 1 &lt; x &lt; n</span>，<span class="fm">[x] = n − 1</span>，故 <span class="fm">f(n<sup>−</sup>) = n − 1</span>。<br>右极限：<span class="fm">x → n<sup>+</sup></span> 时 <span class="fm">n &lt; x &lt; n + 1</span>，<span class="fm">[x] = n</span>，故 <span class="fm">f(n<sup>+</sup>) = n</span>。<br>左右极限都存在但相差 1，且 <span class="fm">f(n) = n ≠ n − 1</span>，故为<b>第一类跳跃间断点</b>，跳跃度为 1。</p>
+<p class="expl-t">凡是「分段定义藏在符号里」的函数（取整、符号函数、绝对值商），都要按左右两套解析式分别算，不能把 <span class="fm">x = n</span> 直接代进去当极限。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 4</b>　设 <span class="fm">f(x) = <span class="fr"><span class="n">sin ax</span><span class="d">x</span></span></span>（<span class="fm">x ≠ 0</span>），<span class="fm">f(0) = 3</span>，问 <span class="fm">a</span> 取何值时 <span class="fm">f</span> 在 <span class="fm">x = 0</span> 处连续。</p>
+<p class="expl-s"><b>解</b>　连续要求 <span class="fm"><span class="lm">lim<span class="s">x→0</span></span> f(x) = f(0) = 3</span>。<br>而 <span class="fm"><span class="lm">lim<span class="s">x→0</span></span> <span class="fr"><span class="n">sin ax</span><span class="d">x</span></span> = <span class="lm">lim<span class="s">x→0</span></span> <span class="fr"><span class="n">sin ax</span><span class="d">ax</span></span> · a = 1 · a = a</span>。<br>令 <span class="fm">a = 3</span>，则极限等于函数值，<span class="fm">f</span> 在 0 处连续。</p>
+<p class="expl-t">含参连续题的固定写法：<b>左边算出极限（含参数），右边写出函数值，令二者相等</b>。若分界点两侧解析式不同，就写「左极限 = 右极限 = 函数值」三个等式串起来。</p></div>
+
+<p><b>易错提醒</b>：① 连续的三条件缺一不可，别只算极限就说连续；② 可去间断点的判据是左右极限相等，与函数值无关；③ 第二类只要求「至少一侧不存在」，不必两侧都不存在；④ 求间断点前先求定义域，把无定义点也纳入可疑点。</p>
+</div><!--/EXPL:m1-s8-->
+
+<!--EXPL:m1-s9--><div class="explain" data-expl="m1-s9">
+<h4 class="expl-h">一、为什么「直接代入」是合法的</h4>
+<p>第五节说「代入优先」，当时是当经验用的。这一节把它变成定理：<b>初等函数在其定义区间内连续</b>，所以只要代入点落在定义区间里，<span class="fm"><span class="lm">lim<span class="s">x→x₀</span></span> f(x) = f(x<sub>0</sub>)</span> 就是恒等式，不用算。这条定理的价值在于它把「求极限」这件难事，在绝大多数情况下降级成「代个数」。而它的证明路线是：先证基本初等函数连续，再证连续函数对四则、复合、求反函数都封闭，最后一层层搭出所有初等函数。本节就是走完这条路。</p>
+
+<h4 class="expl-h">二、连续函数的四则、复合、反函数</h4>
+<p><b>四则</b>：若 <span class="fm">f, g</span> 在 <span class="fm">x<sub>0</sub></span> 处连续，则 <span class="fm">f ± g</span>、<span class="fm">f · g</span> 在 <span class="fm">x<sub>0</sub></span> 处连续；若再有 <span class="fm">g(x<sub>0</sub>) ≠ 0</span>，则 <span class="fm">f/g</span> 也连续。证明就是第五节四则法则的直接翻译：<span class="fm">lim (f ± g) = lim f ± lim g = f(x<sub>0</sub>) ± g(x<sub>0</sub>)</span>，中间那步用了连续性。</p>
+<p><b>复合</b>：若 <span class="fm">u = g(x)</span> 在 <span class="fm">x<sub>0</sub></span> 连续，<span class="fm">y = f(u)</span> 在 <span class="fm">u<sub>0</sub> = g(x<sub>0</sub>)</span> 连续，则 <span class="fm">f[g(x)]</span> 在 <span class="fm">x<sub>0</sub></span> 连续。这条的正确性来自「极限可以搬进连续函数」：<span class="fm">lim f[g(x)] = f[lim g(x)] = f[g(x<sub>0</sub>)]</span>。要强调条件：<b>外层必须在 u<sub>0</sub> 处连续</b>，不是「外层有极限」就行。</p>
+<p><b>反函数</b>：若 <span class="fm">y = f(x)</span> 在区间上严格单调且连续，则其反函数 <span class="fm">x = f<sup>−1</sup>(y)</span> 在对应区间上也连续。直观理由：严格单调连续函数的图形是一条「不断往上（或往下）走、中间不断」的曲线，把它关于 <span class="fm">y = x</span> 翻过来，仍然是不断的一条。这条定理保证了 <span class="fm">arcsin</span>、<span class="fm">arccos</span>、<span class="fm">arctan</span>、<span class="fm">ln</span> 的连续性——它们都是先有连续的原函数，才被定义出来的。</p>
+
+<h4 class="expl-h">三、初等函数在「定义区间」内连续</h4>
+<p><b>定理</b>　一切初等函数在其<b>定义区间</b>内连续。注意用词是「定义区间」，不是「定义域」。<b>定义区间</b>指定义域中一段一段的区间；而定义域可能包含孤立点，孤立点谈不上连续（连续要求邻域内有定义）。</p>
+<p>经典反例：<span class="fm">y = √(cos x − 1)</span>。要求 <span class="fm">cos x − 1 ≥ 0</span>，而 <span class="fm">cos x ≤ 1</span> 恒成立，故只能 <span class="fm">cos x = 1</span>，即 <span class="fm">x = 2kπ</span>。定义域是一串孤立点，<b>不含任何区间</b>，所以这个函数处处不连续。若有人拿「初等函数都连续」硬套，就会得出「它在每个 2kπ 都连续」的荒谬结论。</p>
+<p>由此得到求极限的标准动作：<b>先看代入点是不是定义区间内的点</b>。是，直接代；不是，才需要变形。端点是定义区间端点时，只能求单侧极限，用单侧连续性处理。</p>
+
+<h4 class="expl-h">四、把 lim 搬进函数符号</h4>
+<p><b>定理（复合极限的连续性版本）</b>　若 <span class="fm"><span class="lm">lim<span class="s">x→x₀</span></span> g(x) = A</span>，且 <span class="fm">f</span> 在 <span class="fm">A</span> 处连续，则</p>
+<p><span class="fm"><span class="lm">lim<span class="s">x→x₀</span></span> f[g(x)] = f[<span class="lm">lim<span class="s">x→x₀</span></span> g(x)]</span>。</p>
+<p>用的时候要有意识：<b>写这一步就是在用连续性</b>。典型应用是 <span class="fm">ln</span>、<span class="fm">e<sup>(·)</sup></span>、<span class="fm">arctan</span>、<span class="fm">√</span> 这些「外面套一层」的结构：把它搬到外面，里面单独算。例如 <span class="fm"><span class="lm">lim<span class="s">x→0</span></span> arctan<span class="fr"><span class="n">sin x</span><span class="d">x</span></span> = arctan 1 = <span class="fr"><span class="n">π</span><span class="d">4</span></span></span>。反之，如果外层不连续（比如取整 <span class="fm">[·]</span>），就不能搬。</p>
+<p><b>幂指函数的连续性</b>：<span class="fm">u(x)<sup>v(x)</sup> = e<sup>v(x) ln u(x)</sup></span>，要它有定义要 <span class="fm">u(x) &gt; 0</span>；若 <span class="fm">u, v</span> 都连续且 <span class="fm">u &gt; 0</span>，则幂指函数也连续。这条把第五节「幂指函数化到 e 的指数上」的做法升级成了合法性证明——你之所以能对 <span class="fm">u<sup>v</sup></span> 直接取极限，是因为它在定义区间内连续。</p>
+
+<div class="expl-eg"><p class="expl-q"><b>例 1</b>　求 <span class="fm"><span class="lm">lim<span class="s">x→0</span></span> arctan<span class="fr"><span class="n">sin x</span><span class="d">x</span></span></span>。</p>
+<p class="expl-s"><b>解</b>　内层 <span class="fm">g(x) = <span class="fr"><span class="n">sin x</span><span class="d">x</span></span></span> 当 <span class="fm">x → 0</span> 时极限为 1（第一个重要极限）；外层 <span class="fm">arctan</span> 在 <span class="fm">u = 1</span> 处连续。<br>故由「极限搬进连续函数」：<br>原式 <span class="fm">= arctan(1) = <span class="fr"><span class="n">π</span><span class="d">4</span></span></span>。</p>
+<p class="expl-t">答题时要写明「因为 arctan 在 1 处连续」，这是得分点。只写「= arctan 1」会被认为跳步。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 2</b>　求 <span class="fm"><span class="lm">lim<span class="s">x→1</span></span> <span class="fr"><span class="n">ln x</span><span class="d">x − 1</span></span></span>。</p>
+<p class="expl-s"><b>解</b>　代入得 <span class="fm">0/0</span>，不能直接代。令 <span class="fm">t = x − 1 → 0</span>，则 <span class="fm">x = 1 + t</span>：<br><span class="fm"><span class="fr"><span class="n">ln(1 + t)</span><span class="d">t</span></span> → 1</span>。<br>所以原式 <span class="fm">= 1</span>。</p>
+<p class="expl-t">这一步用了 <span class="fm">ln(1 + t) ~ t</span>，本质上是把「在 x = 1 处」平移成「在 t = 0 处」，让替换表能用。凡是在 <span class="fm">x ≠ 0</span> 的点上出现 <span class="fm">ln</span>、<span class="fm">sin</span> 的 0/0，都先平移。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 3</b>　求 <span class="fm"><span class="lm">lim<span class="s">x→0</span></span> (1 + sin x)<sup>1/x</sup></span>。</p>
+<p class="expl-s"><b>解</b>　这是 <span class="fm">1<sup>∞</sup></span>。化为指数：<br>原式 <span class="fm">= e<sup>lim<sub>x→0</sub> <span class="fr"><span class="n">ln(1 + sin x)</span><span class="d">x</span></span></sup></span>。<br>指数上的极限：<span class="fm">ln(1 + sin x) ~ sin x ~ x</span>，故 <span class="fm"><span class="fr"><span class="n">ln(1 + sin x)</span><span class="d">x</span></span> = <span class="fr"><span class="n">ln(1 + sin x)</span><span class="d">sin x</span></span> · <span class="fr"><span class="n">sin x</span><span class="d">x</span></span> → 1 · 1 = 1</span>。<br>所以原式 <span class="fm">= e</span>。</p>
+<p class="expl-t">这里连续用了两次连续性：<span class="fm">e<sup>(·)</sup></span> 连续（把极限搬到指数上），<span class="fm">ln</span> 连续（在 <span class="fm">u → 1</span> 附近可展开）。两个「搬」都要有依据。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 4</b>　说明 <span class="fm">y = √(cos x − 1)</span> 在定义域内不连续。</p>
+<p class="expl-s"><b>解</b>　先求定义域：要求 <span class="fm">cos x − 1 ≥ 0</span>，而 <span class="fm">cos x − 1 ≤ 0</span> 恒成立，故只能 <span class="fm">cos x − 1 = 0</span>，即 <span class="fm">x = 2kπ</span>（<span class="fm">k ∈ Z</span>）。<br>定义域是孤立点集 <span class="fm">{2kπ}</span>，不含任何区间。每个 <span class="fm">2kπ</span> 的任何去心邻域内都有无定义的点，谈不上极限，更谈不上连续。<br>所以该函数在定义域内<b>处处不连续</b>。</p>
+<p class="expl-t">这题专治「初等函数都连续」的误用。正确表述是「初等函数在其<b>定义区间</b>内连续」，孤立点不算定义区间。判断题里出现这类「只在孤立点有定义」的构造，选「不连续」。</p></div>
+
+<p><b>易错提醒</b>：① 「初等函数在定义域内连续」是错的，应为「定义区间」；② 端点只能单侧连续，别写双侧；③ 把极限搬进函数前，确认外层在该点连续；④ 幂指函数要求底数 <span class="fm">u &gt; 0</span>，否则 <span class="fm">ln u</span> 无意义。</p>
+</div><!--/EXPL:m1-s9-->
+
+<!--EXPL:m1-s10--><div class="explain" data-expl="m1-s10">
+<h4 class="expl-h">一、为什么要「闭区间」加「连续」两个条件</h4>
+<p>这一节的四个定理，条件看起来啰嗦，其实每条都卡掉一类反例。<b>闭区间</b>卡的是端点：<span class="fm">f(x) = 1/x</span> 在 <span class="fm">(0, 1)</span> 上连续，但无界，也没有最大值——因为它跑到 1 附近就冲上无穷，<b>开区间丢掉了端点这个「兜底」</b>。<b>连续</b>卡的是断点：<span class="fm">f(x) = 1/x</span> 在 <span class="fm">[0, 1]</span> 上？不行，0 处根本没定义。再看 <span class="fm">f(x) = x</span>（<span class="fm">0 ≤ x &lt; 1</span>），<span class="fm">f = 1</span>（<span class="fm">x = 1</span>），在 <span class="fm">[0,1]</span> 上有界却取不到最大值 1——跳跃让「取到」落空。所以：<b>闭 + 连续，缺一不可</b>。这一节的定理，是把「曲线是一条不断的、有头有尾的线」这句话翻译成四条可用的结论。</p>
+
+<h4 class="expl-h">二、有界性与最值定理</h4>
+<p><b>定理 1（有界性）</b>　若 <span class="fm">f</span> 在闭区间 <span class="fm">[a, b]</span> 上连续，则 <span class="fm">f</span> 在 <span class="fm">[a, b]</span> 上有界，即存在 <span class="fm">M &gt; 0</span> 使 <span class="fm">|f(x)| ≤ M</span> 对一切 <span class="fm">x ∈ [a, b]</span> 成立。</p>
+<p><b>定理 2（最值定理）</b>　在同样条件下，<span class="fm">f</span> 在 <span class="fm">[a, b]</span> 上必能取到最大值 <span class="fm">M</span> 与最小值 <span class="fm">m</span>，即存在 <span class="fm">ξ<sub>1</sub>, ξ<sub>2</sub> ∈ [a, b]</span> 使 <span class="fm">f(ξ<sub>1</sub>) = M</span>，<span class="fm">f(ξ<sub>2</sub>) = m</span>，且 <span class="fm">m ≤ f(x) ≤ M</span>。</p>
+<p><b>证明思路</b>：有界性用反证。若在 <span class="fm">[a, b]</span> 上无界，则对每个 <span class="fm">n</span> 都能找到 <span class="fm">x<sub>n</sub></span> 使 <span class="fm">|f(x<sub>n</sub>)| &gt; n</span>。由致密性定理，<span class="fm">{x<sub>n</sub>}</span> 有收敛子列 <span class="fm">x<sub>n<sub>k</sub></sub> → ξ ∈ [a, b]</span>；由 <span class="fm">f</span> 连续得 <span class="fm">f(x<sub>n<sub>k</sub></sub>) → f(ξ)</span> 是有限数，与 <span class="fm">|f(x<sub>n<sub>k</sub></sub>)| &gt; n<sub>k</sub> → ∞</span> 矛盾。最值定理在上界的基础上再取一次极限：设 <span class="fm">M = sup f</span>，取 <span class="fm">f(x<sub>n</sub>) → M</span>，同样抽收敛子列，由连续性得 <span class="fm">M = f(ξ)</span>，即上确界被取到。</p>
+
+<h4 class="expl-h">三、零点定理与介值定理</h4>
+<p><b>定理 3（零点定理）</b>　若 <span class="fm">f</span> 在 <span class="fm">[a, b]</span> 上连续，且 <span class="fm">f(a) · f(b) &lt; 0</span>，则存在 <span class="fm">ξ ∈ (a, b)</span> 使 <span class="fm">f(ξ) = 0</span>。</p>
+<p>直观：曲线从 <span class="fm">x</span> 轴下方出发，最后落在上方，中间不断，就必须穿过 <span class="fm">x</span> 轴至少一次。<b>这是证明「方程有根」的万能钥匙</b>，用法固定：把方程整理成 <span class="fm">f(x) = 0</span>，找一个闭区间，验连续、验两端异号。</p>
+<p><b>定理 4（介值定理）</b>　若 <span class="fm">f</span> 在 <span class="fm">[a, b]</span> 上连续，<span class="fm">μ</span> 是介于 <span class="fm">f(a)</span> 与 <span class="fm">f(b)</span> 之间的任何数，则存在 <span class="fm">ξ ∈ (a, b)</span> 使 <span class="fm">f(ξ) = μ</span>。</p>
+<p>证明只需对 <span class="fm">F(x) = f(x) − μ</span> 用零点定理：<span class="fm">F(a)</span> 与 <span class="fm">F(b)</span> 异号。所以<b>零点定理是介值定理在 μ = 0 时的特例</b>；而介值定理又是最值定理（取到 m 与 M）的推论——<span class="fm">μ</span> 介于 <span class="fm">m</span> 与 <span class="fm">M</span> 之间，必介于某两点的函数值之间。三者的逻辑链是：<b>最值定理 ⟹ 介值定理 ⟹ 零点定理</b>。考试里最常用的是最后一环，但证明「存在 ξ 使 f(ξ) 等于某个中间值」时，直接用介值定理更快。</p>
+
+<h4 class="expl-h">四、方程有根：存在靠定理，唯一靠单调</h4>
+<p>「证明方程在 (a, b) 内有且仅有一个根」是每年必考的题型，套路固定为两段：</p>
+<ul>
+<li><b>存在性</b>：令 <span class="fm">f(x) = 左边 − 右边</span>，验证 <span class="fm">f</span> 在 <span class="fm">[a, b]</span> 连续、<span class="fm">f(a)</span> 与 <span class="fm">f(b)</span> 异号，由零点定理得至少一根；</li>
+<li><b>唯一性</b>：证 <span class="fm">f</span> 在 <span class="fm">(a, b)</span> 内严格单调（<span class="fm">f′(x) &gt; 0</span> 或 <span class="fm">&lt; 0</span>，或直接用单调性定义），故至多一根。两段合起来就是「有且仅有一根」。</li>
+</ul>
+<p>如果区间端点不方便算函数值，可以先估计：利用连续性与极限，找两点使符号相反即可，不必是端点。若题目只问「至少有一个根」，那就只做存在性，别画蛇添足去证唯一。</p>
+
+<div class="expl-eg"><p class="expl-q"><b>例 1</b>　证明方程 <span class="fm">x = cos x</span> 在 <span class="fm">(0, 1)</span> 内有且仅有一个根。</p>
+<p class="expl-s"><b>解</b>　令 <span class="fm">f(x) = x − cos x</span>，它在 <span class="fm">[0, 1]</span> 上连续。<br><b>存在性</b>：<span class="fm">f(0) = 0 − 1 = −1 &lt; 0</span>，<span class="fm">f(1) = 1 − cos 1 &gt; 0</span>（因 <span class="fm">cos 1 &lt; 1</span>）。由零点定理，存在 <span class="fm">ξ ∈ (0, 1)</span> 使 <span class="fm">f(ξ) = 0</span>，即 <span class="fm">ξ = cos ξ</span>。<br><b>唯一性</b>：<span class="fm">f′(x) = 1 + sin x ≥ 0</span>，且等号只在孤立点成立，故 <span class="fm">f</span> 在 <span class="fm">[0, 1]</span> 上严格单调增加，零点至多一个。<br>综上，方程在 <span class="fm">(0, 1)</span> 内有且仅有一个根。</p>
+<p class="expl-t">唯一性这一步，<span class="fm">1 + sin x</span> 会取到 0（在 <span class="fm">x = 3π/2</span>），但那是区间外的孤立点，不影响 <span class="fm">[0,1]</span> 上的严格单调。写的时候要把这句补上，否则「≥ 0」推不出「严格」。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 2</b>　证明方程 <span class="fm">x³ − 4x² + 1 = 0</span> 在 <span class="fm">(0, 1)</span> 内至少有一个根。</p>
+<p class="expl-s"><b>解</b>　令 <span class="fm">f(x) = x³ − 4x² + 1</span>，多项式在 <span class="fm">[0, 1]</span> 上连续。<br><span class="fm">f(0) = 1 &gt; 0</span>；<span class="fm">f(1) = 1 − 4 + 1 = −2 &lt; 0</span>。<br>两端异号，由零点定理，存在 <span class="fm">ξ ∈ (0, 1)</span> 使 <span class="fm">f(ξ) = 0</span>，即方程在 <span class="fm">(0, 1)</span> 内至少有一个根。</p>
+<p class="expl-t">注意题目只说「至少有一个」，所以只做存在性。算端点值时优先挑 0、1、−1 这种好算的点；若 <span class="fm">f(0)</span> 与 <span class="fm">f(1)</span> 同号，就换区间或换点，比如试 <span class="fm">f(2)</span>。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 3</b>　设 <span class="fm">f</span> 在 <span class="fm">[0, 1]</span> 上连续，<span class="fm">f(0) = 0</span>，<span class="fm">f(1) = 1</span>。证明存在 <span class="fm">ξ ∈ [0, 1]</span> 使 <span class="fm">f(ξ) = <span class="fr"><span class="n">1</span><span class="d">2</span></span></span>。</p>
+<p class="expl-s"><b>解</b>　<span class="fm">1/2</span> 介于 <span class="fm">f(0) = 0</span> 与 <span class="fm">f(1) = 1</span> 之间，且 <span class="fm">f</span> 在 <span class="fm">[0, 1]</span> 上连续。由介值定理，存在 <span class="fm">ξ ∈ [0, 1]</span> 使 <span class="fm">f(ξ) = 1/2</span>。</p>
+<p class="expl-t">这题用介值定理一句话就完。若硬套零点定理，要构造 <span class="fm">F(x) = f(x) − 1/2</span> 再验异号，反而多写两步。看到「等于某个中间值」，先想介值。</p></div>
+
+<div class="expl-eg"><p class="expl-q"><b>例 4（提高）</b>　证明方程 <span class="fm">x · 2<sup>x</sup> = 1</span> 在 <span class="fm">(0, 1)</span> 内有且仅有一个根。</p>
+<p class="expl-s"><b>解</b>　令 <span class="fm">f(x) = x · 2<sup>x</sup> − 1</span>，在 <span class="fm">[0, 1]</span> 上连续。<br><b>存在</b>：<span class="fm">f(0) = −1 &lt; 0</span>，<span class="fm">f(1) = 2 − 1 = 1 &gt; 0</span>，由零点定理至少一根。<br><b>唯一</b>：<span class="fm">f′(x) = 2<sup>x</sup> + x · 2<sup>x</sup> ln 2 = 2<sup>x</sup>(1 + x ln 2) &gt; 0</span>（<span class="fm">x &gt; 0</span>），故 <span class="fm">f</span> 严格单调增加，零点至多一个。<br>所以 <span class="fm">(0, 1)</span> 内有且仅有一个根。</p>
+<p class="expl-t">求导证单调前，先把 <span class="fm">2<sup>x</sup></span> 提出来，符号一眼看出。若不想用导数，也可以说 <span class="fm">x</span> 与 <span class="fm">2<sup>x</sup></span> 都单增，乘积单增——这在第一章更「合法」。</p></div>
+
+<p><b>易错提醒</b>：① 定理条件里的「闭区间」和「连续」缺一不可，答题时要写明「在 [a, b] 上连续」；② 零点定理给的是开区间 <span class="fm">(a, b)</span> 内的点，别写成闭区间；③ 「有且仅有一个」必须两段都做，只做存在性要扣一半分；④ 用导数证唯一时，注意 <span class="fm">f′ ≥ 0</span> 只在孤立点为 0 才够「严格」。</p>
+</div><!--/EXPL:m1-s10-->

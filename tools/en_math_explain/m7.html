@@ -1,0 +1,589 @@
+﻿<!--EXPL:m7-s1--><div class="explain" data-expl="m7-s1">
+<h4 class="expl-h">一、从"已知斜率求曲线"说起</h4>
+<p>给函数求导数是"顺着来"；反过来，已知曲线上每一点的切线斜率，要问这条曲线是什么，就是微分方程。比如"任一点处切线斜率等于该点的横坐标"，翻译过来就是 <span class="fm">y′ = x</span>。这里的未知量不再是数，而是一个函数。</p>
+<p>物理里到处都是这种句式：落体 <span class="fm">m <span class="fr"><span class="n">dv</span><span class="d">dt</span></span> = mg − kv</span>、衰变 <span class="fm"><span class="fr"><span class="n">dN</span><span class="d">dt</span></span> = −λN</span>、单摆 <span class="fm">θ″ + <span class="fr"><span class="n">g</span><span class="d">l</span></span>θ = 0</span>——已知的都是"变化率"，要求的都是函数本身。所以本章是微分运算的逆运算，手段是积分，每积一次冒出一个任意常数。</p>
+
+<h4 class="expl-h">二、定义</h4>
+<p><b>定义 1</b>　含有未知函数及其导数（或微分）的方程叫<b>微分方程</b>；未知函数是一元的叫<b>常微分方程</b>，含偏导数的叫偏微分方程。本章只讨论前者。</p>
+<p><b>定义 2（阶）</b>　方程中出现的<b>最高阶导数的阶数</b>。<span class="fm">y″ + y = 0</span> 是二阶；<span class="fm">(y′)³ + y = 0</span> 仍是一阶——阶只看导数的阶，与幂次无关。</p>
+<p><b>定义 3（线性）</b>　能写成</p>
+<p><span class="fm">y<sup>(n)</sup> + a<sub>1</sub>(x) y<sup>(n−1)</sup> + … + a<sub>n</sub>(x) y = f(x)</span></p>
+<p>的称<b>线性</b>，即 <span class="fm">y</span> 及其各阶导数<b>都只以一次方出现、彼此不相乘、不被复合</b>；系数里出现 <span class="fm">x</span> 的函数不影响线性。故 <span class="fm">y″ + y′ sin x = e<sup>x</sup></span> 是二阶线性，而 <span class="fm">y′ + y² = 0</span>、<span class="fm">y y″ = 1</span>、<span class="fm">y″ + sin y = 0</span> 都是非线性的。</p>
+<p><b>定义 4（解、通解、特解）</b>　代入后使方程成为恒等式的函数叫<b>解</b>；含<b>独立任意常数</b>且个数等于阶数的解叫<b>通解</b>；常数取定后的解叫<b>特解</b>。</p>
+<p><b>定义 5（初始条件）</b>　<span class="fm">n</span> 阶方程给 <span class="fm">n</span> 个条件：<span class="fm">y(x<sub>0</sub>) = y<sub>0</sub>, y′(x<sub>0</sub>) = y′<sub>0</sub>, …, y<sup>(n−1)</sup>(x<sub>0</sub>) = y<sub>0</sub><sup>(n−1)</sup></span>。带初始条件求解叫初值问题。</p>
+<p><b>定义 6（积分曲线）</b>　每个解对应 <span class="fm">xOy</span> 面上一条曲线，称为积分曲线；初始条件就是"曲线过某点"。</p>
+
+<h4 class="expl-h">三、为什么通解恰有 n 个常数</h4>
+<p>每积分一次产生一个常数，<span class="fm">n</span> 阶方程要把 <span class="fm">y<sup>(n)</sup></span> 积回 <span class="fm">y</span>，至少积 <span class="fm">n</span> 次，故有 <span class="fm">n</span> 个。严格依据是存在唯一性定理：若 <span class="fm">f(x, y)</span> 在 <span class="fm">(x<sub>0</sub>, y<sub>0</sub>)</span> 邻域内连续且对 <span class="fm">y</span> 满足李普希茨条件，则 <span class="fm">y′ = f(x, y), y(x<sub>0</sub>) = y<sub>0</sub></span> 在该邻域内<b>有且只有一个解</b>。于是积分曲线族铺满平面而互不相交，一点定一条，定位参数正好 <span class="fm">n</span> 个。</p>
+<p>这也解释了两条常识：初始条件多了会矛盾、少了定不下来；以及解完必须回代——积分变形（除、平方、取对数）可能添解或丢解。</p>
+
+<h4 class="expl-h">四、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b>　判阶与线性：<span class="fm">x² y″ + x y′ − y = 0</span>；<span class="fm">y′ = x + y²</span>；<span class="fm">y″ + y′ sin x = e<sup>x</sup></span>；<span class="fm">(y′)² + y = 0</span>。</p>
+<p class="expl-s"><b>解</b>　依次为：二阶线性（系数是 <span class="fm">x</span> 的函数不影响线性）；一阶非线性（出现 <span class="fm">y²</span>）；二阶线性（<span class="fm">sin x</span> 只是系数）；<b>一阶</b>非线性（阶看导数，<span class="fm">y′</span> 被平方只影响线性）。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b>　验证 <span class="fm">y = C<sub>1</sub> cos x + C<sub>2</sub> sin x</span> 是 <span class="fm">y″ + y = 0</span> 的通解，并求 <span class="fm">y(0) = 1, y′(0) = 0</span> 的特解。</p>
+<p class="expl-s"><b>解</b>　<span class="fm">y′ = −C<sub>1</sub> sin x + C<sub>2</sub> cos x</span>，<span class="fm">y″ = −C<sub>1</sub> cos x − C<sub>2</sub> sin x</span>。两式相加得 <span class="fm">y″ + y = 0</span>，恒成立，故是解。<br>
+二阶方程而解含两个独立常数（<span class="fm">cos x</span> 与 <span class="fm">sin x</span> 之比不是常数），故是通解。<br>
+代条件：<span class="fm">C<sub>1</sub> = 1</span>，<span class="fm">C<sub>2</sub> = 0</span>，特解 <span class="fm">y = cos x</span>。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b>　一曲线过 <span class="fm">(1, 2)</span>，且任一点处切线斜率等于 <span class="fm">2x</span>，求该曲线。</p>
+<p class="expl-s"><b>解</b>　条件即 <span class="fm">y′ = 2x</span>。积分得 <span class="fm">y = x² + C</span>（一个常数，与一阶相符）。代入 <span class="fm">y(1) = 2</span>：<span class="fm">2 = 1 + C</span>，<span class="fm">C = 1</span>。故 <span class="fm">y = x² + 1</span>。</p>
+</div>
+
+<h4 class="expl-h">五、易错提醒与后文联系</h4>
+<ul>
+<li><b>阶 ≠ 次数。</b>看最高阶导数，不看幂次。</li>
+<li><b>线性 ≠ 简单。</b>系数多复杂都不破坏线性；只有"<span class="fm">y</span> 与导数一次、不互乘、不复合"才是标准。</li>
+<li><b>通解常数的个数必须等于阶数且独立</b>；写完全解先数一遍常数。</li>
+<li><b>初始条件个数也等于阶数</b>；解完回代检验。</li>
+</ul>
+<p>本节是全章的语言。后面判断特征根重数、数常数、判线性无关，本质都在回答同一个问题：这个方程该有几个常数、解该长什么样。</p>
+</div><!--/EXPL:m7-s1-->
+
+<!--EXPL:m7-s2--><div class="explain" data-expl="m7-s2">
+<h4 class="expl-h">一、能"分离"的样子</h4>
+<p>一阶方程最理想的情形，是右端能拆成两个因子的<b>乘积</b>：一个只含 <span class="fm">x</span>，一个只含 <span class="fm">y</span>。</p>
+<p><span class="fm">y′ = xy = x · y,　y′ = e<sup>x+y</sup> = e<sup>x</sup> · e<sup>y</sup>,　y′ = <span class="fr"><span class="n">1 + y²</span><span class="d">1 + x²</span></span></span></p>
+<p>一旦拆开，就能把含 <span class="fm">y</span> 的连同 <span class="fm">dy</span> 挪到左边、含 <span class="fm">x</span> 的连同 <span class="fm">dx</span> 挪到右边，两边各只含一个变量，分别积分即可。这是本章最机械也最常用的一招——后面齐次方程、伯努利方程，归根到底都是化归到它。</p>
+
+<h4 class="expl-h">二、定义与步骤</h4>
+<p><b>定义</b>　形如 <span class="fm"><span class="fr"><span class="n">dy</span><span class="d">dx</span></span> = f(x) g(y)</span> 的方程称<b>可分离变量的微分方程</b>（<span class="fm">f, g</span> 连续）。</p>
+<ol>
+<li><b>分离：</b><span class="fm">g(y) ≠ 0</span> 时两边除以 <span class="fm">g(y)</span>、乘 <span class="fm">dx</span>，得 <span class="fm"><span class="fr"><span class="n">dy</span><span class="d">g(y)</span></span> = f(x) dx</span>。</li>
+<li><b>积分：</b><span class="fm"><span class="op">∫</span> <span class="fr"><span class="n">dy</span><span class="d">g(y)</span></span> = <span class="op">∫</span> f(x) dx + C</span>，常数只写一个。</li>
+<li><b>化简：</b>能解出 <span class="fm">y</span> 写显式解，解不出就保留隐式解，同样合格。</li>
+<li><b>定常数：</b>有初始条件时代入求 <span class="fm">C</span>。</li>
+</ol>
+
+<h4 class="expl-h">三、为什么能两边各自积分</h4>
+<p>设 <span class="fm">y = φ(x)</span> 是解，则 <span class="fm">φ′(x) = f(x) g(φ(x))</span>。当 <span class="fm">g(φ) ≠ 0</span> 时两边除以 <span class="fm">g(φ)</span> 再对 <span class="fm">x</span> 积分：</p>
+<p><span class="fm"><span class="op">∫</span> <span class="fr"><span class="n">φ′(x)</span><span class="d">g(φ(x))</span></span> dx = <span class="op">∫</span> f(x) dx</span></p>
+<p>左端令 <span class="fm">u = φ(x)</span>，<span class="fm">du = φ′(x) dx</span>，正是 <span class="fm"><span class="op">∫</span> <span class="fr"><span class="n">du</span><span class="d">g(u)</span></span></span>。所以"分离后各自积分"不是把微分当分数乱乘，而是换元积分法的简写。</p>
+
+<h4 class="expl-h">四、丢解：必须单独检查</h4>
+<p>分离时要求 <span class="fm">g(y) ≠ 0</span>。若 <span class="fm">g(y<sub>0</sub>) = 0</span>，则 <span class="fm">y ≡ y<sub>0</sub></span> 也是解（此时 <span class="fm">y′ = 0</span>，右端也 <span class="fm">= 0</span>），但它被除掉了，可能不在通解中。</p>
+<p>例：<span class="fm">y′ = y²</span>，分离得 <span class="fm">−<span class="fr"><span class="n">1</span><span class="d">y</span></span> = x + C</span>，即 <span class="fm">y = −<span class="fr"><span class="n">1</span><span class="d">x + C</span></span></span>；而 <span class="fm">y ≡ 0</span> 也是解，却要 <span class="fm">C → ∞</span> 才趋于它，须单独补上。规范做法：解完把所有使 <span class="fm">g(y) = 0</span> 的常数函数代回验证，成立的补列。</p>
+
+<h4 class="expl-h">五、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b>　求 <span class="fm">y′ = xy</span> 满足 <span class="fm">y(0) = 1</span> 的特解。</p>
+<p class="expl-s"><b>解</b>　分离 <span class="fm"><span class="fr"><span class="n">dy</span><span class="d">y</span></span> = x dx</span>；积分 <span class="fm">ln|y| = <span class="fr"><span class="n">1</span><span class="d">2</span></span>x² + C<sub>1</sub></span>；去对数 <span class="fm">|y| = e<sup>C<sub>1</sub></sup> e<sup>x²/2</sup></span>，记 <span class="fm">C = ±e<sup>C<sub>1</sub></sup></span>，得 <span class="fm">y = C e<sup>x²/2</sup></span>。<br>
+代 <span class="fm">y(0) = 1</span> 得 <span class="fm">C = 1</span>，故 <span class="fm">y = e<sup>x²/2</sup></span>。<br>
+<span class="fm">g(y) = y</span> 在 <span class="fm">y = 0</span> 为零，<span class="fm">y ≡ 0</span> 对应 <span class="fm">C = 0</span>，已含在通解中，无须另列。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b>　求 <span class="fm">y′ = e<sup>x+y</sup></span> 的通解。</p>
+<p class="expl-s"><b>解</b>　拆成 <span class="fm">e<sup>x</sup> e<sup>y</sup></span>，分离 <span class="fm">e<sup>−y</sup> dy = e<sup>x</sup> dx</span>；积分 <span class="fm">−e<sup>−y</sup> = e<sup>x</sup> + C</span>，即 <span class="fm">e<sup>x</sup> + e<sup>−y</sup> = C</span>。也可解出 <span class="fm">y = −ln(C − e<sup>x</sup>)</span>，要求 <span class="fm">C − e<sup>x</sup> &gt; 0</span>。因 <span class="fm">e<sup>y</sup></span> 恒不为零，本题无丢解。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b>　求 <span class="fm">y′ = <span class="fr"><span class="n">1 + y²</span><span class="d">1 + x²</span></span></span> 满足 <span class="fm">y(0) = 1</span> 的特解。</p>
+<p class="expl-s"><b>解</b>　分离 <span class="fm"><span class="fr"><span class="n">dy</span><span class="d">1 + y²</span></span> = <span class="fr"><span class="n">dx</span><span class="d">1 + x²</span></span></span>；积分 <span class="fm">arctan y = arctan x + C</span>；代 <span class="fm">(0, 1)</span> 得 <span class="fm">C = <span class="fr"><span class="n">π</span><span class="d">4</span></span></span>。<br>
+两边取正切，用 <span class="fm">tan(A + B) = <span class="fr"><span class="n">tan A + tan B</span><span class="d">1 − tan A tan B</span></span></span>，得 <span class="fm">y = <span class="fr"><span class="n">x + 1</span><span class="d">1 − x</span></span></span>，定义区间 <span class="fm">(−∞, 1)</span>。</p>
+</div>
+
+<h4 class="expl-h">六、常考套路与易错提醒</h4>
+<p><b>识别：</b>右端能否写成纯乘积。能就一定可分离；不能则看是否同次齐次（第三节）或令 <span class="fm">u = x + y</span> 型整体代换。</p>
+<ul>
+<li><b>常数只写一个。</b>两个积分常数合并进 <span class="fm">C</span> 即可。</li>
+<li><b>对数带绝对值：</b><span class="fm"><span class="op">∫</span> <span class="fr"><span class="n">dy</span><span class="d">y</span></span> = ln|y|</span>。</li>
+<li><b>去对数时把常数写成一整个新常数</b>，允许它取 0 就顺手补上了丢解。</li>
+<li><b>必查 <span class="fm">g(y) = 0</span></b>，这是选择题最常见的区分点。</li>
+<li><b>隐式解不扣分</b>，解不出 <span class="fm">y</span> 时保留 <span class="fm">Φ(x, y) = C</span> 即可。</li>
+</ul>
+<p>本节是后面所有解法的终点：齐次方程、一阶线性、可降阶方程，最终都落回"分离 → 积分"。</p>
+</div><!--/EXPL:m7-s2-->
+
+<!--EXPL:m7-s3--><div class="explain" data-expl="m7-s3">
+<h4 class="expl-h">一、斜率只跟比值有关</h4>
+<p>看 <span class="fm">y′ = <span class="fr"><span class="n">x + y</span><span class="d">x</span></span></span>。它拆不成乘积，但分子分母都是 <span class="fm">x, y</span> 的一次齐次式，上下同除 <span class="fm">x</span> 后右端变成 <span class="fm">1 + <span class="fr"><span class="n">y</span><span class="d">x</span></span></span>，<b>只依赖 <span class="fm">y/x</span></b>。</p>
+<p>几何含义很清楚：从原点出发的每条射线 <span class="fm">y = kx</span> 上，<span class="fm">y/x</span> 恒为 <span class="fm">k</span>，所以这条射线上<b>所有点的切线方向相同</b>。这类曲线像"从原点散开的一束花"。既然斜率只跟 <span class="fm">y/x</span> 有关，就把它当成新的未知函数。</p>
+
+<h4 class="expl-h">二、定义</h4>
+<p><b>定义</b>　形如</p>
+<p><span class="fm"><span class="fr"><span class="n">dy</span><span class="d">dx</span></span> = φ <span class="fr"><span class="n">y</span><span class="d">x</span></span></span></p>
+<p>的方程称<b>齐次方程</b>（注意与"线性齐次"含义不同）。判别常用微分形式：<span class="fm">P dx + Q dy = 0</span>，若 <span class="fm">P, Q</span> 是同次齐次函数（<span class="fm">P(tx, ty) = t<sup>k</sup>P(x, y)</span>），则方程齐次，因为 <span class="fm"><span class="fr"><span class="n">dy</span><span class="d">dx</span></span> = −<span class="fr"><span class="n">P</span><span class="d">Q</span></span></span> 除以 <span class="fm">x<sup>k</sup></span> 后只剩 <span class="fm">y/x</span>。</p>
+<p><b>实用判别：</b>数每一项中 <span class="fm">x</span> 与 <span class="fm">y</span> 的幂次之和是否相同。<span class="fm">x² + y²</span>、<span class="fm">xy</span>、<span class="fm">x³ − 2xy²</span> 都是齐次式；<span class="fm">x + y²</span>、<span class="fm">x² + 1</span> 不是。</p>
+
+<h4 class="expl-h">三、代换与推导</h4>
+<p>令 <span class="fm">u = <span class="fr"><span class="n">y</span><span class="d">x</span></span></span>，即 <span class="fm">y = ux</span>。注意 <span class="fm">u</span> 是 <span class="fm">x</span> 的函数，求导<b>必须用乘积法则</b>：</p>
+<p><span class="fm">y′ = u + x <span class="fr"><span class="n">du</span><span class="d">dx</span></span></span></p>
+<p>代入 <span class="fm">y′ = φ(u)</span>：<span class="fm">u + x u′ = φ(u)</span>，移项 <span class="fm">x u′ = φ(u) − u</span>，两边已分离：</p>
+<p><span class="fm"><span class="fr"><span class="n">du</span><span class="d">φ(u) − u</span></span> = <span class="fr"><span class="n">dx</span><span class="d">x</span></span></span></p>
+<p>积分后<b>把 <span class="fm">u</span> 换回 <span class="fm">y/x</span></b> 即得通解。五步流程：判齐次 → 令 <span class="fm">u = y/x</span> → 代入整理 → 分离积分 → 回代。</p>
+
+<h4 class="expl-h">四、变体：一次分式型</h4>
+<p>形如 <span class="fm"><span class="fr"><span class="n">a<sub>1</sub>x + b<sub>1</sub>y + c<sub>1</sub></span><span class="d">a<sub>2</sub>x + b<sub>2</sub>y + c<sub>2</sub></span></span></span> 时：</p>
+<p><b>①两直线相交</b>（<span class="fm">a<sub>1</sub>/a<sub>2</sub> ≠ b<sub>1</sub>/b<sub>2</sub></span>）：解出交点 <span class="fm">(x<sub>0</sub>, y<sub>0</sub>)</span>，令 <span class="fm">X = x − x<sub>0</sub>, Y = y − y<sub>0</sub></span>，常数项消掉，化为关于 <span class="fm">X, Y</span> 的齐次方程。</p>
+<p><b>②两直线平行</b>（<span class="fm">a<sub>1</sub>/a<sub>2</sub> = b<sub>1</sub>/b<sub>2</sub> = λ</span>）：右端只是 <span class="fm">a<sub>2</sub>x + b<sub>2</sub>y</span> 的函数，令 <span class="fm">u = a<sub>2</sub>x + b<sub>2</sub>y</span>，则 <span class="fm">u′ = a<sub>2</sub> + b<sub>2</sub>y′</span>，化为可分离方程。</p>
+<p>另有一类 <span class="fm">y′ = f(ax + by + c)</span>，令 <span class="fm">u = ax + by + c</span> 即可，因 <span class="fm">u′ = a + b f(u)</span>。</p>
+
+<h4 class="expl-h">五、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b>　求 <span class="fm">y′ = <span class="fr"><span class="n">y</span><span class="d">x</span></span> + tan <span class="fr"><span class="n">y</span><span class="d">x</span></span></span> 的通解。</p>
+<p class="expl-s"><b>解</b>　令 <span class="fm">u = y/x</span>，<span class="fm">y′ = u + x u′</span>，代入得 <span class="fm">u + x u′ = u + tan u</span>，故 <span class="fm">x u′ = tan u</span>。<br>
+分离 <span class="fm">cot u du = <span class="fr"><span class="n">dx</span><span class="d">x</span></span></span>；积分 <span class="fm">ln|sin u| = ln|x| + C<sub>1</sub></span>；化简 <span class="fm">sin u = Cx</span>。<br>
+回代得 <b><span class="fm">sin <span class="fr"><span class="n">y</span><span class="d">x</span></span> = Cx</span></b>。<span class="fm">tan u = 0</span> 即 <span class="fm">y = kπx</span> 也是解，对应 <span class="fm">C = 0</span>，已含。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b>　求 <span class="fm">(x² + y²) dx − xy dy = 0</span> 的通解。</p>
+<p class="expl-s"><b>解</b>　<span class="fm">P, Q</span> 都是 2 次齐次式，故齐次。改写 <span class="fm"><span class="fr"><span class="n">dy</span><span class="d">dx</span></span> = <span class="fr"><span class="n">x</span><span class="d">y</span></span> + <span class="fr"><span class="n">y</span><span class="d">x</span></span> = <span class="fr"><span class="n">1</span><span class="d">u</span></span> + u</span>，令 <span class="fm">u = y/x</span>。<br>
+代入 <span class="fm">u + x u′ = <span class="fr"><span class="n">1</span><span class="d">u</span></span> + u</span>，得 <span class="fm">x u′ = <span class="fr"><span class="n">1</span><span class="d">u</span></span></span>；分离 <span class="fm">u du = <span class="fr"><span class="n">dx</span><span class="d">x</span></span></span>；积分 <span class="fm"><span class="fr"><span class="n">1</span><span class="d">2</span></span>u² = ln|x| + C</span>。<br>
+回代：<span class="fm">y² = 2x²(ln|x| + C)</span>。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b>　求 <span class="fm">y′ = <span class="fr"><span class="n">x + y − 2</span><span class="d">x − y</span></span></span> 的通解。</p>
+<p class="expl-s"><b>解</b>　先求交点：<span class="fm">x + y − 2 = 0, x − y = 0</span> 得 <span class="fm">(1, 1)</span>。令 <span class="fm">X = x − 1, Y = y − 1</span>，右端化为 <span class="fm"><span class="fr"><span class="n">X + Y</span><span class="d">X − Y</span></span></span>。<br>
+令 <span class="fm">u = Y/X</span>：<span class="fm">u + X u′ = <span class="fr"><span class="n">1 + u</span><span class="d">1 − u</span></span></span>，得 <span class="fm">X u′ = <span class="fr"><span class="n">1 + u²</span><span class="d">1 − u</span></span></span>，分离 <span class="fm"><span class="fr"><span class="n">1 − u</span><span class="d">1 + u²</span></span> du = <span class="fr"><span class="n">dX</span><span class="d">X</span></span></span>。<br>
+积分：<span class="fm">arctan u − <span class="fr"><span class="n">1</span><span class="d">2</span></span>ln(1 + u²) = ln|X| + C</span>，再回代 <span class="fm">u = (y − 1)/(x − 1)</span>。</p>
+</div>
+
+<h4 class="expl-h">六、常考套路与易错提醒</h4>
+<p><b>识别顺序：</b>能拆乘积 → 第二节；数次数同次 → 本节；含一次分式 → 平移或整体代换。</p>
+<ul>
+<li><b>头号错误：把 <span class="fm">y′</span> 写成 <span class="fm">u′</span>。</b>正确的是 <span class="fm">y = ux ⟹ y′ = u + x u′</span>，那个 <span class="fm">u</span> 项不能漏。</li>
+<li><b>漏掉 <span class="fm">−u</span>：</b>必须得到 <span class="fm">x u′ = φ(u) − u</span>，直接写 <span class="fm">x u′ = φ(u)</span> 会积不出来。</li>
+<li><b>最后必回代</b>，答案不能停在 <span class="fm">u</span> 上。</li>
+<li><b><span class="fm">φ(u) − u = 0</span> 的解要单独检查</b>（对应 <span class="fm">y = kx</span> 型直线解）。</li>
+<li><b>平移后要换回</b> <span class="fm">X = x − x<sub>0</sub>, Y = y − y<sub>0</sub></span>。</li>
+<li><b>别与"线性齐次"混。</b>本节的齐次指 <span class="fm">φ(y/x)</span> 型。</li>
+</ul>
+<p>"看结构 → 选代换 → 化归已知"这套思路，第五节 <span class="fm">p = y′</span>、第九节 <span class="fm">x = e<sup>t</sup></span> 都是它的升级版。</p>
+</div><!--/EXPL:m7-s3-->
+
+<!--EXPL:m7-s4--><div class="explain" data-expl="m7-s4">
+<h4 class="expl-h">一、为什么这一类值得背公式</h4>
+<p><span class="fm">y′ + <span class="fr"><span class="n">y</span><span class="d">x</span></span> = 3x²</span>、<span class="fm">y′ − 2xy = e<sup>x²</sup></span> 都拆不成乘积，但 <span class="fm">y</span> 与 <span class="fm">y′</span> 都是一次、系数只依赖 <span class="fm">x</span>。这类叫<b>一阶线性微分方程</b>，是一阶里唯一有通用求积公式的类型。RC 电路 <span class="fm">RC u′ + u = E</span>、牛顿冷却 <span class="fm">T′ = −k(T − T<sub>0</sub>)</span> 都是它。</p>
+
+<h4 class="expl-h">二、标准形</h4>
+<p><b>定义</b>　形如</p>
+<p><span class="fm">y′ + P(x) y = Q(x)</span></p>
+<p>的方程叫一阶线性方程；<span class="fm">Q ≡ 0</span> 为齐次，<span class="fm">Q ≢ 0</span> 为非齐次。</p>
+<p><b>关键：系数必须是 1。</b>否则先除：<span class="fm">xy′ + 2y = x³</span> 先除 <span class="fm">x</span> 得 <span class="fm">P = 2/x, Q = x²</span>；<span class="fm">y′ = xy + sin x</span> 移项得 <span class="fm">P = −x, Q = sin x</span>。这一步错了后面全错，而且公式照样算得出来，不易察觉。</p>
+
+<h4 class="expl-h">三、齐次解与通解公式</h4>
+<p><b>齐次：</b><span class="fm">y′ + Py = 0</span> 可分离，<span class="fm"><span class="fr"><span class="n">dy</span><span class="d">y</span></span> = −P dx</span>，得</p>
+<p><span class="fm">y = C e<sup>−<span class="op">∫</span> P dx</sup></span></p>
+<p><b>常数变易法：</b>设 <span class="fm">y = C(x) e<sup>−<span class="op">∫</span>P dx</sup></span>，求导</p>
+<p><span class="fm">y′ = C′ e<sup>−<span class="op">∫</span>P</sup> − C P e<sup>−<span class="op">∫</span>P</sup></span></p>
+<p>代入 <span class="fm">y′ + Py = Q</span>，后两项<b>正好抵消</b>（这是设计好的），得 <span class="fm">C′ e<sup>−<span class="op">∫</span>P</sup> = Q</span>，即 <span class="fm">C′ = Q e<sup><span class="op">∫</span>P</sup></span>。再积一次 <span class="fm">C = <span class="op">∫</span> Q e<sup><span class="op">∫</span>P</sup> dx + C</span>，于是</p>
+<p><span class="fm">y = e<sup>−<span class="op">∫</span>P dx</sup> [<span class="op">∫</span> Q e<sup><span class="op">∫</span>P dx</sup> dx + C]</span></p>
+<p><b>积分因子法：</b>两边乘 <span class="fm">μ = e<sup><span class="op">∫</span>P dx</sup></span>，因 <span class="fm">μ′ = Pμ</span>，左端恰为 <span class="fm">(μy)′</span>，积分即得同式。这个视角更值钱：<b>解一阶线性的全部技巧，就是找因子把左边凑成一个导数</b>。考场记不清公式就现场凑。</p>
+
+<h4 class="expl-h">四、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b>　求 <span class="fm">y′ − <span class="fr"><span class="n">y</span><span class="d">x</span></span> = x² (x &gt; 0)</span> 的通解。</p>
+<p class="expl-s"><b>解</b>　<span class="fm">P = −1/x, Q = x²</span>，<span class="fm"><span class="op">∫</span>P dx = −ln x</span>，故 <span class="fm">e<sup>−<span class="op">∫</span>P</sup> = x</span>，<span class="fm">e<sup><span class="op">∫</span>P</sup> = 1/x</span>。<br>
+<span class="fm">y = x [<span class="op">∫</span> x² · <span class="fr"><span class="n">1</span><span class="d">x</span></span> dx + C] = x (<span class="fr"><span class="n">1</span><span class="d">2</span></span>x² + C)</span>，故 <b><span class="fm">y = <span class="fr"><span class="n">1</span><span class="d">2</span></span>x³ + Cx</span></b>。<br>
+验算：<span class="fm">y′ − <span class="fr"><span class="n">y</span><span class="d">x</span></span> = <span class="fr"><span class="n">3</span><span class="d">2</span></span>x² + C − <span class="fr"><span class="n">1</span><span class="d">2</span></span>x² − C = x²</span> ✓。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b>　求 <span class="fm">y′ + y = e<sup>−x</sup></span> 的通解。</p>
+<p class="expl-s"><b>解</b>　<span class="fm">P = 1</span>，<span class="fm">e<sup>−<span class="op">∫</span>P</sup> = e<sup>−x</sup></span>，<span class="fm">e<sup><span class="op">∫</span>P</sup> = e<sup>x</sup></span>。<br>
+<span class="fm">y = e<sup>−x</sup>[<span class="op">∫</span> e<sup>−x</sup> e<sup>x</sup> dx + C] = e<sup>−x</sup>[<span class="op">∫</span>1 dx + C]</span>，故 <span class="fm">y = (x + C) e<sup>−x</sup></span>。<br>
+右端恰好是齐次解的倍数，所以特解呈 <span class="fm">x e<sup>−x</sup></span> 型——第八节"重根乘 <span class="fm">x</span>"的雏形。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b>（以 <span class="fm">x</span> 为未知函数）　求 <span class="fm">y′ = <span class="fr"><span class="n">1</span><span class="d">x + y</span></span></span> 的通解。</p>
+<p class="expl-s"><b>解</b>　对 <span class="fm">y</span> 非线性，但取倒数得 <span class="fm"><span class="fr"><span class="n">dx</span><span class="d">dy</span></span> = x + y</span>，即 <span class="fm"><span class="fr"><span class="n">dx</span><span class="d">dy</span></span> − x = y</span>，这是 <span class="fm">P = −1, Q = y</span> 的线性方程。<br>
+<span class="fm"><span class="op">∫</span>P dy = −y</span>，<span class="fm">e<sup>−<span class="op">∫</span>P</sup> = e<sup>y</sup></span>，<span class="fm">e<sup><span class="op">∫</span>P</sup> = e<sup>−y</sup></span>。<br>
+<span class="fm">x = e<sup>y</sup>[<span class="op">∫</span> y e<sup>−y</sup> dy + C]</span>，而 <span class="fm"><span class="op">∫</span> y e<sup>−y</sup> dy = −(y + 1) e<sup>−y</sup></span>，故</p>
+<p><span class="fm">x = C e<sup>y</sup> − y − 1</span></p>
+<p>验算：<span class="fm">dx/dy = C e<sup>y</sup> − 1 = x + y</span> ✓。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 4</b>（伯努利）　求 <span class="fm">y′ + <span class="fr"><span class="n">1</span><span class="d">x</span></span> y = y² ln x (x &gt; 0)</span> 的通解。</p>
+<p class="expl-s"><b>解</b>　两边除 <span class="fm">y²</span>：<span class="fm">y<sup>−2</sup>y′ + <span class="fr"><span class="n">1</span><span class="d">x</span></span>y<sup>−1</sup> = ln x</span>。令 <span class="fm">z = y<sup>−1</sup></span>，则 <span class="fm">z′ = −y<sup>−2</sup>y′</span>，代入得</p>
+<p><span class="fm">z′ − <span class="fr"><span class="n">1</span><span class="d">x</span></span> z = −ln x</span></p>
+<p><span class="fm">P = −1/x</span>，<span class="fm">e<sup>−<span class="op">∫</span>P</sup> = x</span>，<span class="fm">z = x[<span class="op">∫</span>(−ln x)<span class="fr"><span class="n">1</span><span class="d">x</span></span>dx + C] = x[C − <span class="fr"><span class="n">1</span><span class="d">2</span></span>(ln x)²]</span>。<br>
+回代 <span class="fm">z = 1/y</span>：<span class="fm">y = <span class="fr"><span class="n">1</span><span class="d">x[C − (ln x)²/2]</span></span></span>。又 <span class="fm">y ≡ 0</span> 也是解（除 <span class="fm">y²</span> 时丢掉），须补。</p>
+</div>
+
+<h4 class="expl-h">五、常考套路与易错提醒</h4>
+<p><b>伯努利方程</b> <span class="fm">y′ + Py = Qy<sup>n</sup></span>（<span class="fm">n ≠ 0, 1</span>）：除 <span class="fm">y<sup>n</sup></span>，令 <span class="fm">z = y<sup>1−n</sup></span>，得</p>
+<p><span class="fm">z′ + (1 − n) P z = (1 − n) Q</span></p>
+<p><b>以 <span class="fm">x</span> 为未知函数：</b>分母里出现 <span class="fm">y</span> 的一次式（如 <span class="fm">y′ = 1/(x + y)</span>）时，翻转 <span class="fm">dx/dy</span> 往往立刻变线性。</p>
+<ul>
+<li><b>先化标准形，系数必须是 1。</b></li>
+<li><b>指数位置：外负内正。</b>外面 <span class="fm">e<sup>−<span class="op">∫</span>P</sup></span> 负责"除掉"，括号里乘 <span class="fm">e<sup><span class="op">∫</span>P</sup></span> 负责"配上"。</li>
+<li><b><span class="fm"><span class="op">∫</span>P dx</span> 不加常数</b>；积分常数只在括号里加一次。</li>
+<li><b>伯努利的 <span class="fm">(1 − n)</span> 别漏</b>；<span class="fm">n &gt; 0</span> 时 <span class="fm">y ≡ 0</span> 要另列。</li>
+<li><b>解完回代。</b></li>
+</ul>
+<p>本节的"齐次解 + 特解"结构、积分因子"凑导数"思想，分别是第六节定理与第八节待定系数法的源头。</p>
+</div><!--/EXPL:m7-s4-->
+<!--EXPL:m7-s5--><div class="explain" data-expl="m7-s5">
+<h4 class="expl-h">一、二阶不好解，但缺项就能降阶</h4>
+<p>二阶方程 <span class="fm">y″ = f(x, y, y′)</span> 一般没有初等解法。但如果右端<b>缺了某个变量</b>，就有统一的降阶办法：把 <span class="fm">y′</span> 整体当成新的未知函数 <span class="fm">p</span>，把二阶方程拆成两个一阶问题，连做两次积分。好比爬两层楼太累，就在中间搭个平台。</p>
+<p>关键只有一件事：<b><span class="fm">y″</span> 怎么用 <span class="fm">p</span> 表示</b>。这取决于方程缺的是 <span class="fm">y</span> 还是 <span class="fm">x</span>——因为 <span class="fm">p</span> 的自变量要跟着换。</p>
+
+<h4 class="expl-h">二、三类可降阶方程</h4>
+<p><b>类型一　<span class="fm">y<sup>(n)</sup> = f(x)</span>。</b>右端只含 <span class="fm">x</span>，连续积分 <span class="fm">n</span> 次即可，每次带一个常数，最后正好 <span class="fm">n</span> 个常数，符合第一节的结论。</p>
+<p><b>类型二　缺 <span class="fm">y</span>：<span class="fm">y″ = f(x, y′)</span>。</b>令 <span class="fm">p = y′(x)</span>，这里 <span class="fm">p</span> 仍是 <span class="fm">x</span> 的函数，故</p>
+<p><span class="fm">y″ = <span class="fr"><span class="n">dp</span><span class="d">dx</span></span></span></p>
+<p>方程降为 <span class="fm">dp/dx = f(x, p)</span>，这是一阶方程。解出 <span class="fm">p = p(x)</span> 后再积一次：<span class="fm">y = <span class="op">∫</span> p(x) dx + C<sub>2</sub></span>。</p>
+<p><b>类型三　缺 <span class="fm">x</span>：<span class="fm">y″ = f(y, y′)</span>。</b>此时令 <span class="fm">p = y′</span> 并<b>把 <span class="fm">p</span> 看成 <span class="fm">y</span> 的函数</b>，自变量从 <span class="fm">x</span> 换成 <span class="fm">y</span>。由链式法则</p>
+<p><span class="fm">y″ = <span class="fr"><span class="n">dp</span><span class="d">dx</span></span> = <span class="fr"><span class="n">dp</span><span class="d">dy</span></span> · <span class="fr"><span class="n">dy</span><span class="d">dx</span></span> = p <span class="fr"><span class="n">dp</span><span class="d">dy</span></span></span></p>
+<p>方程降为 <span class="fm">p <span class="fr"><span class="n">dp</span><span class="d">dy</span></span> = f(y, p)</span>。解出 <span class="fm">p = p(y)</span> 后，再由 <span class="fm"><span class="fr"><span class="n">dy</span><span class="d">dx</span></span> = p(y)</span> 分离积分。</p>
+<p><b>初始条件也要跟着翻译：</b>缺 <span class="fm">y</span> 用 <span class="fm">p(x<sub>0</sub>) = y′(x<sub>0</sub>)</span>；缺 <span class="fm">x</span> 用 <span class="fm">p(y<sub>0</sub>) = y′(x<sub>0</sub>)</span>，注意括号里的自变量是 <span class="fm">y<sub>0</sub></span>。</p>
+
+<h4 class="expl-h">三、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b>（类型一）　求 <span class="fm">y‴ = x</span> 满足 <span class="fm">y(0) = 1, y′(0) = 0, y″(0) = 0</span> 的特解。</p>
+<p class="expl-s"><b>解</b>　第一次积分 <span class="fm">y″ = <span class="fr"><span class="n">1</span><span class="d">2</span></span>x² + C<sub>1</sub></span>，由 <span class="fm">y″(0) = 0</span> 得 <span class="fm">C<sub>1</sub> = 0</span>。<br>
+第二次 <span class="fm">y′ = <span class="fr"><span class="n">1</span><span class="d">6</span></span>x³ + C<sub>2</sub></span>，由 <span class="fm">y′(0) = 0</span> 得 <span class="fm">C<sub>2</sub> = 0</span>。<br>
+第三次 <span class="fm">y = <span class="fr"><span class="n">1</span><span class="d">24</span></span>x⁴ + C<sub>3</sub></span>，由 <span class="fm">y(0) = 1</span> 得 <span class="fm">C<sub>3</sub> = 1</span>。故 <span class="fm">y = <span class="fr"><span class="n">1</span><span class="d">24</span></span>x⁴ + 1</span>。<br>
+技巧：<b>每积一次就把条件用掉一个</b>，比最后一起代更省力。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b>（缺 <span class="fm">y</span>）　求 <span class="fm">x y″ + y′ = 0 (x &gt; 0)</span> 的通解。</p>
+<p class="expl-s"><b>解</b>　方程里没有 <span class="fm">y</span>，令 <span class="fm">p = y′</span>，<span class="fm">y″ = p′</span>，得 <span class="fm">x p′ + p = 0</span>。<br>
+分离 <span class="fm"><span class="fr"><span class="n">dp</span><span class="d">p</span></span> = −<span class="fr"><span class="n">dx</span><span class="d">x</span></span></span>，积分 <span class="fm">ln|p| = −ln x + C<sub>1</sub></span>，得 <span class="fm">p = <span class="fr"><span class="n">C<sub>1</sub></span><span class="d">x</span></span></span>。<br>
+回代积分：<span class="fm">y = C<sub>1</sub> ln x + C<sub>2</sub></span>。<br>
+另解：注意到 <span class="fm">x y″ + y′ = (x y′)′</span>，直接得 <span class="fm">x y′ = C<sub>1</sub></span>，更快。这类"凑成一个导数"的眼力值得练。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b>（缺 <span class="fm">x</span>）　求 <span class="fm">y y″ − (y′)² = 0</span> 的通解。</p>
+<p class="expl-s"><b>解</b>　方程里没有 <span class="fm">x</span>，令 <span class="fm">p = y′(y)</span>，<span class="fm">y″ = p <span class="fr"><span class="n">dp</span><span class="d">dy</span></span></span>，代入得</p>
+<p><span class="fm">y p <span class="fr"><span class="n">dp</span><span class="d">dy</span></span> − p² = 0</span></p>
+<p>先看 <span class="fm">p = 0</span>：即 <span class="fm">y′ = 0</span>，<span class="fm">y = C</span> 是解（显然满足原方程）。<br>
+设 <span class="fm">p ≠ 0</span>，两边除 <span class="fm">p</span>：<span class="fm">y <span class="fr"><span class="n">dp</span><span class="d">dy</span></span> = p</span>，分离 <span class="fm"><span class="fr"><span class="n">dp</span><span class="d">p</span></span> = <span class="fr"><span class="n">dy</span><span class="d">y</span></span></span>，积分 <span class="fm">ln|p| = ln|y| + C<sub>1</sub></span>，得 <span class="fm">p = C<sub>1</sub> y</span>。<br>
+再解 <span class="fm"><span class="fr"><span class="n">dy</span><span class="d">dx</span></span> = C<sub>1</sub> y</span>：分离积分得 <span class="fm">y = C<sub>2</sub> e<sup>C<sub>1</sub>x</sup></span>。取 <span class="fm">C<sub>1</sub> = 0</span> 即常数解，故通解为 <b><span class="fm">y = C<sub>2</sub> e<sup>C<sub>1</sub>x</sup></span></b>。</p>
+</div>
+
+<h4 class="expl-h">四、易错提醒</h4>
+<ul>
+<li><b>缺 <span class="fm">y</span> 用 <span class="fm">p(x)</span>，缺 <span class="fm">x</span> 用 <span class="fm">p(y)</span>。</b>判断依据是方程里<b>真正没出现的</b>是哪个变量，选错基本算不下去。</li>
+<li><b>缺 <span class="fm">x</span> 时 <span class="fm">y″ = p · dp/dy</span></b>，那个乘在前面的 <span class="fm">p</span> 是链式法则带来的，不能丢。</li>
+<li><b>常数个数仍等于阶数</b>：降阶只是换了自变量，不改变方程阶数对应的常数总量。</li>
+<li><b>解出 <span class="fm">p</span> 必须回代再积一次</b>，不要停在 <span class="fm">p</span> 上。</li>
+<li><b>除掉的因子要交代</b>（如 <span class="fm">p = 0</span>、<span class="fm">y = 0</span>）。</li>
+</ul>
+<p>降阶思想在第九节还会以另一种面貌出现：欧拉方程用 <span class="fm">x = e<sup>t</sup></span> 换自变量，也是"换个视角把难题变简单"。</p>
+</div><!--/EXPL:m7-s5-->
+
+<!--EXPL:m7-s6--><div class="explain" data-expl="m7-s6">
+<h4 class="expl-h">一、线性让"结构"代替"解法"</h4>
+<p><span class="fm">y″ + y = 0</span> 有解 <span class="fm">cos x</span> 与 <span class="fm">sin x</span>，而 <span class="fm">3 cos x − 2 sin x</span> 也是解。为什么？因为求导是线性的：把 <span class="fm">C<sub>1</sub>y<sub>1</sub> + C<sub>2</sub>y<sub>2</sub></span> 代入，常数可以提出来，最后归并成 <span class="fm">C<sub>1</sub>·0 + C<sub>2</sub>·0 = 0</span>。</p>
+<p>这说明<b>齐次线性方程的解全体构成一个线性空间</b>：能加、能乘常数。于是问题从"怎么解"变成"只要凑够一组基底"。这种"先看结构、再定系数"的思路是整章的主线。</p>
+
+<h4 class="expl-h">二、齐次方程解的结构</h4>
+<p>本节讨论</p>
+<p><span class="fm">y″ + p(x) y′ + q(x) y = f(x)</span></p>
+<p>其中 <span class="fm">p, q, f</span> 在区间 <span class="fm">I</span> 上连续；<span class="fm">f ≡ 0</span> 为齐次，否则非齐次。</p>
+<p><b>定理 1（叠加原理）</b>　若 <span class="fm">y<sub>1</sub>, y<sub>2</sub></span> 是齐次方程的解，则 <span class="fm">C<sub>1</sub>y<sub>1</sub> + C<sub>2</sub>y<sub>2</sub></span> 也是解。</p>
+<p><b>定义（线性相关）</b>　若存在<b>不全为零</b>的常数 <span class="fm">k<sub>1</sub>, …, k<sub>n</sub></span> 使 <span class="fm">k<sub>1</sub>y<sub>1</sub> + … + k<sub>n</sub>y<sub>n</sub> ≡ 0</span>，称它们线性相关，否则线性无关。<b>两个函数无关 ⟺ 比值不是常数</b>（不成比例）。</p>
+<p><b>定义（朗斯基行列式）</b>　二阶为</p>
+<p><span class="fm">W(x) = y<sub>1</sub> y<sub>2</sub>′ − y<sub>1</sub>′ y<sub>2</sub></span></p>
+<p><span class="fm">n</span> 阶为由 <span class="fm">y<sub>i</sub></span> 及其 <span class="fm">0</span> 到 <span class="fm">n−1</span> 阶导数排成的 <span class="fm">n</span> 阶行列式。</p>
+<p><b>定理 2（通解结构）</b>　若 <span class="fm">y<sub>1</sub>, y<sub>2</sub></span> 是二阶齐次方程的<b>两个线性无关解</b>，则 <span class="fm">y = C<sub>1</sub>y<sub>1</sub> + C<sub>2</sub>y<sub>2</sub></span> 是通解；若相关，则只是特解的一部分，不是通解。</p>
+<p><b>定理 3（无关的判据）</b>　对二阶齐次方程的两个解，<b><span class="fm">W(x) ≠ 0</span> ⟺ 线性无关</b>；且 <span class="fm">W</span> 要么处处非零、要么处处为零，因为</p>
+<p><span class="fm">W(x) = W(x<sub>0</sub>) e<sup>−<span class="op">∫</span> p dx</sup></span></p>
+<p>所以只要在某一点算一下 <span class="fm">W</span> 就能判无关，这是考试里最省事的办法。</p>
+
+<h4 class="expl-h">三、非齐次方程解的结构</h4>
+<p><b>定理 4</b>　若 <span class="fm">y*</span> 是非齐次方程的一个特解，<span class="fm">Y = C<sub>1</sub>y<sub>1</sub> + C<sub>2</sub>y<sub>2</sub></span> 是对应齐次方程的通解，则</p>
+<p><span class="fm">y = Y + y*</span></p>
+<p>是非齐次方程的通解。证明两句话：①代入得 <span class="fm">L[Y + y*] = L[Y] + L[y*] = 0 + f = f</span>；②若 <span class="fm">y</span> 是任一解，则 <span class="fm">L[y − y*] = f − f = 0</span>，故 <span class="fm">y − y*</span> 是齐次解，即 <span class="fm">y = Y + y*</span>。几何上：非齐次解族是齐次解族整体平移。</p>
+<p><b>定理 5（叠加）</b>　若 <span class="fm">y<sub>1</sub>*</span>、<span class="fm">y<sub>2</sub>*</span> 分别是右端 <span class="fm">f<sub>1</sub></span>、<span class="fm">f<sub>2</sub></span> 的特解，则 <span class="fm">y<sub>1</sub>* + y<sub>2</sub>*</span> 是右端 <span class="fm">f<sub>1</sub> + f<sub>2</sub></span> 的特解。<b>推论：</b>非齐次方程两个特解之差是齐次方程的解。</p>
+
+<h4 class="expl-h">四、已知一解求另一解（降阶）</h4>
+<p>把方程化为标准形 <span class="fm">y″ + p y′ + q y = 0</span>，设已知非零解 <span class="fm">y<sub>1</sub></span>，令 <span class="fm">y = y<sub>1</sub> u</span> 代入可降为一阶，解得</p>
+<p><span class="fm">y<sub>2</sub> = y<sub>1</sub> <span class="op">∫</span> <span class="fr"><span class="n">e<sup>−<span class="op">∫</span> p dx</sup></span><span class="d">y<sub>1</sub>²</span></span> dx</span></p>
+<p>记法：<b>分子是"指数"，分母是 <span class="fm">y<sub>1</sub>²</span></b>。用之前务必先化标准形，否则 <span class="fm">p</span> 取错。</p>
+
+<h4 class="expl-h">五、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b>　验证 <span class="fm">e<sup>x</sup>, e<sup>2x</sup></span> 是 <span class="fm">y″ − 3y′ + 2y = 0</span> 的无关解，并写通解。</p>
+<p class="expl-s"><b>解</b>　代 <span class="fm">e<sup>x</sup></span>：<span class="fm">1 − 3 + 2 = 0</span> ✓；代 <span class="fm">e<sup>2x</sup></span>：<span class="fm">4 − 6 + 2 = 0</span> ✓。<br>
+无关：比值 <span class="fm">e<sup>x</sup>/e<sup>2x</sup> = e<sup>−x</sup></span> 不是常数；或算 <span class="fm">W = e<sup>x</sup>·2e<sup>2x</sup> − e<sup>x</sup>·e<sup>2x</sup> = e<sup>3x</sup> ≠ 0</span>。<br>
+故通解 <span class="fm">y = C<sub>1</sub>e<sup>x</sup> + C<sub>2</sub>e<sup>2x</sup></span>。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b>　已知 <span class="fm">y<sub>1</sub> = x</span> 是 <span class="fm">x² y″ − 2x y′ + 2y = 0</span> 的解，求通解。</p>
+<p class="expl-s"><b>解</b>　<b>先化标准形</b>（除 <span class="fm">x²</span>）：<span class="fm">y″ − <span class="fr"><span class="n">2</span><span class="d">x</span></span>y′ + <span class="fr"><span class="n">2</span><span class="d">x²</span></span>y = 0</span>，故 <span class="fm">p = −2/x</span>，<span class="fm">e<sup>−<span class="op">∫</span>p dx</sup> = e<sup>2 ln x</sup> = x²</span>。<br>
+<span class="fm">y<sub>2</sub> = x <span class="op">∫</span> <span class="fr"><span class="n">x²</span><span class="d">x²</span></span> dx = x <span class="op">∫</span>1 dx = x · x = x²</span>。<br>
+通解 <span class="fm">y = C<sub>1</sub>x + C<sub>2</sub>x²</span>（直接验证也对）。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b>　已知 <span class="fm">y* = x</span> 是 <span class="fm">y″ + y = x</span> 的解，写通解并求 <span class="fm">y(0) = 1, y′(0) = 0</span>。</p>
+<p class="expl-s"><b>解</b>　齐次解 <span class="fm">cos x, sin x</span> 无关（<span class="fm">W = 1</span>），故通解 <span class="fm">y = C<sub>1</sub>cos x + C<sub>2</sub>sin x + x</span>。<br>
+代条件：<span class="fm">y(0) = C<sub>1</sub> = 1</span>；<span class="fm">y′(0) = C<sub>2</sub> + 1 = 0</span>，<span class="fm">C<sub>2</sub> = −1</span>。<br>
+故 <span class="fm">y = cos x − sin x + x</span>。</p>
+</div>
+
+<h4 class="expl-h">六、易错提醒</h4>
+<ul>
+<li><b>无关 ≠ 不同。</b><span class="fm">x</span> 与 <span class="fm">2x</span> 是两个函数，但线性相关。</li>
+<li><b>对线性方程的解，算一点的 <span class="fm">W</span> 即可</b>；但若给的不是解，<span class="fm">W ≠ 0</span> 才等价于无关（这是定理条件）。</li>
+<li><b>用刘维尔公式前先化标准形</b>，<span class="fm">y″</span> 的系数必须是 1。</li>
+<li><b>通解里的两个解必须无关</b>，否则常数不够用。</li>
+<li><b>特解只要一个</b>，不带任意常数；凑特解时越简单越好。</li>
+<li><b>叠加原理只对线性方程成立</b>，非线性方程不能拆。</li>
+</ul>
+<p>本节把"解方程"变成了"找齐基 + 找一个特解"，后两节正是分别解决这两件事：第七节给出齐次基，第八节给出特解的设法。</p>
+</div><!--/EXPL:m7-s6-->
+
+<!--EXPL:m7-s7--><div class="explain" data-expl="m7-s7">
+<h4 class="expl-h">一、为什么可以"猜"</h4>
+<p>解 <span class="fm">y″ + p y′ + q y = 0</span>（<span class="fm">p, q</span> 为常数）时有个好消息：<b>求导不改变函数的类型</b>。<span class="fm">e<sup>rx</sup></span> 求导还是 <span class="fm">e<sup>rx</sup></span> 的倍数，代入后可以把 <span class="fm">e<sup>rx</sup></span> 整体提出来，只剩一个关于 <span class="fm">r</span> 的代数方程。于是微分方程变成了初中的一元二次方程。</p>
+
+<h4 class="expl-h">二、特征方程</h4>
+<p>设 <span class="fm">y = e<sup>rx</sup></span>，则 <span class="fm">y′ = r e<sup>rx</sup></span>，<span class="fm">y″ = r² e<sup>rx</sup></span>。代入并除以 <span class="fm">e<sup>rx</sup> ≠ 0</span>，得</p>
+<p><span class="fm">r² + p r + q = 0</span></p>
+<p>称为<b>特征方程</b>，其根叫特征根。<b>作法就是逐项替换</b>：<span class="fm">y<sup>(k)</sup> → r<sup>k</sup></span>（<span class="fm">y → 1</span>）。</p>
+
+<h4 class="expl-h">三、三种情形与通解</h4>
+<p><b>① <span class="fm">Δ = p² − 4q &gt; 0</span>，相异实根 <span class="fm">r<sub>1</sub>, r<sub>2</sub></span>。</b><span class="fm">e<sup>r<sub>1</sub>x</sup></span> 与 <span class="fm">e<sup>r<sub>2</sub>x</sup></span> 之比 <span class="fm">e<sup>(r<sub>2</sub>−r<sub>1</sub>)x</sup></span> 非常数，无关，故</p>
+<p><span class="fm">y = C<sub>1</sub> e<sup>r<sub>1</sub>x</sup> + C<sub>2</sub> e<sup>r<sub>2</sub>x</sup></span></p>
+<p><b>② <span class="fm">Δ = 0</span>，二重根 <span class="fm">r<sub>1</sub> = r<sub>2</sub> = r = −p/2</span>。</b>只得到一个解 <span class="fm">e<sup>rx</sup></span>，不够。令 <span class="fm">y = e<sup>rx</sup> u</span> 代入化简，得 <span class="fm">u″ = 0</span>，故 <span class="fm">u = C<sub>1</sub> + C<sub>2</sub>x</span>，于是</p>
+<p><span class="fm">y = (C<sub>1</sub> + C<sub>2</sub>x) e<sup>rx</sup></span></p>
+<p>也可以用第三节的刘维尔公式：<span class="fm">p = −2r</span>，<span class="fm">e<sup>−<span class="op">∫</span>p dx</sup> = e<sup>2rx</sup></span>，<span class="fm">y<sub>2</sub> = e<sup>rx</sup><span class="op">∫</span>1 dx = x e<sup>rx</sup></span>。结论要记死：<b>重根时第二个解必须乘 <span class="fm">x</span></b>。</p>
+<p><b>③ <span class="fm">Δ &lt; 0</span>，共轭复根 <span class="fm">r = α ± βi</span></b>，其中 <span class="fm">α = −p/2</span>，<span class="fm">β = <span class="fr"><span class="n">1</span><span class="d">2</span></span><span class="op">√</span>(4q − p²)</span>。形式上得 <span class="fm">e<sup>(α+iβ)x</sup></span>，用欧拉公式</p>
+<p><span class="fm">e<sup>(α+iβ)x</sup> = e<sup>αx</sup>(cos βx + i sin βx)</span></p>
+<p>取实部与虚部即得两个实解 <span class="fm">e<sup>αx</sup>cos βx</span>、<span class="fm">e<sup>αx</sup>sin βx</span>（比值 <span class="fm">tan βx</span> 非常数，无关），故</p>
+<p><span class="fm">y = e<sup>αx</sup>(C<sub>1</sub> cos βx + C<sub>2</sub> sin βx)</span></p>
+<p><b>直观：</b><span class="fm">α</span> 管幅值的增减（<span class="fm">α &lt; 0</span> 衰减、<span class="fm">α = 0</span> 等幅、<span class="fm">α &gt; 0</span> 发散），<span class="fm">β</span> 管振荡的快慢。弹簧阻尼、RLC 振荡全是这三行。</p>
+
+<h4 class="expl-h">四、推广到 <span class="fm">n</span> 阶</h4>
+<p>特征方程 <span class="fm">r<sup>n</sup> + a<sub>1</sub>r<sup>n−1</sup> + … + a<sub>n</sub> = 0</span> 的每个根按下面规则产生解，最后全部相加，常数总数等于阶数：</p>
+<ul>
+<li>单实根 <span class="fm">r</span>：<span class="fm">C e<sup>rx</sup></span>。</li>
+<li><span class="fm">k</span> 重实根 <span class="fm">r</span>：<span class="fm">(C<sub>1</sub> + C<sub>2</sub>x + … + C<sub>k</sub>x<sup>k−1</sup>) e<sup>rx</sup></span>。</li>
+<li>单复根 <span class="fm">α ± βi</span>：<span class="fm">e<sup>αx</sup>(C<sub>1</sub>cos βx + C<sub>2</sub>sin βx)</span>。</li>
+<li><span class="fm">k</span> 重复根：上式的括号里再分别乘 <span class="fm">1, x, …, x<sup>k−1</sup></span>。</li>
+</ul>
+
+<h4 class="expl-h">五、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b>　解 <span class="fm">y″ − 5y′ + 6y = 0</span>。</p>
+<p class="expl-s"><b>解</b>　<span class="fm">r² − 5r + 6 = 0</span>，<span class="fm">(r − 2)(r − 3) = 0</span>，<span class="fm">r = 2, 3</span>。相异实根，<span class="fm">y = C<sub>1</sub>e<sup>2x</sup> + C<sub>2</sub>e<sup>3x</sup></span>。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b>　解 <span class="fm">y″ + 4y′ + 4y = 0</span>，<span class="fm">y(0) = 2, y′(0) = 0</span>。</p>
+<p class="expl-s"><b>解</b>　<span class="fm">r² + 4r + 4 = (r + 2)² = 0</span>，<span class="fm">r = −2</span>（二重），故 <span class="fm">y = (C<sub>1</sub> + C<sub>2</sub>x)e<sup>−2x</sup></span>。<br>
+<span class="fm">y(0) = C<sub>1</sub> = 2</span>。求导 <span class="fm">y′ = [C<sub>2</sub> − 2(C<sub>1</sub> + C<sub>2</sub>x)]e<sup>−2x</sup></span>，故 <span class="fm">y′(0) = C<sub>2</sub> − 2C<sub>1</sub> = C<sub>2</sub> − 4 = 0</span>，<span class="fm">C<sub>2</sub> = 4</span>。<br>
+<span class="fm">y = (2 + 4x)e<sup>−2x</sup></span>。<b>提醒：</b>求 <span class="fm">y′</span> 要用乘积法则，别写成 <span class="fm">C<sub>2</sub>e<sup>−2x</sup></span>。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b>　解 <span class="fm">y″ + 2y′ + 5y = 0</span>。</p>
+<p class="expl-s"><b>解</b>　<span class="fm">r² + 2r + 5 = 0</span>，<span class="fm">r = <span class="fr"><span class="n">−2 ± <span class="op">√</span>(4 − 20)</span><span class="d">2</span></span> = −1 ± 2i</span>，<span class="fm">α = −1, β = 2</span>。<br>
+<span class="fm">y = e<sup>−x</sup>(C<sub>1</sub>cos 2x + C<sub>2</sub>sin 2x)</span>。这是衰减振荡：振幅按 <span class="fm">e<sup>−x</sup></span> 衰减，周期 <span class="fm">π</span>。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 4</b>　解 <span class="fm">y‴ − y′ = 0</span>。</p>
+<p class="expl-s"><b>解</b>　<span class="fm">r³ − r = r(r − 1)(r + 1) = 0</span>，<span class="fm">r = 0, 1, −1</span>。三个单实根，<br>
+<span class="fm">y = C<sub>1</sub> + C<sub>2</sub>e<sup>x</sup> + C<sub>3</sub>e<sup>−x</sup></span>。<b>注意 <span class="fm">r = 0</span> 给的是常数解</b>，别漏。</p>
+</div>
+
+<h4 class="expl-h">六、易错提醒</h4>
+<ul>
+<li><b>重根必乘 <span class="fm">x</span>。</b>写成 <span class="fm">C<sub>1</sub>e<sup>rx</sup> + C<sub>2</sub>e<sup>rx</sup></span> 等于只有一个常数。</li>
+<li><b>复根别丢实部</b>：一定是 <span class="fm">e<sup>αx</sup>(…)</span>，<span class="fm">α = 0</span> 时才没有因子 <span class="fm">e<sup>αx</sup></span>。</li>
+<li><b><span class="fm">β</span> 是虚部</b>：<span class="fm">r = 1 ± 3i</span> 对应 <span class="fm">cos 3x, sin 3x</span>。</li>
+<li><b><span class="fm">r = 0</span> 对应常数解</b>，照写不误。</li>
+<li><b>常数个数 = 阶数</b>，写完数一遍。</li>
+<li><b>反向题也常见：</b>给出通解求方程，用韦达 <span class="fm">r<sub>1</sub> + r<sub>2</sub> = −p</span>、<span class="fm">r<sub>1</sub>r<sub>2</sub> = q</span> 拼回去。</li>
+</ul>
+<p>本节解决"齐次"，下一节解决"非齐次"——两者拼起来就是第八节的完整流程。</p>
+</div><!--/EXPL:m7-s7-->
+<!--EXPL:m7-s8--><div class="explain" data-expl="m7-s8">
+<h4 class="expl-h">一、只剩"找一个特解"</h4>
+<p>本节解 <span class="fm">y″ + p y′ + q y = f(x)</span>（<span class="fm">p, q</span> 为常数）。由第六节定理 4，<b>通解 = 齐次通解 + 一个特解</b>。齐次部分第七节已经解决，所以现在的任务只是：给一个 <span class="fm">f(x)</span>，把 <span class="fm">y*</span> 找出来。</p>
+<p>直接积分行不通。但 <span class="fm">e<sup>λx</sup></span>、多项式、<span class="fm">cos βx</span> 求导后<b>不跑出各自的家族</b>：指数还指数、<span class="fm">m</span> 次多项式还 <span class="fm">m</span> 次、三角还三角。所以可以"猜形状、定系数"——这就是<b>待定系数法</b>。</p>
+
+<h4 class="expl-h">二、类型一：<span class="fm">f(x) = P<sub>m</sub>(x) e<sup>λx</sup></span></h4>
+<p>设</p>
+<p><span class="fm">y* = x<sup>k</sup> Q<sub>m</sub>(x) e<sup>λx</sup></span></p>
+<p>其中 <span class="fm">Q<sub>m</sub></span> 是与 <span class="fm">P<sub>m</sub></span> <b>同次</b>的待定多项式（各项系数全部待定），而</p>
+<p><b><span class="fm">k</span> = <span class="fm">λ</span> 作为特征根的重数</b>：<span class="fm">λ</span> 不是根取 0，是单根取 1，是二重根取 2。</p>
+<p><b>为什么乘 <span class="fm">x<sup>k</sup></span>？</b>若 <span class="fm">λ</span> 是特征根，<span class="fm">e<sup>λx</sup></span> 本身就是齐次方程的解，代入左端得 <span class="fm">0</span>，而右端非零，得到"<span class="fm">0 = 非零</span>"的矛盾式，系数无论怎么取都解不出来。<b>这就是共振</b>：外力频率恰好等于系统固有频率，响应被放大成 <span class="fm">x</span> 倍。乘 <span class="fm">x<sup>k</sup></span> 就是把猜测推出齐次解空间。<b>口诀：<span class="fm">λ</span> 撞了几次，就补几个 <span class="fm">x</span>。</b></p>
+<p><b>定系数：</b>算出 <span class="fm">y*, y*′, y*″</span>（三个因子相乘，用乘积法则），代入方程，合并同类项，令 <span class="fm">x<sup>j</sup>e<sup>λx</sup></span> 的系数逐一相等，解线性方程组。</p>
+
+<h4 class="expl-h">三、类型二：<span class="fm">f(x) = e<sup>λx</sup>[P<sub>l</sub>(x)cos βx + Q<sub>n</sub>(x)sin βx]</span></h4>
+<p>设</p>
+<p><span class="fm">y* = x<sup>k</sup> e<sup>λx</sup>[R<sub>s</sub>(x)cos βx + S<sub>s</sub>(x)sin βx]</span></p>
+<p>其中 <span class="fm">s = max(l, n)</span>，<span class="fm">R<sub>s</sub>, S<sub>s</sub></span> 都是 <span class="fm">s</span> 次待定多项式；<span class="fm">k</span> 取 0（<span class="fm">λ ± βi</span> 不是特征根）或 1（是特征根）。二阶方程复根成对出现，所以 <span class="fm">k</span> 最多是 1。</p>
+<p><b>两个要点：</b>①<b><span class="fm">sin</span> 与 <span class="fm">cos</span> 必须成对设</b>，哪怕右端只出现一个；②<b>次数取较大者</b>，两端多项式都写全。</p>
+
+<h4 class="expl-h">四、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b>　解 <span class="fm">y″ − 3y′ + 2y = e<sup>x</sup></span>。</p>
+<p class="expl-s"><b>解</b>　特征方程 <span class="fm">r² − 3r + 2 = 0</span>，<span class="fm">r = 1, 2</span>，齐次通解 <span class="fm">Y = C<sub>1</sub>e<sup>x</sup> + C<sub>2</sub>e<sup>2x</sup></span>。<br>
+<span class="fm">λ = 1</span> 是单根，故 <span class="fm">k = 1</span>，设 <span class="fm">y* = A x e<sup>x</sup></span>。求导：<br>
+<span class="fm">y*′ = A(1 + x)e<sup>x</sup></span>，<span class="fm">y*″ = A(2 + x)e<sup>x</sup></span>。<br>
+代入左端：<span class="fm">A e<sup>x</sup>[(2 + x) − 3(1 + x) + 2x] = A e<sup>x</sup>(−1) = −A e<sup>x</sup></span>。<br>
+令 <span class="fm">−A e<sup>x</sup> = e<sup>x</sup></span>，得 <span class="fm">A = −1</span>。故<br>
+<span class="fm">y = C<sub>1</sub>e<sup>x</sup> + C<sub>2</sub>e<sup>2x</sup> − x e<sup>x</sup></span>。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b>　解 <span class="fm">y″ + y = x²</span>。</p>
+<p class="expl-s"><b>解</b>　<span class="fm">r² + 1 = 0</span>，<span class="fm">r = ±i</span>，<span class="fm">Y = C<sub>1</sub>cos x + C<sub>2</sub>sin x</span>。<br>
+<span class="fm">f = x²e<sup>0x</sup></span>，<span class="fm">λ = 0</span> 不是根，<span class="fm">k = 0</span>，设 <span class="fm">y* = ax² + bx + c</span>。则 <span class="fm">y*″ = 2a</span>。<br>
+代入：<span class="fm">(ax² + bx + c) + 2a = x²</span>，比较系数：<span class="fm">a = 1</span>，<span class="fm">b = 0</span>，<span class="fm">c + 2a = 0</span> 即 <span class="fm">c = −2</span>。<br>
+<span class="fm">y = C<sub>1</sub>cos x + C<sub>2</sub>sin x + x² − 2</span>。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b>（共振）　解 <span class="fm">y″ + y = cos x</span>。</p>
+<p class="expl-s"><b>解</b>　<span class="fm">Y = C<sub>1</sub>cos x + C<sub>2</sub>sin x</span>。右端 <span class="fm">λ = 0, β = 1</span>，<span class="fm">λ ± βi = ±i</span> <b>正是特征根</b>，故 <span class="fm">k = 1</span>，设<br>
+<span class="fm">y* = x(A cos x + B sin x)</span>。<br>
+求导两次（乘积法则）：<br>
+<span class="fm">y*″ = −2A sin x + 2B cos x − x(A cos x + B sin x)</span>。<br>
+与 <span class="fm">y*</span> 相加，带 <span class="fm">x</span> 的两项抵消：<br>
+<span class="fm">y*″ + y* = −2A sin x + 2B cos x</span>。<br>
+令其 <span class="fm">= cos x</span>：<span class="fm">2B = 1</span>，<span class="fm">−2A = 0</span>，得 <span class="fm">B = 1/2</span>，<span class="fm">A = 0</span>。故<br>
+<span class="fm">y = C<sub>1</sub>cos x + C<sub>2</sub>sin x + <span class="fr"><span class="n">1</span><span class="d">2</span></span>x sin x</span>。<br>
+<span class="fm">x sin x</span> 说明振幅随 <span class="fm">x</span> 无限增大，正是共振现象。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 4</b>（重根）　解 <span class="fm">y″ − 2y′ + y = e<sup>x</sup></span>。</p>
+<p class="expl-s"><b>解</b>　<span class="fm">r² − 2r + 1 = (r − 1)² = 0</span>，<span class="fm">Y = (C<sub>1</sub> + C<sub>2</sub>x)e<sup>x</sup></span>。<span class="fm">λ = 1</span> 是<b>二重</b>根，故 <span class="fm">k = 2</span>，设 <span class="fm">y* = A x² e<sup>x</sup></span>。<br>
+由算子式 <span class="fm">(D − 1)²[A x² e<sup>x</sup>] = 2A e<sup>x</sup></span>，令 <span class="fm">2A = 1</span> 得 <span class="fm">A = 1/2</span>。故<br>
+<span class="fm">y = (C<sub>1</sub> + C<sub>2</sub>x)e<sup>x</sup> + <span class="fr"><span class="n">1</span><span class="d">2</span></span>x² e<sup>x</sup></span>。</p>
+</div>
+
+<h4 class="expl-h">五、流程与易错提醒</h4>
+<p><b>标准流程：</b>①解特征方程；②写出齐次通解 <span class="fm">Y</span>；③从 <span class="fm">f</span> 读出 <span class="fm">λ</span>（及 <span class="fm">β</span>）与次数 <span class="fm">m</span>；④对照特征根定 <span class="fm">k</span>；⑤设 <span class="fm">y*</span> 并代入比较系数；⑥<b>相加</b>。</p>
+<ul>
+<li><b><span class="fm">k</span> 判错必得"<span class="fm">0 = 非零</span>"</b>，这是最快的自检信号。</li>
+<li><b>次数不能降：</b>右端是 <span class="fm">x²</span> 就设到二次三项，<b>系数为 0 也要写全</b>。</li>
+<li><b>三角型必须双设</b>，<span class="fm">R</span> 与 <span class="fm">S</span> 用不同字母。</li>
+<li><b>三个因子相乘用乘积法则</b>；<span class="fm">e<sup>λx</sup></span> 每次提出来约掉。</li>
+<li><b>最后别忘了加齐次通解</b>，只写 <span class="fm">y*</span> 不是通解。</li>
+<li><b>首项系数不是 1 先化标准形</b>（先把首项系数除掉）。</li>
+<li><b>右端为和时用叠加原理</b>分别求再相加。</li>
+</ul>
+<p>本节是"非齐次"的收官，第九节化归后也停在这里。</p>
+</div><!--/EXPL:m7-s8-->
+
+<!--EXPL:m7-s9--><div class="explain" data-expl="m7-s9">
+<h4 class="expl-h">一、幂次配阶数</h4>
+<p>看这个方程：</p>
+<p><span class="fm">x² y″ + x y′ − y = 0</span></p>
+<p>每一项都是"<span class="fm">x</span> 的幂 × 相应阶的导数"，而且<b>幂次恰好等于阶数</b>：二阶配 <span class="fm">x²</span>、一阶配 <span class="fm">x</span>、零阶配 <span class="fm">x⁰ = 1</span>。这种方程叫<b>欧拉方程</b>（欧拉–柯西方程）。</p>
+<p>为什么值得单独一节？因为常系数方程的解法极好，而欧拉方程只差一步换元。令 <span class="fm">x = e<sup>t</sup></span>（即 <span class="fm">t = ln x</span>，先设 <span class="fm">x &gt; 0</span>），相当于把"乘法尺度"换成"加法尺度"——乘积变求和，欧拉方程就变成常系数方程。</p>
+
+<h4 class="expl-h">二、代换公式的推导</h4>
+<p>由 <span class="fm">t = ln x</span> 得 <span class="fm"><span class="fr"><span class="n">dt</span><span class="d">dx</span></span> = <span class="fr"><span class="n">1</span><span class="d">x</span></span></span>。记算子 <span class="fm">D = <span class="fr"><span class="n">d</span><span class="d">dt</span></span></span>。</p>
+<p><b>一阶：</b>由链式法则 <span class="fm"><span class="fr"><span class="n">dy</span><span class="d">dx</span></span> = <span class="fr"><span class="n">dy</span><span class="d">dt</span></span> · <span class="fr"><span class="n">dt</span><span class="d">dx</span></span> = <span class="fr"><span class="n">1</span><span class="d">x</span></span><span class="fr"><span class="n">dy</span><span class="d">dt</span></span></span>，两边乘 <span class="fm">x</span>：</p>
+<p><span class="fm">x y′ = <span class="fr"><span class="n">dy</span><span class="d">dt</span></span> = D y</span></p>
+<p><b>二阶：</b>把 <span class="fm">x y′ = Dy</span> 再对 <span class="fm">x</span> 求导，左边用乘积法则 <span class="fm">(x y′)′ = y′ + x y″</span>，右边对 <span class="fm">x</span> 求导得 <span class="fm"><span class="fr"><span class="n">1</span><span class="d">x</span></span> D² y</span>，所以</p>
+<p><span class="fm">y′ + x y″ = <span class="fr"><span class="n">1</span><span class="d">x</span></span>D² y</span></p>
+<p>两边乘 <span class="fm">x</span>：<span class="fm">x y′ + x² y″ = D² y</span>，把 <span class="fm">x y′ = Dy</span> 代入即得</p>
+<p><span class="fm">x² y″ = D² y − D y = D(D − 1) y</span></p>
+<p>同理可得 <span class="fm">x³ y‴ = D(D − 1)(D − 2) y</span>，一般地</p>
+<p><span class="fm">x<sup>k</sup> y<sup>(k)</sup> = D(D − 1) … (D − k + 1) y</span></p>
+<p><b>必记三个：</b><span class="fm">x y′ = Dy</span>，<span class="fm">x² y″ = (D² − D) y</span>，<span class="fm">x³ y‴ = (D³ − 3D² + 2D) y</span>。</p>
+
+<h4 class="expl-h">三、解题步骤</h4>
+<ol>
+<li>确认"幂次与阶数逐一相等"，否则不是欧拉方程。</li>
+<li>令 <span class="fm">x = e<sup>t</sup></span>，把每个 <span class="fm">x<sup>k</sup>y<sup>(k)</sup></span> 换成对应的算子式。<b>未知函数仍是 <span class="fm">y</span>，但自变量变成了 <span class="fm">t</span></b>。</li>
+<li>按第七、八节解这个常系数方程，得到 <span class="fm">y(t)</span>。</li>
+<li>回代 <span class="fm">t = ln x</span>：用 <span class="fm">e<sup>t</sup> = x</span>、<span class="fm">e<sup>−t</sup> = 1/x</span>、<span class="fm">t e<sup>t</sup> = x ln x</span>。</li>
+</ol>
+<p><b><span class="fm">x &lt; 0</span> 怎么办？</b>令 <span class="fm">x = −e<sup>t</sup></span>，即 <span class="fm">t = ln|x|</span>，此时 <span class="fm">dt/dx = 1/x</span> 依然成立，整个推导不变，只需把最后的 <span class="fm">ln x</span> 全部写成 <span class="fm">ln|x|</span>。答案里统一用 <span class="fm">ln|x|</span> 最稳妥。</p>
+
+<h4 class="expl-h">四、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b>　解 <span class="fm">x² y″ + x y′ − y = 0</span>。</p>
+<p class="expl-s"><b>解</b>　代入 <span class="fm">x y′ = Dy</span>、<span class="fm">x² y″ = (D² − D)y</span>：<br>
+<span class="fm">(D² − D)y + Dy − y = 0</span>，即 <span class="fm">(D² − 1)y = 0</span>。<br>
+特征方程 <span class="fm">r² − 1 = 0</span>，<span class="fm">r = ±1</span>，故 <span class="fm">y = C<sub>1</sub>e<sup>t</sup> + C<sub>2</sub>e<sup>−t</sup></span>。<br>
+回代：<span class="fm">y = C<sub>1</sub>x + <span class="fr"><span class="n">C<sub>2</sub></span><span class="d">x</span></span></span>。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b>（非齐次）　解 <span class="fm">x² y″ − x y′ + y = x (x &gt; 0)</span>。</p>
+<p class="expl-s"><b>解</b>　左端化为 <span class="fm">(D² − D)y − Dy + y = (D² − 2D + 1)y</span>，即 <span class="fm">(D − 1)² y</span>。右端 <span class="fm">x = e<sup>t</sup></span>，方程成为<br>
+<span class="fm">(D − 1)² y = e<sup>t</sup></span>。<br>
+齐次：<span class="fm">(r − 1)² = 0</span> 二重根，<span class="fm">Y = (C<sub>1</sub> + C<sub>2</sub>t)e<sup>t</sup></span>。<br>
+非齐次：<span class="fm">λ = 1</span> 是<b>二重</b>根，<span class="fm">k = 2</span>，设 <span class="fm">y* = A t² e<sup>t</sup></span>。由 <span class="fm">(D − 1)²[A t² e<sup>t</sup>] = 2A e<sup>t</sup></span>，令 <span class="fm">2A = 1</span> 得 <span class="fm">A = 1/2</span>。<br>
+故 <span class="fm">y = (C<sub>1</sub> + C<sub>2</sub>t)e<sup>t</sup> + <span class="fr"><span class="n">1</span><span class="d">2</span></span>t² e<sup>t</sup></span>，回代 <span class="fm">t = ln x</span>：</p>
+<p><span class="fm">y = (C<sub>1</sub> + C<sub>2</sub> ln x) x + <span class="fr"><span class="n">1</span><span class="d">2</span></span> x (ln x)²</span></p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b>　解 <span class="fm">x² y″ + x y′ = 1</span>。</p>
+<p class="expl-s"><b>解</b>　<span class="fm">(D² − D)y + Dy = D² y = 1</span>。<br>
+积分两次：<span class="fm">Dy = t + C<sub>1</sub></span>，<span class="fm">y = <span class="fr"><span class="n">1</span><span class="d">2</span></span>t² + C<sub>1</sub>t + C<sub>2</sub></span>。<br>
+回代：<span class="fm">y = <span class="fr"><span class="n">1</span><span class="d">2</span></span>(ln x)² + C<sub>1</sub> ln x + C<sub>2</sub></span>。</p>
+</div>
+
+<h4 class="expl-h">五、易错提醒</h4>
+<ul>
+<li><b>识别口诀"幂次配阶数"</b>，不配对就不是欧拉方程（如 <span class="fm">x²y″ + y′ = 0</span> 不是）。</li>
+<li><b>变体 <span class="fm">(ax + b)<sup>n</sup>y<sup>(n)</sup> + …</span></b> 时令 <span class="fm">ax + b = e<sup>t</sup></span>，链式法则多一个 <span class="fm">a</span>。</li>
+<li><b>别忘链式法则：</b>这是换自变量，不是简单把 <span class="fm">x</span> 替换成 <span class="fm">t</span>。</li>
+<li><b><span class="fm">x² y″ = (D² − D)y</span>，不是 <span class="fm">D²y</span>。</b>漏掉 <span class="fm">−D</span> 是最常见错误。</li>
+<li><b>解出 <span class="fm">y(t)</span> 必须回代</b>，答案里不能留 <span class="fm">t</span> 或 <span class="fm">D</span>。</li>
+<li><b>回代别留 <span class="fm">e<sup>ln x</sup></span></b>，直接写成 <span class="fm">x</span>。</li>
+<li><b>答案常含 <span class="fm">x<sup>r</sup></span>、<span class="fm">x<sup>r</sup>ln x</span>、<span class="fm">x<sup>α</sup>cos(β ln x)</span></b>，属正常形态。</li>
+<li><b><span class="fm">x &lt; 0</span> 时用 <span class="fm">ln|x|</span></b>；非齐次右端也要先换成 <span class="fm">t</span> 的表达式。</li>
+</ul>
+<p>本节把变系数化为常系数，用的仍是"换元化归"这一贯穿全章的思路，与第三节的 <span class="fm">u = y/x</span> 同源。</p>
+</div><!--/EXPL:m7-s9-->
+
+<!--EXPL:m7-s10--><div class="explain" data-expl="m7-s10">
+<h4 class="expl-h">一、从单个方程到方程组</h4>
+<p>真实系统很少只含一个变量：捕食者与猎物、两个耦合回路、串联的弹簧，都要用<b>方程组</b>描述。本节只讨论常系数线性组：</p>
+<p><span class="fm"><span class="fr"><span class="n">dx</span><span class="d">dt</span></span> = a<sub>11</sub>x + a<sub>12</sub>y + f<sub>1</sub>(t),　<span class="fr"><span class="n">dy</span><span class="d">dt</span></span> = a<sub>21</sub>x + a<sub>22</sub>y + f<sub>2</sub>(t)</span></p>
+<p>好消息是：<b>不需要任何新理论</b>。办法只有一个——想办法把它化成一个高阶方程，然后交给第七、八节。</p>
+
+<h4 class="expl-h">二、消元法</h4>
+<ol>
+<li>由第一个方程解出另一个未知函数（例如 <span class="fm">y = x′ − a<sub>11</sub>x − f<sub>1</sub></span>）。</li>
+<li>对所得式子关于 <span class="fm">t</span> 求导，得到 <span class="fm">y′</span> 的表达式。</li>
+<li>把 <span class="fm">y</span> 与 <span class="fm">y′</span> 一起代入第二式，得只含 <span class="fm">x</span> 的二阶方程。</li>
+<li>解出 <span class="fm">x = x(t, C<sub>1</sub>, C<sub>2</sub>)</span>。</li>
+<li><b>回代求 <span class="fm">y</span></b>（这一步不能省）。</li>
+</ol>
+<p><b>第五步为什么关键？</b>题目问的是"方程组的解"，两个函数都必须给出，而且它们<b>共用同一组常数</b>。若 <span class="fm">y</span> 的表达式里含 <span class="fm">x′</span>，必须真的把 <span class="fm">x</span> 求导算出来，不能把 <span class="fm">x′</span> 当符号留着。</p>
+
+<h4 class="expl-h">三、矩阵法（与特征值对应）</h4>
+<p>把未知函数写成向量 <b>X</b> = (x, y)<sup>T</sup>，方程组即 <b>X</b>′ = A<b>X</b>。仿照一阶方程 <span class="fm">y′ = ay</span> 的解 <span class="fm">y = C e<sup>at</sup></span>，猜 <b>X</b> = <b>ξ</b> e<sup>λt</sup>，代入得</p>
+<p><span class="fm">λ <b>ξ</b> = A<b>ξ</b>,　即 (A − λE)<b>ξ</b> = <b>0</b></span></p>
+<p>所以 <span class="fm">λ</span> 是 <span class="fm">A</span> 的<b>特征值</b>，<b>ξ</b> 是对应的<b>特征向量</b>。若有两个线性无关的特征向量，则</p>
+<p><span class="fm"><b>X</b> = C<sub>1</sub><b>ξ</b><sub>1</sub>e<sup>λ<sub>1</sub>t</sup> + C<sub>2</sub><b>ξ</b><sub>2</sub>e<sup>λ<sub>2</sub>t</sup></span></p>
+<p>重根时乘 <span class="fm">t</span>、复根时取实部虚部，与第七节的三种情形<b>一一对应</b>。这说明：方程组的"特征值"就是消元后那个二阶方程"特征根"。</p>
+
+<h4 class="expl-h">四、初始条件</h4>
+<p><b>几个未知函数就要几个初始条件。</b>二元组给 <span class="fm">x(t<sub>0</sub>) = x<sub>0</sub>, y(t<sub>0</sub>) = y<sub>0</sub></span>，代入通解得两个关于 <span class="fm">C<sub>1</sub>, C<sub>2</sub></span> 的方程。<b>注意别把 <span class="fm">x</span> 的条件错代进 <span class="fm">y</span> 的式子。</b></p>
+
+<h4 class="expl-h">五、例题</h4>
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b>　解 <span class="fm">x′ = 2x + y, y′ = 4x − y</span>。</p>
+<p class="expl-s"><b>解</b>　由第一式 <span class="fm">y = x′ − 2x</span>，求导 <span class="fm">y′ = x″ − 2x′</span>。<br>
+代入第二式：<span class="fm">x″ − 2x′ = 4x − (x′ − 2x) = 6x − x′</span>，整理得</p>
+<p><span class="fm">x″ − x′ − 6x = 0</span></p>
+<p>特征根 <span class="fm">r² − r − 6 = 0</span>，<span class="fm">r = 3, −2</span>，故 <span class="fm">x = C<sub>1</sub>e<sup>3t</sup> + C<sub>2</sub>e<sup>−2t</sup></span>。<br>
+回代：<span class="fm">y = x′ − 2x = 3C<sub>1</sub>e<sup>3t</sup> − 2C<sub>2</sub>e<sup>−2t</sup> − 2C<sub>1</sub>e<sup>3t</sup> − 2C<sub>2</sub>e<sup>−2t</sup></span>，即</p>
+<p><span class="fm">y = C<sub>1</sub>e<sup>3t</sup> − 4C<sub>2</sub>e<sup>−2t</sup></span></p>
+<p><b>用矩阵法核对：</b>A = <span class="fm">[2, 1; 4, −1]</span>，<span class="fm">|A − λE| = λ² − λ − 6</span>，特征值 <span class="fm">3, −2</span>，与消元法完全一致；对应特征向量 (1, 1)<sup>T</sup>、<span class="fm">(−1/4, 1)<sup>T</sup></span>，也与上式系数吻合。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b>　解 <span class="fm">x′ = y, y′ = −x</span>，并说明轨线的几何意义。</p>
+<p class="expl-s"><b>解</b>　由第一式 <span class="fm">y = x′</span>，代入第二式：<span class="fm">x″ = −x</span>，即 <span class="fm">x″ + x = 0</span>。<br>
+解得 <span class="fm">x = C<sub>1</sub>cos t + C<sub>2</sub>sin t</span>，回代 <span class="fm">y = x′ = −C<sub>1</sub>sin t + C<sub>2</sub>cos t</span>。<br>
+于是 <span class="fm">x² + y² = C<sub>1</sub>² + C<sub>2</sub>²</span> 为常数，轨线是圆。<br>
+<b>几何意义：</b>这正是一个无阻尼振子（如理想单摆、LC 回路）——位置在转，速度始终垂直于位置，做匀速圆周运动。矩阵法：<span class="fm">A = [0, 1; −1, 0]</span>，特征值 <span class="fm">±i</span>，虚根对应"环绕中心"的闭轨。</p>
+</div>
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b>　求例 1 中满足 <span class="fm">x(0) = 1, y(0) = 0</span> 的特解。</p>
+<p class="expl-s"><b>解</b>　通解为 <span class="fm">x = C<sub>1</sub>e<sup>3t</sup> + C<sub>2</sub>e<sup>−2t</sup></span>，<span class="fm">y = C<sub>1</sub>e<sup>3t</sup> − 4C<sub>2</sub>e<sup>−2t</sup></span>。<br>
+代入 <span class="fm">t = 0</span>：<span class="fm">C<sub>1</sub> + C<sub>2</sub> = 1</span>，<span class="fm">C<sub>1</sub> − 4C<sub>2</sub> = 0</span>。<br>
+解得 <span class="fm">C<sub>1</sub> = 4/5</span>，<span class="fm">C<sub>2</sub> = 1/5</span>。故</p>
+<p><span class="fm">x = <span class="fr"><span class="n">4</span><span class="d">5</span></span>e<sup>3t</sup> + <span class="fr"><span class="n">1</span><span class="d">5</span></span>e<sup>−2t</sup>,　y = <span class="fr"><span class="n">4</span><span class="d">5</span></span>e<sup>3t</sup> − <span class="fr"><span class="n">4</span><span class="d">5</span></span>e<sup>−2t</sup></span></p>
+</div>
+
+<h4 class="expl-h">六、易错提醒</h4>
+<ul>
+<li><b>回代不能省</b>，两个函数共用同一组常数。</li>
+<li><b>回代求 <span class="fm">y</span> 时记得对 <span class="fm">x</span> 求导</b>，别把 <span class="fm">x′</span> 原样留下。</li>
+<li><b>别为 <span class="fm">y</span> 另立一套常数</b>（写成 <span class="fm">D<sub>1</sub>, D<sub>2</sub></span> 就错了）。</li>
+<li><b>消元时两处 <span class="fm">y</span> 都要换掉</b>（第一式的 <span class="fm">y</span> 和第二式的 <span class="fm">y′</span>）。</li>
+<li><b>初始条件个数 = 未知函数个数</b>。</li>
+<li><b>矩阵法要写特征向量</b>，只写特征值凑不出解。</li>
+</ul>
+<p>本章到此闭环：<b>概念（1）→ 可解类型（2–5）→ 解的结构（6）→ 常系数齐次与非齐次（7–8）→ 变系数化归（9）→ 方程组（10）</b>。所有解法最终都落回"分离变量"与"特征方程"这两件工具。</p>
+</div><!--/EXPL:m7-s10-->

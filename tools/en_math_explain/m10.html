@@ -1,0 +1,161 @@
+<!--EXPL:m10-s1--><div class="explain" data-expl="m10-s1">
+<p>先看一个具体问题。设有一块空间形体，它的底是 <span class="fm">xOy</span> 面上一个有界闭区域 <span class="fm">D</span>，顶是一张曲面 <span class="fm">z = f(x, y)</span>（设 <span class="fm">f ≥ 0</span> 且连续），侧面是以 <span class="fm">D</span> 的边界曲线为准线、母线平行于 <span class="fm">z</span> 轴的柱面。这样的形体叫<b>曲顶柱体</b>。若顶是平的，体积就是"底面积 × 高"；可顶是弯的，每处的高都不一样，初等几何的公式全部失效。二重积分正是为算这个体积而发明的。</p>
+<p>思路还是"以直代曲"：把底面 <span class="fm">D</span> 切成 <span class="fm">n</span> 小块，小块足够小时曲面几乎平了，就用一根<b>平顶</b>小柱体去顶替它；把所有小平顶柱体的体积加起来，再让分割无限变细取极限。这就是定积分"分割、近似、求和、取极限"四步法在二维上的翻版。</p>
+
+<h4 class="expl-h">一、定义：四步法</h4>
+<p>把 <span class="fm">D</span> 任意分成 <span class="fm">n</span> 个小区域 <span class="fm">Δσ<sub>1</sub>, …, Δσ<sub>n</sub></span>（<span class="fm">Δσ<sub>i</sub></span> 既表示第 <span class="fm">i</span> 块，也表示它的面积）。在第 <span class="fm">i</span> 块上任取一点 <span class="fm">(ξ<sub>i</sub>, η<sub>i</sub>)</span>，作乘积 <span class="fm">f(ξ<sub>i</sub>, η<sub>i</sub>)Δσ<sub>i</sub></span>，求和</p>
+<p><span class="fm">Σ<sub>i=1</sub><sup>n</sup> f(ξ<sub>i</sub>, η<sub>i</sub>)Δσ<sub>i</sub></span></p>
+<p>记 <span class="fm">λ</span> 为各小块<b>直径</b>（块内任意两点距离的最大值）中的最大者。若当 <span class="lm">lim<span class="s">λ→0</span></span> 时该和式的极限存在，且与 <span class="fm">D</span> 的分法、与点 <span class="fm">(ξ<sub>i</sub>, η<sub>i</sub>)</span> 的取法都无关，就称此极限为 <span class="fm">f(x, y)</span> 在 <span class="fm">D</span> 上的<b>二重积分</b>，记作 <span class="fm"><span class="op">∬</span><sub>D</sub> f(x, y) dσ</span>，也写作 <span class="fm"><span class="op">∬</span><sub>D</sub> f(x, y) dxdy</span>。</p>
+<p>两点必须说清：<b>可积的充分条件</b>是 <span class="fm">f</span> 在有界闭区域 <span class="fm">D</span> 上连续；<b>几何意义</b>是当 <span class="fm">f ≥ 0</span> 时，积分值等于以 <span class="fm">D</span> 为底、以 <span class="fm">z = f(x, y)</span> 为顶的曲顶柱体体积；当 <span class="fm">f</span> 变号时，它是上下两块体积的代数和。特别地取 <span class="fm">f ≡ 1</span> 得 <span class="fm"><span class="op">∬</span><sub>D</sub> dσ = S</span>，即 <span class="fm">D</span> 的面积。</p>
+
+<h4 class="expl-h">二、性质：五条要背熟</h4>
+<ul>
+<li><b>线性</b>：<span class="fm"><span class="op">∬</span><sub>D</sub> [αf + βg] dσ = α<span class="op">∬</span><sub>D</sub> f dσ + β<span class="op">∬</span><sub>D</sub> g dσ</span>。</li>
+<li><b>区域可加</b>：用一条曲线把 <span class="fm">D</span> 分成 <span class="fm">D<sub>1</sub>, D<sub>2</sub></span>，则积分等于两块之和。求积分时按"分段描述"拆区域，依据就是它。</li>
+<li><b>保号</b>：<span class="fm">f ≤ g</span> ⟹ <span class="fm"><span class="op">∬</span><sub>D</sub> f dσ ≤ <span class="op">∬</span><sub>D</sub> g dσ</span>；由此得 <span class="fm">|<span class="op">∬</span><sub>D</sub> f dσ| ≤ <span class="op">∬</span><sub>D</sub> |f| dσ</span>。</li>
+<li><b>估值</b>：设 <span class="fm">m ≤ f ≤ M</span>（<span class="fm">m, M</span> 是 <span class="fm">f</span> 在 <span class="fm">D</span> 上的最小、最大值），<span class="fm">S</span> 为 <span class="fm">D</span> 的面积，则 <span class="fm">mS ≤ <span class="op">∬</span><sub>D</sub> f dσ ≤ MS</span>。</li>
+<li><b>中值定理</b>：<span class="fm">f</span> 连续时，存在 <span class="fm">(ξ, η) ∈ D</span>，使 <span class="fm"><span class="op">∬</span><sub>D</sub> f dσ = f(ξ, η) · S</span>。它由连续函数的介值性立得：<span class="fm">(1/S)<span class="op">∬</span><sub>D</sub> f dσ</span> 夹在 <span class="fm">m</span> 与 <span class="fm">M</span> 之间。</li>
+</ul>
+
+<h4 class="expl-h">三、对称性：把一半的积分直接判零</h4>
+<p>设 <span class="fm">D</span> 关于 <span class="fm">x</span> 轴对称，且 <span class="fm">f(x, −y) = −f(x, y)</span>（关于 <span class="fm">y</span> 为奇），则 <span class="fm"><span class="op">∬</span><sub>D</sub> f dσ = 0</span>。理由：上下两半的积分值互为相反数，相加为零。若 <span class="fm">f</span> 关于 <span class="fm">y</span> 是偶函数，则积分等于上半部分的两倍。关于 <span class="fm">y</span> 轴对称时把 <span class="fm">x</span>、<span class="fm">y</span> 互换同理。<b>两个条件必须同时成立</b>，缺一不可。</p>
+
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b>　利用几何意义求 <span class="fm"><span class="op">∬</span><sub>D</sub> √(R² − x² − y²) dσ</span>，其中 <span class="fm">D: x² + y² ≤ R²</span>。</p>
+<p class="expl-s"><b>解</b>　被积函数 <span class="fm">z = √(R² − x² − y²)</span> 正是上半球面，区域 <span class="fm">D</span> 是它的底圆。故积分等于<b>上半球体</b>的体积：<span class="fm">V = <span class="fr"><span class="n">1</span><span class="d">2</span></span> · <span class="fr"><span class="n">4</span><span class="d">3</span></span>πR³ = <span class="fr"><span class="n">2</span><span class="d">3</span></span>πR³</span>，不必硬积。</p>
+<p class="expl-t">看到"被积函数就是某张常见曲面的方程"时，先想几何意义，比硬算快得多。</p>
+</div>
+
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b>　设 <span class="fm">D: x² + y² ≤ 1</span>，比较 <span class="fm">I<sub>1</sub> = <span class="op">∬</span><sub>D</sub> (x² + y²) dσ</span> 与 <span class="fm">I<sub>2</sub> = <span class="op">∬</span><sub>D</sub> √(x² + y²) dσ</span> 的大小。</p>
+<p class="expl-s"><b>解</b>　在 <span class="fm">D</span> 上记 <span class="fm">u = x² + y²</span>，则 <span class="fm">0 ≤ u ≤ 1</span>。当 <span class="fm">0 ≤ u ≤ 1</span> 时恒有 <span class="fm">u ≤ √u</span>，即 <span class="fm">x² + y² ≤ √(x² + y²)</span>，等号仅在 <span class="fm">u = 0</span> 或 <span class="fm">u = 1</span> 处成立（零面积集）。由<b>保号性</b>逐点比较后积分，得 <span class="fm">I<sub>1</sub> &lt; I<sub>2</sub></span>。</p>
+<p class="expl-t">比较大小的套路：先逐点判号，再用保号性；不要没判号就直接写"小于"。</p>
+</div>
+
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b>　计算 <span class="fm"><span class="op">∬</span><sub>D</sub> (x³ + y²) dσ</span>，<span class="fm">D: x² + y² ≤ 1</span>。</p>
+<p class="expl-s"><b>解</b>　拆成两项。<span class="fm">D</span> 关于 <span class="fm">y</span> 轴对称而 <span class="fm">x³</span> 关于 <span class="fm">x</span> 为奇，故 <span class="fm"><span class="op">∬</span><sub>D</sub> x³ dσ = 0</span>。<br>第二项：<span class="fm">D</span> 还关于直线 <span class="fm">y = x</span> 对称，把 <span class="fm">x</span> 与 <span class="fm">y</span> 互换后积分值不变，故 <span class="fm"><span class="op">∬</span><sub>D</sub> y² dσ = <span class="op">∬</span><sub>D</sub> x² dσ = <span class="fr"><span class="n">1</span><span class="d">2</span></span><span class="op">∬</span><sub>D</sub>(x² + y²) dσ</span>。<br>极坐标算这个公共值：<span class="fm"><span class="op">∫</span><sub>0</sub><sup>2π</sup> dθ <span class="op">∫</span><sub>0</sub><sup>1</sup> r² · r dr = 2π · <span class="fr"><span class="n">1</span><span class="d">4</span></span> = <span class="fr"><span class="n">π</span><span class="d">2</span></span></span>，故原式 <span class="fm">= <span class="fr"><span class="n">π</span><span class="d">4</span></span></span>。</p>
+<p class="expl-t">圆域上算 <span class="fm">x²</span>、<span class="fm">y²</span> 的积分，统一化成 <span class="fm">(x² + y²)/2</span> 再上极坐标，比分别积分省一半功夫。</p>
+</div>
+
+<p>本节只是"定性"的一节：定义划定了对象，性质提供了不靠计算就能判断的工具。<b>下一节</b>才把定义兑现成可操作的算法——把二重积分化成两次定积分，也就是"累次积分"。路径只有一条：先选坐标系（直角或极），再把区域写成不等式，最后按次序积两遍。</p>
+</div><!--/EXPL:m10-s1-->
+
+<!--EXPL:m10-s2--><div class="explain" data-expl="m10-s2">
+<p>定义只能算体积，不能算出具体的数。<span class="fm"><span class="op">∬</span><sub>D</sub> f dσ</span> 是一个"二维的极限"，怎么落地？答案是<b>降维</b>：固定一个变量、先对另一个变量积一次，再把所有"竖条"的贡献累加。两次一元定积分，就得到二重积分的值。这条定理叫<b>富比尼（Fubini）定理</b>，即化二重积分为累次积分。</p>
+
+<h4 class="expl-h">一、直角坐标：X 型与 Y 型</h4>
+<p><b>X 型区域</b>：<span class="fm">D = {(x, y) | a ≤ x ≤ b, φ<sub>1</sub>(x) ≤ y ≤ φ<sub>2</sub>(x)}</span>，即用垂直于 <span class="fm">x</span> 轴的直线去穿，穿入点、穿出点各在一张曲线上，且只有两个交点。此时若 <span class="fm">f</span> 连续、<span class="fm">φ<sub>1</sub>, φ<sub>2</sub></span> 连续，则</p>
+<p><span class="fm"><span class="op">∬</span><sub>D</sub> f(x, y) dσ = <span class="op">∫</span><sub>a</sub><sup>b</sup> dx <span class="op">∫</span><sub>φ1(x)</sub><sup>φ2(x)</sup> f(x, y) dy</span></p>
+<p>右端是<b>先对 y 积、后对 x 积</b>：里层把 <span class="fm">x</span> 当常数，积完只剩 <span class="fm">x</span> 的函数，外层再对 <span class="fm">x</span> 积。上下限次序不能颠倒，因为里层上下限依赖外层变量。</p>
+<p><b>Y 型区域</b>：<span class="fm">D = {(x, y) | c ≤ y ≤ d, ψ<sub>1</sub>(y) ≤ x ≤ ψ<sub>2</sub>(y)}</span>，则</p>
+<p><span class="fm"><span class="op">∬</span><sub>D</sub> f(x, y) dσ = <span class="op">∫</span><sub>c</sub><sup>d</sup> dy <span class="op">∫</span><sub>ψ1(y)</sub><sup>ψ2(y)</sup> f(x, y) dx</span></p>
+<p>既非 X 型也非 Y 型的区域，切几块分别套公式，再用<b>区域可加性</b>相加。判断标准：画图，看平行于坐标轴的直线与边界是否始终只有两个交点。</p>
+
+<h4 class="expl-h">二、极坐标：那个 r 从哪来</h4>
+<p>令 <span class="fm">x = r cos θ, y = r sin θ</span>，则 <span class="fm">x² + y² = r²</span>，而面积元要换。用 <span class="fm">r = </span>常数（同心圆）与 <span class="fm">θ = </span>常数（射线）把区域打成小格，一个小格的两条边长分别是 <span class="fm">dr</span> 与 <span class="fm">r dθ</span>，故</p>
+<p><span class="fm">dσ = r dr dθ, 即 <span class="op">∬</span><sub>D</sub> f(x, y) dxdy = <span class="op">∬</span><sub>D′</sub> f(r cos θ, r sin θ) · r dr dθ</span></p>
+<p>严格说这个 <span class="fm">r</span> 是变换的<b>雅可比行列式</b>的绝对值：<span class="fm">J = ∂(x, y)/∂(r, θ) = r</span>，一般公式是 <span class="fm">dxdy = |J| dr dθ</span>。<b>漏掉 r 是本章第一失分点</b>，一定要在写下 <span class="fm">dr dθ</span> 的同一秒把 <span class="fm">r</span> 写上。</p>
+<p>定限两步走：<b>先定 θ</b>——看区域在极点周围张开多大角；<b>再定 r</b>——固定 <span class="fm">θ</span> 引一条射线，穿入点到穿出点就是 <span class="fm">r</span> 的上下限。圆域、扇形、圆环、含 <span class="fm">x² + y²</span> 的题优先极坐标。</p>
+
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b>　计算 <span class="fm"><span class="op">∬</span><sub>D</sub> xy dσ</span>，<span class="fm">D</span> 由 <span class="fm">y = x</span> 与 <span class="fm">y = x²</span> 围成。</p>
+<p class="expl-s"><b>解</b>　先求交点：<span class="fm">x = x²</span> 得 <span class="fm">x = 0, 1</span>，故 <span class="fm">D: 0 ≤ x ≤ 1, x² ≤ y ≤ x</span>，是 X 型。<br>里层：<span class="fm"><span class="op">∫</span><sub>x²</sub><sup>x</sup> y dy = <span class="fr"><span class="n">1</span><span class="d">2</span></span>(x² − x⁴)</span>（把 <span class="fm">x</span> 当常数，对 <span class="fm">y</span> 积）。<br>外层：原式 <span class="fm">= <span class="op">∫</span><sub>0</sub><sup>1</sup> x · <span class="fr"><span class="n">1</span><span class="d">2</span></span>(x² − x⁴) dx = <span class="fr"><span class="n">1</span><span class="d">2</span></span><span class="op">∫</span><sub>0</sub><sup>1</sup>(x³ − x⁵) dx = <span class="fr"><span class="n">1</span><span class="d">2</span></span>(<span class="fr"><span class="n">1</span><span class="d">4</span></span> − <span class="fr"><span class="n">1</span><span class="d">6</span></span>) = <span class="fr"><span class="n">1</span><span class="d">24</span></span></span>。</p>
+<p class="expl-t">里层积完必须"消掉 <span class="fm">y</span>"；若还剩 <span class="fm">y</span>，多半是上下限写错了。</p>
+</div>
+
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b>　计算 <span class="fm">I = <span class="op">∫</span><sub>0</sub><sup>1</sup> dx <span class="op">∫</span><sub>x</sub><sup>1</sup> e<sup>−y²</sup> dy</span>。</p>
+<p class="expl-s"><b>解</b>　e<sup>−y²</sup> 没有初等原函数，硬积这条路走不通，必须交换次序。<br>第一步，还原区域：原式给的是 X 型描述 <span class="fm">0 ≤ x ≤ 1, x ≤ y ≤ 1</span>，即由 <span class="fm">y = x</span>、<span class="fm">y = 1</span>、<span class="fm">x = 0</span> 围成的三角形。<br>第二步，换成 Y 型描述：<span class="fm">y</span> 从 <span class="fm">0</span> 走到 <span class="fm">1</span>；固定 <span class="fm">y</span> 时 <span class="fm">x</span> 从 <span class="fm">0</span>（<span class="fm">y</span> 轴）走到 <span class="fm">y</span>（直线 <span class="fm">x = y</span>），即 <span class="fm">0 ≤ y ≤ 1, 0 ≤ x ≤ y</span>。<br>第三步，重写：<span class="fm">I = <span class="op">∫</span><sub>0</sub><sup>1</sup> dy <span class="op">∫</span><sub>0</sub><sup>y</sup> e<sup>−y²</sup> dx = <span class="op">∫</span><sub>0</sub><sup>1</sup> y e<sup>−y²</sup> dy = −<span class="fr"><span class="n">1</span><span class="d">2</span></span>e<sup>−y²</sup>|<sub>0</sub><sup>1</sup> = <span class="fr"><span class="n">1</span><span class="d">2</span></span>(1 − e<sup>−1</sup>)</span>。</p>
+<p class="expl-t">交换次序的标准三步：<b>还原不等式 → 重画区域 → 换方向重写</b>。绝不能只把两个积分号上下限对调。</p>
+</div>
+
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b>　计算 <span class="fm"><span class="op">∬</span><sub>D</sub> (x² + y²) dσ</span>，<span class="fm">D: x² + y² ≤ 2x</span>。</p>
+<p class="expl-s"><b>解</b>　配方：<span class="fm">(x − 1)² + y² ≤ 1</span>，是以 <span class="fm">(1, 0)</span> 为心、半径 1 的圆，且过极点。<br>极坐标下 <span class="fm">x² + y² = r²</span>，边界的圆变成 <span class="fm">r² ≤ 2r cos θ</span>，即 <span class="fm">r ≤ 2 cos θ</span>（<span class="fm">r ≠ 0</span> 时）。<br>定限：区域在右半平面且关于 <span class="fm">x</span> 轴对称，<span class="fm">θ</span> 从 <span class="fm">−<span class="fr"><span class="n">π</span><span class="d">2</span></span></span> 到 <span class="fr"><span class="n">π</span><span class="d">2</span></span>；对固定 <span class="fm">θ</span>，射线从极点穿入（<span class="fm">r = 0</span>）到圆周穿出（<span class="fm">r = 2cos θ</span>）。<br>故 <span class="fm"><span class="op">∬</span><sub>D</sub>(x² + y²) dσ = <span class="op">∫</span><sub>−π/2</sub><sup>π/2</sup> dθ <span class="op">∫</span><sub>0</sub><sup>2cos θ</sup> r² · r dr = <span class="op">∫</span><sub>−π/2</sub><sup>π/2</sup> <span class="fr"><span class="n">(2cos θ)⁴</span><span class="d">4</span></span> dθ = 4<span class="op">∫</span><sub>−π/2</sub><sup>π/2</sup> cos⁴θ dθ</span>。<br>用偶函数对称性：<span class="fm">= 8<span class="op">∫</span><sub>0</sub><sup>π/2</sup> cos⁴θ dθ = 8 · <span class="fr"><span class="n">3</span><span class="d">4</span></span> · <span class="fr"><span class="n">1</span><span class="d">2</span></span> · <span class="fr"><span class="n">π</span><span class="d">2</span></span> = <span class="fr"><span class="n">3π</span><span class="d">2</span></span></span>。</p>
+<p class="expl-t">过极点的圆，极坐标方程必为 <span class="fm">r = 2a cos θ</span> 或 <span class="fm">r = 2a sin θ</span> 的形状；用 <span class="fm">cos</span> 型时 <span class="fm">θ</span> 的范围跨原点两侧，别只写 <span class="fm">0</span> 到 <span class="fm">π</span>。</p>
+</div>
+
+<p>到这里二重积分已经"能算"了，剩下的是熟练度：<b>选坐标系</b>与<b>写上下限</b>（画图 + 穿线法）。下一节把同一套思想升到三维：多一个变量，就多一层积分，也多两套常用坐标（柱、球）。</p>
+</div><!--/EXPL:m10-s2-->
+
+<!--EXPL:m10-s3--><div class="explain" data-expl="m10-s3">
+<p>二重积分累积在"面"上，三重积分累积在"体"上。最直接的物理原型是<b>质量</b>：一块占有空间区域 <span class="fm">Ω</span> 的物体，体密度 <span class="fm">ρ(x, y, z)</span> 随点变化，总质量怎么求？把 <span class="fm">Ω</span> 切成 <span class="fm">n</span> 个小块，小块充分小时密度近似为常数，质量约等于 <span class="fm">ρ · ΔV</span>；加起来再取极限，就得到三重积分。</p>
+
+<h4 class="expl-h">一、定义</h4>
+<p>把 <span class="fm">Ω</span> 任意分成 <span class="fm">n</span> 个小区域 <span class="fm">ΔV<sub>1</sub>, …, ΔV<sub>n</sub></span>（同时表示体积），在第 <span class="fm">i</span> 块任取 <span class="fm">(ξ<sub>i</sub>, η<sub>i</sub>, ζ<sub>i</sub>)</span>，作和 <span class="fm">Σ<sub>i=1</sub><sup>n</sup> f(ξ<sub>i</sub>, η<sub>i</sub>, ζ<sub>i</sub>)ΔV<sub>i</sub></span>，令 <span class="fm">λ</span> 为各小块直径的最大者。若 <span class="lm">lim<span class="s">λ→0</span></span> 存在且与分法、取点无关，则称之为 <span class="fm">f</span> 在 <span class="fm">Ω</span> 上的<b>三重积分</b>：</p>
+<p><span class="fm"><span class="op">∭</span><sub>Ω</sub> f(x, y, z) dV = <span class="op">∭</span><sub>Ω</sub> f(x, y, z) dxdydz</span></p>
+<p><span class="fm">f</span> 在闭区域上连续即可积。取 <span class="fm">f ≡ 1</span> 得 <span class="fm"><span class="op">∭</span><sub>Ω</sub> dV = V</span>，即体积。</p>
+
+<h4 class="expl-h">二、直角坐标：两条路线</h4>
+<p><b>投影法（先 z 后 xy）</b>：把 <span class="fm">Ω</span> 投影到 <span class="fm">xOy</span> 面得 <span class="fm">D</span>，过 <span class="fm">D</span> 内每点作平行于 <span class="fm">z</span> 轴的直线，穿入点在下曲面 <span class="fm">z<sub>1</sub>(x, y)</span>、穿出点在上曲面 <span class="fm">z<sub>2</sub>(x, y)</span>，则</p>
+<p><span class="fm"><span class="op">∭</span><sub>Ω</sub> f dV = <span class="op">∬</span><sub>D</sub> dσ <span class="op">∫</span><sub>z1(x, y)</sub><sup>z2(x, y)</sup> f(x, y, z) dz</span></p>
+<p>适用条件：投影区域内每点的竖线与边界恰交两点。此时"先对 <span class="fm">z</span> 积"最省事，上下限就是两张曲面。</p>
+<p><b>截面法（先 xy 后 z）</b>：固定 <span class="fm">z</span>，用水平面去截 <span class="fm">Ω</span>，得截面 <span class="fm">D<sub>z</sub></span>；让 <span class="fm">z</span> 从 <span class="fm">c</span> 扫到 <span class="fm">d</span>，则</p>
+<p><span class="fm"><span class="op">∭</span><sub>Ω</sub> f dV = <span class="op">∫</span><sub>c</sub><sup>d</sup> dz <span class="op">∬</span><sub>D<sub>z</sub></sub> f(x, y, z) dσ</span></p>
+<p>若 <span class="fm">f</span> 只依赖 <span class="fm">z</span>，或截面 <span class="fm">D<sub>z</sub></span> 的面积 <span class="fm">S(z)</span> 好求（旋转体最典型），截面法一步到位：<span class="fm"><span class="op">∭</span> f(z) dV = <span class="op">∫</span><sub>c</sub><sup>d</sup> f(z)S(z) dz</span>。</p>
+
+<h4 class="expl-h">三、柱坐标与球坐标</h4>
+<p><b>柱坐标</b>：在 <span class="fm">xOy</span> 面上用极坐标、<span class="fm">z</span> 不变，<span class="fm">x = r cos θ, y = r sin θ, z = z</span>，体积元</p>
+<p><span class="fm">dV = r dr dθ dz</span></p>
+<p>竖向拉伸不改变"水平面积元 <span class="fm">r dr dθ</span>"，所以仍带 <span class="fm">r</span>。适用于圆柱、圆锥、旋转抛物面围成的区域。</p>
+<p><b>球坐标</b>：<span class="fm">x = ρ sin φ cos θ, y = ρ sin φ sin θ, z = ρ cos φ</span>，其中 <span class="fm">ρ</span> 是到原点的距离，<span class="fm">φ</span> 是<b>与 <span class="fm">z</span> 轴正方向的夹角</b>（<span class="fm">0 ≤ φ ≤ π</span>），<span class="fm">θ</span> 是与 <span class="fm">x</span> 轴正向的夹角（<span class="fm">0 ≤ θ ≤ 2π</span>）。体积元</p>
+<p><span class="fm">dV = ρ² sin φ dρ dφ dθ</span></p>
+<p>记忆法：取 <span class="fm">ρ</span> 到 <span class="fm">ρ + dρ</span> 的球壳、<span class="fm">φ</span> 到 <span class="fm">φ + dφ</span> 的锥面、<span class="fm">θ</span> 到 <span class="fm">θ + dθ</span> 的半平面，交出一个小"曲边长方体"，三边长为 <span class="fm">dρ</span>、<span class="fm">ρ dφ</span>、<span class="fm">ρ sin φ dθ</span>，相乘即得。<b>φ 是从 <span class="fm">z</span> 轴量起，不是从 <span class="fm">xOy</span> 面量起</b>，写错整题崩。</p>
+
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b>　计算 <span class="fm"><span class="op">∭</span><sub>Ω</sub> z dV</span>，<span class="fm">Ω</span> 由旋转抛物面 <span class="fm">z = x² + y²</span> 与平面 <span class="fm">z = 1</span> 围成。</p>
+<p class="expl-s"><b>解</b>　投影法。投影区域是交线所在的圆：<span class="fm">x² + y² ≤ 1</span>；竖线自 <span class="fm">z = x² + y²</span> 穿入、自 <span class="fm">z = 1</span> 穿出，故 <span class="fm">Ω: x² + y² ≤ 1, x² + y² ≤ z ≤ 1</span>。<br>用柱坐标：<span class="fm"><span class="op">∭</span> z dV = <span class="op">∫</span><sub>0</sub><sup>2π</sup> dθ <span class="op">∫</span><sub>0</sub><sup>1</sup> r dr <span class="op">∫</span><sub>r²</sub><sup>1</sup> z dz</span>。<br>里层：<span class="fm"><span class="op">∫</span><sub>r²</sub><sup>1</sup> z dz = <span class="fr"><span class="n">1</span><span class="d">2</span></span>(1 − r⁴)</span>。<br>中层：<span class="fm"><span class="fr"><span class="n">1</span><span class="d">2</span></span><span class="op">∫</span><sub>0</sub><sup>1</sup>(r − r⁵) dr = <span class="fr"><span class="n">1</span><span class="d">2</span></span>(<span class="fr"><span class="n">1</span><span class="d">2</span></span> − <span class="fr"><span class="n">1</span><span class="d">6</span></span>) = <span class="fr"><span class="n">1</span><span class="d">6</span></span></span>。外层乘 <span class="fm">2π</span> 得 <span class="fr"><span class="n">π</span><span class="d">3</span></span>。</p>
+<p class="expl-t">被积函数含 <span class="fm">x² + y²</span>、区域是旋转体 ⟹ 柱坐标；<span class="fm">dV</span> 里的 <span class="fm">r</span> 漏了，答案正好差一半。</p>
+</div>
+
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b>　计算 <span class="fm"><span class="op">∭</span><sub>Ω</sub> (x² + y² + z²) dV</span>，<span class="fm">Ω: x² + y² + z² ≤ 1</span>。</p>
+<p class="expl-s"><b>解</b>　球体 + 被积函数是 <span class="fm">ρ²</span> 型，用球坐标。区域：<span class="fm">0 ≤ ρ ≤ 1, 0 ≤ φ ≤ π, 0 ≤ θ ≤ 2π</span>；被积函数 <span class="fm">x² + y² + z² = ρ²</span>。<br>原式 <span class="fm">= <span class="op">∫</span><sub>0</sub><sup>2π</sup> dθ <span class="op">∫</span><sub>0</sub><sup>π</sup> sin φ dφ <span class="op">∫</span><sub>0</sub><sup>1</sup> ρ² · ρ² dρ</span>。<br>三个一元积分相乘：<span class="fm">2π · [−cos φ]<sub>0</sub><sup>π</sup> · <span class="fr"><span class="n">1</span><span class="d">5</span></span> = 2π · 2 · <span class="fr"><span class="n">1</span><span class="d">5</span></span> = <span class="fr"><span class="n">4π</span><span class="d">5</span></span></span>。</p>
+<p class="expl-t">球坐标下若三个变量的限互相独立、被积函数可分离，就拆成三个一元定积分相乘。</p>
+</div>
+
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b>　用截面法求 <span class="fm"><span class="op">∭</span><sub>Ω</sub> z dV</span>，<span class="fm">Ω</span> 为上半球体 <span class="fm">x² + y² + z² ≤ R², z ≥ 0</span>。</p>
+<p class="expl-s"><b>解</b>　固定 <span class="fm">z ∈ [0, R]</span>，水平截面是圆盘 <span class="fm">x² + y² ≤ R² − z²</span>，面积 <span class="fm">S(z) = π(R² − z²)</span>。<br>被积函数只含 <span class="fm">z</span>，故<br><span class="fm"><span class="op">∭</span><sub>Ω</sub> z dV = <span class="op">∫</span><sub>0</sub><sup>R</sup> z · π(R² − z²) dz = π(<span class="fr"><span class="n">R²z²</span><span class="d">2</span></span> − <span class="fr"><span class="n">z⁴</span><span class="d">4</span></span>)|<sub>0</sub><sup>R</sup> = <span class="fr"><span class="n">πR⁴</span><span class="d">4</span></span></span>。</p>
+<p class="expl-t">若用投影法，投影是圆盘 <span class="fm">x² + y² ≤ R²</span>、竖线自 <span class="fm">z = 0</span> 穿到 <span class="fm">z = √(R² − x² − y²)</span>，里层积完会出现根式，明显更难。</p>
+</div>
+
+<p><b>联系与套路</b>：整套内容的骨架是"<b>坐标变换 = 换元 + 乘雅可比</b>"。二重积分的 <span class="fm">r</span>、柱坐标的 <span class="fm">r</span>、球坐标的 <span class="fm">ρ² sin φ</span> 是同一件事在不同维数下的表现。下一节的应用公式都是"密度 × 微元"再积分，难点不在公式，而在<b>把微元写对</b>。</p>
+</div><!--/EXPL:m10-s3-->
+
+<!--EXPL:m10-s4--><div class="explain" data-expl="m10-s4">
+<p>重积分本身不是目的，它是把"按面积或体积分布的量"加总起来的工具。这一节列的五样东西——体积、质量、质心、转动惯量、曲面面积——都遵循同一个模板：</p>
+<p><span class="fm">总量 = <span class="op">∬</span><sub>D</sub>（面密度）dσ 或 <span class="op">∭</span><sub>Ω</sub>（体密度）dV</span></p>
+<p>所以真正要练的不是背公式，而是"给一个物理量，写出它的微元"。下面逐个说清每个量的微元是怎么来的。</p>
+
+<h4 class="expl-h">一、五个量的公式与来源</h4>
+<ul>
+<li><b>体积</b>：曲顶柱体，<span class="fm">V = <span class="op">∬</span><sub>D</sub> [z<sub>上</sub>(x, y) − z<sub>下</sub>(x, y)] dσ</span>。微元是"底面积 <span class="fm">dσ</span> × 高差"，高差就是同一竖线上两曲面的差。用三重积分时更省事：<span class="fm">V = <span class="op">∭</span><sub>Ω</sub> dV</span>。</li>
+<li><b>质量</b>：<span class="fm">m = <span class="op">∬</span><sub>D</sub> ρ(x, y) dσ</span>（薄片，<span class="fm">ρ</span> 为面密度）或 <span class="fm">m = <span class="op">∭</span><sub>Ω</sub> ρ(x, y, z) dV</span>（立体，<span class="fm">ρ</span> 为体密度）。微元就是"密度 × 微元体积"。</li>
+<li><b>质心</b>：由力矩平衡，<span class="fm">x̄ = <span class="fr"><span class="n">1</span><span class="d">m</span></span><span class="op">∭</span><sub>Ω</sub> xρ dV</span>，<span class="fm">ȳ = <span class="fr"><span class="n">1</span><span class="d">m</span></span><span class="op">∭</span><sub>Ω</sub> yρ dV</span>，<span class="fm">z̄ = <span class="fr"><span class="n">1</span><span class="d">m</span></span><span class="op">∭</span><sub>Ω</sub> zρ dV</span>。均匀物体（<span class="fm">ρ</span> 为常数）时 <span class="fm">ρ</span> 可约掉，只剩"体积重心"。<b>先看对称性</b>：均匀物体若有对称面，质心必在该面上，对应坐标直接为零。</li>
+<li><b>转动惯量</b>：绕 <span class="fm">z</span> 轴为 <span class="fm">I<sub>z</sub> = <span class="op">∬</span><sub>D</sub>(x² + y²)ρ dσ</span>（薄片）或 <span class="fm">I<sub>z</sub> = <span class="op">∭</span><sub>Ω</sub>(x² + y²)ρ dV</span>（立体）。关键是"点到轴的距离平方"：到 <span class="fm">z</span> 轴的距离是 <span class="fm">√(x² + y²)</span>；到 <span class="fm">x</span> 轴的是 <span class="fm">√(y² + z²)</span>；到 <span class="fm">y</span> 轴的是 <span class="fm">√(x² + z²)</span>。<b>别把"绕 z 轴"写成 <span class="fm">x² + z²</span></b>。</li>
+<li><b>曲面面积</b>：曲面 <span class="fm">z = z(x, y)</span> 在 <span class="fm">D</span> 上的部分，<span class="fm">A = <span class="op">∬</span><sub>D</sub> √(1 + z<sub>x</sub>² + z<sub>y</sub>²) dσ</span>。</li>
+</ul>
+<p>曲面面积公式值得推一遍：在 <span class="fm">(x, y)</span> 处取切平面，其法向量为 <span class="fm">(−z<sub>x</sub>, −z<sub>y</sub>, 1)</span>，单位法向量的第三分量为 <span class="fm">cos γ = 1/√(1 + z<sub>x</sub>² + z<sub>y</sub>²)</span>，其中 <span class="fm">γ</span> 是法向量与 <span class="fm">z</span> 轴的夹角。曲面微元 <span class="fm">dA</span> 投影到 <span class="fm">xOy</span> 面得 <span class="fm">dσ = dA · cos γ</span>，所以 <span class="fm">dA = dσ / cos γ = √(1 + z<sub>x</sub>² + z<sub>y</sub>²) dσ</span>。这就是"斜的面积等于投影除以夹角余弦"，完全类比平面几何里 <span class="fm">S<sub>投</sub> = S cos γ</span>。</p>
+
+<div class="expl-eg">
+<p class="expl-q"><b>例 1</b>　求旋转抛物面 <span class="fm">z = x² + y²</span> 在圆盘 <span class="fm">D: x² + y² ≤ 1</span> 上那部分的面积。</p>
+<p class="expl-s"><b>解</b>　z<sub>x</sub> = 2x，z<sub>y</sub> = 2y，故 <span class="fm">√(1 + z<sub>x</sub>² + z<sub>y</sub>²) = √(1 + 4x² + 4y²) = √(1 + 4r²)</span>。<br>换成极坐标（面积元记得带 <span class="fm">r</span>）：<br><span class="fm">A = <span class="op">∫</span><sub>0</sub><sup>2π</sup> dθ <span class="op">∫</span><sub>0</sub><sup>1</sup> √(1 + 4r²) · r dr = 2π · <span class="fr"><span class="n">1</span><span class="d">8</span></span> · <span class="fr"><span class="n">2</span><span class="d">3</span></span>(1 + 4r²)<sup>3/2</sup>|<sub>0</sub><sup>1</sup> = <span class="fr"><span class="n">π</span><span class="d">6</span></span>(5√5 − 1)</span>。</p>
+<p class="expl-t">若曲面方程给成 <span class="fm">x = x(y, z)</span> 或 <span class="fm">y = y(x, z)</span>，把公式里的变量轮换即可（如 <span class="fm">√(1 + x<sub>y</sub>² + x<sub>z</sub>²)</span>），投影面也要相应改。</p>
+</div>
+
+<div class="expl-eg">
+<p class="expl-q"><b>例 2</b>　求均匀上半球体 <span class="fm">x² + y² + z² ≤ R², z ≥ 0</span> 的质心。</p>
+<p class="expl-s"><b>解</b>　由关于 <span class="fm">yOz</span> 面、<span class="fm">zOx</span> 面的对称性，质心在 <span class="fm">z</span> 轴上，故 <span class="fm">x̄ = ȳ = 0</span>，只需算 <span class="fm">z̄</span>。<br>体积 <span class="fm">V = <span class="fr"><span class="n">2</span><span class="d">3</span></span>πR³</span>。分子用例 3（上一节）的截面法结果：<span class="fm"><span class="op">∭</span><sub>Ω</sub> z dV = <span class="fr"><span class="n">πR⁴</span><span class="d">4</span></span></span>。<br>于是 <span class="fm">z̄ = <span class="fr"><span class="n">πR⁴/4</span><span class="d">2πR³/3</span></span> = <span class="fr"><span class="n">3R</span><span class="d">8</span></span></span>。</p>
+<p class="expl-t">质心题先做对称性判断，能把三元降成一元；剩下的就是"分子一个三重积分 + 分母一个体积"，两者都算对即可。</p>
+</div>
+
+<div class="expl-eg">
+<p class="expl-q"><b>例 3</b>　求均匀圆盘 <span class="fm">x² + y² ≤ R²</span>（面密度为常数 <span class="fm">ρ</span>）绕 <span class="fm">z</span> 轴的转动惯量，以及与质量、半径的关系。</p>
+<p class="expl-s"><b>解</b>　绕 <span class="fm">z</span> 轴的距离平方是 <span class="fm">x² + y² = r²</span>，故<br><span class="fm">I<sub>z</sub> = <span class="op">∬</span><sub>D</sub>(x² + y²)ρ dσ = ρ<span class="op">∫</span><sub>0</sub><sup>2π</sup> dθ <span class="op">∫</span><sub>0</sub><sup>R</sup> r² · r dr = ρ · 2π · <span class="fr"><span class="n">R⁴</span><span class="d">4</span></span> = <span class="fr"><span class="n">1</span><span class="d">2</span></span>ρπR⁴</span>。<br>又质量 <span class="fm">m = ρπR²</span>，所以 <span class="fm">I<sub>z</sub> = <span class="fr"><span class="n">1</span><span class="d">2</span></span>mR²</span>，正是力学里熟知的圆盘公式，可作验算。</p>
+<p class="expl-t">算完转动惯量不妨用"<span class="fm">I = mk²</span>"的常见结论核对量纲与系数，<span class="fm">k</span> 是回转半径，量纲必为"质量 × 长度²"。</p>
+</div>
+
+<p><b>总结与提醒</b>：这一章的题，八成的时间花在"把区域写成正确的不等式"和"把微元写对"上，真正的积分运算反而机械。四条底线请记牢：极坐标的 <span class="fm">r</span>、球坐标的 <span class="fm">ρ² sin φ</span> 一个都不能漏；交换次序必重画区域；对称性要求区域与函数同时满足；转动惯量看的是"到轴的距离平方"。<b>与后续内容的联系</b>：本章的化重积分为累次积分，是下一章曲线积分、曲面积分里"参数化 + 定积分"的直接前身；而格林公式、高斯公式则把这里的"区域上的积分"与"边界上的积分"联系起来，届时回看本章的"区域描述"，会有更清楚的整体图景。</p>
+</div><!--/EXPL:m10-s4-->
