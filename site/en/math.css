@@ -347,3 +347,160 @@ figure.fig figcaption {
 /* 例题：遮住解答时把「解」和「点评」一起糊掉 */
 .eg .eg-h .chip { margin-left: auto; }
 .eg.veiled .eg-s, .eg.veiled .eg-t { filter: blur(5px); pointer-events: none; user-select: none; }
+
+/* ---------------------------------------------------------- 章首图解
+   每章开头先把「这一章在讲什么」画出来：一张坐标系 + 关键曲线 + 标注，
+   比一段文字更快建立直觉。SVG 是手写的，颜色写死成中性色，深浅色都能看。 */
+.fig-intro {
+  margin: 18px 0 12px;
+  padding: 11px 15px;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 9px 9px 0;
+  background: rgb(var(--accent-rgb) / .07);
+  font-size: 13.7px;
+  line-height: 1.95;
+  color: var(--kpt-ink);
+}
+.fig-intro b { color: var(--kpt-label); }
+figure.fig + figure.fig { margin-top: 12px; }
+figure.fig figcaption b {
+  color: var(--ink-2);
+  font-weight: 650;
+  margin-right: 5px;
+}
+figure.fig .figt {
+  font-family: var(--sans);
+  font-size: 12px;
+  fill: #8fa3bd;
+}
+/* SVG 是手写的、颜色写死在属性里；这里用属性选择器把几种固定色映射回主题变量，
+   浅色下不再是一堆灰白字贴在白卡片上（CSS 属性优先于 presentation attribute）。 */
+figure.fig .figsvg text { font-family: var(--sans); }
+figure.fig .figsvg text[fill="#8fa3bd"] { fill: var(--ink-3); }
+figure.fig .figsvg text[fill="#9aa8bd"] { fill: var(--ink-4); }
+figure.fig .figsvg text[fill="#e0a03c"] { fill: rgb(var(--warn-rgb)); }
+figure.fig .figsvg text[fill="#5b8def"] { fill: var(--accent); }
+figure.fig .figsvg path[stroke="#9aa8bd"],
+figure.fig .figsvg line[stroke="#9aa8bd"] { stroke: var(--line-2); }
+figure.fig .figsvg path[fill="#9aa8bd"] { fill: var(--ink-4); }
+figure.fig .figsvg path[stroke="#5b8def"] { stroke: var(--accent); }
+figure.fig .figsvg path[stroke="#e0a03c"] { stroke: rgb(var(--warn-rgb)); }
+figure.fig .figsvg ellipse[stroke="#e0a03c"],
+figure.fig .figsvg circle[stroke="#e0a03c"] { stroke: rgb(var(--warn-rgb)); }
+figure.fig .figsvg rect[stroke="#9aa8bd"] { stroke: var(--line-2); }
+
+/* ---------------------------------------------------------- 节末练习（折叠答案）
+   每一节的知识点后面跟 1–2 道题：题面直接显示，答案是 <details>，
+   点开才出现。这样「先自己做，再对答案」是默认动作，而不是可选项。 */
+.exset {
+  margin: -6px 0 26px;
+  display: grid;
+  gap: 10px;
+}
+.ex {
+  padding: 12px 15px 13px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-2);
+}
+.ex-h {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.1px;
+  color: var(--ink-4);
+}
+.ex-n {
+  padding: 1px 8px;
+  border-radius: 6px;
+  background: rgb(var(--accent-rgb) / .14);
+  border: 1px solid rgb(var(--accent-rgb) / .3);
+  color: var(--accent);
+  font: 600 11.2px/1.7 var(--mono);
+  white-space: nowrap;
+}
+.ex-q {
+  margin: 7px 0 0;
+  font-size: 14px;
+  line-height: 1.95;
+  color: var(--kpt-label);
+}
+details.ex-a {
+  margin-top: 9px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--line);
+}
+details.ex-a > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  list-style: none;
+  font-size: 12.4px;
+  font-weight: 600;
+  color: var(--accent);
+  user-select: none;
+}
+details.ex-a > summary::-webkit-details-marker,
+details.ex-a > summary::marker { display: none; content: ""; }
+details.ex-a > summary::before {
+  content: "＋";
+  font: 700 12px/1 var(--mono);
+}
+details.ex-a[open] > summary::before { content: "－"; }
+details.ex-a > summary:hover { color: var(--kpt-label); }
+.ex-a-body {
+  margin-top: 9px;
+  padding: 11px 14px;
+  border: 1px solid rgb(var(--accent-rgb) / .18);
+  border-radius: 8px;
+  background: rgb(var(--accent-rgb) / .06);
+  font-size: 13.7px;
+  line-height: 2;
+  color: var(--kpt-ink);
+}
+.ex-a-body > p { margin: 0 0 7px; }
+.ex-a-body > p:last-child { margin-bottom: 0; }
+.ex-a-body b { color: var(--kpt-label); }
+.ex-a-body .ex-t {
+  margin-top: 7px;
+  padding-top: 7px;
+  border-top: 1px dashed var(--line);
+  font-size: 12.5px;
+  line-height: 1.85;
+  color: var(--ink-3);
+}
+.ex-a-body .ex-t::before {
+  content: "提示";
+  display: inline-block;
+  margin-right: 6px;
+  padding: 0 6px;
+  border-radius: 5px;
+  background: rgb(var(--warn-rgb) / .14);
+  color: rgb(var(--warn-rgb));
+  font-size: 11.4px;
+}
+
+/* 打印时把答案摊开，纸面上「自己盖住」没有意义 */
+@media print {
+  details.ex-a > .ex-a-body { display: block !important; }
+}
+
+/* 练习里的公式：显式跟随主题 ------------------------------------------------
+   .fm/.fr 是页面自造的公式排版，题干里嵌套的分数只继承，不自己定色；
+   这里补一条高优先级声明，保证深浅两套主题下都跟着练习卡片的文字色走。 */
+.exset .ex-q,
+.exset .ex-q .fm,
+.exset .ex-q .fm .fr,
+.exset .ex-q .fm .fr > .n,
+.exset .ex-q .fm .fr > .d,
+.exset .ex-q .fm .lm,
+.exset .ex-q .fm .lm > .s,
+.exset .ex-a-body .fm,
+.exset .ex-a-body .fm .fr,
+.exset .ex-a-body .fm .fr > .n,
+.exset .ex-a-body .fm .fr > .d {
+  color: inherit;
+}
+.exset .ex-q { color: var(--kpt-label); }
+.exset .ex-a-body { color: var(--kpt-ink); }

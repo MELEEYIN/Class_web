@@ -823,3 +823,20 @@ html[data-wall="custom"] body::before { opacity: .16; }
    底色仍由 .brand-mark 的渐变 + 高光负责，里面换成矢量书本，比一个字更耐看 */
 .brand-mark.is-mark { font-size: 0; color: #fff; }
 .brand-mark.is-mark svg { width: 22px; height: 22px; display: block; }
+
+/* ---------------------------------------------------------- 18. 返回主页
+   从 leeyin.xyz 点进来的页面要能一眼回主站，不逼用户按浏览器后退。 */
+.top-btn.home-btn {
+  color: var(--ink-2);
+  border-color: rgba(var(--accent-rgb) / .28);
+  background: rgba(var(--accent-rgb) / .07);
+}
+.top-btn.home-btn:hover {
+  color: var(--accent);
+  background: rgba(var(--accent-rgb) / .13);
+}
+.top-btn.home-btn svg { width: 14px; height: 14px; }
+@media (max-width: 720px) {
+  .top-btn.home-btn { width: auto; padding: 0 9px; }
+  .top-btn.home-btn .tl { display: inline; font-size: 12px; }
+}

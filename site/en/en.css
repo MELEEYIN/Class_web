@@ -491,3 +491,10 @@ details.ans .k{color:rgb(var(--ok-rgb));font-weight:650}
   font-size:12px;font-weight:700;margin-bottom:6px}
 .step b{display:block;font-size:13.8px;margin-bottom:3px}
 .step span{font-size:12.4px;color:var(--text-3);line-height:1.7}
+
+/* ---- 顶栏「返回主页」：旧版册页（b2~b4）用的轻量版 ---- */
+.en-home{display:flex;align-items:center;gap:8px;margin:0 0 12px;
+  font-size:12.6px;color:var(--text-3)}
+.en-home a{color:var(--accent);text-decoration:none;font-weight:600}
+.en-home a:hover{text-decoration:underline}
+.en-home .sep{color:var(--line)}
