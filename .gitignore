@@ -43,3 +43,29 @@ hexo/blog/.deploy_git/
 /map/
 
 .preview-files/
+
+# ——— DSH 会话产物 ———
+# DSH 上传目录：微信图片、导出的课表 HTML、anime 备份 JSON 等，可能含个人信息
+.dsh-uploads/
+
+# ——— 抓课表 / 本机脚本的浏览器配置目录（含登录 cookie，绝对不能入库）———
+# 旧版工具写过 browser-profile/，历史上只忽略了 .timetable-exports/，两条都留着
+browser-profile/
+.timetable-exports/browser-profile/
+
+# ——— 站点内容生成器的中间产物与一次性草稿（可重新生成的都不入库）———
+# 生成器脚本本身（.gen_*.py / .verify_*.py）请放 tools/acm/ 入库，不要在这里忽略
+.*_frag.html
+.*_outline.txt
+*.orig.md
+
+# ——— 与本仓库无关的本机脚本 / 文档草稿 ———
+# 想纳管就单独开分支或另建仓库，别混进站点的特性提交
+AMD-TuningLock/
+amd-efficiency-doc/
+
+# ——— anime 站点的导入备份（含个人评分数据，不入库）———
+anime-import-bg.json
+
+# 本地临时目录：DOM dump、headless 截图、浏览器 profile、临时验证页
+tmp/

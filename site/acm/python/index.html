@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light" data-mode="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Python 语法教程（编程学习站 · Python 区入口）：从第一个程序到能自己写小工具，每章一个小目标、一段能跑起来的代码，零基础可读。">
+<meta name="theme-color" content="#2563eb">
+<meta name="color-scheme" content="light dark">
+<title>Python 语法教程 · 编程学习</title>
+<script src="../../js/boot.js"></script>
+<script>try{var _t=document.documentElement.getAttribute('data-theme')||'light';document.documentElement.setAttribute('data-mode',_t);}catch(e){}</script>
+<link rel="stylesheet" href="../acm.css">
+<link rel="stylesheet" href="../learn.css">
+</head>
+<body>
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;overflow:hidden">
+  <symbol id="i-graduation" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8.6 12 4.2l9.5 4.4L12 13 2.5 8.6Z"/><path d="M6.2 10.9V16c0 1.4 2.6 2.6 5.8 2.6s5.8-1.2 5.8-2.6v-5.1"/><path d="M21.5 9.4v5.2"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.6 12 3.8l8.5 6.8V20a1 1 0 0 1-1 1h-4.2v-6.2H8.7V21H4.5a1 1 0 0 1-1-1z"/></symbol>
+</svg>
+
+<header class="acm-nav" id="acmNav">
+  <div class="acm-wrap acm-nav-inner">
+    <a class="acm-brand" href="../index.html" title="回到编程学习首页">
+      <span class="acm-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-graduation"/></svg></span>
+      <span class="acm-brand-text"><strong>编程学习</strong><small>C++ · Python</small></span>
+    </a>
+    <nav class="acm-tabs" aria-label="编程学习站页面">
+      <a href="../index.html">首页</a>
+      <a href="../study.html">C++ 资料</a>
+      <a href="../practice.html">C++ 题练场</a>
+      <a href="./index.html" class="on" aria-current="page">Python</a>
+    </nav>
+    <div class="acm-nav-actions">
+      <button class="acm-btn acm-btn-icon" type="button" id="themeBtn" title="切换深色 / 浅色（全站共用）" aria-label="切换深色或浅色主题">
+        <svg class="ico" aria-hidden="true" id="themeIco"><use href="#i-moon"/></svg>
+      </button>
+      <a class="acm-btn" href="../../index.html" title="返回校园主页">
+        <svg class="ico" aria-hidden="true"><use href="#i-home"/></svg><span class="label">回主页</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<div class="learn-layout two-col">
+
+  <!-- 窄屏：分类导航折叠进一个 <details> -->
+  <details class="learn-mobnav">
+    <summary>站点导航 · C++ / Python</summary>
+    <div data-learn-sidebar data-compact="1"></div>
+  </details>
+
+  <aside class="learn-aside">
+    <div data-learn-sidebar></div>
+  </aside>
+
+  <main class="learn-main">
+
+    <div data-learn-crumb></div>
+
+    <header class="learn-head">
+      <h1>Python 语法教程</h1>
+      <p class="lead">从「装好 Python、打印第一行字」一路走到能自己写小工具。每章一个小目标、几段能直接跑起来的代码，配上常见报错对照——<b>零基础按顺序读就行</b>，学完再回头看 C++ 的算法内容会轻松很多。</p>
+      <div class="learn-meta">
+        <span class="learn-chip py">Python 3</span>
+        <span class="learn-chip"><span data-learn-count>—</span> 章 · 每章 20–30 分钟</span>
+        <span class="learn-chip">零基础</span>
+        <span class="learn-chip">每章都有可运行代码</span>
+      </div>
+
+      <div data-learn-cta></div>
+      <div data-learn-recent></div>
+
+      <div class="learn-progbox" data-learn-progress></div>
+    </header>
+
+    <h2 style="font-size:17px;margin:30px 0 6px;padding-left:11px;border-left:4px solid var(--accent)">章节目录</h2>
+    <p style="font-size:13px;color:var(--text-3);margin:0 0 12px">绿框表示已经读过；读过的章节会自动打勾，浏览器关掉也不会丢。</p>
+    <input class="learn-filter" type="search" data-learn-filter autocomplete="off"
+      placeholder="过滤章节：输入「字典」「循环」「文件」…">
+    <div data-learn-grid></div>
+
+    <section data-learn-content style="max-width:none;margin-top:34px">
+      <h2>这份教程怎么用</h2>
+      <ul>
+        <li><b>按顺序读，别跳。</b>后面章节默认你会前面那些语法，跳着看容易卡在「这个符号是什么意思」。</li>
+        <li><b>每段代码都自己敲一遍。</b>复制粘贴跑通 ≠ 学会了；手敲能立刻暴露拼写和缩进问题。</li>
+        <li><b>卡住先看报错最后一行。</b>Python 的报错信息写得比大多数语言都清楚，最后一行就是出错原因。</li>
+        <li><b>每章末尾的自测题做完再走。</b>做不出来就回看对应小节，比继续往下读省时间。</li>
+      </ul>
+
+      <h2>和 C++ 算法那边怎么配合</h2>
+      <p>两边的定位不一样，别互相替代：</p>
+      <div class="table-wrap">
+      <table>
+        <thead><tr><th>想做的事</th><th>该去哪儿</th></tr></thead>
+        <tbody>
+          <tr><td>第一次学编程，或者被打字速度、语法细节卡住</td><td>就在这儿，点上面「开始学习」，或用下面的章节目录从头读</td></tr>
+          <tr><td>想知道算法怎么想、模板怎么写</td><td><a href="../study.html">C++ 资料</a>（学习手册 + 学习计划）</td></tr>
+          <tr><td>想动手做题、要能本地自测</td><td><a href="../practice.html">C++ 题练场</a>（123 道洛谷真题，每题另带 Python 参考题解）</td></tr>
+          <tr><td>想用 Python 写同一道题对比性能</td><td>见「用 Python 写算法」一章（写作中，上线后自动出现在上面的目录里）</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="note">
+        <p>本站是纯静态页面，<b>不需要注册、不需要联网跑代码</b>。练习请在本地装好 Python 之后自己跑；
+           每一章的代码块右上角有「复制」按钮，粘进编辑器即可。</p>
+      </div>
+    </section>
+
+    <div data-learn-pager></div>
+
+    <footer class="acm-footer" style="margin-top:34px;border-radius:14px;padding:20px 22px">
+      <div class="acm-footer-inner">
+        <div>
+          <p><b>Python 语法教程</b> · 编程学习站的一部分。</p>
+          <p class="acm-tiny">配色与深浅色跟随<a href="../../index.html">校园主页</a>；右侧顶部按钮可切换，手机上也一样。</p>
+        </div>
+        <div class="acm-footer-links">
+          <a href="../index.html">编程学习首页</a>
+          <a href="../study.html">C++ 资料</a>
+          <a href="../practice.html">C++ 题练场</a>
+          <a href="../../index.html">校园主页</a>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+</div>
+
+<script src="../../js/learn-nav.js"></script>
+<script src="../../js/learn-shell.js"></script>
+<script>
+/* 顶部导航滚动态 + 主题切换（与 C++ 两个页面同一套逻辑，写在这里省一次外部请求） */
+(function () {
+  'use strict';
+  var root = document.documentElement, nav = document.getElementById('acmNav');
+  if (nav) {
+    var onScroll = function () { nav.classList.toggle('stuck', (window.scrollY || 0) > 8); };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+  var ico = document.querySelector('#themeIco use');
+  function paint() {
+    if (ico) { ico.setAttribute('href', root.getAttribute('data-theme') === 'dark' ? '#i-sun' : '#i-moon'); }
+  }
+  paint();
+  var btn = document.getElementById('themeBtn');
+  if (btn) {
+    btn.addEventListener('click', function () {
+      var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      root.setAttribute('data-mode', next);
+      try { localStorage.setItem('cw.theme', JSON.stringify(next)); } catch (e) { }
+      paint();
+    });
+  }
+})();
+</script>
+</body>
+</html>

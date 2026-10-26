@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light" data-mode="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="for 循环只做三件事——iter(obj) 拿到迭代器、反复 next()、捕获 StopIteration 收工。可迭代对象是&quot;能交出一个迭代器&quot;的东西（有 __iter__），迭代器是&quot;记得自己走到哪&quot;的东西（有 __iter__ 和 __next__）。生成器则是编译器帮你写好的迭代器：函数体里出现 yield，这个函数就从&quot;一次算完&quot;变成&quot;一次算一点&quot;的状态机。">
+<meta name="theme-color" content="#2563eb">
+<meta name="color-scheme" content="light dark">
+<title>第 15 章 · 迭代器与生成器 · Python 语法教程 · 编程学习</title>
+<script src="../../js/boot.js"></script>
+<script>try{var _t=document.documentElement.getAttribute('data-theme')||'light';document.documentElement.setAttribute('data-mode',_t);}catch(e){}</script>
+<link rel="stylesheet" href="../acm.css">
+<link rel="stylesheet" href="../learn.css">
+<link rel="stylesheet" href="../learn-code.css">
+</head>
+<body data-learn-page="py-15">
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;overflow:hidden">
+  <symbol id="i-graduation" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8.6 12 4.2l9.5 4.4L12 13 2.5 8.6Z"/><path d="M6.2 10.9V16c0 1.4 2.6 2.6 5.8 2.6s5.8-1.2 5.8-2.6v-5.1"/><path d="M21.5 9.4v5.2"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.6 12 3.8l8.5 6.8V20a1 1 0 0 1-1 1h-4.2v-6.2H8.7V21H4.5a1 1 0 0 1-1-1z"/></symbol>
+</svg>
+
+<header class="acm-nav" id="acmNav">
+  <div class="acm-wrap acm-nav-inner">
+    <a class="acm-brand" href="../index.html" title="回到编程学习首页">
+      <span class="acm-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-graduation"/></svg></span>
+      <span class="acm-brand-text"><strong>编程学习</strong><small>C++ · Python</small></span>
+    </a>
+    <nav class="acm-tabs" aria-label="编程学习站页面">
+      <a href="../index.html">首页</a>
+      <a href="../study.html">C++ 资料</a>
+      <a href="../practice.html">C++ 题练场</a>
+      <a href="./index.html" class="on" aria-current="page">Python</a>
+    </nav>
+    <div class="acm-nav-actions">
+      <button class="acm-btn acm-btn-icon" type="button" id="themeBtn" title="切换深色 / 浅色（全站共用）" aria-label="切换深色或浅色主题">
+        <svg class="ico" aria-hidden="true" id="themeIco"><use href="#i-moon"/></svg>
+      </button>
+      <a class="acm-btn" href="../../index.html" title="返回校园主页">
+        <svg class="ico" aria-hidden="true"><use href="#i-home"/></svg><span class="label">回主页</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<div class="learn-layout">
+
+  <!-- 窄屏（≤900px）：侧栏换成顶部折叠块 -->
+  <details class="learn-mobnav">
+    <summary>站点导航 · C++ / Python</summary>
+    <div data-learn-sidebar data-compact="1"></div>
+  </details>
+
+  <aside class="learn-aside"><div data-learn-sidebar></div></aside>
+
+  <main class="learn-main">
+
+    <div data-learn-crumb></div>
+
+    <header class="learn-head">
+      <h1 id="learnTitle">第 15 章 · 迭代器与生成器</h1>
+      <p class="lead"><code>for</code> 循环只做三件事——<code>iter(obj)</code> 拿到迭代器、反复 <code>next()</code>、捕获 <code>StopIteration</code> 收工。<strong>可迭代对象</strong>是"能交出一个迭代器"的东西（有 <code>__iter__</code>），<strong>迭代器</strong>是"记得自己走到哪"的东西（有 <code>__iter__</code> 和 <code>__next__</code>）。生成器则是编译器帮你写好的迭代器：函数体里出现 <code>yield</code>，这个函数就从"一次算完"变成"一次算一点"的状态机。</p>
+      <div class="learn-meta">
+        <span class="learn-chip py">Python 3</span>
+        <button class="learn-mark" type="button" data-learn-mark>标记为已读</button>
+      </div>
+    </header>
+
+    <!-- 窄屏（≤1180px）：右侧目录换到正文上面的折叠块 -->
+    <details class="learn-mobtoc" open>
+      <summary>本页目录</summary>
+      <div data-learn-toc></div>
+    </details>
+
+    <!-- ==================== 正文：只改这里 ==================== -->
+    <article data-learn-content>
+
+<p><strong>读完这一章你能做到</strong></p>
+
+<ul><li>手写 <code>__iter__</code>/<code>__next__</code> 实现自己的迭代器；</li><li>说清"可迭代对象"与"迭代器"的区别，以及为什么列表能反复遍历、生成器不能；</li><li>用 <code>yield</code> 写生成器，用 <code>send</code> 双向通信、用 <code>yield from</code> 委托；</li><li>用生成器表达式与 <code>itertools</code> 搭出 O(1) 内存的流水线；</li><li>认出"边遍历边修改""迭代器被提前耗尽"这两类高频 bug。</li></ul>
+
+<hr>
+
+<h2 id="s15-1">15.1 <code>for</code> 的三步展开</h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch15_01_iterate.py</code></figcaption><pre class="py"><code>"""ch15_01_iterate.py —— for 的展开与 iter/next"""
+items = [10, 20, 30]
+it = iter(items)
+print("iter(list) 的类型：", type(it).__name__)
+print(next(it), next(it), next(it))
+try:
+    next(it)
+except StopIteration as e:
+    print("StopIteration:", repr(e))
+
+print("=== 可迭代对象 vs 迭代器 ===")
+print("list 有 __iter__：", hasattr(items, "__iter__"))
+print("list 自己有 __next__ 吗：", hasattr(items, "__next__"))
+print("iter(list) 有 __next__：", hasattr(it, "__next__"))
+print("迭代器上 iter() 返回自己：", iter(it) is it)
+
+print("=== 迭代器是一次性的 ===")
+gen = (x * 2 for x in range(3))
+print("第一次 list：", list(gen))
+print("第二次 list：", list(gen))
+print("列表可以反复迭代：", list(items), list(items))
+
+print("=== for 的等价展开 ===")
+it2 = iter(items)
+total = 0
+while True:
+    try:
+        total += next(it2)
+    except StopIteration:
+        break
+print("while 循环求和：", total, "| sum()：", sum(items))
+
+print("=== 自己实现一个迭代器类 ===")
+
+
+class Countdown:
+    def __init__(self, start):
+        self.n = start
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.n &lt;= 0:
+            raise StopIteration
+        self.n -= 1
+        return self.n + 1
+
+
+print("解包进列表：", [*Countdown(3)])
+c = Countdown(2)
+print("第一遍：", list(c))
+print("第二遍（已被耗尽）：", list(c))
+
+print("=== 可变的迭代器：用 while 边改边迭代会很危险 ===")
+nums = [1, 2, 3, 4]
+for n in nums:
+    if n == 2:
+        nums.remove(n)
+print("边遍历边删的结果：", nums)
+
+print("=== 安全做法：先拷贝或反向遍历 ===")
+nums2 = [1, 2, 3, 4]
+for n in nums2[:]:
+    if n == 2:
+        nums2.remove(n)
+print("遍历副本：", nums2)
+
+print("=== enumerate / zip 返回的都是迭代器 ===")
+e = enumerate("ab")
+print(type(e).__name__, list(e), list(e))
+z = zip([1, 2], "ab")
+print(next(z), list(z))</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>iter(list) 的类型： list_iterator
+10 20 30
+StopIteration: StopIteration()
+=== 可迭代对象 vs 迭代器 ===
+list 有 __iter__： True
+list 自己有 __next__ 吗： False
+iter(list) 有 __next__： True
+迭代器上 iter() 返回自己： True
+=== 迭代器是一次性的 ===
+第一次 list： [0, 2, 4]
+第二次 list： []
+列表可以反复迭代： [10, 20, 30] [10, 20, 30]
+=== for 的等价展开 ===
+while 循环求和： 60 | sum()： 60
+=== 自己实现一个迭代器类 ===
+解包进列表： [3, 2, 1]
+第一遍： [2, 1]
+第二遍（已被耗尽）： []
+=== 可变的迭代器：用 while 边改边迭代会很危险 ===
+边遍历边删的结果： [1, 3, 4]
+=== 安全做法：先拷贝或反向遍历 ===
+遍历副本： [1, 3, 4]
+=== enumerate / zip 返回的都是迭代器 ===
+enumerate [(0, 'a'), (1, 'b')] []
+(1, 'a') [(2, 'b')]</code></pre></div></figure>
+
+<p><code>for</code> 的等价展开就是示例里那段 <code>while</code>：</p>
+
+<pre class="out"><code>_it = iter(obj)              # ① 要一个迭代器
+while True:
+    try:
+        x = next(_it)        # ② 一个一个取
+    except StopIteration:    # ③ 取完了就退出
+        break
+    ...循环体...</code></pre>
+
+<p>由此可以推出几条实用结论：</p>
+
+<ol><li><strong><code>for</code> 不要求有索引</strong>。任何交出迭代器的对象都能被遍历——文件对象、生成器、<code>dict</code> 的键、<code>re.finditer</code> 的结果都一样。这就是 Python 的"鸭子类型迭代协议"。</li><li><strong>迭代器遍历到一半就是"半耗尽"状态</strong>，继续 <code>for</code> 会从断点接着走，而不是从头。示例里 <code>list(e)</code> 第二次是 <code>[]</code>，因为 <code>e</code> 已经走到底了。</li><li><strong><code>list</code>、<code>tuple</code>、<code>dict</code>、<code>str</code> 是可迭代对象但不是迭代器</strong>：它们没有 <code>__next__</code>，每次都 <code>iter()</code> 出一个新的迭代器，所以能反复遍历。而生成器、<code>enumerate</code>、<code>zip</code>、<code>map</code>、<code>filter</code>、文件对象<strong>本身就是迭代器</strong>，因此一次性。</li></ol>
+
+<p><code>[*Countdown(3)]</code> 是"可迭代解包"——<code>[*x]</code> 等价于 <code>list(x)</code>，<code>*</code> 后跟任何可迭代对象都行。第二遍 <code>list(c)</code> 为空，正说明 <code>Countdown</code> 实例自己就是迭代器。</p>
+
+<p><strong>边遍历边删</strong>是另一类经典 bug：<code>for n in nums</code> 背后是一个按索引推进的列表迭代器，<code>remove</code> 让列表变短、后面的元素整体前移，迭代器却已经走到下一个位置，于是 <code>3</code> 被跳过。结果 <code>[1, 3, 4]</code> 里的 <code>3</code> 还在。修法有两种：遍历副本 <code>nums2[:]</code>，或用推导式重建 <code>nums2 = [n for n in nums2 if n != 2]</code>（后者更符合 Python 习惯）。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; it = iter([1, 2])
+&gt;&gt;&gt; next(it)
+1
+&gt;&gt;&gt; try:
+...     while True:
+...         _ = next(it)
+... except StopIteration:
+...     print("取完了")
+取完了
+&gt;&gt;&gt; list(iter("abc"))
+['a', 'b', 'c']</code></pre>
+
+<hr>
+
+<h2 id="s15-2">15.2 生成器：<code>yield</code> 就是"暂停点"</h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch15_02_generators.py</code></figcaption><pre class="py"><code>"""ch15_02_generators.py —— yield 把函数变成状态机"""
+
+
+def counter(n):
+    print("  [生成器启动]")
+    i = 0
+    while i &lt; n:
+        yield i
+        i += 1
+    print("  [生成器走到结尾]")
+
+
+c = counter(3)
+print("调用生成器函数后拿到：", type(c).__name__)
+print("此时函数体执行了吗？看下面有没有打印")
+print("next 一次：", next(c))
+print("next 两次：", next(c))
+for v in c:
+    print("for 接着拿到：", v)
+try:
+    next(c)
+except StopIteration:
+    print("耗尽后再 next：StopIteration")
+
+print("=== 惰性：只处理被取走的那部分 ===")
+
+
+def read_rows(rows):
+    for r in rows:
+        print("  真正读取：", r)
+        yield r
+
+
+rows = ["第1行", "第2行", "第3行"]
+pipeline = (r for r in read_rows(rows) if r != "第2行")
+print("只取一个：", next(pipeline))
+print("再取一个：", next(pipeline))
+
+print("=== send：把值送回生成器内部 ===")
+
+
+def accumulator():
+    total = 0
+    while True:
+        x = yield total
+        if x is None:
+            return total
+        total += x
+
+
+acc = accumulator()
+print("预激得到初始值：", next(acc))
+print("send(10)：", acc.send(10))
+print("send(5)：", acc.send(5))
+try:
+    acc.send(None)
+except StopIteration as e:
+    print("结束时的 return 值放在 StopIteration.value：", e.value)
+
+print("=== yield from：把子生成器整段委托出去 ===")
+
+
+def inner():
+    yield 1
+    yield 2
+    return "inner 的返回值"
+
+
+def outer():
+    result = yield from inner()
+    print("  外层拿到了子生成器的 return：", result)
+    yield 3
+
+
+print(list(outer()))
+
+print("=== 生成器表达式 vs 列表推导式 ===")
+squares_list = [x * x for x in range(4)]
+squares_gen = (x * x for x in range(4))
+print("列表：", squares_list, "| 类型：", type(squares_list).__name__)
+print("生成器求和：", sum(squares_gen), "| 类型：", type(squares_gen).__name__)
+
+print("=== 无限生成器 + 手写 take ===")
+
+
+def naturals():
+    n = 0
+    while True:
+        yield n
+        n += 1
+
+
+def take(it, k):
+    out = []
+    for _, v in zip(range(k), it):
+        out.append(v)
+    return out
+
+
+print(take(naturals(), 5))
+print(take((x * x for x in naturals()), 5))</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>调用生成器函数后拿到： generator
+此时函数体执行了吗？看下面有没有打印
+  [生成器启动]
+next 一次： 0
+next 两次： 1
+for 接着拿到： 2
+  [生成器走到结尾]
+耗尽后再 next：StopIteration
+=== 惰性：只处理被取走的那部分 ===
+  真正读取： 第1行
+只取一个： 第1行
+  真正读取： 第2行
+  真正读取： 第3行
+再取一个： 第3行
+=== send：把值送回生成器内部 ===
+预激得到初始值： 0
+send(10)： 10
+send(5)： 15
+结束时的 return 值放在 StopIteration.value： 15
+=== yield from：把子生成器整段委托出去 ===
+  外层拿到了子生成器的 return： inner 的返回值
+[1, 2, 3]
+=== 生成器表达式 vs 列表推导式 ===
+列表： [0, 1, 4, 9] | 类型： list
+生成器求和： 14 | 类型： generator
+=== 无限生成器 + 手写 take ===
+[0, 1, 2, 3, 4]
+[0, 1, 4, 9, 16]</code></pre></div></figure>
+
+<p>生成器的执行模型与普通函数完全不同：</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>阶段</th>
+<th>普通函数</th>
+<th>生成器函数</th>
+</tr></thead>
+<tbody>
+<tr><td>调用 <code>counter(3)</code></td><td>立即执行函数体</td><td><strong>什么都不做</strong>，只创建生成器对象</td></tr>
+<tr><td>第一次 <code>next()</code></td><td>已经算完了</td><td>从头执行到第一个 <code>yield</code>，吐出值并<strong>挂起</strong></td></tr>
+<tr><td>再次 <code>next()</code></td><td>无</td><td>从挂起处<strong>继续</strong>，局部变量全部保留</td></tr>
+<tr><td>走到结尾</td><td>返回值</td><td>抛 <code>StopIteration</code>（<code>return x</code> 把 <code>x</code> 放进 <code>e.value</code>）</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>关键点是"<strong>挂起时局部变量不销毁</strong>"。示例里 <code>i</code>、<code>n</code> 在两次 <code>next</code> 之间一直活着，这就是"状态机"的物理含义——不需要类、不需要保存中间状态的字段。</p>
+
+<p><code>send</code> 让通道变成双向：<code>x = yield total</code> 中，<code>total</code> 是<strong>吐出去</strong>的值，<code>x</code> 是<strong>送进来</strong>的值。注意必须先 <code>next(acc)</code> 或 <code>acc.send(None)</code> 把生成器"预激"到第一个 <code>yield</code>，否则 <code>TypeError: can't send non-None value to a just-started generator</code>。</p>
+
+<p><code>yield from inner()</code> 把整个子生成器的迭代权交出去，并且能拿到子生成器的 <code>return</code> 值——这是协程（<code>asyncio</code>）的语法基础，22 章会再利用它。</p>
+
+<p>惰性有多实在？<code>pipeline</code> 只取两行时，<code>read_rows</code> 里的"真正读取"也只打印了两次。对于 10 GB 的日志文件，这意味着<strong>内存里永远只有正在处理的那一行</strong>。</p>
+
+<div class="box tip"><p>生成器表达式写成函数调用的唯一实参时，括号可省：<code>sum(x*x for x in data)</code>。写成 <code>sum((x*x for x in data))</code> 也没错，只是多余。</p></div>
+
+<hr>
+
+<h2 id="s15-3">15.3 <code>itertools</code>：把流水线拼起来</h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch15_03_itertools.py</code></figcaption><pre class="py"><code>"""ch15_03_itertools.py —— itertools 与生成器流水线"""
+import itertools
+
+print("=== 无限迭代器必须配 islice ===")
+print(list(itertools.islice(itertools.count(10, 2), 5)))
+print(list(itertools.islice(itertools.cycle("ab"), 5)))
+print(list(itertools.repeat("x", 3)))
+
+print("=== chain / zip / zip_longest ===")
+print(list(itertools.chain([1, 2], "cd", (3,))))
+print(list(zip([1, 2, 3], "ab")))
+print(list(itertools.zip_longest([1, 2, 3], "ab", fillvalue="-")))
+print(list(itertools.pairwise("abcd")))
+
+print("=== accumulate / groupby ===")
+print(list(itertools.accumulate([1, 2, 3, 4])))
+print(list(itertools.accumulate([1, 2, 3, 4], lambda a, b: a * b)))
+
+data = sorted([("a", 1), ("b", 2), ("a", 3)], key=lambda p: p[0])
+for key, group in itertools.groupby(data, key=lambda p: p[0]):
+    print(key, list(group))
+
+print("=== combinations / permutations / product ===")
+print(list(itertools.combinations("abc", 2)))
+print(list(itertools.permutations("ab")))
+print(list(itertools.product([1, 2], "xy")))
+
+print("=== 生成器流水线：读 -&gt; 过滤 -&gt; 转换 -&gt; 汇总 ===")
+rows = [" 1,2 ", "3,4", "坏行", "5,6"]
+
+
+def parse(rows):
+    for r in rows:
+        parts = r.strip().split(",")
+        if len(parts) != 2:
+            continue
+        yield int(parts[0]), int(parts[1])
+
+
+def scaled(pairs, k):
+    for a, b in pairs:
+        yield a * k, b * k
+
+
+total = sum(a + b for a, b in scaled(parse(rows), 10))
+print("全部合格行的合计（放大 10 倍）：", total)
+
+first_pair = next(parse(rows))
+print("只取第一对：", first_pair)
+
+print("=== tee：把一个迭代器分两路（缓存会增长，慎用大流） ===")
+src = iter([1, 2, 3])
+a, b = itertools.tee(src, 2)
+print("第一路：", list(a))
+print("第二路：", list(b))
+
+print("=== 生成器函数里的 return 会终结迭代 ===")
+
+
+def gen_with_return():
+    yield 1
+    return
+    yield 2
+
+
+print(list(gen_with_return()))</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>=== 无限迭代器必须配 islice ===
+[10, 12, 14, 16, 18]
+['a', 'b', 'a', 'b', 'a']
+['x', 'x', 'x']
+=== chain / zip / zip_longest ===
+[1, 2, 'c', 'd', 3]
+[(1, 'a'), (2, 'b')]
+[(1, 'a'), (2, 'b'), (3, '-')]
+[('a', 'b'), ('b', 'c'), ('c', 'd')]
+=== accumulate / groupby ===
+[1, 3, 6, 10]
+[1, 2, 6, 24]
+a [('a', 1), ('a', 3)]
+b [('b', 2)]
+=== combinations / permutations / product ===
+[('a', 'b'), ('a', 'c'), ('b', 'c')]
+[('a', 'b'), ('b', 'a')]
+[(1, 'x'), (1, 'y'), (2, 'x'), (2, 'y')]
+=== 生成器流水线：读 -&gt; 过滤 -&gt; 转换 -&gt; 汇总 ===
+全部合格行的合计（放大 10 倍）： 210
+只取第一对： (1, 2)
+=== tee：把一个迭代器分两路（缓存会增长，慎用大流） ===
+第一路： [1, 2, 3]
+第二路： [1, 2, 3]
+=== 生成器函数里的 return 会终结迭代 ===
+[1]</code></pre></div></figure>
+
+<p>三组最常用的工具：</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>类别</th>
+<th>函数</th>
+<th>用途</th>
+<th>注意</th>
+</tr></thead>
+<tbody>
+<tr><td>无限</td><td><code>count</code>/<code>cycle</code>/<code>repeat</code></td><td>生成无限序列</td><td>必须配 <code>islice</code>/<code>zip</code> 截断</td></tr>
+<tr><td>拼接</td><td><code>chain</code>/<code>chain.from_iterable</code>/<code>zip_longest</code></td><td>串联多个可迭代对象</td><td><code>zip</code> 以最短为准，<code>zip_longest</code> 补 <code>fillvalue</code></td></tr>
+<tr><td>组合</td><td><code>combinations</code>/<code>permutations</code>/<code>product</code></td><td>枚举组合（DFS 题的现成工具）</td><td>结果数是阶乘级，别盲目 <code>list()</code></td></tr>
+<tr><td>累积</td><td><code>accumulate</code>/<code>pairwise</code>/<code>groupby</code></td><td>前缀和、相邻对、分组</td><td><code>groupby</code> <strong>要求先按同一 key 排序</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p><code>groupby</code> 是所有新手都踩过的坑：它只把<strong>相邻</strong>的同 key 元素归到一组，跟 SQL 的 <code>GROUP BY</code> 语义不同。<code>sorted(..., key=...)</code> 之后再 <code>groupby</code> 才对。</p>
+
+<p><code>pairwise</code> 是 3.10 新增的，等价于 <code>zip(s, s[1:])</code> 但不需要切片（因此能用于生成器）。示例输出 <code>[('a', 'b'), ('b', 'c'), ('c', 'd')]</code>。</p>
+
+<p>流水线是生成器最实用的形态：<code>parse</code> 负责解析、<code>scaled</code> 负责变换、<code>sum</code> 负责汇总，三层各司其职，中间<strong>没有任何列表落地</strong>。数据量从 4 行变成 4000 万行，代码一个字都不用改。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import itertools
+&gt;&gt;&gt; list(itertools.islice(itertools.count(), 3))
+[0, 1, 2]
+&gt;&gt;&gt; list(itertools.chain("ab", [1]))
+['a', 'b', 1]
+&gt;&gt;&gt; list(itertools.accumulate([1, 2, 3]))
+[1, 3, 6]
+&gt;&gt;&gt; def g():
+...     yield 1
+...     return "done"
+&gt;&gt;&gt; gg = g()
+&gt;&gt;&gt; next(gg)
+1
+&gt;&gt;&gt; try:
+...     next(gg)
+... except StopIteration as e:
+...     print("return 值：", e.value)
+return 值： done</code></pre>
+
+<hr>
+
+<h2 id="s15-4">15.4 什么时候用生成器，什么时候用列表</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>判据</th>
+<th>生成器</th>
+<th>列表</th>
+</tr></thead>
+<tbody>
+<tr><td>数据量</td><td>大/无限/流式</td><td>小、需要反复访问</td></tr>
+<tr><td>是否需要 <code>len()</code>、索引、切片</td><td>不行（<code>len</code> 会 TypeError）</td><td>可以</td></tr>
+<tr><td>是否需要遍历多次</td><td>不行（一次性）</td><td>可以</td></tr>
+<tr><td>是否需要 <code>sort</code>/<code>reverse</code></td><td>不行</td><td>可以</td></tr>
+<tr><td>内存</td><td>O(1)</td><td>O(n)</td></tr>
+<tr><td>调试</td><td><code>print</code> 一次就消耗了，不方便</td><td>随时看</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>一句话判据：<strong>"只需要按顺序过一遍"就用生成器，"需要反复访问或随机访问"就用列表</strong>。拿不准时先用列表，等内存/延迟真的成问题时再换。</p>
+
+<hr>
+
+<h2 id="s15-5">15.5 与 C++ 的差别</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>维度</th>
+<th>C++</th>
+<th>Python</th>
+</tr></thead>
+<tbody>
+<tr><td>迭代协议</td><td><code>begin()/end()</code> 迭代器对</td><td><code>__iter__</code>/<code>__next__</code> + <code>StopIteration</code></td></tr>
+<tr><td>取值方式</td><td><code>*it</code> / <code>it-&gt;</code></td><td><code>next(it)</code></td></tr>
+<tr><td>结束判断</td><td><code>it != end</code></td><td>异常 <code>StopIteration</code></td></tr>
+<tr><td>协程式产出</td><td>C++20 协程 / 手写状态机</td><td><code>yield</code> 一行搞定</td></tr>
+<tr><td>惰性求值</td><td>ranges / views</td><td>生成器表达式</td></tr>
+<tr><td>一次性</td><td>迭代器可以拷贝复用</td><td>迭代器共享状态，耗尽就是耗尽</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><code>begin/end</code> 与 <code>iter(next)</code> 最大的差异在<strong>结束信号</strong>：C++ 靠比较哨兵位置，Python 靠抛异常。抛异常看起来"重"，但 CPython 对 <code>StopIteration</code> 有专门优化，<code>for</code> 循环的开销主要来自逐次函数调用而非异常。</p>
+
+<hr>
+
+<h2 id="s15-6">15.6 易错点清单</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>现象</th>
+<th>原因</th>
+<th>一行修复</th>
+</tr></thead>
+<tbody>
+<tr><td>第二次遍历得到空</td><td>迭代器已耗尽</td><td>改用列表，或重新创建迭代器</td></tr>
+<tr><td><code>TypeError: object of type 'generator' has no len()</code></td><td>生成器没有长度</td><td>先 <code>list()</code> 或改用计数</td></tr>
+<tr><td><code>can't send non-None value to a just-started generator</code></td><td>没预激</td><td>先 <code>next(g)</code></td></tr>
+<tr><td><code>groupby</code> 分组结果碎成很多段</td><td>没按同一 key 排序</td><td>先 <code>sorted(key=...)</code></td></tr>
+<tr><td>边遍历边 <code>remove</code> 漏元素</td><td>索引位移</td><td>遍历副本或用推导式重建</td></tr>
+<tr><td>生成器里 <code>return x</code> 拿不到 <code>x</code></td><td>值在 <code>StopIteration.value</code></td><td>用 <code>try/except</code> 或 <code>yield from</code></td></tr>
+<tr><td><code>next()</code> 报 <code>TypeError: 'int' object is not an iterator</code></td><td>传了可迭代对象而非迭代器</td><td>先 <code>iter(obj)</code></td></tr>
+<tr><td>循环里 <code>print</code> 一次生成器就"没了"</td><td><code>print</code> 内部可能消耗</td><td>先用 <code>list()</code> 落地再调试</td></tr>
+<tr><td>无限生成器 <code>list()</code> 卡死</td><td>没有截断</td><td>用 <code>islice</code>/<code>take</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<hr>
+
+<h2 id="s15-7">15.7 练习</h2>
+
+<p><strong>1.（基础）</strong> 写生成器 <code>countdown(n)</code>，从 <code>n</code> 递减到 1；再用它求 <code>sum(countdown(5))</code>。</p>
+
+<p>验收：<code>list(countdown(3)) == [3, 2, 1]</code>，<code>sum(countdown(5)) == 15</code>。</p>
+
+<p><strong>2.（基础）</strong> 写一个 <code>Fib</code> 类，实现 <code>__iter__</code>/<code>__next__</code>，能无限产出斐波那契数列的前 n 项（<code>Fib(6)</code> 得到 <code>[0, 1, 1, 2, 3, 5]</code>）。</p>
+
+<p>验收：<code>list(Fib(6))</code> 正确；同一实例第二次 <code>list()</code> 为空（迭代器特性）。</p>
+
+<p><strong>3.（生成器）</strong> 写生成器 <code>read_numbers(path)</code>：逐行读文件、跳过空行与 <code>#</code> 注释、把每行转成 <code>float</code>，遇到无法转换的内容打印警告后跳过。用你自己造的一个小文件测试。</p>
+
+<p>验收：合格行全部产出，坏行有警告、不中断整体处理，且文件不需要一次性读进内存。</p>
+
+<p><strong>4.（变式）</strong> 用 <code>itertools</code> 与生成器搭一条流水线：从 <code>1..100</code> 中筛出 3 的倍数，平方，取前 5 个，求和。要求<strong>不出现任何中间列表</strong>。</p>
+
+<p>验收：结果为 3²+6²+9²+12²+15² = 495，且 <code>type</code> 检查显示中间对象是生成器。</p>
+
+<p><strong>5.（挑战）</strong> 写生成器 <code>chunked(iterable, size)</code>，把任意可迭代对象切成固定大小的块（最后一块可以更小），并用它实现一个"每 1000 条写一次数据库"的批处理框架骨架（用 <code>print</code> 代替写库）。再用 <code>send</code> 实现一个可以随时"暂停/继续"的处理循环。</p>
+
+<p>验收：<code>list(chunked(range(7), 3)) == [[0,1,2],[3,4,5],[6]]</code>；对生成器输入也能工作；批处理打印的次数等于 <code>ceil(总数/1000)</code>。</p>
+
+<hr>
+
+<h2 id="s15-8">15.8 小结</h2>
+
+<ol><li><strong><code>for</code> = <code>iter()</code> + 反复 <code>next()</code> + 捕 <code>StopIteration</code></strong>；可迭代对象交迭代器，迭代器记位置。</li><li><strong><code>yield</code> 把函数变成状态机</strong>，挂起时局部变量保留；<code>send</code> 双向通信，<code>yield from</code> 委托。</li><li><strong>生成器 O(1) 内存、一次性</strong>；需要反复访问或随机访问就换列表。</li></ol>
+
+<p>到目前为止，程序一旦出错就会以 <code>Traceback</code> 崩掉。下一章把"崩"变成"可控"：异常处理——<code>try/except/else/finally</code> 的执行顺序、异常链 <code>raise from</code>、以及为什么 <code>except Exception: pass</code> 是最糟的代码。</p>
+
+    
+
+    </article>
+    <!-- ==================== 正文结束 ==================== -->
+
+    <div data-learn-pager></div>
+
+    <footer class="acm-footer" style="margin-top:34px;border-radius:14px;padding:20px 22px">
+      <div class="acm-footer-inner">
+        <div>
+          <p><b>Python 语法教程</b> · 编程学习站的一部分。</p>
+          <p class="acm-tiny">配色与深浅色跟随<a href="../../index.html">校园主页</a>；顶部右侧按钮可切换。</p>
+        </div>
+        <div class="acm-footer-links">
+          <a href="./index.html">章节目录</a>
+          <a href="../index.html">编程学习首页</a>
+          <a href="../study.html">C++ 资料</a>
+          <a href="../practice.html">C++ 题练场</a>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+
+  <div class="learn-rail"><div data-learn-toc></div></div>
+</div>
+
+<script src="../../js/learn-nav.js"></script>
+<script src="../../js/learn-shell.js"></script>
+<script src="../../js/learn-code.js"></script>
+<script>
+/* 顶部导航滚动态 + 主题切换（与 C++ 两个页面同一套逻辑，每页一份，不依赖外链） */
+(function () {
+  'use strict';
+  var root = document.documentElement, nav = document.getElementById('acmNav');
+  if (nav) {
+    var onScroll = function () { nav.classList.toggle('stuck', (window.scrollY || 0) > 8); };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+  var ico = document.querySelector('#themeIco use');
+  function paint() {
+    if (ico) { ico.setAttribute('href', root.getAttribute('data-theme') === 'dark' ? '#i-sun' : '#i-moon'); }
+  }
+  paint();
+  var btn = document.getElementById('themeBtn');
+  if (btn) {
+    btn.addEventListener('click', function () {
+      var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      root.setAttribute('data-mode', next);
+      try { localStorage.setItem('cw.theme', JSON.stringify(next)); } catch (e) { }
+      paint();
+    });
+  }
+})();
+</script>
+</body>
+</html>

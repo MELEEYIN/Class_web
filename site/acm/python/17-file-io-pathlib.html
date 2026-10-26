@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light" data-mode="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="open() 打开的是一带缓冲的字节流，encoding 决定字节与字符串怎么互转。读写的正解永远是 with open(...) as f:——with 保证文件句柄在离开代码块时关闭，哪怕中途抛了异常。路径操作则首选 pathlib.Path：用 / 拼路径、用 .suffix/.stem 拆名字、用 .glob() 找文件，全部是对象方法，不靠字符串拼斜杠。">
+<meta name="theme-color" content="#2563eb">
+<meta name="color-scheme" content="light dark">
+<title>第 17 章 · 文件 IO 与 pathlib · Python 语法教程 · 编程学习</title>
+<script src="../../js/boot.js"></script>
+<script>try{var _t=document.documentElement.getAttribute('data-theme')||'light';document.documentElement.setAttribute('data-mode',_t);}catch(e){}</script>
+<link rel="stylesheet" href="../acm.css">
+<link rel="stylesheet" href="../learn.css">
+<link rel="stylesheet" href="../learn-code.css">
+</head>
+<body data-learn-page="py-17">
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;overflow:hidden">
+  <symbol id="i-graduation" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8.6 12 4.2l9.5 4.4L12 13 2.5 8.6Z"/><path d="M6.2 10.9V16c0 1.4 2.6 2.6 5.8 2.6s5.8-1.2 5.8-2.6v-5.1"/><path d="M21.5 9.4v5.2"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.6 12 3.8l8.5 6.8V20a1 1 0 0 1-1 1h-4.2v-6.2H8.7V21H4.5a1 1 0 0 1-1-1z"/></symbol>
+</svg>
+
+<header class="acm-nav" id="acmNav">
+  <div class="acm-wrap acm-nav-inner">
+    <a class="acm-brand" href="../index.html" title="回到编程学习首页">
+      <span class="acm-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-graduation"/></svg></span>
+      <span class="acm-brand-text"><strong>编程学习</strong><small>C++ · Python</small></span>
+    </a>
+    <nav class="acm-tabs" aria-label="编程学习站页面">
+      <a href="../index.html">首页</a>
+      <a href="../study.html">C++ 资料</a>
+      <a href="../practice.html">C++ 题练场</a>
+      <a href="./index.html" class="on" aria-current="page">Python</a>
+    </nav>
+    <div class="acm-nav-actions">
+      <button class="acm-btn acm-btn-icon" type="button" id="themeBtn" title="切换深色 / 浅色（全站共用）" aria-label="切换深色或浅色主题">
+        <svg class="ico" aria-hidden="true" id="themeIco"><use href="#i-moon"/></svg>
+      </button>
+      <a class="acm-btn" href="../../index.html" title="返回校园主页">
+        <svg class="ico" aria-hidden="true"><use href="#i-home"/></svg><span class="label">回主页</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<div class="learn-layout">
+
+  <!-- 窄屏（≤900px）：侧栏换成顶部折叠块 -->
+  <details class="learn-mobnav">
+    <summary>站点导航 · C++ / Python</summary>
+    <div data-learn-sidebar data-compact="1"></div>
+  </details>
+
+  <aside class="learn-aside"><div data-learn-sidebar></div></aside>
+
+  <main class="learn-main">
+
+    <div data-learn-crumb></div>
+
+    <header class="learn-head">
+      <h1 id="learnTitle">第 17 章 · 文件 IO 与 pathlib</h1>
+      <p class="lead"><code>open()</code> 打开的是<strong>一带缓冲的字节流</strong>，<code>encoding</code> 决定字节与字符串怎么互转。读写的正解永远是 <code>with open(...) as f:</code>——<code>with</code> 保证文件句柄在离开代码块时关闭，哪怕中途抛了异常。路径操作则首选 <code>pathlib.Path</code>：用 <code>/</code> 拼路径、用 <code>.suffix</code>/<code>.stem</code> 拆名字、用 <code>.glob()</code> 找文件，全部是对象方法，不靠字符串拼斜杠。</p>
+      <div class="learn-meta">
+        <span class="learn-chip py">Python 3</span>
+        <button class="learn-mark" type="button" data-learn-mark>标记为已读</button>
+      </div>
+    </header>
+
+    <!-- 窄屏（≤1180px）：右侧目录换到正文上面的折叠块 -->
+    <details class="learn-mobtoc" open>
+      <summary>本页目录</summary>
+      <div data-learn-toc></div>
+    </details>
+
+    <!-- ==================== 正文：只改这里 ==================== -->
+    <article data-learn-content>
+
+<p><strong>读完这一章你能做到</strong></p>
+
+<ul><li>选对模式（<code>r/w/a/x</code>、<code>b</code>、<code>+</code>）与编码，不再出现乱码与 <code>UnicodeDecodeError</code>；</li><li>用逐行迭代处理 GB 级文件而不爆内存；</li><li>用 <code>pathlib</code> 完成拼路径、取扩展名、递归匹配、建目录、删除文件；</li><li>判断要不要 <code>flush</code>、<code>newline=""</code>、二进制模式；</li><li>避开"文件没关""<code>with</code> 外继续用对象""<code>chdir</code> 污染全局状态"这三类坑。</li></ul>
+
+<hr>
+
+<h2 id="s17-1">17.1 文本模式的读写与编码</h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch17_01_text_io.py</code></figcaption><pre class="py"><code>"""ch17_01_text_io.py —— 文本/二进制读写、编码与文件指针"""
+import shutil
+from pathlib import Path
+
+WORK = Path(__file__).resolve().parent / "_tmp" / "ch17_01"
+if WORK.exists():
+    shutil.rmtree(WORK)
+WORK.mkdir(parents=True)
+
+p = WORK / "hello.txt"
+
+print("=== 写：w 清空重建，a 追加 ===")
+with open(p, "w", encoding="utf-8") as f:
+    f.write("第一行\n")
+    f.write("第二行\n")
+print("写入后字节数：", p.stat().st_size, "（UTF-8 下每个汉字 3 字节）")
+
+with open(p, "a", encoding="utf-8") as f:
+    f.write("追加行\n")
+
+with open(p, encoding="utf-8") as f:
+    print("整个读出：", repr(f.read()))
+
+print("=== 逐行迭代：内存里只有一行 ===")
+with open(p, encoding="utf-8") as f:
+    for i, line in enumerate(f, 1):
+        print(f"  第{i}行 {line!r}")
+
+print("=== 去掉行尾换行 ===")
+with open(p, encoding="utf-8") as f:
+    lines = [line.rstrip("\n") for line in f]
+print(lines, "| 行数：", len(lines))
+
+print("=== Path.read_text / splitlines 一步到位 ===")
+print(p.read_text(encoding="utf-8").splitlines())
+
+print("=== 编码不一致会抛 UnicodeDecodeError ===")
+gbk = WORK / "gbk.txt"
+gbk.write_bytes("中文内容".encode("gbk"))
+try:
+    gbk.read_text(encoding="utf-8")
+except UnicodeDecodeError as e:
+    print("UnicodeDecodeError 原因：", e.reason, "| 出错字节位置：", e.start)
+print("用 gbk 解码：", gbk.read_text(encoding="gbk"))
+
+print("=== 二进制模式：字节就是字节 ===")
+blob = WORK / "data.bin"
+with open(blob, "wb") as f:
+    f.write(bytes([0, 1, 2, 255]))
+print("read_bytes：", blob.read_bytes())
+with open(blob, "rb") as f:
+    print("先读 2 字节：", f.read(2))
+    print("tell 位置：", f.tell())
+    f.seek(0)
+    print("seek 回 0 再全读：", f.read())
+
+print("=== print 直接写文件 ===")
+log = WORK / "log.txt"
+with open(log, "w", encoding="utf-8") as f:
+    print("第一行", file=f)
+    print("第二行", file=f, end="")
+print("log.txt 内容：", repr(log.read_text(encoding="utf-8")))
+
+print("=== 文件不存在 ===")
+try:
+    open(WORK / "nope.txt", encoding="utf-8")
+except FileNotFoundError as e:
+    print("FileNotFoundError errno =", e.errno, "| strerror =", e.strerror)
+
+print("=== 换行符：newline 参数决定写什么、按什么读 ===")
+crlf = WORK / "crlf.txt"
+with open(crlf, "w", encoding="utf-8", newline="") as f:
+    f.write("a\r\nb\r\n")
+print("写成 CRLF 的原始字节：", crlf.read_bytes())
+print("按通用换行读出：", crlf.read_text(encoding="utf-8").splitlines())
+
+print("=== 追加模式的文件指针 ===")
+with open(log, "a", encoding="utf-8") as f:
+    print("追加的一行", file=f)
+print("追加后：", log.read_text(encoding="utf-8").splitlines())
+
+shutil.rmtree(WORK)
+print("清理完成，临时目录还在吗：", WORK.exists())</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>=== 写：w 清空重建，a 追加 ===
+写入后字节数： 22 （UTF-8 下每个汉字 3 字节）
+整个读出： '第一行\n第二行\n追加行\n'
+=== 逐行迭代：内存里只有一行 ===
+  第1行 '第一行\n'
+  第2行 '第二行\n'
+  第3行 '追加行\n'
+=== 去掉行尾换行 ===
+['第一行', '第二行', '追加行'] | 行数： 3
+=== Path.read_text / splitlines 一步到位 ===
+['第一行', '第二行', '追加行']
+=== 编码不一致会抛 UnicodeDecodeError ===
+UnicodeDecodeError 原因： invalid continuation byte | 出错字节位置： 0
+用 gbk 解码： 中文内容
+=== 二进制模式：字节就是字节 ===
+read_bytes： b'\x00\x01\x02\xff'
+先读 2 字节： b'\x00\x01'
+tell 位置： 2
+seek 回 0 再全读： b'\x00\x01\x02\xff'
+=== print 直接写文件 ===
+log.txt 内容： '第一行\n第二行'
+=== 文件不存在 ===
+FileNotFoundError errno = 2 | strerror = No such file or directory
+=== 换行符：newline 参数决定写什么、按什么读 ===
+写成 CRLF 的原始字节： b'a\r\nb\r\n'
+按通用换行读出： ['a', 'b']
+=== 追加模式的文件指针 ===
+追加后： ['第一行', '第二行追加的一行']
+清理完成，临时目录还在吗： False</code></pre></div></figure>
+
+<p>模式表（背下来就不再用错）：</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>模式</th>
+<th>含义</th>
+<th>文件不存在</th>
+<th>文件已存在</th>
+<th>指针初始位置</th>
+</tr></thead>
+<tbody>
+<tr><td><code>"r"</code></td><td>只读（默认）</td><td><code>FileNotFoundError</code></td><td>正常打开</td><td>开头</td></tr>
+<tr><td><code>"w"</code></td><td>只写</td><td>创建</td><td><strong>清空</strong></td><td>开头</td></tr>
+<tr><td><code>"a"</code></td><td>追加写</td><td>创建</td><td>保留内容</td><td>末尾</td></tr>
+<tr><td><code>"x"</code></td><td>独占创建</td><td>创建</td><td><code>FileExistsError</code></td><td>开头</td></tr>
+<tr><td><code>"r+"</code></td><td>读写</td><td>报错</td><td>保留内容</td><td>开头</td></tr>
+<tr><td><code>"rb"</code>/<code>"wb"</code></td><td>二进制</td><td>同上规则</td><td>同上</td><td>同上</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>编码的三条结论：</p>
+
+<ol><li><strong><code>encoding</code> 必须显式写</strong>。不写就用平台默认编码（Windows 中文系统是 GBK/CP936，Linux/macOS 多为 UTF-8），于是同一份代码在同学机器上就乱码。项目里统一 <code>encoding="utf-8"</code>。Python 3.15 起默认变 UTF-8（PEP 686），但现在还不能依赖它；也可以设 <code>PYTHONUTF8=1</code> 强制。</li><li><strong><code>UnicodeDecodeError</code> 说明"字节流与声明编码不匹配"</strong>，不是文件坏了。示例里 GBK 编码的中文用 UTF-8 解，第一个字节就 <code>invalid start byte</code>。</li><li><strong><code>len(str)</code> 是字符数，<code>st_size</code> 是字节数</strong>。UTF-8 下每个汉字 3 字节，所以"第一行\n"是 10 字节。</li></ol>
+
+<p><code>repr(line)</code> 在调试文件内容时极其有用——它能让你一眼看出行尾是 <code>'\n'</code>、<code>'\r\n'</code> 还是根本没有换行符。<code>rstrip("\n")</code> 只去 <code>\n</code>，若文件是 CRLF 会留下 <code>\r</code>；最稳的是 <code>line.rstrip("\r\n")</code> 或直接用 <code>str.splitlines()</code>（它会处理 <code>\r\n</code>、<code>\n</code>、<code>\r</code> 三种）。</p>
+
+<p><code>newline=""</code> 的作用：写模式下不转换 <code>\n</code>（否则 Windows 会自动写成 <code>\r\n</code>）；读模式下禁用通用换行翻译。只有在需要精确控制换行时（生成 CSV、协议报文）才用。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; from pathlib import Path
+&gt;&gt;&gt; p = Path("_tmp_demo.txt")
+&gt;&gt;&gt; _ = p.write_text("a\nb\n", encoding="utf-8")
+&gt;&gt;&gt; p.read_text(encoding="utf-8").splitlines()
+['a', 'b']
+&gt;&gt;&gt; p.read_text(encoding="utf-8") == "a\nb\n"
+True
+&gt;&gt;&gt; p.unlink()
+&gt;&gt;&gt; p.exists()
+False</code></pre>
+
+<div class="box tip"><p>小文件（&lt; 几 MB）用 <code>Path.read_text()</code> / <code>write_text()</code> 最省事；大文件、需要逐行处理、需要追加，就必须 <code>open()</code>。<code>read_text</code> 没有 <code>append</code> 参数，追加只能 <code>open(..., "a")</code>。</p></div>
+
+<hr>
+
+<h2 id="s17-2">17.2 <code>pathlib</code>：路径是对象，不是字符串</h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch17_02_pathlib.py</code></figcaption><pre class="py"><code>"""ch17_02_pathlib.py —— 路径运算、目录遍历与文件元数据"""
+import os
+import shutil
+from pathlib import Path
+
+WORK = Path(__file__).resolve().parent / "_tmp" / "ch17_02"
+if WORK.exists():
+    shutil.rmtree(WORK)
+(WORK / "src" / "app").mkdir(parents=True)
+(WORK / "logs").mkdir()
+
+(WORK / "src" / "main.py").write_text("print('hi')\n", encoding="utf-8")
+(WORK / "src" / "app" / "utils.py").write_text("x = 1\n", encoding="utf-8")
+(WORK / "logs" / "a.log").write_text("log\n", encoding="utf-8")
+
+
+def rel(p):
+    return p.relative_to(WORK).as_posix()
+
+
+print("=== 用 / 拼路径，而不是字符串加斜杠 ===")
+p = WORK / "src" / "main.py"
+print("相对路径：", rel(p))
+print("name：", p.name, "| stem：", p.stem, "| suffix：", p.suffix)
+print("parent：", rel(p.parent))
+print("parts 末三段：", p.parts[-3:])
+
+print("=== with_suffix / with_name：换扩展名、换文件名 ===")
+print(rel(p.with_suffix(".txt")))
+print(rel(p.with_name("other.py")))
+
+print("=== 属性判断与元数据 ===")
+print("exists：", p.exists(), "| is_file：", p.is_file(), "| is_dir：", p.is_dir())
+print("父目录是目录：", p.parent.is_dir())
+print("大小：", p.stat().st_size, "字节")
+
+print("=== 列目录：iterdir 只列一层 ===")
+for child in sorted(WORK.iterdir()):
+    print("  ", rel(child), "| 是目录：", child.is_dir())
+
+print("=== glob 与 rglob：按模式匹配 ===")
+for f in sorted((WORK / "src").glob("*.py")):
+    print("  顶层匹配：", rel(f))
+for f in sorted(WORK.rglob("*.py")):
+    print("  递归匹配：", rel(f))
+print("所有 .log：", [rel(f) for f in WORK.rglob("*.log")])
+
+print("=== read_text / write_text：小文件的最短路径 ===")
+new = WORK / "logs" / "b.txt"
+new.write_text("你好\n", encoding="utf-8")
+print("读回：", repr(new.read_text(encoding="utf-8")))
+
+with open(new, "a", encoding="utf-8") as f:
+    f.write("第二行\n")
+print("追加后行列表：", new.read_text(encoding="utf-8").splitlines())
+
+print("=== rename / unlink ===")
+renamed = new.with_name("c.txt")
+new.rename(renamed)
+print("改名后：原名存在 =", new.exists(), "| 新名存在 =", renamed.exists())
+renamed.unlink()
+print("删除后：", renamed.exists())
+
+print("=== mkdir 的层层创建与幂等 ===")
+deep = WORK / "src" / "app" / "deep" / "deeper"
+deep.mkdir(parents=True, exist_ok=True)
+print("多级目录已建好：", deep.is_dir())
+deep.mkdir(parents=True, exist_ok=True)
+print("重复创建不报错：", deep.is_dir())
+try:
+    (WORK / "src").mkdir()
+except FileExistsError as e:
+    print("不加 exist_ok 就报 FileExistsError，errno =", e.errno)
+
+print("=== 相对路径与绝对路径 ===")
+print("Path('a/b') 是绝对路径吗：", Path("a/b").is_absolute())
+print("resolve 之后呢：", Path("a/b").resolve().is_absolute())
+print("resolve 只补全、不检查存在：", Path("不存在的目录/x.txt").resolve().name)
+
+print("=== os.path 与 pathlib 的对照 ===")
+print("splitext：", os.path.splitext("main.py")[1], "| Path.suffix：", Path("main.py").suffix)
+print("basename：", os.path.basename(os.path.join("a", "b.txt")), "| Path.name：", Path("a/b.txt").name)
+
+print("=== 统计目录总大小 ===")
+total = sum(f.stat().st_size for f in WORK.rglob("*") if f.is_file())
+print("所有文件字节合计：", total)
+
+shutil.rmtree(WORK)
+print("清理完成：", WORK.exists())</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>=== 用 / 拼路径，而不是字符串加斜杠 ===
+相对路径： src/main.py
+name： main.py | stem： main | suffix： .py
+parent： src
+parts 末三段： ('ch17_02', 'src', 'main.py')
+=== with_suffix / with_name：换扩展名、换文件名 ===
+src/main.txt
+src/other.py
+=== 属性判断与元数据 ===
+exists： True | is_file： True | is_dir： False
+父目录是目录： True
+大小： 13 字节
+=== 列目录：iterdir 只列一层 ===
+   logs | 是目录： True
+   src | 是目录： True
+=== glob 与 rglob：按模式匹配 ===
+  顶层匹配： src/main.py
+  递归匹配： src/app/utils.py
+  递归匹配： src/main.py
+所有 .log： ['logs/a.log']
+=== read_text / write_text：小文件的最短路径 ===
+读回： '你好\n'
+追加后行列表： ['你好', '第二行']
+=== rename / unlink ===
+改名后：原名存在 = False | 新名存在 = True
+删除后： False
+=== mkdir 的层层创建与幂等 ===
+多级目录已建好： True
+重复创建不报错： True
+不加 exist_ok 就报 FileExistsError，errno = 17
+=== 相对路径与绝对路径 ===
+Path('a/b') 是绝对路径吗： False
+resolve 之后呢： True
+resolve 只补全、不检查存在： x.txt
+=== os.path 与 pathlib 的对照 ===
+splitext： .py | Path.suffix： .py
+basename： b.txt | Path.name： b.txt
+=== 统计目录总大小 ===
+所有文件字节合计： 25
+清理完成： False</code></pre></div></figure>
+
+<p><code>Path</code> 的常用属性与方法，按"我要干什么"查表：</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>需求</th>
+<th>写法</th>
+<th>说明</th>
+</tr></thead>
+<tbody>
+<tr><td>拼路径</td><td><code>base / "sub" / "f.txt"</code></td><td><code>/</code> 会自动处理分隔符</td></tr>
+<tr><td>取文件名</td><td><code>p.name</code></td><td><code>"main.py"</code></td></tr>
+<tr><td>取主干</td><td><code>p.stem</code></td><td><code>"main"</code></td></tr>
+<tr><td>取扩展名</td><td><code>p.suffix</code></td><td><code>".py"</code>（含点）</td></tr>
+<tr><td>换扩展名</td><td><code>p.with_suffix(".txt")</code></td><td>返回新路径，不改原对象</td></tr>
+<tr><td>取父目录</td><td><code>p.parent</code></td><td>可链式 <code>p.parent.parent</code></td></tr>
+<tr><td>拆成各级</td><td><code>p.parts</code></td><td>元组，Windows 下含盘符</td></tr>
+<tr><td>是否绝对</td><td><code>p.is_absolute()</code></td><td>不判断存在性</td></tr>
+<tr><td>转绝对</td><td><code>p.resolve()</code></td><td>解析 <code>..</code> 与符号链接，<strong>不检查存在</strong></td></tr>
+<tr><td>存在性</td><td><code>p.exists()</code> / <code>is_file()</code> / <code>is_dir()</code></td><td>三次系统调用</td></tr>
+<tr><td>大小/时间</td><td><code>p.stat().st_size</code> / <code>.st_mtime</code></td><td><code>st_mtime</code> 是浮点秒</td></tr>
+<tr><td>建目录</td><td><code>p.mkdir(parents=True, exist_ok=True)</code></td><td>两个关键字几乎总要写</td></tr>
+<tr><td>列一层</td><td><code>p.iterdir()</code></td><td>生成器，需 <code>sorted</code> 才有序</td></tr>
+<tr><td>递归匹配</td><td><code>p.rglob("*.py")</code></td><td>等价 <code>glob("**/*.py")</code></td></tr>
+<tr><td>改名/移动</td><td><code>p.rename(target)</code></td><td>跨盘会被 <code>replace</code> 拒绝</td></tr>
+<tr><td>删除文件</td><td><code>p.unlink()</code></td><td>目录要 <code>rmdir()</code>/<code>shutil.rmtree()</code></td></tr>
+<tr><td>读文本</td><td><code>p.read_text(encoding="utf-8")</code></td><td>一次读完</td></tr>
+<tr><td>写文本</td><td><code>p.write_text(s, encoding="utf-8")</code></td><td><code>"w"</code> 语义，清空重建</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>几个必须点明的行为：</p>
+
+<ul><li><strong><code>iterdir()</code> 的顺序是文件系统的顺序</strong>，不是字典序。要稳定输出必须 <code>sorted()</code>——这和 <code>os.listdir()</code> 一样。</li><li><strong><code>resolve()</code> 不检查存在</strong>，<code>Path("不存在的目录/x.txt").resolve()</code> 照样返回绝对路径。要判断存在用 <code>exists()</code>。</li><li><strong>跨盘 <code>rename</code> 会失败</strong>（<code>OSError: [WinError 17]</code>），要移动用 <code>shutil.move</code>。</li><li><strong><code>Path</code> 对象不可变</strong>：<code>p.with_suffix(".txt")</code> 返回新对象，<code>p</code> 本身没变。这点和 <code>str</code> 一样（3 章讲过）。</li></ul>
+
+<p><code>os.path</code> 与 <code>pathlib</code> 怎么选：新代码一律 <code>pathlib</code>。例外是<strong>需要把路径当字符串传给外部库/子进程</strong>时，用 <code>str(p)</code> 或 <code>p.as_posix()</code>（后者永远用正斜杠，跨平台更安全）。</p>
+
+<hr>
+
+<h2 id="s17-3">17.3 大文件与四个真实存在的坑</h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch17_03_bigfile.py</code></figcaption><pre class="py"><code>"""ch17_03_bigfile.py —— 大文件、上下文管理器与四个常见坑"""
+import os
+import shutil
+from pathlib import Path
+
+WORK = Path(__file__).resolve().parent / "_tmp" / "ch17_03"
+if WORK.exists():
+    shutil.rmtree(WORK)
+WORK.mkdir(parents=True)
+
+big = WORK / "big.txt"
+with open(big, "w", encoding="utf-8") as f:
+    for i in range(1000):
+        f.write(f"row {i}\n")
+
+print("=== 三种读法的行数一致，内存占用完全不同 ===")
+print("read_text + splitlines：", len(big.read_text(encoding="utf-8").splitlines()))
+
+count = 0
+with open(big, encoding="utf-8") as f:
+    for line in f:
+        count += 1
+print("逐行迭代：", count, "行")
+
+print("=== 把逐行读封装成生成器：调用方只关心数据 ===")
+
+
+def iter_lines(path):
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            yield line.rstrip("\n")
+
+
+print("前 3 行：", [line for _, line in zip(range(3), iter_lines(big))])
+
+print("=== 手写上下文管理器：保证一定关闭 ===")
+
+
+class ManagedFile:
+    def __init__(self, path, mode="r", encoding="utf-8"):
+        self.path = path
+        self.mode = mode
+        self.encoding = encoding
+        self.handle = None
+
+    def __enter__(self):
+        self.handle = open(self.path, self.mode, encoding=self.encoding)
+        return self.handle
+
+    def __exit__(self, exc_type, exc, tb):
+        self.handle.close()
+        return False
+
+
+with ManagedFile(big) as fh:
+    print("第一行：", fh.readline().strip())
+
+print("=== 坑 1：忘记 close ===")
+fh = open(big, encoding="utf-8")
+fh.readline()
+print("关了吗：", fh.closed)
+fh.close()
+print("close 之后：", fh.closed)
+try:
+    fh.read()
+except ValueError as e:
+    print("关闭后再读：ValueError:", e)
+
+print("=== 坑 2：with 之外还想用文件对象 ===")
+with open(big, encoding="utf-8") as fh2:
+    data = fh2.read()
+print("数据已经读进内存，可以继续用：", len(data.splitlines()), "行")
+try:
+    fh2.read()
+except ValueError as e:
+    print("但文件对象已失效：ValueError:", e)
+
+print("=== 坑 3：写入没有 flush，读到的可能是旧的 ===")
+flush_demo = WORK / "flush.txt"
+w = open(flush_demo, "w", encoding="utf-8")
+w.write("写入但没 flush")
+w.flush()
+print("flush 之后读到：", repr(flush_demo.read_text(encoding="utf-8")))
+w.close()
+
+print("=== 坑 4：os.chdir 改变的是整个进程的工作目录 ===")
+before = Path.cwd()
+os.chdir(WORK)
+print("切到临时目录后，相对路径 big.txt 存在：", Path("big.txt").exists())
+os.chdir(before)
+print("切回原目录：", Path.cwd() == before)
+
+print("=== 删除临时目录 ===")
+shutil.rmtree(WORK)
+print("清理完成：", WORK.exists())</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>=== 三种读法的行数一致，内存占用完全不同 ===
+read_text + splitlines： 1000
+逐行迭代： 1000 行
+=== 把逐行读封装成生成器：调用方只关心数据 ===
+前 3 行： ['row 0', 'row 1', 'row 2']
+=== 手写上下文管理器：保证一定关闭 ===
+第一行： row 0
+=== 坑 1：忘记 close ===
+关了吗： False
+close 之后： True
+关闭后再读：ValueError: I/O operation on closed file.
+=== 坑 2：with 之外还想用文件对象 ===
+数据已经读进内存，可以继续用： 1000 行
+但文件对象已失效：ValueError: I/O operation on closed file.
+=== 坑 3：写入没有 flush，读到的可能是旧的 ===
+flush 之后读到： '写入但没 flush'
+=== 坑 4：os.chdir 改变的是整个进程的工作目录 ===
+切到临时目录后，相对路径 big.txt 存在： True
+切回原目录： True
+=== 删除临时目录 ===
+清理完成： False</code></pre></div></figure>
+
+<p>四条经验：</p>
+
+<ol><li><strong>文件对象有缓冲区</strong>。<code>w.write("...")</code> 只是写进 Python 的缓冲区，还没落到磁盘；<code>flush()</code> 强制落盘，<code>close()</code> 也会 flush。所以"写完立刻用别的进程读"必须先 <code>flush</code>（或者干脆用 <code>with</code>）。</li><li><strong><code>with</code> 结束后文件对象关闭，但已经读出的数据仍然可用</strong>。别把 <code>open()</code> 的结果赋给全局变量再用——要么在 <code>with</code> 里读完，要么用 <code>Path.read_text()</code>。</li><li><strong><code>for line in f</code> 是最省内存的写法</strong>：它复用同一个行对象（CPython 优化），内存里只有一行。<code>f.readlines()</code> 会把整个文件的每一行都变成字符串对象，1 GB 文件直接吃掉几 GB 内存。</li><li><strong><code>os.chdir</code> 是进程级全局副作用</strong>。任何相对路径的含义都会变，多线程下更是一场灾难。需要换目录时用 <code>Path</code> 拼绝对路径，或者临时 <code>chdir</code> 后 <code>try/finally</code> 切回来（示例里就是这样做的）。</li></ol>
+
+<p>一个实用习惯：处理大文件时用<strong>生成器</strong>包一层，调用方拿到的就是普通可迭代对象，既不关心文件大小，也不用管关闭时机——这与 15 章的"生成器 O(1) 内存"是同一个道理。</p>
+
+<hr>
+
+<h2 id="s17-4">17.4 与 C++ 的差别</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>维度</th>
+<th>C++</th>
+<th>Python</th>
+</tr></thead>
+<tbody>
+<tr><td>打开</td><td><code>std::ifstream f(path)</code></td><td><code>open(path, "r", encoding=...)</code></td></tr>
+<tr><td>关闭</td><td>析构自动（RAII）</td><td><code>with</code>（<code>__del__</code> 不可靠）</td></tr>
+<tr><td>文本/二进制</td><td><code>std::ios::binary</code> 标志</td><td>模式里加 <code>b</code></td></tr>
+<tr><td>编码</td><td>字节，无编码概念</td><td>文本模式自动编解码，<code>encoding</code> 必填</td></tr>
+<tr><td>逐行</td><td><code>std::getline(f, line)</code></td><td><code>for line in f</code></td></tr>
+<tr><td>错误</td><td><code>f.is_open()</code> / 异常标志</td><td>直接抛 <code>FileNotFoundError</code></td></tr>
+<tr><td>路径</td><td><code>std::filesystem::path</code></td><td><code>pathlib.Path</code></td></tr>
+<tr><td>目录遍历</td><td><code>directory_iterator</code></td><td><code>iterdir()</code> / <code>rglob()</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>好消息是 C++17 的 <code>std::filesystem::path</code> 与 <code>pathlib.Path</code> 设计思路几乎一致，迁移成本很低。要注意的是 Python 的<strong>文本模式默认做了编码转换与换行翻译</strong>，而 C++ 的 <code>ifstream</code> 只给原始字节——这就是为什么 Python 里会撞 <code>UnicodeDecodeError</code>，而 C++ 里不会（它只是给你一堆字节）。</p>
+
+<hr>
+
+<h2 id="s17-5">17.5 易错点清单</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>现象</th>
+<th>原因</th>
+<th>一行修复</th>
+</tr></thead>
+<tbody>
+<tr><td>中文乱码 / <code>UnicodeDecodeError</code></td><td>没写 <code>encoding</code> 或写错</td><td><code>open(..., encoding="utf-8")</code></td></tr>
+<tr><td><code>ValueError: I/O operation on closed file</code></td><td>在 <code>with</code> 外继续用文件对象</td><td>在 <code>with</code> 内用完，或改用 <code>read_text</code></td></tr>
+<tr><td>Windows 上写出 <code>\r\n</code>，跟预期不符</td><td>文本模式自动翻译换行</td><td><code>newline=""</code></td></tr>
+<tr><td>写完后别的进程读不到内容</td><td>缓冲区未 flush</td><td><code>f.flush()</code> 或用 <code>with</code></td></tr>
+<tr><td><code>FileNotFoundError</code> 但文件明明在</td><td>相对路径的基准是<strong>当前工作目录</strong></td><td>用 <code>Path(__file__).parent / ...</code></td></tr>
+<tr><td>目录遍历顺序每次不同</td><td><code>iterdir</code> 不排序</td><td><code>sorted(p.iterdir())</code></td></tr>
+<tr><td><code>FileExistsError</code></td><td><code>mkdir</code> 没加 <code>exist_ok=True</code></td><td><code>mkdir(parents=True, exist_ok=True)</code></td></tr>
+<tr><td>跨盘 <code>rename</code> 失败</td><td><code>rename</code> 不做拷贝</td><td>用 <code>shutil.move</code></td></tr>
+<tr><td>1 GB 文件把内存吃满</td><td>用了 <code>readlines()</code>/<code>read()</code></td><td>改成 <code>for line in f</code></td></tr>
+<tr><td><code>chdir</code> 之后别处全崩</td><td>进程级全局状态</td><td>不 <code>chdir</code>，用绝对路径</td></tr>
+<tr><td>读 CSV 首行多个 <code>\ufeff</code></td><td>文件带 BOM</td><td><code>encoding="utf-8-sig"</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<hr>
+
+<h2 id="s17-6">17.6 练习</h2>
+
+<p><strong>1.（基础）</strong> 写 <code>word_count(path)</code>：读一个 UTF-8 文本文件，返回 <code>(行数, 词数, 字符数)</code>；要求逐行处理，不许一次性 <code>read()</code>。</p>
+
+<p>验收：对你自造的三行文件，结果与 <code>wc</code> 的语义一致；换成 10 万行文件时内存不随文件增长（可用 <code>tracemalloc</code> 粗略验证）。</p>
+
+<p><strong>2.（基础）</strong> 写 <code>tail(path, n)</code>：返回文件最后 n 行（不要求 O(1)，但要求逐行处理）；再写 <code>head(path, n)</code> 用生成器 + <code>islice</code> 实现。</p>
+
+<p>验收：<code>tail(p, 3)</code> 与 <code>p.read_text().splitlines()[-3:]</code> 结果相同；<code>head(p, 2)</code> 只读了 2 行（可用带计数副作用的生成器验证）。</p>
+
+<p><strong>3.（编码）</strong> 造一个 GBK 编码的文件，写一个 <code>to_utf8(src, dst)</code> 把它转成 UTF-8；遇到无法解码的字节用 <code>errors="replace"</code> 处理并统计替换次数。</p>
+
+<p>验收：转换后文件能被 <code>encoding="utf-8"</code> 正常读出；含非法字节的文件不抛异常，替换次数 &gt; 0。</p>
+
+<p><strong>4.（pathlib）</strong> 写 <code>scan(root)</code>：返回 <code>{"py": [...], "txt": [...]}</code>，列出 <code>root</code> 下所有对应扩展名的文件（相对路径，用 <code>as_posix()</code>），并按路径排序。</p>
+
+<p>验收：在含子目录的测试目录上运行，两类文件都齐全、有序、都是正斜杠相对路径。</p>
+
+<p><strong>5.（挑战）</strong> 写一个 <code>atomic_write(path, text)</code>：先写到同目录的临时文件，再 <code>os.replace</code> 覆盖目标，保证"要么是旧内容，要么是完整新内容"，中途崩溃也不会留下半个文件。再用 <code>tempfile.TemporaryDirectory()</code> 写一个在其内部生成报告、退出时自动清理的流程。</p>
+
+<p>验收：写入过程中模拟异常（<code>raise</code> 在 <code>flush</code> 之后、<code>replace</code> 之前），目标文件仍是旧内容；临时目录用完后 <code>exists()</code> 为 <code>False</code>。</p>
+
+<hr>
+
+<h2 id="s17-7">17.7 小结</h2>
+
+<ol><li><strong><code>with open(p, "r", encoding="utf-8") as f</code></strong> 是唯一正确的打开方式；模式与编码决定"读到什么"。</li><li><strong>大文件逐行迭代，小文件 <code>read_text()</code></strong>；<code>readlines()</code> 只适合明确很小的文件。</li><li><strong>路径操作用 <code>pathlib</code></strong>：<code>/</code> 拼接、<code>.suffix</code> 拆名、<code>rglob</code> 找文件、<code>mkdir(parents=True, exist_ok=True)</code> 建目录。</li></ol>
+
+<p>有了文件读写，下一步该把"数据 + 行为"打包起来——第 18 章进入面向对象：类、继承、魔术方法、MRO、<code>dataclass</code> 与 <code>property</code>。</p>
+
+    
+
+    </article>
+    <!-- ==================== 正文结束 ==================== -->
+
+    <div data-learn-pager></div>
+
+    <footer class="acm-footer" style="margin-top:34px;border-radius:14px;padding:20px 22px">
+      <div class="acm-footer-inner">
+        <div>
+          <p><b>Python 语法教程</b> · 编程学习站的一部分。</p>
+          <p class="acm-tiny">配色与深浅色跟随<a href="../../index.html">校园主页</a>；顶部右侧按钮可切换。</p>
+        </div>
+        <div class="acm-footer-links">
+          <a href="./index.html">章节目录</a>
+          <a href="../index.html">编程学习首页</a>
+          <a href="../study.html">C++ 资料</a>
+          <a href="../practice.html">C++ 题练场</a>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+
+  <div class="learn-rail"><div data-learn-toc></div></div>
+</div>
+
+<script src="../../js/learn-nav.js"></script>
+<script src="../../js/learn-shell.js"></script>
+<script src="../../js/learn-code.js"></script>
+<script>
+/* 顶部导航滚动态 + 主题切换（与 C++ 两个页面同一套逻辑，每页一份，不依赖外链） */
+(function () {
+  'use strict';
+  var root = document.documentElement, nav = document.getElementById('acmNav');
+  if (nav) {
+    var onScroll = function () { nav.classList.toggle('stuck', (window.scrollY || 0) > 8); };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+  var ico = document.querySelector('#themeIco use');
+  function paint() {
+    if (ico) { ico.setAttribute('href', root.getAttribute('data-theme') === 'dark' ? '#i-sun' : '#i-moon'); }
+  }
+  paint();
+  var btn = document.getElementById('themeBtn');
+  if (btn) {
+    btn.addEventListener('click', function () {
+      var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      root.setAttribute('data-mode', next);
+      try { localStorage.setItem('cw.theme', JSON.stringify(next)); } catch (e) { }
+      paint();
+    });
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light" data-mode="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="切片 x[a:b:c] 描述的是一段半开区间 [a, b) 上&quot;按下标序列取元素&quot;的规则。它永远不报越界错，因为端点先被夹到合法范围里；而对 list 赋值时它又能改变长度——所以切片既是&quot;取一段&quot;，也是&quot;批量改一段&quot;。">
+<meta name="theme-color" content="#2563eb">
+<meta name="color-scheme" content="light dark">
+<title>第 7 章 · 切片 · Python 语法教程 · 编程学习</title>
+<script src="../../js/boot.js"></script>
+<script>try{var _t=document.documentElement.getAttribute('data-theme')||'light';document.documentElement.setAttribute('data-mode',_t);}catch(e){}</script>
+<link rel="stylesheet" href="../acm.css">
+<link rel="stylesheet" href="../learn.css">
+<link rel="stylesheet" href="../learn-code.css">
+</head>
+<body data-learn-page="py-07">
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;overflow:hidden">
+  <symbol id="i-graduation" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8.6 12 4.2l9.5 4.4L12 13 2.5 8.6Z"/><path d="M6.2 10.9V16c0 1.4 2.6 2.6 5.8 2.6s5.8-1.2 5.8-2.6v-5.1"/><path d="M21.5 9.4v5.2"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.6 12 3.8l8.5 6.8V20a1 1 0 0 1-1 1h-4.2v-6.2H8.7V21H4.5a1 1 0 0 1-1-1z"/></symbol>
+</svg>
+
+<header class="acm-nav" id="acmNav">
+  <div class="acm-wrap acm-nav-inner">
+    <a class="acm-brand" href="../index.html" title="回到编程学习首页">
+      <span class="acm-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-graduation"/></svg></span>
+      <span class="acm-brand-text"><strong>编程学习</strong><small>C++ · Python</small></span>
+    </a>
+    <nav class="acm-tabs" aria-label="编程学习站页面">
+      <a href="../index.html">首页</a>
+      <a href="../study.html">C++ 资料</a>
+      <a href="../practice.html">C++ 题练场</a>
+      <a href="./index.html" class="on" aria-current="page">Python</a>
+    </nav>
+    <div class="acm-nav-actions">
+      <button class="acm-btn acm-btn-icon" type="button" id="themeBtn" title="切换深色 / 浅色（全站共用）" aria-label="切换深色或浅色主题">
+        <svg class="ico" aria-hidden="true" id="themeIco"><use href="#i-moon"/></svg>
+      </button>
+      <a class="acm-btn" href="../../index.html" title="返回校园主页">
+        <svg class="ico" aria-hidden="true"><use href="#i-home"/></svg><span class="label">回主页</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<div class="learn-layout">
+
+  <!-- 窄屏（≤900px）：侧栏换成顶部折叠块 -->
+  <details class="learn-mobnav">
+    <summary>站点导航 · C++ / Python</summary>
+    <div data-learn-sidebar data-compact="1"></div>
+  </details>
+
+  <aside class="learn-aside"><div data-learn-sidebar></div></aside>
+
+  <main class="learn-main">
+
+    <div data-learn-crumb></div>
+
+    <header class="learn-head">
+      <h1 id="learnTitle">第 7 章 · 切片</h1>
+      <p class="lead">切片 <code>x[a:b:c]</code> 描述的是一段<strong>半开区间</strong> <code>[a, b)</code> 上"按下标序列取元素"的规则。它永远不报越界错，因为端点先被<strong>夹到合法范围</strong>里；而对 <code>list</code> 赋值时它又能改变长度——所以切片既是"取一段"，也是"批量改一段"。</p>
+      <div class="learn-meta">
+        <span class="learn-chip py">Python 3</span>
+        <button class="learn-mark" type="button" data-learn-mark>标记为已读</button>
+      </div>
+    </header>
+
+    <!-- 窄屏（≤1180px）：右侧目录换到正文上面的折叠块 -->
+    <details class="learn-mobtoc" open>
+      <summary>本页目录</summary>
+      <div data-learn-toc></div>
+    </details>
+
+    <!-- ==================== 正文：只改这里 ==================== -->
+    <article data-learn-content>
+
+<p><strong>读完这一章你能做到</strong></p>
+
+<ul><li>一眼算出 <code>s[1:5:2]</code>、<code>s[::-1]</code>、<code>s[8:2:-2]</code> 的结果；</li><li>解释为什么 <code>s[100]</code> 报 <code>IndexError</code> 而 <code>s[100:200]</code> 只返回空串；</li><li>用切片实现反转、掐头去尾、每 n 个分组、批量替换；</li><li>说清 <code>b = a[:]</code> 是<strong>浅拷贝</strong>，内层对象仍然共享；</li><li>用 <code>slice()</code> 给"魔法数字切片"起名字。</li></ul>
+
+<hr>
+
+<h2 id="s7-1">7.1 半开区间与省略端点</h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch07_01_basics.py</code></figcaption><pre class="py"><code>"""ch07_01_basics.py —— 切片的半开区间、省略端点与越界规则"""
+s = "Python"
+nums = [0, 1, 2, 3, 4, 5]
+print(s[0:2], s[2:], s[:2], s[:])
+print("半开区间：s[1:3] =", repr(s[1:3]), "| 长度", len(s[1:3]))
+print("越界不报错：", repr(s[0:100]), "|", nums[10:], "|", nums[:10])
+print("空切片：", repr(s[4:2]), nums[4:2])
+print("负下标：", s[-1], repr(s[-2:]), repr(s[:-2]), repr(s[-100:2]))
+print("单下标越界才报错：")
+try:
+    s[100]
+except IndexError as e:
+    print("IndexError:", e)
+print("省略等于全长：", s[:] == s[0:len(s)])
+print("原对象不受影响：", s, nums)
+print("单字符切片的类型：", type(s[0]).__name__, repr(s[0]))</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>Py thon Py Python
+半开区间：s[1:3] = 'yt' | 长度 2
+越界不报错： 'Python' | [] | [0, 1, 2, 3, 4, 5]
+空切片： '' []
+负下标： n 'on' 'Pyth' 'Py'
+单下标越界才报错：
+IndexError: string index out of range
+省略等于全长： True
+原对象不受影响： Python [0, 1, 2, 3, 4, 5]
+单字符切片的类型： str 'P'</code></pre></div></figure>
+
+<p>四条规则：</p>
+
+<ol><li><strong><code>[a:b)</code> 左闭右开</strong>，<code>len(s[a:b]) == max(0, b - a)</code>（无步长时）；</li><li><strong>省略端点</strong>：<code>a</code> 省略即 0，<code>b</code> 省略即 <code>len</code>，两边都省 <code>[:]</code> 是"整个副本"；</li><li><strong>端点不检查合法性</strong>：<code>s[0:100]</code>、<code>s[-100:2]</code> 都不报错，端点被夹到 <code>[0, len]</code>；</li><li><strong>单下标才严格</strong>：<code>s[100]</code> 抛 <code>IndexError</code>，因为那是在取一个具体元素。</li></ol>
+
+<p>这条"切片宽容、下标严格"的分工非常有用：<strong>写循环时用切片就不用判边界</strong>。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; s = "Python"
+&gt;&gt;&gt; s[1:3]
+'yt'
+&gt;&gt;&gt; s[3:1]
+''
+&gt;&gt;&gt; "abc"[::-1]
+'cba'</code></pre>
+
+<p>注意 <code>s[3:1]</code> 不是 <code>IndexError</code> 而是空串——这对"区间可能倒挂"的代码是天然的安全网：<code>s[i:j]</code> 在 <code>i &gt;= j</code> 时得 <code>''</code>，不必特判。</p>
+
+<hr>
+
+<h2 id="s7-2">7.2 负下标与负端点</h2>
+
+<p>负下标从右往左数，<code>-1</code> 是最后一个：</p>
+
+<pre class="out"><code>下标：   0    1    2    3    4    5
+字符：   P    y    t    h    o    n
+负下标：-6   -5   -4   -3   -2   -1</code></pre>
+
+<pre class="pycon"><code>&gt;&gt;&gt; s = "Python"
+&gt;&gt;&gt; s[-1], s[-6]
+('n', 'P')
+&gt;&gt;&gt; s[-3:]
+'hon'
+&gt;&gt;&gt; s[:-3]
+'Pyt'
+&gt;&gt;&gt; s[-3:-1]
+'ho'</code></pre>
+
+<p>要点：负下标只是"加上 <code>len</code>"的简写（<code>s[-2] == s[len(s)-2]</code>），<strong>不会</strong>越出 <code>[0, len]</code> 的夹取规则。所以 <code>s[-100:2]</code> 里 <code>-100</code> 被夹到 0，结果等于 <code>s[0:2]</code>。</p>
+
+<hr>
+
+<h2 id="s7-3">7.3 步长：第三个参数</h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch07_02_step.py</code></figcaption><pre class="py"><code>"""ch07_02_step.py —— 步长：反转、隔 n 取、负步长的边界"""
+s = "0123456789"
+print("s[::2]     =", s[::2])
+print("s[1::2]    =", s[1::2])
+print("s[::-1]    =", s[::-1])
+print("s[8:2:-2]  =", s[8:2:-2])
+print("s[-1:-4:-1]=", s[-1:-4:-1])
+print("s[2:8:3]   =", s[2:8:3])
+print("步长为 0：")
+try:
+    s[::0]
+except ValueError as e:
+    print("ValueError:", e)
+
+nums = list(range(10))
+print("每 3 个一组：", [nums[i:i + 3] for i in range(0, len(nums), 3)])
+print("隔一个取一个再反转：", nums[::2][::-1])
+print("掐头去尾各 2 个：", nums[2:-2])
+print("负数步长只改方向，不改下标含义：", nums[5:2:-1], nums[2:5])</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>s[::2]     = 02468
+s[1::2]    = 13579
+s[::-1]    = 9876543210
+s[8:2:-2]  = 864
+s[-1:-4:-1]= 987
+s[2:8:3]   = 25
+步长为 0：
+ValueError: slice step cannot be zero
+每 3 个一组： [[0, 1, 2], [3, 4, 5], [6, 7, 8], [9]]
+隔一个取一个再反转： [8, 6, 4, 2, 0]
+掐头去尾各 2 个： [2, 3, 4, 5, 6, 7]
+负数步长只改方向，不改下标含义： [5, 4, 3] [2, 3, 4]</code></pre></div></figure>
+
+<p>步长的语义是：从 <code>a</code> 开始，每次加 <code>c</code>，<strong>只要还在 <code>b</code> 那一侧</strong>就继续取。</p>
+
+<ul><li><code>c &gt; 0</code>：要求 <code>a &lt; b</code>，否则空串；<code>a</code> 省略为 0，<code>b</code> 省略为 <code>len</code>；</li><li><code>c &lt; 0</code>：方向反过来，要求 <code>a &gt; b</code>；<code>a</code> 省略时<strong>不是 0 而是 <code>len-1</code></strong>，<code>b</code> 省略时<strong>不是 <code>len</code> 而是 <code>-len-1</code></strong>（也就是一直取到开头）；</li><li><code>c == 0</code> 抛 <code>ValueError: slice step cannot be zero</code>。</li></ul>
+
+<p>这就是 <code>s[::-1]</code> 能反转的原因：<code>a</code> 默认从最后一个开始，一路往左取到开头。</p>
+
+<div class="box warn"><p><code>s[::-1]</code> 是反转，<code>s[:-1]</code> 是"去掉最后一个"，<code>s[-1:]</code> 是"只要最后一个"。三者的区别在于<strong>有没有第二个冒号</strong>，别混。</p></div>
+
+<p><code>"abc"[::-1]</code> 是 Python 反转序列的惯用法，但它会<strong>新建一个对象</strong>（O(n) 复制）。如果你只是要倒序遍历，用 <code>reversed(xs)</code> 更好——它返回迭代器，不复制，且对 dict/set 也适用（第 15 章）。</p>
+
+<hr>
+
+<h2 id="s7-4">7.4 切片赋值：list 的独门能力</h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch07_03_assign_copy.py</code></figcaption><pre class="py"><code>"""ch07_03_assign_copy.py —— 切片赋值、切片拷贝与浅拷贝"""
+import copy
+
+a = [1, 2, 3, 4, 5, 6]
+a[1:3] = ["x", "y", "z"]
+print("等长区间可替换成更长的序列：", a)
+a[0:0] = ["head"]
+print("插到最前：", a)
+a[1:3] = []
+print("赋空列表等于删除一段：", a)
+del a[::2]
+print("del 带步长：", a)
+try:
+    a[::2] = [0, 1]
+except ValueError as e:
+    print("ValueError:", e)
+
+print("=== 切片就是浅拷贝 ===")
+b = [1, 2, 3]
+c = b[:]
+c.append(4)
+print("b:", b, "| c:", c, "| b is c:", b is c)
+inner = [[1], [2]]
+d = inner[:]
+d[0].append(99)
+print("内层被共用：", inner, "|", d)
+e = copy.deepcopy(inner)
+e[0].append(0)
+print("deepcopy 之后互不影响：", inner, "|", e)
+
+print("=== 不可变对象也能切 ===")
+t = (1, 2, 3, 4)
+print("元组切片：", t[1:3], type(t[1:3]).__name__)
+print("字符串切片：", "abcdef"[::2])
+
+print("=== slice 对象：给切片起名字 ===")
+s = "abcdefgh"
+FRONT = slice(0, 3)
+print(s[FRONT], s[FRONT] == s[0:3])
+print("slice 的三个属性：", FRONT.start, FRONT.stop, FRONT.step)
+
+
+def middle(xs, n=1):
+    """掐头去尾各 n 个元素"""
+    return xs[n:len(xs) - n]
+
+
+print("middle 演示：", middle("abcdef", 2), middle([1, 2, 3], 1))</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>等长区间可替换成更长的序列： [1, 'x', 'y', 'z', 4, 5, 6]
+插到最前： ['head', 1, 'x', 'y', 'z', 4, 5, 6]
+赋空列表等于删除一段： ['head', 'y', 'z', 4, 5, 6]
+del 带步长： ['y', 4, 6]
+=== 切片就是浅拷贝 ===
+b: [1, 2, 3] | c: [1, 2, 3, 4] | b is c: False
+内层被共用： [[1, 99], [2]] | [[1, 99], [2]]
+deepcopy 之后互不影响： [[1, 99], [2]] | [[1, 99, 0], [2]]
+=== 不可变对象也能切 ===
+元组切片： (2, 3) tuple
+字符串切片： ace
+=== slice 对象：给切片起名字 ===
+abc True
+slice 的三个属性： 0 3 None
+middle 演示： cd [2]</code></pre></div></figure>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>写法</th>
+<th>效果</th>
+<th>长度限制</th>
+</tr></thead>
+<tbody>
+<tr><td><code>a[i:j] = seq</code></td><td>用 <code>seq</code> 替换 <code>[i, j)</code></td><td>长度<strong>任意</strong>，可以变长变短</td></tr>
+<tr><td><code>a[i:j:k] = seq</code></td><td>逐位替换，步长版</td><td>长度<strong>必须相等</strong>，否则 <code>ValueError</code></td></tr>
+<tr><td><code>a[i:j] = []</code></td><td>删除一段</td><td>—</td></tr>
+<tr><td><code>del a[i:j]</code> / <code>del a[i:j:k]</code></td><td>同上</td><td>—</td></tr>
+<tr><td><code>a[i:i] = [x]</code></td><td>在 <code>i</code> 处插入</td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>只有 <strong>list</strong> 能切片赋值（<code>str</code>、<code>tuple</code> 不可变，<code>bytes</code> 也不行）。<code>a[i:j] = "abc"</code> 是合法的——右边只要是可迭代的就行，会把 <code>"abc"</code> 拆成 <code>'a'</code>、<code>'b'</code>、<code>'c'</code> 三个元素。</p>
+
+<hr>
+
+<h2 id="s7-5">7.5 <code>b = a[:]</code> 是浅拷贝</h2>
+
+<p>切片总是<strong>新建一个容器对象</strong>，但只复制"引用"：</p>
+
+<pre class="out"><code>a      ──► [ ● , ● ]
+             │    │
+             ▼    ▼
+           [1]   [2]     ← 内层列表只有一份
+b = a[:] ──► [ ● , ● ]   ← 外层是新格表，指向同样的内层</code></pre>
+
+<p>所以 <code>d[0].append(99)</code> 会同时反映在 <code>inner</code> 和 <code>d</code> 上；要完全独立必须 <code>copy.deepcopy</code>（第 3 章已详述）。</p>
+
+<p>切片拷贝 vs 其他拷贝写法：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; a = [1, 2]
+&gt;&gt;&gt; a[:] == a.copy() == list(a)
+True
+&gt;&gt;&gt; a[:] is a
+False</code></pre>
+
+<p>三者都是浅拷贝，选哪个都行；<code>a.copy()</code> 语义最直白，<code>a[:]</code> 最老派，<code>list(a)</code> 还能顺便把元组/生成器转成列表。</p>
+
+<hr>
+
+<h2 id="s7-6">7.6 <code>slice</code> 对象：别写魔法数字</h2>
+
+<p><code>a[0:8]</code> 里的 <code>0:8</code> 在语法上就是一个 <code>slice(0, 8, None)</code> 对象。显式构造它的价值是<strong>起名字</strong>、<strong>传参</strong>、<strong>复用</strong>：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; HEAD = slice(0, 4)
+&gt;&gt;&gt; "2024-05-01"[HEAD]
+'2024'
+&gt;&gt;&gt; parts = {"year": slice(0, 4), "month": slice(5, 7)}
+&gt;&gt;&gt; d = "2024-05-01"
+&gt;&gt;&gt; d[parts["year"]], d[parts["month"]]
+('2024', '05')</code></pre>
+
+<p><code>slice</code> 是不可变对象，有 <code>start</code> / <code>stop</code> / <code>step</code> 三个属性；<code>s.indices(len)</code> 能把它换算成"夹取后的三元组"，写区间算法时很好用：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; slice(2, None).indices(5)
+(2, 5, 1)
+&gt;&gt;&gt; slice(None, None, -1).indices(5)
+(4, -1, -1)</code></pre>
+
+<hr>
+
+<h2 id="s7-7">7.7 与 C++ 的差别</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>维度</th>
+<th>C++</th>
+<th>Python</th>
+</tr></thead>
+<tbody>
+<tr><td>取子序列</td><td><code>s.substr(pos, len)</code></td><td><code>s[a:b]</code>（<code>[a, b)</code>，无需算长度）</td></tr>
+<tr><td>越界</td><td><code>substr</code> 抛 <code>out_of_range</code> / <code>operator[]</code> UB</td><td>切片自动夹取，返回空或截断</td></tr>
+<tr><td>反转</td><td><code>std::reverse(s.begin(), s.end())</code> 原地</td><td><code>s[::-1]</code> 新建；原地用 <code>list.reverse()</code></td></tr>
+<tr><td>步长</td><td>无内置</td><td><code>s[::2]</code>、<code>s[::-1]</code></td></tr>
+<tr><td>批量替换</td><td><code>std::vector::assign(iter, iter)</code></td><td><code>a[i:j] = seq</code>（可改变长度）</td></tr>
+<tr><td>拷贝语义</td><td><code>vector&lt;int&gt; b = a;</code> 值拷贝（全深拷贝）</td><td><code>b = a[:]</code> 浅拷贝；<code>b = a</code> 是别名</td></tr>
+<tr><td>视图/引用</td><td><code>std::string_view</code>、<code>span</code>（零拷贝）</td><td><strong>没有</strong>零拷贝切片，切片即复制</td></tr>
+<tr><td>负下标</td><td>无</td><td><code>-1</code> 表示最后一个</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>最后一行最值得注意：C++ 的 <code>string_view</code> 是"零拷贝视图"，Python 的切片<strong>一定复制</strong>。所以对超长字符串做"反复切片找子串"时，Python 会有额外的复制开销——这时用 <code>re</code> 或 <code>find</code> 定位下标、只切一次。</p>
+
+<hr>
+
+<h2 id="s7-8">7.8 易错点清单</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>现象</th>
+<th>原因</th>
+<th>一行修复</th>
+</tr></thead>
+<tbody>
+<tr><td>结果比预期多/少一个元素</td><td>把 <code>[a:b]</code> 当成闭区间</td><td>记住半开区间，右端点不取</td></tr>
+<tr><td><code>s[100]</code> 报 <code>IndexError</code>，以为是切片问题</td><td>单下标严格越界</td><td>取一段就写 <code>s[100:101]</code></td></tr>
+<tr><td><code>s[::0]</code> 报 <code>ValueError</code></td><td>步长不能为 0</td><td>检查步长来源，特判</td></tr>
+<tr><td><code>a[i:j:k] = seq</code> 报 <code>ValueError: attempt to assign ... size</code></td><td>带步长赋值要求长度相等</td><td>改用 <code>a[i:j] = seq</code></td></tr>
+<tr><td>改了 <code>b = a[:]</code> 的元素，<code>a</code> 也变了</td><td>浅拷贝，内层共享</td><td><code>copy.deepcopy</code></td></tr>
+<tr><td><code>s[:-1]</code> 想反转却少了一个字符</td><td>只有一个冒号</td><td>反转写 <code>s[::-1]</code></td></tr>
+<tr><td><code>a[::-1]</code> 反转后原列表没变</td><td>切片是新对象</td><td>要原地改就 <code>a.reverse()</code></td></tr>
+<tr><td>切片的切片越切越慢</td><td>每次切片都复制</td><td>只算下标，最后切一次</td></tr>
+<tr><td><code>"abc"[0]</code> 是 <code>'a'</code> 不是 <code>97</code></td><td>Python 没有 <code>char</code>/<code>int</code> 隐式转换</td><td>要码点用 <code>ord()</code>，反向 <code>chr()</code></td></tr>
+<tr><td><code>t[1:2] = [9]</code> 对元组报 <code>TypeError</code></td><td>元组不可变</td><td>转 <code>list</code> 改完再 <code>tuple()</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<hr>
+
+<h2 id="s7-9">7.9 练习</h2>
+
+<p><strong>1.（基本切片）</strong> 输入形如 <code>"2024-05-01"</code> 的日期串，输出 <code>2024</code>、<code>05</code>、<code>01</code> 三段。</p>
+
+<p>验收：只用切片，不用 <code>split</code>；再补一个用 <code>split</code> 的版本，确认结果一致。</p>
+
+<p><strong>2.（反转与步长）</strong> 给定 <code>nums = list(range(10))</code>，输出：反转、偶数位、"从右往左每两个取一个"。</p>
+
+<p>验收：第三项结果为 <code>[9, 7, 5, 3, 1]</code>。</p>
+
+<p><strong>3.（掐头去尾）</strong> 写 <code>shrink(xs, n)</code>：去掉首尾各 n 个元素；若 <code>2n &gt;= len(xs)</code> 返回<strong>空序列</strong>（同类型）。</p>
+
+<p>验收：<code>shrink("abcdef", 2) == "cd"</code>、<code>shrink([1, 2], 5) == []</code>，且不抛异常。</p>
+
+<p><strong>4.（变式）</strong> 用切片把 <code>[1, 2, 3, 4, 5, 6]</code> 变成 <code>[6, 5, 1, 2, 3, 4]</code>（把最后两个搬到最前），并写出通用的 <code>rotate_right(xs, k)</code>。</p>
+
+<p>验收：<code>rotate_right(list(range(5)), 2) == [3, 4, 0, 1, 2]</code>；<code>k</code> 大于长度也能正确循环。</p>
+
+<p><strong>5.（挑战）</strong> 实现 <code>chunk(xs, n)</code>：把序列按每 n 个切成若干段，返回列表；最后一段可以不足 n。</p>
+
+<p>验收：<code>chunk([1, 2, 3, 4, 5], 2)</code> 得 <code>[[1, 2], [3, 4], [5]]</code>；对字符串输入返回字符串列表，说明为什么最后一段不会越界。</p>
+
+<hr>
+
+<h2 id="s7-10">7.10 小结</h2>
+
+<ol><li><strong><code>[a:b)</code> 半开区间</strong>，端点自动夹取，<code>s[3:1]</code> 是空串而不是错误。</li><li><strong>步长为负就是反向</strong>，<code>s[::-1]</code> 反转；<code>[:-1]</code> 是另一个意思。</li><li><strong>切片一定复制</strong>（浅拷贝），改内层仍会互相影响——要彻底独立用 <code>deepcopy</code>。</li></ol>
+
+<p>下一章让程序学会分岔与循环：<code>if/elif/else</code> 的边界、<code>for</code> 与 C++ <code>for</code> 的本质区别、<code>while ... else</code> 这种反直觉但好用的结构。</p>
+
+    
+
+    </article>
+    <!-- ==================== 正文结束 ==================== -->
+
+    <div data-learn-pager></div>
+
+    <footer class="acm-footer" style="margin-top:34px;border-radius:14px;padding:20px 22px">
+      <div class="acm-footer-inner">
+        <div>
+          <p><b>Python 语法教程</b> · 编程学习站的一部分。</p>
+          <p class="acm-tiny">配色与深浅色跟随<a href="../../index.html">校园主页</a>；顶部右侧按钮可切换。</p>
+        </div>
+        <div class="acm-footer-links">
+          <a href="./index.html">章节目录</a>
+          <a href="../index.html">编程学习首页</a>
+          <a href="../study.html">C++ 资料</a>
+          <a href="../practice.html">C++ 题练场</a>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+
+  <div class="learn-rail"><div data-learn-toc></div></div>
+</div>
+
+<script src="../../js/learn-nav.js"></script>
+<script src="../../js/learn-shell.js"></script>
+<script src="../../js/learn-code.js"></script>
+<script>
+/* 顶部导航滚动态 + 主题切换（与 C++ 两个页面同一套逻辑，每页一份，不依赖外链） */
+(function () {
+  'use strict';
+  var root = document.documentElement, nav = document.getElementById('acmNav');
+  if (nav) {
+    var onScroll = function () { nav.classList.toggle('stuck', (window.scrollY || 0) > 8); };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+  var ico = document.querySelector('#themeIco use');
+  function paint() {
+    if (ico) { ico.setAttribute('href', root.getAttribute('data-theme') === 'dark' ? '#i-sun' : '#i-moon'); }
+  }
+  paint();
+  var btn = document.getElementById('themeBtn');
+  if (btn) {
+    btn.addEventListener('click', function () {
+      var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      root.setAttribute('data-mode', next);
+      try { localStorage.setItem('cw.theme', JSON.stringify(next)); } catch (e) { }
+      paint();
+    });
+  }
+})();
+</script>
+</body>
+</html>

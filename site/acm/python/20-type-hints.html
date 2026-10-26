@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light" data-mode="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="注解是挂在函数和类上的元数据，解释器把它存进 __annotations__ 就完事——不检查、不转换、不影响执行速度，真正的检查发生在运行之前的静态分析工具里。">
+<meta name="theme-color" content="#2563eb">
+<meta name="color-scheme" content="light dark">
+<title>第 20 章 · 类型注解与 typing · Python 语法教程 · 编程学习</title>
+<script src="../../js/boot.js"></script>
+<script>try{var _t=document.documentElement.getAttribute('data-theme')||'light';document.documentElement.setAttribute('data-mode',_t);}catch(e){}</script>
+<link rel="stylesheet" href="../acm.css">
+<link rel="stylesheet" href="../learn.css">
+<link rel="stylesheet" href="../learn-code.css">
+</head>
+<body data-learn-page="py-20">
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;overflow:hidden">
+  <symbol id="i-graduation" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8.6 12 4.2l9.5 4.4L12 13 2.5 8.6Z"/><path d="M6.2 10.9V16c0 1.4 2.6 2.6 5.8 2.6s5.8-1.2 5.8-2.6v-5.1"/><path d="M21.5 9.4v5.2"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.6 12 3.8l8.5 6.8V20a1 1 0 0 1-1 1h-4.2v-6.2H8.7V21H4.5a1 1 0 0 1-1-1z"/></symbol>
+</svg>
+
+<header class="acm-nav" id="acmNav">
+  <div class="acm-wrap acm-nav-inner">
+    <a class="acm-brand" href="../index.html" title="回到编程学习首页">
+      <span class="acm-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-graduation"/></svg></span>
+      <span class="acm-brand-text"><strong>编程学习</strong><small>C++ · Python</small></span>
+    </a>
+    <nav class="acm-tabs" aria-label="编程学习站页面">
+      <a href="../index.html">首页</a>
+      <a href="../study.html">C++ 资料</a>
+      <a href="../practice.html">C++ 题练场</a>
+      <a href="./index.html" class="on" aria-current="page">Python</a>
+    </nav>
+    <div class="acm-nav-actions">
+      <button class="acm-btn acm-btn-icon" type="button" id="themeBtn" title="切换深色 / 浅色（全站共用）" aria-label="切换深色或浅色主题">
+        <svg class="ico" aria-hidden="true" id="themeIco"><use href="#i-moon"/></svg>
+      </button>
+      <a class="acm-btn" href="../../index.html" title="返回校园主页">
+        <svg class="ico" aria-hidden="true"><use href="#i-home"/></svg><span class="label">回主页</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<div class="learn-layout">
+
+  <!-- 窄屏（≤900px）：侧栏换成顶部折叠块 -->
+  <details class="learn-mobnav">
+    <summary>站点导航 · C++ / Python</summary>
+    <div data-learn-sidebar data-compact="1"></div>
+  </details>
+
+  <aside class="learn-aside"><div data-learn-sidebar></div></aside>
+
+  <main class="learn-main">
+
+    <div data-learn-crumb></div>
+
+    <header class="learn-head">
+      <h1 id="learnTitle">第 20 章 · 类型注解与 typing</h1>
+      <p class="lead">注解是<strong>挂在函数和类上的元数据</strong>，解释器把它存进 <code>__annotations__</code> 就完事——不检查、不转换、不影响执行速度，真正的检查发生在运行之前的静态分析工具里。</p>
+      <div class="learn-meta">
+        <span class="learn-chip py">Python 3</span>
+        <button class="learn-mark" type="button" data-learn-mark>标记为已读</button>
+      </div>
+    </header>
+
+    <!-- 窄屏（≤1180px）：右侧目录换到正文上面的折叠块 -->
+    <details class="learn-mobtoc" open>
+      <summary>本页目录</summary>
+      <div data-learn-toc></div>
+    </details>
+
+    <!-- ==================== 正文：只改这里 ==================== -->
+    <article data-learn-content>
+
+<p><strong>读完这一章你能做到</strong></p>
+
+<ol><li>说清 <code>def f(x: int) -&gt; int</code> 在运行时到底做了什么（以及没做什么）。</li><li>用内置泛型 <code>list[int]</code>、<code>dict[str, list[int]]</code>、<code>str | None</code> 写出准确的签名，不再写裸 <code>list</code>。</li><li>知道什么时候用 <code>TypedDict</code>、<code>Literal</code>、<code>Callable</code>、<code>Protocol</code>，各自的运行时代价是零。</li><li>跑起 <code>mypy</code>/<code>pyright</code>，把「传错参数类型」这类 bug 拦在运行之前。</li><li>不被 <code>Any</code> 与 <code># type: ignore</code> 骗过去——知道它们把检查关掉了，而不是修好了。</li></ol>
+
+<h2 id="s20-1">20.1 注解只是元数据</h2>
+
+<pre class="pycon"><code>&gt;&gt;&gt; def add(a: int, b: int) -&gt; int:
+...     return a + b
+...
+&gt;&gt;&gt; add.__annotations__
+{'a': &lt;class 'int'&gt;, 'b': &lt;class 'int'&gt;, 'return': &lt;class 'int'&gt;}
+&gt;&gt;&gt; add("py", "thon")
+'python'
+&gt;&gt;&gt; add([1], [2])
+[1, 2]</code></pre>
+
+<p><code>add("py", "thon")</code> 返回 <code>'python'</code>——注解没有拦住任何东西。这是新手最大的误解：<strong>以为写了 <code>: int</code> 就有运行时类型检查</strong>。Python 的选择是「注解即文档 + 静态工具即检查器」，代价是运行时零开销，收益是所有类型错误在 CI 里就能发现。</p>
+
+<p>注解的值可以是<strong>任意表达式</strong>，不限于类型：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; def f(x: "任意字符串", y: 1 + 2) -&gt; None:
+...     return None
+...
+&gt;&gt;&gt; f.__annotations__
+{'x': '任意字符串', 'y': 3, 'return': None}</code></pre>
+
+<p>所以「注解里的名字写错了」在定义时通常不报错——只在有人真的去解析它时才炸：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import typing
+&gt;&gt;&gt; def bad(x: "不存在的类型") -&gt; None:
+...     return None
+...
+&gt;&gt;&gt; bad.__annotations__
+{'x': '不存在的类型', 'return': None}
+&gt;&gt;&gt; try:
+...     typing.get_type_hints(bad)
+... except NameError as e:
+...     print(type(e).__name__ + ":", e)
+NameError: name '不存在的类型' is not defined</code></pre>
+
+<p><code>typing.get_type_hints()</code> 是「把注解求值成真正的类型对象」的官方入口，字符串和前向引用都靠它解析。</p>
+
+<div class="box tip"><p>Python 3.14 起注解采用延迟求值（PEP 649）：模块/类的注解不再在定义时逐个求值，而是按需通过 <code>__annotate__</code> 计算。所以 <code>__annotations__</code> 在某些对象上要<strong>通过模块或类对象访问</strong>才拿得到，直接引用裸名字可能 <code>NameError</code>。3.7～3.13 里等价的做法是文件首行写 <code>from __future__ import annotations</code>（全部变成字符串）；3.14 之后这个 <code>__future__</code> 导入变成了默认行为的开关，可继续保留以兼容旧版本。</p></div>
+
+<h2 id="s20-2">20.2 注解写在哪，存在哪</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>位置</th>
+<th>写法</th>
+<th>存到哪</th>
+<th>会被检查吗</th>
+</tr></thead>
+<tbody>
+<tr><td>函数参数</td><td><code>def f(x: int)</code></td><td><code>f.__annotations__["x"]</code></td><td>mypy 检查调用处</td></tr>
+<tr><td>返回值</td><td><code>def f() -&gt; int</code></td><td><code>f.__annotations__["return"]</code></td><td>检查 <code>return</code> 语句</td></tr>
+<tr><td>模块变量</td><td><code>count: int = 0</code></td><td>模块 <code>__annotations__</code></td><td>检查赋值与使用</td></tr>
+<tr><td>类属性</td><td><code>rate: float</code></td><td>类 <code>__annotations__</code></td><td>检查（<code>dataclass</code> 会用它生成 <code>__init__</code>）</td></tr>
+<tr><td>局部变量</td><td><code>x: int = 1</code></td><td><strong>不存</strong>，只给检查器看</td><td>检查，但运行时无痕</td></tr>
+<tr><td>类型别名</td><td><code>Vector = list[float]</code></td><td>就是个普通变量</td><td>只是约定</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>局部变量注解连 <code>locals()</code> 里都不会多出东西——它是纯粹的「写给工具看的注释」：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; def local():
+...     x: int = 1
+...     return sorted(locals())
+...
+&gt;&gt;&gt; local()
+['x']</code></pre>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch20_01_annotations.py</code></figcaption><pre class="py"><code>"""ch20_01_annotations.py —— 注解是表达式，存在 __annotations__ 里"""
+
+import sys
+import typing
+
+
+def add(a: int, b: int) -&gt; int:
+    return a + b
+
+
+print("函数注解：", add.__annotations__)
+print("结果类型：", type(add(1, 2)).__name__)
+
+print("=== 运行时不检查 ===")
+print("传字符串照样跑：", add("py", "thon"))
+print("传列表也跑：", add([1], [2]))
+print("传什么都不会 TypeError：", add(1.5, True))
+
+print("=== 注解可以是任意表达式，字符串会原样保留 ===")
+
+
+def weird(x: "不存在的类型") -&gt; "也不是类型":
+    return x
+
+
+print("字符串注解：", weird.__annotations__)
+try:
+    typing.get_type_hints(weird)
+except NameError as e:
+    print("get_type_hints 解析失败 -&gt;", type(e).__name__ + ":", e)
+
+print("=== 前向引用：类还没定义完就引用自己 ===")
+
+
+class Node:
+    def __init__(self, value: int, nxt: "Node | None" = None) -&gt; None:
+        self.value = value
+        self.nxt = nxt
+
+
+hints = typing.get_type_hints(Node.__init__)
+print("解析后 value：", hints["value"].__name__)
+print("解析后 nxt：", hints["nxt"])
+print("nxt 是联合类型：", typing.get_origin(hints["nxt"]) is typing.Union)
+
+print("=== 变量注解进 __annotations__，局部变量不进 ===")
+count: int = 0
+names: list[str] = []
+mod = sys.modules[__name__]
+print("模块级注解（3.14 起按需生成）：", mod.__annotations__)
+
+
+def local_anno():
+    x: int = 1
+    return sorted(locals())
+
+
+print("局部变量注解不产生任何运行时对象：", local_anno())
+
+
+class Account:
+    rate: float = 1.0
+    history: list[str]
+
+
+print("类注解：", Account.__annotations__)
+print("注解不是属性，没有默认值时并不存在：", hasattr(Account, "history"))
+
+print("=== 注解可以挂函数、类、模块，也是可反射的元数据 ===")
+print("add 的注解键：", sorted(add.__annotations__))
+print("类型本身也是对象：", add.__annotations__["a"] is int)
+print("注解不会进函数签名检查：", add.__defaults__ is None)</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>函数注解： {'a': &lt;class 'int'&gt;, 'b': &lt;class 'int'&gt;, 'return': &lt;class 'int'&gt;}
+结果类型： int
+=== 运行时不检查 ===
+传字符串照样跑： python
+传列表也跑： [1, 2]
+传什么都不会 TypeError： 2.5
+=== 注解可以是任意表达式，字符串会原样保留 ===
+字符串注解： {'x': '不存在的类型', 'return': '也不是类型'}
+get_type_hints 解析失败 -&gt; NameError: name '不存在的类型' is not defined
+=== 前向引用：类还没定义完就引用自己 ===
+解析后 value： int
+解析后 nxt： __main__.Node | None
+nxt 是联合类型： True
+=== 变量注解进 __annotations__，局部变量不进 ===
+模块级注解（3.14 起按需生成）： {'count': &lt;class 'int'&gt;, 'names': list[str]}
+局部变量注解不产生任何运行时对象： ['x']
+类注解： {'rate': &lt;class 'float'&gt;, 'history': list[str]}
+注解不是属性，没有默认值时并不存在： False
+=== 注解可以挂函数、类、模块，也是可反射的元数据 ===
+add 的注解键： ['a', 'b', 'return']
+类型本身也是对象： True
+注解不会进函数签名检查： True</code></pre></div></figure>
+
+<p>多加一行注解的运行时成本是<strong>零</strong>（3.14 之前定义时要构造类型对象，微秒级；3.14 起连这一步都推迟了）。所以「有没有注解」不该由性能决定，而该由「这个函数会不会被别人调用」决定。</p>
+
+<h2 id="s20-3">20.3 容器参数化：<code>list[int]</code> 而不是 <code>List[int]</code></h2>
+
+<p><code>list</code>、<code>dict</code>、<code>tuple</code>、<code>set</code>、<code>frozenset</code>、<code>type</code> 从 3.9 起支持下标参数化，<code>typing.List</code> 那一套已经过时（写出来不算错，但会触发 <code>DeprecationWarning</code>，<code>ruff</code> 有规则自动替换）。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; from typing import get_args, get_origin
+&gt;&gt;&gt; get_origin(list[int]) is list
+True
+&gt;&gt;&gt; get_args(dict[str, list[int]])
+(&lt;class 'str'&gt;, list[int])
+&gt;&gt;&gt; tuple[int, str], tuple[int, ...]
+(tuple[int, str], tuple[int, ...])</code></pre>
+
+<p>三种容器注解的语义不同，别写混：</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>注解</th>
+<th>含义</th>
+<th>能接受的值</th>
+</tr></thead>
+<tbody>
+<tr><td><code>list[int]</code></td><td>变长的 int 列表</td><td><code>[1, 2, 3]</code>、<code>[]</code></td></tr>
+<tr><td><code>tuple[int, str]</code></td><td><strong>定长</strong>，位置类型固定</td><td><code>(1, "a")</code></td></tr>
+<tr><td><code>tuple[int, ...]</code></td><td>变长，元素同类型</td><td><code>(1, 2, 3)</code></td></tr>
+<tr><td><code>dict[str, list[int]]</code></td><td>键值类型都要标</td><td><code>{"a": [1]}</code></td></tr>
+<tr><td><code>set[int]</code></td><td>可哈希元素的集合</td><td><code>{1, 2}</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>参数化<strong>不产生新类型</strong>，只是造了一个带 <code>__origin__</code>/<code>__args__</code> 的 <code>GenericAlias</code> 对象：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; type(list[int]).__name__
+'GenericAlias'
+&gt;&gt;&gt; type(list[int]()).__name__
+'list'
+&gt;&gt;&gt; list[int] == list[int]
+True</code></pre>
+
+<p><code>list[int] is list[int]</code> 是 <code>False</code>（每次访问都新建），但 <code>==</code> 为 <code>True</code>——所以缓存判断用 <code>==</code>。运行时不校验元素类型：<code>x: list[int] = [1, "a"]</code> 照跑，只有 mypy 会喊。</p>
+
+<h2 id="s20-4">20.4 可选值与联合类型</h2>
+
+<p><code>Optional[X]</code> 的准确读法是「<code>X</code> 或 <code>None</code>」，<strong>不是</strong>「可以不传」。参数「可以不传」是默认值的事：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; from typing import Optional
+&gt;&gt;&gt; Optional[int] == (int | None)
+True
+&gt;&gt;&gt; def f(a: int, b: Optional[int] = None) -&gt; None: ...
+...
+&gt;&gt;&gt; f(1)
+&gt;&gt;&gt; f(1, 2)
+&gt;&gt;&gt; f(1, None)</code></pre>
+
+<p><code>X | None</code> 是 3.10+ 的写法（PEP 604），更短、更易读，且能直接用在 <code>isinstance</code> 里（3.10+）：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; isinstance(3, int | str)
+True
+&gt;&gt;&gt; isinstance(3.5, int | str)
+False
+&gt;&gt;&gt; str(int | None)
+'int | None'</code></pre>
+
+<p>多类型联合就继续 <code>|</code>：<code>int | str | None</code>。<strong>顺序无关</strong>，<code>int | str == str | int</code> 为 <code>True</code>。旧代码里的 <code>Union[int, str]</code> 与之等价，可以放心换掉。</p>
+
+<div class="box warn"><p><code>Optional[int]</code> 与 <code>int = None</code> 是两件事。前者说「值可能是 None」，后者说「不传时是 None」。如果一个参数永远不该是 <code>None</code>，就不要写成 <code>Optional</code>——否则每个调用点都得处理 <code>None</code> 分支，注解反而成了负担。</p></div>
+
+<h2 id="s20-5">20.5 五个高频 typing 工具</h2>
+
+<p><strong><code>Callable[[参数类型], 返回类型]</code></strong>——函数作为参数时用它，比 <code>Any</code> 强得多：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; from typing import Callable
+&gt;&gt;&gt; def apply(f: Callable[[int], int], x: int) -&gt; int:
+...     return f(x)
+...
+&gt;&gt;&gt; apply(lambda n: n * 3, 7)
+21</code></pre>
+
+<p><strong><code>Literal[...]</code></strong>——把取值限定为几个常量，比 <code>str</code> 精确得多：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; from typing import Literal
+&gt;&gt;&gt; Mode = Literal["r", "w", "a"]
+&gt;&gt;&gt; Mode.__args__
+('r', 'w', 'a')
+&gt;&gt;&gt; def open_mode(m: Mode) -&gt; str:
+...     return "打开 " + m
+...
+&gt;&gt;&gt; open_mode("r")
+'打开 r'</code></pre>
+
+<p><strong><code>TypedDict</code></strong>——给「字段固定的字典」加类型，运行时仍是普通 <code>dict</code>，适合解析 JSON：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; from typing import TypedDict
+&gt;&gt;&gt; class User(TypedDict):
+...     name: str
+...     age: int
+...
+&gt;&gt;&gt; sorted(User.__required_keys__)
+['age', 'name']
+&gt;&gt;&gt; u = User(name="小明", age=18)
+&gt;&gt;&gt; u
+{'name': '小明', 'age': 18}
+&gt;&gt;&gt; User(name=1, age="x")
+{'name': 1, 'age': 'x'}</code></pre>
+
+<p>最后一行说明它<strong>不做运行时校验</strong>：<code>TypedDict</code> 的价值是让 mypy 在你写 <code>u["nmae"]</code> 时报警。要运行时校验就用 <code>pydantic</code> 之类（第 21 章会提到它不在标准库里）。</p>
+
+<p><strong><code>Any</code></strong>——关掉检查。它和「没写注解」不同：没写时 mypy 默认视为 <code>Any</code>（除非开了 <code>disallow_untyped_defs</code>），写了 <code>Any</code> 则是明确宣告「这里我不管」。函数边界上出现 <code>Any</code> 是合理的（比如处理任意 JSON），业务逻辑里出现 <code>Any</code> 通常是偷懒。</p>
+
+<p><strong><code>Final</code> / <code>ClassVar</code></strong>——前者表示「只赋值一次」，后者表示「类变量，不属于实例」：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; from typing import ClassVar, Final
+&gt;&gt;&gt; class C:
+...     table: ClassVar[dict[str, int]] = {}
+...     limit: Final = 100
+...
+&gt;&gt;&gt; C.table, C.limit
+({}, 100)</code></pre>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch20_02_containers.py</code></figcaption><pre class="py"><code>"""ch20_02_containers.py —— 容器泛型、联合、Literal、TypedDict"""
+
+from collections.abc import Iterable, Iterator, Sequence
+from typing import Any, Callable, Final, Literal, Optional, TypedDict
+
+Vector = list[float]
+
+
+def scale(v: Vector, k: float) -&gt; Vector:
+    return [x * k for x in v]
+
+
+print("类型别名在运行时就是 list[float]：", Vector)
+print("scale：", scale([1.0, -2.0], 2))
+print("别名与本体相等：", Vector == list[float])
+
+print("=== 容器参数化 ===")
+print("list[int]：", list[int])
+print("dict[str, list[int]]：", dict[str, list[int]])
+print("tuple[int, str] 定长：", tuple[int, str])
+print("tuple[int, ...] 变长同类型：", tuple[int, ...])
+print("运行时不校验参数个数（只有类型检查器会报）：", list[int, str])
+print("参数化只影响静态检查，实例仍是 list：", type(list[int]()).__name__)
+
+print("=== 可选与联合 ===")
+
+
+def find(name: str) -&gt; str | None:
+    return {"a": "A"}.get(name)
+
+
+print("Optional[str] 与 str | None 等价：", Optional[str] == (str | None))
+print("find('a')：", find("a"), "| find('z')：", find("z"))
+print("联合顺序无关：", (int | str) == (str | int))
+
+print("=== Literal：把取值限定成枚举 ===")
+Mode = Literal["r", "w", "a"]
+print("Literal 的可选值：", Mode.__args__)
+
+
+def open_mode(m: Mode) -&gt; str:
+    return f"打开模式 {m}"
+
+
+print(open_mode("r"))
+
+print("=== TypedDict：给字典加字段说明 ===")
+
+
+class User(TypedDict):
+    name: str
+    age: int
+    tags: list[str]
+
+
+u: User = {"name": "小明", "age": 18, "tags": ["python"]}
+print("运行时就是普通 dict：", type(u).__name__, "|", u)
+print("字段注解：", User.__annotations__)
+print("必填字段：", sorted(User.__required_keys__))
+print("没有额外运行时校验：", {**u, "extra": 1}["extra"])
+
+print("=== Callable 与 Any ===")
+
+
+def apply(f: Callable[[int], int], x: int) -&gt; int:
+    return f(x)
+
+
+print("apply(lambda)：", apply(lambda n: n * 3, 7))
+sq: Callable[[float], float] = lambda v: v * v
+print("Callable 只是注解：", sq(1.5))
+any_value: Any = 1
+any_value = "现在变成字符串了"
+print("Any 表示放弃检查：", any_value)
+
+LIMIT: Final = 100
+print("Final 只是标记，运行时照样能改：", LIMIT)
+LIMIT = 200
+print("改了也不报错：", LIMIT)
+
+print("=== collections.abc：按能力而不是按类型注解 ===")
+
+
+def total(xs: Iterable[int]) -&gt; int:
+    return sum(xs)
+
+
+def head(xs: Sequence[int]) -&gt; int:
+    return xs[0]
+
+
+print("total(list)：", total([1, 2, 3]))
+print("total(生成器)：", total(x for x in range(4)))
+print("head(list)：", head([9, 8]))
+print("dict 是 Iterable 但不是 Sequence：", isinstance({}, Iterable), isinstance({}, Sequence))
+print("range 是 Sequence：", isinstance(range(3), Sequence))
+print("生成器是 Iterator 不是 Sequence：",
+      isinstance((x for x in []), Iterator), isinstance((x for x in []), Sequence))</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>类型别名在运行时就是 list[float]： list[float]
+scale： [2.0, -4.0]
+别名与本体相等： True
+=== 容器参数化 ===
+list[int]： list[int]
+dict[str, list[int]]： dict[str, list[int]]
+tuple[int, str] 定长： tuple[int, str]
+tuple[int, ...] 变长同类型： tuple[int, ...]
+运行时不校验参数个数（只有类型检查器会报）： list[int, str]
+参数化只影响静态检查，实例仍是 list： list
+=== 可选与联合 ===
+Optional[str] 与 str | None 等价： True
+find('a')： A | find('z')： None
+联合顺序无关： True
+=== Literal：把取值限定成枚举 ===
+Literal 的可选值： ('r', 'w', 'a')
+打开模式 r
+=== TypedDict：给字典加字段说明 ===
+运行时就是普通 dict： dict | {'name': '小明', 'age': 18, 'tags': ['python']}
+字段注解： {'name': &lt;class 'str'&gt;, 'age': &lt;class 'int'&gt;, 'tags': list[str]}
+必填字段： ['age', 'name', 'tags']
+没有额外运行时校验： 1
+=== Callable 与 Any ===
+apply(lambda)： 21
+Callable 只是注解： 2.25
+Any 表示放弃检查： 现在变成字符串了
+Final 只是标记，运行时照样能改： 100
+改了也不报错： 200
+=== collections.abc：按能力而不是按类型注解 ===
+total(list)： 6
+total(生成器)： 6
+head(list)： 9
+dict 是 Iterable 但不是 Sequence： True False
+range 是 Sequence： True
+生成器是 Iterator 不是 Sequence： True False</code></pre></div></figure>
+
+<p><code>Final</code> 在运行时<strong>不阻止</strong>重新赋值（上面输出里值被改成了 200）——它只让 mypy 报 <code>Cannot assign to final name</code>。这是理解整章的关键：注解层的规则全靠工具执行，解释器一概不管。</p>
+
+<h2 id="s20-6">20.6 泛型：<code>TypeVar</code> 与 <code>Generic</code></h2>
+
+<p>想让「传入 <code>list[int]</code> 返回 <code>int</code>，传入 <code>list[str]</code> 返回 <code>str</code>」这种关系被检查器理解，就需要类型变量：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; from typing import TypeVar
+&gt;&gt;&gt; T = TypeVar("T")
+&gt;&gt;&gt; def first(items: list[T]) -&gt; T:
+...     return items[0]
+...
+&gt;&gt;&gt; first([1, 2])
+1
+&gt;&gt;&gt; first(["a"])
+'a'
+&gt;&gt;&gt; T
+~T</code></pre>
+
+<p><code>T</code> 在运行时就是个 <code>TypeVar</code> 对象（<code>~T</code>），只在类型检查器眼里有意义。约束可以写死成若干类型，或用 <code>bound</code> 表示「某个类的子类」：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; from typing import TypeVar
+&gt;&gt;&gt; Num = TypeVar("Num", int, float)
+&gt;&gt;&gt; Named = TypeVar("Named", bound="str | bytes")
+&gt;&gt;&gt; Num.__constraints__
+(&lt;class 'int'&gt;, &lt;class 'float'&gt;)
+&gt;&gt;&gt; Named.__bound__
+ForwardRef('str | bytes')</code></pre>
+
+<p><code>bound</code> 传字符串时保存的是 <code>ForwardRef</code>（延迟解析），传真实类型（<code>bound=int</code>）则直接就是那个类——这也正是循环引用场景要写字符串形式的原因：它在运行时不会被求值。</p>
+
+<p>泛型类用 <code>Generic[T]</code> 声明，字段与方法就能引用 <code>T</code>：</p>
+
+<pre class="py"><code>class Stack(Generic[T]):
+    def __init__(self) -&gt; None:
+        self._items: list[T] = []
+
+    def push(self, item: T) -&gt; None:
+        self._items.append(item)
+
+    def pop(self) -&gt; T:
+        return self._items.pop()</code></pre>
+
+<p><code>Stack[int]</code> 与 <code>Stack[str]</code> 在运行时是<strong>两个不同的对象</strong>（每次参数化新建），但实例的 <code>type()</code> 都是 <code>Stack</code>——类型参数在运行时被丢弃（类型擦除），和 Java 泛型一样，与 C++ 模板的「每个实例化生成一份代码」完全不同。</p>
+
+<p>内置泛型能覆盖 90% 的场景。真要写库、要给 <code>Sequence</code> 排序、要实现 <code>__iter__</code> 返回 <code>Iterator[T]</code>，才需要自己上 <code>TypeVar</code>；业务代码里手写 <code>Generic</code> 通常是过度设计。</p>
+
+<h2 id="s20-7">20.7 <code>Protocol</code>：结构化子类型</h2>
+
+<p>第 18 章的 <code>ABC</code> 要求<strong>显式继承</strong>。但很多情况下，一个类只是「恰好有 <code>area()</code> 方法」，你并不想逼它继承你的基类——这正是 <code>Protocol</code>（3.8+）解决的问题，也就是把鸭子类型写进类型系统。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; from typing import Protocol, runtime_checkable
+&gt;&gt;&gt; @runtime_checkable
+... class HasArea(Protocol):
+...     def area(self) -&gt; float: ...
+...
+&gt;&gt;&gt; class Sq:
+...     def area(self) -&gt; float:
+...         return 4.0
+...
+&gt;&gt;&gt; isinstance(Sq(), HasArea)
+True
+&gt;&gt;&gt; isinstance(3, HasArea)
+False</code></pre>
+
+<p><code>runtime_checkable</code> 才让 <code>isinstance</code> 可用，且它只检查<strong>方法名是否存在</strong>，不检查签名——所以它便宜但不严格。</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>维度</th>
+<th><code>ABC</code> 继承</th>
+<th><code>Protocol</code></th>
+</tr></thead>
+<tbody>
+<tr><td>需要改被检查的类吗</td><td>要，必须继承</td><td>不用，隐式满足</td></tr>
+<tr><td>能检查第三方类吗</td><td>不能（改不了它的代码）</td><td>能</td></tr>
+<tr><td>运行时 <code>isinstance</code></td><td>支持，严格</td><td>需 <code>runtime_checkable</code>，只看名字</td></tr>
+<tr><td>报错时机</td><td>实例化时 <code>TypeError</code></td><td>静态检查时</td></tr>
+<tr><td>适合</td><td>自己的类层次</td><td>描述「能力」、跨库接口</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="s20-8">20.8 <code>overload</code> 与它的运行时真相</h2>
+
+<p>想表达「<code>parse(str) -&gt; int</code>、<code>parse(bytes) -&gt; int</code>」这种按参数类型分派，用 <code>@overload</code>：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; from typing import overload
+&gt;&gt;&gt; @overload
+... def parse(s: str) -&gt; int: ...
+...
+&gt;&gt;&gt; try:
+...     parse("1")
+... except NotImplementedError as e:
+...     print(type(e).__name__ + ":", str(e).splitlines()[0])
+NotImplementedError: You should not call an overloaded function. A series of @overload-decorated functions outside a stub module should always be followed by an implementation that is not @overload-ed.
+&gt;&gt;&gt; parse.__name__
+'_overload_dummy'</code></pre>
+
+<p><code>@overload</code> 的桩函数<strong>没有实现</strong>，装饰器会把它换成占位函数 <code>_overload_dummy</code>，调用即抛 <code>NotImplementedError</code>。所以必须再写一个不带 <code>@overload</code> 的实现收尾，而且桩的个数与顺序对运行时毫无意义——最后生效的只有实现那一版：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; from typing import overload
+&gt;&gt;&gt; @overload
+... def parse(s: str) -&gt; int: ...
+...
+&gt;&gt;&gt; @overload
+... def parse(s: bytes) -&gt; int: ...
+...
+&gt;&gt;&gt; def parse(s):
+...     return int(s)
+...
+&gt;&gt;&gt; parse("42"), parse(b"7")
+(42, 7)
+&gt;&gt;&gt; parse.__code__.co_argcount
+1</code></pre>
+
+<p>跳过分派逻辑，直接在函数里 <code>isinstance</code> 判断，往往比 overload 更可读——<code>overload</code> 只值得用在「同一个名字、完全不同的参数形状」的库 API 上。</p>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch20_03_generics.py</code></figcaption><pre class="py"><code>"""ch20_03_generics.py —— TypeVar、Generic、Protocol 与 overload"""
+
+from typing import Generic, Protocol, TypeVar, overload, runtime_checkable
+
+T = TypeVar("T")
+
+
+def first(items: list[T]) -&gt; T:
+    return items[0]
+
+
+print("泛型函数：", first([1, 2]), "|", first(["a", "b"]))
+print("T 在运行时只是 TypeVar：", T)
+
+print("=== 泛型类 ===")
+
+
+class Stack(Generic[T]):
+    def __init__(self) -&gt; None:
+        self._items: list[T] = []
+
+    def push(self, item: T) -&gt; None:
+        self._items.append(item)
+
+    def pop(self) -&gt; T:
+        return self._items.pop()
+
+    def __len__(self) -&gt; int:
+        return len(self._items)
+
+
+s: Stack[int] = Stack()
+s.push(1)
+s.push(2)
+print("出栈：", s.pop(), "| 剩余长度：", len(s))
+print("参数化后的类：", Stack[int])
+print("Stack[int] 与 Stack[str] 不是同一个对象：", Stack[int] is not Stack[str])
+print("但实例的类型都是 Stack：", type(s).__name__)
+
+print("=== 约束与上界 ===")
+N = TypeVar("N", int, float)
+
+
+def double(x: N) -&gt; N:
+    return x * 2
+
+
+print("约束为 int/float：", double(2), "|", double(1.5))
+
+print("=== Protocol：结构化子类型，鸭子类型的正式写法 ===")
+
+
+@runtime_checkable
+class HasArea(Protocol):
+    def area(self) -&gt; float: ...
+
+
+class Sq:
+    def __init__(self, a: float) -&gt; None:
+        self.a = a
+
+    def area(self) -&gt; float:
+        return self.a ** 2
+
+
+print("Sq 没继承 HasArea，isinstance 仍通过：", isinstance(Sq(2), HasArea))
+print("int 没有 area()：", isinstance(3, HasArea))
+print("Protocol 也能当注解用：", HasArea.__name__)
+
+print("=== overload 只服务类型检查器 ===")
+
+
+@overload
+def stub(x: int) -&gt; int: ...
+
+
+try:
+    stub(1)
+except NotImplementedError as e:
+    print("只剩 stub 时调用 -&gt;", type(e).__name__ + ":", str(e).splitlines()[0])
+print("它被换成了占位函数：", stub.__name__)
+
+
+@overload
+def parse(s: str) -&gt; int: ...
+@overload
+def parse(s: bytes) -&gt; int: ...
+def parse(s):
+    return int(s)
+
+
+print("运行时只剩最后一个定义：", parse("42"), "|", parse(b"7"))
+print("签名只留实现那一版，形参个数：", parse.__code__.co_argcount)</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>泛型函数： 1 | a
+T 在运行时只是 TypeVar： ~T
+=== 泛型类 ===
+出栈： 2 | 剩余长度： 1
+参数化后的类： __main__.Stack[int]
+Stack[int] 与 Stack[str] 不是同一个对象： True
+但实例的类型都是 Stack： Stack
+=== 约束与上界 ===
+约束为 int/float： 4 | 3.0
+=== Protocol：结构化子类型，鸭子类型的正式写法 ===
+Sq 没继承 HasArea，isinstance 仍通过： True
+int 没有 area()： False
+Protocol 也能当注解用： HasArea
+=== overload 只服务类型检查器 ===
+只剩 stub 时调用 -&gt; NotImplementedError: You should not call an overloaded function. A series of @overload-decorated functions outside a stub module should always be followed by an implementation that is not @overload-ed.
+它被换成了占位函数： _overload_dummy
+运行时只剩最后一个定义： 42 | 7
+签名只留实现那一版，形参个数： 1</code></pre></div></figure>
+
+<h2 id="s20-9">20.9 跑起静态检查器</h2>
+
+<p>命令行两行，效果立刻可见：</p>
+
+<pre class="shell"><code>python -m pip install mypy      # 或：pip install pyright / ruff
+mypy app.py --strict</code></pre>
+
+<p><code>mypy</code> 的常见报错与含义：</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>报错</th>
+<th>含义</th>
+<th>处理</th>
+</tr></thead>
+<tbody>
+<tr><td><code>Argument 1 to "f" has incompatible type "str"; expected "int"</code></td><td>传错类型</td><td>改调用方，或放宽签名</td></tr>
+<tr><td><code>Missing return statement</code></td><td>声称返回非 <code>None</code> 却有分支不返回</td><td>补齐分支或改 <code>-&gt; None</code></td></tr>
+<tr><td><code>Item "None" of "Optional[X]" has no attribute "y"</code></td><td>没判空</td><td>先 <code>if x is None: ...</code></td></tr>
+<tr><td><code>Need type annotation for "x"</code>（strict 下）</td><td>空容器推不出元素类型</td><td>写 <code>x: list[int] = []</code></td></tr>
+<tr><td><code>Cannot assign to final name</code></td><td>给 <code>Final</code> 重新赋值</td><td>去掉 <code>Final</code> 或改逻辑</td></tr>
+<tr><td><code>Function is missing a type annotation</code></td><td>严格模式要求全标注</td><td>补注解</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>配置放 <code>pyproject.toml</code>，别在命令行堆参数：</p>
+
+<pre class="code"><code>[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unused_ignores = true</code></pre>
+
+<p><strong>渐进式接入</strong>是最实际的路径：先把新代码标全，老代码加 <code>disallow_untyped_defs = false</code>；只在公共 API 与数据边界（HTTP、DB、JSON）上强制。全项目一次开 <code>--strict</code> 的结果通常是几百条报错，然后所有人开始写 <code># type: ignore</code>，等于关掉了检查。</p>
+
+<p>注解还能在运行时被你自己的代码用起来——这是「元数据」的另一半价值：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import functools
+&gt;&gt;&gt; def checked(fn):
+...     ann = fn.__annotations__
+...     @functools.wraps(fn)
+...     def wrapper(*args):
+...         for name, value in zip(fn.__code__.co_varnames, args):
+...             want = ann.get(name)
+...             if want is not None and not isinstance(value, want):
+...                 raise TypeError(f"{name} 需要 {want.__name__}，收到 {type(value).__name__}")
+...         return fn(*args)
+...     return wrapper
+...
+&gt;&gt;&gt; @checked
+... def area(w: float, h: float) -&gt; float:
+...     return w * h
+...
+&gt;&gt;&gt; area(2.0, 3.0)
+6.0
+&gt;&gt;&gt; try:
+...     area(2, 3.0)
+... except TypeError as e:
+...     print(type(e).__name__ + ":", e)
+TypeError: w 需要 float，收到 int</code></pre>
+
+<p>这种「用注解做运行时校验」的思路正是 <code>pydantic</code>、<code>dataclasses-json</code>、FastAPI 请求校验的底层原理。注意它只适用于简单类型：<code>list[int]</code> 这种参数化类型要自己拆 <code>get_args</code> 递归比较，<code>Union</code> 要逐个试——所以生产里直接选现成库。</p>
+
+<h2 id="s20-10">20.10 注解的工程约定</h2>
+
+<ol><li><strong>公共 API 必标</strong>：模块里被别的模块用的函数、类、常量，参数与返回值都标。</li><li><strong>内部短函数可省</strong>：三行的局部辅助函数，注解带来的噪音大于收益。</li><li><strong>数据边界必标</strong>：解析 JSON、读配置、接 HTTP，用 <code>TypedDict</code> 或 <code>dataclass</code> 把结构写下来。</li><li><strong>不要用注解替代运行时校验</strong>：外部输入永远要 <code>if not isinstance(...)</code> 或走 <code>pydantic</code>。注解不会替你拦住恶意的 JSON。</li><li><strong><code>Any</code> 要写出来</strong>，不要靠「没写注解」隐式得到 <code>Any</code>——显式才看得见技术债。</li><li><strong><code># type: ignore[code]</code> 带错误码</strong>，并配 <code>warn_unused_ignores = true</code>，否则 ignore 会越积越多。</li></ol>
+
+<h2 id="20-a-与-c-的差别">20.a 与 C++ 的差别</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>维度</th>
+<th>Python</th>
+<th>C++</th>
+</tr></thead>
+<tbody>
+<tr><td>类型检查时机</td><td>可选、运行前由外部工具做</td><td>强制、编译期</td></tr>
+<tr><td>注解的作用</td><td>元数据，运行时几乎无痕</td><td>决定内存布局、重载解析、代码生成</td></tr>
+<tr><td>泛型</td><td><code>TypeVar</code> + 擦除，一份代码</td><td>模板实例化，每种类型一份代码</td></tr>
+<tr><td>类型密度</td><td>渐进式，可部分标注</td><td>全部静态，无例外</td></tr>
+<tr><td>类型别名</td><td><code>Vector = list[float]</code> 就是赋值</td><td><code>using Vector = ...</code>，编译期实体</td></tr>
+<tr><td>空值</td><td><code>None</code> 是普通值，类型里写 <code>X | None</code></td><td>引用不可空，指针可空</td></tr>
+<tr><td>类型推断</td><td>mypy 局部推断，不能推断参数</td><td><code>auto</code>、模板实参推导</td></tr>
+<tr><td>重载</td><td>只有静态 <code>overload</code> 桩</td><td>编译期真重载</td></tr>
+<tr><td>常量</td><td><code>Final</code>（仅检查）</td><td><code>const</code>/<code>constexpr</code>（编译期强制）</td></tr>
+<tr><td>检查命令</td><td><code>mypy app.py</code></td><td>编译器本身就是检查器</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>一句话：C++ 的类型是<strong>编译器的输入</strong>，Python 的类型是<strong>工具的输入</strong>。这解释了为什么 Python 里 <code>int</code> 能溢出成任意精度（第 3 章）、为什么 <code>list[int]</code> 装字符串也能跑——运行时的对象根本不知道注解的存在。</p>
+
+<h2 id="20-b-易错点清单">20.b 易错点清单</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>现象</th>
+<th>原因</th>
+<th>一行修复</th>
+</tr></thead>
+<tbody>
+<tr><td>以为写了 <code>: int</code> 就会报 <code>TypeError</code></td><td>注解不做运行时检查</td><td>需要校验就显式 <code>isinstance</code> 或上 <code>pydantic</code></td></tr>
+<tr><td><code>mypy</code> 报 <code>Need type annotation</code></td><td>空容器推不出元素类型</td><td><code>xs: list[int] = []</code></td></tr>
+<tr><td><code>Optional[X]</code> 到处判空，很烦</td><td>把「默认 None」误写成「可为 None」</td><td>不该是 None 就去掉 <code>Optional</code></td></tr>
+<tr><td><code>list[int, str]</code> 没报错</td><td>运行时不校验参数个数</td><td>只有 mypy 会报 <code>"list" expects 1 type argument</code></td></tr>
+<tr><td>前向引用报 <code>NameError</code></td><td>类还没定义完就引用自己</td><td>写字符串 <code>"Node | None"</code>，或 <code>from __future__ import annotations</code></td></tr>
+<tr><td><code>Final</code> 变量被改了还不报错</td><td><code>Final</code> 只是静态标记</td><td>靠 review/mypy，运行时要靠 <code>frozen</code> 数据类</td></tr>
+<tr><td><code># type: ignore</code> 越来越多</td><td>用它掩盖设计问题</td><td>带错误码 + <code>warn_unused_ignores</code></td></tr>
+<tr><td><code>TypedDict</code> 拼错键没报错</td><td>运行时是普通 dict</td><td>用 mypy 检查，或用 <code>dataclass</code></td></tr>
+<tr><td><code>overload</code> 桩函数被调用</td><td>忘了写实现</td><td>最后一个不带 <code>@overload</code> 的定义必须有函数体</td></tr>
+<tr><td>给 <code>Any</code> 赋值后到处漏检查</td><td><code>Any</code> 传染</td><td>边界用 <code>Any</code>，进来立刻收窄成具体类型</td></tr>
+<tr><td>注解里的类型名写错，导入时才崩</td><td>3.14 延迟求值</td><td>用 <code>typing.get_type_hints</code> 在测试里跑一遍</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>最后一条值得一条断言：<strong>给每个用了前向引用的模块加一个测试</strong>，<code>typing.get_type_hints(obj)</code> 跑一遍就够，能在 CI 里抓住「注解里的名字写错/漏 import」。</p>
+
+<h2 id="20-c-练习">20.c 练习</h2>
+
+<p><strong>基础 1</strong>：给一个 <code>def moving_average(xs, k)</code> 补全注解（返回 <code>list[float]</code>），并保证 mypy <code>--strict</code> 下无报错。</p>
+
+<p>验收：<code>mypy --strict</code> 对文件无输出；<code>moving_average([1, 2, 3], 2) == [1.5, 2.5]</code>。</p>
+
+<p><strong>基础 2</strong>：用 <code>TypedDict</code> 描述 <code>{"id": int, "name": str, "tags": list[str]}</code> 的字典，写一个 <code>def summarize(rec: Item) -&gt; str</code> 返回 <code>name + 标签数量</code>。</p>
+
+<p>验收：mypy 能抓出 <code>summarize({"id": 1, "name": "a"})</code> 缺字段；运行时 <code>summarize({...})</code> 正常返回字符串。</p>
+
+<p><strong>基础 3</strong>：写 <code>def parse_pair(s: str) -&gt; tuple[str, int]</code>，用 <code>split</code> + <code>int</code>，并让 mypy 认可返回值是二元组而不是 <code>tuple[str, ...]</code>。</p>
+
+<p>验收：<code>parse_pair("a 3") == ("a", 3)</code>；错误输入抛 <code>ValueError</code>，且被 <code>except ValueError</code> 捕获。</p>
+
+<p><strong>变式</strong>：定义 <code>Protocol</code> 类 <code>Closeable</code>（有 <code>close() -&gt; None</code>），写 <code>def close_all(items: list[Closeable]) -&gt; int</code> 返回成功关闭的数量；传入有 <code>close</code> 的对象与没有的对象各试一次。</p>
+
+<p>验收：<code>isinstance</code> 对实现类返回 <code>True</code>、对 <code>int</code> 返回 <code>False</code>；<code>close_all</code> 能接受列表里的不同类实例。</p>
+
+<p><strong>挑战</strong>：给第 18 章的 <code>Stack</code> 加完整泛型注解（<code>Generic[T]</code>、<code>__init__</code>、<code>push</code>、<code>pop</code>、<code>__len__</code>），再写一个 <code>Last[T]</code> 泛型函数返回末元素；额外要求 <code>Stack[int]</code> 与 <code>Stack[str]</code> 在 mypy 下互不兼容，并写测试断言「运行时不擦除信息到影响功能」。</p>
+
+<p>验收：<code>mypy --strict</code> 通过；<code>s: Stack[int] = Stack(); s.push("a")</code> 被 mypy 报错；<code>Stack[int] is not Stack[str]</code> 为 <code>True</code>。</p>
+
+<h2 id="20-d-小结">20.d 小结</h2>
+
+<ol><li>注解是元数据：解释器只存不查，<code>__annotations__</code> / <code>get_type_hints</code> 让它可反射，运行时不产生任何校验。</li><li>写注解的规矩是「容器参数化 + 联合用 <code>|</code> + 函数入口出口标全」，<code>TypedDict</code> 管字典、<code>Protocol</code> 管能力、<code>Literal</code> 管枚举。</li><li>检查器要渐进式接入：公共 API 与数据边界强制，靠 <code>mypy --strict</code> 在 CI 卡住回归，别用 <code>Any</code> 和 <code># type: ignore</code> 换一时清静。</li></ol>
+
+<p>下一章打开标准库工具箱：路径、时间、JSON、正则、计数、组合、随机、命令行、日志——每一样都给出能直接抄进项目的写法。</p>
+
+    
+
+    </article>
+    <!-- ==================== 正文结束 ==================== -->
+
+    <div data-learn-pager></div>
+
+    <footer class="acm-footer" style="margin-top:34px;border-radius:14px;padding:20px 22px">
+      <div class="acm-footer-inner">
+        <div>
+          <p><b>Python 语法教程</b> · 编程学习站的一部分。</p>
+          <p class="acm-tiny">配色与深浅色跟随<a href="../../index.html">校园主页</a>；顶部右侧按钮可切换。</p>
+        </div>
+        <div class="acm-footer-links">
+          <a href="./index.html">章节目录</a>
+          <a href="../index.html">编程学习首页</a>
+          <a href="../study.html">C++ 资料</a>
+          <a href="../practice.html">C++ 题练场</a>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+
+  <div class="learn-rail"><div data-learn-toc></div></div>
+</div>
+
+<script src="../../js/learn-nav.js"></script>
+<script src="../../js/learn-shell.js"></script>
+<script src="../../js/learn-code.js"></script>
+<script>
+/* 顶部导航滚动态 + 主题切换（与 C++ 两个页面同一套逻辑，每页一份，不依赖外链） */
+(function () {
+  'use strict';
+  var root = document.documentElement, nav = document.getElementById('acmNav');
+  if (nav) {
+    var onScroll = function () { nav.classList.toggle('stuck', (window.scrollY || 0) > 8); };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+  var ico = document.querySelector('#themeIco use');
+  function paint() {
+    if (ico) { ico.setAttribute('href', root.getAttribute('data-theme') === 'dark' ? '#i-sun' : '#i-moon'); }
+  }
+  paint();
+  var btn = document.getElementById('themeBtn');
+  if (btn) {
+    btn.addEventListener('click', function () {
+      var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      root.setAttribute('data-mode', next);
+      try { localStorage.setItem('cw.theme', JSON.stringify(next)); } catch (e) { }
+      paint();
+    });
+  }
+})();
+</script>
+</body>
+</html>

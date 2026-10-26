@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light" data-mode="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Python 的 str 是不可变的 Unicode 码点序列——不是 char[]，不是字节数组。每一次&quot;修改&quot;都在造新对象，所以循环里用 + 拼字符串是 O(n²)；而每一次格式化都该用 f-string，它比 % 和 .format 都快且更短。">
+<meta name="theme-color" content="#2563eb">
+<meta name="color-scheme" content="light dark">
+<title>第 5 章 · 字符串 · Python 语法教程 · 编程学习</title>
+<script src="../../js/boot.js"></script>
+<script>try{var _t=document.documentElement.getAttribute('data-theme')||'light';document.documentElement.setAttribute('data-mode',_t);}catch(e){}</script>
+<link rel="stylesheet" href="../acm.css">
+<link rel="stylesheet" href="../learn.css">
+<link rel="stylesheet" href="../learn-code.css">
+</head>
+<body data-learn-page="py-05">
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;overflow:hidden">
+  <symbol id="i-graduation" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8.6 12 4.2l9.5 4.4L12 13 2.5 8.6Z"/><path d="M6.2 10.9V16c0 1.4 2.6 2.6 5.8 2.6s5.8-1.2 5.8-2.6v-5.1"/><path d="M21.5 9.4v5.2"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.6 12 3.8l8.5 6.8V20a1 1 0 0 1-1 1h-4.2v-6.2H8.7V21H4.5a1 1 0 0 1-1-1z"/></symbol>
+</svg>
+
+<header class="acm-nav" id="acmNav">
+  <div class="acm-wrap acm-nav-inner">
+    <a class="acm-brand" href="../index.html" title="回到编程学习首页">
+      <span class="acm-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-graduation"/></svg></span>
+      <span class="acm-brand-text"><strong>编程学习</strong><small>C++ · Python</small></span>
+    </a>
+    <nav class="acm-tabs" aria-label="编程学习站页面">
+      <a href="../index.html">首页</a>
+      <a href="../study.html">C++ 资料</a>
+      <a href="../practice.html">C++ 题练场</a>
+      <a href="./index.html" class="on" aria-current="page">Python</a>
+    </nav>
+    <div class="acm-nav-actions">
+      <button class="acm-btn acm-btn-icon" type="button" id="themeBtn" title="切换深色 / 浅色（全站共用）" aria-label="切换深色或浅色主题">
+        <svg class="ico" aria-hidden="true" id="themeIco"><use href="#i-moon"/></svg>
+      </button>
+      <a class="acm-btn" href="../../index.html" title="返回校园主页">
+        <svg class="ico" aria-hidden="true"><use href="#i-home"/></svg><span class="label">回主页</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<div class="learn-layout">
+
+  <!-- 窄屏（≤900px）：侧栏换成顶部折叠块 -->
+  <details class="learn-mobnav">
+    <summary>站点导航 · C++ / Python</summary>
+    <div data-learn-sidebar data-compact="1"></div>
+  </details>
+
+  <aside class="learn-aside"><div data-learn-sidebar></div></aside>
+
+  <main class="learn-main">
+
+    <div data-learn-crumb></div>
+
+    <header class="learn-head">
+      <h1 id="learnTitle">第 5 章 · 字符串</h1>
+      <p class="lead">Python 的 <code>str</code> 是<strong>不可变的 Unicode 码点序列</strong>——不是 <code>char[]</code>，不是字节数组。每一次"修改"都在造新对象，所以循环里用 <code>+</code> 拼字符串是 O(n²)；而每一次格式化都该用 f-string，它比 <code>%</code> 和 <code>.format</code> 都快且更短。</p>
+      <div class="learn-meta">
+        <span class="learn-chip py">Python 3</span>
+        <button class="learn-mark" type="button" data-learn-mark>标记为已读</button>
+      </div>
+    </header>
+
+    <!-- 窄屏（≤1180px）：右侧目录换到正文上面的折叠块 -->
+    <details class="learn-mobtoc" open>
+      <summary>本页目录</summary>
+      <div data-learn-toc></div>
+    </details>
+
+    <!-- ==================== 正文：只改这里 ==================== -->
+    <article data-learn-content>
+
+<p><strong>读完这一章你能做到</strong></p>
+
+<ul><li>熟练用 <code>split</code> / <code>join</code> / <code>strip</code> / <code>replace</code> / <code>find</code> 处理一行文本；</li><li>说清 <code>len(s)</code> 数的是字符还是字节，并在读写文件时不踩编码坑；</li><li>用 f-string 写出对齐、补零、千分位、百分比、进制、日期、调试输出；</li><li>知道为什么循环里 <code>s += x</code> 慢，并改成 <code>"".join(...)</code>；</li><li>区分"找不到"的两种 API：<code>find</code> 返回 -1，<code>index</code> 抛 <code>ValueError</code>。</li></ul>
+
+<hr>
+
+<h2 id="s5-1">5.1 字面量、转义与不可变性</h2>
+
+<p>四种写法：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; 'single', "double", 'contains "quote"'
+('single', 'double', 'contains "quote"')
+&gt;&gt;&gt; "a" "b"          # 相邻字面量自动拼接（编译期完成）
+'ab'
+&gt;&gt;&gt; r"C:\new\table"  # raw：反斜杠不当转义
+'C:\\new\\table'
+&gt;&gt;&gt; """第一行
+... 第二行"""
+'第一行\n第二行'</code></pre>
+
+<p>常用转义：<code>\n</code> 换行、<code>\t</code> 制表、<code>\\</code> 反斜杠本身、<code>\'</code>、<code>\"</code>、<code>\0</code> 空字符、<code>\x41</code>（十六进制字节）、<code>\u4e2d</code>（Unicode 码点，即"中"）。<strong>路径优先用 <code>pathlib</code> 或 <code>/</code></strong>，别跟反斜杠搏斗（第 17 章）。</p>
+
+<p><code>str</code> 不可变，意味着：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; s = "abc"
+&gt;&gt;&gt; s.upper()
+'ABC'
+&gt;&gt;&gt; s
+'abc'
+&gt;&gt;&gt; try:
+...     s[0] = "x"
+... except TypeError as e:
+...     print(type(e).__name__, e)
+TypeError 'str' object does not support item assignment</code></pre>
+
+<p>所有"修改"类方法（<code>upper</code>、<code>replace</code>、<code>strip</code>、<code>zfill</code>…）都<strong>返回新串</strong>，原串不动。这和 C++ 的 <code>std::string</code> 完全不同——那边 <code>s.append()</code> 是原地改。</p>
+
+<hr>
+
+<h2 id="s5-2">5.2 长度是字符，不是字节</h2>
+
+<pre class="pycon"><code>&gt;&gt;&gt; len("中文")
+2
+&gt;&gt;&gt; len("中文".encode("utf-8"))
+6
+&gt;&gt;&gt; "中文".encode("utf-8")
+b'\xe4\xb8\xad\xe6\x96\x87'</code></pre>
+
+<ul><li><code>len(str)</code> = <strong>码点个数</strong>（不是"看起来几个字"，emoji 组合字符可能算多个）；</li><li><code>len(s.encode("utf-8"))</code> = <strong>字节数</strong>，中文一个字 3 字节；</li><li><code>str</code> 与 <code>bytes</code> 之间用 <code>encode</code> / <code>decode</code> 转换，<strong>不能直接相加</strong>（<code>"a" + b"b"</code> 报 <code>TypeError</code>）。</li></ul>
+
+<pre class="pycon"><code>&gt;&gt;&gt; b"abc".decode("utf-8")
+'abc'
+&gt;&gt;&gt; try:
+...     b"\xff".decode("utf-8")
+... except UnicodeDecodeError as e:
+...     print(type(e).__name__, e)
+UnicodeDecodeError 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte</code></pre>
+
+<p>这类报错 90% 来自"文件是 GBK，你按 UTF-8 读"。修法不是 <code>try/except</code>，而是<strong>找到正确的编码</strong>：中文 Windows 导出的 CSV 常见 <code>encoding="gbk"</code>，网页与代码一律 UTF-8。</p>
+
+<hr>
+
+<h2 id="s5-3">5.3 常用方法分四组</h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch05_01_methods.py</code></figcaption><pre class="py"><code>"""ch05_01_methods.py —— 字符串不可变、常用方法与切片式查询"""
+s = "Hello, Python"
+print("长度（字符数）：", len(s))
+print("长度（UTF-8 字节数）：", len(s.encode("utf-8")), len("中文".encode("utf-8")))
+
+print("=== 不可变：所有修改都返回新串 ===")
+t = s.lower()
+print(s, "|", t, "| 原串没变:", s is not t)
+try:
+    s[0] = "h"
+except TypeError as e:
+    print("TypeError:", e)
+try:
+    print(s + 1)
+except TypeError as e:
+    print("TypeError:", e)
+
+print("=== 清洗与切分 ===")
+print(repr("  hi \n".strip()), repr("xxhixx".strip("x")))
+print("a,b,,c".split(","))
+print("a b  c\n d".split())
+print("a,b,c".split(",", 1))
+print("x".join(["a", "b"]))
+print("=" * 10)
+
+print("=== 查询：find 给 -1，index 抛异常 ===")
+print(s.find("Python"), s.find("Java"))
+try:
+    s.index("Java")
+except ValueError as e:
+    print("ValueError:", e)
+print(s.count("l"), s.startswith(("Hi", "Hello")), s.endswith("on"))
+print("包含判断：", "Python" in s)
+
+print("=== 变形与排版 ===")
+print("42".zfill(5), "ab".center(6, "*"), "ab".ljust(5, ".") + "|")
+print("PyThOn".lower(), "PyThOn".upper(), "py thon".title(), "py thon".capitalize())
+print("a1".isalnum(), "42".isdigit(), "abc".isalpha())
+print(repr("  多余空白  ".strip()))</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>长度（字符数）： 13
+长度（UTF-8 字节数）： 13 6
+=== 不可变：所有修改都返回新串 ===
+Hello, Python | hello, python | 原串没变: True
+TypeError: 'str' object does not support item assignment
+TypeError: can only concatenate str (not "int") to str
+=== 清洗与切分 ===
+'hi' 'hi'
+['a', 'b', '', 'c']
+['a', 'b', 'c', 'd']
+['a', 'b,c']
+axb
+==========
+=== 查询：find 给 -1，index 抛异常 ===
+7 -1
+ValueError: substring not found
+2 True True
+包含判断： True
+=== 变形与排版 ===
+00042 **ab** ab...|
+python PYTHON Py Thon Py thon
+True True True
+'多余空白'</code></pre></div></figure>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>组</th>
+<th>方法</th>
+<th>要点</th>
+</tr></thead>
+<tbody>
+<tr><td>清洗</td><td><code>strip</code> / <code>lstrip</code> / <code>rstrip</code> / <code>replace</code></td><td>不带参数时去<strong>所有空白</strong>（空格、<code>\t</code>、<code>\n</code>）；带参数时按字符集合逐个剥离，<code>"xxhixx".strip("x")</code> 得 <code>'hi'</code></td></tr>
+<tr><td>切分</td><td><code>split</code> / <code>rsplit</code> / <code>splitlines</code> / <code>partition</code></td><td>无参数 <code>split()</code> 按任意连续空白切<strong>且丢空串</strong>；<code>split(",")</code> 会保留空串；<code>partition</code> 总是返回三元组</td></tr>
+<tr><td>查询</td><td><code>find</code> / <code>rfind</code> / <code>index</code> / <code>count</code> / <code>startswith</code> / <code>endswith</code> / <code>in</code></td><td><code>find</code> 找不到返回 <code>-1</code>，<code>index</code> 抛 <code>ValueError</code>；<code>startswith</code> 可传 tuple 试多个前缀</td></tr>
+<tr><td>变形</td><td><code>upper</code> / <code>lower</code> / <code>capitalize</code> / <code>title</code> / <code>swapcase</code></td><td>都是<strong>返回新串</strong>；<code>title()</code> 会把 <code>"it's"</code> 变成 <code>"It'S"</code>，别用于人名</td></tr>
+<tr><td>排版</td><td><code>zfill</code> / <code>center</code> / <code>ljust</code> / <code>rjust</code></td><td>补零 <code>zfill</code> 会保留符号：<code>"-42".zfill(5)</code> 得 <code>'-0042'</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box tip"><p>判断"是不是数字"要分清：<code>s.isdigit()</code> 只认十进制数字字符，<code>"１２".isdigit()</code>（全角）也为真；<code>"1.5".isdigit()</code> 为假。要判断字符串能否转 <code>int</code>，最稳的是 <code>try: int(s) except ValueError</code>——这叫 EAFP（第 16 章）。</p></div>
+
+<hr>
+
+<h2 id="s5-4">5.4 拼接：<code>+</code> 为什么慢</h2>
+
+<p><code>str</code> 不可变，所以 <code>s = s + x</code> 每次都要<strong>新建一个更长的串并复制全部旧内容</strong>。拼接 n 次总代价是 <code>O(n²)</code>：</p>
+
+<pre class="out"><code>第 1 次复制 1 个字符，第 2 次复制 2 个……第 n 次复制 n 个 → n(n+1)/2</code></pre>
+
+<p>10 万次 <code>+=</code> 就是约 50 亿字符复制，妥妥 TLE。正确做法是<strong>收集到列表再一次 join</strong>（<code>join</code> 先算总长度，一次分配一次复制，O(n)）：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; parts = [str(i) for i in range(4)]
+&gt;&gt;&gt; "".join(parts)
+'0123'
+&gt;&gt;&gt; "-".join(parts)
+'0-1-2-3'
+&gt;&gt;&gt; "".join([])
+''</code></pre>
+
+<p>同样的道理，构造大量行时用 <code>"\n".join(lines)</code>，别在循环里 <code>print</code> 十次（<code>print</code> 有 IO 开销，第 17 章会讲用 <code>sys.stdout.write</code> 或一次性 join）。</p>
+
+<hr>
+
+<h2 id="s5-5">5.5 f-string：日常首选</h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch05_02_format.py</code></figcaption><pre class="py"><code>"""ch05_02_format.py —— 三代格式化：%、format、f-string"""
+from datetime import date
+
+name, score = "小明", 92.4567
+print("=== % 旧式（知道就行，新代码别用） ===")
+print("%s 得分 %.2f" % (name, score))
+print("%5s|%-5s|" % ("ab", "ab"))
+
+print("=== str.format ===")
+print("{} 得分 {:.2f}".format(name, score))
+print("{0}-{1}-{0}".format("A", "B"))
+print("{n} 得分 {s:.1f}".format(n=name, s=score))
+
+print("=== f-string：日常首选 ===")
+print(f"{name} 得分 {score:.2f}")
+print(f"舍入到整数：{score:.0f}，科学计数：{score:.2e}")
+print(f"宽度对齐：[{42:&gt;6}][{42:&lt;6}][{42:^6}]")
+print(f"补零：[{42:06d}]，带符号：[{42:+d}][{-42:+d}]")
+print(f"千分位：{1234567:,}，百分比：{0.256:.1%}")
+print(f"进制：{255:#x} {255:x} {5:#b} {8:o}")
+print(f"repr：{name!r}，调试语法：{score=}")
+width = 8
+print(f"嵌套宽度：[{42:&gt;{width}}]")
+print(f"日期：{date(2024, 1, 5):%Y-%m-%d}，{date(2024, 1, 5):%A}")
+
+print("=== 拼接性能：join 而不是 + ===")
+parts = [str(i) for i in range(5)]
+print("+ 拼接:", "".join(parts) == "0" + "1" + "2" + "3" + "4")
+print("join 结果:", "|".join(parts))</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>=== % 旧式（知道就行，新代码别用） ===
+小明 得分 92.46
+   ab|ab   |
+=== str.format ===
+小明 得分 92.46
+A-B-A
+小明 得分 92.5
+=== f-string：日常首选 ===
+小明 得分 92.46
+舍入到整数：92，科学计数：9.25e+01
+宽度对齐：[    42][42    ][  42  ]
+补零：[000042]，带符号：[+42][-42]
+千分位：1,234,567，百分比：25.6%
+进制：0xff ff 0b101 10
+repr：'小明'，调试语法：score=92.4567
+嵌套宽度：[      42]
+日期：2024-01-05，Friday
+=== 拼接性能：join 而不是 + ===
++ 拼接: True
+join 结果: 0|1|2|3|4</code></pre></div></figure>
+
+<p>格式说明符的完整语法是 <code>{值:填充符 对齐 宽度 . 精度 类型}</code>，记住高频的十来个就够：</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>写法</th>
+<th>结果</th>
+<th>用途</th>
+</tr></thead>
+<tbody>
+<tr><td><code>{x:.2f}</code></td><td><code>3.14</code></td><td>保留 2 位小数（四舍五入，不是银行家舍入）</td></tr>
+<tr><td><code>{x:&gt;6}</code> <code>{x:&lt;6}</code> <code>{x:^6}</code></td><td>右/左/居中，宽度 6</td><td>表格对齐</td></tr>
+<tr><td><code>{x:06d}</code></td><td><code>000042</code></td><td>编号补零（注意 <code>0</code> 是填充符的简写）</td></tr>
+<tr><td><code>{x:,}</code></td><td><code>1,234,567</code></td><td>千分位</td></tr>
+<tr><td><code>{x:.1%}</code></td><td><code>25.6%</code></td><td>百分比（自动乘 100 加 <code>%</code>）</td></tr>
+<tr><td><code>{x:#x}</code> <code>{x:#b}</code> <code>{x:o}</code></td><td><code>0xff</code> <code>0b101</code> <code>10</code></td><td>进制</td></tr>
+<tr><td><code>{x!r}</code></td><td><code>'小明'</code></td><td>带引号的 <code>repr</code>，调试看清类型</td></tr>
+<tr><td><code>{x=}</code></td><td><code>score=92.4567</code></td><td>调试语法，连变量名一起打印（3.8+）</td></tr>
+<tr><td><code>{x:&gt;{w}}</code></td><td>宽度取自变量</td><td>列宽动态</td></tr>
+<tr><td><code>{d:%Y-%m-%d}</code></td><td><code>2024-01-05</code></td><td>日期格式化</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>三个必知限制：</p>
+
+<ol><li><strong>f-string 的引号冲突</strong>：3.12 之前，<code>f"{d["k"]}"</code> 是非法的（同种引号嵌套），要写 <code>f"{d['k']}"</code>；3.12+ 放开了；</li><li><strong>f-string 不能在表达式里放反斜杠</strong>（3.12 起放宽），<code>f"{'\n'.join(xs)}"</code> 在旧版要拆成两步；</li><li><strong>f-string 在定义处就求值</strong>，不像模板那样延后——写日志时如果格式化开销大，用 <code>logging</code> 的 <code>%s</code> 惰性风格（第 21 章）。</li></ol>
+
+<div class="box warn"><p><code>f"{score:.2f}"</code> 与 <code>round(score, 2)</code> 行为不同：格式化是"按显示精度四舍五入（half-even 一半）"，<code>round</code> 返回 float。<strong>判题输出一律用格式化</strong>，别用 <code>round</code> 再 <code>print</code>（<code>round(2.5)</code> 得 <code>2</code>，输出会错）。</p></div>
+
+<hr>
+
+<h2 id="s5-6">5.6 与 C++ 的差别</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>维度</th>
+<th>C++</th>
+<th>Python</th>
+</tr></thead>
+<tbody>
+<tr><td>类型</td><td><code>std::string</code> 是字节序列，<code>char</code> 为元素</td><td><code>str</code> 是 Unicode 码点序列，元素还是 <code>str</code></td></tr>
+<tr><td>可变性</td><td><code>s += x</code>、<code>s[0] = 'a'</code> 原地改</td><td>不可变，一切"修改"返回新串</td></tr>
+<tr><td>长度</td><td><code>s.size()</code> 字节数</td><td><code>len(s)</code> 字符数，字节数要 <code>len(s.encode())</code></td></tr>
+<tr><td>拼接</td><td><code>+</code>/<code>append</code> 均摊 O(1)</td><td><code>+</code> 每次 O(n)，批量用 <code>join</code></td></tr>
+<tr><td>格式化</td><td><code>printf("%.2f")</code> / <code>cout &lt;&lt; setprecision</code></td><td>f-string <code>f"{x:.2f}"</code></td></tr>
+<tr><td>单字符</td><td><code>char</code></td><td>长度 1 的 <code>str</code>，没有 <code>char</code> 类型</td></tr>
+<tr><td>大小写/查找</td><td><code>std::toupper</code>、<code>s.find()</code> 返回 <code>npos</code></td><td>方法调用 <code>.upper()</code>、<code>.find()</code> 返回 <code>-1</code></td></tr>
+<tr><td>数字→串</td><td><code>to_string</code></td><td><code>str(x)</code> / f-string</td></tr>
+</tbody>
+</table>
+</div>
+
+<hr>
+
+<h2 id="s5-7">5.7 易错点清单</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>现象</th>
+<th>原因</th>
+<th>一行修复</th>
+</tr></thead>
+<tbody>
+<tr><td><code>AttributeError: 'str' object has no attribute 'append'</code></td><td>想往字符串追加</td><td><code>s += x</code> 或收集到 list 再 <code>join</code></td></tr>
+<tr><td><code>TypeError: 'str' object does not support item assignment</code></td><td>想按下标赋值</td><td>切片拼接：<code>s = s[:i] + "x" + s[i+1:]</code></td></tr>
+<tr><td><code>TypeError: can only concatenate str (not "int") to str</code></td><td>字符串加数字</td><td>f-string 或 <code>str(n)</code></td></tr>
+<tr><td><code>UnicodeDecodeError</code></td><td>用错编码读文件</td><td><code>open(..., encoding="utf-8")</code> 或 <code>"gbk"</code></td></tr>
+<tr><td><code>"a,b".split(",")</code> 得到多余空串</td><td>分隔符形式会保留空字段</td><td>用 <code>split()</code>（无参）或过滤 <code>if x</code></td></tr>
+<tr><td><code>s.find(x)</code> 返回 <code>-1</code> 被当成下标用</td><td><code>find</code> 不抛异常</td><td>先判断 <code>if s.find(x) != -1</code> 或改用 <code>in</code></td></tr>
+<tr><td><code>f"{d["k"]}"</code> 报 <code>SyntaxError</code></td><td>同种引号嵌套（3.12 前）</td><td><code>f"{d['k']}"</code></td></tr>
+<tr><td><code>"中文".len()</code> 报错</td><td>方法不存在</td><td><code>len("中文")</code></td></tr>
+<tr><td>循环里 <code>+=</code> 拼接导致 TLE</td><td>每次 O(n) 复制</td><td><code>"".join(parts)</code></td></tr>
+<tr><td><code>"0"</code> 判断为真</td><td>非空字符串恒为真</td><td><code>s.strip() == "0"</code> 或转 int</td></tr>
+</tbody>
+</table>
+</div>
+
+<hr>
+
+<h2 id="s5-8">5.8 练习</h2>
+
+<p><strong>1.（清洗）</strong> 读一行形如 <code>" 姓名 : 小明 , 分数 : 92 "</code> 的文本，输出 <code>('小明', 92)</code>。</p>
+
+<p>验收：<code>split(",")</code> + <code>split(":")</code> + <code>strip()</code> + <code>int()</code>，输入里有多余空格也能正确解析。</p>
+
+<p><strong>2.（对齐表格）</strong> 给定 <code>[("小明", 92.4567), ("张三", 8.5)]</code>，输出两列左对齐、分数保留 2 位小数、总宽 20 字符的表格。</p>
+
+<p>验收：两行的分数列<strong>右对齐</strong>且小数点对齐，姓名列左对齐。</p>
+
+<p><strong>3.（拼接性能）</strong> 写两个函数：<code>by_plus(words)</code> 用 <code>+=</code> 拼接，<code>by_join(words)</code> 用 <code>join</code>，对 20000 个短词各跑一次，<strong>打印两个结果是否相等</strong>（不要打印耗时）。</p>
+
+<p>验收：两者结果相等，并说明为什么 <code>by_plus</code> 的复杂度是 O(n²)。</p>
+
+<p><strong>4.（变式）</strong> 实现 <code>truncate(s, n)</code>：超过 n 个字符时截断并加 <code>"…"</code>，保证总长不超过 n；中文按字符算。</p>
+
+<p>验收：<code>truncate("abcdef", 4) == "abc…"</code>、<code>truncate("中文测试", 10) == "中文测试"</code>、<code>truncate("中文测试", 3) == "中文…"</code>。</p>
+
+<p><strong>5.（挑战）</strong> 实现 <code>word_count(text)</code>：统计英文单词出现次数，返回按次数降序、次数相同按字母升序的列表，并处理大小写与标点。</p>
+
+<p>验收：<code>word_count("The cat, the CAT!")</code> 得 <code>[("the", 2), ("cat", 2)]</code>（顺序：次数相同按字母序）。</p>
+
+<hr>
+
+<h2 id="s5-9">5.9 小结</h2>
+
+<ol><li><strong><code>str</code> 不可变</strong>：所有方法是"返回新串"，按下标赋值必然 <code>TypeError</code>。</li><li><strong><code>len</code> 数字符、<code>encode</code> 数字节</strong>，读写文件一律显式 <code>encoding="utf-8"</code>。</li><li><strong>格式化用 f-string</strong>，拼接用 <code>join</code>；<code>+=</code> 在循环里是 O(n²)，是 TLE 的常见来源。</li></ol>
+
+<p>下一章把字符串放进容器：列表、元组、字典、集合——四种结构的选择直接决定程序的复杂度。</p>
+
+    
+
+    </article>
+    <!-- ==================== 正文结束 ==================== -->
+
+    <div data-learn-pager></div>
+
+    <footer class="acm-footer" style="margin-top:34px;border-radius:14px;padding:20px 22px">
+      <div class="acm-footer-inner">
+        <div>
+          <p><b>Python 语法教程</b> · 编程学习站的一部分。</p>
+          <p class="acm-tiny">配色与深浅色跟随<a href="../../index.html">校园主页</a>；顶部右侧按钮可切换。</p>
+        </div>
+        <div class="acm-footer-links">
+          <a href="./index.html">章节目录</a>
+          <a href="../index.html">编程学习首页</a>
+          <a href="../study.html">C++ 资料</a>
+          <a href="../practice.html">C++ 题练场</a>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+
+  <div class="learn-rail"><div data-learn-toc></div></div>
+</div>
+
+<script src="../../js/learn-nav.js"></script>
+<script src="../../js/learn-shell.js"></script>
+<script src="../../js/learn-code.js"></script>
+<script>
+/* 顶部导航滚动态 + 主题切换（与 C++ 两个页面同一套逻辑，每页一份，不依赖外链） */
+(function () {
+  'use strict';
+  var root = document.documentElement, nav = document.getElementById('acmNav');
+  if (nav) {
+    var onScroll = function () { nav.classList.toggle('stuck', (window.scrollY || 0) > 8); };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+  var ico = document.querySelector('#themeIco use');
+  function paint() {
+    if (ico) { ico.setAttribute('href', root.getAttribute('data-theme') === 'dark' ? '#i-sun' : '#i-moon'); }
+  }
+  paint();
+  var btn = document.getElementById('themeBtn');
+  if (btn) {
+    btn.addEventListener('click', function () {
+      var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      root.setAttribute('data-mode', next);
+      try { localStorage.setItem('cw.theme', JSON.stringify(next)); } catch (e) { }
+      paint();
+    });
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light" data-mode="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="import 不是「把文件内容抄进来」，而是一次在 sys.modules 字典里查表、必要时执行模块体、然后把模块对象绑到你当前命名空间的函数调用。">
+<meta name="theme-color" content="#2563eb">
+<meta name="color-scheme" content="light dark">
+<title>第 19 章 · 模块与包：导入机制 · Python 语法教程 · 编程学习</title>
+<script src="../../js/boot.js"></script>
+<script>try{var _t=document.documentElement.getAttribute('data-theme')||'light';document.documentElement.setAttribute('data-mode',_t);}catch(e){}</script>
+<link rel="stylesheet" href="../acm.css">
+<link rel="stylesheet" href="../learn.css">
+<link rel="stylesheet" href="../learn-code.css">
+</head>
+<body data-learn-page="py-19">
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;overflow:hidden">
+  <symbol id="i-graduation" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8.6 12 4.2l9.5 4.4L12 13 2.5 8.6Z"/><path d="M6.2 10.9V16c0 1.4 2.6 2.6 5.8 2.6s5.8-1.2 5.8-2.6v-5.1"/><path d="M21.5 9.4v5.2"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.6 12 3.8l8.5 6.8V20a1 1 0 0 1-1 1h-4.2v-6.2H8.7V21H4.5a1 1 0 0 1-1-1z"/></symbol>
+</svg>
+
+<header class="acm-nav" id="acmNav">
+  <div class="acm-wrap acm-nav-inner">
+    <a class="acm-brand" href="../index.html" title="回到编程学习首页">
+      <span class="acm-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-graduation"/></svg></span>
+      <span class="acm-brand-text"><strong>编程学习</strong><small>C++ · Python</small></span>
+    </a>
+    <nav class="acm-tabs" aria-label="编程学习站页面">
+      <a href="../index.html">首页</a>
+      <a href="../study.html">C++ 资料</a>
+      <a href="../practice.html">C++ 题练场</a>
+      <a href="./index.html" class="on" aria-current="page">Python</a>
+    </nav>
+    <div class="acm-nav-actions">
+      <button class="acm-btn acm-btn-icon" type="button" id="themeBtn" title="切换深色 / 浅色（全站共用）" aria-label="切换深色或浅色主题">
+        <svg class="ico" aria-hidden="true" id="themeIco"><use href="#i-moon"/></svg>
+      </button>
+      <a class="acm-btn" href="../../index.html" title="返回校园主页">
+        <svg class="ico" aria-hidden="true"><use href="#i-home"/></svg><span class="label">回主页</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<div class="learn-layout">
+
+  <!-- 窄屏（≤900px）：侧栏换成顶部折叠块 -->
+  <details class="learn-mobnav">
+    <summary>站点导航 · C++ / Python</summary>
+    <div data-learn-sidebar data-compact="1"></div>
+  </details>
+
+  <aside class="learn-aside"><div data-learn-sidebar></div></aside>
+
+  <main class="learn-main">
+
+    <div data-learn-crumb></div>
+
+    <header class="learn-head">
+      <h1 id="learnTitle">第 19 章 · 模块与包：导入机制</h1>
+      <p class="lead"><code>import</code> 不是「把文件内容抄进来」，而是一次在 <code>sys.modules</code> 字典里查表、必要时执行模块体、然后把<strong>模块对象</strong>绑到你当前命名空间的函数调用。</p>
+      <div class="learn-meta">
+        <span class="learn-chip py">Python 3</span>
+        <button class="learn-mark" type="button" data-learn-mark>标记为已读</button>
+      </div>
+    </header>
+
+    <!-- 窄屏（≤1180px）：右侧目录换到正文上面的折叠块 -->
+    <details class="learn-mobtoc" open>
+      <summary>本页目录</summary>
+      <div data-learn-toc></div>
+    </details>
+
+    <!-- ==================== 正文：只改这里 ==================== -->
+    <article data-learn-content>
+
+<p><strong>读完这一章你能做到</strong></p>
+
+<ol><li>说清 <code>import x</code> 的四个步骤，知道第二次 <code>import</code> 为什么不再执行代码。</li><li>分清 <code>import pkg.sub</code> 与 <code>from pkg import sub</code> 各自绑定了什么名字。</li><li>写出带 <code>__init__.py</code>、能 <code>python -m</code> 运行的包，并解释相对导入什么时候会失败。</li><li>看懂 <code>ImportError: cannot import name 'X' from partially initialized module</code>，用三种办法拆掉循环依赖。</li><li>按 PEP 8 组织一个项目的目录与导入顺序，不再把 <code>sys.path.append</code> 当万能药。</li></ol>
+
+<h2 id="s19-1">19.1 <code>import</code> 到底做了什么</h2>
+
+<p>执行 <code>import pkgdemo</code> 时，CPython 按顺序做四件事：</p>
+
+<ol><li>查 <code>sys.modules</code>——已有就直接取出来，<strong>模块体不再执行</strong>。</li><li>没有就交给 <code>importlib</code> 的查找器，沿 <code>sys.path</code> 找到模块（或包的 <code>__init__.py</code>）。</li><li>新建一个 <code>module</code> 对象，塞进 <code>sys.modules</code>，然后<strong>执行模块体的顶层代码</strong>（<code>def</code>、<code>class</code>、赋值都在这时发生）。</li><li>在<strong>当前</strong>命名空间里绑定名字（<code>import pkgdemo</code> 绑的是 <code>pkgdemo</code> 这个名字）。</li></ol>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import math, sys
+&gt;&gt;&gt; type(math).__name__
+'module'
+&gt;&gt;&gt; math is sys.modules["math"]
+True
+&gt;&gt;&gt; math.__name__
+'math'
+&gt;&gt;&gt; "sqrt" in dir(math)
+True</code></pre>
+
+<p>「模块就是对象」是理解一切的前提：它能被赋值、放进列表、当参数传。<code>sys.modules</code> 是一个普通字典——所以「删除缓存再导入」这种操作是可行且危险的（第 19.8 节）。</p>
+
+<p>第 1 步的缓存是性能与语义的双重保证。<code>importlib.reload</code> 会<strong>重新执行模块体</strong>，但改的是同一个模块对象的 <code>__dict__</code>，身份不变：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import json, importlib
+&gt;&gt;&gt; importlib.reload(json) is json
+True
+&gt;&gt;&gt; json.__name__
+'json'</code></pre>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch19_01_module_basics.py</code></figcaption><pre class="py"><code>"""ch19_01_module_basics.py —— 模块是对象、导入缓存与名字绑定"""
+
+import importlib
+import sys
+from pathlib import Path
+
+import pkgdemo
+from pkgdemo.shapes import Circle
+
+print("sys.path[0] 的目录名：", Path(sys.path[0]).name)
+print("本脚本的 __name__：", __name__)
+print("被导入模块的 __name__：", pkgdemo.__name__)
+print("包暴露的名字 __all__：", pkgdemo.__all__)
+print("包的 __path__ 是普通列表：", isinstance(pkgdemo.__path__, list),
+      "| 目录名：", [Path(p).name for p in pkgdemo.__path__])
+
+print("=== 同一个模块只执行一次 ===")
+print("sys.modules 里缓存的就是它：", sys.modules["pkgdemo"] is pkgdemo)
+import pkgdemo as again
+
+print("再 import 一次拿到同一个对象：", again is pkgdemo)
+print("子模块会变成包的属性：", pkgdemo.shapes.__name__)
+
+print("=== reload 重新执行模块体，但对象不变 ===")
+importlib.reload(pkgdemo)
+print("reload 之后还是同一个对象：", sys.modules["pkgdemo"] is pkgdemo)
+
+print("=== 四种导入写法指向同一个类 ===")
+import pkgdemo.shapes as sh
+from pkgdemo.utils import area_table
+
+print("直接导入的类就是子模块里的类：", Circle is sh.Circle)
+print("包属性访问也是同一个：", pkgdemo.shapes.Circle is Circle)
+print("工具函数结果：", area_table())
+print("shapes 的公开名字：", [n for n in dir(sh) if not n.startswith("_")])</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>[pkgdemo] 包体执行了，__name__=pkgdemo
+sys.path[0] 的目录名： examples
+本脚本的 __name__： __main__
+被导入模块的 __name__： pkgdemo
+包暴露的名字 __all__： ['Circle', 'Square', 'area_table']
+包的 __path__ 是普通列表： True | 目录名： ['pkgdemo']
+=== 同一个模块只执行一次 ===
+sys.modules 里缓存的就是它： True
+再 import 一次拿到同一个对象： True
+子模块会变成包的属性： pkgdemo.shapes
+=== reload 重新执行模块体，但对象不变 ===
+[pkgdemo] 包体执行了，__name__=pkgdemo
+reload 之后还是同一个对象： True
+=== 四种导入写法指向同一个类 ===
+直接导入的类就是子模块里的类： True
+包属性访问也是同一个： True
+工具函数结果： [('circle r=2', 12.57), ('square a=2', 4)]
+shapes 的公开名字： ['Circle', 'Square', 'math']</code></pre></div></figure>
+
+<p>看输出里的两处 <code>[pkgdemo]</code>：第一次是 <code>import pkgdemo</code> 触发，第二次是 <code>reload</code> 触发。中间那次 <code>import pkgdemo as again</code> 什么也没打印——它走了缓存。<code>importlib.reload</code> 在调试交互式脚本时有用，在生产代码里几乎总是错的选择：旧对象还持有旧函数，模块处于「一半新一半旧」的状态。</p>
+
+<div class="box tip"><p><code>import</code> 的代价集中在「第一次」：找文件 + 编译 <code>.py</code> → <code>.pyc</code> + 执行模块体。所以把 <code>import</code> 放在文件顶部不会拖慢循环里的代码，只是拖慢启动。反过来，把 <code>import</code> 塞进热循环里每次都要查一次 <code>sys.modules</code>（虽是字典查询，但仍有开销）。</p></div>
+
+<h2 id="s19-2">19.2 五种导入写法与它们绑定什么</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>写法</th>
+<th>绑定的名字</th>
+<th>能直接用的</th>
+<th>什么时候用</th>
+</tr></thead>
+<tbody>
+<tr><td><code>import math</code></td><td><code>math</code></td><td><code>math.sqrt</code></td><td>最清楚，首选</td></tr>
+<tr><td><code>import numpy as np</code></td><td><code>np</code></td><td><code>np.array</code></td><td>名字长或有社区约定</td></tr>
+<tr><td><code>import xml.etree.ElementTree</code></td><td><code>xml</code></td><td><code>xml.etree.ElementTree.X</code></td><td>少见，容易踩坑</td></tr>
+<tr><td><code>from math import sqrt</code></td><td><code>sqrt</code></td><td><code>sqrt</code></td><td>短名字、频繁使用</td></tr>
+<tr><td><code>from math import sqrt as s</code></td><td><code>s</code></td><td><code>s</code></td><td>避免与本地名字冲突</td></tr>
+<tr><td><code>from math import *</code></td><td>全部公开名</td><td>直接用</td><td>只在交互式环境，代码里禁用</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>第三行是最容易误判的一行：<code>import a.b.c</code> 只把 <strong><code>a</code></strong> 绑进你的命名空间，<code>b</code>、<code>c</code> 只是挂在模块对象上。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import xml.etree.ElementTree
+&gt;&gt;&gt; xml.etree.ElementTree.__name__
+'xml.etree.ElementTree'
+&gt;&gt;&gt; try:
+...     etree
+... except NameError as e:
+...     print(type(e).__name__, e)
+NameError name 'etree' is not defined
+&gt;&gt;&gt; from xml.etree import ElementTree
+&gt;&gt;&gt; ElementTree.__name__
+'xml.etree.ElementTree'</code></pre>
+
+<p><code>from ... import ...</code> 拿到的是<strong>同一个对象</strong>，不是拷贝——两个模块共享同一个函数、同一个类、同一个模块级变量：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; from math import sqrt
+&gt;&gt;&gt; import math
+&gt;&gt;&gt; sqrt is math.sqrt
+True
+&gt;&gt;&gt; import importlib
+&gt;&gt;&gt; m1 = importlib.import_module("collections.abc")
+&gt;&gt;&gt; m1 is importlib.import_module("collections.abc")
+True</code></pre>
+
+<p><code>from x import *</code> 的实际行为由 <code>x.__all__</code> 决定：有 <code>__all__</code> 就只导入列表里的名字，没有就导入所有不以 <code>_</code> 开头的名字。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import os
+&gt;&gt;&gt; isinstance(os.__all__, list) and "path" in os.__all__
+True</code></pre>
+
+<h2 id="s19-3">19.3 <code>__name__</code>、<code>__file__</code> 与主程序守卫</h2>
+
+<p>每个模块都有几个自动填充的属性：</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>属性</th>
+<th>值</th>
+<th>用途</th>
+</tr></thead>
+<tbody>
+<tr><td><code>__name__</code></td><td>被导入时是模块名，直接运行时是 <code>"__main__"</code></td><td>判断「我是不是被当程序跑」</td></tr>
+<tr><td><code>__file__</code></td><td>源文件路径</td><td>定位同目录资源</td></tr>
+<tr><td><code>__doc__</code></td><td>模块文档字符串</td><td>帮助信息</td></tr>
+<tr><td><code>__package__</code></td><td>所属包名，顶层模块为 <code>""</code></td><td>相对导入的锚点</td></tr>
+<tr><td><code>__path__</code></td><td>只有<strong>包</strong>才有，子模块搜索目录</td><td>区分包与普通模块</td></tr>
+<tr><td><code>__dict__</code></td><td>模块的全局命名空间</td><td>反射、动态注册</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>守卫语句的全部作用是：<strong>同一份代码，既能被 import 复用，又能被直接运行</strong>。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; src = "print('__name__ =', __name__)"
+&gt;&gt;&gt; exec(compile(src, "&lt;s&gt;", "exec"), {"__name__": "__main__"})
+__name__ = __main__
+&gt;&gt;&gt; exec(compile(src, "&lt;s&gt;", "exec"), {"__name__": "mymod"})
+__name__ = mymod</code></pre>
+
+<p>两行 <code>exec</code> 模拟了两种运行方式：直接跑时 <code>__name__</code> 是 <code>"__main__"</code>，被导入时是模块名。所以</p>
+
+<pre class="py"><code>def main():
+    ...
+
+if __name__ == "__main__":
+    main()</code></pre>
+
+<p>的意思是「只有我当主角时才跑 <code>main()</code>；被 import 时只提供函数」。<strong>没有这层守卫，导入即执行</strong>——包括发请求、写文件、连数据库。</p>
+
+<div class="box warn"><p><code>if __name__ == "__main__"</code> 写成 <code>if __name__ is "__main__"</code> 也可能「恰好」成立（短字符串驻留），但这是未定义行为，换个解释器就失效。字符串比较永远用 <code>==</code>。</p></div>
+
+<h2 id="s19-4">19.4 包：带 <code>__path__</code> 的模块</h2>
+
+<p><strong>包就是有 <code>__path__</code> 属性的模块</strong>。<code>mypkg/__init__.py</code> 执行后产生的模块对象，<code>__name__</code> 是 <code>"mypkg"</code>，<code>__path__</code> 是 <code>["…/mypkg"]</code>，于是 Python 知道「再往里找子模块时去这个目录搜」。</p>
+
+<p><code>__init__.py</code> 可以做四件事，按推荐顺序：</p>
+
+<ol><li><strong>只放文档字符串和版本号</strong>（最安全，导入无副作用）。</li><li><strong>导出租</strong>：<code>from .shapes import Circle</code>，让用户写 <code>from pkgdemo import Circle</code> 而不是 <code>from pkgdemo.shapes import Circle</code>。</li><li>定义 <code>__all__</code>，控制 <code>from pkgdemo import *</code>。</li><li>做初始化（注册插件、配置日志）——<strong>代价是 import 就有副作用</strong>，能不做就不做。</li></ol>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch19_02_package_imports.py</code></figcaption><pre class="py"><code>"""ch19_02_package_imports.py —— 包结构、__init__ 的职责与 __all__"""
+
+import sys
+
+import pkgdemo
+from pkgdemo import utils
+from pkgdemo.shapes import Square
+
+print("包版本：", pkgdemo.VERSION)
+print("__init__ 预先导入了子模块：", "shapes" in dir(pkgdemo))
+print("导入 utils 后它也成了包的属性：", "utils" in dir(pkgdemo))
+print("相对导入解析出的仍是同一个模块：", utils.Circle is pkgdemo.shapes.Circle)
+
+print("=== __all__ 决定 from pkg import * 拿什么 ===")
+ns = {}
+exec("from pkgdemo import *", ns)
+print("星号导入得到的名字：", sorted(k for k in ns if not k.startswith("__")))
+print("没写进 __all__ 的 VERSION 不在里面：", "VERSION" in ns)
+
+print("=== 主程序的 __name__ 是 __main__ ===")
+print("本脚本 __name__：", __name__)
+print("sys.modules['__main__'] 就是本脚本：", sys.modules["__main__"].__name__ == "__main__")
+print("被导入的包不会显示为 __main__：", pkgdemo.__name__)
+
+print("=== 子模块的公开接口 ===")
+print("Square(3).area()：", Square(3).area())
+print("utils 只暴露一个函数：", [n for n in dir(utils) if not n.startswith("_")])</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>[pkgdemo] 包体执行了，__name__=pkgdemo
+包版本： 1.0
+__init__ 预先导入了子模块： True
+导入 utils 后它也成了包的属性： True
+相对导入解析出的仍是同一个模块： True
+=== __all__ 决定 from pkg import * 拿什么 ===
+星号导入得到的名字： ['Circle', 'Square', 'area_table']
+没写进 __all__ 的 VERSION 不在里面： False
+=== 主程序的 __name__ 是 __main__ ===
+本脚本 __name__： __main__
+sys.modules['__main__'] 就是本脚本： True
+被导入的包不会显示为 __main__： pkgdemo
+=== 子模块的公开接口 ===
+Square(3).area()： 9
+utils 只暴露一个函数： ['Circle', 'Square', 'area_table']</code></pre></div></figure>
+
+<p>输出里 <code>__init__</code> 预先导入了子模块：<code>True</code> 一行说明「导出租」的副作用——<code>import pkgdemo</code> 会连带执行 <code>shapes.py</code> 与 <code>utils.py</code>。包越大，启动越慢。这就是 <code>import numpy</code> 要几百毫秒的原因。</p>
+
+<p><code>__all__</code> 只影响星号导入，<strong>不影响</strong> <code>pkgdemo.Circle</code> 这种显式访问：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; ns = {}
+&gt;&gt;&gt; exec("from os import *", ns)
+&gt;&gt;&gt; "path" in ns and "sep" in ns
+True
+&gt;&gt;&gt; "sys" in ns
+False</code></pre>
+
+<p>目录结构对照（<code>pkgdemo</code> 是本例的真实结构）：</p>
+
+<pre class="out"><code>examples/
+├── pkgdemo/
+│   ├── __init__.py      # 包体：导出租、版本号、__all__
+│   ├── __main__.py      # python -m pkgdemo 的入口
+│   ├── shapes.py        # 叶子模块：只依赖标准库
+│   └── utils.py         # 上层模块：用相对导入复用 shapes
+├── ch19_01_module_basics.py
+└── ch19_02_package_imports.py</code></pre>
+
+<h2 id="s19-5">19.5 相对导入与绝对导入</h2>
+
+<p>包内模块之间互相引用，有两种写法：</p>
+
+<pre class="py"><code># 片段：pkgdemo/utils.py 里
+from .shapes import Circle        # 相对：当前包内的 shapes
+from ..other import helper        # 相对：上一级包
+from pkgdemo.shapes import Circle # 绝对：从顶层包名开始</code></pre>
+
+<p><strong>推荐绝对导入</strong>：一眼能看出依赖来自哪里，移动文件时不用改。相对导入只有一个优势——包改名时不用动。<code>from . import shapes</code> 和 <code>from .shapes import Circle</code> 的区别只是绑定 <code>shapes</code> 还是 <code>Circle</code>。</p>
+
+<p>相对导入的锚点是 <code>__package__</code>，没有包上下文就无从解析：</p>
+
+<pre class="out"><code>ImportError: attempted relative import with no known parent package</code></pre>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch19_03_import_tricks.py</code></figcaption><pre class="py"><code>"""ch19_03_import_tricks.py —— python -m、相对导入失败与循环导入"""
+
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+ENV = dict(os.environ, PYTHONIOENCODING="utf-8", PYTHONUTF8="1")
+
+
+def run(args):
+    r = subprocess.run([sys.executable] + args, cwd=HERE, capture_output=True,
+                       text=True, encoding="utf-8", env=ENV)
+    return r.returncode, r.stdout, r.stderr
+
+
+print("=== python -m pkgdemo：把包当程序跑 ===")
+code, out, err = run(["-m", "pkgdemo"])
+print("退出码：", code)
+print(out.rstrip())
+
+print("=== 直接运行包内模块：相对导入必然失败 ===")
+code, out, err = run([str(HERE / "pkgdemo" / "utils.py")])
+print("退出码：", code)
+print([n for n in err.splitlines() if n.startswith("ImportError")][-1])
+
+print("=== 循环导入：报错发生在「拿不到名字」的那一刻 ===")
+tmp = tempfile.mkdtemp()
+p = Path(tmp)
+(p / "a_cyc.py").write_text("import b_cyc\nX = 1\n", encoding="utf-8")
+(p / "b_cyc.py").write_text("from a_cyc import X\n", encoding="utf-8")
+sys.path.insert(0, tmp)
+try:
+    import a_cyc
+except ImportError as e:
+    print(type(e).__name__ + ":", str(e).rsplit(" (", 1)[0])
+finally:
+    sys.path.remove(tmp)
+    shutil.rmtree(tmp)
+    sys.modules.pop("a_cyc", None)
+    sys.modules.pop("b_cyc", None)
+
+print("=== 清理后 sys.modules 里没有残留 ===")
+print("a_cyc" in sys.modules, "b_cyc" in sys.modules)</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>=== python -m pkgdemo：把包当程序跑 ===
+退出码： 0
+[pkgdemo] 包体执行了，__name__=pkgdemo
+[__main__] 通过 python -m pkgdemo 运行
+包的 __name__ 是 pkgdemo，而本文件是： __main__
+r=1 的圆面积： 3.1416
+=== 直接运行包内模块：相对导入必然失败 ===
+退出码： 1
+ImportError: attempted relative import with no known parent package
+=== 循环导入：报错发生在「拿不到名字」的那一刻 ===
+ImportError: cannot import name 'X' from partially initialized module 'a_cyc' (most likely due to a circular import)
+=== 清理后 sys.modules 里没有残留 ===
+False False</code></pre></div></figure>
+
+<p>「退出码：1」那一段就是直接 <code>python pkgdemo/utils.py</code> 的结果：此时 <code>utils.py</code> 的 <code>__name__</code> 是 <code>"__main__"</code>、<code>__package__</code> 是 <code>None</code>，<code>.</code> 无从解析，直接报错。正确做法是 <code>python -m pkgdemo.utils</code>——由解释器先建立包上下文。</p>
+
+<div class="box warn"><p>报这个错时，99% 的情况不是「文件放错了」，而是<strong>运行方式错了</strong>。把 <code>python 包/模块.py</code> 改成 <code>python -m 包.模块</code>，或者在项目根目录运行。</p></div>
+
+<h2 id="s19-6">19.6 <code>python -m</code> 与 <code>python file.py</code></h2>
+
+<p>同一个文件，两种启动方式差别很大：</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th></th>
+<th><code>python file.py</code></th>
+<th><code>python -m pkg.mod</code></th>
+</tr></thead>
+<tbody>
+<tr><td><code>sys.path[0]</code></td><td>脚本所在目录</td><td>当前工作目录 <code>""</code></td></tr>
+<tr><td><code>__name__</code></td><td><code>"__main__"</code></td><td><code>"__main__"</code></td></tr>
+<tr><td><code>__package__</code></td><td><code>None</code> 或 <code>""</code></td><td><code>"pkg"</code>（相对导入可用）</td></tr>
+<tr><td>能 import 到项目里的其它包</td><td>只有当脚本目录恰好是项目根时</td><td>只要在项目根运行就行</td></tr>
+<tr><td>包入口</td><td>不适用</td><td>找 <code>pkg/__main__.py</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<p><code>python -m pkgdemo</code> 的执行链是：导入 <code>pkgdemo</code>（跑 <code>__init__.py</code>）→ 找到 <code>__main__.py</code> → 以 <code>__name__ = "__main__"</code> 执行它。所以输出里先有包体那一行，才有 <code>[__main__]</code> 那两行。</p>
+
+<p><code>-m</code> 的另一个常见用途是跑标准库工具：<code>python -m json.tool data.json</code>、<code>python -m http.server</code>、<code>python -m venv .venv</code>、<code>python -m pytest</code>（第 23、24 章）。</p>
+
+<h2 id="s19-7">19.7 <code>sys.path</code> 是什么，别乱改</h2>
+
+<p><code>sys.path</code> 是一个字符串列表，导入查找器按顺序遍历它。构成（按优先级）：</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>位置</th>
+<th>内容</th>
+<th>何时出现</th>
+</tr></thead>
+<tbody>
+<tr><td><code>sys.path[0]</code></td><td>脚本目录；用 <code>-m</code> 时是 <code>""</code>（当前目录）</td><td>总是</td></tr>
+<tr><td>环境变量 <code>PYTHONPATH</code></td><td>若干目录</td><td>设置时</td></tr>
+<tr><td>标准库目录</td><td><code>lib/python3.x</code></td><td>总是</td></tr>
+<tr><td><code>site-packages</code></td><td>三方库</td><td>总是（除非 <code>-S</code>）</td></tr>
+<tr><td><code>.pth</code> 文件里的额外目录</td><td>由三方包写入</td><td>视安装情况</td></tr>
+</tbody>
+</table>
+</div>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import sys
+&gt;&gt;&gt; len(sys.path) &gt;= 3
+True
+&gt;&gt;&gt; sys.path.insert(0, "/tmp") is None
+True
+&gt;&gt;&gt; sys.path[0]
+'/tmp'
+&gt;&gt;&gt; sys.path.pop(0)
+'/tmp'</code></pre>
+
+<p>改 <code>sys.path</code> 能立刻生效，所以很多人拿它当救命稻草。代价是：<strong>同一份代码在不同机器上导入到不同的模块</strong>，而且顺序不同结果不同。正经做法是把项目根（或包目录的父目录）通过安装成可编辑包（<code>pip install -e .</code>）或设置 <code>PYTHONPATH</code> 解决，而不是在代码里 <code>sys.path.append("..")</code>。</p>
+
+<h2 id="s19-8">19.8 循环导入</h2>
+
+<p><code>a.py</code> 导入 <code>b.py</code>，<code>b.py</code> 又导入 <code>a.py</code>。Python 不会死循环——它在<strong>执行模块体之前</strong>就把空模块放进 <code>sys.modules</code>，第二次导入拿到的是那个「半成品」。于是报错点不在 <code>import</code> 语句，而在<strong>你试图从半成品里取名字的那一刻</strong>：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import sys, tempfile, shutil, pathlib
+&gt;&gt;&gt; d = tempfile.mkdtemp()
+&gt;&gt;&gt; p = pathlib.Path(d)
+&gt;&gt;&gt; _ = (p / "a_cyc.py").write_text("import b_cyc\nX = 1\n", encoding="utf-8")
+&gt;&gt;&gt; _ = (p / "b_cyc.py").write_text("from a_cyc import X\n", encoding="utf-8")
+&gt;&gt;&gt; sys.path.insert(0, d)
+&gt;&gt;&gt; try:
+...     import a_cyc
+... except ImportError as e:
+...     print(type(e).__name__ + ":", str(e).rsplit(" (", 1)[0])
+ImportError: cannot import name 'X' from partially initialized module 'a_cyc' (most likely due to a circular import)
+&gt;&gt;&gt; sys.path.remove(d)
+&gt;&gt;&gt; shutil.rmtree(d)
+&gt;&gt;&gt; "a_cyc" in sys.modules
+False</code></pre>
+
+<p>注意 <code>X = 1</code> 写在 <code>import b_cyc</code> <strong>之后</strong>——这正是要害。三种解法，按推荐顺序：</p>
+
+<ol><li><strong>拆公共模块</strong>：把双方都需要的类型移到 <code>types.py</code> / <code>models.py</code>，让依赖变成单向的 <code>a → common ← b</code>。</li><li><strong>延迟导入</strong>：把 <code>import b</code> 移到函数体内，等到真正调用时才解析。</li><li><strong>改成 <code>import a</code> 再 <code>a.X</code></strong>：模块对象已经存在（只是半成品），属性访问发生在运行时，那时 <code>X</code> 可能已经就绪。这是最脆弱的办法。</li></ol>
+
+<pre class="py"><code># 片段：延迟导入
+def send_report():
+    from .mailer import send      # 只在真正发信时才导入
+    return send(...)</code></pre>
+
+<div class="box tip"><p>循环导入通常不是「写法问题」，而是<strong>设计问题</strong>——两个模块互相依赖，说明职责被切错了。看到 <code>ImportError ... partially initialized</code>，先问「这两个模块为什么需要彼此」，而不是先去找 <code>import</code> 挪到哪一行。</p></div>
+
+<h2 id="s19-9">19.9 命名空间包与 <code>__pycache__</code></h2>
+
+<p><strong>命名空间包</strong>（3.3+）：目录里没有 <code>__init__.py</code> 也能当包用，此时 <code>__path__</code> 会合并所有同名目录。它让「多个分发包共享同一个顶层包名」成为可能（如 <code>google.cloud.*</code>），但日常项目里<strong>建议保留 <code>__init__.py</code></strong>：显式、能放版本号、不会被别的同名目录意外合并。</p>
+
+<p><strong><code>__pycache__</code></strong> 是编译缓存：<code>.pyc</code> 存字节码，命中就不重新编译。它由解释器自动管理，不该提交进 git（<code>.gitignore</code> 里加一行）。判断是否过期看「源文件 mtime + size」——所以 <code>git checkout</code> 换了时间戳但内容没变时会重编译一次，无害。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import importlib.util
+&gt;&gt;&gt; spec = importlib.util.find_spec("json")
+&gt;&gt;&gt; from pathlib import Path
+&gt;&gt;&gt; Path(spec.origin).name
+'__init__.py'
+&gt;&gt;&gt; spec.submodule_search_locations is not None
+True</code></pre>
+
+<p><code>find_spec</code> 是「只看不导」的官方接口：写插件加载器、检查依赖是否装好时用它，比 <code>try: import</code> 干净。</p>
+
+<h2 id="s19-10">19.10 组织一个项目的推荐结构</h2>
+
+<pre class="out"><code>myproj/
+├── pyproject.toml
+├── README.md
+├── src/
+│   └── myproj/
+│       ├── __init__.py
+│       ├── __main__.py        # python -m myproj
+│       ├── cli.py
+│       ├── core.py
+│       └── utils.py
+└── tests/
+    ├── test_core.py
+    └── test_cli.py</code></pre>
+
+<p>四条硬规矩：</p>
+
+<ol><li><strong>一个包只暴露必要的名字</strong>：<code>__init__.py</code> 里用 <code>__all__</code> 列出来，内部模块加 <code>_</code> 前缀。</li><li><strong>导入顺序按 PEP 8 分三段</strong>，段间空一行：标准库 → 三方库 → 本项目。<code>isort</code> / <code>ruff check --select I</code> 能自动排。</li><li><strong>顶层不要写执行逻辑</strong>：只要不是 <code>if __name__ == "__main__"</code> 里，就不该有副作用。</li><li><strong>测试与源码分开</strong>：<code>tests/</code> 平级于 <code>src/</code>，用 <code>pip install -e .</code> 让 <code>import myproj</code> 可用（第 23 章）。</li></ol>
+
+<h2 id="19-a-与-c-的差别">19.a 与 C++ 的差别</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>维度</th>
+<th>Python</th>
+<th>C++</th>
+</tr></thead>
+<tbody>
+<tr><td>复用机制</td><td>运行时导入模块对象</td><td>编译期 <code>#include</code> 文本展开 + 链接</td></tr>
+<tr><td>声明与定义</td><td>只有一份 <code>.py</code>，无头文件</td><td><code>.h</code> 声明 + <code>.cpp</code> 定义，需保持一致</td></tr>
+<tr><td>名字空间</td><td>模块名即命名空间</td><td><code>namespace {}</code>，可嵌套可匿名</td></tr>
+<tr><td>导入位置</td><td>任意位置都可 <code>import</code>（含函数内）</td><td><code>#include</code> 只能文件顶层</td></tr>
+<tr><td>重复包含</td><td>自动去重（<code>sys.modules</code>）</td><td>需要 <code>#pragma once</code> / include guard</td></tr>
+<tr><td>循环依赖</td><td>运行时 <code>ImportError</code>，可用延迟导入绕过</td><td>前置声明解决类型循环，链接期报未定义</td></tr>
+<tr><td>名字冲突</td><td>后者覆盖前者，静默</td><td>重定义是编译错误</td></tr>
+<tr><td>编译单元</td><td>无，模块即单元</td><td>每个 <code>.cpp</code> 独立编译再链接</td></tr>
+<tr><td>可见性控制</td><td><code>_</code> 约定 + <code>__all__</code></td><td><code>static</code>、匿名 namespace、<code>extern</code></td></tr>
+<tr><td>版本/依赖</td><td><code>pip</code> + 虚拟环境，可多版本共存</td><td>系统级链接，符号冲突靠 ABI/so 名</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>最需要转变的观念：<strong>C++ 的「编译期解析、链接期绑定」在 Python 里全部推迟到运行时</strong>。所以拼错模块名不会在写代码时被发现，只在执行到那一行时炸；也因此可以按需导入、可以在函数里 <code>import</code>、可以做插件热加载。</p>
+
+<h2 id="19-b-易错点清单">19.b 易错点清单</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>现象</th>
+<th>原因</th>
+<th>一行修复</th>
+</tr></thead>
+<tbody>
+<tr><td><code>ModuleNotFoundError: No module named 'x'</code></td><td>目录不在 <code>sys.path</code> / 包没装</td><td>在项目根运行，或 <code>pip install -e .</code></td></tr>
+<tr><td><code>attempted relative import with no known parent package</code></td><td>直接跑了包内文件</td><td>改 <code>python -m 包.模块</code></td></tr>
+<tr><td><code>cannot import name 'X' from partially initialized module</code></td><td>循环导入</td><td>拆公共模块或延迟导入</td></tr>
+<tr><td>改了代码没生效</td><td>命中 <code>__pycache__</code> 或常驻进程未重启</td><td>删 <code>__pycache__</code>，重启进程</td></tr>
+<tr><td><code>import</code> 一个目录报 <code>ModuleNotFoundError</code></td><td>缺 <code>__init__.py</code>（或写成命名空间包）</td><td>补 <code>__init__.py</code></td></tr>
+<tr><td>文件名叫 <code>json.py</code> 后连标准库都坏了</td><td>同名文件遮蔽标准库（<code>sys.path[0]</code> 优先）</td><td>改名，别用标准库名</td></tr>
+<tr><td><code>from x import *</code> 拿不到想要的</td><td><code>__all__</code> 没写或漏了名字</td><td>显式写 <code>__all__</code>，或改显式导入</td></tr>
+<tr><td>导入就发请求/建连接</td><td>模块顶部有执行逻辑</td><td>移进 <code>if __name__ == "__main__"</code> 或函数</td></tr>
+<tr><td>两个模块里改的「同一个」变量不同步</td><td><code>from x import v</code> 绑的是值，不是引用</td><td>改 <code>import x</code> 再 <code>x.v</code></td></tr>
+<tr><td>包名与 pip 包名不一致导致 <code>pip install</code> 后仍导入失败</td><td>分发包名 ≠ 模块名</td><td>看 <code>pyproject.toml</code> 的 <code>[project] name</code> 与包目录名</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>最后一条值得单独强调：<code>from config import DEBUG</code> 之后，<code>config.DEBUG = True</code> 在你这里是没用的——<code>DEBUG</code> 已经是当前命名空间里的一个独立名字，绑的是导入那一刻的布尔值。要「共享可变状态」，永远 <code>import config</code> 再 <code>config.DEBUG</code>。（这与第 3 章的「名字不是盒子」是同一条规则。）</p>
+
+<h2 id="19-c-练习">19.c 练习</h2>
+
+<p><strong>基础 1</strong>：建 <code>mypkg/</code> 包，含 <code>__init__.py</code>（写 <code>__version__ = "0.1.0"</code> 并导出 <code>greet</code>）与 <code>greet.py</code>（<code>def greet(name): return f"hi {name}"</code>）。在项目根用一句话验证 <code>from mypkg import greet; greet("py")</code>。</p>
+
+<p>验收：<code>from mypkg import greet, __version__</code> 不报错；<code>greet("py") == "hi py"</code>。</p>
+
+<p><strong>基础 2</strong>：给包加 <code>__main__.py</code>，让 <code>python -m mypkg</code> 打印版本号和一条问候。</p>
+
+<p>验收：<code>python -m mypkg</code> 退出码 0，输出含 <code>0.1.0</code>；<code>python mypkg/__main__.py</code> 报 <code>ImportError</code>（说明它依赖包上下文）。</p>
+
+<p><strong>基础 3</strong>：写两个模块 <code>a.py</code>（定义 <code>VALUE = 10</code>）与 <code>b.py</code>（<code>from a import VALUE</code>，并提供 <code>def bump(): global VALUE; VALUE += 1</code>）。运行后观察 <code>b.VALUE</code> 与 <code>a.VALUE</code> 是否同步。</p>
+
+<p>验收：<code>b.bump()</code> 之后 <code>a.VALUE</code> 仍是 10，<code>b.VALUE</code> 变成 11——用文字解释为什么（绑定，不是引用）。</p>
+
+<p><strong>变式</strong>：把 <code>a.py</code>/<code>b.py</code> 改成互相导入（<code>a</code> 需要 <code>b.helper</code>，<code>b</code> 需要 <code>a.VALUE</code>），先用 <code>import a; a.VALUE</code> 形式让它工作，再用「拆公共模块」重构一版，对比两者行数与你更愿意维护哪个。</p>
+
+<p>验收：两版都能 <code>python -m</code> 跑通；重构版里 <code>a.py</code>、<code>b.py</code> 都不再互相 <code>import</code>。</p>
+
+<p><strong>挑战</strong>：写一个 <code>plugins/</code> 目录 + <code>loader.py</code>：<code>loader.py</code> 用 <code>importlib</code> 扫描目录、按文件名动态导入每个模块、调用模块里的 <code>register()</code> 收集返回值。要求：不修改 <code>sys.path</code>、坏插件（导入抛异常的）被跳过并打印模块名、输出按文件名排序保证确定性。</p>
+
+<p>验收：放 3 个插件（1 个故意 import 不存在的模块）时，<code>loader.load()</code> 返回 2 个注册项且顺序稳定；坏插件的名字出现在跳过列表里；<code>sys.path</code> 长度前后不变。</p>
+
+<h2 id="19-d-小结">19.d 小结</h2>
+
+<ol><li><code>import</code> = 查 <code>sys.modules</code> → 找文件 → 执行模块体 → 把模块对象绑名字；第二次导入只做第一和第四步。</li><li>包是带 <code>__path__</code> 的模块，<code>__init__.py</code> 决定「导入包时顺手做了什么」；<code>python -m 包</code> 走 <code>__main__.py</code>，<code>python 包/文件.py</code> 会让相对导入失效。</li><li>循环导入与改不动配置项的根源都是同一件事——<strong>导入绑的是名字，不是引用</strong>；要共享可变状态就导入模块，别导入值。</li></ol>
+
+<p>下一章给这套名字与对象加上类型说明：注解写在哪、<code>typing</code> 怎么用、为什么 <code>mypy</code> 能在不运行代码的情况下抓出一批 bug。</p>
+
+    
+
+    </article>
+    <!-- ==================== 正文结束 ==================== -->
+
+    <div data-learn-pager></div>
+
+    <footer class="acm-footer" style="margin-top:34px;border-radius:14px;padding:20px 22px">
+      <div class="acm-footer-inner">
+        <div>
+          <p><b>Python 语法教程</b> · 编程学习站的一部分。</p>
+          <p class="acm-tiny">配色与深浅色跟随<a href="../../index.html">校园主页</a>；顶部右侧按钮可切换。</p>
+        </div>
+        <div class="acm-footer-links">
+          <a href="./index.html">章节目录</a>
+          <a href="../index.html">编程学习首页</a>
+          <a href="../study.html">C++ 资料</a>
+          <a href="../practice.html">C++ 题练场</a>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+
+  <div class="learn-rail"><div data-learn-toc></div></div>
+</div>
+
+<script src="../../js/learn-nav.js"></script>
+<script src="../../js/learn-shell.js"></script>
+<script src="../../js/learn-code.js"></script>
+<script>
+/* 顶部导航滚动态 + 主题切换（与 C++ 两个页面同一套逻辑，每页一份，不依赖外链） */
+(function () {
+  'use strict';
+  var root = document.documentElement, nav = document.getElementById('acmNav');
+  if (nav) {
+    var onScroll = function () { nav.classList.toggle('stuck', (window.scrollY || 0) > 8); };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+  var ico = document.querySelector('#themeIco use');
+  function paint() {
+    if (ico) { ico.setAttribute('href', root.getAttribute('data-theme') === 'dark' ? '#i-sun' : '#i-moon'); }
+  }
+  paint();
+  var btn = document.getElementById('themeBtn');
+  if (btn) {
+    btn.addEventListener('click', function () {
+      var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      root.setAttribute('data-mode', next);
+      try { localStorage.setItem('cw.theme', JSON.stringify(next)); } catch (e) { }
+      paint();
+    });
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light" data-mode="dark">
+<!--CONTRACT-START-->
+<!--
+  ============================================================================
+  Python 语法教程 · 章节页模板（_template.html）
+  ============================================================================
+  怎么用（别引入构建工具、别引外部 CDN）：
+
+    【推荐】正文写成 site/acm/python/NN-english-slug.md（规范见同目录 _STYLE.md），
+    然后跑一条命令把它渲染成本文件这套骨架的静态页，并顺手同步侧栏数据：
+
+        python site/acm/python/_render.py          # 全部章节
+        python site/acm/python/_render.py 03       # 只渲染第 3 章
+
+    _render.py 会：① 把 md 渲染成 NN-english-slug.html（就是本模板）；
+    ② 改写 site/js/learn-nav.js 里 py-syntax.items 的自动区块（章节标题、简介、顺序、
+    锚点全部从 md 读，别手改那段）；③ 不碰 _build/ 和 examples/。
+    所以**不要手改生成出来的 .html**——下次渲染会覆盖；要改样式改 learn.css，
+    要改骨架改本文件，要改正文改 .md。
+
+    【应急】也可以直接复制本文件为 NN-english-slug.html 手写。此时必须自己改：
+         <body data-learn-page="py-01">   ← 与 learn-nav.js 里对应条目的 id 一致
+         <h1 id="learnTitle">第 N 章 · 标题</h1> / <p class="lead">一句话简介</p>
+      注意手写的页面会被 _render.py 覆盖，除非同名 .md 不存在。
+
+  ---- 页面里哪些东西是**自动生成**的，别手写 ----
+     侧栏（分类树 / 已读 / 进度）   <div data-learn-sidebar>
+     面包屑                        <div data-learn-crumb>
+     上一课 / 下一课               <div data-learn-pager>
+     页内目录（桌面右栏 + 窄屏折叠）<div data-learn-toc>（脚本扫正文的 h2 / h3，缺 id 自动补）
+     已读按钮 / 自动打勾           <button data-learn-mark>
+
+  ---- 正文可以用的类（全部在 site/acm/learn.css 里有定义）----
+     <h2> 小节（会进目录）、<h3> 更小的节（也会进目录）、<h4> 不进目录
+     <p> <ul> <ol> <strong> <a> <em> <hr>
+     <code>行内代码</code>
+     <pre><code>多行代码</code></pre>            ← 右上角自动出现「复制」按钮
+     <table><thead><tr><th>…</th></tr></thead><tbody>…</tbody></table>
+     <div class="note">说明</div>  <div class="tip">技巧</div>
+     <div class="warn">注意 / 常见坑</div>  <div class="danger">易错</div>
+     <div class="steps"><ol><li>…</li></ol></div>   ← 步骤条
+     <span class="kbd">Ctrl</span> 表示按键
+     图片：<figure><img src="…" alt="…"><figcaption>…</figcaption></figure>
+
+  ---- 硬性要求 ----
+     · 中文文案；代码用 Python 3，能直接复制运行；不要用 print 之外的外部依赖。
+     · 不加载任何外部脚本 / 字体 / 图片（纯静态、可离线）。
+     · 每个 h2 自带 id 更好（如 <h2 id="goal">本章目标</h2>），方便别人分享锚点；
+       不写也行，脚本会把标题转成锚点。
+  ============================================================================
+-->
+<!--CONTRACT-END-->
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="">
+<meta name="theme-color" content="#2563eb">
+<meta name="color-scheme" content="light dark">
+<title>Python 语法教程 · 编程学习</title>
+<script src="../../js/boot.js"></script>
+<script>try{var _t=document.documentElement.getAttribute('data-theme')||'light';document.documentElement.setAttribute('data-mode',_t);}catch(e){}</script>
+<link rel="stylesheet" href="../acm.css">
+<link rel="stylesheet" href="../learn.css">
+<link rel="stylesheet" href="../learn-code.css">
+</head>
+<body data-learn-page="py-01">
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;overflow:hidden">
+  <symbol id="i-graduation" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8.6 12 4.2l9.5 4.4L12 13 2.5 8.6Z"/><path d="M6.2 10.9V16c0 1.4 2.6 2.6 5.8 2.6s5.8-1.2 5.8-2.6v-5.1"/><path d="M21.5 9.4v5.2"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.6 12 3.8l8.5 6.8V20a1 1 0 0 1-1 1h-4.2v-6.2H8.7V21H4.5a1 1 0 0 1-1-1z"/></symbol>
+</svg>
+
+<header class="acm-nav" id="acmNav">
+  <div class="acm-wrap acm-nav-inner">
+    <a class="acm-brand" href="../index.html" title="回到编程学习首页">
+      <span class="acm-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-graduation"/></svg></span>
+      <span class="acm-brand-text"><strong>编程学习</strong><small>C++ · Python</small></span>
+    </a>
+    <nav class="acm-tabs" aria-label="编程学习站页面">
+      <a href="../index.html">首页</a>
+      <a href="../study.html">C++ 资料</a>
+      <a href="../practice.html">C++ 题练场</a>
+      <a href="./index.html" class="on" aria-current="page">Python</a>
+    </nav>
+    <div class="acm-nav-actions">
+      <button class="acm-btn acm-btn-icon" type="button" id="themeBtn" title="切换深色 / 浅色（全站共用）" aria-label="切换深色或浅色主题">
+        <svg class="ico" aria-hidden="true" id="themeIco"><use href="#i-moon"/></svg>
+      </button>
+      <a class="acm-btn" href="../../index.html" title="返回校园主页">
+        <svg class="ico" aria-hidden="true"><use href="#i-home"/></svg><span class="label">回主页</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<div class="learn-layout">
+
+  <!-- 窄屏（≤900px）：侧栏换成顶部折叠块 -->
+  <details class="learn-mobnav">
+    <summary>站点导航 · C++ / Python</summary>
+    <div data-learn-sidebar data-compact="1"></div>
+  </details>
+
+  <aside class="learn-aside"><div data-learn-sidebar></div></aside>
+
+  <main class="learn-main">
+
+    <div data-learn-crumb></div>
+
+    <header class="learn-head">
+      <h1 id="learnTitle"></h1>
+      <p class="lead"></p>
+      <div class="learn-meta">
+        <span class="learn-chip py">Python 3</span>
+        <button class="learn-mark" type="button" data-learn-mark>标记为已读</button>
+      </div>
+    </header>
+
+    <!-- 窄屏（≤1180px）：右侧目录换到正文上面的折叠块 -->
+    <details class="learn-mobtoc" open>
+      <summary>本页目录</summary>
+      <div data-learn-toc></div>
+    </details>
+
+    <!-- ==================== 正文：只改这里 ==================== -->
+    <article data-learn-content>
+
+      <div class="note">
+        <p><b>这一章的正文还没写。</b>页面骨架（侧栏、面包屑、上下篇、目录、已读进度）已经全部接好，
+           在 <span class="kbd">site/acm/python/_template.html</span> 的
+           <code>&lt;article data-learn-content&gt;</code> 里按下面这些小节往里填即可。</p>
+      </div>
+
+      <h2 id="goal">本章目标</h2>
+      <ul>
+        <li>读完这一章，你应该能……（换成这一章真正的 2～4 个目标，动词开头）。</li>
+        <li>目标要能验证：「能自己写一个 X」比「理解 X」好。</li>
+      </ul>
+
+      <h2 id="body">正文</h2>
+      <p>正文按「先给最小可运行例子 → 再解释每一行 → 最后给变体」的顺序写。代码块示例：</p>
+      <pre><code>print("Hello, Python")</code></pre>
+      <p>行内提到代码时用 <code>print()</code> 这种写法。<span class="kbd">Ctrl</span> +
+         <span class="kbd">S</span> 表示按键。</p>
+
+      <h3 id="body-detail">细节展开</h3>
+      <p>h3 也会进右侧目录，适合放「同一件事的第二种写法」「特殊情况」这类内容。</p>
+
+      <h2 id="pitfall">常见坑</h2>
+      <div class="warn">
+        <p>把这一章新手最容易踩的 2～3 个坑写在这里：报错长什么样、为什么、怎么改。</p>
+      </div>
+      <div class="tip">
+        <p>顺手能省事的小技巧放这里。</p>
+      </div>
+
+      <h2 id="check">自测</h2>
+      <div class="steps">
+        <ol>
+          <li>一道不看答案就能写出来的小题。</li>
+          <li>一道需要改一改上一题的小题。</li>
+        </ol>
+      </div>
+
+      <h2 id="sum">小结</h2>
+      <p>三句话收尾：这一章学了什么、下一章要用到它做什么、忘了就回看哪一小节。</p>
+
+    </article>
+    <!-- ==================== 正文结束 ==================== -->
+
+    <div data-learn-pager></div>
+
+    <footer class="acm-footer" style="margin-top:34px;border-radius:14px;padding:20px 22px">
+      <div class="acm-footer-inner">
+        <div>
+          <p><b>Python 语法教程</b> · 编程学习站的一部分。</p>
+          <p class="acm-tiny">配色与深浅色跟随<a href="../../index.html">校园主页</a>；顶部右侧按钮可切换。</p>
+        </div>
+        <div class="acm-footer-links">
+          <a href="./index.html">章节目录</a>
+          <a href="../index.html">编程学习首页</a>
+          <a href="../study.html">C++ 资料</a>
+          <a href="../practice.html">C++ 题练场</a>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+
+  <div class="learn-rail"><div data-learn-toc></div></div>
+</div>
+
+<script src="../../js/learn-nav.js"></script>
+<script src="../../js/learn-shell.js"></script>
+<script src="../../js/learn-code.js"></script>
+<script>
+/* 顶部导航滚动态 + 主题切换（与 C++ 两个页面同一套逻辑，每页一份，不依赖外链） */
+(function () {
+  'use strict';
+  var root = document.documentElement, nav = document.getElementById('acmNav');
+  if (nav) {
+    var onScroll = function () { nav.classList.toggle('stuck', (window.scrollY || 0) > 8); };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+  var ico = document.querySelector('#themeIco use');
+  function paint() {
+    if (ico) { ico.setAttribute('href', root.getAttribute('data-theme') === 'dark' ? '#i-sun' : '#i-moon'); }
+  }
+  paint();
+  var btn = document.getElementById('themeBtn');
+  if (btn) {
+    btn.addEventListener('click', function () {
+      var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      root.setAttribute('data-mode', next);
+      try { localStorage.setItem('cw.theme', JSON.stringify(next)); } catch (e) { }
+      paint();
+    });
+  }
+})();
+</script>
+</body>
+</html>

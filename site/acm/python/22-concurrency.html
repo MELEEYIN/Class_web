@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light" data-mode="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Python 有三种并发手段，区别只在「谁在等」——线程让出 GIL 去等 IO，进程绕开 GIL 去占满多核，协程在单线程里靠 await 主动切换。选错模型，代码再对也快不了。">
+<meta name="theme-color" content="#2563eb">
+<meta name="color-scheme" content="light dark">
+<title>第 22 章 · 并发：threading / multiprocessing / asyncio · Python 语法教程 · 编程学习</title>
+<script src="../../js/boot.js"></script>
+<script>try{var _t=document.documentElement.getAttribute('data-theme')||'light';document.documentElement.setAttribute('data-mode',_t);}catch(e){}</script>
+<link rel="stylesheet" href="../acm.css">
+<link rel="stylesheet" href="../learn.css">
+<link rel="stylesheet" href="../learn-code.css">
+</head>
+<body data-learn-page="py-22">
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;overflow:hidden">
+  <symbol id="i-graduation" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8.6 12 4.2l9.5 4.4L12 13 2.5 8.6Z"/><path d="M6.2 10.9V16c0 1.4 2.6 2.6 5.8 2.6s5.8-1.2 5.8-2.6v-5.1"/><path d="M21.5 9.4v5.2"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.6 12 3.8l8.5 6.8V20a1 1 0 0 1-1 1h-4.2v-6.2H8.7V21H4.5a1 1 0 0 1-1-1z"/></symbol>
+</svg>
+
+<header class="acm-nav" id="acmNav">
+  <div class="acm-wrap acm-nav-inner">
+    <a class="acm-brand" href="../index.html" title="回到编程学习首页">
+      <span class="acm-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-graduation"/></svg></span>
+      <span class="acm-brand-text"><strong>编程学习</strong><small>C++ · Python</small></span>
+    </a>
+    <nav class="acm-tabs" aria-label="编程学习站页面">
+      <a href="../index.html">首页</a>
+      <a href="../study.html">C++ 资料</a>
+      <a href="../practice.html">C++ 题练场</a>
+      <a href="./index.html" class="on" aria-current="page">Python</a>
+    </nav>
+    <div class="acm-nav-actions">
+      <button class="acm-btn acm-btn-icon" type="button" id="themeBtn" title="切换深色 / 浅色（全站共用）" aria-label="切换深色或浅色主题">
+        <svg class="ico" aria-hidden="true" id="themeIco"><use href="#i-moon"/></svg>
+      </button>
+      <a class="acm-btn" href="../../index.html" title="返回校园主页">
+        <svg class="ico" aria-hidden="true"><use href="#i-home"/></svg><span class="label">回主页</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<div class="learn-layout">
+
+  <!-- 窄屏（≤900px）：侧栏换成顶部折叠块 -->
+  <details class="learn-mobnav">
+    <summary>站点导航 · C++ / Python</summary>
+    <div data-learn-sidebar data-compact="1"></div>
+  </details>
+
+  <aside class="learn-aside"><div data-learn-sidebar></div></aside>
+
+  <main class="learn-main">
+
+    <div data-learn-crumb></div>
+
+    <header class="learn-head">
+      <h1 id="learnTitle">第 22 章 · 并发：threading / multiprocessing / asyncio</h1>
+      <p class="lead">Python 有三种并发手段，区别只在「谁在等」——线程让出 GIL 去等 IO，进程绕开 GIL 去占满多核，协程在单线程里靠 <code>await</code> 主动切换。选错模型，代码再对也快不了。</p>
+      <div class="learn-meta">
+        <span class="learn-chip py">Python 3</span>
+        <button class="learn-mark" type="button" data-learn-mark>标记为已读</button>
+      </div>
+    </header>
+
+    <!-- 窄屏（≤1180px）：右侧目录换到正文上面的折叠块 -->
+    <details class="learn-mobtoc" open>
+      <summary>本页目录</summary>
+      <div data-learn-toc></div>
+    </details>
+
+    <!-- ==================== 正文：只改这里 ==================== -->
+    <article data-learn-content>
+
+<p><strong>读完这一章你能做到</strong></p>
+
+<ol><li>说清 GIL 到底限制了什么：为什么多线程加速不了 CPU 密集，却能加速 IO 密集。</li><li>用 <code>threading</code> + <code>Lock</code> + <code>queue.Queue</code> 写出没有竞态的线程代码。</li><li>用 <code>concurrent.futures</code> 的线程池/进程池把任务分发出去，并知道 <code>map</code> 与 <code>as_completed</code> 的顺序差异。</li><li>用 <code>asyncio</code> 写协程：<code>gather</code>、<code>TaskGroup</code>、超时、取消、<code>to_thread</code>。</li><li>面对一个具体任务，30 秒内选出该用哪种模型。</li></ol>
+
+<h2 id="s22-1">22.1 三种模型一览</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>维度</th>
+<th><code>threading</code></th>
+<th><code>multiprocessing</code></th>
+<th><code>asyncio</code></th>
+</tr></thead>
+<tbody>
+<tr><td>并发单位</td><td>线程（OS 调度）</td><td>进程（OS 调度）</td><td>协程（用户态调度）</td></tr>
+<tr><td>受 GIL 限制</td><td>是，同一时刻只有一个线程跑字节码</td><td>否，每进程一把 GIL</td><td>单线程，不受影响</td></tr>
+<tr><td>适合</td><td>IO 密集、阻塞库调用</td><td>CPU 密集、大数据并行</td><td>海量 IO 连接</td></tr>
+<tr><td>内存共享</td><td>直接共享，要加锁</td><td>不共享，靠 Queue/管道/<code>Manager</code> pickle</td><td>全部共享，天然无竞态（单线程）</td></tr>
+<tr><td>创建开销</td><td>小（几十微秒）</td><td>大（数十毫秒，Windows 上要重新导入模块）</td><td>极小（一个对象）</td></tr>
+<tr><td>数量级</td><td>几十个</td><td>CPU 核数</td><td>几万到几十万</td></tr>
+<tr><td>切换方式</td><td>抢占式（<code>sys.setswitchinterval</code>）</td><td>抢占式</td><td>协作式（遇到 <code>await</code> 才切）</td></tr>
+<tr><td>典型用途</td><td>爬虫、读多个文件、调 API</td><td>图像处理、数值计算、压测</td><td>Web 服务、长连接、爬虫（aiohttp）</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="s22-2">22.2 GIL：同一时刻只有一个线程在执行字节码</h2>
+
+<p>CPython 用一把全局解释器锁保护对象引用计数，所以<strong>任何时刻只有一个线程在跑 Python 字节码</strong>。线程每隔 <code>sys.getswitchinterval()</code> 秒（默认 5ms）被要求交棒。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import sys, threading, os
+&gt;&gt;&gt; sys.getswitchinterval()
+0.005
+&gt;&gt;&gt; os.cpu_count() &gt;= 1
+True
+&gt;&gt;&gt; threading.active_count()
+1</code></pre>
+
+<p>由此得到两条铁律：</p>
+
+<ul><li><strong>CPU 密集</strong>：多线程没有收益，甚至因为抢锁更慢。要么换 <code>multiprocessing</code>，要么把热点丢给 C 扩展（numpy 内部就释放 GIL）。</li><li><strong>IO 密集</strong>：线程在等网络/磁盘时会释放 GIL，所以多线程能成倍提速。这也是「线程数 = 并发请求数」在爬虫里成立的原因。</li></ul>
+
+<div class="box tip"><p><code>sys.setswitchinterval(0.001)</code> 能把切换间隔调小。它对吞吐几乎总是负优化（切换有成本），只在调试竞态时有点用。别在生产里调它。</p></div>
+
+<h2 id="s22-3">22.3 <code>threading</code>：start / join / Lock</h2>
+
+<p><code>Thread(target=..., args=...)</code> 建对象，<code>start()</code> 才真正跑，<code>join()</code> 等它结束。<strong>忘写 <code>join()</code> 是新手第一大坑</strong>：主线程直接往下走，脚本结束时子线程被强杀，日志缺一半。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import threading
+&gt;&gt;&gt; out = []
+&gt;&gt;&gt; def work(n):
+...     out.append(n * n)
+...
+&gt;&gt;&gt; ts = [threading.Thread(target=work, args=(i,)) for i in range(3)]
+&gt;&gt;&gt; [t.start() for t in ts]
+[None, None, None]
+&gt;&gt;&gt; [t.join() for t in ts]
+[None, None, None]
+&gt;&gt;&gt; sorted(out)
+[0, 1, 4]</code></pre>
+
+<p>不 <code>join</code> 的话 <code>out</code> 可能是 <code>[]</code>、<code>[0]</code>、<code>[1, 0]</code>……取决于调度。<strong>线程的执行顺序没有任何保证</strong>，所以输出一律排序或汇总后在主线程打印。</p>
+
+<p>共享可变状态必须加锁。<code>+=</code> 不是原子操作：它由「读、加、写」三步组成，线程在这三步之间被切走就会丢更新。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import threading
+&gt;&gt;&gt; lock = threading.Lock()
+&gt;&gt;&gt; lock.acquire()
+True
+&gt;&gt;&gt; lock.acquire(timeout=0.01)      # 同一线程再拿，锁不可重入
+False
+&gt;&gt;&gt; lock.release()
+&gt;&gt;&gt; rlock = threading.RLock()
+&gt;&gt;&gt; rlock.acquire()
+True
+&gt;&gt;&gt; rlock.acquire()                 # RLock 允许同一线程重入
+True</code></pre>
+
+<p><code>Lock</code> 与 <code>RLock</code> 的区别就是「同一线程能否重复获取」。递归函数里加锁必须用 <code>RLock</code>，否则第二次 <code>acquire</code> 就自己把自己锁死。首选写法是 <code>with lock:</code>，它保证异常时也释放。</p>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch22_01_threads.py</code></figcaption><pre class="py"><code>import threading
+
+results = []
+lock = threading.Lock()
+counter = 0
+
+
+def work(name, n):
+    total = sum(len(name) for _ in range(n))
+    with lock:                          # 共享 list 的追加要加锁
+        results.append((name, total, threading.current_thread().name))
+
+
+def bump():
+    global counter
+    for _ in range(1000):
+        with lock:
+            counter += 1
+
+
+print("启动前活跃线程数:", threading.active_count())
+
+threads = [threading.Thread(target=work, args=(f"t{i}", i + 1), name=f"w{i}")
+           for i in range(3)]
+for t in threads:
+    t.start()
+for t in threads:
+    t.join()
+for row in sorted(results):
+    print(row)
+
+bumpers = [threading.Thread(target=bump) for _ in range(3)]
+for t in bumpers:
+    t.start()
+for t in bumpers:
+    t.join()
+print("加锁后计数 =", counter, "（期望 3000）")
+
+print("主线程名:", threading.current_thread().name)
+print("是否还有存活的工作线程:", any(t.is_alive() for t in threads))
+print("daemon 默认值:", threading.Thread(target=lambda: None).daemon)</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>启动前活跃线程数: 1
+('t0', 2, 'w0')
+('t1', 4, 'w1')
+('t2', 6, 'w2')
+加锁后计数 = 3000 （期望 3000）
+主线程名: MainThread
+是否还有存活的工作线程: False
+daemon 默认值: False</code></pre></div></figure>
+
+<p><code>daemon=True</code> 的线程不会阻止解释器退出——适合心跳、监控这类「跟着主程序一起死」的任务；需要保证完成的工作（写文件、发确认）绝不能用 daemon。</p>
+
+<h2 id="s22-4">22.4 线程间通信：<code>queue.Queue</code></h2>
+
+<p><strong>不要用 list 当线程间的队列</strong>。<code>queue.Queue</code> 自带锁与条件变量，还提供阻塞式 <code>get</code>、有界 <code>maxsize</code>（满了 <code>put</code> 就阻塞，天然的背压）和 <code>task_done()</code>/<code>join()</code> 配对。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import queue
+&gt;&gt;&gt; q = queue.Queue(maxsize=1)
+&gt;&gt;&gt; q.put(1)
+&gt;&gt;&gt; q.full()
+True
+&gt;&gt;&gt; q.get()
+1
+&gt;&gt;&gt; try:
+...     q.get(timeout=0.01)
+... except queue.Empty:
+...     print("Empty")
+Empty</code></pre>
+
+<p><code>get(timeout=...)</code> 超时抛 <code>queue.Empty</code>，<code>put(timeout=...)</code> 超时抛 <code>queue.Full</code>。<strong>带超时的阻塞是退出循环的唯一安全方式</strong>：不带超时的 <code>get()</code> 在生产者崩溃后会让消费者永远挂着，进程杀不掉也退不出。</p>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch22_04_queue.py</code></figcaption><pre class="py"><code>import queue
+import threading
+
+q = queue.Queue(maxsize=3)          # 有界队列：put 满了会阻塞，这就是背压
+out = []
+
+
+def producer():
+    for i in range(5):
+        q.put(i)
+    q.put(None)                     # 哨兵，通知消费者结束
+
+
+def consumer():
+    while True:
+        item = q.get()
+        if item is None:
+            q.task_done()
+            break
+        out.append(item * 10)
+        q.task_done()
+
+
+tp = threading.Thread(target=producer)
+tc = threading.Thread(target=consumer)
+tp.start()
+tc.start()
+tp.join()
+tc.join()
+print("消费结果:", out)
+print("队列剩余:", q.qsize(), "| 未完成任务:", q.unfinished_tasks)
+
+lock = threading.Lock()
+print("先拿到锁:", lock.acquire())
+print("同一线程再拿（带超时）:", lock.acquire(timeout=0.01))
+lock.release()
+
+rlock = threading.RLock()
+rlock.acquire()
+print("RLock 同线程可重入:", rlock.acquire(blocking=False))
+rlock.release()
+rlock.release()
+
+event = threading.Event()
+seen = []
+
+
+def waiter():
+    seen.append("等")
+    event.wait()                    # 阻塞到别的线程 set()
+    seen.append("过")
+
+
+t = threading.Thread(target=waiter)
+t.start()
+event.set()
+t.join()
+print("Event 唤醒:", seen)</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>消费结果: [0, 10, 20, 30, 40]
+队列剩余: 0 | 未完成任务: 0
+先拿到锁: True
+同一线程再拿（带超时）: False
+RLock 同线程可重入: True
+Event 唤醒: ['等', '过']</code></pre></div></figure>
+
+<h2 id="s22-5">22.5 <code>concurrent.futures</code>：池化，别手搓线程</h2>
+
+<p><code>ThreadPoolExecutor</code> / <code>ProcessPoolExecutor</code> 提供同一套 API，换一个类就换了并发模型——这是把「线程版」改成「进程版」最省事的方式。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import concurrent.futures as cf
+&gt;&gt;&gt; with cf.ThreadPoolExecutor(max_workers=2) as ex:
+...     print(list(ex.map(str.upper, ["a", "b", "c"])))
+...
+['A', 'B', 'C']
+&gt;&gt;&gt; with cf.ThreadPoolExecutor(max_workers=1) as ex:
+...     fut = ex.submit(int, "x")
+...     try:
+...         fut.result()
+...     except ValueError as e:
+...         print("传回主线程:", type(e).__name__)
+...
+传回主线程: ValueError</code></pre>
+
+<p>三个方法的分工：</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>方法</th>
+<th>返回</th>
+<th>顺序</th>
+<th>异常</th>
+</tr></thead>
+<tbody>
+<tr><td><code>map(fn, it)</code></td><td>生成器，惰性取</td><td><strong>按输入顺序</strong></td><td>取值时才抛</td></tr>
+<tr><td><code>submit(fn, *a)</code></td><td><code>Future</code></td><td>自己控制</td><td><code>future.result()</code> 时抛</td></tr>
+<tr><td><code>as_completed(fs)</code></td><td>迭代器</td><td><strong>完成顺序，不保证</strong></td><td>取值时抛</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><code>Future.result()</code> 会把子线程里的异常<strong>原样抛回主线程</strong>（带原始 traceback 链），所以别在子线程里 <code>try/except: pass</code> 吞掉——那样主线程永远不知道失败了。</p>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch22_02_futures.py</code></figcaption><pre class="py"><code>import concurrent.futures as cf
+import os
+import sys
+
+
+def cpu_task(n):
+    return sum(i * i for i in range(n))
+
+
+if __name__ == "__main__":
+    print("逻辑 CPU 数 &gt;= 1:", os.cpu_count() &gt;= 1)
+    print("GIL 切换间隔:", sys.getswitchinterval())
+
+    with cf.ThreadPoolExecutor(max_workers=3) as ex:
+        print("线程池 map（保序）:", list(ex.map(cpu_task, [10, 20, 30])))
+        futs = [ex.submit(str.upper, w) for w in ["a", "b"]]
+        print("submit 逐个取结果:", [f.result() for f in futs])
+
+    with cf.ThreadPoolExecutor(max_workers=1) as ex:
+        bad = ex.submit(lambda: 1 / 0)
+        try:
+            bad.result()
+        except ZeroDivisionError as e:
+            print("子线程异常被传回:", type(e).__name__, "|", e)
+
+    with cf.ProcessPoolExecutor(max_workers=2) as ex:
+        print("进程池 map（真并行，数据要能 pickle）:", sorted(ex.map(cpu_task, [10, 20])))
+
+    with cf.ThreadPoolExecutor(max_workers=2) as ex:
+        done = [fut.result() for fut in cf.as_completed(
+            [ex.submit(cpu_task, n) for n in (5, 6)])]
+        print("as_completed 顺序不保证，排序后:", sorted(done))</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>逻辑 CPU 数 &gt;= 1: True
+GIL 切换间隔: 0.005
+线程池 map（保序）: [285, 2470, 8555]
+submit 逐个取结果: ['A', 'B']
+子线程异常被传回: ZeroDivisionError | division by zero
+进程池 map（真并行，数据要能 pickle）: [285, 2470]
+as_completed 顺序不保证，排序后: [30, 55]</code></pre></div></figure>
+
+<h2 id="s22-6">22.6 <code>multiprocessing</code>：绕开 GIL</h2>
+
+<p>进程之间不共享内存，参数与返回值都要 <strong>pickle</strong> 序列化。这带来三条硬约束：lambda、闭包、局部函数<strong>不可提交</strong>（不可 pickle）；大对象传输很贵；子进程里的修改不会回到父进程。</p>
+
+<p>Windows 与 macOS 默认用 <code>spawn</code> 启动方式（Linux 3.14 起也改为默认 <code>spawn</code>），子进程会<strong>重新导入主模块</strong>，所以入口必须加守卫：</p>
+
+<pre class="py"><code># 片段：Windows 上进程池必须这么写
+import concurrent.futures as cf
+
+def cpu_task(n):                    # 必须是模块顶层函数，才能被 pickle
+    return sum(i * i for i in range(n))
+
+if __name__ == "__main__":           # spawn 会重新 import 本模块
+    with cf.ProcessPoolExecutor() as ex:
+        print(list(ex.map(cpu_task, range(100))))</code></pre>
+
+<p>漏掉这个守卫的典型症状是 <code>RuntimeError: An attempt has been made to start a new process before the current process has finished its bootstrapping phase</code>，或者子进程无限递归地创建子进程把机器打满。</p>
+
+<p>进程间通信优先用 <code>multiprocessing.Queue</code> 或 <code>Pool</code>，需要共享可变状态时用 <code>Manager().dict()</code>/<code>list()</code>——但要知道它是代理对象，每次读写都要走 IPC，比本地对象慢几个数量级。</p>
+
+<h2 id="s22-7">22.7 <code>asyncio</code>：单线程里的并发</h2>
+
+<p><code>async def</code> 定义协程函数，调用它只得到协程对象（不执行），必须交给事件循环：<code>asyncio.run(main())</code>。<code>await</code> 是唯一的切换点——<strong>没写 <code>await</code> 就没有并发</strong>。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import asyncio
+&gt;&gt;&gt; async def hello(n):
+...     print("开始", n)
+...     await asyncio.sleep(0)      # 让出控制权
+...     print("结束", n)
+...     return n
+...
+&gt;&gt;&gt; async def main():
+...     return await asyncio.gather(hello(1), hello(2))
+...
+&gt;&gt;&gt; asyncio.run(main())
+开始 1
+开始 2
+结束 1
+结束 2
+[1, 2]</code></pre>
+
+<p>输出顺序不是巧合：<code>gather</code> 按传入顺序把两个协程包装成 <code>Task</code>，各自跑到第一个 <code>await</code> 让出，再依次恢复。<strong>这就是协程并发的全部机制</strong>——没有线程、没有锁、没有上下文切换开销，只有「谁先让出」。</p>
+
+<p>代价是：<strong>任何一处同步阻塞都会卡死整个事件循环</strong>。<code>time.sleep(1)</code>、<code>requests.get()</code>、<code>open().read()</code> 全都会停住所有协程。要么换异步库（<code>aiohttp</code>、<code>httpx</code>、<code>aiofiles</code>），要么把阻塞调用丢进线程池：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import asyncio
+&gt;&gt;&gt; def blocking(n):
+...     return sum(i * i for i in range(n))
+...
+&gt;&gt;&gt; asyncio.run(asyncio.to_thread(blocking, 10))
+285</code></pre>
+
+<p><code>asyncio.to_thread</code>（3.9+）就是「一行把同步函数变成可 <code>await</code>」。它背后用默认线程池，所以仍然受线程数限制，但足以救活第三方同步库。</p>
+
+<p>四个必会 API：</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>API</th>
+<th>版本</th>
+<th>用途</th>
+</tr></thead>
+<tbody>
+<tr><td><code>asyncio.gather(*aws)</code></td><td>3.4+</td><td>并发等待全部；一个抛异常默认会取消其余</td></tr>
+<tr><td><code>asyncio.TaskGroup()</code></td><td>3.11+</td><td><code>async with</code> 块，任一失败则整组取消，比 <code>gather</code> 更安全</td></tr>
+<tr><td><code>asyncio.timeout(s)</code></td><td>3.11+</td><td><code>async with</code> 包住一段，超时抛 <code>TimeoutError</code></td></tr>
+<tr><td><code>asyncio.wait_for(coro, s)</code></td><td>3.4+</td><td>单个协程超时，超时抛 <code>TimeoutError</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch22_03_asyncio.py</code></figcaption><pre class="py"><code>import asyncio
+import time
+
+
+async def worker(name):
+    print(name, "开始")
+    await asyncio.sleep(0)          # 主动让出控制权，另一个任务才有机会跑
+    print(name, "结束")
+    return name * 2
+
+
+def blocking(n):                    # 同步阻塞函数
+    return sum(i * i for i in range(n))
+
+
+async def main():
+    print("gather 返回值:", await asyncio.gather(worker("A"), worker("B")))
+
+    print("to_thread 把阻塞调用丢进线程:", await asyncio.to_thread(blocking, 10))
+
+    t0 = time.perf_counter()
+    await asyncio.gather(*(asyncio.sleep(0.05) for _ in range(5)))
+    print("5 个 0.05s 并发，用时 &lt; 0.15s:", time.perf_counter() - t0 &lt; 0.15)
+
+    try:
+        async with asyncio.timeout(0.05):
+            await asyncio.sleep(1)
+    except TimeoutError:
+        print("超时类型:", TimeoutError.__name__)
+
+    async def slow():
+        await asyncio.sleep(10)
+
+    task = asyncio.create_task(slow())
+    task.cancel()
+    try:
+        await task
+    except asyncio.CancelledError:
+        print("取消后状态:", task.cancelled(), "| 异常类型: CancelledError")
+
+    return "done"
+
+
+print("asyncio.run 返回:", asyncio.run(main()))</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>A 开始
+B 开始
+A 结束
+B 结束
+gather 返回值: ['AA', 'BB']
+to_thread 把阻塞调用丢进线程: 285
+5 个 0.05s 并发，用时 &lt; 0.15s: True
+超时类型: TimeoutError
+取消后状态: True | 异常类型: CancelledError
+asyncio.run 返回: done</code></pre></div></figure>
+
+<p>取消是协作式的：<code>task.cancel()</code> 只是往任务里塞一个 <code>CancelledError</code>，协程得跑到下一个 <code>await</code> 才会真正退出。所以<strong>别在 <code>except Exception</code> 里把 <code>CancelledError</code> 吞掉</strong>（3.8+ 它继承自 <code>BaseException</code>，正常写法不会误捕），否则取消请求会被吃掉，<code>asyncio.run</code> 退出时卡住。</p>
+
+<h2 id="s22-8">22.8 怎么选：30 秒决策</h2>
+
+<ol><li>任务是<strong>等网络/磁盘</strong>吗？→ <code>asyncio</code>（如果库支持）或 <code>threading</code>（库是同步的）。</li><li>任务是<strong>算</strong>，且单次超过几十毫秒、数据量大？→ <code>multiprocessing</code>（注意 pickle 成本）。</li><li>两者都有？→ 外层 <code>asyncio</code>，CPU 部分丢 <code>ProcessPoolExecutor</code>，阻塞库丢 <code>to_thread</code>。</li><li>只跑几个任务、几秒钟？→ <strong>先写同步版</strong>。并发的复杂度只有在「确实慢」时才值得付。</li></ol>
+
+<h2 id="s22-9">22.9 五个反模式</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>反模式</th>
+<th>后果</th>
+<th>正确做法</th>
+</tr></thead>
+<tbody>
+<tr><td>在 <code>async def</code> 里调 <code>time.sleep</code>/<code>requests</code></td><td>整个事件循环停住，并发归零</td><td><code>await asyncio.sleep</code>，或用 <code>to_thread</code></td></tr>
+<tr><td>用线程池跑 CPU 密集</td><td>GIL 打架，比单线程还慢</td><td>换 <code>ProcessPoolExecutor</code></td></tr>
+<tr><td>多线程写同一个文件</td><td>内容交错、编码错乱</td><td>单写线程 + <code>queue.Queue</code></td></tr>
+<tr><td>线程里 <code>print</code> 拼输出</td><td>行与行交错，日志乱序</td><td>汇总到主线程打印，或用 <code>logging</code></td></tr>
+<tr><td>不带超时的 <code>get()</code>/<code>join()</code></td><td>一处卡住全进程吊死</td><td>所有阻塞调用都带 <code>timeout</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="22-a-与-c-的差别">22.a 与 C++ 的差别</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>维度</th>
+<th>Python</th>
+<th>C++</th>
+</tr></thead>
+<tbody>
+<tr><td>全局锁</td><td>有 GIL，线程不能同时跑字节码</td><td>无，真并行</td></tr>
+<tr><td>线程创建</td><td><code>threading.Thread(target=f)</code></td><td><code>std::thread t(f)</code>，必须 <code>join</code> 或 <code>detach</code></td></tr>
+<tr><td>互斥</td><td><code>threading.Lock</code>（无 RAII）</td><td><code>std::mutex</code> + <code>std::lock_guard</code></td></tr>
+<tr><td>原子操作</td><td>几乎没有（<code>+=</code> 不原子）</td><td><code>std::atomic&lt;int&gt;</code> 硬件级原子</td></tr>
+<tr><td>条件变量</td><td><code>threading.Condition</code></td><td><code>std::condition_variable</code></td></tr>
+<tr><td>进程</td><td><code>multiprocessing</code> 是标准库一等公民</td><td>无标准进程 API，靠 <code>fork</code>/平台调用</td></tr>
+<tr><td>协程</td><td><code>async/await</code> 语言级 + 标准库事件循环</td><td>C++20 协程是<strong>语言机制</strong>，无标准运行时</td></tr>
+<tr><td>数据传递</td><td>pickle 自动序列化</td><td>手写共享内存/管道/序列化</td></tr>
+<tr><td>取消</td><td><code>task.cancel()</code> 协作式</td><td>无标准机制，靠标志位</td></tr>
+<tr><td>调试</td><td>竞态难复现，靠 <code>logging</code> + 压力循环</td><td>同样难，但可用 TSAN 检测</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>一句话：C++ 的并发是<strong>硬件并行</strong>（多核同时跑），Python 的并发是<strong>等待重叠</strong>（一个核上把等待叠起来，或多进程占多核）。把 C++ 的多线程直觉搬到 Python 上，最常见的错误就是「开 8 个线程算 8 份 CPU 任务」。</p>
+
+<h2 id="22-b-易错点清单">22.b 易错点清单</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>现象</th>
+<th>原因</th>
+<th>一行修复</th>
+</tr></thead>
+<tbody>
+<tr><td>多线程算素数比单线程还慢</td><td>GIL 让 CPU 密集无收益</td><td>换 <code>ProcessPoolExecutor</code></td></tr>
+<tr><td>计数结果少于预期（如 2997）</td><td><code>+=</code> 非原子，丢更新</td><td><code>with lock:</code> 包住读改写</td></tr>
+<tr><td>子线程没跑完程序就退出了</td><td>主线程没 <code>join</code></td><td>全部 <code>join()</code>，或 <code>with ThreadPoolExecutor</code></td></tr>
+<tr><td>线程里抛异常，主线程毫无察觉</td><td>异常留在子线程</td><td>用 <code>Future.result()</code> 取回，别 <code>try: pass</code></td></tr>
+<tr><td><code>ProcessPoolExecutor</code> 提交 lambda 报 <code>PicklingError</code></td><td>进程要 pickle，lambda 不可</td><td>换成模块顶层函数</td></tr>
+<tr><td>Windows 上进程池报 bootstrapping 错误</td><td>缺 <code>if __name__ == "__main__":</code></td><td>补守卫</td></tr>
+<tr><td>协程里 <code>time.sleep</code> 导致全体变慢</td><td>阻塞事件循环</td><td><code>await asyncio.sleep</code> 或 <code>to_thread</code></td></tr>
+<tr><td><code>await</code> 忘了写，返回 <code>&lt;coroutine object&gt;</code></td><td>协程对象没被调度</td><td>补 <code>await</code>，或用 <code>create_task</code></td></tr>
+<tr><td><code>asyncio.run</code> 里再调 <code>asyncio.run</code></td><td>一个线程只能有一个事件循环</td><td>内层改 <code>await</code>，或用 <code>nest_asyncio</code>（不推荐）</td></tr>
+<tr><td>超时后进程仍不退出</td><td>线程/任务没被取消，仍阻塞在 IO</td><td>所有等待带 timeout，取消后 <code>await</code> 一次</td></tr>
+<tr><td>用 <code>Queue</code> 但消费者永不退出</td><td>没有哨兵/结束信号</td><td>放 <code>None</code> 哨兵，或 <code>get(timeout=)</code> + 标志位</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="22-c-练习">22.c 练习</h2>
+
+<p><strong>基础 1</strong>：开 4 个线程，每个把 <code>1..25</code> 的数平方追加进共享列表，最后排序输出全部 100 个数并与单线程结果比对。</p>
+
+<p>验收：用 <code>lock</code> 保护追加，两次结果完全相等；总数为 100 且无重复。</p>
+
+<p><strong>基础 2</strong>：用 <code>ThreadPoolExecutor(max_workers=4)</code> 并发下载 3 个 URL（可用 <code>urllib.request</code>），返回 <code>(url, 字节数)</code> 列表；任一失败不影响其它。</p>
+
+<p>验收：返回列表长度 3；把其中一个 URL 改成非法域名时，捕获 <code>URLError</code> 且其余成功。</p>
+
+<p><strong>基础 3</strong>：写两个协程，各 <code>await asyncio.sleep(0.1)</code> 三次并记录时间戳间隔，用 <code>gather</code> 并发执行，总耗时应在 0.1s 量级而不是 0.6s。</p>
+
+<p>验收：<code>print</code> 出的总耗时 <code>&lt; 0.3</code>（要求环境稳定）；两次输出的顺序与实际耗时一致。</p>
+
+<p><strong>变式</strong>：把基础 1 改成 <code>ProcessPoolExecutor</code> 版本，确认结果相同；再用 <code>if __name__ == "__main__":</code> 守卫验证 Windows 下不报 bootstrapping 错误。</p>
+
+<p>验收：两个版本结果一致；去掉守卫后能复现 <code>RuntimeError: ... bootstrapping phase</code>。</p>
+
+<p><strong>挑战</strong>：实现一个有界工作队列：3 个生产者各生产 20 个任务（带自增 id），4 个消费者处理（每个任务 <code>sleep</code> 随机毫秒并记录 <code>(id, 消费者名)</code>），全部完成后断言「每个 id 恰好被处理一次」。</p>
+
+<p>验收：断言 <code>sorted(ids) == list(range(60))</code>；<code>q.unfinished_tasks == 0</code>；程序在 5 秒内退出。</p>
+
+<h2 id="22-d-小结">22.d 小结</h2>
+
+<ol><li>GIL 决定了分工：等 IO 用线程或协程，算 CPU 用进程；线程数看并发请求数，进程数看核数。</li><li>线程三件套是 <code>join</code>、<code>with lock:</code>、<code>queue.Queue</code>；进程三件套是 <code>__main__</code> 守卫、可 pickle 的顶层函数、显式传参。</li><li>协程的全部机制是「<code>await</code> 处让出」，所以一处同步阻塞就毁掉全部并发——要么异步库，要么 <code>to_thread</code>。</li></ol>
+
+<p>下一章从代码转向工程：虚拟环境怎么隔离依赖，<code>pip</code> 与 <code>requirements.txt</code>/<code>pyproject.toml</code> 该怎么管，以及为什么「在我机器上能跑」是一个环境问题。</p>
+
+    
+
+    </article>
+    <!-- ==================== 正文结束 ==================== -->
+
+    <div data-learn-pager></div>
+
+    <footer class="acm-footer" style="margin-top:34px;border-radius:14px;padding:20px 22px">
+      <div class="acm-footer-inner">
+        <div>
+          <p><b>Python 语法教程</b> · 编程学习站的一部分。</p>
+          <p class="acm-tiny">配色与深浅色跟随<a href="../../index.html">校园主页</a>；顶部右侧按钮可切换。</p>
+        </div>
+        <div class="acm-footer-links">
+          <a href="./index.html">章节目录</a>
+          <a href="../index.html">编程学习首页</a>
+          <a href="../study.html">C++ 资料</a>
+          <a href="../practice.html">C++ 题练场</a>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+
+  <div class="learn-rail"><div data-learn-toc></div></div>
+</div>
+
+<script src="../../js/learn-nav.js"></script>
+<script src="../../js/learn-shell.js"></script>
+<script src="../../js/learn-code.js"></script>
+<script>
+/* 顶部导航滚动态 + 主题切换（与 C++ 两个页面同一套逻辑，每页一份，不依赖外链） */
+(function () {
+  'use strict';
+  var root = document.documentElement, nav = document.getElementById('acmNav');
+  if (nav) {
+    var onScroll = function () { nav.classList.toggle('stuck', (window.scrollY || 0) > 8); };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+  var ico = document.querySelector('#themeIco use');
+  function paint() {
+    if (ico) { ico.setAttribute('href', root.getAttribute('data-theme') === 'dark' ? '#i-sun' : '#i-moon'); }
+  }
+  paint();
+  var btn = document.getElementById('themeBtn');
+  if (btn) {
+    btn.addEventListener('click', function () {
+      var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      root.setAttribute('data-mode', next);
+      try { localStorage.setItem('cw.theme', JSON.stringify(next)); } catch (e) { }
+      paint();
+    });
+  }
+})();
+</script>
+</body>
+</html>

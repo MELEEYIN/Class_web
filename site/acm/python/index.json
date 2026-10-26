@@ -1,0 +1,1576 @@
+{
+  "v": 1,
+  "generator": "_build/gen_index.py",
+  "updated": "2026-10-26",
+  "n": 27,
+  "items": [
+    {
+      "no": 0,
+      "slug": "guide",
+      "title": "导读：这套 Python 教程怎么用",
+      "essence": "这不是一份\"语法罗列\"，而是一条**从「能读懂别人的代码」到「能写出不踩坑的工程代码」的路线**。26 章按依赖关系排好序，每一章都能独立运行、独立验收。",
+      "file": "00-guide.md",
+      "url": "00-guide.html",
+      "kind": "guide",
+      "sections": [
+        {
+          "id": "0.1",
+          "title": "这套教程面向谁"
+        },
+        {
+          "id": "0.2",
+          "title": "26 章地图"
+        },
+        {
+          "id": "0.3",
+          "title": "两条路线"
+        },
+        {
+          "id": "0.4",
+          "title": "每一章怎么读"
+        },
+        {
+          "id": "0.5",
+          "title": "环境准备（10 分钟）"
+        },
+        {
+          "id": "0.6",
+          "title": "卡住了怎么办"
+        },
+        {
+          "id": "0.7",
+          "title": "学完的标志"
+        }
+      ],
+      "stats": {
+        "pycon": 0,
+        "scripts": 1,
+        "sections": 7
+      }
+    },
+    {
+      "no": 1,
+      "slug": "environment-and-interpreter",
+      "title": "环境与解释器",
+      "essence": "Python 程序先被**编译**成字节码（`.pyc`），再由虚拟机循环执行——它不是\"边读边执行\"的脚本，也不是 C++ 那种\"编译成机器码再运行\"的二进制。理解这一层，你就知道 `SyntaxError` 为什么在程序跑起来之前就出现，也知道 `.pyc` 和 `__pycache__` 是谁生成的。",
+      "file": "01-environment-and-interpreter.md",
+      "url": "01-environment-and-interpreter.html",
+      "kind": "chapter",
+      "sections": [
+        {
+          "id": "1.1",
+          "title": "一次运行到底发生了什么"
+        },
+        {
+          "id": "1.2",
+          "title": "装好并确认版本"
+        },
+        {
+          "id": "1.3",
+          "title": "REPL 是最快的草稿纸"
+        },
+        {
+          "id": "1.4",
+          "title": "三种运行方式"
+        },
+        {
+          "id": "1.5",
+          "title": "脚本的身份：`__name__`"
+        },
+        {
+          "id": "1.6",
+          "title": "编译期错误 vs 运行期错误"
+        },
+        {
+          "id": "1.7",
+          "title": "CPython 与 PyPy：什么时候该在意"
+        },
+        {
+          "id": "1.8",
+          "title": "与 C++ 的差别"
+        },
+        {
+          "id": "1.9",
+          "title": "易错点清单"
+        },
+        {
+          "id": "1.10",
+          "title": "练习"
+        },
+        {
+          "id": "1.11",
+          "title": "小结"
+        }
+      ],
+      "stats": {
+        "pycon": 2,
+        "scripts": 3,
+        "sections": 11
+      }
+    },
+    {
+      "no": 2,
+      "slug": "indentation-and-syntax",
+      "title": "缩进与基础语法",
+      "essence": "Python 用**缩进代替花括号**来表达\"哪些语句属于同一个块\"。所以缩进不是排版喜好，而是语法本身——它错了，程序连编译都过不去，报的还是语法错误而不是格式错误。",
+      "file": "02-indentation-and-syntax.md",
+      "url": "02-indentation-and-syntax.html",
+      "kind": "chapter",
+      "sections": [
+        {
+          "id": "2.1",
+          "title": "语句、换行，以及那个可有可无的分号"
+        },
+        {
+          "id": "2.2",
+          "title": "缩进是语法的骨架"
+        },
+        {
+          "id": "2.3",
+          "title": "缩进错误的四种真身"
+        },
+        {
+          "id": "2.4",
+          "title": "续行：优先括号，反斜杠兜底"
+        },
+        {
+          "id": "2.5",
+          "title": "注释、文档字符串与 `pass`"
+        },
+        {
+          "id": "2.6",
+          "title": "编码：源码是 UTF-8，输入输出另算"
+        },
+        {
+          "id": "2.7",
+          "title": "`print` 的参数与 `input` 的返回值"
+        },
+        {
+          "id": "2.8",
+          "title": "一个可以当模板的最小程序"
+        },
+        {
+          "id": "2.9",
+          "title": "与 C++ 的差别"
+        },
+        {
+          "id": "2.10",
+          "title": "易错点清单"
+        },
+        {
+          "id": "2.11",
+          "title": "练习"
+        },
+        {
+          "id": "2.12",
+          "title": "小结"
+        }
+      ],
+      "stats": {
+        "pycon": 6,
+        "scripts": 8,
+        "sections": 12
+      }
+    },
+    {
+      "no": 3,
+      "slug": "variables-and-types",
+      "title": "变量与数据类型",
+      "essence": "Python 的变量不是装数据的盒子，而是**贴在对象上的名字**。`a = b` 从不让数据搬家，它只是让第二个名字贴上同一个对象；真正决定程序行为的，是这个对象**可不可变**。",
+      "file": "03-variables-and-types.md",
+      "url": "03-variables-and-types.html",
+      "kind": "chapter",
+      "sections": [
+        {
+          "id": "3.1",
+          "title": "变量是名字，不是盒子"
+        },
+        {
+          "id": "3.2",
+          "title": "六个内置类型先认清"
+        },
+        {
+          "id": "3.3",
+          "title": "整数：没有溢出，但有代价"
+        },
+        {
+          "id": "3.4",
+          "title": "浮点：为什么 `0.1 + 0.2 != 0.3`"
+        },
+        {
+          "id": "3.5",
+          "title": "`bool` 是 `int` 的子类"
+        },
+        {
+          "id": "3.6",
+          "title": "可变与不可变：决定\"多个名字\"会不会互相影响"
+        },
+        {
+          "id": "3.7",
+          "title": "浅拷贝、深拷贝，与 `[[0] * 3] * 3`"
+        },
+        {
+          "id": "3.8",
+          "title": "`None`：一个专门表示\"没有\"的对象"
+        },
+        {
+          "id": "3.9",
+          "title": "类型转换与真值判断"
+        },
+        {
+          "id": "3.10",
+          "title": "命名与\"常量\"约定"
+        },
+        {
+          "id": "3.11",
+          "title": "与 C++ 的差别"
+        },
+        {
+          "id": "3.12",
+          "title": "易错点清单"
+        },
+        {
+          "id": "3.13",
+          "title": "练习"
+        },
+        {
+          "id": "3.14",
+          "title": "小结"
+        }
+      ],
+      "stats": {
+        "pycon": 11,
+        "scripts": 6,
+        "sections": 14
+      }
+    },
+    {
+      "no": 4,
+      "slug": "operators",
+      "title": "运算符",
+      "essence": "Python 的运算符大多\"长得像 C++、语义不一样\"。最要命的三处是——`/` 永远返回浮点、`//` 和 `%` 对负数按**向下取整**配套、`and`/`or` 返回的是**操作数本身**而不是布尔值。这三条不掌握，写出来的代码会静默算错。",
+      "file": "04-operators.md",
+      "url": "04-operators.html",
+      "kind": "chapter",
+      "sections": [
+        {
+          "id": "4.1",
+          "title": "算术运算符：四种除法"
+        },
+        {
+          "id": "4.2",
+          "title": "`and` / `or` 返回操作数，不是布尔值"
+        },
+        {
+          "id": "4.3",
+          "title": "`==`、`is`、`in`：三种\"相等\""
+        },
+        {
+          "id": "4.4",
+          "title": "位运算与标志位"
+        },
+        {
+          "id": "4.5",
+          "title": "增量赋值与解包"
+        },
+        {
+          "id": "4.6",
+          "title": "优先级速查"
+        },
+        {
+          "id": "4.7",
+          "title": "与 C++ 的差别"
+        },
+        {
+          "id": "4.8",
+          "title": "易错点清单"
+        },
+        {
+          "id": "4.9",
+          "title": "练习"
+        },
+        {
+          "id": "4.10",
+          "title": "小结"
+        }
+      ],
+      "stats": {
+        "pycon": 7,
+        "scripts": 3,
+        "sections": 10
+      }
+    },
+    {
+      "no": 5,
+      "slug": "strings",
+      "title": "字符串",
+      "essence": "Python 的 `str` 是**不可变的 Unicode 码点序列**——不是 `char[]`，不是字节数组。每一次\"修改\"都在造新对象，所以循环里用 `+` 拼字符串是 O(n²)；而每一次格式化都该用 f-string，它比 `%` 和 `.format` 都快且更短。",
+      "file": "05-strings.md",
+      "url": "05-strings.html",
+      "kind": "chapter",
+      "sections": [
+        {
+          "id": "5.1",
+          "title": "字面量、转义与不可变性"
+        },
+        {
+          "id": "5.2",
+          "title": "长度是字符，不是字节"
+        },
+        {
+          "id": "5.3",
+          "title": "常用方法分四组"
+        },
+        {
+          "id": "5.4",
+          "title": "拼接：`+` 为什么慢"
+        },
+        {
+          "id": "5.5",
+          "title": "f-string：日常首选"
+        },
+        {
+          "id": "5.6",
+          "title": "与 C++ 的差别"
+        },
+        {
+          "id": "5.7",
+          "title": "易错点清单"
+        },
+        {
+          "id": "5.8",
+          "title": "练习"
+        },
+        {
+          "id": "5.9",
+          "title": "小结"
+        }
+      ],
+      "stats": {
+        "pycon": 5,
+        "scripts": 2,
+        "sections": 9
+      }
+    },
+    {
+      "no": 6,
+      "slug": "containers",
+      "title": "列表、元组、字典、集合",
+      "essence": "Python 只有四种内置容器，但它们的**查找复杂度**与**可变性**完全不同。做题 90% 的超时不是因为算法写错，而是因为把该用 `set`/`dict` 的地方写成了 `list` 的 `in`——那是 O(n) 与 O(1) 的差距。",
+      "file": "06-containers.md",
+      "url": "06-containers.html",
+      "kind": "chapter",
+      "sections": [
+        {
+          "id": "6.1",
+          "title": "四种容器一览"
+        },
+        {
+          "id": "6.2",
+          "title": "列表：增删改查"
+        },
+        {
+          "id": "6.3",
+          "title": "元组：不可变 + 解包"
+        },
+        {
+          "id": "6.4",
+          "title": "字典：按名字 O(1) 查"
+        },
+        {
+          "id": "6.5",
+          "title": "集合：去重与集合运算"
+        },
+        {
+          "id": "6.6",
+          "title": "复杂度决定能不能过题"
+        },
+        {
+          "id": "6.7",
+          "title": "与 C++ 的差别"
+        },
+        {
+          "id": "6.8",
+          "title": "易错点清单"
+        },
+        {
+          "id": "6.9",
+          "title": "练习"
+        },
+        {
+          "id": "6.10",
+          "title": "小结"
+        }
+      ],
+      "stats": {
+        "pycon": 1,
+        "scripts": 4,
+        "sections": 10
+      }
+    },
+    {
+      "no": 7,
+      "slug": "slicing",
+      "title": "切片",
+      "essence": "切片 `x[a:b:c]` 描述的是一段**半开区间** `[a, b)` 上\"按下标序列取元素\"的规则。它永远不报越界错，因为端点先被**夹到合法范围**里；而对 `list` 赋值时它又能改变长度——所以切片既是\"取一段\"，也是\"批量改一段\"。",
+      "file": "07-slicing.md",
+      "url": "07-slicing.html",
+      "kind": "chapter",
+      "sections": [
+        {
+          "id": "7.1",
+          "title": "半开区间与省略端点"
+        },
+        {
+          "id": "7.2",
+          "title": "负下标与负端点"
+        },
+        {
+          "id": "7.3",
+          "title": "步长：第三个参数"
+        },
+        {
+          "id": "7.4",
+          "title": "切片赋值：list 的独门能力"
+        },
+        {
+          "id": "7.5",
+          "title": "`b = a[:]` 是浅拷贝"
+        },
+        {
+          "id": "7.6",
+          "title": "`slice` 对象：别写魔法数字"
+        },
+        {
+          "id": "7.7",
+          "title": "与 C++ 的差别"
+        },
+        {
+          "id": "7.8",
+          "title": "易错点清单"
+        },
+        {
+          "id": "7.9",
+          "title": "练习"
+        },
+        {
+          "id": "7.10",
+          "title": "小结"
+        }
+      ],
+      "stats": {
+        "pycon": 5,
+        "scripts": 3,
+        "sections": 10
+      }
+    },
+    {
+      "no": 8,
+      "slug": "control-flow",
+      "title": "流程控制",
+      "essence": "Python 的 `if` 判断的是**真值**（任何对象都能转 `bool`），`for` 遍历的是**可迭代对象**（不是计数器）。把这两条记住，`for i in range(n)` 就只是\"遍历一个数字序列\"的特例，而不是 C++ 里那个三段式 `for`。",
+      "file": "08-control-flow.md",
+      "url": "08-control-flow.html",
+      "kind": "chapter",
+      "sections": [
+        {
+          "id": "8.1",
+          "title": "条件与真值"
+        },
+        {
+          "id": "8.2",
+          "title": "`range`：循环的\"计数器\""
+        },
+        {
+          "id": "8.3",
+          "title": "循环套路：提前退出与哨兵"
+        },
+        {
+          "id": "8.4",
+          "title": "与 C++ 的差别"
+        },
+        {
+          "id": "8.5",
+          "title": "易错点清单"
+        },
+        {
+          "id": "8.6",
+          "title": "练习"
+        },
+        {
+          "id": "8.7",
+          "title": "小结"
+        }
+      ],
+      "stats": {
+        "pycon": 2,
+        "scripts": 3,
+        "sections": 7
+      }
+    },
+    {
+      "no": 9,
+      "slug": "comprehensions",
+      "title": "推导式",
+      "essence": "推导式是\"循环 + 追加\"这段样板代码的语法压缩。它由 C 层循环驱动、预先知道结果规模，所以比手写 `for` + `append` 快 1.5～2 倍；但它的可读性有明确上限——**嵌套超过两层、带复杂条件，就该退回普通循环**。",
+      "file": "09-comprehensions.md",
+      "url": "09-comprehensions.html",
+      "kind": "chapter",
+      "sections": [
+        {
+          "id": "9.1",
+          "title": "列表推导式的骨架"
+        },
+        {
+          "id": "9.2",
+          "title": "嵌套：书写顺序 = 循环嵌套顺序"
+        },
+        {
+          "id": "9.3",
+          "title": "字典与集合推导式"
+        },
+        {
+          "id": "9.4",
+          "title": "生成器表达式：把方括号换成圆括号"
+        },
+        {
+          "id": "9.5",
+          "title": "什么时候不用推导式"
+        },
+        {
+          "id": "9.6",
+          "title": "与 C++ 的差别"
+        },
+        {
+          "id": "9.7",
+          "title": "易错点清单"
+        },
+        {
+          "id": "9.8",
+          "title": "练习"
+        },
+        {
+          "id": "9.9",
+          "title": "小结"
+        }
+      ],
+      "stats": {
+        "pycon": 1,
+        "scripts": 3,
+        "sections": 9
+      }
+    },
+    {
+      "no": 10,
+      "slug": "functions",
+      "title": "函数与参数",
+      "essence": "Python 的函数调用是\"**按名字绑定实参**\"，不是按位置对齐内存。位置参数只是\"没有名字的绑定\"；有名字的实参可以任意顺序给。默认值在 `def` 执行时求值一次并挂在 `__defaults__` 上——这就是可变默认值会\"记住上次结果\"的根源。",
+      "file": "10-functions.md",
+      "url": "10-functions.html",
+      "kind": "chapter",
+      "sections": [
+        {
+          "id": "10.1",
+          "title": "定义、调用与返回值"
+        },
+        {
+          "id": "10.2",
+          "title": "默认参数：定义时求值一次"
+        },
+        {
+          "id": "10.3",
+          "title": "`*args`、`**kwargs` 与参数解包"
+        },
+        {
+          "id": "10.4",
+          "title": "函数是对象：一级公民"
+        },
+        {
+          "id": "10.5",
+          "title": "与 C++ 的差别"
+        },
+        {
+          "id": "10.6",
+          "title": "易错点清单"
+        },
+        {
+          "id": "10.7",
+          "title": "练习"
+        },
+        {
+          "id": "10.8",
+          "title": "小结"
+        }
+      ],
+      "stats": {
+        "pycon": 2,
+        "scripts": 3,
+        "sections": 8
+      }
+    },
+    {
+      "no": 11,
+      "slug": "lambda",
+      "title": "lambda",
+      "essence": "`lambda` 只是\"**匿名的一行 `def`**\"，函数体必须是**一个表达式**（不能有 `return`、赋值、多语句）。它没有变快、没有变魔法，唯一价值是**在需要一个一次性小函数的位置就地写出来**——典型场景是 `sorted(key=...)`。",
+      "file": "11-lambda.md",
+      "url": "11-lambda.html",
+      "kind": "chapter",
+      "sections": [
+        {
+          "id": "11.1",
+          "title": "语法：单表达式"
+        },
+        {
+          "id": "11.2",
+          "title": "主场：key 函数"
+        },
+        {
+          "id": "11.3",
+          "title": "晚绑定：循环里造 lambda"
+        },
+        {
+          "id": "11.4",
+          "title": "什么时候别用 lambda"
+        },
+        {
+          "id": "11.5",
+          "title": "与 C++ 的差别"
+        },
+        {
+          "id": "11.6",
+          "title": "易错点清单"
+        },
+        {
+          "id": "11.7",
+          "title": "练习"
+        },
+        {
+          "id": "11.8",
+          "title": "小结"
+        }
+      ],
+      "stats": {
+        "pycon": 0,
+        "scripts": 4,
+        "sections": 8
+      }
+    },
+    {
+      "no": 12,
+      "slug": "closures",
+      "title": "闭包",
+      "essence": "闭包就是\"**函数 + 它引用的外层变量**\"。这些外层变量不存在函数对象内部的字典里，而是被放在 `__closure__` 的 cell 中，函数与 cell 一起返回，所以外层函数已经返回了，这些变量依然活着。这既是 Python 实现状态封装最轻的方式，也是\"晚绑定\"的根源。",
+      "file": "12-closures.md",
+      "url": "12-closures.html",
+      "kind": "chapter",
+      "sections": [
+        {
+          "id": "12.1",
+          "title": "三要素与一次验证"
+        },
+        {
+          "id": "12.2",
+          "title": "`nonlocal`：改外层变量必须声明"
+        },
+        {
+          "id": "12.3",
+          "title": "闭包能干什么：三种正当用法"
+        },
+        {
+          "id": "12.4",
+          "title": "陷阱：内存不释放"
+        },
+        {
+          "id": "12.5",
+          "title": "与 C++ 的差别"
+        },
+        {
+          "id": "12.6",
+          "title": "易错点清单"
+        },
+        {
+          "id": "12.7",
+          "title": "练习"
+        },
+        {
+          "id": "12.8",
+          "title": "小结"
+        }
+      ],
+      "stats": {
+        "pycon": 1,
+        "scripts": 3,
+        "sections": 8
+      }
+    },
+    {
+      "no": 13,
+      "slug": "decorators",
+      "title": "装饰器",
+      "essence": "装饰器就是\"**接收函数、返回函数**的可调用对象\"，`@deco` 只是 `f = deco(f)` 的语法糖，发生在**函数定义完成的那一刻**（一次），而 wrapper 内部那段增强逻辑发生在**每次调用时**。理解这一点，带参数的装饰器为什么是三层函数、多个装饰器为什么从下往上，全部自然成立。",
+      "file": "13-decorators.md",
+      "url": "13-decorators.html",
+      "kind": "chapter",
+      "sections": [
+        {
+          "id": "13.1",
+          "title": "从 `@` 展开说起"
+        },
+        {
+          "id": "13.2",
+          "title": "`functools.wraps`：别把函数身份弄丢"
+        },
+        {
+          "id": "13.3",
+          "title": "带参数的装饰器 = 三层函数"
+        },
+        {
+          "id": "13.4",
+          "title": "什么时候不该用装饰器"
+        },
+        {
+          "id": "13.5",
+          "title": "与 C++ 的差别"
+        },
+        {
+          "id": "13.6",
+          "title": "易错点清单"
+        },
+        {
+          "id": "13.7",
+          "title": "练习"
+        },
+        {
+          "id": "13.8",
+          "title": "小结"
+        }
+      ],
+      "stats": {
+        "pycon": 1,
+        "scripts": 3,
+        "sections": 8
+      }
+    },
+    {
+      "no": 14,
+      "slug": "scope-legb",
+      "title": "作用域与 LEGB",
+      "essence": "Python 的变量作用域是**编译期就定好的静态划分**，只有四层：Local（函数内）、Enclosing（外层函数）、Global（模块）、Built-in（内置）。同一个名字在同一个作用域里**只能属于一层**——而\"属于哪一层\"由这个作用域里有没有对它赋值决定，不看执行顺序。这一条决定了 `UnboundLocalError` 为什么会出现。",
+      "file": "14-scope-legb.md",
+      "url": "14-scope-legb.html",
+      "kind": "chapter",
+      "sections": [
+        {
+          "id": "14.1",
+          "title": "四层查找，逐层实测"
+        },
+        {
+          "id": "14.2",
+          "title": "`global` 与 `nonlocal` 的边界"
+        },
+        {
+          "id": "14.3",
+          "title": "类作用域与推导式作用域：两个例外"
+        },
+        {
+          "id": "14.4",
+          "title": "一个实战问题：为什么要 `if __name__ == \"__main__\"` 之外还要小心全局状态"
+        },
+        {
+          "id": "14.5",
+          "title": "与 C++ 的差别"
+        },
+        {
+          "id": "14.6",
+          "title": "易错点清单"
+        },
+        {
+          "id": "14.7",
+          "title": "练习"
+        },
+        {
+          "id": "14.8",
+          "title": "小结"
+        }
+      ],
+      "stats": {
+        "pycon": 1,
+        "scripts": 3,
+        "sections": 8
+      }
+    },
+    {
+      "no": 15,
+      "slug": "iterators-generators",
+      "title": "迭代器与生成器",
+      "essence": "`for` 循环只做三件事——`iter(obj)` 拿到迭代器、反复 `next()`、捕获 `StopIteration` 收工。**可迭代对象**是\"能交出一个迭代器\"的东西（有 `__iter__`），**迭代器**是\"记得自己走到哪\"的东西（有 `__iter__` 和 `__next__`）。生成器则是编译器帮你写好的迭代器：函数体里出现 `yield`，这个函数就从\"一次算完\"变成\"一次算一点\"的状态机。",
+      "file": "15-iterators-generators.md",
+      "url": "15-iterators-generators.html",
+      "kind": "chapter",
+      "sections": [
+        {
+          "id": "15.1",
+          "title": "`for` 的三步展开"
+        },
+        {
+          "id": "15.2",
+          "title": "生成器：`yield` 就是\"暂停点\""
+        },
+        {
+          "id": "15.3",
+          "title": "`itertools`：把流水线拼起来"
+        },
+        {
+          "id": "15.4",
+          "title": "什么时候用生成器，什么时候用列表"
+        },
+        {
+          "id": "15.5",
+          "title": "与 C++ 的差别"
+        },
+        {
+          "id": "15.6",
+          "title": "易错点清单"
+        },
+        {
+          "id": "15.7",
+          "title": "练习"
+        },
+        {
+          "id": "15.8",
+          "title": "小结"
+        }
+      ],
+      "stats": {
+        "pycon": 2,
+        "scripts": 3,
+        "sections": 8
+      }
+    },
+    {
+      "no": 16,
+      "slug": "exceptions",
+      "title": "异常处理",
+      "essence": "异常是 Python **唯一的错误传递机制**——没有错误码、没有 `errno` 返回值。`raise` 沿调用栈向上抛，`try/except` 在某一层截住它。`finally` 无论走哪条路都执行，`else` 只在 `try` 体没有抛异常时执行。一个 `except` 分支被触发后，**它上面已经被跳过的语句不会重跑**。",
+      "file": "16-exceptions.md",
+      "url": "16-exceptions.html",
+      "kind": "chapter",
+      "sections": [
+        {
+          "id": "16.1",
+          "title": "四个关键字的执行顺序"
+        },
+        {
+          "id": "16.2",
+          "title": "自定义异常与异常链"
+        },
+        {
+          "id": "16.3",
+          "title": "`with` 与 `finally`：资源与控制的边界"
+        },
+        {
+          "id": "16.4",
+          "title": "异常在多线程/异步里的行为差异"
+        },
+        {
+          "id": "16.5",
+          "title": "与 C++ 的差别"
+        },
+        {
+          "id": "16.6",
+          "title": "易错点清单"
+        },
+        {
+          "id": "16.7",
+          "title": "练习"
+        },
+        {
+          "id": "16.8",
+          "title": "小结"
+        }
+      ],
+      "stats": {
+        "pycon": 2,
+        "scripts": 3,
+        "sections": 8
+      }
+    },
+    {
+      "no": 17,
+      "slug": "file-io-pathlib",
+      "title": "文件 IO 与 pathlib",
+      "essence": "`open()` 打开的是**一带缓冲的字节流**，`encoding` 决定字节与字符串怎么互转。读写的正解永远是 `with open(...) as f:`——`with` 保证文件句柄在离开代码块时关闭，哪怕中途抛了异常。路径操作则首选 `pathlib.Path`：用 `/` 拼路径、用 `.suffix`/`.stem` 拆名字、用 `.glob()` 找文件，全部是对象方法，不靠字符串拼斜杠。",
+      "file": "17-file-io-pathlib.md",
+      "url": "17-file-io-pathlib.html",
+      "kind": "chapter",
+      "sections": [
+        {
+          "id": "17.1",
+          "title": "文本模式的读写与编码"
+        },
+        {
+          "id": "17.2",
+          "title": "`pathlib`：路径是对象，不是字符串"
+        },
+        {
+          "id": "17.3",
+          "title": "大文件与四个真实存在的坑"
+        },
+        {
+          "id": "17.4",
+          "title": "与 C++ 的差别"
+        },
+        {
+          "id": "17.5",
+          "title": "易错点清单"
+        },
+        {
+          "id": "17.6",
+          "title": "练习"
+        },
+        {
+          "id": "17.7",
+          "title": "小结"
+        }
+      ],
+      "stats": {
+        "pycon": 1,
+        "scripts": 3,
+        "sections": 7
+      }
+    },
+    {
+      "no": 18,
+      "slug": "oop",
+      "title": "面向对象",
+      "essence": "类是一张「有哪些属性、怎么算」的图纸，实例是一个带自己小字典的对象；`obj.attr` 不是一条内存偏移，而是一次沿 MRO 的运行时查表。",
+      "file": "18-oop.md",
+      "url": "18-oop.html",
+      "kind": "chapter",
+      "sections": [
+        {
+          "id": "18.1",
+          "title": "类和实例到底存了什么"
+        },
+        {
+          "id": "18.2",
+          "title": "类属性、实例属性与遮蔽"
+        },
+        {
+          "id": "18.3",
+          "title": "命名约定与名字改写"
+        },
+        {
+          "id": "18.4",
+          "title": "继承与 `super()`"
+        },
+        {
+          "id": "18.5",
+          "title": "MRO：多继承的查找顺序"
+        },
+        {
+          "id": "18.6",
+          "title": "魔术方法：让对象长得像内置类型"
+        },
+        {
+          "id": "18.7",
+          "title": "`@dataclass`：删掉样板代码"
+        },
+        {
+          "id": "18.8",
+          "title": "`property`：属性门面 + 校验"
+        },
+        {
+          "id": "18.9",
+          "title": "`classmethod`、`staticmethod`、普通方法"
+        },
+        {
+          "id": "18.10",
+          "title": "抽象基类与鸭子类型"
+        },
+        {
+          "id": "18.a",
+          "title": "与 C++ 的差别"
+        },
+        {
+          "id": "18.b",
+          "title": "易错点清单"
+        },
+        {
+          "id": "18.c",
+          "title": "练习"
+        },
+        {
+          "id": "18.d",
+          "title": "小结"
+        }
+      ],
+      "stats": {
+        "pycon": 22,
+        "scripts": 4,
+        "sections": 14
+      }
+    },
+    {
+      "no": 19,
+      "slug": "modules-and-packages",
+      "title": "模块与包：导入机制",
+      "essence": "`import` 不是「把文件内容抄进来」，而是一次在 `sys.modules` 字典里查表、必要时执行模块体、然后把**模块对象**绑到你当前命名空间的函数调用。",
+      "file": "19-modules-and-packages.md",
+      "url": "19-modules-and-packages.html",
+      "kind": "chapter",
+      "sections": [
+        {
+          "id": "19.1",
+          "title": "`import` 到底做了什么"
+        },
+        {
+          "id": "19.2",
+          "title": "五种导入写法与它们绑定什么"
+        },
+        {
+          "id": "19.3",
+          "title": "`__name__`、`__file__` 与主程序守卫"
+        },
+        {
+          "id": "19.4",
+          "title": "包：带 `__path__` 的模块"
+        },
+        {
+          "id": "19.5",
+          "title": "相对导入与绝对导入"
+        },
+        {
+          "id": "19.6",
+          "title": "`python -m` 与 `python file.py`"
+        },
+        {
+          "id": "19.7",
+          "title": "`sys.path` 是什么，别乱改"
+        },
+        {
+          "id": "19.8",
+          "title": "循环导入"
+        },
+        {
+          "id": "19.9",
+          "title": "命名空间包与 `__pycache__`"
+        },
+        {
+          "id": "19.10",
+          "title": "组织一个项目的推荐结构"
+        },
+        {
+          "id": "19.a",
+          "title": "与 C++ 的差别"
+        },
+        {
+          "id": "19.b",
+          "title": "易错点清单"
+        },
+        {
+          "id": "19.c",
+          "title": "练习"
+        },
+        {
+          "id": "19.d",
+          "title": "小结"
+        }
+      ],
+      "stats": {
+        "pycon": 10,
+        "scripts": 6,
+        "sections": 14
+      }
+    },
+    {
+      "no": 20,
+      "slug": "type-hints",
+      "title": "类型注解与 typing",
+      "essence": "注解是**挂在函数和类上的元数据**，解释器把它存进 `__annotations__` 就完事——不检查、不转换、不影响执行速度，真正的检查发生在运行之前的静态分析工具里。",
+      "file": "20-type-hints.md",
+      "url": "20-type-hints.html",
+      "kind": "chapter",
+      "sections": [
+        {
+          "id": "20.1",
+          "title": "注解只是元数据"
+        },
+        {
+          "id": "20.2",
+          "title": "注解写在哪，存在哪"
+        },
+        {
+          "id": "20.3",
+          "title": "容器参数化：`list[int]` 而不是 `List[int]`"
+        },
+        {
+          "id": "20.4",
+          "title": "可选值与联合类型"
+        },
+        {
+          "id": "20.5",
+          "title": "五个高频 typing 工具"
+        },
+        {
+          "id": "20.6",
+          "title": "泛型：`TypeVar` 与 `Generic`"
+        },
+        {
+          "id": "20.7",
+          "title": "`Protocol`：结构化子类型"
+        },
+        {
+          "id": "20.8",
+          "title": "`overload` 与它的运行时真相"
+        },
+        {
+          "id": "20.9",
+          "title": "跑起静态检查器"
+        },
+        {
+          "id": "20.10",
+          "title": "注解的工程约定"
+        },
+        {
+          "id": "20.a",
+          "title": "与 C++ 的差别"
+        },
+        {
+          "id": "20.b",
+          "title": "易错点清单"
+        },
+        {
+          "id": "20.c",
+          "title": "练习"
+        },
+        {
+          "id": "20.d",
+          "title": "小结"
+        }
+      ],
+      "stats": {
+        "pycon": 18,
+        "scripts": 4,
+        "sections": 14
+      }
+    },
+    {
+      "no": 21,
+      "slug": "stdlib",
+      "title": "常用标准库",
+      "essence": "标准库是「装机自带的一套小工具」——`json`、`re`、`datetime`、`collections` 这些模块解决的问题，每个项目都要重写一遍，所以 Python 直接把答案放进了解释器发行包里，`import` 即用，无需 pip。",
+      "file": "21-stdlib.md",
+      "url": "21-stdlib.html",
+      "kind": "chapter",
+      "sections": [
+        {
+          "id": "21.1",
+          "title": "标准库地图"
+        },
+        {
+          "id": "21.2",
+          "title": "`os` 与 `sys`：和外界打交道"
+        },
+        {
+          "id": "21.3",
+          "title": "`datetime`：三个类型，一条时间线"
+        },
+        {
+          "id": "21.4",
+          "title": "`json`：数据交换的通用语"
+        },
+        {
+          "id": "21.5",
+          "title": "`re`：正则的四个动作"
+        },
+        {
+          "id": "21.6",
+          "title": "`collections`：四个增强容器"
+        },
+        {
+          "id": "21.7",
+          "title": "`itertools`：把循环写成流水线"
+        },
+        {
+          "id": "21.8",
+          "title": "`functools`：三个高频工具"
+        },
+        {
+          "id": "21.9",
+          "title": "`math` 与 `random`"
+        },
+        {
+          "id": "21.10",
+          "title": "`argparse`：命令行参数"
+        },
+        {
+          "id": "21.11",
+          "title": "`logging`：比 `print` 多五件事"
+        },
+        {
+          "id": "21.12",
+          "title": "`subprocess`：起一个子进程"
+        },
+        {
+          "id": "21.a",
+          "title": "与 C++ 的差别"
+        },
+        {
+          "id": "21.b",
+          "title": "易错点清单"
+        },
+        {
+          "id": "21.c",
+          "title": "练习"
+        },
+        {
+          "id": "21.d",
+          "title": "小结"
+        }
+      ],
+      "stats": {
+        "pycon": 19,
+        "scripts": 5,
+        "sections": 16
+      }
+    },
+    {
+      "no": 22,
+      "slug": "concurrency",
+      "title": "并发：threading / multiprocessing / asyncio",
+      "essence": "Python 有三种并发手段，区别只在「谁在等」——线程让出 GIL 去等 IO，进程绕开 GIL 去占满多核，协程在单线程里靠 `await` 主动切换。选错模型，代码再对也快不了。",
+      "file": "22-concurrency.md",
+      "url": "22-concurrency.html",
+      "kind": "chapter",
+      "sections": [
+        {
+          "id": "22.1",
+          "title": "三种模型一览"
+        },
+        {
+          "id": "22.2",
+          "title": "GIL：同一时刻只有一个线程在执行字节码"
+        },
+        {
+          "id": "22.3",
+          "title": "`threading`：start / join / Lock"
+        },
+        {
+          "id": "22.4",
+          "title": "线程间通信：`queue.Queue`"
+        },
+        {
+          "id": "22.5",
+          "title": "`concurrent.futures`：池化，别手搓线程"
+        },
+        {
+          "id": "22.6",
+          "title": "`multiprocessing`：绕开 GIL"
+        },
+        {
+          "id": "22.7",
+          "title": "`asyncio`：单线程里的并发"
+        },
+        {
+          "id": "22.8",
+          "title": "怎么选：30 秒决策"
+        },
+        {
+          "id": "22.9",
+          "title": "五个反模式"
+        },
+        {
+          "id": "22.a",
+          "title": "与 C++ 的差别"
+        },
+        {
+          "id": "22.b",
+          "title": "易错点清单"
+        },
+        {
+          "id": "22.c",
+          "title": "练习"
+        },
+        {
+          "id": "22.d",
+          "title": "小结"
+        }
+      ],
+      "stats": {
+        "pycon": 7,
+        "scripts": 5,
+        "sections": 13
+      }
+    },
+    {
+      "no": 23,
+      "slug": "venv-and-pip",
+      "title": "虚拟环境与 pip 依赖管理",
+      "essence": "虚拟环境就是一个**独立的 `site-packages` 目录加上一份指向它的解释器副本**；`pip` 只是往那个目录里装包的下载器。所谓「配环境」，90% 的问题都是「装错了目录」或「版本没说清」。",
+      "file": "23-venv-and-pip.md",
+      "url": "23-venv-and-pip.html",
+      "kind": "chapter",
+      "sections": [
+        {
+          "id": "23.1",
+          "title": "为什么必须有虚拟环境"
+        },
+        {
+          "id": "23.2",
+          "title": "环境到底改了什么"
+        },
+        {
+          "id": "23.3",
+          "title": "pip 的六条命令"
+        },
+        {
+          "id": "23.4",
+          "title": "版本约束：每个符号锁住了什么"
+        },
+        {
+          "id": "23.5",
+          "title": "依赖文件的三种形态"
+        },
+        {
+          "id": "23.6",
+          "title": "依赖冲突长什么样"
+        },
+        {
+          "id": "23.7",
+          "title": "工具生态：一句话定位"
+        },
+        {
+          "id": "23.8",
+          "title": "让环境可复现"
+        },
+        {
+          "id": "23.a",
+          "title": "与 C++ 的差别"
+        },
+        {
+          "id": "23.b",
+          "title": "易错点清单"
+        },
+        {
+          "id": "23.c",
+          "title": "练习"
+        },
+        {
+          "id": "23.d",
+          "title": "小结"
+        }
+      ],
+      "stats": {
+        "pycon": 3,
+        "scripts": 2,
+        "sections": 12
+      }
+    },
+    {
+      "no": 24,
+      "slug": "testing",
+      "title": "测试：unittest 与 pytest",
+      "essence": "测试是**把「我以为它会这样」写成可执行的断言**，让机器每次改完代码都替你重跑一遍。它不证明代码正确，只证明「这些已知情况仍然对」。",
+      "file": "24-testing.md",
+      "url": "24-testing.html",
+      "kind": "chapter",
+      "sections": [
+        {
+          "id": "24.1",
+          "title": "测试替你拦住什么"
+        },
+        {
+          "id": "24.2",
+          "title": "`unittest`：标准库自带的那套"
+        },
+        {
+          "id": "24.3",
+          "title": "`pytest`：为什么几乎所有人都换用它"
+        },
+        {
+          "id": "24.4",
+          "title": "fixture：把「准备」和「清理」写成依赖"
+        },
+        {
+          "id": "24.5",
+          "title": "mock：把不确定的东西钉死"
+        },
+        {
+          "id": "24.6",
+          "title": "该测什么：边界、异常、等价类"
+        },
+        {
+          "id": "24.7",
+          "title": "覆盖率：看趋势，别看数字"
+        },
+        {
+          "id": "24.8",
+          "title": "目录结构与命名"
+        },
+        {
+          "id": "24.a",
+          "title": "与 C++ 的差别"
+        },
+        {
+          "id": "24.b",
+          "title": "易错点清单"
+        },
+        {
+          "id": "24.c",
+          "title": "练习"
+        },
+        {
+          "id": "24.d",
+          "title": "小结"
+        }
+      ],
+      "stats": {
+        "pycon": 4,
+        "scripts": 3,
+        "sections": 12
+      }
+    },
+    {
+      "no": 25,
+      "slug": "debugging-and-profiling",
+      "title": "调试与性能剖析",
+      "essence": "调试是**缩小「我以为」和「实际」的差距**，性能是**找到那 5% 真正花时间的代码**。两件事都靠同一套动作：先观测，再假设，最后才改。",
+      "file": "25-debugging-and-profiling.md",
+      "url": "25-debugging-and-profiling.html",
+      "kind": "chapter",
+      "sections": [
+        {
+          "id": "25.1",
+          "title": "读 traceback：自下而上，最后三行才是关键"
+        },
+        {
+          "id": "25.2",
+          "title": "别用 `print` 调试：三条替代"
+        },
+        {
+          "id": "25.3",
+          "title": "`breakpoint()` 与 `pdb`"
+        },
+        {
+          "id": "25.4",
+          "title": "`logging`：可关闭的 `print`"
+        },
+        {
+          "id": "25.5",
+          "title": "计时：`perf_counter` 与 `timeit`"
+        },
+        {
+          "id": "25.6",
+          "title": "`cProfile`：找出真正花时间的地方"
+        },
+        {
+          "id": "25.7",
+          "title": "复杂度：先量级，再常数"
+        },
+        {
+          "id": "25.8",
+          "title": "内存：`tracemalloc`"
+        },
+        {
+          "id": "25.9",
+          "title": "五类性能反模式"
+        },
+        {
+          "id": "25.a",
+          "title": "与 C++ 的差别"
+        },
+        {
+          "id": "25.b",
+          "title": "易错点清单"
+        },
+        {
+          "id": "25.c",
+          "title": "练习"
+        },
+        {
+          "id": "25.d",
+          "title": "小结"
+        }
+      ],
+      "stats": {
+        "pycon": 7,
+        "scripts": 4,
+        "sections": 13
+      }
+    },
+    {
+      "no": 26,
+      "slug": "common-pitfalls",
+      "title": "新手常见坑",
+      "essence": "Python 的坑几乎都来自三个设计决定——**名字绑定对象**（不是持有值）、**默认参数只求值一次**、**一切在运行时才检查**。把这三条记牢，能解释掉这一章九成的问题。",
+      "file": "26-common-pitfalls.md",
+      "url": "26-common-pitfalls.html",
+      "kind": "chapter",
+      "sections": [
+        {
+          "id": "26.1",
+          "title": "可变默认参数：默认值只算一次"
+        },
+        {
+          "id": "26.2",
+          "title": "别名与浅拷贝：改一个，两个都变"
+        },
+        {
+          "id": "26.3",
+          "title": "`is` 比的是身份，不是值"
+        },
+        {
+          "id": "26.4",
+          "title": "边遍历边改容器"
+        },
+        {
+          "id": "26.5",
+          "title": "晚绑定：lambda 与闭包记住的是变量"
+        },
+        {
+          "id": "26.6",
+          "title": "异常处理的四种错法"
+        },
+        {
+          "id": "26.7",
+          "title": "资源、路径与编码"
+        },
+        {
+          "id": "26.8",
+          "title": "名字与导入"
+        },
+        {
+          "id": "26.9",
+          "title": "数字与字符串"
+        },
+        {
+          "id": "26.10",
+          "title": "性能上的三个直觉错误"
+        },
+        {
+          "id": "26.a",
+          "title": "与 C++ 的差别"
+        },
+        {
+          "id": "26.b",
+          "title": "易错点清单"
+        },
+        {
+          "id": "26.c",
+          "title": "练习"
+        },
+        {
+          "id": "26.d",
+          "title": "小结"
+        }
+      ],
+      "stats": {
+        "pycon": 18,
+        "scripts": 3,
+        "sections": 14
+      }
+    }
+  ]
+}

@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light" data-mode="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="lambda 只是&quot;匿名的一行 def&quot;，函数体必须是一个表达式（不能有 return、赋值、多语句）。它没有变快、没有变魔法，唯一价值是在需要一个一次性小函数的位置就地写出来——典型场景是 sorted(key=...)。">
+<meta name="theme-color" content="#2563eb">
+<meta name="color-scheme" content="light dark">
+<title>第 11 章 · lambda · Python 语法教程 · 编程学习</title>
+<script src="../../js/boot.js"></script>
+<script>try{var _t=document.documentElement.getAttribute('data-theme')||'light';document.documentElement.setAttribute('data-mode',_t);}catch(e){}</script>
+<link rel="stylesheet" href="../acm.css">
+<link rel="stylesheet" href="../learn.css">
+<link rel="stylesheet" href="../learn-code.css">
+</head>
+<body data-learn-page="py-11">
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;overflow:hidden">
+  <symbol id="i-graduation" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8.6 12 4.2l9.5 4.4L12 13 2.5 8.6Z"/><path d="M6.2 10.9V16c0 1.4 2.6 2.6 5.8 2.6s5.8-1.2 5.8-2.6v-5.1"/><path d="M21.5 9.4v5.2"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.6 12 3.8l8.5 6.8V20a1 1 0 0 1-1 1h-4.2v-6.2H8.7V21H4.5a1 1 0 0 1-1-1z"/></symbol>
+</svg>
+
+<header class="acm-nav" id="acmNav">
+  <div class="acm-wrap acm-nav-inner">
+    <a class="acm-brand" href="../index.html" title="回到编程学习首页">
+      <span class="acm-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-graduation"/></svg></span>
+      <span class="acm-brand-text"><strong>编程学习</strong><small>C++ · Python</small></span>
+    </a>
+    <nav class="acm-tabs" aria-label="编程学习站页面">
+      <a href="../index.html">首页</a>
+      <a href="../study.html">C++ 资料</a>
+      <a href="../practice.html">C++ 题练场</a>
+      <a href="./index.html" class="on" aria-current="page">Python</a>
+    </nav>
+    <div class="acm-nav-actions">
+      <button class="acm-btn acm-btn-icon" type="button" id="themeBtn" title="切换深色 / 浅色（全站共用）" aria-label="切换深色或浅色主题">
+        <svg class="ico" aria-hidden="true" id="themeIco"><use href="#i-moon"/></svg>
+      </button>
+      <a class="acm-btn" href="../../index.html" title="返回校园主页">
+        <svg class="ico" aria-hidden="true"><use href="#i-home"/></svg><span class="label">回主页</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<div class="learn-layout">
+
+  <!-- 窄屏（≤900px）：侧栏换成顶部折叠块 -->
+  <details class="learn-mobnav">
+    <summary>站点导航 · C++ / Python</summary>
+    <div data-learn-sidebar data-compact="1"></div>
+  </details>
+
+  <aside class="learn-aside"><div data-learn-sidebar></div></aside>
+
+  <main class="learn-main">
+
+    <div data-learn-crumb></div>
+
+    <header class="learn-head">
+      <h1 id="learnTitle">第 11 章 · lambda</h1>
+      <p class="lead"><code>lambda</code> 只是"<strong>匿名的一行 <code>def</code></strong>"，函数体必须是<strong>一个表达式</strong>（不能有 <code>return</code>、赋值、多语句）。它没有变快、没有变魔法，唯一价值是<strong>在需要一个一次性小函数的位置就地写出来</strong>——典型场景是 <code>sorted(key=...)</code>。</p>
+      <div class="learn-meta">
+        <span class="learn-chip py">Python 3</span>
+        <button class="learn-mark" type="button" data-learn-mark>标记为已读</button>
+      </div>
+    </header>
+
+    <!-- 窄屏（≤1180px）：右侧目录换到正文上面的折叠块 -->
+    <details class="learn-mobtoc" open>
+      <summary>本页目录</summary>
+      <div data-learn-toc></div>
+    </details>
+
+    <!-- ==================== 正文：只改这里 ==================== -->
+    <article data-learn-content>
+
+<p><strong>读完这一章你能做到</strong></p>
+
+<ul><li>一眼分辨哪些代码能用 lambda，哪些必须用 <code>def</code>；</li><li>用 lambda 写多关键字排序、<code>max(key=...)</code>、分派表；</li><li>说清 <code>map</code>/<code>filter</code> 为什么返回迭代器，以及何时改用推导式；</li><li>避开"循环里建的 lambda 全用最后一个值"这个经典坑；</li><li>知道 PEP 8 为什么说"别给 lambda 赋值命名"。</li></ul>
+
+<hr>
+
+<h2 id="s11-1">11.1 语法：单表达式</h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch11_01_basics.py</code></figcaption><pre class="py"><code>"""ch11_01_basics.py —— lambda 只有一个表达式：语法、限制与等价写法"""
+add = lambda a, b: a + b
+print(add(2, 3), "| 名字：", add.__name__)
+
+square = lambda x: x * x
+print(square(5))
+
+print("=== 表达式 vs 语句 ===")
+print("三元也是表达式：", (lambda x: "偶" if x % 2 == 0 else "奇")(4))
+for bad in ["lambda x: x = 1", "f = lambda x: return x", "lambda x, y: x; y"]:
+    try:
+        compile(bad, "&lt;s&gt;", "exec")
+        print("能编译：", bad)
+    except SyntaxError as e:
+        print(f"{bad!r} -&gt; SyntaxError: {e.msg}")
+
+print("=== 默认值、无参、*args 都能用 ===")
+print((lambda: "无参")())
+print((lambda a, b=10: a * b)(3))
+print((lambda *xs: sum(xs))(1, 2, 3))
+
+print("=== 立即调用 ===")
+print((lambda n: n * 2)(21))
+
+print("=== lambda 里也能写条件与推导式 ===")
+print((lambda xs: [x for x in xs if x &gt; 0])([-1, 2, -3, 4]))
+print((lambda d: d.get("k", "默认"))({"a": 1}))</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>5 | 名字： &lt;lambda&gt;
+25
+=== 表达式 vs 语句 ===
+三元也是表达式： 偶
+'lambda x: x = 1' -&gt; SyntaxError: cannot assign to lambda
+'f = lambda x: return x' -&gt; SyntaxError: invalid syntax
+能编译： lambda x, y: x; y
+=== 默认值、无参、*args 都能用 ===
+无参
+30
+6
+=== 立即调用 ===
+42
+=== lambda 里也能写条件与推导式 ===
+[2, 4]
+默认</code></pre></div></figure>
+
+<p><code>lambda 参数: 表达式</code> 与 <code>def</code> 的对应关系：</p>
+
+<pre class="out"><code>square = lambda x: x * x     ≡   def square(x):
+                                     return x * x</code></pre>
+
+<p><strong>三个硬限制</strong>（都是语法层面的，没法绕过）：</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>限制</th>
+<th>后果</th>
+<th>替代</th>
+</tr></thead>
+<tbody>
+<tr><td>函数体只能是<strong>表达式</strong></td><td>不能写 <code>return</code>、赋值、<code>if</code> 语句、<code>for</code> 语句</td><td>用 <code>def</code></td></tr>
+<tr><td>不能写<strong>注解</strong></td><td><code>lambda x: int -&gt; int</code> 不合法</td><td>用 <code>def</code></td></tr>
+<tr><td>不能有<strong>文档字符串</strong></td><td><code>__doc__</code> 恒为 <code>None</code></td><td>用 <code>def</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>表达式里能放的东西都能进 lambda：三元、推导式、<code>d.get(k, default)</code>、嵌套调用。所以"lambda 只能写一行"这句话不准确——它限制的是<strong>语句</strong>，不是字符数。</p>
+
+<hr>
+
+<h2 id="s11-2">11.2 主场：key 函数</h2>
+
+<p><code>sorted</code>、<code>max</code>、<code>min</code>、<code>groupby</code> 都吃 <code>key=</code> 参数，那里是 lambda 最正当的用法：</p>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch11_02_keyfuncs.py</code></figcaption><pre class="py"><code>"""ch11_02_keyfuncs.py —— lambda 的主场：key 函数与 map/filter"""
+import operator
+from itertools import groupby
+
+students = [("小明", 92), ("小红", 85), ("小刚", 92)]
+print("按分数：", sorted(students, key=lambda t: t[1]))
+print("分数降序、同分按姓名：", sorted(students, key=lambda t: (-t[1], t[0])))
+
+print("=== 多关键字：返回元组即可 ===")
+words = ["bb", "a", "ccc", "dd"]
+print("先长度后字典序：", sorted(words, key=lambda w: (len(w), w)))
+
+print("=== max/min 也接受 key ===")
+print("最长：", max(words, key=len), "| 最短：", min(words, key=len))
+
+print("=== groupby 要求先排序 ===")
+data = [("水果", "苹果"), ("蔬菜", "白菜"), ("水果", "香蕉")]
+data.sort(key=lambda p: p[0])
+for k, group in groupby(data, key=lambda p: p[0]):
+    print(k, [g[1] for g in group])
+
+print("=== map / filter 返回惰性迭代器 ===")
+nums = [1, 2, 3, 4]
+m = map(lambda x: x * 2, nums)
+print("map 对象类型：", type(m).__name__, "| 转列表：", list(m))
+print("filter：", list(filter(lambda x: x % 2 == 0, nums)))
+
+print("=== 与推导式对比 ===")
+print("map+lambda：", list(map(lambda x: x * 2, nums)))
+print("推导式：", [x * 2 for x in nums])
+print("内置函数够了就别写 lambda：", list(map(str, nums)))
+
+print("=== operator.itemgetter 比 lambda 更快 ===")
+pairs = [(1, "b"), (1, "a"), (0, "z")]
+print("lambda 版：", sorted(pairs, key=lambda p: (p[0], p[1])))
+print("itemgetter 版：", sorted(pairs, key=operator.itemgetter(0, 1)))
+print("attrgetter 版：")
+from collections import namedtuple
+
+Point = namedtuple("Point", "x y")
+pts = [Point(1, 5), Point(1, 2), Point(0, 9)]
+print(sorted(pts, key=operator.attrgetter("x", "y")))</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>按分数： [('小红', 85), ('小明', 92), ('小刚', 92)]
+分数降序、同分按姓名： [('小刚', 92), ('小明', 92), ('小红', 85)]
+=== 多关键字：返回元组即可 ===
+先长度后字典序： ['a', 'bb', 'dd', 'ccc']
+=== max/min 也接受 key ===
+最长： ccc | 最短： a
+=== groupby 要求先排序 ===
+水果 ['苹果', '香蕉']
+蔬菜 ['白菜']
+=== map / filter 返回惰性迭代器 ===
+map 对象类型： map | 转列表： [2, 4, 6, 8]
+filter： [2, 4]
+=== 与推导式对比 ===
+map+lambda： [2, 4, 6, 8]
+推导式： [2, 4, 6, 8]
+内置函数够了就别写 lambda： ['1', '2', '3', '4']
+=== operator.itemgetter 比 lambda 更快 ===
+lambda 版： [(0, 'z'), (1, 'a'), (1, 'b')]
+itemgetter 版： [(0, 'z'), (1, 'a'), (1, 'b')]
+attrgetter 版：
+[Point(x=0, y=9), Point(x=1, y=2), Point(x=1, y=5)]</code></pre></div></figure>
+
+<p>三个 key 技巧：</p>
+
+<ol><li><strong>多关键字返回元组</strong>：<code>key=lambda t: (-t[1], t[0])</code> 表示"分数降序、姓名升序"。降序靠<strong>取负号</strong>（数字）或 <code>reverse=True</code>（整体），不能只对某一列降序——那就得靠元组取负。</li><li><strong><code>key</code> 函数每个元素只调用一次</strong>（Timsort 先把键算完再排），所以 key 里做点计算不会导致 O(n log n) 次调用。</li><li><strong>能用内置/<code>operator</code> 就别写 lambda</strong>：<code>key=len</code>、<code>key=str.lower</code>、<code>key=operator.itemgetter(1)</code> 都比 lambda 快（省一次 Python 函数调用），而且更好读。</li></ol>
+
+<p><code>map</code> / <code>filter</code> 在 Python 3 里返回<strong>迭代器</strong>（惰性），所以要 <code>list()</code> 才能看到全部；多个 <code>map</code> 串联时这也是优势（不产生中间列表）。但<strong>大多数情况下列表推导式更好读</strong>，<code>map</code> 的适用面在缩小。</p>
+
+<hr>
+
+<h2 id="s11-3">11.3 晚绑定：循环里造 lambda</h2>
+
+<p>这是 lambda 最著名的事故：</p>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch11_03_latebinding.py</code></figcaption><pre class="py"><code>"""ch11_03_latebinding.py —— 晚绑定：循环里建 lambda 的经典坑"""
+fns = [lambda: i for i in range(3)]
+print("全都取最后一个 i：", [f() for f in fns])
+
+fns2 = [lambda i=i: i for i in range(3)]
+print("用默认参数立即绑定：", [f() for f in fns2])
+
+fns3 = []
+for i in range(3):
+    fns3.append((lambda n: (lambda: n))(i))
+print("套一层函数固定值：", [f() for f in fns3])
+
+print("=== 名字在调用时才查找 ===")
+x = 1
+g = lambda: x
+x = 2
+print("定义后改变量，结果跟着变：", g())
+
+print("=== 计数器：lambda 做不了累加，需要 nonlocal ===")
+
+
+def make_counter():
+    count = 0
+
+    def inc():
+        nonlocal count
+        count += 1
+        return count
+
+    return inc
+
+
+c = make_counter()
+print(c(), c(), c())
+
+print("=== 分派表：lambda 放进字典 ===")
+ops = {
+    "+": lambda a, b: a + b,
+    "-": lambda a, b: a - b,
+    "*": lambda a, b: a * b,
+}
+for op, a, b in [("+", 3, 4), ("-", 3, 4), ("*", 3, 4)]:
+    print(f"{a} {op} {b} = {ops[op](a, b)}")</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>全都取最后一个 i： [2, 2, 2]
+用默认参数立即绑定： [0, 1, 2]
+套一层函数固定值： [0, 1, 2]
+=== 名字在调用时才查找 ===
+定义后改变量，结果跟着变： 2
+=== 计数器：lambda 做不了累加，需要 nonlocal ===
+1 2 3
+=== 分派表：lambda 放进字典 ===
+3 + 4 = 7
+3 - 4 = -1
+3 * 4 = 12</code></pre></div></figure>
+
+<p>为什么 <code>[lambda: i for i in range(3)]</code> 全都返回 2？因为<strong>函数体里的 <code>i</code> 是自由变量，在调用时才去外层查找</strong>（这叫晚绑定 / late binding）。循环结束时 <code>i</code> 已经是 2，三个 lambda 查到的都是同一个 <code>i</code>。</p>
+
+<p>三种修法：</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>修法</th>
+<th>写法</th>
+<th>原理</th>
+</tr></thead>
+<tbody>
+<tr><td>默认参数</td><td><code>lambda i=i: i</code></td><td>默认值在<strong>定义时</strong>求值，把当前值绑进函数对象</td></tr>
+<tr><td>工厂函数</td><td><code>(lambda n: (lambda: n))(i)</code></td><td>每层函数调用产生独立的 <code>n</code></td></tr>
+<tr><td><code>functools.partial</code></td><td><code>partial(print, i)</code></td><td>参数被提前固化</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>同样的原理也解释 <code>g = lambda: x; x = 2</code> 之后 <code>g()</code> 返回 2——闭包存的是<strong>变量</strong>，不是值（第 12 章会从 <code>__closure__</code> 层面验证）。</p>
+
+<hr>
+
+<h2 id="s11-4">11.4 什么时候别用 lambda</h2>
+
+<p>PEP 8 的原话是"<strong>永远不要用赋值语句把 lambda 绑定到名字</strong>"（<code>f = lambda x: ...</code>），因为那本该写成 <code>def</code>：名字有意义、能写文档、能调试栈里显示函数名。</p>
+
+<p>四条经验：</p>
+
+<ol><li><strong><code>f = lambda ...</code> → 改 <code>def f(...)</code></strong>。<code>__name__</code> 会是 <code>&lt;lambda&gt;</code>，报错栈里也难读。</li><li><strong>lambda 里超过一个逗号或一个 <code>if/else</code> → 改 <code>def</code></strong>。可读性会迅速崩塌。</li><li><strong>需要 <code>try/except</code>、循环、多个赋值 → 不可能</strong>，直接用 <code>def</code>。</li><li><strong>作为回调的默认值</strong>（<code>on_done=lambda r: None</code>）是 lambda 少数"小而美"的正当用法——但它同样有晚绑定风险。</li></ol>
+
+<p>一个易忽略的事实：<strong>lambda 和 def 创建的函数没有性能差异</strong>，二者都是同一个函数对象类型。lambda 不"更轻"。</p>
+
+<hr>
+
+<h2 id="s11-5">11.5 与 C++ 的差别</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>维度</th>
+<th>C++</th>
+<th>Python</th>
+</tr></thead>
+<tbody>
+<tr><td>语法</td><td><code>[cap](args) -&gt; T { body }</code></td><td><code>lambda args: expr</code></td></tr>
+<tr><td>函数体</td><td>任意语句块</td><td><strong>仅一个表达式</strong></td></tr>
+<tr><td>捕获</td><td>显式捕获列表 <code>[=]</code> <code>[&amp;x]</code></td><td>自动按名字查闭包，无需声明</td></tr>
+<tr><td>捕获时机</td><td>按值捕获=定义时拷贝；按引用=调用时读</td><td>一律"晚绑定"，存变量不存值</td></tr>
+<tr><td>返回类型</td><td>可推导可显式</td><td>无注解能力</td></tr>
+<tr><td>赋值给变量</td><td>常用（<code>auto f = [...]</code>）</td><td>反模式，应用 <code>def</code></td></tr>
+<tr><td>性能</td><td>内联优化、零开销</td><td>与普通函数相同，无特殊优化</td></tr>
+<tr><td>调用开销</td><td>可内联消除</td><td>每次调用都有 Python 层开销</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>C++ 的捕获列表是显式的，所以"晚绑定"问题在 C++ 里靠 <code>[=]</code> 显式按值捕获就避开了；Python 没有捕获列表，只能靠默认参数或工厂函数。</p>
+
+<hr>
+
+<h2 id="s11-6">11.6 易错点清单</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>现象</th>
+<th>原因</th>
+<th>一行修复</th>
+</tr></thead>
+<tbody>
+<tr><td>循环里造的 lambda 全返回最后一个值</td><td>晚绑定</td><td><code>lambda i=i: i</code> 或工厂函数</td></tr>
+<tr><td><code>SyntaxError: invalid syntax</code> 在 <code>=</code> 处</td><td>lambda 体里赋值</td><td>用 <code>def</code> 或海象 <code>:=</code>（谨慎）</td></tr>
+<tr><td><code>map(...)</code> 打印出 <code>&lt;map object at 0x...&gt;</code></td><td>返回迭代器</td><td><code>list(map(...))</code></td></tr>
+<tr><td>第二次 <code>list(m)</code> 是空的</td><td>迭代器一次性</td><td>落地成列表或重建 map</td></tr>
+<tr><td>排序结果不是想要的顺序</td><td><code>key</code> 返回了单值而非元组</td><td><code>key=lambda t: (t[1], t[0])</code></td></tr>
+<tr><td>想某一列降序但有字符串列</td><td>元组里不能对 str 取负</td><td>分两次稳定排序，或 <code>reverse</code></td></tr>
+<tr><td>报错栈里全是 <code>&lt;lambda&gt;</code> 看不出位置</td><td>匿名函数无名字</td><td>关键逻辑改 <code>def</code></td></tr>
+<tr><td><code>f.__doc__</code> 是 <code>None</code></td><td>lambda 无 docstring</td><td>用 <code>def</code></td></tr>
+<tr><td><code>lambda</code> 里调用 <code>print</code> 看似无输出</td><td>表达式求值有副作用但被丢弃/顺序问题</td><td>别在 lambda 里做副作用</td></tr>
+<tr><td><code>sorted(key=lambda x: x.attr)</code> 报 <code>AttributeError</code></td><td>列表里混了 <code>None</code></td><td>key 里处理 <code>None</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<hr>
+
+<h2 id="s11-7">11.7 练习</h2>
+
+<p><strong>1.（基础）</strong> 用 lambda 写四个函数：加、减、乘、除（除零返回 <code>None</code>），放进字典按符号分派。</p>
+
+<p>验收：<code>calc["/"](1, 0)</code> 得 <code>None</code>，<code>calc["+"](2, 3)</code> 得 <code>5</code>。</p>
+
+<p><strong>2.（key 排序）</strong> 给定 <code>[("语文", 92), ("数学", 100), ("英语", 88)]</code>，按分数降序输出。</p>
+
+<p>验收：输出 <code>[('数学', 100), ('语文', 92), ('英语', 88)]</code>。</p>
+
+<p><strong>3.（多关键字）</strong> 给定学生列表 <code>[(姓名, 班级, 分数)]</code>，先按班级升序、再按分数降序排序。</p>
+
+<p>验收：用 <code>key=lambda t: (t[1], -t[2])</code>；若分数是字符串则说明为什么这招失效。</p>
+
+<p><strong>4.（变式）</strong> 修好这段代码，让它输出 <code>[0, 1, 2]</code>：</p>
+
+<pre class="py"><code>fns = [lambda: i for i in range(3)]
+print([f() for f in fns])</code></pre>
+
+<p>验收：至少给出两种修法（默认参数、工厂函数），并解释晚绑定的机制。</p>
+
+<p><strong>5.（挑战）</strong> 用 <code>map</code>/<code>filter</code> 和 lambda 实现：读入一组整数，过滤掉负数，把剩下的平方，最后求和；再用推导式 + 生成器表达式写一遍，比较两者长度与可读性。</p>
+
+<p>验收：两种写法结果相同；说明为什么第二种（生成器表达式）不需要中间列表。</p>
+
+<hr>
+
+<h2 id="s11-8">11.8 小结</h2>
+
+<ol><li><strong>lambda 是单表达式的匿名 def</strong>：不能 <code>return</code>、不能赋值、不能注解。</li><li><strong>它的主场是 <code>key=</code> 和一次性回调</strong>；<code>f = lambda ...</code> 应该写成 <code>def</code>。</li><li><strong>闭包晚绑定</strong>：循环里的 lambda 共享变量，要用默认参数或工厂函数把值固定下来。</li></ol>
+
+<p>下一章把"晚绑定"讲透：闭包怎么捕获变量、<code>__closure__</code> 里存了什么、<code>nonlocal</code> 为什么必需，以及用闭包实现计数器与缓存。</p>
+
+    
+
+    </article>
+    <!-- ==================== 正文结束 ==================== -->
+
+    <div data-learn-pager></div>
+
+    <footer class="acm-footer" style="margin-top:34px;border-radius:14px;padding:20px 22px">
+      <div class="acm-footer-inner">
+        <div>
+          <p><b>Python 语法教程</b> · 编程学习站的一部分。</p>
+          <p class="acm-tiny">配色与深浅色跟随<a href="../../index.html">校园主页</a>；顶部右侧按钮可切换。</p>
+        </div>
+        <div class="acm-footer-links">
+          <a href="./index.html">章节目录</a>
+          <a href="../index.html">编程学习首页</a>
+          <a href="../study.html">C++ 资料</a>
+          <a href="../practice.html">C++ 题练场</a>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+
+  <div class="learn-rail"><div data-learn-toc></div></div>
+</div>
+
+<script src="../../js/learn-nav.js"></script>
+<script src="../../js/learn-shell.js"></script>
+<script src="../../js/learn-code.js"></script>
+<script>
+/* 顶部导航滚动态 + 主题切换（与 C++ 两个页面同一套逻辑，每页一份，不依赖外链） */
+(function () {
+  'use strict';
+  var root = document.documentElement, nav = document.getElementById('acmNav');
+  if (nav) {
+    var onScroll = function () { nav.classList.toggle('stuck', (window.scrollY || 0) > 8); };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+  var ico = document.querySelector('#themeIco use');
+  function paint() {
+    if (ico) { ico.setAttribute('href', root.getAttribute('data-theme') === 'dark' ? '#i-sun' : '#i-moon'); }
+  }
+  paint();
+  var btn = document.getElementById('themeBtn');
+  if (btn) {
+    btn.addEventListener('click', function () {
+      var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      root.setAttribute('data-mode', next);
+      try { localStorage.setItem('cw.theme', JSON.stringify(next)); } catch (e) { }
+      paint();
+    });
+  }
+})();
+</script>
+</body>
+</html>

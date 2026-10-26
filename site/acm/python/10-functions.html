@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light" data-mode="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Python 的函数调用是&quot;按名字绑定实参&quot;，不是按位置对齐内存。位置参数只是&quot;没有名字的绑定&quot;；有名字的实参可以任意顺序给。默认值在 def 执行时求值一次并挂在 __defaults__ 上——这就是可变默认值会&quot;记住上次结果&quot;的根源。">
+<meta name="theme-color" content="#2563eb">
+<meta name="color-scheme" content="light dark">
+<title>第 10 章 · 函数与参数 · Python 语法教程 · 编程学习</title>
+<script src="../../js/boot.js"></script>
+<script>try{var _t=document.documentElement.getAttribute('data-theme')||'light';document.documentElement.setAttribute('data-mode',_t);}catch(e){}</script>
+<link rel="stylesheet" href="../acm.css">
+<link rel="stylesheet" href="../learn.css">
+<link rel="stylesheet" href="../learn-code.css">
+</head>
+<body data-learn-page="py-10">
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;overflow:hidden">
+  <symbol id="i-graduation" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8.6 12 4.2l9.5 4.4L12 13 2.5 8.6Z"/><path d="M6.2 10.9V16c0 1.4 2.6 2.6 5.8 2.6s5.8-1.2 5.8-2.6v-5.1"/><path d="M21.5 9.4v5.2"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.6 12 3.8l8.5 6.8V20a1 1 0 0 1-1 1h-4.2v-6.2H8.7V21H4.5a1 1 0 0 1-1-1z"/></symbol>
+</svg>
+
+<header class="acm-nav" id="acmNav">
+  <div class="acm-wrap acm-nav-inner">
+    <a class="acm-brand" href="../index.html" title="回到编程学习首页">
+      <span class="acm-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-graduation"/></svg></span>
+      <span class="acm-brand-text"><strong>编程学习</strong><small>C++ · Python</small></span>
+    </a>
+    <nav class="acm-tabs" aria-label="编程学习站页面">
+      <a href="../index.html">首页</a>
+      <a href="../study.html">C++ 资料</a>
+      <a href="../practice.html">C++ 题练场</a>
+      <a href="./index.html" class="on" aria-current="page">Python</a>
+    </nav>
+    <div class="acm-nav-actions">
+      <button class="acm-btn acm-btn-icon" type="button" id="themeBtn" title="切换深色 / 浅色（全站共用）" aria-label="切换深色或浅色主题">
+        <svg class="ico" aria-hidden="true" id="themeIco"><use href="#i-moon"/></svg>
+      </button>
+      <a class="acm-btn" href="../../index.html" title="返回校园主页">
+        <svg class="ico" aria-hidden="true"><use href="#i-home"/></svg><span class="label">回主页</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<div class="learn-layout">
+
+  <!-- 窄屏（≤900px）：侧栏换成顶部折叠块 -->
+  <details class="learn-mobnav">
+    <summary>站点导航 · C++ / Python</summary>
+    <div data-learn-sidebar data-compact="1"></div>
+  </details>
+
+  <aside class="learn-aside"><div data-learn-sidebar></div></aside>
+
+  <main class="learn-main">
+
+    <div data-learn-crumb></div>
+
+    <header class="learn-head">
+      <h1 id="learnTitle">第 10 章 · 函数与参数</h1>
+      <p class="lead">Python 的函数调用是"<strong>按名字绑定实参</strong>"，不是按位置对齐内存。位置参数只是"没有名字的绑定"；有名字的实参可以任意顺序给。默认值在 <code>def</code> 执行时求值一次并挂在 <code>__defaults__</code> 上——这就是可变默认值会"记住上次结果"的根源。</p>
+      <div class="learn-meta">
+        <span class="learn-chip py">Python 3</span>
+        <button class="learn-mark" type="button" data-learn-mark>标记为已读</button>
+      </div>
+    </header>
+
+    <!-- 窄屏（≤1180px）：右侧目录换到正文上面的折叠块 -->
+    <details class="learn-mobtoc" open>
+      <summary>本页目录</summary>
+      <div data-learn-toc></div>
+    </details>
+
+    <!-- ==================== 正文：只改这里 ==================== -->
+    <article data-learn-content>
+
+<p><strong>读完这一章你能做到</strong></p>
+
+<ul><li>分清位置参数、关键字参数、默认参数、<code>*args</code>、<code>**kwargs</code> 的使用边界；</li><li>解释为什么 <code>def f(x, bucket=[])</code> 是 bug，并写出正确版本；</li><li>用 <code>*</code> 强制仅关键字、用 <code>/</code> 强制仅位置（3.8+），把 API 设计得更难用错；</li><li>写出能原样转发参数的包装函数（装饰器的前提）；</li><li>说清 Python 为什么<strong>没有重载</strong>，以及怎么替代。</li></ul>
+
+<hr>
+
+<h2 id="s10-1">10.1 定义、调用与返回值</h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch10_01_params.py</code></figcaption><pre class="py"><code>"""ch10_01_params.py —— 位置参数、关键字参数、默认值与调用检查"""
+
+
+def greet(name, greeting="你好", punct="!"):
+    return f"{greeting}，{name}{punct}"
+
+
+print(greet("小明"))
+print(greet("小明", "早上好"))
+print(greet("小明", punct="?"))
+print(greet(greeting="嗨", name="小红"))
+
+print("=== 位置参数必须在关键字参数之前 ===")
+print(greet("小明", punct="。", greeting="晚安"))
+try:
+    eval('greet(name="小明", "早")')
+except SyntaxError as e:
+    print("SyntaxError:", e.msg)
+
+print("=== 调用时的参数校验 ===")
+try:
+    greet()
+except TypeError as e:
+    print("TypeError:", e)
+try:
+    greet("a", "b", "c", "d")
+except TypeError as e:
+    print("TypeError:", e)
+try:
+    greet("a", nick="x")
+except TypeError as e:
+    print("TypeError:", e)
+
+print("=== 默认值只在定义时求值一次：可变默认值陷阱 ===")
+
+
+def bad(item, bucket=[]):
+    bucket.append(item)
+    return bucket
+
+
+print(bad(1), bad(2), bad(3))
+print("三次调用共用同一个列表：", bad.__defaults__)
+
+
+def good(item, bucket=None):
+    if bucket is None:
+        bucket = []
+    bucket.append(item)
+    return bucket
+
+
+print(good(1), good(2))
+
+print("=== 返回值 ===")
+
+
+def no_return():
+    pass
+
+
+print("没有 return 就返回：", repr(no_return()))
+
+
+def divmod_like(a, b):
+    return a // b, a % b
+
+
+print("多返回值其实是元组：", divmod_like(7, 2))
+q, r = divmod_like(7, 2)
+print("解包拿到：", q, r)</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>你好，小明!
+早上好，小明!
+你好，小明?
+嗨，小红!
+=== 位置参数必须在关键字参数之前 ===
+晚安，小明。
+SyntaxError: positional argument follows keyword argument
+=== 调用时的参数校验 ===
+TypeError: greet() missing 1 required positional argument: 'name'
+TypeError: greet() takes from 1 to 3 positional arguments but 4 were given
+TypeError: greet() got an unexpected keyword argument 'nick'
+=== 默认值只在定义时求值一次：可变默认值陷阱 ===
+[1, 2, 3] [1, 2, 3] [1, 2, 3]
+三次调用共用同一个列表： ([1, 2, 3],)
+[1] [2]
+=== 返回值 ===
+没有 return 就返回： None
+多返回值其实是元组： (3, 1)
+解包拿到： 3 1</code></pre></div></figure>
+
+<p>三条调用规则：</p>
+
+<ol><li><strong>位置参数按顺序填</strong>，关键字参数按名字填，<strong>关键字必须写在位置之后</strong>（<code>greet(name="小明", "早")</code> 是 <code>SyntaxError</code>）；</li><li><strong>同一个参数不能给两次</strong>：<code>greet("小明", name="小红")</code> 抛 <code>TypeError: got multiple values for argument 'name'</code>；</li><li><strong>没有 <code>return</code>（或只写 <code>return</code>）返回 <code>None</code></strong>——不是"返回最后一个表达式值"，那是 Ruby/JS 箭头函数的规则。</li></ol>
+
+<p><code>return a, b</code> 只是 <code>return (a, b)</code> 的省略写法：多返回值就是元组，接收端用解包。这一点比 C++ 的 <code>std::pair</code>/<code>std::tuple</code> 轻得多。</p>
+
+<hr>
+
+<h2 id="s10-2">10.2 默认参数：定义时求值一次</h2>
+
+<p>这是 Python 最著名的坑，必须从机制上理解：</p>
+
+<pre class="out"><code>def f(x, bucket=[]):     ← 执行 def 时，创建一个空列表对象，
+    ...                    并把它存进 f.__defaults__</code></pre>
+
+<p>所以 <code>bucket</code> 的默认值<strong>不是每次调用新建</strong>，而是<strong>同一个对象反复使用</strong>。<code>bad(1)</code>、<code>bad(2)</code>、<code>bad(3)</code> 追加进同一个列表，<code>bad.__defaults__</code> 里能看到累积结果。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; def bad(x, acc=[]):
+...     acc.append(x)
+...     return acc
+&gt;&gt;&gt; bad(1)
+[1]
+&gt;&gt;&gt; bad(2)
+[1, 2]
+&gt;&gt;&gt; bad.__defaults__
+([1, 2],)</code></pre>
+
+<p>正确写法是<strong>默认 <code>None</code> + 函数内新建</strong>：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; def good(x, acc=None):
+...     if acc is None:
+...         acc = []
+...     acc.append(x)
+...     return acc
+&gt;&gt;&gt; good(1), good(2)
+([1], [2])</code></pre>
+
+<p>同样的道理适用于 <code>{}</code>（字典）、<code>set()</code>、以及任何可变对象（包括 <code>datetime.now()</code> 这种"每次想要新值"的表达式——它只会在导入时算一次）。</p>
+
+<div class="box warn"><p>别用 <code>if not acc:</code> 代替 <code>if acc is None:</code>——调用方传一个<strong>空列表</strong>时 <code>not acc</code> 也为真，会把对方传入的容器丢掉，改成一新建的。判 <code>None</code> 用 <code>is</code>。</p></div>
+
+<hr>
+
+<h2 id="s10-3">10.3 <code>*args</code>、<code>**kwargs</code> 与参数解包</h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch10_02_varargs.py</code></figcaption><pre class="py"><code>"""ch10_02_varargs.py —— *args、**kwargs、仅关键字与仅位置参数"""
+
+
+def total(*args):
+    return sum(args)
+
+
+print(total(), total(1, 2, 3))
+
+
+def show(*args, **kwargs):
+    print("args:", args, "| kwargs:", kwargs)
+
+
+show(1, 2, name="a", age=3)
+
+print("=== 调用时解包 ===")
+nums = [1, 2, 3]
+print("total(*nums)：", total(*nums))
+
+
+def point(x, y, z=0):
+    return (x, y, z)
+
+
+print(point(*[1, 2], **{"z": 9}))
+
+print("=== 转发：包装函数原样传递参数 ===")
+
+
+def logged(fn):
+    def wrapper(*args, **kwargs):
+        print(f"调用 {fn.__name__} args={args} kwargs={kwargs}")
+        return fn(*args, **kwargs)
+    return wrapper
+
+
+@logged
+def add(a, b, base=0):
+    return a + b + base
+
+
+print("结果：", add(2, 3, base=10))
+
+print("=== 仅关键字参数：* 之后必须写名字 ===")
+
+
+def rect(*, width, height):
+    return width * height
+
+
+print(rect(width=2, height=3))
+try:
+    rect(2, 3)
+except TypeError as e:
+    print("TypeError:", e)
+
+print("=== 仅位置参数：/ 之前不能写名字（3.8+） ===")
+
+
+def power(base, /, exp=2):
+    return base ** exp
+
+
+print(power(3), power(3, 3))
+try:
+    power(base=3)
+except TypeError as e:
+    print("TypeError:", e)
+
+print("=== 完整的参数顺序 ===")
+
+
+def full(a, b=2, /, c=3, *args, d, e=5, **kwargs):
+    return (a, b, c, args, d, e, kwargs)
+
+
+print(full(1, d=4))
+print(full(1, 2, 3, 4, 5, d=6, x=7))</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>0 6
+args: (1, 2) | kwargs: {'name': 'a', 'age': 3}
+=== 调用时解包 ===
+total(*nums)： 6
+(1, 2, 9)
+=== 转发：包装函数原样传递参数 ===
+调用 add args=(2, 3) kwargs={'base': 10}
+结果： 15
+=== 仅关键字参数：* 之后必须写名字 ===
+6
+TypeError: rect() takes 0 positional arguments but 2 were given
+=== 仅位置参数：/ 之前不能写名字（3.8+） ===
+9 27
+TypeError: power() got some positional-only arguments passed as keyword arguments: 'base'
+=== 完整的参数顺序 ===
+(1, 2, 3, (), 4, 5, {})
+(1, 2, 3, (4, 5), 6, 5, {'x': 7})</code></pre></div></figure>
+
+<p>参数顺序的完整语法（从左到右固定）：</p>
+
+<pre class="out"><code>def f(pos_only, /, pos_or_kw, *args, kw_only, **kwargs):
+      └── 仅位置 ──┘  └─ 两者都行 ─┘  └变长位置┘ └必须写名字┘ └任意关键字┘</code></pre>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>写法</th>
+<th>在函数内是什么</th>
+<th>调用方式</th>
+</tr></thead>
+<tbody>
+<tr><td><code>def f(a, b)</code></td><td>普通参数</td><td><code>f(1, 2)</code> / <code>f(a=1, b=2)</code></td></tr>
+<tr><td><code>def f(*args)</code></td><td><strong>元组</strong></td><td><code>f(1, 2, 3)</code> → <code>args == (1, 2, 3)</code></td></tr>
+<tr><td><code>def f(**kw)</code></td><td><strong>字典</strong></td><td><code>f(x=1)</code> → <code>kw == {"x": 1}</code></td></tr>
+<tr><td><code>def f(a, *, b)</code></td><td><code>b</code> 仅关键字</td><td><code>f(1, b=2)</code>，<code>f(1, 2)</code> 报错</td></tr>
+<tr><td><code>def f(a, /)</code></td><td><code>a</code> 仅位置</td><td><code>f(1)</code>，<code>f(a=1)</code> 报错</td></tr>
+<tr><td><code>f(*xs)</code></td><td>调用时解包</td><td>等价于把 <code>xs</code> 摊开</td></tr>
+<tr><td><code>f(**d)</code></td><td>调用时解包</td><td>等价于按 <code>d</code> 的键给关键字</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><code>*args</code> 收的是<strong>元组</strong>不是列表，<code>**kwargs</code> 收的是<strong>字典</strong>。名字 <code>args</code>/<code>kwargs</code> 只是约定，写 <code>*items</code>、<code>**opts</code> 完全等价——但保持约定，别人一眼能懂。</p>
+
+<p><strong>仅关键字参数</strong>是给 API 设计者的礼物：<code>def rect(*, width, height)</code> 强迫调用方写名字，<code>rect(2, 3)</code> 直接被拒绝。标准库里大量使用（<code>print(*objects, sep=" ", end="\n", file=None, flush=False)</code> 全是仅关键字）。</p>
+
+<hr>
+
+<h2 id="s10-4">10.4 函数是对象：一级公民</h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch10_03_firstclass.py</code></figcaption><pre class="py"><code>"""ch10_03_firstclass.py —— 函数是对象：赋值、传参、无重载、覆盖"""
+
+
+def square(x):
+    return x * x
+
+
+f = square
+print("函数可以赋值给变量：", f(4), "| 同一个对象：", f is square, "|", square.__name__)
+
+print("=== 作为参数（高阶函数） ===")
+
+
+def apply_all(fn, xs):
+    return [fn(x) for x in xs]
+
+
+print(apply_all(square, [1, 2, 3]))
+print(apply_all(str.upper, ["a", "b"]))
+
+print("=== 没有重载：后定义覆盖前定义 ===")
+
+
+def report(x):
+    return "一参版"
+
+
+def report(x, y=0):
+    return "两参版"
+
+
+print(report(1), report(1, 2))
+
+print("=== 函数的元信息 ===")
+print("square 的 docstring：", square.__doc__)
+
+
+def documented(x):
+    """把 x 转成字符串"""
+    return str(x)
+
+
+print("docstring：", documented.__doc__, "| 注解：", documented.__annotations__)
+
+print("=== 注解不做事，类型检查靠工具 ===")
+
+
+def typed(a: int, b: int) -&gt; int:
+    return a + b
+
+
+print("传字符串也能跑：", typed("a", "b"))
+
+print("=== 函数能放进容器、能做返回值 ===")
+ops = {"加": lambda a, b: a + b, "减": lambda a, b: a - b}
+print(ops["加"](3, 4), ops["减"](3, 4))
+
+
+def make_adder(n):
+    def adder(x):
+        return x + n
+    return adder
+
+
+add10 = make_adder(10)
+print("闭包工厂：", add10(5), add10(-1))</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>函数可以赋值给变量： 16 | 同一个对象： True | square
+=== 作为参数（高阶函数） ===
+[1, 4, 9]
+['A', 'B']
+=== 没有重载：后定义覆盖前定义 ===
+两参版 两参版
+=== 函数的元信息 ===
+square 的 docstring： None
+docstring： 把 x 转成字符串 | 注解： {}
+=== 注解不做事，类型检查靠工具 ===
+传字符串也能跑： ab
+=== 函数能放进容器、能做返回值 ===
+7 -1
+闭包工厂： 15 9</code></pre></div></figure>
+
+<p>四个必须知道的结论：</p>
+
+<ol><li><strong>函数是普通对象</strong>：能赋值、能放进列表/字典、能当参数、能当返回值。这支撑了装饰器、回调、策略表。</li><li><strong>没有重载</strong>：Python 里同名函数<strong>后定义覆盖前定义</strong>，<code>report</code> 只剩两参版。要"按参数类型分派"得在函数内判断（<code>isinstance</code>）或用 <code>functools.singledispatch</code>，也可以用 <code>match/case</code>。</li><li><strong><code>__doc__</code> 是文档字符串，<code>__annotations__</code> 是注解字典</strong>——注解<strong>只在运行期存着，不做任何检查</strong>。<code>typed("a", "b")</code> 返回 <code>'ab'</code> 而不会报错，检查交给 <code>mypy</code>/IDE（第 20 章）。</li><li><strong>嵌套函数返回时形成闭包</strong>，<code>make_adder(10)</code> 返回的 <code>adder</code> 记住了 <code>n=10</code>（第 12 章详述）。</li></ol>
+
+<hr>
+
+<h2 id="s10-5">10.5 与 C++ 的差别</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>维度</th>
+<th>C++</th>
+<th>Python</th>
+</tr></thead>
+<tbody>
+<tr><td>参数传递</td><td>值传递 / 引用 <code>&amp;</code> / 指针</td><td>全部"按对象引用传递"，不可变对象表现像值</td></tr>
+<tr><td>默认参数</td><td>头文件声明里给，调用时求值</td><td><code>def</code> 处求值<strong>一次</strong>，可变默认值是坑</td></tr>
+<tr><td>重载</td><td>支持，编译期按类型分派</td><td>不支持，同名覆盖</td></tr>
+<tr><td>变长参数</td><td><code>va_list</code> / 模板参数包</td><td><code>*args</code> / <code>**kwargs</code>，直接可用</td></tr>
+<tr><td>关键字实参</td><td>无（C++20 指定初始化器部分类似）</td><td><code>f(name=1)</code>，可任意顺序</td></tr>
+<tr><td>返回多值</td><td><code>std::tuple</code> + <code>std::get</code></td><td><code>return a, b</code> + 解包</td></tr>
+<tr><td>函数作为值</td><td>函数指针 / <code>std::function</code> / lambda</td><td>天然是一等对象</td></tr>
+<tr><td>类型检查</td><td>编译期强制</td><td>运行期不检查，注解仅作文档</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>最后一行要特别注意"按对象引用传递"的说法：Python 官方叫 <strong>call by object reference</strong>（也叫 call by sharing）。效果是——函数内<strong>改对象内容</strong>调用方可见，<strong>重新绑定名字</strong>调用方不可见。这在第 3 章已用 <code>append</code> 与 <code>=</code> 演示过。</p>
+
+<hr>
+
+<h2 id="s10-6">10.6 易错点清单</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>现象</th>
+<th>原因</th>
+<th>一行修复</th>
+</tr></thead>
+<tbody>
+<tr><td>连续调用返回的列表越来越长</td><td>可变默认值 <code>=[]</code></td><td>默认 <code>None</code>，函数内新建</td></tr>
+<tr><td><code>TypeError: f() got multiple values for argument 'a'</code></td><td>位置与关键字给了同一个参数</td><td>只保留一种给法</td></tr>
+<tr><td><code>TypeError: f() missing 1 required positional argument</code></td><td>少传参数</td><td>给默认值或补参数</td></tr>
+<tr><td><code>TypeError: f() got an unexpected keyword argument</code></td><td>名字拼错 / 没写 <code>**kwargs</code></td><td>检查签名拼写</td></tr>
+<tr><td><code>SyntaxError: positional argument follows keyword argument</code></td><td>关键字写在了位置参数前</td><td>位置参数全部前置</td></tr>
+<tr><td>调用方传入的空列表被忽略</td><td>用 <code>if not acc:</code> 判默认值</td><td><code>if acc is None:</code></td></tr>
+<tr><td>改函数参数后调用方数据也变了</td><td>按引用传递 + 原地改</td><td>需要副本就 <code>list(x)</code> / <code>copy.copy</code></td></tr>
+<tr><td>同名函数只有最后一个生效</td><td>没有重载</td><td>改名、<code>isinstance</code> 分派或 <code>singledispatch</code></td></tr>
+<tr><td><code>f(*args)</code> 报 <code>TypeError</code> 说参数个数不对</td><td><code>args</code> 不是序列/是生成器</td><td>先 <code>list()</code> 或确认长度</td></tr>
+<tr><td>装饰器包一层后签名/文档全变</td><td>只用 <code>*args, **kwargs</code> 转发</td><td><code>functools.wraps</code> 保留元信息</td></tr>
+</tbody>
+</table>
+</div>
+
+<hr>
+
+<h2 id="s10-7">10.7 练习</h2>
+
+<p><strong>1.（基础）</strong> 写 <code>format_price(amount, currency="￥", digits=2)</code>，输出如 <code>￥1,234.50</code>。要求 <code>digits</code> 与 <code>currency</code> 都能用关键字指定。</p>
+
+<p>验收：<code>format_price(1234.5)</code> 得 <code>￥1,234.50</code>；<code>format_price(1234.5, digits=0)</code> 得 <code>￥1,234</code>。</p>
+
+<p><strong>2.（可变默认值）</strong> 写 <code>add_tag(tag, tags=[])</code> 的<strong>错误版</strong>与<strong>正确版</strong>，各调用两次说明差异，并打印错误版的 <code>__defaults__</code>。</p>
+
+<p>验收：错误版第二次返回含两个元素；正确版每次只含一个。</p>
+
+<p><strong>3.（*args/</strong>kwargs）** 写 <code>stats(*nums, ndigits=2)</code>：返回 <code>(个数, 和, 平均, 最大, 最小)</code>，平均保留 <code>ndigits</code> 位；空输入返回全 0 且不抛异常。</p>
+
+<p>验收：<code>stats(1, 2, 3)</code> 得 <code>(3, 6, 2.0, 3, 1)</code>；<code>stats()</code> 不崩溃。</p>
+
+<p><strong>4.（变式）</strong> 写 <code>call_log(fn)</code> 装饰器：打印每次调用的<strong>函数名、位置参数元组、关键字字典</strong>，再原样调用返回结果；用 <code>functools.wraps</code> 保留原函数的 <code>__name__</code> 与 <code>__doc__</code>。</p>
+
+<p>验收：装饰后 <code>fn.__name__</code> 仍是原名；<code>fn(1, k=2)</code> 打印 <code>args=(1,) kwargs={'k': 2}</code>。</p>
+
+<p><strong>5.（挑战）</strong> 用 <code>functools.singledispatch</code>（或 <code>match/case</code>）实现 <code>describe(x)</code>：<code>int</code> 返回"整数"、<code>list</code> 返回"列表，共 n 项"、<code>str</code> 返回"字符串，长度 n"、其他返回"其他"。</p>
+
+<p>验收：<code>describe(1)</code>、<code>describe([1, 2])</code>、<code>describe("ab")</code>、<code>describe(1.5)</code> 四种输入各返回正确字符串；<code>bool</code> 输入说明为什么被当成 <code>int</code>。</p>
+
+<hr>
+
+<h2 id="s10-8">10.8 小结</h2>
+
+<ol><li><strong>调用按名字绑定</strong>：位置在前、关键字在后，同一参数不能给两次。</li><li><strong>默认值定义时求值一次</strong>，可变默认值必踩坑——默认写 <code>None</code>，函数内新建。</li><li><strong><code>*args</code> 收元组、<code>**kwargs</code> 收字典</strong>，<code>*</code> / <code>/</code> 能把参数强制成"只能写名字"或"只能按位置"。</li></ol>
+
+<p>下一章只讲一个工具：<code>lambda</code>。它短得只能装一个表达式，但配合 <code>sorted(key=...)</code>、<code>map</code>、<code>filter</code> 与回调，是函数式写法的入口；也会讲清它的两个限制（不能写语句、不能有注解）。</p>
+
+    
+
+    </article>
+    <!-- ==================== 正文结束 ==================== -->
+
+    <div data-learn-pager></div>
+
+    <footer class="acm-footer" style="margin-top:34px;border-radius:14px;padding:20px 22px">
+      <div class="acm-footer-inner">
+        <div>
+          <p><b>Python 语法教程</b> · 编程学习站的一部分。</p>
+          <p class="acm-tiny">配色与深浅色跟随<a href="../../index.html">校园主页</a>；顶部右侧按钮可切换。</p>
+        </div>
+        <div class="acm-footer-links">
+          <a href="./index.html">章节目录</a>
+          <a href="../index.html">编程学习首页</a>
+          <a href="../study.html">C++ 资料</a>
+          <a href="../practice.html">C++ 题练场</a>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+
+  <div class="learn-rail"><div data-learn-toc></div></div>
+</div>
+
+<script src="../../js/learn-nav.js"></script>
+<script src="../../js/learn-shell.js"></script>
+<script src="../../js/learn-code.js"></script>
+<script>
+/* 顶部导航滚动态 + 主题切换（与 C++ 两个页面同一套逻辑，每页一份，不依赖外链） */
+(function () {
+  'use strict';
+  var root = document.documentElement, nav = document.getElementById('acmNav');
+  if (nav) {
+    var onScroll = function () { nav.classList.toggle('stuck', (window.scrollY || 0) > 8); };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+  var ico = document.querySelector('#themeIco use');
+  function paint() {
+    if (ico) { ico.setAttribute('href', root.getAttribute('data-theme') === 'dark' ? '#i-sun' : '#i-moon'); }
+  }
+  paint();
+  var btn = document.getElementById('themeBtn');
+  if (btn) {
+    btn.addEventListener('click', function () {
+      var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      root.setAttribute('data-mode', next);
+      try { localStorage.setItem('cw.theme', JSON.stringify(next)); } catch (e) { }
+      paint();
+    });
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light" data-mode="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Python 用缩进代替花括号来表达&quot;哪些语句属于同一个块&quot;。所以缩进不是排版喜好，而是语法本身——它错了，程序连编译都过不去，报的还是语法错误而不是格式错误。">
+<meta name="theme-color" content="#2563eb">
+<meta name="color-scheme" content="light dark">
+<title>第 2 章 · 缩进与基础语法 · Python 语法教程 · 编程学习</title>
+<script src="../../js/boot.js"></script>
+<script>try{var _t=document.documentElement.getAttribute('data-theme')||'light';document.documentElement.setAttribute('data-mode',_t);}catch(e){}</script>
+<link rel="stylesheet" href="../acm.css">
+<link rel="stylesheet" href="../learn.css">
+<link rel="stylesheet" href="../learn-code.css">
+</head>
+<body data-learn-page="py-02">
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;overflow:hidden">
+  <symbol id="i-graduation" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8.6 12 4.2l9.5 4.4L12 13 2.5 8.6Z"/><path d="M6.2 10.9V16c0 1.4 2.6 2.6 5.8 2.6s5.8-1.2 5.8-2.6v-5.1"/><path d="M21.5 9.4v5.2"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.6 12 3.8l8.5 6.8V20a1 1 0 0 1-1 1h-4.2v-6.2H8.7V21H4.5a1 1 0 0 1-1-1z"/></symbol>
+</svg>
+
+<header class="acm-nav" id="acmNav">
+  <div class="acm-wrap acm-nav-inner">
+    <a class="acm-brand" href="../index.html" title="回到编程学习首页">
+      <span class="acm-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-graduation"/></svg></span>
+      <span class="acm-brand-text"><strong>编程学习</strong><small>C++ · Python</small></span>
+    </a>
+    <nav class="acm-tabs" aria-label="编程学习站页面">
+      <a href="../index.html">首页</a>
+      <a href="../study.html">C++ 资料</a>
+      <a href="../practice.html">C++ 题练场</a>
+      <a href="./index.html" class="on" aria-current="page">Python</a>
+    </nav>
+    <div class="acm-nav-actions">
+      <button class="acm-btn acm-btn-icon" type="button" id="themeBtn" title="切换深色 / 浅色（全站共用）" aria-label="切换深色或浅色主题">
+        <svg class="ico" aria-hidden="true" id="themeIco"><use href="#i-moon"/></svg>
+      </button>
+      <a class="acm-btn" href="../../index.html" title="返回校园主页">
+        <svg class="ico" aria-hidden="true"><use href="#i-home"/></svg><span class="label">回主页</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<div class="learn-layout">
+
+  <!-- 窄屏（≤900px）：侧栏换成顶部折叠块 -->
+  <details class="learn-mobnav">
+    <summary>站点导航 · C++ / Python</summary>
+    <div data-learn-sidebar data-compact="1"></div>
+  </details>
+
+  <aside class="learn-aside"><div data-learn-sidebar></div></aside>
+
+  <main class="learn-main">
+
+    <div data-learn-crumb></div>
+
+    <header class="learn-head">
+      <h1 id="learnTitle">第 2 章 · 缩进与基础语法</h1>
+      <p class="lead">Python 用<strong>缩进代替花括号</strong>来表达"哪些语句属于同一个块"。所以缩进不是排版喜好，而是语法本身——它错了，程序连编译都过不去，报的还是语法错误而不是格式错误。</p>
+      <div class="learn-meta">
+        <span class="learn-chip py">Python 3</span>
+        <button class="learn-mark" type="button" data-learn-mark>标记为已读</button>
+      </div>
+    </header>
+
+    <!-- 窄屏（≤1180px）：右侧目录换到正文上面的折叠块 -->
+    <details class="learn-mobtoc" open>
+      <summary>本页目录</summary>
+      <div data-learn-toc></div>
+    </details>
+
+    <!-- ==================== 正文：只改这里 ==================== -->
+    <article data-learn-content>
+
+<p><strong>读完这一章你能做到</strong></p>
+
+<ul><li>写出缩进正确的多层嵌套代码，并且一眼看出 <code>IndentationError</code> / <code>TabError</code> 的原因；</li><li>分清"隐式续行（括号）"和"显式续行（反斜杠）"，知道为什么优先用前者；</li><li>说清注释、文档字符串、三引号字符串三者的区别；</li><li>正确使用 <code>print(sep=, end=)</code>，并知道 <code>input()</code> 永远返回字符串；</li><li>随手写出一个带 <code>main()</code> 和 <code>__name__</code> 守卫的完整程序模板。</li></ul>
+
+<hr>
+
+<h2 id="s2-1">2.1 语句、换行，以及那个可有可无的分号</h2>
+
+<p>Python 的语句以<strong>换行</strong>结束，不需要分号。分号只在一种情况下合法——把多条语句压到一行：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; a = 1; b = 2; print(a + b)
+3
+&gt;&gt;&gt; a = 1
+&gt;&gt;&gt; b = 2
+&gt;&gt;&gt; a + b
+3</code></pre>
+
+<p>第二段是正常写法。第一段能跑，但 PEP 8 明确不建议（除了 <code>x = 1; y = 2</code> 这种极短的初始化）。也不要写行尾分号——它无害但没意义，反而让从 C++ 过来的人以为"必须加分号"。</p>
+
+<p>这里顺带看清<strong>语句</strong>和<strong>表达式</strong>的差别：表达式会<strong>产生一个值</strong>，语句不会。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; 2 + 3 * 4
+14
+&gt;&gt;&gt; print(2 + 3 * 4)
+14
+&gt;&gt;&gt; x = print("print 是有副作用的语句")
+print 是有副作用的语句
+&gt;&gt;&gt; x is None
+True</code></pre>
+
+<p>REPL 里裸写 <code>2 + 3 * 4</code> 会自动回显 <code>14</code>，这是因为<strong>表达式有值</strong>；<code>print(...)</code> 回显不出东西，因为它的返回值是 <code>None</code>。这条区别在第 11 章（lambda 只能写表达式）、第 09 章（推导式只能是表达式）里会反复用到。</p>
+
+<hr>
+
+<h2 id="s2-2">2.2 缩进是语法的骨架</h2>
+
+<p>规则只有四条：</p>
+
+<ol><li><strong>冒号</strong> <code>:</code> 结束一个头部（<code>if</code> / <code>for</code> / <code>while</code> / <code>def</code> / <code>class</code> / <code>try</code> / <code>with</code>），下一行起进入一个块；</li><li>同一个块内，每行缩进<strong>必须完全相同</strong>；</li><li>块的结束靠<strong>减少缩进</strong>表示（回到上一层的缩进量）；</li><li>缩进量由你定，但<strong>全项目统一用 4 个空格</strong>是 PEP 8 的硬性建议。</li></ol>
+
+<pre class="py"><code># 片段：三层嵌套，看缩进如何表达"归属"
+def grade(score):
+    if score &gt;= 90:                 # 第 1 层
+        level = "A"
+        if score == 100:            # 第 2 层
+            level = "A+"
+    else:                           # 回到第 1 层
+        level = "B"
+    return level</code></pre>
+
+<p><code>level = "A+"</code> 属于 <code>if score == 100</code>；<code>return level</code> 的缩进退回函数体那一层，所以它属于 <code>grade</code>，不属于任何 <code>if</code>。<strong>在 C++ 里这两行会因为花括号位置不同而语义不同，缩进却可以是任意丑的；在 Python 里缩进就是语义，长得一样就是同一层。</strong></p>
+
+<hr>
+
+<h2 id="s2-3">2.3 缩进错误的四种真身</h2>
+
+<p>把这四种错误放在一起看，比一条条背有用：</p>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch02_03_errors.py</code></figcaption><pre class="py"><code>"""ch02_03_errors.py —— 缩进错误的四种真身"""
+
+cases = {
+    "缺少缩进": "if True:\nprint(1)",
+    "多余缩进": "print(1)\n    print(2)",
+    "缩进对不上": "if True:\n    print(1)\n  print(2)",
+    "Tab 与空格混用": "if True:\n\tprint(1)\n        print(2)",
+}
+
+for name, src in cases.items():
+    try:
+        compile(src, "&lt;demo&gt;", "exec")
+        print(f"{name}: 通过了（这是意外）")
+    except (IndentationError, TabError) as e:
+        print(f"{name}: {type(e).__name__}: {e.msg}")</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>缺少缩进: IndentationError: expected an indented block after 'if' statement on line 1
+多余缩进: IndentationError: unexpected indent
+缩进对不上: IndentationError: unindent does not match any outer indentation level
+Tab 与空格混用: TabError: inconsistent use of tabs and spaces in indentation</code></pre></div></figure>
+
+<p><code>compile()</code> 在这里当"照妖镜"用：它把一段字符串当源码编译，语法错误立刻暴露，而且不用真的执行。这也是 IDE 和 linter 检查你代码的原理。</p>
+
+<p><code>TabError</code> 是 <code>IndentationError</code> 的子类，专门抓"一行用 Tab、另一行用空格凑出相同视觉宽度"的情况——肉眼完全看不出区别，这就是为什么<strong>永远不要用 Tab 缩进 Python</strong>。VS Code 里把 <code>editor.insertSpaces</code> 设为 <code>true</code>、<code>tabSize</code> 设为 <code>4</code> 即可。</p>
+
+<div class="box warn"><p>复制粘贴网页代码时最常见的翻车：原文用 Tab，你本地用空格，看起来对齐，一跑就 <code>TabError: inconsistent use of tabs and spaces in indentation</code>。修法不是手动改缩进（改不干净），而是让编辑器"显示空白字符"后整段重排。</p></div>
+
+<hr>
+
+<h2 id="s2-4">2.4 续行：优先括号，反斜杠兜底</h2>
+
+<p>一行太长要换行，两种办法：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; total = (1 +
+...          2 +
+...          3)
+&gt;&gt;&gt; total
+6
+&gt;&gt;&gt; other = 1 + \
+...         2
+&gt;&gt;&gt; other
+3</code></pre>
+
+<p>括号（<code>()</code>、<code>[]</code>、<code>{}</code>）内<strong>可以随便换行，包括注释</strong>，这叫<strong>隐式续行</strong>，是官方推荐的排版方式——函数调用、长表达式、字典字面量都靠它。</p>
+
+<p>反斜杠 <code>\</code> 是<strong>显式续行</strong>，只在个别没法加括号的地方才用（例如长 <code>assert</code>、长 <code>with</code> 的早期写法）。反斜杠后面<strong>不能有任何字符</strong>（包括空格和注释），否则续行失效并直接报 <code>SyntaxError</code>。这就是"能用括号就别用反斜杠"的实际理由。</p>
+
+<pre class="py"><code># 片段：隐式续行 + 缩进对齐，PEP 8 推荐的排版
+result = some_function(arg_one,
+                       arg_two,
+                       keyword=value)</code></pre>
+
+<hr>
+
+<h2 id="s2-5">2.5 注释、文档字符串与 <code>pass</code></h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch02_02_docstring.py</code></figcaption><pre class="py"><code>"""ch02_02_docstring.py —— 文档字符串不是注释"""
+import math
+
+
+def area(r):
+    """返回半径为 r 的圆面积。
+
+    参数 r 必须为正数；否则返回 None。
+    """
+    if r &lt;= 0:
+        return None
+    return math.pi * r * r
+
+
+def nothing():
+    pass                            # 空块必须用 pass 占位
+
+
+print("第一行文档：", area.__doc__.splitlines()[0])
+print("第二行文档：", area.__doc__.splitlines()[1])
+print("area(2) =", round(area(2), 4))
+print("area(-1) =", area(-1))
+print("nothing() =", nothing())
+
+print("模块自己的 __doc__：", __doc__)
+
+text = """这只是一个普通的多行字符串，
+不赋值给函数的第一条语句时，它就不是文档字符串。"""
+print("行数：", text.count("\n") + 1)</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>第一行文档： 返回半径为 r 的圆面积。
+第二行文档： 
+area(2) = 12.5664
+area(-1) = None
+nothing() = None
+模块自己的 __doc__： ch02_02_docstring.py —— 文档字符串不是注释
+行数： 2</code></pre></div></figure>
+
+<p>三种"看起来像注释"的东西，作用完全不同：</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>形式</th>
+<th>是什么</th>
+<th>存不存在于运行时</th>
+<th>用途</th>
+</tr></thead>
+<tbody>
+<tr><td><code># 文字</code></td><td>注释</td><td>不存（编译时丢弃）</td><td>解释"为什么这么写"</td></tr>
+<tr><td>函数/类/模块的<strong>第一句</strong> <code>"""…"""</code></td><td>文档字符串（docstring）</td><td>存在，挂在 <code>__doc__</code></td><td><code>help()</code> 的来源，写接口说明</td></tr>
+<tr><td>任意位置的 <code>"""…"""</code></td><td>普通字符串字面量</td><td>存（若被使用）</td><td>多行文本、SQL、正则</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><code>area.__doc__</code> 里保留了换行和缩进，所以取第一行要用 <code>splitlines()[0]</code>。<strong>给每个公开函数写一句 docstring</strong>是唯一值得坚持的注释规则：它会被 <code>help()</code>、IDE 悬停、<code>pydoc</code> 直接读出来。而 <code>#</code> 注释应该解释<strong>意图</strong>，不是复述代码（<code>i += 1  # i 加 1</code> 是噪声）。</p>
+
+<p><code>pass</code> 是"什么都不做"的占位语句。Python 的块不能为空，所以：</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; def todo():
+...     pass
+&gt;&gt;&gt; todo() is None
+True
+&gt;&gt;&gt; class Empty:
+...     pass
+&gt;&gt;&gt; Empty.__name__
+'Empty'</code></pre>
+
+<hr>
+
+<h2 id="s2-6">2.6 编码：源码是 UTF-8，输入输出另算</h2>
+
+<p>Python 3 的源文件<strong>默认 UTF-8</strong>，不需要 <code># -*- coding: utf-8 -*-</code>（那是 Python 2 的遗留物，看到它说明你在抄十年前的代码）。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import sys
+&gt;&gt;&gt; sys.getdefaultencoding()
+'utf-8'
+&gt;&gt;&gt; "中文".encode("utf-8")
+b'\xe4\xb8\xad\xe6\x96\x87'</code></pre>
+
+<p>但<strong>读写文件</strong>和<strong>控制台输出</strong>的编码是另一回事：<code>open()</code> 不指定 <code>encoding</code> 时用系统默认（Windows 上常是 GBK/CP936），这就是"在我电脑上好好的，到别人电脑上 <code>UnicodeDecodeError</code>"的来源。规矩很简单：<strong>凡是 <code>open()</code> 都显式写 <code>encoding="utf-8"</code></strong>（第 17 章）。控制台乱码则设环境变量 <code>PYTHONIOENCODING=utf-8</code>，或 <code>chcp 65001</code>。</p>
+
+<hr>
+
+<h2 id="s2-7">2.7 <code>print</code> 的参数与 <code>input</code> 的返回值</h2>
+
+<pre class="pycon"><code>&gt;&gt;&gt; print("a", "b", "c")
+a b c
+&gt;&gt;&gt; print("a", "b", "c", sep="-")
+a-b-c
+&gt;&gt;&gt; print("x", "y", sep=", ", end="!\n")
+x, y!
+&gt;&gt;&gt; print()</code></pre>
+
+<ul><li><code>sep</code> 决定多个参数之间插什么（默认一个空格），<code>end</code> 决定结尾加什么（默认换行）；</li><li><code>print()</code> 无参数就输出一个空行；</li><li>竞速题里 <code>print(*ans, sep="\n")</code> 一次输出整个列表，比循环 <code>print</code> 快得多。</li></ul>
+
+<p><code>input(prompt)</code> 读一行，<strong>永远返回 <code>str</code></strong>，而且<strong>去掉行尾换行符</strong>。所以：</p>
+
+<pre class="py"><code># 片段：一次读两个整数
+a, b = map(int, input().split())</code></pre>
+
+<p><code>map(int, ...)</code> 把每个片段转成整数；<code>split()</code> 无参数按任意空白切分。不写 <code>int()</code> 就会变成 <code>"1" + "2" == "12"</code> 这种"看不见的类型错误"。输入结束（EOF）时 <code>input()</code> 抛 <code>EOFError</code>，所以刷题时常用 <code>sys.stdin.read().split()</code> 一次性读完（第 17 章）。</p>
+
+<hr>
+
+<h2 id="s2-8">2.8 一个可以当模板的最小程序</h2>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch02_04_template.py</code></figcaption><pre class="py"><code>"""ch02_04_template.py —— 一个可以直接抄去用的最小程序模板"""
+import sys
+
+
+def solve(a: int, b: int) -&gt; int:
+    """返回两个整数之和。"""
+    return a + b
+
+
+def main() -&gt; None:
+    data = sys.stdin.read().split()
+    if not data:                    # 没有输入时走演示分支，方便直接运行
+        print("没有输入，走演示分支")
+        print(solve(1, 2))
+        return
+    a, b = int(data[0]), int(data[1])
+    print(solve(a, b))
+
+
+if __name__ == "__main__":
+    main()</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>没有输入，走演示分支
+3</code></pre></div></figure>
+
+<p>四个要点：<strong>读入集中在一个函数</strong>（<code>main</code>）、<strong>计算集中在另一个函数</strong>（<code>solve</code>，方便单独测试）、<strong>守卫保证导入无副作用</strong>、<strong>没有全局变量</strong>。这个形状可以套用到任何一题。</p>
+
+<hr>
+
+<h2 id="s2-9">2.9 与 C++ 的差别</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>维度</th>
+<th>C++</th>
+<th>Python</th>
+</tr></thead>
+<tbody>
+<tr><td>块的边界</td><td><code>{}</code></td><td>缩进（4 空格）</td></tr>
+<tr><td>语句结束</td><td><code>;</code> 必需</td><td>换行即可，<code>;</code> 只能压行</td></tr>
+<tr><td>缩进错了</td><td>只是难看，编译照过</td><td><code>IndentationError</code>，编译不通过</td></tr>
+<tr><td>长行换行</td><td>自由，编译器不管</td><td>括号内自由；反斜杠必须行尾无字符</td></tr>
+<tr><td>注释</td><td><code>//</code>、<code>/* */</code></td><td><code>#</code>（无块注释，用 <code>"""</code> 字符串代替）</td></tr>
+<tr><td>文档</td><td>注释或 Doxygen</td><td>docstring 挂在 <code>__doc__</code>，<code>help()</code> 可读</td></tr>
+<tr><td>空块</td><td><code>{}</code> 或 <code>;</code></td><td><code>pass</code></td></tr>
+<tr><td>程序入口</td><td><code>int main()</code> 固定</td><td>无入口，自上而下执行；约定 <code>main()</code> + 守卫</td></tr>
+</tbody>
+</table>
+</div>
+
+<hr>
+
+<h2 id="s2-10">2.10 易错点清单</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>现象</th>
+<th>原因</th>
+<th>一行修复</th>
+</tr></thead>
+<tbody>
+<tr><td><code>IndentationError: expected an indented block after 'if' statement</code></td><td>冒号后没有缩进</td><td>冒号下一行缩进 4 空格</td></tr>
+<tr><td><code>IndentationError: unexpected indent</code></td><td>没有头部却缩进了</td><td>检查是否多了一层缩进</td></tr>
+<tr><td><code>IndentationError: unindent does not match any outer indentation level</code></td><td>减缩进时没退回任何已有层级</td><td>对齐到某个已有的层级</td></tr>
+<tr><td><code>TabError: inconsistent use of tabs and spaces</code></td><td>Tab 与空格混用</td><td>全文件替换为 4 空格</td></tr>
+<tr><td><code>SyntaxError</code> 指向的行看着没问题</td><td>真正的问题在上一行（少 <code>:</code>、括号未闭合）</td><td>检查上一行</td></tr>
+<tr><td>反斜杠续行后报 <code>SyntaxError</code></td><td><code>\</code> 后面有空格或注释</td><td>删掉 <code>\</code> 后的所有字符，或改用括号</td></tr>
+<tr><td><code>int(input())</code> 遇到空行崩</td><td><code>input()</code> 返回 <code>""</code>，<code>int("")</code> 抛 <code>ValueError</code></td><td>先判空，或改用 <code>sys.stdin.read().split()</code></td></tr>
+<tr><td>输出多了一个空行 / 少了换行</td><td><code>print</code> 默认 <code>end="\n"</code>，与 <code>end=""</code> 混用</td><td>统一约定结尾换行</td></tr>
+<tr><td>中文注释乱码</td><td>文件不是 UTF-8 存的</td><td>编辑器另存为 UTF-8（无 BOM）</td></tr>
+<tr><td>复制来的代码报 <code>SyntaxError: invalid syntax. Is this intended to be part of the string?</code></td><td>字符串里用了同种引号嵌套</td><td>外层用单引号或转义</td></tr>
+</tbody>
+</table>
+</div>
+
+<hr>
+
+<h2 id="s2-11">2.11 练习</h2>
+
+<p><strong>1.（缩进判断）</strong> 下面这段代码会报什么错？为什么？动手验证。</p>
+
+<pre class="py"><code>def f():
+    if True:
+        print("a")
+      print("b")</code></pre>
+
+<p>验收：能说出错误类型、原因，并给出两种正确写法（对齐到 <code>if</code> 层或 <code>print("a")</code> 层）。</p>
+
+<p><strong>2.（续行）</strong> 把下面这行改写成用隐式续行的漂亮写法（每行不超过 40 字符）：</p>
+
+<pre class="py"><code>result = compute(alpha=1, beta=2, gamma=3, delta=4, epsilon=5)</code></pre>
+
+<p>验收：<code>python -c "compile(open('x.py').read(), 'x', 'exec')"</code> 不报错，且行尾没有反斜杠。</p>
+
+<p><strong>3.（docstring）</strong> 给 <code>ch02_04_template.py</code> 的 <code>solve</code> 补一段 docstring，说明参数、返回值、异常情况，然后用 <code>help()</code> 打印出来。</p>
+
+<p>验收：<code>help(solve)</code> 能看到完整说明，且 <code>solve.__doc__</code> 非空。</p>
+
+<p><strong>4.（变式）</strong> 写 <code>greet()</code>：不接收参数时返回 <code>"你好"</code>，接收一个名字时返回 <code>"你好，X"</code>（X 是传入的名字）。用两种方式实现：一次用两个 <code>def</code> 重载式写法，一次用默认参数。</p>
+
+<p>验收：<code>greet()</code> 得 <code>"你好"</code>，<code>greet("小明")</code> 得 <code>"你好，小明"</code>，并说明为什么 Python 不能像 C++ 那样写两个同名 <code>greet</code>。</p>
+
+<p><strong>5.（挑战）</strong> 实现一个"安全的读入"函数 <code>read_ints()</code>：从标准输入读到 EOF，返回所有整数的列表，忽略空白行，遇到非整数时<strong>跳过该行并在 stderr 打印警告</strong>。</p>
+
+<p>验收：输入 <code>1 2\n\nabc\n3\n</code> 时返回 <code>[1, 2, 3]</code>，且 stderr 出现一条含 <code>abc</code> 的警告；直接运行无输入时返回 <code>[]</code> 不崩溃。</p>
+
+<hr>
+
+<h2 id="s2-12">2.12 小结</h2>
+
+<ol><li><strong>缩进就是语法</strong>：冒号开块、同级缩进必须一致、减缩进表示出块；缩进错了是 <code>SyntaxError</code> 家族，不是格式警告。</li><li><strong>长行优先用括号隐式续行</strong>，反斜杠只在没别的办法时用；注释用 <code>#</code>，接口说明用 docstring。</li><li><strong><code>print</code> 有 <code>sep</code>/<code>end</code>，<code>input()</code> 永远返回字符串</strong>；一个"读入函数 + 计算函数 + 守卫"的模板能套所有题。</li></ol>
+
+<p>下一章处理最常见的语义差异：<strong>变量到底是什么</strong>——为什么 <code>b = a</code> 之后改 <code>b</code> 会连带改掉 <code>a</code>。</p>
+
+    
+
+    </article>
+    <!-- ==================== 正文结束 ==================== -->
+
+    <div data-learn-pager></div>
+
+    <footer class="acm-footer" style="margin-top:34px;border-radius:14px;padding:20px 22px">
+      <div class="acm-footer-inner">
+        <div>
+          <p><b>Python 语法教程</b> · 编程学习站的一部分。</p>
+          <p class="acm-tiny">配色与深浅色跟随<a href="../../index.html">校园主页</a>；顶部右侧按钮可切换。</p>
+        </div>
+        <div class="acm-footer-links">
+          <a href="./index.html">章节目录</a>
+          <a href="../index.html">编程学习首页</a>
+          <a href="../study.html">C++ 资料</a>
+          <a href="../practice.html">C++ 题练场</a>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+
+  <div class="learn-rail"><div data-learn-toc></div></div>
+</div>
+
+<script src="../../js/learn-nav.js"></script>
+<script src="../../js/learn-shell.js"></script>
+<script src="../../js/learn-code.js"></script>
+<script>
+/* 顶部导航滚动态 + 主题切换（与 C++ 两个页面同一套逻辑，每页一份，不依赖外链） */
+(function () {
+  'use strict';
+  var root = document.documentElement, nav = document.getElementById('acmNav');
+  if (nav) {
+    var onScroll = function () { nav.classList.toggle('stuck', (window.scrollY || 0) > 8); };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+  var ico = document.querySelector('#themeIco use');
+  function paint() {
+    if (ico) { ico.setAttribute('href', root.getAttribute('data-theme') === 'dark' ? '#i-sun' : '#i-moon'); }
+  }
+  paint();
+  var btn = document.getElementById('themeBtn');
+  if (btn) {
+    btn.addEventListener('click', function () {
+      var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      root.setAttribute('data-mode', next);
+      try { localStorage.setItem('cw.theme', JSON.stringify(next)); } catch (e) { }
+      paint();
+    });
+  }
+})();
+</script>
+</body>
+</html>

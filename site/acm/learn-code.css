@@ -1,0 +1,237 @@
+/* ==========================================================================
+   learn-code.css — 教程代码块的高亮外观层
+   --------------------------------------------------------------------------
+   配合 site/js/learn-code.js 使用。只作用于 <article data-learn-content> 内部，
+   不碰侧栏 / 目录 / 进度（那些归 learn.css + learn-shell.js）。
+
+   设计取舍（为什么代码块在浅色主题下也是深色）：
+     · 参考站 leeyin.xyz/acm 的教程页把代码画布做成"深墨色 + 双色语法"，
+       阅读时视觉重心一直落在代码上；
+     · 浅色卡片里塞浅灰代码块，长段 Python 会糊成一片，对比度不够。
+   想还原浅色：只改下面 .lc-code 的 background / border-color 三个值即可，
+   语法配色本来就按深底调过，不建议单独换。
+
+   结构（learn-code.js 注入）：
+     <div class="lc-code" data-lang="python">
+       <div class="lc-head"><span class="lc-lang">Python</span></div>
+       <pre class="py"><code>…</code></pre>
+       <pre class="out lc-out">…</pre>        ← 紧跟的输出块会并进同一张卡
+     </div>
+     <figure class="code lc-dark">…</figure>    ← 渲染器已经生成的带文件名块，只加语言角标
+   ========================================================================== */
+
+/* ---------- 1. 卡片外壳 ---------- */
+[data-learn-content] .lc-code,
+[data-learn-content] figure.code.lc-dark {
+  position: relative;
+  margin: 18px 0;
+  border: 1px solid #1d2b3f;
+  border-radius: 14px;
+  background: #0b1220;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgb(9 15 26 / .18), inset 0 1px 0 rgb(255 255 255 / .03);
+}
+
+/* 带文件名的 figure：标题条跟着变深在下面统一处理 */
+
+[data-learn-content] .lc-code > pre {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #d7e3f6;
+  padding: 13px 16px 15px;
+  font-size: 13px;
+  line-height: 1.76;
+  overflow: auto;
+}
+
+[data-learn-content] .lc-code > pre:first-of-type { padding-top: 12px; }
+
+/* 输出块并进同一张卡时：上方一条细分割线 + 压暗 */
+[data-learn-content] .lc-code > pre.lc-out {
+  border-top: 1px dashed rgb(122 155 198 / .22);
+  color: #9fb2cc;
+  padding-top: 11px;
+  padding-bottom: 13px;
+}
+[data-learn-content] .lc-code > pre.lc-out code,
+[data-learn-content] .lc-code > pre.lc-out i { color: #9fb2cc; }
+
+/* 带文件名的块里，输出块同样接在代码后面 */
+[data-learn-content] figure.code.lc-dark > pre.lc-out {
+  margin: 0;
+  border: 0;
+  border-top: 1px dashed rgb(122 155 198 / .22);
+  background: transparent;
+  color: #9fb2cc;
+  padding: 11px 16px 13px;
+}
+[data-learn-content] figure.code.lc-dark > pre.lc-out code,
+[data-learn-content] figure.code.lc-dark > pre.lc-out i { color: #9fb2cc; }
+
+/* 复制按钮挪进标题条之后不再需要顶部留白 */
+[data-learn-content] .lc-code > pre.has-copy,
+[data-learn-content] figure.code.lc-dark > pre.has-copy { padding-top: 13px; }
+[data-learn-content] figure.code.lc-dark > pre.lc-out.has-copy { padding-top: 11px; }
+
+/* 渲染器自带的 .out-wrap（含「运行输出」小标题）并进卡里时的深底配色 */
+[data-learn-content] .lc-code > .out-wrap,
+[data-learn-content] figure.code.lc-dark > .out-wrap {
+  border-top: 1px dashed rgb(122 155 198 / .22);
+  background: transparent;
+}
+[data-learn-content] .lc-code .out-wrap .out-lbl,
+[data-learn-content] figure.code.lc-dark .out-wrap .out-lbl {
+  color: #7d90a8;
+  padding: 9px 16px 0;
+}
+[data-learn-content] .lc-code .out-wrap > pre,
+[data-learn-content] figure.code.lc-dark .out-wrap > pre {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #9fb2cc;
+  padding: 3px 16px 13px;
+  font-size: 13px;
+  line-height: 1.72;
+  overflow: auto;
+}
+[data-learn-content] .lc-code .out-wrap > pre code,
+[data-learn-content] .lc-code .out-wrap > pre i,
+[data-learn-content] figure.code.lc-dark .out-wrap > pre code,
+[data-learn-content] figure.code.lc-dark .out-wrap > pre i { color: #9fb2cc; }
+[data-learn-content] .lc-code > .out-wrap:first-of-type { border-top: 0; }
+
+/* 滚动条：深底专用，避免默认亮条扎眼 */
+[data-learn-content] .lc-code > pre::-webkit-scrollbar { height: 9px; }
+[data-learn-content] .lc-code > pre::-webkit-scrollbar-thumb {
+  background: rgb(122 155 198 / .3);
+  border-radius: 99px;
+}
+
+/* ---------- 2. 语言角标 ---------- */
+[data-learn-content] .lc-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px 7px;
+  border-bottom: 1px solid rgb(122 155 198 / .16);
+  background: linear-gradient(180deg, rgb(30 45 66 / .68), rgb(13 21 34 / .30));
+}
+
+[data-learn-content] .lc-lang {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 650 10.5px/1 var(--font-mono, ui-monospace, "Cascadia Code", Consolas, monospace);
+  letter-spacing: .10em;
+  text-transform: uppercase;
+  color: #8fa8c8;
+}
+
+/* 语言色点：Python 双色（蓝+黄）、C++ 蓝、Shell 绿、输出灰 */
+[data-learn-content] .lc-lang::before {
+  content: "";
+  width: 9px; height: 9px;
+  border-radius: 3px;
+  background: linear-gradient(135deg, #6ea8f7 0 50%, #f6c76b 50% 100%);
+}
+[data-learn-content] [data-lang="cpp"] .lc-lang::before { background: #6aa9ff; }
+[data-learn-content] [data-lang="shell"] .lc-lang::before { background: #6ee7b7; }
+[data-learn-content] [data-lang="out"] .lc-lang::before { background: #7d90a8; }
+[data-learn-content] [data-lang="text"] .lc-lang::before { background: #7d90a8; }
+
+/* 带文件名的那种块（figure.code）只挂一个右上角角标 */
+[data-learn-content] figure.code.lc-dark {
+  border-color: #1d2b3f;
+  background: #0b1220;
+}
+[data-learn-content] figure.code.lc-dark .code-src {
+  color: #8fa8c8;
+  border-bottom-color: rgb(122 155 198 / .16);
+  background: linear-gradient(180deg, rgb(30 45 66 / .68), rgb(13 21 34 / .30));
+}
+[data-learn-content] figure.code.lc-dark .code-src code { color: #a9c2e2; }
+[data-learn-content] figure.code.lc-dark > pre {
+  margin: 0; border: 0; border-radius: 0;
+  background: transparent; color: #d7e3f6;
+  padding: 13px 16px 15px;
+}
+
+/* 复制按钮：从 pre 里挪进标题条后，不能再靠 pre:hover 显形（父元素已经换人），
+   亮色底上那套白底灰字在深色标题条里等于隐形，这里按深底重给一遍 */
+[data-learn-content] .lc-head .code-copy,
+[data-learn-content] figure.code.lc-dark .code-src .code-copy,
+[data-learn-content] figure.code.lc-dark > pre .code-copy {
+  position: static;
+  opacity: 1;
+  margin-left: auto;
+  padding: 3px 9px;
+  border: 1px solid rgb(122 155 198 / .3);
+  border-radius: 7px;
+  background: rgb(255 255 255 / .06);
+  color: #aebfd8;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 650;
+  cursor: pointer;
+}
+[data-learn-content] figure.code.lc-dark .code-src .code-copy {
+  float: right;
+  margin-left: 10px;
+}
+[data-learn-content] .lc-head .code-copy:hover,
+[data-learn-content] figure.code.lc-dark .code-src .code-copy:hover,
+[data-learn-content] figure.code.lc-dark > pre .code-copy:hover {
+  color: #fff;
+  border-color: #6ea8f7;
+  background: rgb(110 168 247 / .18);
+}
+[data-learn-content] .lc-head .code-copy.done,
+[data-learn-content] figure.code.lc-dark .code-src .code-copy.done,
+[data-learn-content] figure.code.lc-dark > pre .code-copy.done {
+  color: #7ee2b8;
+  border-color: rgb(126 226 184 / .5);
+  opacity: 1;
+}
+
+/* ---------- 3. 语法配色（为深底调过，浅色主题下同样生效） ---------- */
+[data-learn-content] .lc-code i,
+[data-learn-content] figure.code.lc-dark i {
+  font-style: normal;                  /* 斜体等宽字体没有中文字形，串里的中文会变成方块 */
+  font-family: inherit;
+}
+
+[data-learn-content] .cm { color: #6f8299; }                     /* 注释 */
+[data-learn-content] .st,
+[data-learn-content] .st2 { color: #a8dd8c; }                    /* 字符串 */
+[data-learn-content] .nm { color: #f2a86b; }                     /* 数字 */
+[data-learn-content] .kw { color: #7fa9f7; }                     /* 关键字 */
+[data-learn-content] .bi { color: #4fd1c5; }                     /* 内置名 */
+[data-learn-content] .fn { color: #c9a7f7; }                     /* 函数调用 */
+[data-learn-content] .dc { color: #e8b76a; }                     /* 装饰器 */
+[data-learn-content] .at { color: #e8b76a; }                     /* 预处理 / 注解 */
+
+/* REPL 提示符：压暗到"这是提示不是代码"的程度 */
+[data-learn-content] .lc-p { color: #587091; }
+/* REPL 与输出块里未高亮的部分 */
+[data-learn-content] .out,
+[data-learn-content] .out code { color: #9fb2cc; }
+
+/* ---------- 4. 窄屏 ---------- */
+@media (max-width: 620px) {
+  [data-learn-content] .lc-code {
+    margin-left: -2px;
+    margin-right: -2px;
+    border-radius: 12px;
+  }
+  [data-learn-content] .lc-code > pre,
+  [data-learn-content] figure.code.lc-dark > pre {
+    font-size: 12.4px;
+    padding-left: 13px;
+    padding-right: 13px;
+  }
+  [data-learn-content] .lc-head { padding: 7px 12px 6px; }
+}

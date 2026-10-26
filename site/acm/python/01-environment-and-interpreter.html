@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light" data-mode="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Python 程序先被编译成字节码（.pyc），再由虚拟机循环执行——它不是&quot;边读边执行&quot;的脚本，也不是 C++ 那种&quot;编译成机器码再运行&quot;的二进制。理解这一层，你就知道 SyntaxError 为什么在程序跑起来之前就出现，也知道 .pyc 和 __pycache__ 是谁生成的。">
+<meta name="theme-color" content="#2563eb">
+<meta name="color-scheme" content="light dark">
+<title>第 1 章 · 环境与解释器 · Python 语法教程 · 编程学习</title>
+<script src="../../js/boot.js"></script>
+<script>try{var _t=document.documentElement.getAttribute('data-theme')||'light';document.documentElement.setAttribute('data-mode',_t);}catch(e){}</script>
+<link rel="stylesheet" href="../acm.css">
+<link rel="stylesheet" href="../learn.css">
+<link rel="stylesheet" href="../learn-code.css">
+</head>
+<body data-learn-page="py-01">
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;overflow:hidden">
+  <symbol id="i-graduation" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8.6 12 4.2l9.5 4.4L12 13 2.5 8.6Z"/><path d="M6.2 10.9V16c0 1.4 2.6 2.6 5.8 2.6s5.8-1.2 5.8-2.6v-5.1"/><path d="M21.5 9.4v5.2"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.6 12 3.8l8.5 6.8V20a1 1 0 0 1-1 1h-4.2v-6.2H8.7V21H4.5a1 1 0 0 1-1-1z"/></symbol>
+</svg>
+
+<header class="acm-nav" id="acmNav">
+  <div class="acm-wrap acm-nav-inner">
+    <a class="acm-brand" href="../index.html" title="回到编程学习首页">
+      <span class="acm-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-graduation"/></svg></span>
+      <span class="acm-brand-text"><strong>编程学习</strong><small>C++ · Python</small></span>
+    </a>
+    <nav class="acm-tabs" aria-label="编程学习站页面">
+      <a href="../index.html">首页</a>
+      <a href="../study.html">C++ 资料</a>
+      <a href="../practice.html">C++ 题练场</a>
+      <a href="./index.html" class="on" aria-current="page">Python</a>
+    </nav>
+    <div class="acm-nav-actions">
+      <button class="acm-btn acm-btn-icon" type="button" id="themeBtn" title="切换深色 / 浅色（全站共用）" aria-label="切换深色或浅色主题">
+        <svg class="ico" aria-hidden="true" id="themeIco"><use href="#i-moon"/></svg>
+      </button>
+      <a class="acm-btn" href="../../index.html" title="返回校园主页">
+        <svg class="ico" aria-hidden="true"><use href="#i-home"/></svg><span class="label">回主页</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<div class="learn-layout">
+
+  <!-- 窄屏（≤900px）：侧栏换成顶部折叠块 -->
+  <details class="learn-mobnav">
+    <summary>站点导航 · C++ / Python</summary>
+    <div data-learn-sidebar data-compact="1"></div>
+  </details>
+
+  <aside class="learn-aside"><div data-learn-sidebar></div></aside>
+
+  <main class="learn-main">
+
+    <div data-learn-crumb></div>
+
+    <header class="learn-head">
+      <h1 id="learnTitle">第 1 章 · 环境与解释器</h1>
+      <p class="lead">Python 程序先被<strong>编译</strong>成字节码（<code>.pyc</code>），再由虚拟机循环执行——它不是"边读边执行"的脚本，也不是 C++ 那种"编译成机器码再运行"的二进制。理解这一层，你就知道 <code>SyntaxError</code> 为什么在程序跑起来之前就出现，也知道 <code>.pyc</code> 和 <code>__pycache__</code> 是谁生成的。</p>
+      <div class="learn-meta">
+        <span class="learn-chip py">Python 3</span>
+        <button class="learn-mark" type="button" data-learn-mark>标记为已读</button>
+      </div>
+    </header>
+
+    <!-- 窄屏（≤1180px）：右侧目录换到正文上面的折叠块 -->
+    <details class="learn-mobtoc" open>
+      <summary>本页目录</summary>
+      <div data-learn-toc></div>
+    </details>
+
+    <!-- ==================== 正文：只改这里 ==================== -->
+    <article data-learn-content>
+
+<p><strong>读完这一章你能做到</strong></p>
+
+<ul><li>在 Windows / macOS / Linux 上装好 3.10+ 的 Python，并用一条命令确认版本与解释器路径；</li><li>区分 <code>python x.py</code>、<code>python -c</code>、<code>python -m</code> 三种运行方式各自适合什么场景；</li><li>解释 <code>if __name__ == "__main__":</code> 到底在判断什么；</li><li>分得清"编译期错误"和"运行期错误"，遇到 <code>SyntaxError</code> 不再怀疑逻辑；</li><li>说出 <code>.pyc</code> 什么时候生成、为什么删了也没事。</li></ul>
+
+<hr>
+
+<h2 id="s1-1">1.1 一次运行到底发生了什么</h2>
+
+<p>执行 <code>python hello.py</code>，CPython 做的事分四步：</p>
+
+<ol><li><strong>读源码</strong>，按 UTF-8 解码成文本；</li><li><strong>编译</strong>成字节码（一种给虚拟机看的中间指令），语法错误在这一步抛出 <code>SyntaxError</code>；</li><li><strong>缓存</strong>字节码到同目录的 <code>__pycache__/hello.cpython-314.pyc</code>（只有被 <code>import</code> 的模块才会缓存，直接运行的主脚本不缓存）；</li><li><strong>执行</strong>字节码——一个 <code>while</code> 循环不断取下一条指令，操作各种对象。</li></ol>
+
+<p>对比 C++：<code>g++</code> 把源码变成 <code>hello.exe</code> 机器码，CPU 直接执行；Python 把源码变成字节码，由解释器"代为执行"。所以 Python <strong>没有独立的编译步骤</strong>，但也<strong>不是</strong>逐行解释——第 2 步是一次性完成的，语法错误会在任何一行执行之前全部报出来。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import sys
+&gt;&gt;&gt; sys.version_info.major
+3
+&gt;&gt;&gt; type(sys)
+&lt;class 'module'&gt;
+&gt;&gt;&gt; sys.maxsize
+9223372036854775807</code></pre>
+
+<p><code>sys.maxsize</code> 在 64 位机器上恒为 <code>2**63 - 1</code>，这是 <code>list</code> 索引、<code>len()</code> 能表达的整数上限——不是 Python 整数的上限（Python 的 <code>int</code> 没有上限，见第 03 章）。</p>
+
+<hr>
+
+<h2 id="s1-2">1.2 装好并确认版本</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>平台</th>
+<th>推荐做法</th>
+</tr></thead>
+<tbody>
+<tr><td>Windows</td><td>官网安装包（勾选 <strong>Add python.exe to PATH</strong>），或 <code>winget install Python.Python.3.12</code>；多版本用 <code>py -0p</code> 列出、<code>py -3.12 x.py</code> 指定</td></tr>
+<tr><td>macOS</td><td><code>brew install python@3.12</code>（别动系统自带的 <code>/usr/bin/python3</code>）</td></tr>
+<tr><td>Linux</td><td><code>sudo apt install python3 python3-venv python3-pip</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>三条命令确认你装对了：</p>
+
+<pre class="shell"><code>python --version          # 期望 Python 3.10 以上
+python -c "import sys; print(sys.executable)"   # 打印解释器绝对路径
+py -0p                    # Windows 专有：列出所有已安装版本及路径</code></pre>
+
+<p><strong>为什么必须 3.10+</strong>：本书用到 <code>match</code> 语句（3.10）、<code>X | None</code> 类型写法（3.10）、<code>itertools.batched</code>（3.12）。用 3.8 跑会直接 <code>SyntaxError</code>，而且报错位置往往离真正的问题很远。</p>
+
+<p><code>sys.executable</code> 值得记住：它告诉你<strong>当前这个程序用的到底是哪个 Python</strong>。新手 90% 的"装了包装不上/模块找不到"都是因为 <code>pip</code> 和 <code>python</code> 指向了两个不同的解释器。</p>
+
+<hr>
+
+<h2 id="s1-3">1.3 REPL 是最快的草稿纸</h2>
+
+<p>不带参数运行 <code>python</code> 进入交互式环境（REPL：读入—求值—打印—循环）：</p>
+
+<pre class="out"><code>&gt;&gt;&gt; 1 + 2
+3
+&gt;&gt;&gt; _ * 10          # _ 保存上一次的结果
+30
+&gt;&gt;&gt; for i in range(3):
+...     print(i)    # 需要缩进的块，用空行结束
+...
+0
+1
+2
+&gt;&gt;&gt; exit()          # 或 Ctrl-Z 回车（Windows）、Ctrl-D（macOS/Linux）</code></pre>
+
+<p>三个必须养成的习惯：</p>
+
+<ul><li>想验证"这行代码到底返回什么"时，<strong>先开 REPL</strong>，别急着写文件跑；</li><li>遇到看不懂的对象，<code>dir(obj)</code> 看它有什么方法，<code>help(obj.method)</code> 看文档；</li><li>REPL 里 <code>_</code> 是上一次的结果，调试时常用来接着算。</li></ul>
+
+<p>REPL 的局限：不能保存、不能断点、多行块容易敲错。<strong>超过 5 行就该建文件</strong>。</p>
+
+<hr>
+
+<h2 id="s1-4">1.4 三种运行方式</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>方式</th>
+<th>命令</th>
+<th>适用场景</th>
+</tr></thead>
+<tbody>
+<tr><td>跑文件</td><td><code>python main.py</code></td><td>正常开发、提交判题</td></tr>
+<tr><td>跑一行</td><td><code>python -c "print(6*7)"</code></td><td>验证环境、临时计算</td></tr>
+<tr><td>跑模块</td><td><code>python -m http.server 8000</code></td><td>运行"以模块形式提供入口"的工具，<code>-m</code> 会把它当模块导入，<code>sys.path[0]</code> 是当前目录而不是模块目录</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><code>-m</code> 是新手最陌生也最有用的一种：<code>python -m venv .venv</code>、<code>python -m pip install x</code>、<code>python -m json.tool</code>、<code>python -m pdb x.py</code>、<code>python -m timeit</code>。<strong>凡是有模块入口的工具，都应该用 <code>-m</code> 调用</strong>，这样能保证用的是"当前这个 Python 解释器"的模块，而不是 PATH 上另一个。</p>
+
+<pre class="pycon"><code>&gt;&gt;&gt; import subprocess, sys
+&gt;&gt;&gt; out = subprocess.run([sys.executable, "-c", "print(6*7)"], capture_output=True, text=True)
+&gt;&gt;&gt; out.stdout.strip()
+'42'
+&gt;&gt;&gt; out.returncode
+0</code></pre>
+
+<p>这里把 <code>sys.executable</code> 当成"当前解释器"传给子进程，是写脚本时最稳的做法——永远不要硬编码 <code>"python"</code>。</p>
+
+<hr>
+
+<h2 id="s1-5">1.5 脚本的身份：<code>__name__</code></h2>
+
+<p>同一个文件，<strong>直接运行</strong>和<strong>被导入</strong>是两种身份，区别只在 <code>__name__</code>：</p>
+
+<ul><li>直接运行：<code>__name__ == "__main__"</code></li><li>被导入：<code>__name__</code> 等于模块名（文件名去掉 <code>.py</code>）</li></ul>
+
+<p>这就是那句到处出现的 <code>if __name__ == "__main__":</code> 的全部含义——<strong>"我是被直接运行的，不是被导入的，可以执行主流程了"</strong>。</p>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch01_02_main_guard.py</code></figcaption><pre class="py"><code>"""ch01_02_main_guard.py —— 被直接运行 vs 被导入，同一个文件两种身份"""
+
+
+def main():
+    print("main() 开始工作")
+    print("这里的 __name__ =", __name__)
+
+
+if __name__ == "__main__":
+    main()</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>main() 开始工作
+这里的 __name__ = __main__</code></pre></div></figure>
+
+<p>直接运行它，<code>main()</code> 会被调用。现在换一个文件把它<strong>导入</strong>：</p>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch01_03_import_it.py</code></figcaption><pre class="py"><code>"""ch01_03_import_it.py —— 导入别人的模块：__name__ 变了，还有 .pyc"""
+import importlib.util
+from pathlib import Path
+
+here = Path(__file__).parent
+spec = importlib.util.spec_from_file_location("run_modes_demo", here / "ch01_02_main_guard.py")
+mod = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(mod)          # 导入时 main() 不会自动执行
+
+print("导入后，对方的 __name__ =", mod.__name__)
+mod.main()                            # 想跑就显式调用
+
+pyc = sorted(p.name for p in (here / "__pycache__").glob("ch01_02*"))
+print("导入产生了字节码缓存：", pyc)</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>导入后，对方的 __name__ = run_modes_demo
+main() 开始工作
+这里的 __name__ = run_modes_demo
+导入产生了字节码缓存： ['ch01_02_main_guard.cpython-314.pyc']</code></pre></div></figure>
+
+<p>两个结论一次拿到：<strong>导入不会触发主流程</strong>（守卫生效），<strong>导入会生成 <code>.pyc</code></strong>（缓存字节码，加速下次导入）。名字里的 <code>cpython-314</code> 是解释器标识 + 版本号，换版本就换文件名，所以多版本共存不会互相污染。</p>
+
+<hr>
+
+<h2 id="s1-6">1.6 编译期错误 vs 运行期错误</h2>
+
+<p>这是初学者最容易误判的一类问题：<strong>报错时间点不同，排查方向就不同</strong>。</p>
+
+<figure class="code"><figcaption class="code-src">示例 · <code>examples/ch01_01_interpreter.py</code></figcaption><pre class="py"><code>"""ch01_01_interpreter.py —— 解释器身份、编译期错误与运行期错误"""
+import platform
+import sys
+from pathlib import Path
+
+
+def add(a, b):
+    return a + b
+
+
+print("版本三元组：", sys.version_info[:3])
+print("实现：", platform.python_implementation())
+print("本文件运行时的 __name__：", __name__)
+print("sys.path[0] 指向脚本所在目录：", Path(sys.path[0]).name)
+
+print("--- 编译期就能发现的错 ---")
+try:
+    compile("def f(:\n    pass", "&lt;demo&gt;", "exec")
+except SyntaxError as e:
+    print("SyntaxError:", e.msg, "| 第", e.lineno, "行")
+
+print("--- 编译通过、执行到才炸的错 ---")
+try:
+    add(1, "2")
+except TypeError as e:
+    print("TypeError:", e)
+
+print("--- 另外两种运行方式，本质都是执行同一份字节码 ---")
+print(add(1, 2))</code></pre><div class="out-wrap"><div class="out-lbl">运行输出</div><pre class="out"><code>版本三元组： (3, 14, 7)
+实现： CPython
+本文件运行时的 __name__： __main__
+sys.path[0] 指向脚本所在目录： examples
+--- 编译期就能发现的错 ---
+SyntaxError: invalid syntax | 第 1 行
+--- 编译通过、执行到才炸的错 ---
+TypeError: unsupported operand type(s) for +: 'int' and 'str'
+--- 另外两种运行方式，本质都是执行同一份字节码 ---
+3</code></pre></div></figure>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>类型</th>
+<th>例子</th>
+<th>什么时候出现</th>
+<th>排查方向</th>
+</tr></thead>
+<tbody>
+<tr><td><code>SyntaxError</code> / <code>IndentationError</code> / <code>TabError</code></td><td>少冒号、括号没闭合、缩进不对</td><td>整个文件<strong>一行都没执行</strong>之前</td><td>看报错行与上一行，多半是上一行少了个 <code>:</code> 或 <code>)</code></td></tr>
+<tr><td><code>NameError</code></td><td>用了没定义的名字</td><td>执行到那一行时</td><td>拼写、作用域（第 14 章）</td></tr>
+<tr><td><code>TypeError</code> / <code>ValueError</code></td><td>类型不对、转换失败</td><td>执行到那一行时</td><td>打印入参的 <code>type()</code></td></tr>
+<tr><td><code>IndexError</code> / <code>KeyError</code></td><td>下标越界、键不存在</td><td>执行到那一行时</td><td>边界条件</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><code>SyntaxError</code> 有个特征：<strong>报错位置常常比真正的问题晚一行</strong>。比如 <code>if x == 1</code> 少了冒号，报错会指向下一行的 <code>print</code>。看到"莫名其妙的 <code>SyntaxError</code>"，先检查<strong>报错行和它上面一行</strong>。</p>
+
+<hr>
+
+<h2 id="s1-7">1.7 CPython 与 PyPy：什么时候该在意</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>实现</th>
+<th>特点</th>
+<th>适合</th>
+</tr></thead>
+<tbody>
+<tr><td>CPython</td><td>官方实现，C 写的，生态最全</td><td>默认选它，所有第三方库都以它为准</td></tr>
+<tr><td>PyPy</td><td>带 JIT，纯计算循环能快 3～10 倍</td><td>竞赛里被卡常数的纯 Python 大循环；但不支持部分 C 扩展</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>竞赛判题机几乎都是 CPython。当你在 CPython 上 TLE、而算法复杂度明明够时，去查两件事：是不是用了 <code>list</code> 的 <code>in</code>（O(n)）、是不是在循环里做字符串拼接（O(n²)）。换 PyPy 是最后手段，而且很多 OJ 不提供。</p>
+
+<hr>
+
+<h2 id="s1-8">1.8 与 C++ 的差别</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>维度</th>
+<th>C++</th>
+<th>Python</th>
+</tr></thead>
+<tbody>
+<tr><td>执行方式</td><td>编译成机器码，CPU 直接跑</td><td>编译成字节码，虚拟机循环执行</td></tr>
+<tr><td>构建步骤</td><td><code>g++ -o a a.cpp</code></td><td>无，<code>python a.py</code> 一步到底（<code>.pyc</code> 是自动缓存）</td></tr>
+<tr><td>语法检查时机</td><td>编译期</td><td>编译期（整个文件），但<strong>类型错误只能等运行时</strong></td></tr>
+<tr><td>入口</td><td>必须有 <code>main()</code></td><td>没有 <code>main</code>，语句按缩进顺序直接执行；约定写 <code>main()</code> + 守卫</td></tr>
+<tr><td>类型检查</td><td>静态、强制</td><td>动态、运行时；注解不参与检查（第 20 章）</td></tr>
+<tr><td>速度</td><td>快（1×）</td><td>慢（常见 10～100×），靠内置函数与库补</td></tr>
+<tr><td>编译产物</td><td><code>.exe</code> / <code>.o</code></td><td><code>__pycache__/*.pyc</code>，删掉会自动重建</td></tr>
+</tbody>
+</table>
+</div>
+
+<hr>
+
+<h2 id="s1-9">1.9 易错点清单</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>现象</th>
+<th>原因</th>
+<th>一行修复</th>
+</tr></thead>
+<tbody>
+<tr><td><code>'python' 不是内部或外部命令</code></td><td>安装时没勾 PATH</td><td>重装并勾选，或用 <code>py x.py</code></td></tr>
+<tr><td><code>pip install</code> 成功但 <code>import</code> 报 <code>ModuleNotFoundError</code></td><td><code>pip</code> 和 <code>python</code> 不是同一个解释器</td><td><code>python -m pip install 包名</code></td></tr>
+<tr><td>脚本名叫 <code>random.py</code> / <code>json.py</code>，导入标准库就崩</td><td>当前目录的 <code>sys.path[0]</code> 优先，遮蔽了标准库</td><td>改名，删掉同名 <code>.pyc</code></td></tr>
+<tr><td>双击 <code>.py</code> 窗口一闪而过</td><td>程序跑完就关闭</td><td>在终端里跑，或末尾 <code>input("按回车退出")</code></td></tr>
+<tr><td>输出中文变乱码</td><td>控制台代码页不是 UTF-8</td><td><code>chcp 65001</code>，或设 <code>PYTHONIOENCODING=utf-8</code></td></tr>
+<tr><td><code>python -m 模块</code> 报 <code>No module named</code></td><td><code>-m</code> 的搜索路径是当前目录，不是脚本目录</td><td>在项目根目录执行，或 <code>cd</code> 到正确位置</td></tr>
+<tr><td>改了代码但行为没变</td><td>跑的是另一个文件，或导入的是旧的 <code>.pyc</code></td><td>打印 <code>__file__</code> 确认在跑哪个文件</td></tr>
+<tr><td><code>SyntaxError</code> 指向的行看起来没问题</td><td>问题在上一行（少冒号、括号没闭合）</td><td>检查报错行的<strong>上一行</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<hr>
+
+<h2 id="s1-10">1.10 练习</h2>
+
+<p><strong>1.（环境自检）</strong> 写一个 <code>env.py</code>，打印三行：解释器版本三元组、实现名称、<code>sys.executable</code> 的<strong>文件名</strong>（不是全路径）。</p>
+
+<p>验收：形如 <code>(3, 12, 4)</code> / <code>CPython</code> / <code>python.exe</code>，且能在终端里用 <code>python env.py</code> 跑通。</p>
+
+<p><strong>2.（三种运行方式）</strong> 分别用 <code>python -c</code> 和 <code>python -m</code> 完成一件事：<code>-c</code> 算 <code>2**100</code> 的位数，<code>-m</code> 启动一个静态文件服务器（提示：<code>python -m http.server</code>）。</p>
+
+<p>验收：<code>-c</code> 输出 <code>31</code>；<code>-m</code> 能在浏览器打开 <code>http://localhost:8000</code>。</p>
+
+<p><strong>3.（守卫）</strong> 把练习 1 的 <code>env.py</code> 改成"既能直接运行打印环境，又能被其他文件导入后调用 <code>show()</code> 打印环境"。</p>
+
+<p>验收：<code>python env.py</code> 打印一次；另一个文件 <code>import env</code> 时不打印，调用 <code>env.show()</code> 才打印。</p>
+
+<p><strong>4.（变式）</strong> 故意写一个 <code>SyntaxError</code>（比如少一个右括号），观察报错的行号，再写一个 <code>TypeError</code>，比较两者出现时机。</p>
+
+<p>验收：能说清"前者一行都没执行，后者前面的 <code>print</code> 已经执行了"。</p>
+
+<p><strong>5.（挑战）</strong> 写 <code>run_once.py</code>：里面的 <code>main()</code> 会写一行日志到 <code>run.log</code>（追加模式）。要求无论被直接运行多少次、被导入多少次，<strong>每次进程只写一行</strong>。</p>
+
+<p>验收：<code>python run_once.py &amp;&amp; python run_once.py</code> 之后 <code>run.log</code> 恰好 2 行；被导入时不写。</p>
+
+<hr>
+
+<h2 id="s1-11">1.11 小结</h2>
+
+<ol><li><strong>Python 是"编译到字节码 + 虚拟机执行"</strong>：语法错误在运行前全部抛出，类型错误只能等执行到那一行。</li><li><strong><code>python</code>、<code>python -m</code>、<code>python -c</code> 是三种入口</strong>，装包一律用 <code>python -m pip</code> 保证解释器一致。</li><li><strong><code>if __name__ == "__main__":</code> 判断的是"我是不是主程序"</strong>，这是让文件既能跑又能被导入的唯一标准写法。</li></ol>
+
+<p>下一章进入 Python 最"冒犯"C++ 程序员的地方：<strong>缩进就是语法</strong>，以及由此带来的一整套排版规则。</p>
+
+    
+
+    </article>
+    <!-- ==================== 正文结束 ==================== -->
+
+    <div data-learn-pager></div>
+
+    <footer class="acm-footer" style="margin-top:34px;border-radius:14px;padding:20px 22px">
+      <div class="acm-footer-inner">
+        <div>
+          <p><b>Python 语法教程</b> · 编程学习站的一部分。</p>
+          <p class="acm-tiny">配色与深浅色跟随<a href="../../index.html">校园主页</a>；顶部右侧按钮可切换。</p>
+        </div>
+        <div class="acm-footer-links">
+          <a href="./index.html">章节目录</a>
+          <a href="../index.html">编程学习首页</a>
+          <a href="../study.html">C++ 资料</a>
+          <a href="../practice.html">C++ 题练场</a>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+
+  <div class="learn-rail"><div data-learn-toc></div></div>
+</div>
+
+<script src="../../js/learn-nav.js"></script>
+<script src="../../js/learn-shell.js"></script>
+<script src="../../js/learn-code.js"></script>
+<script>
+/* 顶部导航滚动态 + 主题切换（与 C++ 两个页面同一套逻辑，每页一份，不依赖外链） */
+(function () {
+  'use strict';
+  var root = document.documentElement, nav = document.getElementById('acmNav');
+  if (nav) {
+    var onScroll = function () { nav.classList.toggle('stuck', (window.scrollY || 0) > 8); };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+  var ico = document.querySelector('#themeIco use');
+  function paint() {
+    if (ico) { ico.setAttribute('href', root.getAttribute('data-theme') === 'dark' ? '#i-sun' : '#i-moon'); }
+  }
+  paint();
+  var btn = document.getElementById('themeBtn');
+  if (btn) {
+    btn.addEventListener('click', function () {
+      var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      root.setAttribute('data-mode', next);
+      try { localStorage.setItem('cw.theme', JSON.stringify(next)); } catch (e) { }
+      paint();
+    });
+  }
+})();
+</script>
+</body>
+</html>
