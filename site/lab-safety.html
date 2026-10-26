@@ -1,0 +1,1938 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>实验室安全学习手册 · 新材料与新能源学院题库</title>
+<style>
+:root{
+  --bg:#0e1116; --bg2:#131a22; --card:#161e28; --card2:#1b2430; --line:#243040;
+  --txt:#e7ecf3; --txt2:#c3ccd9; --sub:#8b99ab; --accent:#6ea8fe;
+  --ok:#34d399; --bad:#f87171; --warn:#fbbf24; --purple:#a78bfa; --pink:#f472b6; --cyan:#38bdf8;
+  --shadow:0 8px 24px rgba(0,0,0,.35);
+  --radius:14px;
+}
+html[data-theme="light"]{
+  --bg:#f4f7fb; --bg2:#ffffff; --card:#ffffff; --card2:#f7fafd; --line:#e3eaf3;
+  --txt:#131a24; --txt2:#2b3a4d; --sub:#5f7086; --accent:#2563eb;
+  --ok:#0f9d63; --bad:#dc2626; --warn:#b45309; --purple:#7c3aed; --pink:#db2777; --cyan:#0284c7;
+  --shadow:0 6px 20px rgba(20,40,70,.08);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--txt);
+  font-family:"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC",system-ui,-apple-system,sans-serif;
+  font-size:15px; line-height:1.7; -webkit-font-smoothing:antialiased;
+}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+button{font-family:inherit;font-size:inherit;cursor:pointer}
+
+/* ---------- layout ---------- */
+.layout{display:grid;grid-template-columns:272px minmax(0,1fr);min-height:100vh}
+.side{
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+  background:var(--bg2);border-right:1px solid var(--line);
+  padding:22px 16px 28px;display:flex;flex-direction:column;gap:18px;
+}
+.side::-webkit-scrollbar{width:8px}
+.side::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
+
+.brand{padding:0 6px}
+.brand h1{font-size:17px;margin:0 0 6px;letter-spacing:.3px;font-weight:700}
+.brand p{margin:0;font-size:12px;color:var(--sub);line-height:1.6}
+
+.prog-wrap{padding:0 6px}
+.prog-top{display:flex;justify-content:space-between;font-size:12px;color:var(--sub);margin-bottom:7px}
+.prog-top b{color:var(--txt);font-variant-numeric:tabular-nums}
+.bar{height:7px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar > i{display:block;height:100%;width:0;border-radius:99px;
+  background:linear-gradient(90deg,var(--accent),var(--cyan));transition:width .35s ease}
+
+.nav-title{font-size:11px;letter-spacing:.14em;color:var(--sub);padding:0 8px;text-transform:uppercase}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{
+  display:grid;grid-template-columns:22px 1fr auto;align-items:center;gap:8px;
+  padding:9px 10px;border-radius:10px;color:var(--txt2);font-size:13.5px;
+  border:1px solid transparent;transition:.15s;
+}
+.nav a:hover{background:var(--card);text-decoration:none;color:var(--txt)}
+.nav a.on{background:var(--card);border-color:var(--line);color:var(--txt)}
+.nav .k{font-size:11px;font-variant-numeric:tabular-nums;color:var(--sub);letter-spacing:.05em}
+.nav .n{font-size:11px;color:var(--sub);font-variant-numeric:tabular-nums}
+.nav .n.done{color:var(--ok)}
+.side-foot{margin-top:auto;font-size:11px;color:var(--sub);padding:0 6px;line-height:1.8}
+.side-foot .src{display:block;word-break:break-all;font-size:10px;color:var(--sub);opacity:.75}
+
+/* ---------- main ---------- */
+.main{min-width:0}
+.topbar{
+  position:sticky;top:0;z-index:30;display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+  padding:14px 26px;background:color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter:blur(14px);border-bottom:1px solid var(--line);
+}
+.search{position:relative;flex:1 1 240px;min-width:180px}
+.search input{
+  width:100%;padding:9px 12px 9px 34px;border-radius:10px;border:1px solid var(--line);
+  background:var(--card);color:var(--txt);font-size:13.5px;outline:none;transition:.15s;
+}
+.search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
+.search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);opacity:.55}
+.btn{
+  display:inline-flex;align-items:center;gap:6px;padding:9px 13px;border-radius:10px;
+  border:1px solid var(--line);background:var(--card);color:var(--txt2);font-size:13px;transition:.15s;
+}
+.btn:hover{color:var(--txt);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+.btn.on{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 55%,transparent);
+  background:color-mix(in srgb,var(--accent) 12%,var(--card))}
+.btn.primary{background:color-mix(in srgb,var(--accent) 16%,var(--card));color:var(--accent);
+  border-color:color-mix(in srgb,var(--accent) 45%,transparent)}
+.btn.ghost{background:transparent}
+
+.wrap{padding:26px 26px 80px;max-width:920px;margin:0 auto}
+
+/* hero */
+.hero{
+  border:1px solid var(--line);border-radius:var(--radius);padding:24px 26px;margin-bottom:26px;
+  background:
+    radial-gradient(700px 220px at 8% -30%, color-mix(in srgb,var(--accent) 22%,transparent), transparent),
+    var(--card);
+}
+.hero h2{margin:0 0 8px;font-size:22px;letter-spacing:.2px}
+.hero p{margin:0;color:var(--sub);font-size:13.5px;max-width:62ch}
+.stats{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.stat{flex:1 1 110px;border:1px solid var(--line);border-radius:11px;padding:10px 13px;background:var(--card2)}
+.stat b{display:block;font-size:19px;font-variant-numeric:tabular-nums;line-height:1.3}
+.stat span{font-size:11.5px;color:var(--sub)}
+.hint{margin-top:16px;font-size:12px;color:var(--sub)}
+.hint kbd{font-family:ui-monospace,Consolas,monospace;font-size:11px;padding:1px 6px;border:1px solid var(--line);
+  border-radius:5px;background:var(--card2);color:var(--txt2)}
+
+/* chapter */
+.chapter{margin:0 0 30px;scroll-margin-top:76px}
+.ch-head{display:flex;gap:14px;align-items:flex-start;padding:16px 18px;border-radius:var(--radius);
+  border:1px solid var(--line);background:var(--card);cursor:pointer;user-select:none;transition:.15s}
+.ch-head:hover{border-color:color-mix(in srgb,var(--c) 45%,var(--line))}
+.ch-num{font-size:13px;font-weight:700;letter-spacing:.06em;color:var(--c);
+  font-variant-numeric:tabular-nums;padding:3px 8px;border-radius:7px;
+  background:color-mix(in srgb,var(--c) 16%,transparent);line-height:1.5;flex:none;margin-top:2px}
+.ch-t{flex:1;min-width:0}
+.ch-t h2{margin:0;font-size:17.5px;letter-spacing:.2px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.ch-t h2 em{font-style:normal;font-size:11.5px;font-weight:500;color:var(--sub);
+  border:1px solid var(--line);border-radius:99px;padding:1px 8px}
+.ch-t p{margin:4px 0 0;font-size:12.5px;color:var(--sub)}
+.chev{color:var(--sub);transition:transform .2s;flex:none;margin-top:4px}
+.chapter.collapsed .chev{transform:rotate(-90deg)}
+.chapter.collapsed .ch-body{display:none}
+.ch-body{padding-top:14px}
+
+.tips{border:1px solid var(--line);border-left:3px solid var(--c);border-radius:10px;
+  background:var(--card2);padding:13px 16px;margin-bottom:16px}
+.tips h4{margin:0 0 7px;font-size:12px;letter-spacing:.1em;color:var(--c);font-weight:600}
+.tips ul{margin:0;padding-left:18px;color:var(--txt2);font-size:13px}
+.tips li{margin:4px 0}
+.tips b{color:var(--txt);font-weight:600}
+
+/* question */
+.q{
+  border:1px solid var(--line);border-radius:12px;background:var(--card);
+  padding:15px 17px 14px;margin-bottom:11px;transition:.18s;scroll-margin-top:80px;
+}
+.q:hover{border-color:color-mix(in srgb,var(--c) 32%,var(--line))}
+.q.flash{animation:flash 1.6s ease}
+@keyframes flash{0%,100%{box-shadow:0 0 0 0 rgba(0,0,0,0)}22%{box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 55%,transparent)}}
+.q-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:9px}
+.q-no{font-size:11.5px;color:var(--sub);font-variant-numeric:tabular-nums;letter-spacing:.05em}
+.tag{font-size:11px;padding:1px 8px;border-radius:99px;border:1px solid var(--line);color:var(--sub)}
+.tag.j{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 42%,transparent);
+  background:color-mix(in srgb,var(--warn) 12%,transparent)}
+.tag.c{color:var(--cyan);border-color:color-mix(in srgb,var(--cyan) 42%,transparent);
+  background:color-mix(in srgb,var(--cyan) 12%,transparent)}
+.tag.m{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 42%,transparent);
+  background:color-mix(in srgb,var(--ok) 12%,transparent);display:none}
+.q.mastered .tag.m{display:inline-block}
+.q-id{margin-left:auto;font-size:11px;color:var(--sub);opacity:.6;font-variant-numeric:tabular-nums}
+.stem{margin:0 0 11px;font-size:14.6px;color:var(--txt);line-height:1.75}
+.opts{display:flex;flex-direction:column;gap:7px}
+.opt{
+  display:flex;gap:9px;align-items:flex-start;text-align:left;width:100%;
+  padding:8px 11px;border-radius:9px;border:1px solid var(--line);background:var(--card2);
+  color:var(--txt2);font-size:13.8px;transition:.15s;line-height:1.6;
+}
+.opt:hover{border-color:color-mix(in srgb,var(--c) 40%,var(--line));color:var(--txt)}
+.opt .kk{flex:none;font-size:12px;font-weight:600;color:var(--sub);min-width:15px}
+.opt.correct{border-color:color-mix(in srgb,var(--ok) 62%,transparent);
+  background:color-mix(in srgb,var(--ok) 13%,var(--card2));color:var(--txt)}
+.opt.correct .kk{color:var(--ok)}
+.opt.wrong{border-color:color-mix(in srgb,var(--bad) 55%,transparent);
+  background:color-mix(in srgb,var(--bad) 11%,var(--card2))}
+.opt.wrong .kk{color:var(--bad)}
+.opts.judge{flex-direction:row}
+.opts.judge .opt{flex:1;justify-content:center}
+
+.q-foot{display:flex;align-items:center;gap:10px;margin-top:11px;flex-wrap:wrap;
+  padding-top:10px;border-top:1px dashed var(--line)}
+.ans{display:none;align-items:center;gap:8px;font-size:13px;color:var(--sub)}
+.ans b{color:var(--ok);font-size:14px;letter-spacing:.05em}
+.ans .lb{font-size:11px;letter-spacing:.08em;color:var(--sub)}
+.reveal{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:8px;
+  border:1px dashed var(--line);background:transparent;color:var(--sub);font-size:12px}
+.reveal:hover{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 45%,transparent)}
+.q.show-ans .ans{display:flex}
+.q.show-ans .reveal{display:none}
+.master{margin-left:auto;padding:5px 11px;border-radius:8px;border:1px solid var(--line);
+  background:transparent;color:var(--sub);font-size:12px;transition:.15s}
+.master:hover{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 45%,transparent)}
+.q.mastered .master{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 45%,transparent);
+  background:color-mix(in srgb,var(--ok) 10%,transparent)}
+.dup{font-size:11.5px;color:var(--warn);margin-top:8px;opacity:.85}
+
+/* answer sheet */
+.sheet{margin-top:34px;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--card)}
+.sheet summary{padding:14px 18px;cursor:pointer;font-size:14px;font-weight:600;list-style:none;
+  display:flex;align-items:center;gap:9px}
+.sheet summary::-webkit-details-marker{display:none}
+.sheet summary span{font-weight:400;font-size:12px;color:var(--sub)}
+.sheet-body{padding:0 18px 18px}
+.sheet h5{margin:14px 0 8px;font-size:12px;color:var(--c,var(--sub));letter-spacing:.08em}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:6px}
+.grid div{font-size:12px;color:var(--sub);padding:5px 8px;border-radius:7px;background:var(--card2);
+  border:1px solid var(--line);display:flex;justify-content:space-between;gap:6px}
+.grid b{color:var(--txt);font-variant-numeric:tabular-nums}
+.grid i{font-style:normal;color:var(--ok);font-weight:600}
+.grid i.no{color:var(--warn)}
+
+/* modal */
+.mask{position:fixed;inset:0;background:rgba(6,10,16,.72);backdrop-filter:blur(3px);
+  display:none;align-items:center;justify-content:center;z-index:80;padding:20px}
+.mask.on{display:flex}
+.modal{width:min(620px,100%);background:var(--bg2);border:1px solid var(--line);border-radius:16px;
+  box-shadow:var(--shadow);padding:22px 24px 18px;max-height:86vh;overflow:auto}
+.modal .m-head{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.modal .m-head h3{margin:0;font-size:15px}
+.modal .stem{font-size:15.5px;margin-bottom:14px}
+.modal .m-foot{display:flex;gap:10px;margin-top:16px;align-items:center}
+.fb{font-size:13px;margin-top:12px;display:none}
+.fb.on{display:block}
+.fb.y{color:var(--ok)} .fb.n{color:var(--bad)}
+
+.empty{text-align:center;color:var(--sub);padding:60px 20px;font-size:14px;display:none}
+.empty.on{display:block}
+
+/* scrollbar */
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--sub) 28%,transparent);border-radius:9px}
+::-webkit-scrollbar-track{background:transparent}
+
+@media (max-width:900px){
+  .layout{grid-template-columns:1fr}
+  .side{position:relative;height:auto;border-right:none;border-bottom:1px solid var(--line)}
+  .nav{flex-direction:row;overflow-x:auto;gap:6px;padding-bottom:4px}
+  .nav a{white-space:nowrap;grid-template-columns:auto auto}
+  .nav a .n{display:none}
+  .topbar{padding:12px 14px}
+  .wrap{padding:18px 14px 60px}
+  .hero{padding:18px}
+}
+@media print{
+  .side,.topbar,.reveal,.master,.mask{display:none!important}
+  .layout{display:block}
+  .wrap{max-width:none;padding:0}
+  .q{break-inside:avoid;border-color:#ccc}
+  .ans{display:flex!important}
+  .chapter.collapsed .ch-body{display:block}
+  body{background:#fff;color:#000}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="side">
+    <div class="brand">
+      <h1>实验室安全 · 学习手册</h1>
+      <p>深圳技术大学 实验室安全考试系统<br>新材料与新能源学院自制题库</p>
+    </div>
+
+    <div class="prog-wrap">
+      <div class="prog-top"><span>掌握进度</span><span><b id="pgText">0 / 113</b></span></div>
+      <div class="bar"><i id="pgBar"></i></div>
+    </div>
+
+    <div class="nav-title">章节目录</div>
+    <nav class="nav" id="nav"></nav>
+
+    <div class="side-foot">
+      <div>题库来源</div>
+      <a class="src" href="http://10.1.20.14/redir.php?catalog_id=6&tikubh=18186&cmd=learning" target="_blank" rel="noopener">判断题（70 题）</a>
+      <a class="src" href="http://10.1.20.14/redir.php?catalog_id=6&tikubh=18219&cmd=learning" target="_blank" rel="noopener">选择题（43 题）</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="search">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input id="q" type="search" placeholder="搜索题干或选项关键词…  按 / 聚焦">
+      </div>
+      <button class="btn" id="btnAns">显示全部答案</button>
+      <button class="btn" id="btnUnmastered">只看未掌握</button>
+      <button class="btn primary" id="btnQuiz">随机抽题</button>
+      <button class="btn ghost" id="btnTheme" title="切换主题">浅色</button>
+      <button class="btn ghost" id="btnPrint">打印</button>
+    </div>
+
+    <div class="wrap">
+      <section class="hero">
+        <h2>新材料与新能源学院 · 实验室安全题库</h2>
+        <p>本手册整合考试系统中「自制题库」的判断题与选择题，按知识领域重新编排为 <b id="chCount">6</b> 个章节，保留原题号与原答案，可直接用于考前通读与自测。</p>
+        <div class="stats">
+          <div class="stat"><b id="s1">113</b><span>题目总数</span></div>
+          <div class="stat"><b id="s2">70</b><span>判断题</span></div>
+          <div class="stat"><b id="s3">43</b><span>单项选择题</span></div>
+          <div class="stat"><b id="s4">0</b><span>已掌握</span></div>
+        </div>
+        <div class="hint">用法：点击选项即时判对错；<kbd>显示全部答案</kbd> 一键核对；标记「已掌握」后自动记录在本机，刷新不丢；<kbd>/</kbd> 搜索，<kbd>R</kbd> 随机抽题。</div>
+      </section>
+
+      <div id="chapters"></div>
+
+      <div class="empty" id="empty">没有匹配的题目，换个关键词试试。</div>
+
+      <details class="sheet">
+        <summary>答案速查表 <span>按题号对照，适合纸质打印</span></summary>
+        <div class="sheet-body" id="sheet"></div>
+      </details>
+    </div>
+  </main>
+</div>
+
+<div class="mask" id="mask">
+  <div class="modal">
+    <div class="m-head">
+      <h3>随机抽题</h3>
+      <span class="q-id" id="mId" style="margin-left:auto"></span>
+    </div>
+    <div id="mBody"></div>
+    <div class="fb" id="mFb"></div>
+    <div class="m-foot">
+      <button class="btn primary" id="mNext">换一题</button>
+      <button class="btn ghost" id="mShow">看答案</button>
+      <button class="btn ghost" id="mClose" style="margin-left:auto">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DATA = [
+{
+"id": "18187",
+"stem": "实验人员在使用激光类测量系统时是可以在不需要佩戴任何防护装置下直接操作的。",
+"options": [
+"对",
+"错"
+],
+"answer": "错误",
+"type": "judge",
+"cat": "laser"
+},
+{
+"id": "18188",
+"stem": "大型仪器使用中，应注意仪器设备的接地、电磁辐射、网络等安全事项，避免事故发生。",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "gen"
+},
+{
+"id": "18189",
+"stem": "遇到停电停水等情况，实验室人员必须检查电源和水源是否关闭 ，避免重新来电来水时发生相关安全事故。",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "elec"
+},
+{
+"id": "18190",
+"stem": "在使用大型仪器时，实验人员可以随意触碰仪器上的任何组件。",
+"options": [
+"对",
+"错"
+],
+"answer": "错误",
+"type": "judge",
+"cat": "gen"
+},
+{
+"id": "18191",
+"stem": "实验进行前要了解实验仪器的使用说明及注意事项，实验过程中要严格按照操作规程进行操作。",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "gen"
+},
+{
+"id": "18192",
+"stem": "接电路元器件时，主要应关注元器件的耐压和能承受的功率。",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "elec"
+},
+{
+"id": "18193",
+"stem": "烘箱、微波炉、电磁炉、饮水加热器、灭菌锅等高热能电器设备的放置地点应远离易燃、易爆物品。同时，规范操作，避免饮水加热器、灭菌锅等无水干烧。",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "elec"
+},
+{
+"id": "18194",
+"stem": "机械设备发生电气故障，应立即切断电源，通知电工修理。",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "elec",
+"dup": "18204"
+},
+{
+"id": "18195",
+"stem": "当运行中的电动机发生燃烧时，应立即将电动机电源切断，无二氧化碳、1211灭火器时，可用消火栓连接喷雾水枪灭火。",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "elec"
+},
+{
+"id": "18196",
+"stem": "严禁在电流互感器与短路端子之间的回路和导线上进行任何工作。",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "elec"
+},
+{
+"id": "18197",
+"stem": "在照明电路上可以不用安装漏电保护器。",
+"options": [
+"对",
+"错"
+],
+"answer": "错误",
+"type": "judge",
+"cat": "elec"
+},
+{
+"id": "18198",
+"stem": "实验室人员发生触电时，应迅速切断电源，将触电者上衣解开，取出口中异物，然后进性人工呼吸。当患者恢复呼吸时，应立即送医院。",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "elec"
+},
+{
+"id": "18199",
+"stem": "使用精密仪器时，必须严格按照操作规程进行操作，细心谨慎，避免因粗心大意而损坏仪器。如发现仪器有故障，应立即停止使用，报告教师，及时排除故障。使用后必须自觉填写登记本。",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "gen"
+},
+{
+"id": "18200",
+"stem": "一定强度的电场，磁场，电磁场都可能对人有损害。",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "elec"
+},
+{
+"id": "18201",
+"stem": "箱式电阻炉的使用必须确保安全用电，否则易发生人身安全事故。",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "elec"
+},
+{
+"id": "18202",
+"stem": "机械设备正常运转时，操作者可以短时离开工作岗位。",
+"options": [
+"对",
+"错"
+],
+"answer": "错误",
+"type": "judge",
+"cat": "mech"
+},
+{
+"id": "18203",
+"stem": "对于作旋转运动的零、部件应装设防护罩或防护挡板、防护栏杆等安全防护装置，以防发生绞伤。",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "mech"
+},
+{
+"id": "18204",
+"stem": "机械设备发生电气故障，应立即切断电源，通知电工修理。",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "elec",
+"dup": "18194"
+},
+{
+"id": "18205",
+"stem": "设备使用前先检查其性能、润滑，电气装置和防护装置是否正常，若有小故障，可先凑合使用，再停机检查。",
+"options": [
+"对",
+"错"
+],
+"answer": "错误",
+"type": "judge",
+"cat": "gen"
+},
+{
+"id": "18206",
+"stem": "脆性材料的硬度、弯曲、压缩及疲劳试验须加设防护装置。",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "mech"
+},
+{
+"id": "18207",
+"stem": "激光的个人防护可以使用防护眼罩和由防燃材料制成的长袖工作服。",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "laser"
+},
+{
+"id": "18208",
+"stem": "进行实验时，激光束的高度应该与人眼的高度相同，以便于观察。",
+"options": [
+"对",
+"错"
+],
+"answer": "错误",
+"type": "judge",
+"cat": "laser"
+},
+{
+"id": "18209",
+"stem": "一种型号的防护眼罩只对特定波长的激光都有很好的防护效果 。",
+"options": [
+"对",
+"错"
+],
+"answer": "错误",
+"type": "judge",
+"cat": "laser"
+},
+{
+"id": "18210",
+"stem": "在未测量激光功率之前可以直接将激光输入到光谱仪进行测量。",
+"options": [
+"对",
+"错"
+],
+"answer": "错误",
+"type": "judge",
+"cat": "laser"
+},
+{
+"id": "18211",
+"stem": "带光熔接光纤可确保熔接损耗降到最低",
+"options": [
+"对",
+"错"
+],
+"answer": "错误",
+"type": "judge",
+"cat": "laser"
+},
+{
+"id": "18212",
+"stem": "激光辐射可引起眼睛的角膜、晶状体、视网膜的损伤",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "laser"
+},
+{
+"id": "18213",
+"stem": "激光引起的生物损伤是通过在很小的区域积累热能或者光化学过程所造成的。红外、紫外和可见光的激光辐射都能够损伤到眼睛。",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "laser"
+},
+{
+"id": "18214",
+"stem": "在激光实验中，可以佩戴戒指、金属表带的手表和其它金属物品。",
+"options": [
+"对",
+"错"
+],
+"answer": "错误",
+"type": "judge",
+"cat": "laser"
+},
+{
+"id": "18215",
+"stem": "在调试或者使用激光的过程中，可用眼睛直视激光光束。",
+"options": [
+"对",
+"错"
+],
+"answer": "错误",
+"type": "judge",
+"cat": "laser"
+},
+{
+"id": "18216",
+"stem": "光路尽可能要布置在远高于或远低于人坐着或人站着观察时人眼的高度。激光器应该牢固固定，确保光束只沿着预定的路径传播。",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "laser"
+},
+{
+"id": "18217",
+"stem": "最大允许曝光量（MPE）：一个描述激光发光量的指标，人暴露在这个水平的激光之下时，眼睛或皮肤不产生有害效应或不良的生物变化。",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "laser"
+},
+{
+"id": "20552",
+"stem": "只要插线板质量符合要求，就可以随意串联很多个，不影响使用。",
+"options": [
+"对",
+"错"
+],
+"answer": "错误",
+"type": "judge",
+"cat": "elec"
+},
+{
+"id": "20553",
+"stem": "做试验时，关合刀闸应当尽量慢以保护设备。",
+"options": [
+"对",
+"错"
+],
+"answer": "错误",
+"type": "judge",
+"cat": "elec"
+},
+{
+"id": "20554",
+"stem": "动力配电箱的闸刀开关可以带负荷拉开。",
+"options": [
+"对",
+"错"
+],
+"answer": "错误",
+"type": "judge",
+"cat": "elec"
+},
+{
+"id": "20555",
+"stem": "在照明电路的零线上应该装设熔断器。",
+"options": [
+"对",
+"错"
+],
+"answer": "错误",
+"type": "judge",
+"cat": "elec"
+},
+{
+"id": "20556",
+"stem": "电炉、烘箱等用电设备在使用中，使用人员不得离开。",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "elec"
+},
+{
+"id": "20557",
+"stem": "发现有人触电，不能直接接触触电者，应用木棒或其它绝缘物将电源线挑开，使触电者脱离电源。",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "elec"
+},
+{
+"id": "20558",
+"stem": "使用电器时可以用两眼插头代替三眼插头。",
+"options": [
+"对",
+"错"
+],
+"answer": "错误",
+"type": "judge",
+"cat": "elec"
+},
+{
+"id": "20559",
+"stem": "接临时电源要用合格的电源线，电源插头、插座要安全可靠，损坏的不能使用，电源线接头要用绝缘胶布包好。",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "elec"
+},
+{
+"id": "20573",
+"stem": "为了保障安全，在放射化学实验室内的任何操作都必须带手套完成。",
+"options": [
+"对",
+"错"
+],
+"answer": "错误",
+"type": "judge",
+"cat": "chem"
+},
+{
+"id": "20574",
+"stem": "剧毒物品要按照“五双制”规定严格管理。“五双制”是指：双人保管、双锁、双账、双人领取、双人使用。",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "chem"
+},
+{
+"id": "20575",
+"stem": "购买剧毒物品要到校保卫处领取申请表，经批准后到化学品库领取。",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "chem"
+},
+{
+"id": "20576",
+"stem": "爆炸性混合物的危险性是由它的爆炸极限、传爆能力、引燃温度和最小点燃能量决定的。",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "chem"
+},
+{
+"id": "20577",
+"stem": "使用试管加热时，管口应朝向自己，以便看清楚反应过程。",
+"options": [
+"对",
+"错"
+],
+"answer": "错误",
+"type": "judge",
+"cat": "chem"
+},
+{
+"id": "20578",
+"stem": "反应中产生有害或刺激性气体时，应在通风柜内进行，加强个人防护，不得把头部伸进通风柜内。",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "chem"
+},
+{
+"id": "20579",
+"stem": "化学反应中产生有毒气体时，应设置气体吸收装置并做好个人防护。",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "chem"
+},
+{
+"id": "20588",
+"stem": "吊装坩埚需要穿劳保鞋，戴安全帽",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "sap"
+},
+{
+"id": "20589",
+"stem": "搬运蓝宝石晶体需要穿戴防割手套",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "sap"
+},
+{
+"id": "20590",
+"stem": "清洁粘接在坩埚壁的宝石结晶时候，需佩戴防护眼镜，防止玻璃碎屑溅入眼睛内",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "sap"
+},
+{
+"id": "20591",
+"stem": "宝石磨抛过程中，需要更换砂轮或者夹具时候，需停机后，待砂轮完全停转后再进行操作。",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "sap"
+},
+{
+"id": "20592",
+"stem": "清洁蓝宝石炉热场挥发物时候，需佩戴防尘口罩",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "sap"
+},
+{
+"id": "20593",
+"stem": "吊装热场或者坩埚过程中，吊臂下边严禁站人",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "sap"
+},
+{
+"id": "20594",
+"stem": "蓝宝石生长过程中，突然停电，水泵停止工作，需马上打开备用冷却水系统",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "sap"
+},
+{
+"id": "20595",
+"stem": "蓝宝石炉开机升温前，必须严格检查水管有无堵塞，水路是否正常。",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "sap"
+},
+{
+"id": "20596",
+"stem": "蓝宝石晶体生长实验室内禁止追逐嘻戏",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "sap"
+},
+{
+"id": "20597",
+"stem": "蓝宝石热场内部的加热丝是纯钨材料制作，属易碎品，不可用力碰撞",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "sap"
+},
+{
+"id": "20598",
+"stem": "蓝宝石线切割设备必须在防护罩关闭的情况下方能启动，防止断线飞出伤人",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "sap"
+},
+{
+"id": "20599",
+"stem": "若发现坩埚有裂纹，严禁装料使用，防止高温熔汤泄露，击穿炉底造成危险",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "sap"
+},
+{
+"id": "20600",
+"stem": "蓝宝石在生产过程中，由于加热电极电压较低，是可以用手触摸的",
+"options": [
+"对",
+"错"
+],
+"answer": "错误",
+"type": "judge",
+"cat": "sap"
+},
+{
+"id": "20601",
+"stem": "可直接用肉眼观察炉内蓝宝石晶体生长情况，不需要带护目镜",
+"options": [
+"对",
+"错"
+],
+"answer": "错误",
+"type": "judge",
+"cat": "sap"
+},
+{
+"id": "20602",
+"stem": "蓝宝石切削液没有腐蚀性，可以直接用手接触，不需要佩戴橡胶手套",
+"options": [
+"对",
+"错"
+],
+"answer": "错误",
+"type": "judge",
+"cat": "sap"
+},
+{
+"id": "20603",
+"stem": "蓝宝石线切割设备在换线的过程中，必须佩戴防割手套，防止划伤",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "sap"
+},
+{
+"id": "20604",
+"stem": "蓝宝石晶体生长完成，炉体开仓后，需用测温设备测量晶体温度，确认安全后方可吊取，以防烫伤",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "sap"
+},
+{
+"id": "20605",
+"stem": "蓝宝石晶体生长过程中，若出现体拉杆漏水或者炉体内部漏水，导致炉压急剧升高，需立即关闭加热电源，以防爆炸",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "sap"
+},
+{
+"id": "20606",
+"stem": "蓝宝石晶体在生长过程中，需做好定时巡视，记录炉体水压气压电流电压等数据，提前预判故障，及时排除风险",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "sap"
+},
+{
+"id": "20607",
+"stem": "在实验过程中，要学会自我保护，不被别人伤害，同时不伤害别人，不造成设备财产损失",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "gen"
+},
+{
+"id": "20608",
+"stem": "设备内部电容损坏需更换时，可以不用放电，直接操作",
+"options": [
+"对",
+"错"
+],
+"answer": "错误",
+"type": "judge",
+"cat": "elec"
+},
+{
+"id": "20609",
+"stem": "蓝宝石晶锭加工前，要用专用胶水粘接在专用夹具，待胶水完全凝固后，才能进行加工",
+"options": [
+"对",
+"错"
+],
+"answer": "正确",
+"type": "judge",
+"cat": "sap"
+},
+{
+"id": "20610",
+"stem": "吊装或搬运比较重的设备或配件时，觉得自己一个人能搞定的时候，不需要专用设备，不需要其他人员协调操作，独自完成，可表现出个人英雄主义和男子汉气概",
+"options": [
+"对",
+"错"
+],
+"answer": "错误",
+"type": "judge",
+"cat": "mech"
+},
+{
+"id": "20611",
+"stem": "水电安装改造、设备焊接操作，只要会干的人就可以去做，不用看职业资格证书",
+"options": [
+"对",
+"错"
+],
+"answer": "错误",
+"type": "judge",
+"cat": "mech"
+},
+{
+"id": "18594",
+"stem": "清洗有镀光学薄膜的镜片上的灰尘，可以选用以下哪种方式？",
+"options": [
+"A、丙酮",
+"B、酒精",
+"C、纯水",
+"D、用吸耳球吹"
+],
+"answer": "D",
+"type": "choice",
+"cat": "laser"
+},
+{
+"id": "18595",
+"stem": "哪种方法不属于X射线的防护方法？",
+"options": [
+"A、缩短照射时间",
+"B、增大与放射源的距离",
+"C、加强屏蔽",
+"D、稀释"
+],
+"answer": "D",
+"type": "choice",
+"cat": "laser"
+},
+{
+"id": "18596",
+"stem": "实验室冰箱和超低温冰箱使用注意事项错误的是？",
+"options": [
+"A、定期除霜、清理、清理后要对内表面进行消毒",
+"B、储存的所有容器，应当标明物品名称、储存日期和储存者姓名",
+"C、除非有防爆措施，否者冰箱内不能放置易爆化学品溶液",
+"D、可以在冰箱内冷冻食品和水"
+],
+"answer": "D",
+"type": "choice",
+"cat": "chem"
+},
+{
+"id": "18597",
+"stem": "哪些不是光电精密测量系统的维护、保养方法？",
+"options": [
+"A、室内湿度保持60%以下",
+"B、室内温度保持在25度左右，不能过低",
+"C、仪器应尽量靠墙摆放",
+"D、仪器人员不得在实验室吃零食"
+],
+"answer": "C",
+"type": "choice",
+"cat": "laser"
+},
+{
+"id": "18598",
+"stem": "关于氮气瓶的使用，下列说法错误的是？",
+"options": [
+"A、氮气瓶的存放应远离火种、热源",
+"B、发生火宅时，应尽可能将气瓶从火场移至空旷处",
+"C、气瓶发生泄漏时，应迅速撤离泄漏污染区人员至安全区",
+"D、处理氮气泄漏时，由于氮气无毒、不燃，不需要注意现场通风"
+],
+"answer": "D",
+"type": "choice",
+"cat": "chem"
+},
+{
+"id": "18599",
+"stem": "高空施焊时必须使用标准的防火（ ），戴头罩。",
+"options": [
+"A、焊具",
+"B、安全带",
+"C、工作服",
+"D、工具"
+],
+"answer": "B",
+"type": "choice",
+"cat": "mech"
+},
+{
+"id": "18600",
+"stem": "氧气瓶与乙炔瓶的距离不得小于（ ）m。",
+"options": [
+"A、1",
+"B、3",
+"C、5",
+"D、4"
+],
+"answer": "C",
+"type": "choice",
+"cat": "chem"
+},
+{
+"id": "18601",
+"stem": "电弧焊焊接时，一旦发生人员及设备事故，应立即（ ）。",
+"options": [
+"A、切断电源",
+"B、停止气焊",
+"C、停止电焊",
+"D、报告"
+],
+"answer": "A",
+"type": "choice",
+"cat": "mech"
+},
+{
+"id": "18602",
+"stem": "电焊时严禁借用金属管道、金属脚手架、结构钢筋等金属物撒拉代替（ ）使用。",
+"options": [
+"A、导线",
+"B、支撑物",
+"C、零线",
+"D、地线"
+],
+"answer": "A",
+"type": "choice",
+"cat": "mech"
+},
+{
+"id": "18603",
+"stem": "严禁将（ ）绕在身上或搭在背上。",
+"options": [
+"A、施工把线",
+"B、工件",
+"C、工作服",
+"D、工具箱"
+],
+"answer": "A",
+"type": "choice",
+"cat": "mech"
+},
+{
+"id": "18604",
+"stem": "雷电放电具有什么特点？",
+"options": [
+"A、电流大，电压高",
+"B、电流小，电压高",
+"C、电流大，电压低",
+"D、电磁波辐射"
+],
+"answer": "A",
+"type": "choice",
+"cat": "elec",
+"dup": "20569"
+},
+{
+"id": "18605",
+"stem": "对于高压电容器，实验结束后或闲置时，如何处理最合适？",
+"options": [
+"A、电极接地",
+"B、双电极短接（串接合适电阻进行放电）",
+"C、双电极接地",
+"D、不处理"
+],
+"answer": "B",
+"type": "choice",
+"cat": "elec"
+},
+{
+"id": "18606",
+"stem": "工作地点相对湿度大于75%时，属于什么环境？",
+"options": [
+"A、危险、易触电",
+"B、不危险",
+"C、一般",
+"D、特殊"
+],
+"answer": "A",
+"type": "choice",
+"cat": "elec"
+},
+{
+"id": "18607",
+"stem": "车间内的插座距地面的高度一般不低于多少米？",
+"options": [
+"A、0．3米",
+"B、0．2米",
+"C、0．1米",
+"D、0．5米"
+],
+"answer": "A",
+"type": "choice",
+"cat": "elec"
+},
+{
+"id": "18608",
+"stem": "大型仪器一般都使用计算机进行控制。计算机与仪器之间的数据传输线在何种情况下进行装卸?",
+"options": [
+"A、任意时刻",
+"B、在仪器及计算机电源关闭时",
+"C、在仪器处于工作状态时",
+"D、在计算机处于工作状态时"
+],
+"answer": "B",
+"type": "choice",
+"cat": "gen"
+},
+{
+"id": "18609",
+"stem": "以下处理硫化氢废气的方式错误的是：",
+"options": [
+"A、硫化氢在溶液中电离出H+，有酸性，可以与碱性物质反应如NaOH而被吸收",
+"B、 很多硫化物是难溶于水的固体，可以用盐溶液来沉淀S2-离子，如CuSO4",
+"C、考虑到硫化氢具有强还原性，故可用强氧化剂吸收，一般用酸性高锰酸钾溶液",
+"D、将硫化氢通入酸性溶液"
+],
+"answer": "D",
+"type": "choice",
+"cat": "chem"
+},
+{
+"id": "18610",
+"stem": "以下处理硫化氢泄漏的方式错误的是：",
+"options": [
+"A、一旦发生硫化氢泄漏应迅速撤离泄漏区，人员至上风处，并立即进行隔离",
+"B、皮肤接触：脱去污染的衣着，用流动清水冲洗，就医。",
+"C、眼睛接触：立即提起眼睑，用大量流动清水或生理盐水彻底冲洗至少15分钟，就医",
+"D、留在原地自行处理"
+],
+"answer": "D",
+"type": "choice",
+"cat": "chem"
+},
+{
+"id": "18611",
+"stem": "机械设备在慢速运转时，",
+"options": [
+"A、可以用手清除铁屑",
+"B、可以进行润滑",
+"C、可以测量零件",
+"D、必须先关停机械设备，再进行其他操作"
+],
+"answer": "D",
+"type": "choice",
+"cat": "mech"
+},
+{
+"id": "18612",
+"stem": "机械设备工作结束后，应最先做哪些安全工作？",
+"options": [
+"A、清理设备",
+"B、润滑设备",
+"C、关闭设备电器系统和切断电源",
+"D、清洗设备"
+],
+"answer": "C",
+"type": "choice",
+"cat": "mech"
+},
+{
+"id": "18613",
+"stem": "设备操作人员要做到“四会”是指？",
+"options": [
+"A、会开机、会关机、会加油、会保养",
+"B、会使用、会维护、会改造、会保养",
+"C、会使用、会维护、会检查、会排除故障",
+"D.会使用、会维护、会改造、会保养"
+],
+"answer": "C",
+"type": "choice",
+"cat": "mech"
+},
+{
+"id": "18614",
+"stem": "机械设备的操作人员工作服要求",
+"options": [
+"A、袖口紧、领口紧、下摆紧",
+"B、袖口紧、腰部紧、下摆紧",
+"C、袖口紧、腰部紧、裤腿紧",
+"D、腰部紧、领口紧、裤腿紧"
+],
+"answer": "A",
+"type": "choice",
+"cat": "mech"
+},
+{
+"id": "18615",
+"stem": "导致绞缠伤害的危险来自( ),夹挤伤害的危险来自( )",
+"options": [
+"A、旋转零部件,高处坠落物体",
+"B、高处坠落物体,直线运动零部件",
+"C、直线运动零部件,飞出物体打击",
+"D、旋转零部件,直线运动零部件"
+],
+"answer": "D",
+"type": "choice",
+"cat": "mech"
+},
+{
+"id": "18625",
+"stem": "下列哪项措施不能用于激光的防护？",
+"options": [
+"A、使用滤光片和光纤",
+"B、隔离器和封闭光束",
+"C、关闭实验室门窗",
+"D、使用反射材料"
+],
+"answer": "D",
+"type": "choice",
+"cat": "laser",
+"dup": "18631"
+},
+{
+"id": "18626",
+"stem": "下列哪些不属于激光危害？",
+"options": [
+"A、热效应",
+"B、腐蚀危害",
+"C、间接辐射",
+"D、心理危害"
+],
+"answer": "D",
+"type": "choice",
+"cat": "laser"
+},
+{
+"id": "18628",
+"stem": "下列关于光电探测器和光谱仪的使用方法正确的是？",
+"options": [
+"A、在未测量激光功率之前可以直接将激光输入到光谱仪进行测量",
+"B、光电探测器可以承受任何功率的激光",
+"C、待测激光的功率必须小于光电探测器和光谱仪的最大可功率",
+"D、光谱仪没有最大可功率"
+],
+"answer": "C",
+"type": "choice",
+"cat": "laser"
+},
+{
+"id": "18629",
+"stem": "使用哪级及以上的激光器必须佩带防护眼罩?",
+"options": [
+"A、一级",
+"B、二级",
+"C、三级",
+"D、四级"
+],
+"answer": "C",
+"type": "choice",
+"cat": "laser"
+},
+{
+"id": "18630",
+"stem": "波长在可见光范围内，光的辐射功率在1 mW以内的激光属于( )",
+"options": [
+"A、1级激光",
+"B、2级激光",
+"C、3级激光",
+"D、4级激光"
+],
+"answer": "B",
+"type": "choice",
+"cat": "laser",
+"dup": "18634"
+},
+{
+"id": "18631",
+"stem": "下列哪项措施不能用于激光的防护？",
+"options": [
+"A、滤光片和光纤",
+"B、隔离器和封闭光束",
+"C、关闭实验室门窗",
+"D、使用反光材料"
+],
+"answer": "D",
+"type": "choice",
+"cat": "laser",
+"dup": "18625"
+},
+{
+"id": "18632",
+"stem": "为了描述激光系统对人体造成伤害程度的界定指标，国际上对激光有统一的分类，激光器可分为几个等级？",
+"options": [
+"A、2个等级",
+"B、3个等级",
+"C、4个等级",
+"D、5个等级"
+],
+"answer": "C",
+"type": "choice",
+"cat": "laser"
+},
+{
+"id": "18633",
+"stem": "哪一级的激光可能使得易燃物起火燃烧？",
+"options": [
+"A、1级激光",
+"B、2级激光",
+"C、3级激光",
+"D、4级激光"
+],
+"answer": "D",
+"type": "choice",
+"cat": "laser"
+},
+{
+"id": "18634",
+"stem": "波长在可见光范围内，光的辐射功率在1mW内的是激光属于？",
+"options": [
+"A、1级激光",
+"B、2级激光",
+"C、3级激光",
+"D、4级激光"
+],
+"answer": "B",
+"type": "choice",
+"cat": "laser",
+"dup": "18630"
+},
+{
+"id": "18635",
+"stem": "激光对人体的伤害，说法错误的是?",
+"options": [
+"A、可能对视力造成损害",
+"B、可能灼伤皮肤",
+"C、可能损伤智力",
+"D、可能造成局部深度烧伤"
+],
+"answer": "C",
+"type": "choice",
+"cat": "laser"
+},
+{
+"id": "20567",
+"stem": "被电击的人能否获救，关键在于（）。",
+"options": [
+"A. 触电的方式",
+"B. 人体电阻的大小",
+"C. 触电电压的高低",
+"D. 能否尽快脱离电源和施行紧急救护"
+],
+"answer": "D",
+"type": "choice",
+"cat": "elec"
+},
+{
+"id": "20568",
+"stem": "低压验电笔一般适用于交、直流电压为（）以下。",
+"options": [
+"A.220V",
+"B.380V",
+"C.500V",
+"D.700 V"
+],
+"answer": "C",
+"type": "choice",
+"cat": "elec"
+},
+{
+"id": "20569",
+"stem": "雷电放电具有()的特点。",
+"options": [
+"A.电流大，电压高",
+"B.电流小，电压高",
+"C.电流大，电压低"
+],
+"answer": "A",
+"type": "choice",
+"cat": "elec",
+"dup": "18604"
+},
+{
+"id": "20570",
+"stem": "配电盘（箱）、开关、变压器等各种电气设备附近不得（ ）。",
+"options": [
+"A.设放灭火器",
+"B.设置围栏",
+"C.堆放易燃、易爆、潮湿和其他影响操作的物件",
+"D.设置警示"
+],
+"answer": "C",
+"type": "choice",
+"cat": "elec"
+},
+{
+"id": "20571",
+"stem": "发生电气火灾后，首先应该采取的第一条措施是（ ）。",
+"options": [
+"A.打电话报警",
+"B.切断电源",
+"C .扑灭明火",
+"D.保护现场，分析火因，以便采取措施，杜绝隐患"
+],
+"answer": "B",
+"type": "choice",
+"cat": "elec"
+},
+{
+"id": "20582",
+"stem": "毒物进入人体最主要、最常见的途径是（ ）。",
+"options": [
+"A. 呼吸道",
+"B. 皮肤",
+"C. 眼睛",
+"D. 消化道"
+],
+"answer": "A",
+"type": "choice",
+"cat": "chem"
+},
+{
+"id": "20583",
+"stem": "倾倒液体试剂时，瓶上标签应朝（ ）。",
+"options": [
+"A.上方",
+"B.下方",
+"C.左方",
+"D.右方"
+],
+"answer": "A",
+"type": "choice",
+"cat": "chem"
+},
+{
+"id": "20584",
+"stem": "当油脂等有机物沾污氧气钢瓶时，应立即用（ ）洗净。",
+"options": [
+"A.乙醇",
+"B.四氯化碳",
+"C.水"
+],
+"answer": "B",
+"type": "choice",
+"cat": "chem"
+},
+{
+"id": "20585",
+"stem": "下列物品不属于剧毒化学品的是（ ）。",
+"options": [
+"A.氰化钾",
+"B.氯化汞",
+"C.铊",
+"D.甲醛"
+],
+"answer": "D",
+"type": "choice",
+"cat": "chem"
+},
+{
+"id": "20586",
+"stem": "易燃化学试剂理想存放温度是多少？允许存放最高室温不得超过多少？",
+"options": [
+"A. 0～10℃，30℃",
+"B. -4～4℃；30℃",
+"C .0～5℃，20℃",
+"D.-4～4℃，40℃"
+],
+"answer": "B",
+"type": "choice",
+"cat": "chem"
+},
+{
+"id": "20587",
+"stem": "蓝宝石炉加热电极异常发热（超过100℃）的原因可能是",
+"options": [
+"A. 室内气温高",
+"B. 连接螺栓没有锁紧",
+"C. 散热不好",
+"D. 正常，没问题"
+],
+"answer": "B",
+"type": "choice",
+"cat": "sap"
+}
+];
+const CHAPTERS = [{"key": "laser", "no": "01", "title": "激光与光辐射安全", "color": "--accent", "desc": "激光分级、眼与皮肤防护、光路布置、光电探测器与光谱仪操作", "tips": ["激光器按危害程度分为 <b>1、2、3、4 级共 4 个等级</b>；<b>3 级及以上必须佩戴防护眼罩</b>。", "可见光波段、辐射功率 ≤1 mW 属 <b>2 级</b>；<b>4 级</b>激光可引燃易燃物。", "光路须设在<b>远低于坐姿眼位或远高于站姿眼位</b>，绝不与眼睛同高；激光器牢固固定，光束只走预定路径。", "防护眼罩只对<b>特定波长</b>有效，不能通用；实验时不戴戒指、金属表带等反光/导电饰物。", "光谱仪与光电探测器必须先测功率，待测功率须<b>小于设备最大可测功率</b>；数据传输线只在双方断电时插拔。", "眼是最易受损器官（角膜、晶状体、视网膜），红外、紫外与可见激光均可致伤。"]}, {"key": "elec", "no": "02", "title": "用电与电气安全", "color": "--warn", "desc": "触电急救、配电与开关操作、漏电保护、电容器放电与电气火灾", "tips": ["触电急救顺序：<b>先切断电源</b>或用绝缘物挑开电线，再施救；获救关键在于尽快脱离电源并施救。", "照明电路<b>零线不得装熔断器</b>，但必须装漏电保护器；两眼插头不能替代三眼插头。", "闸刀/隔离开关<b>不得带负荷拉开</b>，合闸要迅速果断；配电箱附近禁止堆放易燃易爆潮湿物件。", "插线板不可串联接多个；临时电源线须合格、接头用绝缘胶布包好。", "高压电容器停用后须<b>双电极短接（串接合适电阻）放电</b>；电气火灾第一步是切断电源。", "相对湿度 &gt;75% 属危险易触电环境；车间插座距地一般不低于 0.3 m；低压验电笔适用 500 V 以下。"]}, {"key": "sap", "no": "03", "title": "蓝宝石晶体生长与加工", "color": "--purple", "desc": "长晶炉水路与热场、坩埚与吊装、线切割与磨抛、个体防护", "tips": ["<b>电极电压低不等于不带电</b>，严禁带电触摸；观察炉内须戴护目镜。", "坩埚有裂纹<b>严禁装料</b>；开仓取晶先测温确认；吊装时吊臂下严禁站人，穿劳保鞋、戴安全帽。", "水路是生命线：升温前查水路；突然停电立即投用<b>备用冷却水</b>；拉杆或炉体漏水致炉压骤升，立即切断加热电源。", "热场钨丝易碎不可碰撞；清洁挥发物戴防尘口罩，清理坩埚壁结晶戴防护眼镜。", "线切割须在<b>防护罩关闭</b>时启动，换线戴防割手套；磨抛换砂轮/夹具必须停机并待完全停转。", "切削液并非无腐蚀性，须戴橡胶手套；晶锭用专用胶水粘牢、完全凝固后再加工；定时巡视记录水压气压电流电压。"]}, {"key": "mech", "no": "04", "title": "机械加工与焊接作业", "color": "--pink", "desc": "机械伤害类型与防护装置、停机原则、工作服要求、焊接与气瓶间距", "tips": ["机械运转时不得离岗，不得用手清铁屑、测量或润滑；任何调整<b>先停机断电</b>。", "旋转零部件 → 绞缠伤害；直线运动零部件 → 夹挤伤害；旋转件须装防护罩/挡板/栏杆。", "工作服要求「三紧」：<b>袖口紧、领口紧、下摆紧</b>。", "设备停用最先做的是<b>关闭电器系统并切断电源</b>；操作人员「四会」：会使用、会维护、会检查、会排除故障。", "高空施焊必须系标准防火安全带并戴头罩；<b>氧气瓶与乙炔瓶间距不小于 5 m</b>。", "焊接回路线严禁借用金属管道、脚手架、钢筋代替导线；焊接把线严禁绕在身上或搭在背上。"]}, {"key": "chem", "no": "05", "title": "化学品与气瓶安全", "color": "--ok", "desc": "毒物侵入途径、试剂存放与取用、气瓶管理、通风柜与泄漏处置", "tips": ["毒物进入人体最主要途径是<b>呼吸道</b>；倾倒试剂时<b>标签朝上</b>，防止液体流下腐蚀标签。", "剧毒品执行「五双制」：<b>双人保管、双锁、双账、双人领取、双人使用</b>。", "氧气瓶被油脂沾污须用<b>四氯化碳</b>洗净（禁用水或乙醇）；氧气瓶与乙炔瓶间距 ≥5 m。", "产生有害或刺激性气体须在<b>通风柜</b>内操作，头部不得伸入柜内，并设气体吸收装置。", "硫化氢泄漏：向上风向撤离并隔离；皮肤/眼睛用大量流动清水冲洗<b>至少 15 分钟</b>后就医。", "易燃试剂理想存放 −4~4 ℃，室温最高不得超过 30 ℃；实验室冰箱严禁存放食品。", "加热试管时管口不得朝向自己或他人；爆炸性混合物的危险性由爆炸极限、传爆能力、引燃温度、最小点燃能量决定。"]}, {"key": "gen", "no": "06", "title": "仪器使用与通用行为规范", "color": "--cyan", "desc": "大型仪器操作规程、故障处置、自我保护原则与特种作业资质", "tips": ["大型仪器使用前须读说明书、严守操作规程；发现故障立即停机、报告并登记，<b>不得凑合使用</b>。", "仪器接地、电磁辐射、网络等均属使用中的安全事项；不得随意触碰仪器组件。", "计算机与仪器之间的数据传输线，只在<b>仪器与计算机均断电</b>时插拔。", "自我保护三原则：不被别人伤害、不伤害别人、不造成设备财产损失。", "起重搬运不得逞强，须用专用设备并由多人协同；水电改造、焊接等特种作业必须持职业资格证。"]}];
+
+const KEY_M = 'lab-safety-mastery-v1';
+const KEY_T = 'lab-safety-theme';
+const KEY_A = 'lab-safety-showans';
+
+let mastery = new Set(JSON.parse(localStorage.getItem(KEY_M) || '[]'));
+let showAll = localStorage.getItem(KEY_A) === '1';
+let onlyUnmastered = false;
+let query = '';
+
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+
+/* ---------- theme ---------- */
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  $('#btnTheme').textContent = t === 'dark' ? '浅色' : '深色';
+  localStorage.setItem(KEY_T, t);
+}
+applyTheme(localStorage.getItem(KEY_T) || 'dark');
+$('#btnTheme').onclick = () => applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+
+/* ---------- render ---------- */
+function esc(s){ return s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function qIndexOf(id){ return DATA.findIndex(q => q.id === id); }
+
+function renderAll(){
+  const host = $('#chapters');
+  host.innerHTML = CHAPTERS.map(ch => {
+    const items = DATA.filter(q => q.cat === ch.key);
+    const cards = items.map((q, i) => cardHTML(q, i + 1, ch)).join('');
+    return `<section class="chapter" id="ch-${ch.key}" data-cat="${ch.key}" style="--c:var(${ch.color})">
+      <header class="ch-head" data-toggle>
+        <div class="ch-num">${ch.no}</div>
+        <div class="ch-t">
+          <h2>${ch.title}<em>${items.length} 题</em></h2>
+          <p>${ch.desc}</p>
+        </div>
+        <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </header>
+      <div class="ch-body">
+        <div class="tips"><h4>核心要点</h4><ul>${ch.tips.map(t => `<li>${t}</li>`).join('')}</ul></div>
+        ${cards}
+      </div>
+    </section>`;
+  }).join('');
+
+  // nav
+  $('#nav').innerHTML = CHAPTERS.map(ch => {
+    const n = DATA.filter(q => q.cat === ch.key).length;
+    return `<a href="#ch-${ch.key}" data-cat="${ch.key}"><span class="k">${ch.no}</span><span>${ch.title}</span><span class="n">${n}</span></a>`;
+  }).join('');
+
+  $$('.ch-head').forEach(h => h.onclick = () => h.closest('.chapter').classList.toggle('collapsed'));
+  $$('.q').forEach(bindCard);
+  $$('.nav a').forEach(a => a.onclick = e => {
+    e.preventDefault();
+    goTo('ch-' + a.dataset.cat);
+  });
+
+  buildSheet();
+  updateAll();
+}
+
+function cardHTML(q, no, ch){
+  const judge = q.type === 'judge';
+  const opts = q.options.map((o, i) => {
+    let letter = '', text = o;
+    const m = o.match(/^([A-D])[、.．\s]\s*(.*)$/);
+    if (m){ letter = m[1]; text = m[2]; }
+    else if (judge){ letter = i === 0 ? '√' : '×'; }
+    return `<button class="opt" data-k="${esc(judge ? (i === 0 ? '正确' : '错误') : letter)}">
+      <span class="kk">${letter}</span><span class="tx">${esc(text)}</span></button>`;
+  }).join('');
+  const dup = q.dup ? `<div class="dup">↔ 与第 ${q.dup} 题内容重复，任记一题即可</div>` : '';
+  return `<article class="q" id="q-${q.id}" data-id="${q.id}" data-cat="${ch.key}" data-ans="${esc(q.answer)}" data-type="${q.type}">
+    <div class="q-top">
+      <span class="q-no">${ch.no}-${String(no).padStart(2,'0')}</span>
+      <span class="tag ${judge ? 'j' : 'c'}">${judge ? '判断题' : '单选题'}</span>
+      <span class="tag m">已掌握</span>
+      <span class="q-id">#${q.id}</span>
+    </div>
+    <p class="stem">${esc(q.stem)}</p>
+    <div class="opts ${judge ? 'judge' : ''}">${opts}</div>
+    <div class="q-foot">
+      <button class="reveal">显示答案</button>
+      <div class="ans"><span class="lb">标准答案</span><b>${esc(q.answer)}</b></div>
+      <button class="master">标记已掌握</button>
+    </div>
+    ${dup}
+  </article>`;
+}
+
+function bindCard(card){
+  const ans = card.dataset.ans;
+  card.querySelectorAll('.opt').forEach(o => {
+    o.onclick = () => {
+      card.querySelectorAll('.opt').forEach(x => x.classList.remove('correct','wrong'));
+      const ok = o.dataset.k === ans;
+      o.classList.add(ok ? 'correct' : 'wrong');
+      if (!ok) card.querySelectorAll('.opt').forEach(x => { if (x.dataset.k === ans) x.classList.add('correct'); });
+    };
+  });
+  card.querySelector('.reveal').onclick = () => card.classList.add('show-ans');
+  const m = card.querySelector('.master');
+  m.onclick = () => {
+    const id = card.dataset.id;
+    if (mastery.has(id)) mastery.delete(id); else mastery.add(id);
+    card.classList.toggle('mastered', mastery.has(id));
+    m.textContent = mastery.has(id) ? '已掌握 ✓' : '标记已掌握';
+    localStorage.setItem(KEY_M, JSON.stringify([...mastery]));
+    updateAll();
+  };
+  if (mastery.has(card.dataset.id)) card.classList.add('mastered');
+  if (showAll){
+    card.classList.add('show-ans');
+    card.querySelectorAll('.opt').forEach(x => { if (x.dataset.k === ans) x.classList.add('correct'); });
+  }
+  if (mastery.has(card.dataset.id)) card.querySelector('.master').textContent = '已掌握 ✓';
+}
+
+/* ---------- updates ---------- */
+function updateAll(){
+  const total = DATA.length, done = DATA.filter(q => mastery.has(q.id)).length;
+  $('#pgText').textContent = `${done} / ${total}`;
+  $('#pgBar').style.width = (total ? done / total * 100 : 0) + '%';
+  $('#s4').textContent = done;
+  $$('.nav a').forEach(a => {
+    const items = DATA.filter(q => q.cat === a.dataset.cat);
+    const d = items.filter(q => mastery.has(q.id)).length;
+    const n = a.querySelector('.n');
+    n.textContent = `${d}/${items.length}`;
+    n.classList.toggle('done', d === items.length);
+  });
+  applyFilter();
+}
+
+function applyFilter(){
+  const kw = query.trim().toLowerCase();
+  let visible = 0;
+  CHAPTERS.forEach(ch => {
+    const sec = $('#ch-' + ch.key);
+    let s = 0;
+    DATA.filter(q => q.cat === ch.key).forEach(q => {
+      const card = document.getElementById('q-' + q.id);
+      const hit = !kw || (q.stem + ' ' + q.options.join(' ')).toLowerCase().includes(kw);
+      const um = !onlyUnmastered || !mastery.has(q.id);
+      const ok = hit && um;
+      card.style.display = ok ? '' : 'none';
+      if (ok) s++;
+    });
+    sec.style.display = s ? '' : 'none';
+    if (kw && s) sec.classList.remove('collapsed');
+    visible += s;
+  });
+  $('#empty').classList.toggle('on', visible === 0);
+}
+
+$('#q').addEventListener('input', e => { query = e.target.value; applyFilter(); });
+$('#btnAns').onclick = () => {
+  showAll = !showAll;
+  localStorage.setItem(KEY_A, showAll ? '1' : '0');
+  $$('.q').forEach(c => {
+    c.classList.toggle('show-ans', showAll);
+    c.querySelectorAll('.opt').forEach(x => {
+      if (showAll && x.dataset.k === c.dataset.ans) x.classList.add('correct');
+      if (!showAll) x.classList.remove('correct','wrong');
+    });
+  });
+  $('#btnAns').classList.toggle('on', showAll);
+  $('#btnAns').textContent = showAll ? '隐藏全部答案' : '显示全部答案';
+};
+$('#btnUnmastered').onclick = () => {
+  onlyUnmastered = !onlyUnmastered;
+  $('#btnUnmastered').classList.toggle('on', onlyUnmastered);
+  applyFilter();
+};
+$('#btnPrint').onclick = () => window.print();
+
+/* ---------- navigation ---------- */
+function goTo(id, instant){
+  const el = document.getElementById(id);
+  if (!el) return;
+  const ch = el.closest('.chapter');
+  if (ch) ch.classList.remove('collapsed');
+  el.scrollIntoView({behavior: instant ? 'auto' : 'smooth', block:'start'});
+  el.classList.remove('flash');
+  void el.offsetWidth;
+  el.classList.add('flash');
+  try {
+    if (location.hash.slice(1) !== id) history.replaceState(null, '', '#' + id);
+  } catch (e) { /* file:// 下部分浏览器禁止 replaceState */ }
+}
+function fromHash(){
+  const h = decodeURIComponent(location.hash.slice(1));
+  if (!h) return;
+  if (document.getElementById(h)) goTo(h, true);
+}
+window.addEventListener('hashchange', fromHash);
+window.addEventListener('load', () => setTimeout(fromHash, 60));
+
+/* ---------- answer sheet ---------- */
+function buildSheet(){
+  $('#sheet').innerHTML = CHAPTERS.map(ch => {
+    const items = DATA.filter(q => q.cat === ch.key);
+    return `<h5 style="--c:var(${ch.color})">${ch.no} ${ch.title}</h5>
+      <div class="grid">${items.map(q => `<div><b>${q.id}</b><i class="${q.answer === '错误' ? 'no' : ''}">${esc(q.answer).replace('正确','对').replace('错误','错')}</i></div>`).join('')}</div>`;
+  }).join('');
+}
+
+/* ---------- quiz ---------- */
+let cur = null;
+function openQuiz(){
+  const pool = DATA.filter(q => !onlyUnmastered || !mastery.has(q.id));
+  const list = pool.length ? pool : DATA;
+  cur = list[Math.floor(Math.random() * list.length)];
+  const judge = cur.type === 'judge';
+  $('#mId').textContent = '#' + cur.id;
+  $('#mFb').className = 'fb';
+  $('#mFb').style.color = '';
+  $('#mFb').textContent = '';
+  $('#mBody').innerHTML = `<p class="stem">${esc(cur.stem)}</p>
+    <div class="opts ${judge ? 'judge' : ''}">${cur.options.map((o, i) => {
+      let letter = '', text = o;
+      const m = o.match(/^([A-D])[、.．\s]\s*(.*)$/);
+      if (m){ letter = m[1]; text = m[2]; } else if (judge){ letter = i === 0 ? '√' : '×'; }
+      return `<button class="opt" data-k="${esc(judge ? (i === 0 ? '正确' : '错误') : letter)}">
+        <span class="kk">${letter}</span><span class="tx">${esc(text)}</span></button>`;
+    }).join('')}</div>`;
+  $('#mBody').querySelectorAll('.opt').forEach(o => {
+    o.onclick = () => {
+      const ok = o.dataset.k === cur.answer;
+      $('#mBody').querySelectorAll('.opt').forEach(x => x.classList.remove('correct','wrong'));
+      o.classList.add(ok ? 'correct' : 'wrong');
+      if (!ok) $('#mBody').querySelectorAll('.opt').forEach(x => { if (x.dataset.k === cur.answer) x.classList.add('correct'); });
+      const fb = $('#mFb');
+      fb.className = 'fb on ' + (ok ? 'y' : 'n');
+      fb.textContent = ok ? `答对了，标准答案：${cur.answer}` : `答错了，标准答案：${cur.answer}`;
+    };
+  });
+  $('#mask').classList.add('on');
+}
+$('#btnQuiz').onclick = openQuiz;
+$('#mNext').onclick = openQuiz;
+$('#mClose').onclick = () => $('#mask').classList.remove('on');
+$('#mask').onclick = e => { if (e.target.id === 'mask') $('#mask').classList.remove('on'); };
+$('#mShow').onclick = () => {
+  if (!cur) return;
+  const fb = $('#mFb');
+  fb.className = 'fb on';
+  fb.style.color = 'var(--sub)';
+  fb.textContent = '标准答案：' + cur.answer;
+  $('#mBody').querySelectorAll('.opt').forEach(x => { if (x.dataset.k === cur.answer) x.classList.add('correct'); });
+};
+
+/* ---------- keys ---------- */
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && document.activeElement.tagName !== 'INPUT'){ e.preventDefault(); $('#q').focus(); }
+  if (e.key === 'Escape'){ $('#mask').classList.remove('on'); $('#q').blur(); }
+  if ((e.key === 'r' || e.key === 'R') && document.activeElement.tagName !== 'INPUT'){ openQuiz(); }
+});
+
+/* ---------- init ---------- */
+$('#chCount').textContent = CHAPTERS.length;
+$('#s1').textContent = DATA.length;
+$('#s2').textContent = DATA.filter(q => q.type === 'judge').length;
+$('#s3').textContent = DATA.filter(q => q.type === 'choice').length;
+$('#btnAns').classList.toggle('on', showAll);
+$('#btnAns').textContent = showAll ? '隐藏全部答案' : '显示全部答案';
+renderAll();
+</script>
+</body>
+</html>
