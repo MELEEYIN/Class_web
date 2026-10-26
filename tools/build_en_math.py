@@ -26,6 +26,8 @@ OUT = os.path.join(ROOT, "site", "en", "math.html")
 sys.path.insert(0, HERE)
 from math_pts_up import PTS_UP
 from math_pts_dn import PTS_DN
+from math_figs import FIGS
+from math_ex import EX
 
 PTS = {}
 PTS.update(PTS_UP)
@@ -771,8 +773,14 @@ def render_points(ch):
             continue
         items = "".join('<li id="%s-s%d-p%d"><b>%s</b><span class="kd">%s</span></li>'
                         % (ch["id"], i + 1, j + 1, t, d) for j, (t, d) in enumerate(pts))
+        fig = FIGS.get(ch["no"], {}).get(i)
+        fig_html = ""
+        if fig:
+            fig_html = ('<figure class="fig">%s<figcaption>%s</figcaption></figure>'
+                        % (fig[1], fig[0]))
         out.append('<div class="sect-h" id="%s-s%d">%s<span class="pgx">%s · %d 条</span></div>'
-                   '<ol class="kpt">%s</ol>' % (ch["id"], i + 1, name, page, len(pts), items))
+                   '<ol class="kpt">%s</ol>%s'
+                   % (ch["id"], i + 1, name, page, len(pts), items, fig_html))
     return ('<div class="mod" id="%s-m2"><h3><span class="mtag">M2</span>逐节知识点'
             '<span class="msub">按讲义节次展开 · 定义 / 公式 / 套路</span></h3>%s</div>'
             % (ch["id"], "".join(out)))
@@ -798,10 +806,30 @@ def render_traps(ch):
             % (ch["id"], pits, drills))
 
 
+def render_examples(ch):
+    rows = EX.get(ch["no"], [])
+    if not rows:
+        return ""
+    blocks = []
+    for i, (q, sol, tip) in enumerate(rows):
+        blocks.append(
+            '<div class="eg">'
+            '<div class="eg-h"><span class="eg-n">例 %d</span><b>题目</b>'
+            '<button class="chip act" type="button" data-veil>遮住解答</button></div>'
+            '<p class="eg-q">%s</p>'
+            '<div class="eg-s"><b>解　</b>%s</div>'
+            '<p class="eg-t">%s</p>'
+            '</div>' % (i + 1, q, sol, tip))
+    return ('<div class="mod" id="%s-m5"><h3><span class="mtag">M5</span>例题精讲'
+            '<span class="msub">先盖住解自己做，再对答案</span></h3>%s</div>'
+            % (ch["id"], "".join(blocks)))
+
+
 def render_ch(ch):
     vc, vt = ("off", "上册") if ch["book"] == "上册" else ("top", "下册")
     n = ch["no"]
-    body = render_secs(ch) + render_points(ch) + render_forms(ch) + render_traps(ch)
+    body = (render_secs(ch) + render_points(ch) + render_forms(ch) +
+            render_traps(ch) + render_examples(ch))
     head = (
         '<section class="unit mth" id="' + ch["id"] + '" data-unit="' + str(n) +
         '" data-title="' + ch["title"] + '">\n'

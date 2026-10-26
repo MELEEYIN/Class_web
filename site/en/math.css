@@ -281,3 +281,69 @@ ol.kpt > li > .kd sup { font-size: .72em; }
 /* 目录点进来时，锚点别贴在顶栏底下 */
 .sect-h { scroll-margin-top: calc(var(--top-h) + 26px); }
 ol.kpt > li { scroll-margin-top: calc(var(--top-h) + 40px); }
+
+/* ---------------------------------------------------------- 配图 */
+figure.fig {
+  margin: 14px 0 20px;
+  padding: 12px 14px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-2);
+}
+figure.fig .figsvg { display: block; width: 100%; height: auto; }
+figure.fig figcaption {
+  margin-top: 8px;
+  font-size: 12.4px;
+  line-height: 1.7;
+  color: var(--ink-3);
+}
+
+/* ---------------------------------------------------------- 例题 */
+.eg {
+  margin: 12px 0;
+  padding: 14px 16px 13px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-2);
+}
+.eg-h { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+.eg-n {
+  padding: 1px 8px;
+  border-radius: 6px;
+  background: rgb(var(--accent-rgb) / .14);
+  border: 1px solid rgb(var(--accent-rgb) / .3);
+  color: var(--accent);
+  font: 600 11.4px/1.7 var(--mono);
+  white-space: nowrap;
+}
+.eg-h b { font-size: 13.6px; color: var(--kpt-label); }
+.eg-q {
+  margin: 0 0 9px;
+  font-size: 14px;
+  line-height: 1.95;
+  color: var(--kpt-label);
+}
+.eg-s { font-size: 13.9px; line-height: 2; color: var(--kpt-ink); }
+.eg-s > b { color: var(--accent); font-weight: 650; }
+.eg-t {
+  margin: 10px 0 0;
+  padding-top: 9px;
+  border-top: 1px dashed var(--line);
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--ink-3);
+}
+.eg-t::before {
+  content: "点评";
+  display: inline-block;
+  margin-right: 6px;
+  padding: 0 6px;
+  border-radius: 5px;
+  background: rgb(var(--warn-rgb) / .14);
+  color: rgb(var(--warn-rgb));
+  font-size: 11.6px;
+}
+
+/* 例题：遮住解答时把「解」和「点评」一起糊掉 */
+.eg .eg-h .chip { margin-left: auto; }
+.eg.veiled .eg-s, .eg.veiled .eg-t { filter: blur(5px); pointer-events: none; user-select: none; }

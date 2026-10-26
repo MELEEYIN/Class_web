@@ -282,10 +282,11 @@
   /* ------------------------------------------- 6. 遮住解析自测 */
   $$('[data-veil]').forEach(function (btn) {
     btn.addEventListener('click', function () {
-      var box = btn.closest('.exgrp') || btn.closest('.task-b');
+      var box = btn.closest('.exgrp') || btn.closest('.task-b') || btn.closest('.eg');
       if (!box) return;
       var veiled = box.classList.toggle('veiled');
-      btn.textContent = veiled ? '显示解析' : '遮住解析自测';
+      var isEg = !!btn.closest('.eg');
+      btn.textContent = veiled ? (isEg ? '显示解答' : '显示解析') : (isEg ? '遮住解答' : '遮住解析自测');
       btn.classList.toggle('on', veiled);
     });
   });
