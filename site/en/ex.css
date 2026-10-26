@@ -818,3 +818,8 @@ ul.tight li { margin: 3px 0; }
 /* 用自定义图片时，把站内那层底渐变再压淡一点，否则照片会被洗成一片灰紫；
    觉得太亮就调面板里的「暗度」。 */
 html[data-wall="custom"] body::before { opacity: .16; }
+
+/* ---------------------------------------------------------- 17. 品牌标
+   底色仍由 .brand-mark 的渐变 + 高光负责，里面换成矢量书本，比一个字更耐看 */
+.brand-mark.is-mark { font-size: 0; color: #fff; }
+.brand-mark.is-mark svg { width: 22px; height: 22px; display: block; }

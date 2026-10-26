@@ -36,9 +36,10 @@
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  vertical-align: -.48em;
+  justify-content: center;
+  vertical-align: middle;     /* 关键：分数整体以「数学轴」居中，不是往下沉 */
   margin: 0 .26em;
-  line-height: 1.25;
+  line-height: 1.18;
   font-size: 1em;
 }
 .fr > .n { border-bottom: 1px solid currentColor; padding: 0 .26em; }
@@ -47,9 +48,9 @@
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  vertical-align: -.34em;
+  vertical-align: middle;
   margin: 0 .16em;
-  line-height: 1.06;
+  line-height: 1.15;
 }
 .lm > .s { font-size: .66em; color: var(--ink-3); margin-top: 1px; white-space: nowrap; }
 
