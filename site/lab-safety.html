@@ -46,6 +46,8 @@ button{font-family:inherit;font-size:inherit;cursor:pointer}
 .prog-wrap{padding:0 6px}
 .prog-top{display:flex;justify-content:space-between;font-size:12px;color:var(--sub);margin-bottom:7px}
 .prog-top b{color:var(--txt);font-variant-numeric:tabular-nums}
+.prog-top em{font-style:normal;color:var(--ok);font-variant-numeric:tabular-nums}
+.bar > i.b2{background:linear-gradient(90deg,var(--ok),var(--cyan))}
 .bar{height:7px;border-radius:99px;background:var(--line);overflow:hidden}
 .bar > i{display:block;height:100%;width:0;border-radius:99px;
   background:linear-gradient(90deg,var(--accent),var(--cyan));transition:width .35s ease}
@@ -89,6 +91,10 @@ button{font-family:inherit;font-size:inherit;cursor:pointer}
 .btn.primary{background:color-mix(in srgb,var(--accent) 16%,var(--card));color:var(--accent);
   border-color:color-mix(in srgb,var(--accent) 45%,transparent)}
 .btn.ghost{background:transparent}
+.seg{display:inline-flex;padding:3px;border-radius:10px;border:1px solid var(--line);background:var(--card);gap:2px}
+.seg button{padding:6px 12px;border-radius:8px;border:none;background:transparent;color:var(--sub);font-size:12.5px;transition:.15s}
+.seg button:hover{color:var(--txt)}
+.seg button.on{background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent);font-weight:600}
 
 .wrap{padding:26px 26px 80px;max-width:920px;margin:0 auto}
 
@@ -173,14 +179,17 @@ button{font-family:inherit;font-size:inherit;cursor:pointer}
 
 .q-foot{display:flex;align-items:center;gap:10px;margin-top:11px;flex-wrap:wrap;
   padding-top:10px;border-top:1px dashed var(--line)}
-.ans{display:none;align-items:center;gap:8px;font-size:13px;color:var(--sub)}
-.ans b{color:var(--ok);font-size:14px;letter-spacing:.05em}
-.ans .lb{font-size:11px;letter-spacing:.08em;color:var(--sub)}
+.fb-inline{font-size:12.5px;color:var(--sub)}
+.fb-inline.y{color:var(--ok)}
+.fb-inline.n{color:var(--bad)}
 .reveal{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:8px;
   border:1px dashed var(--line);background:transparent;color:var(--sub);font-size:12px}
 .reveal:hover{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 45%,transparent)}
-.q.show-ans .ans{display:flex}
-.q.show-ans .reveal{display:none}
+/* 学习模式：答案直接勾在选项上，底部不再显示答案 */
+.q.study .reveal{display:none}
+.q.study .opt{cursor:default}
+.opt .tick{display:none;margin-left:auto;padding-left:8px;color:var(--ok);font-weight:700;font-size:14px}
+.opt.correct .tick{display:inline}
 .master{margin-left:auto;padding:5px 11px;border-radius:8px;border:1px solid var(--line);
   background:transparent;color:var(--sub);font-size:12px;transition:.15s}
 .master:hover{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 45%,transparent)}
@@ -236,11 +245,10 @@ button{font-family:inherit;font-size:inherit;cursor:pointer}
   .hero{padding:18px}
 }
 @media print{
-  .side,.topbar,.reveal,.master,.mask{display:none!important}
+  .side,.topbar,.reveal,.master,.mask,.fb-inline{display:none!important}
   .layout{display:block}
   .wrap{max-width:none;padding:0}
   .q{break-inside:avoid;border-color:#ccc}
-  .ans{display:flex!important}
   .chapter.collapsed .ch-body{display:block}
   body{background:#fff;color:#000}
 }
@@ -257,6 +265,10 @@ button{font-family:inherit;font-size:inherit;cursor:pointer}
     <div class="prog-wrap">
       <div class="prog-top"><span>掌握进度</span><span><b id="pgText">0 / 113</b></span></div>
       <div class="bar"><i id="pgBar"></i></div>
+      <div class="prog-top" style="margin-top:12px">
+        <span>答题进度 <em id="accText"></em></span><span><b id="ansText">0 / 113</b></span>
+      </div>
+      <div class="bar"><i id="ansBar" class="b2"></i></div>
     </div>
 
     <div class="nav-title">章节目录</div>
@@ -275,11 +287,15 @@ button{font-family:inherit;font-size:inherit;cursor:pointer}
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
         <input id="q" type="search" placeholder="搜索题干或选项关键词…  按 / 聚焦">
       </div>
-      <button class="btn" id="btnAns">显示全部答案</button>
+      <div class="seg" id="modeSeg">
+        <button data-mode="study">学习模式</button>
+        <button data-mode="quiz">答题模式</button>
+      </div>
       <button class="btn" id="btnUnmastered">只看未掌握</button>
       <button class="btn primary" id="btnQuiz">随机抽题</button>
       <button class="btn ghost" id="btnTheme" title="切换主题">浅色</button>
       <button class="btn ghost" id="btnPrint">打印</button>
+      <button class="btn ghost" id="btnReset" title="清空答题记录与掌握标记">重置</button>
     </div>
 
     <div class="wrap">
@@ -291,8 +307,9 @@ button{font-family:inherit;font-size:inherit;cursor:pointer}
           <div class="stat"><b id="s2">70</b><span>判断题</span></div>
           <div class="stat"><b id="s3">43</b><span>单项选择题</span></div>
           <div class="stat"><b id="s4">0</b><span>已掌握</span></div>
+          <div class="stat"><b id="s5">—</b><span>答题正确率</span></div>
         </div>
-        <div class="hint">用法：点击选项即时判对错；<kbd>显示全部答案</kbd> 一键核对；标记「已掌握」后自动记录在本机，刷新不丢；<kbd>/</kbd> 搜索，<kbd>R</kbd> 随机抽题。</div>
+        <div class="hint"><b>学习模式</b>：正确答案直接勾在选项上，底部不显示答案，适合快速过题；<b>答题模式</b>：先选再判对错，答错自动标出正确项。答题记录与掌握标记都实时保存在本机，刷新或关闭后重新打开仍在；<kbd>/</kbd> 搜索，<kbd>R</kbd> 抽题，<kbd>M</kbd> 切换模式。</div>
       </section>
 
       <div id="chapters"></div>
@@ -1665,12 +1682,16 @@ const CHAPTERS = [{"key": "laser", "no": "01", "title": "激光与光辐射安�
 
 const KEY_M = 'lab-safety-mastery-v1';
 const KEY_T = 'lab-safety-theme';
-const KEY_A = 'lab-safety-showans';
+const KEY_A = 'lab-safety-answers-v1';
+const KEY_MODE = 'lab-safety-mode';
 
 let mastery = new Set(JSON.parse(localStorage.getItem(KEY_M) || '[]'));
-let showAll = localStorage.getItem(KEY_A) === '1';
+let records = JSON.parse(localStorage.getItem(KEY_A) || '{}');   // { 题号: {k:所选, ok:是否答对} }
+let mode = localStorage.getItem(KEY_MODE) || 'study';           // study | quiz
 let onlyUnmastered = false;
 let query = '';
+
+function saveRecords(){ localStorage.setItem(KEY_A, JSON.stringify(records)); }
 
 const $ = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
@@ -1735,7 +1756,7 @@ function cardHTML(q, no, ch){
     if (m){ letter = m[1]; text = m[2]; }
     else if (judge){ letter = i === 0 ? '√' : '×'; }
     return `<button class="opt" data-k="${esc(judge ? (i === 0 ? '正确' : '错误') : letter)}">
-      <span class="kk">${letter}</span><span class="tx">${esc(text)}</span></button>`;
+      <span class="kk">${letter}</span><span class="tx">${esc(text)}</span><span class="tick">✓</span></button>`;
   }).join('');
   const dup = q.dup ? `<div class="dup">↔ 与第 ${q.dup} 题内容重复，任记一题即可</div>` : '';
   return `<article class="q" id="q-${q.id}" data-id="${q.id}" data-cat="${ch.key}" data-ans="${esc(q.answer)}" data-type="${q.type}">
@@ -1748,25 +1769,64 @@ function cardHTML(q, no, ch){
     <p class="stem">${esc(q.stem)}</p>
     <div class="opts ${judge ? 'judge' : ''}">${opts}</div>
     <div class="q-foot">
-      <button class="reveal">显示答案</button>
-      <div class="ans"><span class="lb">标准答案</span><b>${esc(q.answer)}</b></div>
+      <button class="reveal">看答案</button>
+      <span class="fb-inline"></span>
       <button class="master">标记已掌握</button>
     </div>
     ${dup}
   </article>`;
 }
 
-function bindCard(card){
+/* 按当前模式与已保存的答题记录还原一张题卡 */
+function paintCard(card){
   const ans = card.dataset.ans;
+  const rec = records[card.dataset.id];
+  const opts = Array.from(card.querySelectorAll('.opt'));
+  const fb = card.querySelector('.fb-inline');
+  opts.forEach(o => o.classList.remove('correct','wrong'));
+
+  if (mode === 'study'){
+    opts.forEach(o => { if (o.dataset.k === ans) o.classList.add('correct'); });
+    if (fb){ fb.className = 'fb-inline'; fb.textContent = ''; }
+    card.classList.remove('peeked');
+    return;
+  }
+
+  if (rec){
+    opts.forEach(o => {
+      if (o.dataset.k !== rec.k) return;
+      o.classList.add(rec.ok ? 'correct' : 'wrong');
+    });
+    if (!rec.ok) opts.forEach(o => { if (o.dataset.k === ans) o.classList.add('correct'); });
+    if (fb){
+      fb.className = 'fb-inline ' + (rec.ok ? 'y' : 'n');
+      fb.textContent = rec.ok ? '答对了' : '答错了';
+    }
+  } else if (card.classList.contains('peeked')){
+    opts.forEach(o => { if (o.dataset.k === ans) o.classList.add('correct'); });
+    if (fb){ fb.className = 'fb-inline'; fb.textContent = '已显示答案 · 未计分'; }
+  } else if (fb){
+    fb.className = 'fb-inline';
+    fb.textContent = '';
+  }
+}
+
+function bindCard(card){
   card.querySelectorAll('.opt').forEach(o => {
     o.onclick = () => {
-      card.querySelectorAll('.opt').forEach(x => x.classList.remove('correct','wrong'));
-      const ok = o.dataset.k === ans;
-      o.classList.add(ok ? 'correct' : 'wrong');
-      if (!ok) card.querySelectorAll('.opt').forEach(x => { if (x.dataset.k === ans) x.classList.add('correct'); });
+      if (mode === 'study') return;                       // 学习模式不判分
+      card.classList.remove('peeked');
+      records[card.dataset.id] = { k: o.dataset.k, ok: o.dataset.k === card.dataset.ans };
+      saveRecords();
+      paintCard(card);
+      updateAll();
     };
   });
-  card.querySelector('.reveal').onclick = () => card.classList.add('show-ans');
+  card.querySelector('.reveal').onclick = () => {
+    if (mode === 'study') return;
+    card.classList.add('peeked');
+    paintCard(card);
+  };
   const m = card.querySelector('.master');
   m.onclick = () => {
     const id = card.dataset.id;
@@ -1776,20 +1836,40 @@ function bindCard(card){
     localStorage.setItem(KEY_M, JSON.stringify([...mastery]));
     updateAll();
   };
-  if (mastery.has(card.dataset.id)) card.classList.add('mastered');
-  if (showAll){
-    card.classList.add('show-ans');
-    card.querySelectorAll('.opt').forEach(x => { if (x.dataset.k === ans) x.classList.add('correct'); });
+  if (mastery.has(card.dataset.id)){
+    card.classList.add('mastered');
+    m.textContent = '已掌握 ✓';
   }
-  if (mastery.has(card.dataset.id)) card.querySelector('.master').textContent = '已掌握 ✓';
+}
+
+/* 切换学习 / 答题模式 */
+function applyMode(m, persist){
+  mode = m;
+  if (persist !== false) localStorage.setItem(KEY_MODE, m);
+  $$('#modeSeg button').forEach(b => b.classList.toggle('on', b.dataset.mode === m));
+  $$('.q').forEach(c => {
+    c.classList.toggle('study', m === 'study');
+    c.classList.toggle('quiz', m === 'quiz');
+    if (m === 'study') c.classList.remove('peeked');
+    paintCard(c);
+  });
 }
 
 /* ---------- updates ---------- */
 function updateAll(){
-  const total = DATA.length, done = DATA.filter(q => mastery.has(q.id)).length;
+  const total = DATA.length;
+  const done = DATA.filter(q => mastery.has(q.id)).length;
+  const answered = DATA.filter(q => records[q.id]).length;
+  const right = DATA.filter(q => records[q.id] && records[q.id].ok).length;
+  const rate = answered ? Math.round(right / answered * 100) : 0;
+
   $('#pgText').textContent = `${done} / ${total}`;
   $('#pgBar').style.width = (total ? done / total * 100 : 0) + '%';
+  $('#ansText').textContent = `${answered} / ${total}`;
+  $('#ansBar').style.width = (total ? answered / total * 100 : 0) + '%';
+  $('#accText').textContent = answered ? `正确率 ${rate}%` : '';
   $('#s4').textContent = done;
+  $('#s5').textContent = answered ? rate + '%' : '—';
   $$('.nav a').forEach(a => {
     const items = DATA.filter(q => q.cat === a.dataset.cat);
     const d = items.filter(q => mastery.has(q.id)).length;
@@ -1822,18 +1902,20 @@ function applyFilter(){
 }
 
 $('#q').addEventListener('input', e => { query = e.target.value; applyFilter(); });
-$('#btnAns').onclick = () => {
-  showAll = !showAll;
-  localStorage.setItem(KEY_A, showAll ? '1' : '0');
+$$('#modeSeg button').forEach(b => b.onclick = () => applyMode(b.dataset.mode));
+$('#btnReset').onclick = () => {
+  if (!confirm('确定清空全部答题记录与「已掌握」标记？此操作不可撤销。')) return;
+  records = {};
+  mastery.clear();
+  localStorage.removeItem(KEY_A);
+  localStorage.setItem(KEY_M, '[]');
   $$('.q').forEach(c => {
-    c.classList.toggle('show-ans', showAll);
-    c.querySelectorAll('.opt').forEach(x => {
-      if (showAll && x.dataset.k === c.dataset.ans) x.classList.add('correct');
-      if (!showAll) x.classList.remove('correct','wrong');
-    });
+    c.classList.remove('mastered');
+    const m = c.querySelector('.master');
+    if (m) m.textContent = '标记已掌握';
   });
-  $('#btnAns').classList.toggle('on', showAll);
-  $('#btnAns').textContent = showAll ? '隐藏全部答案' : '显示全部答案';
+  applyMode(mode);
+  updateAll();
 };
 $('#btnUnmastered').onclick = () => {
   onlyUnmastered = !onlyUnmastered;
@@ -1861,6 +1943,9 @@ function fromHash(){
   if (!h) return;
   if (document.getElementById(h)) goTo(h, true);
 }
+let printMode = null;
+window.addEventListener('beforeprint', () => { printMode = mode; applyMode('study', false); });
+window.addEventListener('afterprint', () => { if (printMode){ applyMode(printMode, false); printMode = null; } });
 window.addEventListener('hashchange', fromHash);
 window.addEventListener('load', () => setTimeout(fromHash, 60));
 
@@ -1901,6 +1986,12 @@ function openQuiz(){
       const fb = $('#mFb');
       fb.className = 'fb on ' + (ok ? 'y' : 'n');
       fb.textContent = ok ? `答对了，标准答案：${cur.answer}` : `答错了，标准答案：${cur.answer}`;
+      // 抽题也计入答题记录，并同步列表里的题卡
+      records[cur.id] = { k: o.dataset.k, ok };
+      saveRecords();
+      const card = document.getElementById('q-' + cur.id);
+      if (card){ card.classList.remove('peeked'); paintCard(card); }
+      updateAll();
     };
   });
   $('#mask').classList.add('on');
@@ -1923,6 +2014,7 @@ document.addEventListener('keydown', e => {
   if (e.key === '/' && document.activeElement.tagName !== 'INPUT'){ e.preventDefault(); $('#q').focus(); }
   if (e.key === 'Escape'){ $('#mask').classList.remove('on'); $('#q').blur(); }
   if ((e.key === 'r' || e.key === 'R') && document.activeElement.tagName !== 'INPUT'){ openQuiz(); }
+  if ((e.key === 'm' || e.key === 'M') && document.activeElement.tagName !== 'INPUT'){ applyMode(mode === 'study' ? 'quiz' : 'study'); }
 });
 
 /* ---------- init ---------- */
@@ -1930,9 +2022,8 @@ $('#chCount').textContent = CHAPTERS.length;
 $('#s1').textContent = DATA.length;
 $('#s2').textContent = DATA.filter(q => q.type === 'judge').length;
 $('#s3').textContent = DATA.filter(q => q.type === 'choice').length;
-$('#btnAns').classList.toggle('on', showAll);
-$('#btnAns').textContent = showAll ? '隐藏全部答案' : '显示全部答案';
 renderAll();
+applyMode(mode, false);
 </script>
 </body>
 </html>
