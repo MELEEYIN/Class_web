@@ -1,0 +1,16 @@
+<div class="ex">
+  <div class="ex-h"><span class="ex-n">练 1</span>先自己做，再展开答案</div>
+  <p class="ex-q">求 <span class="fm"><span class="lm">lim<span class="s">x→0</span></span> <span class="fr"><span class="n">cos x − e<sup>−x²/2</sup></span><span class="d">x<sup>4</sup></span></span></span>。</p>
+  <details class="ex-a"><summary>展开答案与解析</summary><div class="ex-a-body">
+    <p><b>解　</b>第一步，分母是 x<sup>4</sup>，两个函数都展到 x<sup>4</sup>：<span class="fm">cos x = 1 − <span class="fr"><span class="n">x<sup>2</sup></span><span class="d">2</span></span> + <span class="fr"><span class="n">x<sup>4</sup></span><span class="d">24</span></span> + o(x<sup>4</sup>)</span>；<br>第二步，对 <span class="fm">e<sup>u</sup> = 1 + u + <span class="fr"><span class="n">u<sup>2</sup></span><span class="d">2</span></span> + o(u<sup>2</sup>)</span> 取 <span class="fm">u = −x<sup>2</sup>/2</span>，得 <span class="fm">e<sup>−x²/2</sup> = 1 − <span class="fr"><span class="n">x<sup>2</sup></span><span class="d">2</span></span> + <span class="fr"><span class="n">x<sup>4</sup></span><span class="d">8</span></span> + o(x<sup>4</sup>)</span>；<br>第三步，两式相减，1 与 −x<sup>2</sup>/2 两项抵消，只剩 <span class="fm">(<span class="fr"><span class="n">1</span><span class="d">24</span></span> − <span class="fr"><span class="n">1</span><span class="d">8</span></span>)x<sup>4</sup> = −<span class="fr"><span class="n">x<sup>4</sup></span><span class="d">12</span></span> + o(x<sup>4</sup>)</span>，故原式 = <span class="fm">−<span class="fr"><span class="n">1</span><span class="d">12</span></span></span>。</p>
+    <p class="ex-t">泰勒求极限的关键是阶数「够用」：这题前两项都抵消，必须展到 x<sup>4</sup>，只展到 x<sup>2</sup> 会算出 0 这个错答案。</p>
+  </div></details>
+</div>
+<div class="ex">
+  <div class="ex-h"><span class="ex-n">练 2</span>先自己做，再展开答案</div>
+  <p class="ex-q">用二次多项式 <span class="fm">P<sub>2</sub>(x) = 1 + x + <span class="fr"><span class="n">x<sup>2</sup></span><span class="d">2</span></span></span> 近似 <span class="fm">e<sup>0.1</sup></span>，并估计误差。</p>
+  <details class="ex-a"><summary>展开答案与解析</summary><div class="ex-a-body">
+    <p><b>解　</b>第一步，写出带拉格朗日余项的展开：<span class="fm">e<sup>x</sup> = 1 + x + <span class="fr"><span class="n">x<sup>2</sup></span><span class="d">2</span></span> + <span class="fr"><span class="n">e<sup>ξ</sup>x<sup>3</sup></span><span class="d">6</span></span></span>，其中 ξ 介于 0 与 x 之间；<br>第二步，取 x = 0.1，得 <span class="fm">P<sub>2</sub>(0.1) = 1 + 0.1 + 0.005 = 1.105</span>；<br>第三步，估计余项：<span class="fm">|R<sub>2</sub>(0.1)| = <span class="fr"><span class="n">e<sup>ξ</sup> · 0.001</span><span class="d">6</span></span> &lt; <span class="fr"><span class="n">3 · 0.001</span><span class="d">6</span></span> = 0.0005</span>（因 0 &lt; ξ &lt; 0.1 时 e<sup>ξ</sup> &lt; e &lt; 3），所以 <span class="fm">e<sup>0.1</sup> ≈ 1.105</span>，误差不超过 0.0005（实际约 0.00017）。</p>
+    <p class="ex-t">余项里的 ξ 求不出来，只能「估」：拿 ξ 所在区间上 e<sup>ξ</sup> 的最大值把它放大。佩亚诺余项只能用来求极限，估误差必须用拉格朗日余项。</p>
+  </div></details>
+</div>

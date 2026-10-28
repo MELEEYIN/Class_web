@@ -1,0 +1,98 @@
+<p class="fig-intro">先看两张图建立直觉：第一张是「认类型」的流程——微分方程这一章的题几乎都是先分类、再套解法，算之前先知道自己面对的是哪一类；第二张画的是 y′ + y = x 的一族积分曲线，它们起点不同，但 x 增大后都被同一个特解 y = x − 1 拉过去，这就是「通解 = 齐次通解 + 一个特解」的几何样子。</p>
+
+<figure class="fig"><svg class="figsvg" viewBox="0 0 640 396" role="img" aria-label="微分方程类型判别流程图">
+  <defs>
+    <marker id="m7ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#9aa8bd"/>
+    </marker>
+  </defs>
+  <rect x="206" y="14" width="228" height="40" rx="8" fill="rgba(91,141,239,.14)" stroke="#5b8def" stroke-width="1.8"/>
+  <text x="320" y="39" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">第 1 步：数最高阶导数</text>
+  <path d="M320 54 V70" fill="none" stroke="#9aa8bd" stroke-width="1.6"/>
+  <path d="M158 70 H482" fill="none" stroke="#9aa8bd" stroke-width="1.6"/>
+  <path d="M158 70 V84" fill="none" stroke="#9aa8bd" stroke-width="1.6" marker-end="url(#m7ah)"/>
+  <path d="M482 70 V84" fill="none" stroke="#9aa8bd" stroke-width="1.6" marker-end="url(#m7ah)"/>
+  <text x="170" y="64" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">一阶</text>
+  <text x="470" y="64" text-anchor="end" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">二阶及以上</text>
+
+  <rect x="30" y="88" width="256" height="46" rx="8" fill="rgba(91,141,239,.14)" stroke="#5b8def" stroke-width="1.6"/>
+  <text x="158" y="106" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">① 能分离变量？</text>
+  <text x="158" y="124" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">dy/g(y) = f(x)dx</text>
+
+  <rect x="30" y="150" width="256" height="46" rx="8" fill="rgba(91,141,239,.14)" stroke="#5b8def" stroke-width="1.6"/>
+  <text x="158" y="168" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">② 能写成 φ(y/x)？</text>
+  <text x="158" y="186" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">令 u = y/x，化为可分离</text>
+
+  <rect x="30" y="212" width="256" height="46" rx="8" fill="rgba(91,141,239,.14)" stroke="#5b8def" stroke-width="1.6"/>
+  <text x="158" y="230" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">③ 是一阶线性？</text>
+  <text x="158" y="248" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">y′ + P(x)y = Q(x) 套公式</text>
+
+  <rect x="30" y="274" width="256" height="46" rx="8" fill="rgba(91,141,239,.14)" stroke="#5b8def" stroke-width="1.6"/>
+  <text x="158" y="292" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">④ 含 y 的 n 次方？</text>
+  <text x="158" y="310" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">伯努利：令 z = y<tspan dy="-4" font-size="9">1−n</tspan></text>
+
+  <rect x="354" y="88" width="256" height="46" rx="8" fill="rgba(91,141,239,.14)" stroke="#5b8def" stroke-width="1.6"/>
+  <text x="482" y="106" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">⑤ 缺 y 或缺 x？</text>
+  <text x="482" y="124" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">缺 y 用 p(x)，缺 x 用 p(y)</text>
+
+  <rect x="354" y="150" width="256" height="46" rx="8" fill="rgba(91,141,239,.14)" stroke="#5b8def" stroke-width="1.6"/>
+  <text x="482" y="168" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">⑥ 常系数齐次？</text>
+  <text x="482" y="186" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">写特征方程，看单根 / 重根 / 复根</text>
+
+  <rect x="354" y="212" width="256" height="46" rx="8" fill="rgba(91,141,239,.14)" stroke="#5b8def" stroke-width="1.6"/>
+  <text x="482" y="230" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">⑦ 右端非零？</text>
+  <text x="482" y="248" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">按 λ 是几重特征根乘 x 的几次</text>
+
+  <rect x="354" y="274" width="256" height="46" rx="8" fill="rgba(91,141,239,.14)" stroke="#5b8def" stroke-width="1.6"/>
+  <text x="482" y="292" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">⑧ 各项是幂次乘导数？</text>
+  <text x="482" y="310" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">欧拉方程：令 x = e<tspan dy="-4" font-size="9">t</tspan></text>
+
+  <path d="M158 134 V146" fill="none" stroke="#9aa8bd" stroke-width="1.6" marker-end="url(#m7ah)"/>
+  <path d="M158 196 V208" fill="none" stroke="#9aa8bd" stroke-width="1.6" marker-end="url(#m7ah)"/>
+  <path d="M158 258 V270" fill="none" stroke="#9aa8bd" stroke-width="1.6" marker-end="url(#m7ah)"/>
+  <path d="M482 134 V146" fill="none" stroke="#9aa8bd" stroke-width="1.6" marker-end="url(#m7ah)"/>
+  <path d="M482 196 V208" fill="none" stroke="#9aa8bd" stroke-width="1.6" marker-end="url(#m7ah)"/>
+  <path d="M482 258 V270" fill="none" stroke="#9aa8bd" stroke-width="1.6" marker-end="url(#m7ah)"/>
+
+  <rect x="96" y="340" width="448" height="44" rx="8" fill="none" stroke="#e0a03c" stroke-width="1.6" stroke-dasharray="6 4"/>
+  <text x="320" y="367" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">先认类型再套解法：类型认错，算得再对也白做</text>
+</svg><figcaption><b>图 7-1</b>微分方程的判别流程：左链是一阶方程的四种打法，右链是二阶及以上方程的五种打法。考试时先走这条链，再动笔算。</figcaption></figure>
+
+<figure class="fig"><svg class="figsvg" viewBox="0 0 640 300" role="img" aria-label="方程 y′ + y = x 的积分曲线族">
+  <path d="M80 200 L145 196 L210 186 L275 172.5 L340 156.9 L405 139.9 L470 122.1 L535 103.9 L600 85.3 L600 86 L535 105 L470 124 L405 143 L340 162 L275 181 L210 200 L145 219 L80 238 Z" fill="rgba(91,141,239,.14)" stroke="none"/>
+  <path d="M62 200 H614" fill="none" stroke="#9aa8bd" stroke-width="1.6"/>
+  <path d="M606 194 L614 200 L606 206" fill="none" stroke="#9aa8bd" stroke-width="1.6"/>
+  <path d="M80 288 V52" fill="none" stroke="#9aa8bd" stroke-width="1.6"/>
+  <path d="M74 60 L80 52 L86 60" fill="none" stroke="#9aa8bd" stroke-width="1.6"/>
+  <path d="M76 162 H84 M76 124 H84 M76 238 H84 M76 276 H84" fill="none" stroke="#9aa8bd" stroke-width="1.4"/>
+  <path d="M210 196 V204 M340 196 V204 M470 196 V204 M600 196 V204" fill="none" stroke="#9aa8bd" stroke-width="1.4"/>
+
+  <path d="M80 238 L600 86" fill="none" stroke="#e0a03c" stroke-width="1.6" stroke-dasharray="7 4"/>
+
+  <path d="M80 162 L145 172.9 L210 172 L275 164 L340 151.7 L405 136.8 L470 120.2 L535 102.7 L600 84.6" fill="none" stroke="#5b8def" stroke-width="1.6" stroke-opacity=".7"/>
+  <path d="M80 276 L145 242 L210 214 L275 189.5 L340 167.1 L405 146.1 L470 125.9 L535 106.2 L600 86.7" fill="none" stroke="#5b8def" stroke-width="1.6" stroke-opacity=".7"/>
+  <path d="M80 200 L145 196 L210 186 L275 172.5 L340 156.9 L405 139.9 L470 122.1 L535 103.9 L600 85.3" fill="none" stroke="#5b8def" stroke-width="2"/>
+
+  <text x="620" y="204" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">x</text>
+  <text x="88" y="48" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">y</text>
+  <text x="70" y="216" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">O</text>
+  <text x="210" y="220" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">1</text>
+  <text x="340" y="220" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">2</text>
+  <text x="470" y="220" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">3</text>
+  <text x="600" y="220" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">4</text>
+  <text x="68" y="166" text-anchor="end" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">1</text>
+  <text x="68" y="128" text-anchor="end" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">2</text>
+  <text x="68" y="242" text-anchor="end" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">−1</text>
+  <text x="68" y="280" text-anchor="end" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">−2</text>
+
+  <text x="100" y="74" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">通解 y = x − 1 + C·e<tspan dy="-4" font-size="9">−x</tspan></text>
+  <text x="100" y="96" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">起点高低由常数 C 决定</text>
+  <path d="M100 114 H134" fill="none" stroke="#e0a03c" stroke-width="1.6" stroke-dasharray="5 3"/>
+  <text x="140" y="118" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">特解 y = x − 1</text>
+
+  <text x="96" y="148" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">C = 2</text>
+  <text x="96" y="186" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">C = 1</text>
+  <text x="96" y="262" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">C = −1</text>
+
+  <text x="318" y="276" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">x 越大，e<tspan dy="-4" font-size="9">−x</tspan><tspan dy="4"> 越接近 0，三条曲线都贴向虚线</tspan></text>
+</svg><figcaption><b>图 7-2</b>y′ + y = x 的三条积分曲线（C = 2、1、−1）：常数只决定起点，x 增大时 e<sup>−x</sup> 衰减，曲线全部向特解 y = x − 1 靠拢。阴影是 C = 1 与特解之间的差，正是被衰减掉的齐次解那一部分。</figcaption></figure>

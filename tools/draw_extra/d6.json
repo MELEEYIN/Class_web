@@ -1,0 +1,183 @@
+{
+ "d6-s1": {
+  "figs": [
+   {
+    "cap": "主、俯、左三个视图不是随便摆的：主视图给出长和高，俯视图由向下投影得到长和宽，左视图由向右投影得到高和宽。图上三处对正关系就是三等——长对正（主与俯在竖直方向对齐）、高平齐（主与左在水平方向对齐）、宽相等（俯与左的深度相同，靠 45° 斜线转移）。量错一处，三个视图就合不上。",
+    "alt": "三视图的配置与长对正、高平齐、宽相等",
+    "svg": "<g fill='none' stroke='currentColor' stroke-width='2.2' stroke-linejoin='round'> <path d='M140 184 V144 H200 V104 H290 V184 Z'/> <path d='M140 216 H290 V276 H140 Z'/> <path d='M330 104 H390 V184 H330 Z'/> </g> <g fill='none' stroke='currentColor' stroke-width='2.2'> <line x1='200' y1='216' x2='200' y2='276'/> <line x1='330' y1='144' x2='390' y2='144'/> </g> <g stroke='#5b8def' stroke-width='1' stroke-dasharray='5 4'> <line x1='140' y1='184' x2='140' y2='216'/> <line x1='290' y1='184' x2='290' y2='216'/> <line x1='290' y1='104' x2='330' y2='104'/> <line x1='290' y1='184' x2='330' y2='184'/> </g> <g stroke='#e0a03c' stroke-width='1' stroke-dasharray='5 4'> <line x1='290' y1='216' x2='330' y2='216'/> <line x1='330' y1='216' x2='390' y2='276'/> <line x1='390' y1='276' x2='390' y2='188'/> </g> <g fill='#8fa3bd' font-size='13' text-anchor='end'> <text x='100' y='152'>主视图</text> <text x='100' y='252'>俯视图</text> </g> <text x='400' y='152' fill='#8fa3bd' font-size='13' text-anchor='start'>左视图</text> <g fill='#e0a03c' font-size='15' text-anchor='middle'> <text x='215' y='208'>长对正</text> <text x='310' y='96'>高平齐</text> </g> <text x='396' y='240' fill='#e0a03c' font-size='15' text-anchor='start'>宽相等</text>"
+   },
+   {
+    "cap": "机件上的倾斜部分向基本投影面投影会被压缩，得不到实形，所以要向与它平行的辅助投影面投影——这就是斜视图。图中箭头 A 表示投射方向垂直于倾斜表面；斜视图允许旋转放正，旋转后要在名称后面加旋转符号（半圆弧带箭头），字母写在箭头一端。斜视图只画倾斜部分的实形，断裂处用波浪线。",
+    "alt": "斜视图的投射方向、旋转符号与波浪线断裂边界",
+    "svg": "<g fill='none' stroke='currentColor' stroke-width='2.2' stroke-linejoin='round'> <path d='M60 190 H240 V240 H60 Z'/> <path d='M210 190 L260 103.4 L282 103.4 L232 190 Z'/></g> <line x1='166.4' y1='95.5' x2='227' y2='130.5' stroke='#e0a03c' stroke-width='2'/> <polygon points='227,130.5 213,128.8 218.5,119.2' fill='#e0a03c' stroke='none'/> <text x='160' y='89' font-size='16' fill='#e0a03c' text-anchor='end'>A</text> <path d='M386 84 H530 V134 q-8 -8 -16 0 q-8 8 -16 0 q-8 -8 -16 0 q-8 8 -16 0 q-8 -8 -16 0 q-8 8 -16 0 q-8 -8 -16 0 q-8 8 -16 0 q-8 -8 -16 0 Z' fill='none' stroke='currentColor' stroke-width='2.2'/> <path d='M440 62 A16 16 0 0 1 472 62' fill='none' stroke='#e0a03c' stroke-width='1.4'/> <polygon points='472,70 465,60 479,60' fill='#e0a03c' stroke='none'/> <text x='486' y='66' font-size='15' fill='#e0a03c'>A</text> <g fill='#8fa3bd' font-size='13' text-anchor='middle'> <text x='458' y='164'>斜视图（旋转放正）</text> <text x='458' y='184'>断裂处用波浪线</text> </g>"
+   }
+  ],
+  "pts": [
+   [
+    "三等关系的用法",
+    "主俯长对正、主左高平齐、俯左宽相等。宽相等靠 45° 斜线（或圆弧）转移：从俯视图引水平线到斜线，再竖直引到左视图。画图顺序是先定主视图，再向下量长、向右量高，最后用斜线转宽；三处对不上就是三等用错了。"
+   ],
+   [
+    "虚线什么时候才画",
+    "视图只画可见轮廓，不可见部分一般不画。只有当内部形状在其它视图上也表达不清、不画虚线会引起误解时才画虚线，且虚线不宜与粗实线、中心线重合；能用剖视表达的，优先用剖视而不堆虚线。"
+   ],
+   [
+    "向视图的字母规矩",
+    "用在视图不能按投影关系配置（位置不够、需要挪位）的场合。字母用大写拉丁字母 A、B、C，一律水平书写，写在视图正上方；投射方向箭头画在相应视图附近，箭头指向与投影方向一致。同一张图样里字母不得重复，也不能只写字母不画箭头。"
+   ],
+   [
+    "局部视图的边界",
+    "断裂边界用波浪线（细实线徒手画）或双折线；若被表达的局部结构外轮廓自身闭合（凸台、缺口、方孔），就直接以该轮廓为界，不再画波浪线。局部视图应尽量靠近被表达的部位，配置在投影方向一侧时可省略标注。"
+   ],
+   [
+    "斜视图与旋转",
+    "投射方向必须垂直于倾斜表面，得到的图形才反映实形；旋转放正时旋转角一般不超过 90°，并在视图名称后加旋转符号（半圆弧＋箭头），字母写在箭头一端。斜视图只表达倾斜部分，其余部分用波浪线断开不画。"
+   ]
+  ],
+  "note": "先看三处对正——长对正、高平齐、宽相等；再记三种特殊视图：向视图找箭头、局部视图找波浪线、斜视图找旋转符号。"
+ },
+ "d6-s2": {
+  "figs": [
+   {
+    "cap": "左右对称的机件，内外形状都要交代时用半剖：以对称中心线为界，一半画外形视图、一半画剖视。图上左半只保留外轮廓，不画虚线；右半把剖切平面后面的材料画上 45° 剖面线，中间空着的是孔。分界线是细点画线，不是粗实线，更不是波浪线——这是半剖最常见的扣分点。",
+    "alt": "半剖视图：一半外形一半剖视，以细点画线分界",
+    "svg": "<defs><pattern id='d6h1' width='9' height='9' patternUnits='userSpaceOnUse'><line x1='0' y1='9' x2='9' y2='0' stroke='#9aa8bd' stroke-width='1'/></pattern></defs> <rect x='245' y='86' width='65' height='140' fill='url(#d6h1)' stroke='none'/> <g fill='none' stroke='currentColor' stroke-width='2.2'> <rect x='150' y='86' width='160' height='140'/> <line x1='245' y1='86' x2='245' y2='226'/> </g> <line x1='230' y1='66' x2='230' y2='234' stroke='#9aa8bd' stroke-width='1' stroke-dasharray='12 3 2 3'/> <text x='230' y='58' fill='#8fa3bd' font-size='13' text-anchor='middle'>对称中心线</text> <text x='150' y='254' fill='#8fa3bd' font-size='13' text-anchor='start'>一半画外形（不画虚线）</text> <text x='330' y='254' fill='#8fa3bd' font-size='13' text-anchor='start'>一半画剖视（45° 剖面线）</text> <text x='330' y='278' fill='#e0a03c' font-size='13' text-anchor='start'>分界＝细点画线</text>"
+   },
+   {
+    "cap": "剖视图的标注只有三样东西：粗短画标出剖切平面的起、止位置（画在剖切线两端，粗而短），箭头表示投射方向（垂直于粗短画），字母给这个视图命名。三样合成 A—A，写在相应视图的正上方。只有「沿对称面剖切＋按投影关系配置＋中间没有其他图形隔开」三条同时成立，才允许全省。",
+    "alt": "剖视图标注的三要素：粗短画、箭头、字母",
+    "svg": "<defs><pattern id='d6h2' width='9' height='9' patternUnits='userSpaceOnUse'><line x1='0' y1='9' x2='9' y2='0' stroke='#9aa8bd' stroke-width='1'/></pattern></defs> <rect x='280' y='118' width='112' height='134' fill='url(#d6h2)' stroke='currentColor' stroke-width='2.2'/> <rect x='56' y='118' width='154' height='134' fill='none' stroke='currentColor' stroke-width='2.2'/> <g stroke='#e0a03c' stroke-width='4'> <line x1='132' y1='102' x2='132' y2='116'/> <line x1='132' y1='254' x2='132' y2='268'/> </g> <g stroke='#e0a03c' stroke-width='1.6'> <line x1='132' y1='102' x2='166' y2='102'/> <line x1='132' y1='268' x2='166' y2='268'/> </g> <polygon points='170,102 158,96 158,108' fill='#e0a03c' stroke='none'/> <polygon points='170,268 158,262 158,274' fill='#e0a03c' stroke='none'/> <g fill='#e0a03c' font-size='15' text-anchor='middle'> <text x='188' y='108'>A</text> <text x='188' y='274'>A</text> <text x='336' y='106'>A—A</text> </g> <text x='56' y='86' fill='#8fa3bd' font-size='13' text-anchor='start'>粗短画＝剖切位置　箭头＝投射方向　A—A＝视图名称</text>"
+   }
+  ],
+  "pts": [
+   [
+    "剖面线的三条硬规定",
+    "金属材料画 45° 细实线，间距 2～4 mm 且全图均匀；同一零件的各剖视图方向一致、间距相同；相邻两零件的剖面线方向相反或间距不等。剖面线不得与轮廓线、尺寸线平行，也不能画成大间距的粗线，漏画等于没剖。"
+   ],
+   [
+    "省略标注的三个条件",
+    "①剖切平面通过机件的对称面或基本对称面；②剖视图按投影关系配置；③剖视图与剖切位置之间没有其他图形隔开。三条同时满足，箭头和字母都可省略；缺任何一条，就得把剖切符号写全，光写 A—A 不算标注。"
+   ],
+   [
+    "半剖分界是点画线",
+    "视图与剖视的分界就是对称中心线，用细点画线，不另画粗实线，更不能用波浪线；视图那一半不画虚线。若对称中心线正好与轮廓线重合，这个方向就不宜半剖，应改用局部剖，否则分界无从落笔。"
+   ],
+   [
+    "局部剖的波浪线三不准",
+    "波浪线用细实线徒手绘制，不得与轮廓线重合、不得画在轮廓线的延长线上、不得穿越孔槽（遇孔洞要断开）。它只表示断裂位置，不能代替中心线或分界线，也不能画成规则的圆弧或折线。"
+   ],
+   [
+    "剖切面的三种形式",
+    "单一剖切平面最常用；几个平行的剖切平面得到阶梯剖，转折处不画线、两端与转折处都要标字母；几个相交的剖切平面得到旋转剖，先把倾斜部分旋转到平行于投影面再投影，标注方式同阶梯剖。三者都属全剖。"
+   ]
+  ],
+  "note": "剖视三问：剖到多少（全／半／局部）、剖面线画没画、标注三要素全不全；分界永远是细点画线。"
+ },
+ "d6-s3": {
+  "figs": [
+   {
+    "cap": "同一个断面，画在视图外面就是移出断面：轮廓用粗实线，一般正好配在剖切线的延长线上，此时连标注都可以省。画在视图里面就是重合断面：轮廓改用细实线，且与视图重叠的地方视图线要断开让位。两者的剖面线都是 45° 细实线——所以只看轮廓线的粗细就能分辨。",
+    "alt": "移出断面用粗实线画在视图外，重合断面用细实线画在视图内",
+    "svg": "<defs><pattern id='d6h3' width='9' height='9' patternUnits='userSpaceOnUse'><line x1='0' y1='9' x2='9' y2='0' stroke='#9aa8bd' stroke-width='1'/></pattern></defs> <g fill='none' stroke='currentColor' stroke-width='2.2'> <path d='M60 146 H186 V152 H214 V146 H396'/> <path d='M444 146 H540 V194 H444'/> <path d='M60 194 H396'/> <path d='M60 146 V194'/> </g> <line x1='200' y1='116' x2='200' y2='144' stroke='#9aa8bd' stroke-width='1' stroke-dasharray='5 4'/> <path d='M186 57.8 V64 H214 V57.8 A28 28 0 1 1 186 57.8 Z' fill='url(#d6h3)' stroke='currentColor' stroke-width='2.2'/> <path d='M408 151.6 V155 H432 V151.6 A22 22 0 1 1 408 151.6 Z' fill='url(#d6h3)' stroke='#9aa8bd' stroke-width='1'/> <text x='200' y='44' fill='#8fa3bd' font-size='13' text-anchor='middle'>移出断面：画在视图外，轮廓粗实线</text> <text x='420' y='216' fill='#8fa3bd' font-size='13' text-anchor='middle'>重合断面：画在视图内，轮廓细实线</text> <text x='208' y='136' fill='#8fa3bd' font-size='13' text-anchor='start'>剖切线延长线</text>"
+   },
+   {
+    "cap": "断面图最容易被忽略的一条：剖切平面要垂直于被剖切部分的主要轮廓线（或通过圆弧中心）。斜着切圆柱，切口是椭圆，长轴被拉长到 d/cos α，图形就不是真实断面；垂直切才得到直径不变的圆。图上两行对比，斜切那一行得到的断面明显被拉长，这样量出来的尺寸全是错的。",
+    "alt": "剖切面斜交时断面被拉长为椭圆，垂直时得到真实的圆",
+    "svg": "<g fill='none' stroke='currentColor' stroke-width='2.2' stroke-linejoin='round'> <path d='M64 132 L214 86 L222 110 L72 156 Z'/> <rect x='64' y='216' width='150' height='30'/> </g> <g stroke='#e0a03c' stroke-width='1' stroke-dasharray='5 4'> <line x1='140' y1='66' x2='140' y2='174'/> <line x1='140' y1='206' x2='140' y2='270'/> </g> <ellipse cx='380' cy='110' rx='34' ry='18' fill='none' stroke='currentColor' stroke-width='2.2'/> <circle cx='380' cy='232' r='17' fill='none' stroke='currentColor' stroke-width='2.2'/> <text x='60' y='58' fill='#8fa3bd' font-size='13' text-anchor='start'>① 斜切：剖切面与轴线斜交</text> <text x='380' y='150' fill='#8fa3bd' font-size='13' text-anchor='middle'>断面被拉长成椭圆</text> <text x='60' y='196' fill='#8fa3bd' font-size='13' text-anchor='start'>② 垂直：剖切面垂直于轴线</text> <text x='380' y='274' fill='#8fa3bd' font-size='13' text-anchor='middle'>真实圆形断面</text>"
+   }
+  ],
+  "pts": [
+   [
+    "线宽一句话区分",
+    "移出断面轮廓用粗实线（与视图轮廓同粗），重合断面轮廓用细实线；两者的剖面符号都是 45° 细实线，间距与剖视图一致。考判断题时只看轮廓线的粗细就能定名，不必去数图形几块。"
+   ],
+   [
+    "标注的三种省略",
+    "配置在剖切线延长线上的对称断面：箭头、字母全不注；配置在延长线上但不对称：只画箭头、不注字母；不配置在延长线上：箭头加字母 A—A 全注。旋转后放正的断面，还要在名称后加旋转符号。"
+   ],
+   [
+    "剖切面要与轮廓垂直",
+    "剖切平面应垂直于被剖切部分的主要轮廓线，或通过圆弧中心，否则断面被拉长、形状失真（斜切圆柱得椭圆，长轴为 d/cos α）。这是断面作图最常见的错误，也是「图形为什么不像」的根源。"
+   ],
+   [
+    "移出断面的位置",
+    "优先放在剖切线的延长线上，这样标注可省；放不下时才移到其他位置，此时必须注字母，且图形方向要与投影方向一致。断面图应尽量靠近剖切位置，不要为了排版把它挪到图纸另一头。"
+   ],
+   [
+    "重合断面的附加限制",
+    "重合断面画在视图内，不得影响视图清晰：与视图线重叠处视图线断开让位；断面不对称时仍需画箭头；重合断面一般不注尺寸，因为它压在视图上，尺寸线无处安放。"
+   ]
+  ],
+  "note": "剖视看「剖开后」，断面只看「切口」；移出断面粗实线、重合断面细实线，看线宽就分得清。"
+ },
+ "d6-s4": {
+  "figs": [
+   {
+    "cap": "细小的退刀槽、小圆角在原图上按原比例画不清，就用局部放大图：先用细实线圆在原图上把部位圈出来，旁边注罗马数字 Ⅰ；再把该部位按大于原图的比例单独画出，图形上方写「比例＋罗马数字」，如 2:1 Ⅰ。放大图上的尺寸仍注实物的真实数值，不乘放大倍数。",
+    "alt": "局部放大图：原图细实线圆圈部位，放大图上注比例和罗马数字",
+    "svg": "<g fill='none' stroke='currentColor' stroke-width='2.2'> <path d='M60 140 H160 V146 H180 V140 H300'/> <path d='M60 186 H300'/> <path d='M60 140 V186'/> <path d='M300 140 V186'/> </g> <circle cx='170' cy='147' r='30' fill='none' stroke='#e0a03c' stroke-width='1'/> <text x='170' y='104' fill='#e0a03c' font-size='15' text-anchor='middle'>Ⅰ</text> <line x1='192' y1='126' x2='392' y2='104' stroke='#e0a03c' stroke-width='1' stroke-dasharray='5 4'/> <g fill='none' stroke='currentColor' stroke-width='2.2'> <path d='M400 112 H460 V124 H500 V112 H560'/> <path d='M400 190 H560'/> <path d='M400 112 V190'/> <path d='M560 112 V190'/> </g> <text x='480' y='100' fill='#e0a03c' font-size='15' text-anchor='middle'>2:1 Ⅰ</text> <text x='60' y='214' fill='#8fa3bd' font-size='13' text-anchor='start'>原图上用细实线圆标出部位</text> <text x='400' y='214' fill='#8fa3bd' font-size='13' text-anchor='start'>放大图上方注「比例＋罗马数字」</text>"
+   },
+   {
+    "cap": "三处最常考的简化：左图法兰上一圈均布孔，只需画一个，其余用细点画线标位置并注「4×Ø8」；中图用两条相交细实线表示机件上的平面（斜面、曲面不能这么画）；右图长机件沿长度方向形状一致，可断开缩短，断裂处用波浪线或双折线，但尺寸必须注真实长度。",
+    "alt": "简化画法三例：均布孔只画一个、平面用相交细实线、长件断开",
+    "svg": "<line x1='225' y1='96' x2='225' y2='250' stroke='#9aa8bd' stroke-width='1'/> <line x1='410' y1='96' x2='410' y2='250' stroke='#9aa8bd' stroke-width='1'/> <circle cx='125' cy='150' r='48' fill='none' stroke='currentColor' stroke-width='2.2'/> <circle cx='125' cy='116' r='7' fill='none' stroke='currentColor' stroke-width='2.2'/> <g stroke='#9aa8bd' stroke-width='1' stroke-dasharray='12 3 2 3'> <line x1='125' y1='98' x2='125' y2='202'/> <line x1='77' y1='150' x2='173' y2='150'/> </g> <text x='125' y='216' fill='#e0a03c' font-size='13' text-anchor='middle'>4×Ø8</text> <text x='125' y='242' fill='#8fa3bd' font-size='13' text-anchor='middle'>均布孔只画一个</text> <path d='M250 120 L350 120 L372 186 L250 186 Z' fill='none' stroke='currentColor' stroke-width='2.2'/> <g stroke='#9aa8bd' stroke-width='1'> <line x1='250' y1='120' x2='372' y2='186'/> <line x1='350' y1='120' x2='250' y2='186'/> </g> <text x='310' y='216' fill='#8fa3bd' font-size='13' text-anchor='middle'>平面用相交细实线</text> <text x='310' y='242' fill='#e0a03c' font-size='13' text-anchor='middle'>斜面、曲面不可</text> <path d='M496 130 l6 8 l-6 8 l6 8 l-6 8 l6 8 H430 V130 Z' fill='none' stroke='currentColor' stroke-width='2.2'/> <path d='M540 130 l-6 8 l6 8 l-6 8 l6 8 l-6 8 H596 V130 Z' fill='none' stroke='currentColor' stroke-width='2.2'/> <g stroke='#e0a03c' stroke-width='1'> <line x1='430' y1='172' x2='430' y2='196'/> <line x1='596' y1='172' x2='596' y2='196'/> <line x1='430' y1='190' x2='596' y2='190'/> <polygon points='430,190 440,186.6 440,193.4' fill='#e0a03c' stroke='none'/> <polygon points='596,190 586,186.6 586,193.4' fill='#e0a03c' stroke='none'/> </g> <text x='513' y='184' fill='#e0a03c' font-size='13' text-anchor='middle'>800</text> <text x='513' y='216' fill='#8fa3bd' font-size='13' text-anchor='middle'>断开后缩短，注真实长度</text>"
+   }
+  ],
+  "pts": [
+   [
+    "放大图比例怎么读",
+    "2:1 表示图形:实物＝2:1，即图形放大一倍，与整张图样的比例无关。同一机件有多处放大时，依次用罗马数字 Ⅰ、Ⅱ、Ⅲ 标出，每个放大图上方都要写清「比例＋罗马数字」，不能只写比例不写编号。"
+   ],
+   [
+    "圆圈要用细实线",
+    "被放大的部位在原图上用细实线画圆（或长圆）圈出，旁注罗马数字；用粗实线就与轮廓线混淆了。放大图尽量放在被放大部位的附近，编号与原图圆旁的字母必须一致，两处对不上就是标注错误。"
+   ],
+   [
+    "均布孔怎么注",
+    "只画一个孔，其余用细点画线（中心线）标出位置，注写「4×Ø8」——数量在前、×号居中、规格在后。写成「Ø8×4」不合规范；孔的定位圆用中心线表示，也不得省略数量只注单个孔的直径。"
+   ],
+   [
+    "平面用相交细实线",
+    "机件上的平面在视图里可以用两条相交的细实线（对角线）表示，前提是这两条线不与图线重合、且该面确为平面。斜面、曲面不能用这种画法，否则会读成另一个平面；这属于简化画法，画了必须尺寸齐全。"
+   ],
+   [
+    "简化的共同底线",
+    "所有简化都以「不引起误解、图形清晰」为前提：简化后形状必须能唯一确定，尺寸标注齐全且不重复。均布孔、重复槽、长件断开都能简化，但不能把不同规格的孔混用一个代号，也不能简化掉定位尺寸。"
+   ]
+  ],
+  "note": "放大图＝细实线圆＋罗马数字＋「比例 Ⅰ」；简化的底线只有一条：不引起误解、尺寸齐全。"
+ },
+ "d6-s5": {
+  "figs": [
+   {
+    "cap": "同一台机件，两种画法的视图位置正好反过来：第一角里俯视图画在主视图下方、左视图画在右方；第三角里俯视图画在主视图上方、右视图画在右方。判断第几角最省事的办法就是看俯视图落在主视图的哪一侧——在上是第三角，在下是第一角。",
+    "alt": "第一角与第三角的视图配置对比：俯视图在下与在上",
+    "svg": "<g fill='none' stroke='currentColor' stroke-width='2.2'> <rect x='90' y='140' width='80' height='60'/> <rect x='90' y='216' width='80' height='46'/> <rect x='190' y='140' width='46' height='60'/> <rect x='410' y='140' width='80' height='60'/> <rect x='410' y='84' width='80' height='46'/> <rect x='510' y='140' width='46' height='60'/> </g> <line x1='320' y1='70' x2='320' y2='280' stroke='#9aa8bd' stroke-width='1' stroke-dasharray='5 4'/> <g fill='#8fa3bd' font-size='15' text-anchor='middle'> <text x='130' y='174'>主</text> <text x='213' y='174'>左</text> <text x='130' y='244'>俯</text> <text x='450' y='174'>主</text> <text x='533' y='174'>右</text> <text x='450' y='112'>俯</text> </g> <text x='163' y='122' fill='#8fa3bd' font-size='15' text-anchor='middle'>第一角（中国·德·俄）</text> <text x='483' y='68' fill='#8fa3bd' font-size='15' text-anchor='middle'>第三角（美·日）</text> <text x='163' y='286' fill='#e0a03c' font-size='13' text-anchor='middle'>俯视图在下方</text> <text x='483' y='286' fill='#e0a03c' font-size='13' text-anchor='middle'>俯视图在上方</text>"
+   },
+   {
+    "cap": "第三角画法必须在标题栏附近画出识别符号：由两个同心圆加一个锥台组成的图形，用粗实线绘制。图上没有这个符号，一律按第一角理解；看到了却按第一角去读，视图位置就会全部翻错。同一张图样里两种画法绝不能混用。",
+    "alt": "第三角画法的识别符号画在标题栏附近",
+    "svg": "<rect x='300' y='196' width='260' height='72' fill='none' stroke='currentColor' stroke-width='2.2'/> <line x1='300' y1='232' x2='560' y2='232' stroke='#9aa8bd' stroke-width='1'/> <line x1='430' y1='196' x2='430' y2='268' stroke='#9aa8bd' stroke-width='1'/> <circle cx='150' cy='230' r='34' fill='none' stroke='currentColor' stroke-width='2.2'/> <circle cx='150' cy='230' r='17' fill='none' stroke='currentColor' stroke-width='2.2'/> <g fill='#8fa3bd' font-size='13' text-anchor='middle'> <text x='365' y='220'>名称</text> <text x='365' y='256'>材料</text> <text x='495' y='220'>比例</text> <text x='495' y='256'>图号</text> </g> <text x='150' y='180' fill='#8fa3bd' font-size='15' text-anchor='middle'>识别符号</text> <text x='150' y='288' fill='#8fa3bd' font-size='13' text-anchor='middle'>两个同心圆＋锥台</text> <text x='430' y='186' fill='#e0a03c' font-size='13' text-anchor='middle'>画在标题栏附近</text> <text x='430' y='288' fill='#e0a03c' font-size='13' text-anchor='middle'>不画符号＝第一角</text>"
+   }
+  ],
+  "pts": [
+   [
+    "判断第几角的两步",
+    "先看标题栏附近有没有第三角识别符号，再看俯视图落在主视图的上方还是下方——上方是第三角、下方是第一角。还可以用左右视图核对：右视图在主视图右方是第三角，左视图在右方是第一角，两处不能互相矛盾。"
+   ],
+   [
+    "人—物—面 记法",
+    "第一角是「人—物—面」，物体夹在观察者与投影面之间；第三角是「人—面—物」，投影面夹在观察者与物体之间。口诀：物在中间＝第一角，面在中间＝第三角。这个顺序决定了投影面怎么展开，也就决定了视图摆在哪儿。"
+   ],
+   [
+    "第三角为什么读着顺",
+    "第三角把「从哪一侧看到的面」放在靠近主视图的那一侧，俯视图在上正好对应从上往下看，读图时方位与实物一致，所以美、日图纸多用。国内 GB/T 17451 规定优先采用第一角，第三角只作简介，考试只考区别不考作图。"
+   ],
+   [
+    "符号与混用",
+    "采用第三角画法必须在标题栏附近画出识别符号（两个同心圆加锥台，粗实线）；不画符号就按第一角理解。同一张图样里绝不能混用两种画法，也不能只在一两个视图上换角，这是识图课上最严重的错误。"
+   ]
+  ],
+  "note": "第一角「人—物—面」、第三角「人—面—物」；俯视图在上＝第三角，还要在标题栏旁找到同心圆符号。"
+ }
+}

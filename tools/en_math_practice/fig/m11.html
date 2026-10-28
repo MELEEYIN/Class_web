@@ -1,0 +1,43 @@
+<p class="fig-intro">先看两张图建立直觉：第一类的 ds 是曲线上的一小段弧长，与走向无关；第二类的 dx、dy 是这一段在两个坐标方向上的投影，一改方向就整体变号。格林公式则更进一步——把边界上绕一圈的环量，摊成区域内部的二重积分。</p>
+<figure class="fig"><svg class="figsvg" viewBox="0 0 640 300" role="img" aria-label="弧长元素 ds 与它在两个坐标方向上的投影 dx、dy">
+<line x1="60" y1="252" x2="596" y2="252" stroke="#9aa8bd" stroke-width="1.6"/>
+<polygon points="610,252 594,246 594,258" fill="#9aa8bd"/>
+<line x1="130" y1="290" x2="130" y2="58" stroke="#9aa8bd" stroke-width="1.6"/>
+<polygon points="130,44 124,60 136,60" fill="#9aa8bd"/>
+<text x="616" y="256" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">x</text>
+<text x="116" y="50" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">y</text>
+<path d="M234.1 228.9 A120 120 0 0 1 465.9 228.9" fill="none" stroke="#5b8def" stroke-width="2"/>
+<polygon points="364,140 350,134 350,146" fill="#5b8def"/>
+<polygon points="246.1,200 309,200 309,147.2" fill="rgba(91,141,239,.14)"/>
+<line x1="246.1" y1="200" x2="309" y2="200" stroke="#e0a03c" stroke-width="1.6" stroke-dasharray="5 4"/>
+<line x1="309" y1="200" x2="309" y2="147.2" stroke="#e0a03c" stroke-width="1.6" stroke-dasharray="5 4"/>
+<line x1="246.1" y1="200" x2="309" y2="147.2" stroke="#e0a03c" stroke-width="2"/>
+<circle cx="246.1" cy="200" r="2.8" fill="#e0a03c"/>
+<circle cx="309" cy="147.2" r="2.8" fill="#e0a03c"/>
+<text x="270" y="171" text-anchor="end" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">ds</text>
+<text x="277" y="217" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">dx</text>
+<text x="316" y="176" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">dy</text>
+<text x="398" y="136" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">L</text>
+<text x="402" y="286" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">ds² = dx² + dy²</text>
+</svg><figcaption><b>图 11-1</b> 弧长元素 ds 与坐标投影：橙色的一小段是曲线上的元素弧长，它的两条虚线直角边就是 dx 与 dy。<span class="fm">ds = √(dx<sup>2</sup> + dy<sup>2</sup>)</span> 恒为正，所以第一类曲线积分与方向无关；而 dx、dy 带正负号，这正是第二类曲线积分会因方向变号的原因。</figcaption></figure>
+<figure class="fig"><svg class="figsvg" viewBox="0 0 640 300" role="img" aria-label="格林公式示意：逆时针外边界与挖去奇点的小圆">
+<path d="M320 58 C212 58 130 92 130 160 C130 226 212 248 320 248 C430 248 520 226 520 160 C520 96 430 58 320 58 Z" fill="rgba(91,141,239,.14)" stroke="#5b8def" stroke-width="2"/>
+<circle cx="325" cy="153" r="38" fill="none" stroke="#e0a03c" stroke-width="1.8"/>
+<line x1="325" y1="115" x2="325" y2="60" stroke="#e0a03c" stroke-width="1.6" stroke-dasharray="5 4"/>
+<polygon points="238,62 252,56 252,68" fill="#5b8def"/>
+<polygon points="412,242 400,236 400,248" fill="#5b8def"/>
+<polygon points="515,124 509,138 521,138" fill="#5b8def"/>
+<polygon points="363,166 357,152 369,152" fill="#e0a03c"/>
+<line x1="52" y1="290" x2="96" y2="290" stroke="#9aa8bd" stroke-width="1.4"/>
+<polygon points="106,290 94,285 94,295" fill="#9aa8bd"/>
+<line x1="52" y1="290" x2="52" y2="250" stroke="#9aa8bd" stroke-width="1.4"/>
+<polygon points="52,240 47,252 57,252" fill="#9aa8bd"/>
+<text x="110" y="294" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">x</text>
+<text x="36" y="246" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">y</text>
+<text x="36" y="28" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">∮ Pdx + Qdy = ∬ (∂Q/∂x − ∂P/∂y) dxdy</text>
+<text x="36" y="46" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">外边界逆时针取正，挖去的洞取顺时针</text>
+<text x="238" y="212" font-family="system-ui,sans-serif" font-size="13" fill="#5b8def">D</text>
+<text x="325" y="157" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">奇点</text>
+<text x="372" y="124" font-family="system-ui,sans-serif" font-size="12" fill="#e0a03c">C</text>
+<text x="140" y="272" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">多连通区域：内边界顺时针，环量才不为 0</text>
+</svg><figcaption><b>图 11-2</b> 格林公式与挖洞：蓝色外边界 L 逆时针绕行，区域 D 填成半透明；若 D 内含奇点，就挖掉一个小圆 C（橙色），用虚线把边界剪开成多连通区域。此时<span class="fm">∮<sub>L</sub> Pdx + Qdy = ∬<sub>D</sub> (<span class="fr"><span class="n">∂Q</span><span class="d">∂x</span></span> − <span class="fr"><span class="n">∂P</span><span class="d">∂y</span></span>) dxdy</span> 要改成内外两条边界之和，且内边界必须取顺时针——这是「<span class="fm">∮ (x dy − y dx)/(x<sup>2</sup> + y<sup>2</sup>) = 2π</span>」这类题的唯一入口。</figcaption></figure>

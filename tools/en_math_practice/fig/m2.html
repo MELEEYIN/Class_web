@@ -1,0 +1,63 @@
+<p class="fig-intro">先看两张图建立直觉：第一张是<b>导数</b>——让割线的第二个点滑向定点，割线斜率的极限就是切线斜率；第二张是<b>微分</b>——用切线上的一小段 dy 去近似函数真正的增量 Δy。两件事其实是同一件事：曲线在一点附近，可以用一条直线「贴住」。</p>
+<figure class="fig"><svg class="figsvg" viewBox="0 0 640 300" role="img" aria-label="割线趋于切线的示意图" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">
+<path d="M70 255 H600" stroke="#9aa8bd" stroke-width="1.6" fill="none"/>
+<path d="M90 255 V30" stroke="#9aa8bd" stroke-width="1.6" fill="none"/>
+<polygon points="600,250 613,255 600,260" fill="#9aa8bd"/>
+<polygon points="90,20 84,32 96,32" fill="#9aa8bd"/>
+<text x="620" y="259" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">x</text>
+<text x="90" y="14" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">y</text>
+<text x="76" y="268" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">O</text>
+<path d="M290 220 L311 213.7 L332 206.8 L353 199.3 L374 191.2 L395 182.5 L416 173.2 L437 163.3 L458 152.8 L458 250 L290 250 Z" fill="rgba(91,141,239,.14)" stroke="none"/>
+<path d="M101 249.7 L122 248.8 L143 247.3 L164 245.2 L185 242.5 L206 239.2 L227 235.3 L248 230.8 L269 225.7 L290 220 L311 213.7 L332 206.8 L353 199.3 L374 191.2 L395 182.5 L416 173.2 L437 163.3 L458 152.8 L479 141.7 L500 130 L521 117.7 L542 104.8 L563 91.3" fill="none" stroke="#5b8def" stroke-width="2" stroke-linejoin="round"/>
+<path d="M238 240.8 L500 136" fill="none" stroke="#e0a03c" stroke-width="1.8" stroke-dasharray="6 4"/>
+<path d="M200 245.7 L545 147.1" fill="none" stroke="#e0a03c" stroke-width="2"/>
+<path d="M290 220 H458" fill="none" stroke="#9aa8bd" stroke-width="1.2" stroke-dasharray="5 4"/>
+<path d="M458 220 V152.8" fill="none" stroke="#9aa8bd" stroke-width="1.2" stroke-dasharray="5 4"/>
+<path d="M290 220 V250" fill="none" stroke="#9aa8bd" stroke-width="1.2" stroke-dasharray="5 4"/>
+<path d="M458 152.8 V250" fill="none" stroke="#9aa8bd" stroke-width="1.2" stroke-dasharray="5 4"/>
+<circle cx="290" cy="220" r="4" fill="#e0a03c"/>
+<circle cx="458" cy="152.8" r="4" fill="#5b8def"/>
+<path d="M96 48 H116" stroke="#e0a03c" stroke-width="2"/>
+<text x="122" y="52" font-family="system-ui,sans-serif" font-size="12" fill="#e0a03c">切线（实线）k = f′(x₀)</text>
+<path d="M96 70 H116" stroke="#e0a03c" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="122" y="74" font-family="system-ui,sans-serif" font-size="12" fill="#9aa8bd">割线（虚线）k = Δy / Δx</text>
+<text x="96" y="98" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">Δx → 0 时，割线转成切线</text>
+<text x="374" y="212" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">Δx</text>
+<text x="466" y="190" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">Δy</text>
+<text x="290" y="268" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">x₀</text>
+<text x="458" y="268" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">x₀ + Δx</text>
+</svg><figcaption><b>图 2-1</b> 割线趋于切线：Δx → 0 时，割线斜率 Δy/Δx 的极限就是切线斜率 f′(x₀)，这正是导数的几何定义。</figcaption></figure>
+<figure class="fig"><svg class="figsvg" viewBox="0 0 640 300" role="img" aria-label="微分 dy 与增量 Δy 的关系示意图" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">
+<path d="M70 255 H600" stroke="#9aa8bd" stroke-width="1.6" fill="none"/>
+<path d="M90 255 V30" stroke="#9aa8bd" stroke-width="1.6" fill="none"/>
+<polygon points="600,250 613,255 600,260" fill="#9aa8bd"/>
+<polygon points="90,20 84,32 96,32" fill="#9aa8bd"/>
+<text x="620" y="259" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">x</text>
+<text x="90" y="14" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">y</text>
+<text x="76" y="268" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">O</text>
+<path d="M206 239.2 L227 235.3 L248 230.8 L269 225.7 L290 220 L311 213.7 L332 206.8 L353 199.3 L374 191.2 L395 182.5 L416 173.2 L437 163.3 L458 152.8 L479 141.7 L500 130 L521 117.7" fill="none" stroke="#5b8def" stroke-width="2" stroke-linejoin="round"/>
+<path d="M269 225.7 L290 220 L311 213.7 L332 206.8 L353 199.3 L374 191.2 L395 182.5 L416 173.2 L437 163.3 L458 152.8 L479 141.7 L479 171.7 Z" fill="rgba(224,160,60,.2)" stroke="none"/>
+<path d="M200 243.4 L540 156" fill="none" stroke="#e0a03c" stroke-width="2"/>
+<path d="M269 225.7 H479" fill="none" stroke="#9aa8bd" stroke-width="1.2" stroke-dasharray="5 4"/>
+<path d="M473 225.7 V173.3" fill="none" stroke="#e0a03c" stroke-width="1.6" stroke-dasharray="5 4"/>
+<path d="M479 225.7 V141.7" fill="none" stroke="#5b8def" stroke-width="2"/>
+<path d="M475 225.7 H483" stroke="#5b8def" stroke-width="2"/>
+<path d="M475 141.7 H483" stroke="#5b8def" stroke-width="2"/>
+<path d="M269 225.7 V250" fill="none" stroke="#9aa8bd" stroke-width="1.2" stroke-dasharray="5 4"/>
+<path d="M479 141.7 V250" fill="none" stroke="#9aa8bd" stroke-width="1.2" stroke-dasharray="5 4"/>
+<path d="M269 250 V256" stroke="#9aa8bd" stroke-width="1.6"/>
+<path d="M479 250 V256" stroke="#9aa8bd" stroke-width="1.6"/>
+<circle cx="269" cy="225.7" r="4" fill="#5b8def"/>
+<circle cx="479" cy="141.7" r="4" fill="#5b8def"/>
+<path d="M96 48 H116" stroke="#e0a03c" stroke-width="2"/>
+<text x="122" y="52" font-family="system-ui,sans-serif" font-size="12" fill="#e0a03c">切线：y = f(x₀) + f′(x₀)(x − x₀)</text>
+<path d="M96 70 H116" stroke="#5b8def" stroke-width="2"/>
+<text x="122" y="74" font-family="system-ui,sans-serif" font-size="12" fill="#5b8def">曲线：y = f(x)</text>
+<text x="96" y="98" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">Δy = dy + o(Δx)</text>
+<text x="374" y="243" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">Δx</text>
+<text x="467" y="205" text-anchor="end" font-family="system-ui,sans-serif" font-size="12" fill="#e0a03c">dy</text>
+<text x="489" y="196" font-family="system-ui,sans-serif" font-size="12" fill="#5b8def">Δy</text>
+<text x="489" y="160" font-family="system-ui,sans-serif" font-size="12" fill="#e0a03c">o(Δx)</text>
+<text x="269" y="272" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">x₀</text>
+<text x="479" y="272" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">x₀ + Δx</text>
+</svg><figcaption><b>图 2-2</b> 微分是切线上的增量：Δy = f(x₀ + Δx) − f(x₀)，dy = f′(x₀)Δx；两者相差 o(Δx)，Δx 越小近似越好。</figcaption></figure>

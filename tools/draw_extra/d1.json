@@ -1,0 +1,134 @@
+{
+ "d1-s1": {
+  "figs": [
+   {
+    "cap": "五种基本幅面是「对折」关系：A0 沿长边对折得 A1，再对折得 A2……后一号的尺寸正好是前一号长边的一半，所以一张 A1 正好能装进 A0 里。也正因如此，国标才允许按 A0 的整数倍沿长边加长，画大图时不必另造尺寸。",
+    "alt": "五种图纸幅面的对折关系",
+    "svg": "<g stroke-width=\"1.4\" fill=\"none\">\n  <rect x=\"48\" y=\"44\" width=\"158\" height=\"224\" stroke=\"#9aa8bd\"/>\n  <rect x=\"228\" y=\"110\" width=\"112\" height=\"158\" stroke=\"#9aa8bd\"/>\n  <rect x=\"362\" y=\"156\" width=\"79\" height=\"112\" stroke=\"#9aa8bd\"/>\n  <rect x=\"463\" y=\"189\" width=\"56\" height=\"79\" stroke=\"#9aa8bd\"/>\n  <rect x=\"541\" y=\"212\" width=\"39\" height=\"56\" stroke=\"#5b8def\"/>\n</g>\n<g stroke=\"#9aa8bd\" stroke-width=\"1\" stroke-dasharray=\"4 4\">\n  <line x1=\"206\" y1=\"156\" x2=\"228\" y2=\"189\"/>\n  <line x1=\"340\" y1=\"189\" x2=\"362\" y2=\"212\"/>\n  <line x1=\"441\" y1=\"212\" x2=\"463\" y2=\"228\"/>\n  <line x1=\"519\" y1=\"228\" x2=\"541\" y2=\"240\"/>\n</g>\n<g fill=\"#8fa3bd\" font-size=\"14\" text-anchor=\"middle\">\n  <text x=\"127\" y=\"288\">A0</text>\n  <text x=\"284\" y=\"288\">A1</text>\n  <text x=\"401\" y=\"288\">A2</text>\n  <text x=\"491\" y=\"288\">A3</text>\n  <text x=\"560\" y=\"288\">A4</text>\n</g>\n<g fill=\"#8fa3bd\" font-size=\"13\" text-anchor=\"middle\">\n  <text x=\"127\" y=\"34\">841 × 1189</text>\n  <text x=\"284\" y=\"100\">594 × 841</text>\n  <text x=\"401\" y=\"146\">420 × 594</text>\n  <text x=\"491\" y=\"179\">297 × 420</text>\n</g>\n<text x=\"560\" y=\"34\" fill=\"#5b8def\" font-size=\"13\" text-anchor=\"middle\">长边对折</text>"
+   },
+   {
+    "cap": "尺寸三要素在一张图上怎么落位：尺寸界线从轮廓、轴线或对称中心线引出；尺寸线与被注线段平行，两端带箭头；数字写在尺寸线上方——水平尺寸字头朝上，竖直尺寸写在左侧。Ø60 这类小尺寸放不下箭头时，把箭头外置或用引出线标注。",
+    "alt": "尺寸界线、尺寸线、尺寸数字的注法",
+    "svg": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linejoin=\"round\">\n  <path d=\"M110 96h300v150h-300z\"/>\n</g>\n<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\">\n  <circle cx=\"260\" cy=\"171\" r=\"30\"/>\n</g>\n<g stroke=\"#9aa8bd\" stroke-width=\"1\" stroke-dasharray=\"12 3 2 3\">\n  <line x1=\"248\" y1=\"171\" x2=\"272\" y2=\"171\"/>\n  <line x1=\"260\" y1=\"159\" x2=\"260\" y2=\"183\"/>\n</g>\n<g stroke=\"#e0a03c\" stroke-width=\"1\">\n  <line x1=\"110\" y1=\"268\" x2=\"110\" y2=\"284\"/>\n  <line x1=\"410\" y1=\"268\" x2=\"410\" y2=\"284\"/>\n  <line x1=\"110\" y1=\"278\" x2=\"410\" y2=\"278\"/>\n  <path d=\"M110 278l9-3.4v6.8z\" fill=\"#e0a03c\" stroke=\"none\"/>\n  <path d=\"M410 278l-9-3.4v6.8z\" fill=\"#e0a03c\" stroke=\"none\"/>\n  <line x1=\"260\" y1=\"201\" x2=\"318\" y2=\"234\"/>\n  <line x1=\"318\" y1=\"234\" x2=\"356\" y2=\"234\"/>\n</g>\n<g fill=\"#8fa3bd\" font-size=\"13\" text-anchor=\"middle\">\n  <text x=\"260\" y=\"289\">尺寸线</text>\n  <text x=\"146\" y=\"289\" text-anchor=\"start\">尺寸界线</text>\n  <text x=\"260\" y=\"272\" fill=\"#e0a03c\">300</text>\n</g>\n<text x=\"364\" y=\"238\" fill=\"#8fa3bd\" font-size=\"13\" text-anchor=\"start\">Ø60（引出标注）</text>\n<text x=\"536\" y=\"60\" fill=\"#8fa3bd\" font-size=\"13\" text-anchor=\"middle\">粗实线=可见轮廓</text>\n<text x=\"536\" y=\"78\" fill=\"#9aa8bd\" font-size=\"13\" text-anchor=\"middle\">细点画线=轴线</text>"
+   }
+  ],
+  "pts": [
+   [
+    "相关国标号",
+    "幅面 GB/T 14689、比例 GB/T 14690、字体 GB/T 14691、图线 GB/T 17450（线型）与 GB/T 4457.4（线宽）——判断题常直接把标准号写进选项，认得出是「哪一条」即可。"
+   ],
+   [
+    "标题栏的内容",
+    "GB/T 10609.1 规定的标题栏包含：零件名称、材料、比例、图号、重量、厂标，以及设计、审核、批准人的签名与日期；教学用简化标题栏也必须有名称、材料、比例、图号四项。"
+   ],
+   [
+    "尺寸符号前缀",
+    "Ø 直径、R 半径、SØ 球直径、SR 球半径、□ 正方形、t 板厚、C 倒角（C1=1×45°）、EQS 均布。这些符号写在数字<b>前面</b>，和数字同一字号。"
+   ]
+  ],
+  "note": "先看线宽（粗:细=2:1）、再看图框与标题栏、最后确认尺寸数字是<b>真实大小</b>——判断题九成落在这三处。"
+ },
+ "d1-s2": {
+  "figs": [
+   {
+    "cap": "丁字尺的尺头必须贴紧图板上那条直边，沿尺身上边缘才画得出水平线；尺头不动、整体上下平移，就得到一族互相平行的水平线。三角板始终靠在尺身上滑，用两条直角边画竖直线，用斜边画 45°（或 30°、60°）斜线。画线时只动三角板、不动丁字尺，平行关系才保得住。",
+    "alt": "图板、丁字尺与三角板配合画水平线、竖直线与斜线",
+    "svg": "<g stroke=\"#9aa8bd\" stroke-width=\"1\" fill=\"none\">\n  <rect x=\"48\" y=\"58\" width=\"222\" height=\"206\"/>\n</g>\n<g stroke=\"currentColor\" stroke-width=\"1.6\" fill=\"none\">\n  <rect x=\"48\" y=\"118\" width=\"13\" height=\"46\"/>\n  <rect x=\"48\" y=\"118\" width=\"216\" height=\"10\"/>\n</g>\n<g stroke=\"#9aa8bd\" stroke-width=\"1\" fill=\"none\" stroke-dasharray=\"5 4\">\n  <rect x=\"48\" y=\"214\" width=\"13\" height=\"46\"/>\n  <rect x=\"48\" y=\"214\" width=\"216\" height=\"10\"/>\n</g>\n<g stroke=\"currentColor\" stroke-width=\"2.2\" fill=\"none\">\n  <line x1=\"62\" y1=\"118\" x2=\"258\" y2=\"118\"/>\n  <line x1=\"62\" y1=\"214\" x2=\"258\" y2=\"214\"/>\n  <line x1=\"180\" y1=\"134\" x2=\"180\" y2=\"240\"/>\n  <line x1=\"180\" y1=\"134\" x2=\"268\" y2=\"222\"/>\n</g>\n<polygon points=\"180,214 260,214 180,134\" fill=\"#1d2b42\" stroke=\"#8fa3bd\" stroke-width=\"1.4\"/>\n<g stroke=\"#e0a03c\" stroke-width=\"1\">\n  <line x1=\"282\" y1=\"118\" x2=\"282\" y2=\"214\"/>\n  <path d=\"M282 118l-3.4 9h6.8z\" fill=\"#e0a03c\" stroke=\"none\"/>\n  <path d=\"M282 214l-3.4-9h6.8z\" fill=\"#e0a03c\" stroke=\"none\"/>\n</g>\n<g fill=\"#8fa3bd\" font-size=\"13\">\n  <text x=\"48\" y=\"44\">丁字尺尺头贴紧图板左边</text>\n  <text x=\"150\" y=\"252\" text-anchor=\"middle\">图板</text>\n  <text x=\"292\" y=\"100\">上边缘 = 工作边</text>\n  <text x=\"292\" y=\"124\">平移 → 平行水平线</text>\n  <text x=\"292\" y=\"176\">三角板靠尺身</text>\n  <text x=\"292\" y=\"200\">⇒ 竖直线、45° 斜线</text>\n</g>"
+   },
+   {
+    "cap": "圆规的针尖有一个台阶：长尖扎进纸面定圆心，短的台阶尖落在纸面上，与铅芯尖端等高——这样转一圈半径才不会变，圆也不会画成螺旋。铅芯削成 60° 左右的斜尖，画粗线时换软一号的铅芯。分规两个尖都是针，只用来量取和等分，量完直接移到图上截取，不要用直尺量。",
+    "alt": "圆规针尖台阶与分规量取",
+    "svg": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\">\n  <circle cx=\"180\" cy=\"72\" r=\"8\"/>\n  <path d=\"M174 78 122 196\"/>\n  <path d=\"M186 78 238 196\"/>\n  <circle cx=\"470\" cy=\"82\" r=\"7\"/>\n  <path d=\"M464 88 434 190\"/>\n  <path d=\"M476 88 506 190\"/>\n</g>\n<g stroke=\"currentColor\" stroke-width=\"1.8\" fill=\"none\" stroke-linecap=\"round\">\n  <line x1=\"122\" y1=\"196\" x2=\"122\" y2=\"222\"/>\n  <line x1=\"122\" y1=\"196\" x2=\"134\" y2=\"196\"/>\n  <line x1=\"134\" y1=\"196\" x2=\"134\" y2=\"206\"/>\n  <polygon points=\"233,192 243,192 238,206\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\"/>\n  <line x1=\"434\" y1=\"190\" x2=\"434\" y2=\"208\"/>\n  <line x1=\"506\" y1=\"190\" x2=\"506\" y2=\"208\"/>\n</g>\n<line x1=\"100\" y1=\"206\" x2=\"272\" y2=\"206\" stroke=\"#9aa8bd\" stroke-width=\"1\" stroke-dasharray=\"5 4\"/>\n<g stroke=\"#e0a03c\" stroke-width=\"1\">\n  <line x1=\"434\" y1=\"224\" x2=\"506\" y2=\"224\"/>\n  <path d=\"M434 224l9-3.4v6.8z\" fill=\"#e0a03c\" stroke=\"none\"/>\n  <path d=\"M506 224l-9-3.4v6.8z\" fill=\"#e0a03c\" stroke=\"none\"/>\n</g>\n<g fill=\"#8fa3bd\" font-size=\"13\">\n  <text x=\"180\" y=\"44\" text-anchor=\"middle\">圆规</text>\n  <text x=\"470\" y=\"54\" text-anchor=\"middle\">分规</text>\n  <text x=\"52\" y=\"252\">长针尖扎入纸面定圆心</text>\n  <text x=\"52\" y=\"274\">短台阶尖与铅芯落在纸面 → 半径不变</text>\n  <text x=\"470\" y=\"246\" text-anchor=\"middle\">量取后直接移到图上</text>\n  <text x=\"470\" y=\"270\" text-anchor=\"middle\">两针尖都尖，用于量取与等分</text>\n</g>"
+   }
+  ],
+  "pts": [
+   [
+    "图板与图纸的固定",
+    "图板常用 0 号 900×1200、1 号 600×900、2 号 450×600，左边那条直边是工作边，只准尺头贴着滑、不许磕碰。图纸四角用胶带粘住，纸边与图板边平行；用图钉会在板面留孔，久了工作边就不直。"
+   ],
+   [
+    "三角板能画出哪些角度",
+    "30°、45°、60°、90° 直接画；两块三角板与丁字尺组合，还能画出 15° 的整数倍：15°、75°、105°、120°、135°、150°。三角板上的刻度不能当直尺量尺寸——边被磨圆后读数就不准，量长度一律用分规在比例尺上取。"
+   ],
+   [
+    "圆规画大圆的两个动作",
+    "半径超过圆规张角时加延伸杆；针尖扎稳后一手压住针头、一手捏转柄，顺时针一次转到底，中途停笔会留下接痕。铅芯与纸面保持垂直、削成 60° 斜尖；画粗实线弧换 B 或 2B，比画直线用的铅芯软一号。"
+   ],
+   [
+    "分规的用法",
+    "分规两个尖都是针尖，用来量取线段、等分线段、把半径从比例尺搬到图上。等分线段时从一端试量、逐步逼近，不要一次猜；量得的长度直接以针尖在图上截取，不要用直尺读图上的毫米数再换算——比例一改就错。"
+   ]
+  ],
+  "note": "尺头靠左不动、尺身平移到哪，水平线就平行到哪；竖直线与斜线交给<b>三角板</b>。"
+ },
+ "d1-s3": {
+  "figs": [
+   {
+    "cap": "斜度 1:5 是把 180 的长度抬起 36，比值 0.2，与角度无关；标注时用细实线画一条与水平成 30° 的符号线，符号的斜向要与实际斜向一致。锥度 1:5 指的是 (D−d)/L=0.2，符号是一个等腰三角形，顶角朝锥度收缩的方向。两者都写成 1:n 的比值，写成 11° 这样的度数就错了。",
+    "alt": "斜度与锥度的符号和标注",
+    "svg": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linejoin=\"round\">\n  <path d=\"M70 222h180v-36z\"/>\n  <path d=\"M350 156l170 17v34l-170 17z\"/>\n</g>\n<line x1=\"334\" y1=\"190\" x2=\"534\" y2=\"190\" stroke=\"#9aa8bd\" stroke-width=\"1\" stroke-dasharray=\"12 3 2 3\"/>\n<g stroke=\"#e0a03c\" stroke-width=\"1\" fill=\"none\">\n  <line x1=\"258\" y1=\"206\" x2=\"292\" y2=\"206\"/>\n  <line x1=\"258\" y1=\"206\" x2=\"288\" y2=\"188\"/>\n  <polygon points=\"534,178 534,202 558,190\"/>\n</g>\n<g fill=\"#e0a03c\" font-size=\"14\">\n  <text x=\"298\" y=\"198\">1:5</text>\n  <text x=\"564\" y=\"196\">1:5</text>\n</g>\n<g fill=\"#8fa3bd\" font-size=\"13\">\n  <text x=\"70\" y=\"252\">斜度 1:5：上升 1、水平走 5</text>\n  <text x=\"70\" y=\"274\">写成比值，不写度数</text>\n  <text x=\"350\" y=\"252\">锥度 1:5 ＝ (D−d)/L</text>\n  <text x=\"350\" y=\"274\">等腰三角形符号，顶角朝小端</text>\n</g>"
+   },
+   {
+    "cap": "要画一条 R60 的弧，同时与一条水平线、一条竖直线相切，第一步不是画弧而是找圆心：距两条线各 60 作两条平行线，交点 O 就是圆心。再从 O 向两条线作垂线，垂足就是两个切点；以 O 为心、60 为半径，只画两个切点之间那一段。顺序反了——先画弧再找切点——弧就落不到该落的位置。",
+    "alt": "用 R 圆弧连接两条已知直线的作图步骤",
+    "svg": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\">\n  <line x1=\"80\" y1=\"250\" x2=\"300\" y2=\"250\"/>\n  <line x1=\"300\" y1=\"250\" x2=\"300\" y2=\"90\"/>\n</g>\n<path d=\"M240 250A60 60 0 0 0 300 190\" fill=\"none\" stroke=\"#5b8def\" stroke-width=\"2.2\"/>\n<g stroke=\"#9aa8bd\" stroke-width=\"1\" fill=\"none\" stroke-dasharray=\"5 4\">\n  <line x1=\"200\" y1=\"190\" x2=\"292\" y2=\"190\"/>\n  <line x1=\"240\" y1=\"150\" x2=\"240\" y2=\"242\"/>\n</g>\n<g fill=\"none\" stroke=\"#e0a03c\" stroke-width=\"1.4\">\n  <circle cx=\"240\" cy=\"190\" r=\"5\"/>\n  <circle cx=\"240\" cy=\"250\" r=\"4\"/>\n  <circle cx=\"300\" cy=\"190\" r=\"4\"/>\n</g>\n<g fill=\"#e0a03c\" font-size=\"13\" text-anchor=\"middle\">\n  <text x=\"206\" y=\"178\">①</text>\n  <text x=\"262\" y=\"174\">②</text>\n  <text x=\"254\" y=\"236\">③</text>\n  <text x=\"284\" y=\"210\">④</text>\n</g>\n<text x=\"336\" y=\"104\" fill=\"#8fa3bd\" font-size=\"13\">① 距 R 作平行线 → 圆心轨迹</text>\n<text x=\"336\" y=\"134\" fill=\"#8fa3bd\" font-size=\"13\">② 两轨迹交点 = 圆心 O</text>\n<text x=\"336\" y=\"164\" fill=\"#8fa3bd\" font-size=\"13\">③ 垂足 / 连心线 = 切点</text>\n<text x=\"336\" y=\"194\" fill=\"#8fa3bd\" font-size=\"13\">④ 以 O 为心、R 为半径画弧</text>\n<text x=\"336\" y=\"234\" fill=\"#e0a03c\" font-size=\"13\">外切加 R、内切减 R</text>"
+   }
+  ],
+  "pts": [
+   [
+    "正六边形：0.866 与 D 的关系",
+    "圆规以半径 R 截圆周六次即得六个顶点，不用量角器；也可过圆心画 30°、60° 线交圆取点。六边形对角距 = D（外接圆直径），对边距 = 0.866D，画螺母、六角头时这两个数直接查。常见错误：把对边距当成 D 去截圆。"
+   ],
+   [
+    "正五边形的近似作法",
+    "平分半径 OB 得 M，以 M 为心、MC（C 为另一半径端点）为半径画弧交水平直径于 N，CN 即为边长。五边形边长 = 2R·sin36° = 0.588D。先求边长再依次截圆，比用量角器量 72° 准，也不会累积误差。"
+   ],
+   [
+    "锥度是斜度的两倍",
+    "斜度 1:5 → tanα = 0.2 → α = 11.3°；锥度 1:5 → (D−d)/L = 0.2，半锥角 = 5.7°，全锥角 11.4°。同一个 1:5，锥度对应的角度约是斜度的两倍。常错点：把锥度当成单边斜度算。"
+   ],
+   [
+    "圆心轨迹三板斧",
+    "与已知直线相切：作距直线 R 的平行线；与已知圆弧外切：以已知圆心为心、R+r 为半径画弧；内切：半径取 |R−r|。两条轨迹的交点才是圆心，切点在连心线（或其延长线）与圆弧的交点上。常见错误：把圆心直接取在已知圆上。"
+   ],
+   [
+    "椭圆：四心法与线绳法",
+    "四心法是近似画法：连长短轴端点，取 CE = OA−OC，作中垂线定出两个圆心，再对称得另两个；四段弧的切点靠连心线确定，画过头会出现折角。要精确椭圆用线绳法：绳长 = 长轴，两焦点间距 = 2√(a²−b²)。"
+   ]
+  ],
+  "note": "连接弧：<b>平行线定圆心、连心线定切点</b>、两切点之间画弧——顺序不能倒。"
+ },
+ "d1-s4": {
+  "figs": [
+   {
+    "cap": "一张平面图形先定基准：长度方向取左边线，高度方向取底边，后面所有定位尺寸都从这两个基准量起。图上 280、120 只说明形状多大，是定形尺寸；70、60 说明孔心在哪，是定位尺寸，缺一个孔就定不住位。基准选得对不对，看每个尺寸是不是都能从基准或已注尺寸推出来。",
+    "alt": "平面图形的尺寸基准、定形尺寸与定位尺寸",
+    "svg": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linejoin=\"round\">\n  <path d=\"M170 96h280v120h-280z\"/>\n</g>\n<circle cx=\"240\" cy=\"156\" r=\"22\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\"/>\n<g stroke=\"#9aa8bd\" stroke-width=\"1\" stroke-dasharray=\"12 3 2 3\">\n  <line x1=\"214\" y1=\"156\" x2=\"266\" y2=\"156\"/>\n  <line x1=\"240\" y1=\"130\" x2=\"240\" y2=\"182\"/>\n</g>\n<g stroke=\"#5b8def\" stroke-width=\"2.6\">\n  <line x1=\"170\" y1=\"96\" x2=\"170\" y2=\"216\"/>\n  <line x1=\"170\" y1=\"216\" x2=\"450\" y2=\"216\"/>\n</g>\n<g stroke=\"#e0a03c\" stroke-width=\"1\" fill=\"none\">\n  <line x1=\"170\" y1=\"216\" x2=\"170\" y2=\"284\"/>\n  <line x1=\"450\" y1=\"216\" x2=\"450\" y2=\"284\"/>\n  <line x1=\"170\" y1=\"272\" x2=\"450\" y2=\"272\"/>\n  <path d=\"M170 272l9-3.4v6.8z\" fill=\"#e0a03c\" stroke=\"none\"/>\n  <path d=\"M450 272l-9-3.4v6.8z\" fill=\"#e0a03c\" stroke=\"none\"/>\n  <line x1=\"170\" y1=\"96\" x2=\"110\" y2=\"96\"/>\n  <line x1=\"170\" y1=\"216\" x2=\"110\" y2=\"216\"/>\n  <line x1=\"122\" y1=\"96\" x2=\"122\" y2=\"216\"/>\n  <path d=\"M122 96l-3.4 9h6.8z\" fill=\"#e0a03c\" stroke=\"none\"/>\n  <path d=\"M122 216l-3.4-9h6.8z\" fill=\"#e0a03c\" stroke=\"none\"/>\n  <line x1=\"240\" y1=\"178\" x2=\"240\" y2=\"252\"/>\n  <line x1=\"170\" y1=\"244\" x2=\"240\" y2=\"244\"/>\n  <path d=\"M170 244l9-3.4v6.8z\" fill=\"#e0a03c\" stroke=\"none\"/>\n  <path d=\"M240 244l-9-3.4v6.8z\" fill=\"#e0a03c\" stroke=\"none\"/>\n  <line x1=\"266\" y1=\"156\" x2=\"508\" y2=\"156\"/>\n  <line x1=\"450\" y1=\"216\" x2=\"508\" y2=\"216\"/>\n  <line x1=\"496\" y1=\"156\" x2=\"496\" y2=\"216\"/>\n  <path d=\"M496 156l-3.4 9h6.8z\" fill=\"#e0a03c\" stroke=\"none\"/>\n  <path d=\"M496 216l-3.4-9h6.8z\" fill=\"#e0a03c\" stroke=\"none\"/>\n</g>\n<g fill=\"#e0a03c\" font-size=\"13\" text-anchor=\"middle\">\n  <text x=\"310\" y=\"262\">280</text>\n  <text x=\"202\" y=\"234\">70</text>\n</g>\n<text x=\"114\" y=\"160\" fill=\"#e0a03c\" font-size=\"13\" text-anchor=\"end\">120</text>\n<text x=\"488\" y=\"186\" fill=\"#e0a03c\" font-size=\"13\" text-anchor=\"end\">60</text>\n<text x=\"44\" y=\"56\" fill=\"#5b8def\" font-size=\"13\">蓝线：长度基准＝左边线，高度基准＝底边</text>\n<text x=\"44\" y=\"80\" fill=\"#e0a03c\" font-size=\"13\">橙线：280、120 是定形尺寸，70、60 是定位尺寸</text>"
+   },
+   {
+    "cap": "四步的次序是死的：先画基准线（中心线、底面线），再画定形与定位尺寸都齐全的已知线段，然后画只知一个定位条件的中间线段，最后画只靠相切的连接线段。前一步没画完就跳到下一步，圆心无处可求，画面就卡住了。第 ④ 步那两个 R12 圆角就是连接线段：只知道半径，靠与底板顶面、立板侧面相切定出圆心。",
+    "alt": "平面图形四步作图顺序",
+    "svg": "<g fill=\"none\">\n  <line x1=\"108\" y1=\"100\" x2=\"108\" y2=\"232\" stroke=\"#9aa8bd\" stroke-width=\"1\" stroke-dasharray=\"12 3 2 3\"/>\n  <line x1=\"58\" y1=\"214\" x2=\"158\" y2=\"214\" stroke=\"#9aa8bd\" stroke-width=\"1\" stroke-dasharray=\"12 3 2 3\"/>\n  <line x1=\"256\" y1=\"100\" x2=\"256\" y2=\"232\" stroke=\"#9aa8bd\" stroke-width=\"1\" stroke-dasharray=\"12 3 2 3\"/>\n  <line x1=\"206\" y1=\"214\" x2=\"306\" y2=\"214\" stroke=\"#9aa8bd\" stroke-width=\"1\" stroke-dasharray=\"12 3 2 3\"/>\n  <line x1=\"404\" y1=\"100\" x2=\"404\" y2=\"232\" stroke=\"#9aa8bd\" stroke-width=\"1\" stroke-dasharray=\"12 3 2 3\"/>\n  <line x1=\"354\" y1=\"214\" x2=\"454\" y2=\"214\" stroke=\"#9aa8bd\" stroke-width=\"1\" stroke-dasharray=\"12 3 2 3\"/>\n  <line x1=\"548\" y1=\"100\" x2=\"548\" y2=\"232\" stroke=\"#9aa8bd\" stroke-width=\"1\" stroke-dasharray=\"12 3 2 3\"/>\n  <line x1=\"498\" y1=\"214\" x2=\"598\" y2=\"214\" stroke=\"#9aa8bd\" stroke-width=\"1\" stroke-dasharray=\"12 3 2 3\"/>\n</g>\n<g fill=\"none\" stroke=\"#9aa8bd\" stroke-width=\"1\" stroke-dasharray=\"5 4\">\n  <line x1=\"182\" y1=\"64\" x2=\"182\" y2=\"240\"/><line x1=\"330\" y1=\"64\" x2=\"330\" y2=\"240\"/><line x1=\"474\" y1=\"64\" x2=\"474\" y2=\"240\"/>\n</g>\n<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linejoin=\"round\">\n  <path d=\"M211 188H301V214H211Z\"/>\n  <path d=\"M238 118H274V188H238Z\"/>\n  <path d=\"M359 188H449V214H359Z\"/>\n  <path d=\"M386 118H422V188H386Z\"/>\n  <path d=\"M503 214H593V188H578A12 12 0 0 1 566 176V118H530V176A12 12 0 0 1 518 188H503Z\"/>\n</g>\n<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\">\n  <circle cx=\"404\" cy=\"146\" r=\"8\"/>\n  <circle cx=\"548\" cy=\"146\" r=\"8\"/>\n</g>\n<g fill=\"#8fa3bd\" font-size=\"13.5\" text-anchor=\"middle\">\n  <text x=\"108\" y=\"252\">① 基准线</text><text x=\"256\" y=\"252\">② 已知线段</text><text x=\"404\" y=\"252\">③ 中间线段</text><text x=\"548\" y=\"252\">④ 连接线段</text>\n</g>\n<text x=\"320\" y=\"278\" fill=\"#e0a03c\" font-size=\"13\" text-anchor=\"middle\">顺序颠倒 → 圆心求不出，画不下去</text>"
+   }
+  ],
+  "pts": [
+   [
+    "基准怎么选",
+    "对称图形取对称中心线，圆弧集中的地方取大圆中心线，底板类取底面或端面。一个方向只留一个主要基准，其余用辅助基准并注出联系尺寸。常见错误：长度方向从左边量、高度方向又从顶面量，基准不统一，加工时对不上刀。"
+   ],
+   [
+    "三步判定线段类型",
+    "先看定形尺寸齐不齐（不齐说明图画错了），再数定位尺寸：2 个 → 已知线段；1 个 → 中间线段；0 个 → 连接线段。半径 R 给了、圆心要靠相切求出来的，一律是连接线段，不能先画。判定只看条件个数，不看线段画起来难不难。"
+   ],
+   [
+    "封闭尺寸链要删一个",
+    "同一方向上首尾相接、绕成一圈的一组尺寸叫封闭尺寸链，必须删掉其中不重要的一个（通常是总长或最次要的段长）。例：总长 280 与 70、140、70 同时注出就是封闭链。检查方法：某个尺寸能由其余尺寸算出，就说明多了一个。"
+   ],
+   [
+    "加深与描图的顺序",
+    "先曲后直、先上后下、先左后右，同类线型一次画完，避免频繁换笔；中心线、对称线最后统一补，两端要超出轮廓 2–5 mm。加深后逐条核对线宽粗:细 = 2:1、同类线型宽度一致，再把尺寸数字写在尺寸线上方。"
+   ]
+  ],
+  "note": "先认基准、再数定位尺寸——<b>两个是已知、一个是中间、零个是连接</b>。"
+ }
+}

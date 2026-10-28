@@ -1,0 +1,42 @@
+<p class="fig-intro">先看两张图建立直觉：第一张是「sin x / x 凭什么极限等于 1」，第二张是「渐近线凭什么能当曲线的替身」。</p>
+
+<figure class="fig"><svg class="figsvg" viewBox="0 0 640 300" role="img" aria-label="sin x 比 x 被 1 与 cos x 夹逼的示意图">
+<path d="M40 165 H604" stroke="#9aa8bd" stroke-width="1.6" fill="none"/>
+<path d="M596 160 L606 165 L596 170" stroke="#9aa8bd" stroke-width="1.6" fill="none"/>
+<path d="M320 286 V36" stroke="#9aa8bd" stroke-width="1.6" fill="none"/>
+<path d="M315 44 L320 34 L325 44" stroke="#9aa8bd" stroke-width="1.6" fill="none"/>
+<path d="M144 165 V170 M232 165 V170 M320 165 V170 M408 165 V170 M496 165 V170" stroke="#9aa8bd" stroke-width="1.2" fill="none"/>
+<text x="144" y="184" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd" text-anchor="middle">−2π</text>
+<text x="232" y="184" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd" text-anchor="middle">−π</text>
+<text x="320" y="184" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd" text-anchor="middle">0</text>
+<text x="408" y="184" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd" text-anchor="middle">π</text>
+<text x="496" y="184" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd" text-anchor="middle">2π</text>
+<polygon points="276.0,65.0 280.4,65.0 284.8,65.0 289.2,65.0 293.6,65.0 298.0,65.0 302.4,65.0 306.8,65.0 311.2,65.0 315.6,65.0 320.0,65.0 324.4,65.0 328.8,65.0 333.2,65.0 337.6,65.0 342.0,65.0 346.4,65.0 350.8,65.0 355.2,65.0 359.6,65.0 364.0,65.0 364.0,165.0 359.6,149.4 355.2,134.1 350.8,119.6 346.4,106.2 342.0,94.3 337.6,84.1 333.2,75.9 328.8,69.9 324.4,66.2 320.0,65.0 315.6,66.2 311.2,69.9 306.8,75.9 302.4,84.1 298.0,94.3 293.6,106.2 289.2,119.6 284.8,134.1 280.4,149.4 276.0,165.0" fill="rgba(91,141,239,.14)" stroke="none"/>
+<path d="M40 65 H604" stroke="#e0a03c" stroke-width="1.4" stroke-dasharray="8 5" fill="none"/>
+<path d="M276.0,165.0 L280.4,149.4 L284.8,134.1 L289.2,119.6 L293.6,106.2 L298.0,94.3 L302.4,84.1 L306.8,75.9 L311.2,69.9 L315.6,66.2 L320.0,65.0 L324.4,66.2 L328.8,69.9 L333.2,75.9 L337.6,84.1 L342.0,94.3 L346.4,106.2 L350.8,119.6 L355.2,134.1 L359.6,149.4 L364.0,165.0" stroke="#e0a03c" stroke-width="1.6" stroke-dasharray="4 4" fill="none"/>
+<path d="M40.0,170.4 L51.2,166.8 L62.4,162.6 L73.6,158.4 L84.8,154.8 L96.0,152.6 L107.2,152.3 L118.4,154.0 L129.6,157.7 L140.8,163.2 L152.0,169.7 L163.2,176.3 L174.4,182.0 L185.6,185.8 L196.8,186.6 L208.0,183.9 L219.2,177.3 L230.4,166.8 L241.6,153.0 L252.8,136.9 L264.0,119.5 L275.2,102.5 L286.4,87.3 L297.6,75.3 L308.8,67.6 L320.0,65.0 L331.2,67.6 L342.4,75.3 L353.6,87.3 L364.8,102.5 L376.0,119.5 L387.2,136.9 L398.4,153.0 L409.6,166.8 L420.8,177.3 L432.0,183.9 L443.2,186.6 L454.4,185.8 L465.6,182.0 L476.8,176.3 L488.0,169.7 L499.2,163.2 L510.4,157.7 L521.6,154.0 L532.8,152.3 L544.0,152.6 L555.2,154.8 L566.4,158.4 L577.6,162.6 L588.8,166.8 L600.0,170.4" stroke="#5b8def" stroke-width="2" fill="none"/>
+<path d="M118 116 L152 166" stroke="#9aa8bd" stroke-width="1" stroke-dasharray="3 3" fill="none"/>
+<path d="M394 198 L368 168" stroke="#9aa8bd" stroke-width="1" stroke-dasharray="3 3" fill="none"/>
+<text x="46" y="58" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">y = 1</text>
+<text x="52" y="112" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">y = sin x / x</text>
+<text x="398" y="212" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">y = cos x</text>
+</svg><figcaption><b>图 1-1</b> 夹逼：当 |x| &lt; π/2 时，cos x ≤ sin x / x ≤ 1，蓝色阴影就是被夹住的那块区域。x → 0 时上下两条边界一起挤到 y = 1，夹在中间的曲线只能跟着趋近 1 —— 这就是第一个重要极限的来历；而 |x| 变大以后曲线在 y = 0 附近来回衰减，说明 1 只是 x → 0 时的极限，不是它的值。</figcaption></figure>
+
+<figure class="fig"><svg class="figsvg" viewBox="0 0 640 300" role="img" aria-label="斜渐近线与垂直渐近线示意图">
+<path d="M40 201 H604" stroke="#9aa8bd" stroke-width="1.6" fill="none"/>
+<path d="M596 196 L606 201 L596 206" stroke="#9aa8bd" stroke-width="1.6" fill="none"/>
+<path d="M225 290 V36" stroke="#9aa8bd" stroke-width="1.6" fill="none"/>
+<path d="M220 44 L225 34 L230 44" stroke="#9aa8bd" stroke-width="1.6" fill="none"/>
+<text x="219" y="222" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd" text-anchor="end">0</text>
+<text x="274" y="222" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd" text-anchor="end">1</text>
+<polygon points="318.5,78.7 324.0,84.4 329.5,88.3 335.0,91.0 340.5,92.8 346.0,93.9 357.0,94.8 368.0,94.3 379.0,93.0 390.0,91.0 406.5,87.3 423.0,82.9 439.5,78.0 456.0,72.9 456.0,86.6 439.5,93.2 423.0,99.8 406.5,106.4 390.0,113.0 379.0,117.4 368.0,121.8 357.0,126.2 346.0,130.6 340.5,132.8 335.0,135.0 329.5,137.2 324.0,139.4 318.5,141.6" fill="rgba(91,141,239,.14)" stroke="none"/>
+<path d="M280 25 V286" stroke="#e0a03c" stroke-width="1.8" stroke-dasharray="5 5" fill="none"/>
+<path d="M60 245 L610 25" stroke="#e0a03c" stroke-width="1.8" stroke-dasharray="7 5" fill="none"/>
+<path d="M60.0,256.0 L65.5,254.1 L71.0,252.2 L76.5,250.3 L82.0,248.4 L87.5,246.6 L93.0,244.7 L98.5,242.9 L104.0,241.2 L109.5,239.4 L115.0,237.7 L120.5,236.0 L126.0,234.3 L131.5,232.7 L137.0,231.1 L142.5,229.6 L148.0,228.1 L153.5,226.7 L159.0,225.4 L164.5,224.2 L170.0,223.0 L175.5,222.0 L181.0,221.0 L186.5,220.3 L192.0,219.7 L197.5,219.3 L203.0,219.2 L208.5,219.4 L214.0,220.1 L219.5,221.2 L225.0,223.0 L230.5,225.7 L236.0,229.6 L241.5,235.3 L247.0,243.5 L249.8,249.1 L252.5,256.0 L255.3,264.7 L256.9,271.0 L258.0,275.8 L259.1,281.1 L259.7,284.1 L261.9,297.6" stroke="#5b8def" stroke-width="2" fill="none"/>
+<path d="M298.7,20.2 L300.9,32.9 L302.0,38.2 L304.8,49.3 L307.5,58.0 L310.3,64.9 L313.0,70.5 L318.5,78.7 L324.0,84.4 L329.5,88.3 L335.0,91.0 L340.5,92.8 L346.0,93.9 L357.8,94.8 L368.0,94.3 L379.0,93.0 L390.0,91.0 L406.5,87.3 L423.0,82.9 L439.5,78.0 L456.0,72.9 L478.0,65.6 L500.0,58.0 L527.5,48.2 L555.0,38.2 L571.5,32.1 L588.0,25.9" stroke="#5b8def" stroke-width="2" fill="none"/>
+<text x="100" y="222" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">y = x + 1</text>
+<text x="274" y="44" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd" text-anchor="end">x = 1</text>
+<text x="86" y="106" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">f(x) = x + 1 + 2 / (x − 1)</text>
+<text x="86" y="128" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">距离 2 / (x − 1) → 0</text>
+<text x="86" y="150" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">故 y = x + 1 是斜渐近线</text>
+</svg><figcaption><b>图 1-2</b> 斜渐近线：f(x) = (x² + 1)/(x − 1) 拆成 x + 1 + 2/(x − 1)。x → ±∞ 时那条尾巴 2/(x − 1) → 0，曲线与直线 y = x + 1 的竖直距离（蓝色阴影）越往右越薄，所以直线可以当曲线的替身；反过来 x → 1 时尾巴爆炸，曲线被拉向无穷，于是 x = 1 是垂直渐近线。求渐近线就是「先拆，再看每一条尾巴的归宿」。</figcaption></figure>

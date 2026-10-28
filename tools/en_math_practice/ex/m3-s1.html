@@ -1,0 +1,16 @@
+<div class="ex">
+  <div class="ex-h"><span class="ex-n">练 1</span>先自己做，再展开答案</div>
+  <p class="ex-q">设 f(x) 在 [0,1] 上连续，在 (0,1) 内可导，且 f(0) = f(1) = 0。证明：存在 ξ ∈ (0,1)，使得 f′(ξ) + 2f(ξ) = 0。</p>
+  <details class="ex-a"><summary>展开答案与解析</summary><div class="ex-a-body">
+    <p><b>解　</b>第一步，构造辅助函数 <span class="fm">F(x) = e<sup>2x</sup>f(x)</span>，它在 [0,1] 上连续、在 (0,1) 内可导，且 <span class="fm">F(0) = 0</span>、<span class="fm">F(1) = e<sup>2</sup>f(1) = 0</span>，两端相等；<br>第二步，由罗尔定理，存在 ξ ∈ (0,1) 使 <span class="fm">F′(ξ) = 0</span>；<br>第三步，<span class="fm">F′(x) = e<sup>2x</sup>[f′(x) + 2f(x)]</span>，而 <span class="fm">e<sup>2ξ</sup></span> 恒不为零，于是 <span class="fm">f′(ξ) + 2f(ξ) = 0</span>。</p>
+    <p class="ex-t">看到「f′ + k f」就先想 <span class="fm">e<sup>kx</sup>f(x)</span>：乘一个恒正的因子不改变零点，只把待证式凑成一个乘积的导数。</p>
+  </div></details>
+</div>
+<div class="ex">
+  <div class="ex-h"><span class="ex-n">练 2</span>先自己做，再展开答案</div>
+  <p class="ex-q">设 0 &lt; a &lt; b，证明：<span class="fm"><span class="fr"><span class="n">b − a</span><span class="d">b</span></span> &lt; ln<span class="fr"><span class="n">b</span><span class="d">a</span></span> &lt; <span class="fr"><span class="n">b − a</span><span class="d">a</span></span></span>。</p>
+  <details class="ex-a"><summary>展开答案与解析</summary><div class="ex-a-body">
+    <p><b>解　</b>第一步，取 <span class="fm">f(x) = ln x</span>，它在 [a,b] 上连续、在 (a,b) 内可导，由拉格朗日定理，存在 ξ ∈ (a,b) 使 <span class="fm">ln b − ln a = <span class="fr"><span class="n">b − a</span><span class="d">ξ</span></span></span>；<br>第二步，由 a &lt; ξ &lt; b 得 <span class="fm"><span class="fr"><span class="n">1</span><span class="d">b</span></span> &lt; <span class="fr"><span class="n">1</span><span class="d">ξ</span></span> &lt; <span class="fr"><span class="n">1</span><span class="d">a</span></span></span>，两边同乘正数 b − a 得 <span class="fm"><span class="fr"><span class="n">b − a</span><span class="d">b</span></span> &lt; <span class="fr"><span class="n">b − a</span><span class="d">ξ</span></span> &lt; <span class="fr"><span class="n">b − a</span><span class="d">a</span></span></span>；<br>第三步，把中间的 (b − a)/ξ 换回 <span class="fm">ln<span class="fr"><span class="n">b</span><span class="d">a</span></span></span>，即得所证。</p>
+    <p class="ex-t">拉格朗日只告诉你 ξ 存在、不告诉你在哪，所以两边界的来源是「a &lt; ξ &lt; b」这个夹逼；想直接解出 ξ 是走不通的。</p>
+  </div></details>
+</div>

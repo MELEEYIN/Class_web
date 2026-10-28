@@ -1,0 +1,9 @@
+<div class="ex">
+<div class="ex-h"><span class="ex-n">练 1</span>先自己做，再展开答案</div>
+<p class="ex-q">已知 <span class="fm">y<sub>1</sub> = x</span> 是方程 <span class="fm">y″ − <span class="fr"><span class="n">2</span><span class="d">x</span></span>y′ + <span class="fr"><span class="n">2</span><span class="d">x²</span></span>y = 0</span>（x &gt; 0）的一个解，求它的通解。</p>
+<details class="ex-a"><summary>展开答案与解析</summary>
+<div class="ex-a-body">
+<p><b>解　</b>先验算：y<sub>1</sub> = x 时 y<sub>1</sub>′ = 1，y<sub>1</sub>″ = 0，代入得 0 − <span class="fr"><span class="n">2</span><span class="d">x</span></span> + <span class="fr"><span class="n">2</span><span class="d">x</span></span> = 0，确实是解；<br>设 y = xu(x)，则 y′ = u + xu′，y″ = 2u′ + xu″，代入方程后含 u 的项全部抵消，只剩 xu″ = 0；<br>故 u″ = 0，u = C<sub>1</sub> + C<sub>2</sub>x，回代得 <b>y = C<sub>1</sub>x + C<sub>2</sub>x²</b>；<br>再用朗斯基行列式确认线性无关：W = x·2x − 1·x² = x² ≠ 0，所以这确实是通解。</p>
+<p class="ex-t">已知一个解求通解，标准做法是设 y = u(x)·y<sub>1</sub> 降阶，二阶降成一阶；直接猜出第二个解 x² 更快，但要验算并说明它与 y<sub>1</sub> 不成比例（W ≠ 0），否则只能算「一个解」。</p>
+</div></details>
+</div>

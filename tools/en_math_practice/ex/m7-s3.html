@@ -1,0 +1,9 @@
+<div class="ex">
+<div class="ex-h"><span class="ex-n">练 1</span>先自己做，再展开答案</div>
+<p class="ex-q">求齐次方程 <span class="fm">y′ = <span class="fr"><span class="n">x² + y²</span><span class="d">xy</span></span></span> 满足 <span class="fm">y(1) = 1</span> 的特解。</p>
+<details class="ex-a"><summary>展开答案与解析</summary>
+<div class="ex-a-body">
+<p><b>解　</b>分子分母都是二次齐次，令 u = y/x，即 y = ux，则 y′ = u + x·<span class="fr"><span class="n">du</span><span class="d">dx</span></span>，右端化为 <span class="fm">(1 + u²)/u = <span class="fr"><span class="n">1</span><span class="d">u</span></span> + u</span>；<br>代回得 u + xu′ = <span class="fr"><span class="n">1</span><span class="d">u</span></span> + u，即 xu′ = <span class="fr"><span class="n">1</span><span class="d">u</span></span>，分离变量得 u du = <span class="fr"><span class="n">dx</span><span class="d">x</span></span>；<br>积分得 <span class="fm">u²/2 = ln x + C<sub>1</sub></span>，即 u² = 2ln x + C；<br>回代 u = y/x 得 y² = 2x²ln x + Cx²，代入 y(1) = 1 定出 C = 1，所以 <b>y² = x²(2ln x + 1)</b>，即 <b>y = x√(2ln x + 1)</b>。</p>
+<p class="ex-t">齐次方程的标志是「分子分母同次」，而不是「式子里有 y/x」；令 u = y/x 之后一定要记得 y′ = u + xu′ 里的 xu′ 那一项，丢掉它就退化成可分离变量了。</p>
+</div></details>
+</div>

@@ -89,3 +89,45 @@ python tools/math_explain.py --check   # 只报告覆盖情况，不写文件
 
 讲解块插在 `<div class="sect-h">` 与 `<ol class="kpt">` 之间，右栏目录仍是「章 → 节 → 知识点」。
 **重跑 `build_en_math.py` 之后必须再跑一次本脚本**，否则页面会退回没有讲解的状态。
+
+## 高等数学页的「章首图解 + 节末练习」注入
+
+同一页还有两层手写内容，源文件放在 `tools/en_math_practice/`：
+
+- `ex/mN-sK.html` —— 每节末尾 1~2 道练习，题干 + `<details class="ex-a">` 折叠答案
+- `fig/mN.html` —— 每章 `<p class="lead">` 之后的 `p.fig-intro` + 1~2 张手写 SVG
+
+```powershell
+python tools/math_practice.py           # 注入 / 覆盖旧块（幂等）
+python tools/math_practice.py --check   # 只报告覆盖与结构问题，不写文件
+```
+
+练习插在 `<ol class="kpt">` 的 `</ol>` 之后（不会跑进讲解块里），图解插在章首导语之后。
+
+### 正确的重生成顺序
+
+```powershell
+python tools/build_en_math.py     # 页面骨架
+python tools/math_explain.py      # 逐节讲解
+python tools/math_practice.py     # 章首图解 + 节末练习
+python tools/build_en_home.py     # 首页统计（节数、习题数等）
+```
+
+## 工程制图页的「节内图解 + 补充知识点」
+
+`site/en/draw.html` 由 `tools/build_en_draw.py` 从 `tools/draw_data_a.py` / `draw_data_b.py` 渲染。
+图解与补充知识点不改生成器，而是放在 `tools/draw_extra/dN.json`：
+
+```json
+{ "d1-s1": {
+    "figs": [ { "alt": "…", "cap": "…", "svg": "<g>…</g>" } ],
+    "pts":  [ ["相关国标号", "…"] ],
+    "note": "看图口诀一句话" } }
+```
+
+- `svg` 只放 `<svg>` 的**内部内容**，外壳 `viewBox="0 0 640 320"` 由生成器补上，图号「图 N-M」自动编号
+- 线色语义：`currentColor` 2.2 = 可见轮廓；`#9aa8bd` 1 = 细线/轴线（点画线再加 `stroke-dasharray="12 3 2 3"`）；
+  `#e0a03c` = 尺寸；`#5b8def` = 强调；文字 `fill="#8fa3bd"`，不要写 `font-size` 以外的行内样式
+- `figs` 排在该节知识点前，`pts` 追加在知识点末尾（渲染成带 accent 底的补充条目），`note` 显示在最后一行
+
+重跑 `python tools/build_en_draw.py` 即生效（9 章 38 节）；改了 JSON 不需要动 Python。

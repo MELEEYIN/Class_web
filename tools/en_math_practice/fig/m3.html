@@ -1,0 +1,43 @@
+<p class="fig-intro">先看两张图建立直觉：<b>图 3-1</b> 把「存在 ξ」还原成一个几何事实——两端等高的曲线上，必定有一点的切线是水平的；<b>图 3-2</b> 说明二阶导数的符号怎样决定曲线弯向哪边，以及拐点处切线会「穿过」曲线。第一节和第四节的定义，看图比背文字快。</p>
+<figure class="fig"><svg class="figsvg" viewBox="0 0 640 300" role="img" aria-label="罗尔定理示意图：两端等高时曲线上存在水平切线">
+  <path d="M120 240 C185 205 245 92 330 92 C415 92 475 205 540 240 Z" fill="rgba(91,141,239,.14)"/>
+  <path d="M50 240 H612" stroke="#9aa8bd" stroke-width="1.6"/>
+  <path d="M612 240 l-9 -4 v8 z" fill="#9aa8bd"/>
+  <path d="M80 255 V48" stroke="#9aa8bd" stroke-width="1.6"/>
+  <path d="M80 48 l-4 9 h8 z" fill="#9aa8bd"/>
+  <path d="M120 240 C185 205 245 92 330 92 C415 92 475 205 540 240" fill="none" stroke="#5b8def" stroke-width="2"/>
+  <path d="M258 92 H402" stroke="#e0a03c" stroke-width="1.6" stroke-dasharray="5 4"/>
+  <path d="M330 98 V236" stroke="#e0a03c" stroke-width="1.4" stroke-dasharray="4 4"/>
+  <circle cx="330" cy="92" r="4" fill="#e0a03c"/>
+  <circle cx="120" cy="240" r="3.5" fill="#5b8def"/>
+  <circle cx="540" cy="240" r="3.5" fill="#5b8def"/>
+  <text x="86" y="60" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">y</text>
+  <text x="596" y="232" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">x</text>
+  <text x="84" y="258" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">O</text>
+  <text x="112" y="262" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">a</text>
+  <text x="532" y="262" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">b</text>
+  <text x="337" y="262" font-family="system-ui,sans-serif" font-size="12" fill="#e0a03c">ξ</text>
+  <text x="96" y="86" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">f(a) = f(b) ⟹ f′(ξ) = 0</text>
+  <text x="352" y="84" font-family="system-ui,sans-serif" font-size="12" fill="#e0a03c">水平切线</text>
+  <text x="468" y="152" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">y = f(x)</text>
+</svg><figcaption><b>图 3-1</b> 罗尔定理：f(a) = f(b) 时，曲线上至少有一点的切线水平，即 f′(ξ) = 0。把两端点挪到不同高度，这条水平切线就变成与弦 AB 平行的切线，这正是拉格朗日定理。</figcaption></figure>
+<figure class="fig"><svg class="figsvg" viewBox="0 0 640 300" role="img" aria-label="凹凸性与拐点示意图">
+  <path d="M250 190 L228 190.2 L206 191.6 L184 195.4 L162 202.8 L151 208.2 L151 215 L250 215 Z" fill="rgba(224,160,60,.12)"/>
+  <path d="M250 190 L272 189.8 L294 188.4 L316 184.6 L338 177.2 L360 165 L382 146.8 L404 121.4 L426 87.6 L426 215 L250 215 Z" fill="rgba(91,141,239,.14)"/>
+  <path d="M50 215 H600" stroke="#9aa8bd" stroke-width="1.6"/>
+  <path d="M600 215 l-9 -4 v8 z" fill="#9aa8bd"/>
+  <path d="M250 285 V52" stroke="#9aa8bd" stroke-width="1.6"/>
+  <path d="M250 52 l-4 9 h8 z" fill="#9aa8bd"/>
+  <path d="M151 208.2 L162 202.8 L184 195.4 L206 191.6 L228 190.2 L250 190 L272 189.8 L294 188.4 L316 184.6 L338 177.2 L360 165 L382 146.8 L404 121.4 L426 87.6" fill="none" stroke="#5b8def" stroke-width="2"/>
+  <path d="M150 190 H350" stroke="#e0a03c" stroke-width="1.6" stroke-dasharray="5 4"/>
+  <path d="M118 246 L172 212" stroke="#e0a03c" stroke-width="1" stroke-dasharray="3 3"/>
+  <path d="M448 124 L414 138" stroke="#e0a03c" stroke-width="1" stroke-dasharray="3 3"/>
+  <circle cx="250" cy="190" r="4" fill="#e0a03c"/>
+  <text x="256" y="68" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">y</text>
+  <text x="586" y="207" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">x</text>
+  <text x="255" y="232" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">O</text>
+  <text x="446" y="84" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">y = x³ + 1</text>
+  <text x="452" y="120" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">f″ &gt; 0：凹</text>
+  <text x="58" y="252" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">f″ &lt; 0：凸</text>
+  <text x="262" y="180" font-family="system-ui,sans-serif" font-size="12" fill="#e0a03c">拐点</text>
+</svg><figcaption><b>图 3-2</b> f″ 的符号决定弯曲方向：x &lt; 0 时 f″ &lt; 0，曲线为凸，落在切线下侧；x &gt; 0 时 f″ &gt; 0，曲线为凹，落在切线上侧；x = 0 处 f″ 变号，虚线切线恰在这一点穿过曲线，它就是拐点。</figcaption></figure>

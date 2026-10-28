@@ -1,0 +1,9 @@
+<div class="ex">
+<div class="ex-h"><span class="ex-n">练 1</span>先自己做，再展开答案</div>
+<p class="ex-q">判断方程 <span class="fm">y″ + 4y = 0</span> 是几阶、是否线性，并验证 <span class="fm">y = C<sub>1</sub>cos 2x + C<sub>2</sub>sin 2x</span> 是它的通解；再求满足 <span class="fm">y(0) = 0</span>、<span class="fm">y′(0) = 2</span> 的特解。</p>
+<details class="ex-a"><summary>展开答案与解析</summary>
+<div class="ex-a-body">
+<p><b>解　</b>方程里最高阶的导数是 y″，所以是二阶方程；<br>未知函数和各阶导数都只以一次方出现（没有 y·y′、sin y 这类项），所以是二阶线性方程；<br>求导得 <span class="fm">y′ = −2C<sub>1</sub>sin 2x + 2C<sub>2</sub>cos 2x</span>，<span class="fm">y″ = −4C<sub>1</sub>cos 2x − 4C<sub>2</sub>sin 2x = −4y</span>，代回左边恒等于 0，且含两个独立常数（个数正好等于阶数），故它是通解；<br>代入初始条件：y(0) = C<sub>1</sub> = 0，y′(0) = 2C<sub>2</sub> = 2 得 C<sub>2</sub> = 1，所以特解是 <b>y = sin 2x</b>。</p>
+<p class="ex-t">认定「通解」只看两条：代进方程恒成立、独立常数的个数等于阶数。个数凑对了但常数不独立（比如写成 (C<sub>1</sub> + C<sub>2</sub>)sin 2x），仍然不是通解。</p>
+</div></details>
+</div>

@@ -1,0 +1,134 @@
+{
+ "d2-s1": {
+  "figs": [
+   {
+    "cap": "同一段物体、同一个投影面，只换投射线的方向：汇交于一点时投影被放大，形状也走了样；平行斜射时长边虽然不变，但位置整体偏移、形状不保真；只有垂直投射的正投影，长度和平行关系原样保留——这就是工程图样只用正投影的原因。",
+    "alt": "中心投影、斜投影与正投影的投射线对比",
+    "svg": "<g stroke=\"#9aa8bd\" stroke-width=\"1\">\n  <line x1=\"55\" y1=\"235\" x2=\"215\" y2=\"235\"/>\n  <line x1=\"225\" y1=\"235\" x2=\"385\" y2=\"235\"/>\n  <line x1=\"395\" y1=\"235\" x2=\"555\" y2=\"235\"/>\n</g>\n<g stroke=\"#9aa8bd\" stroke-width=\"1\" stroke-dasharray=\"5 4\">\n  <line x1=\"135\" y1=\"62\" x2=\"82\" y2=\"235\"/>\n  <line x1=\"135\" y1=\"62\" x2=\"188\" y2=\"235\"/>\n  <line x1=\"283\" y1=\"130\" x2=\"330\" y2=\"235\"/>\n  <line x1=\"327\" y1=\"130\" x2=\"374\" y2=\"235\"/>\n  <line x1=\"453\" y1=\"130\" x2=\"453\" y2=\"235\"/>\n  <line x1=\"497\" y1=\"130\" x2=\"497\" y2=\"235\"/>\n</g>\n<g stroke=\"currentColor\" stroke-width=\"2.2\">\n  <line x1=\"113\" y1=\"130\" x2=\"157\" y2=\"130\"/>\n  <line x1=\"283\" y1=\"130\" x2=\"327\" y2=\"130\"/>\n  <line x1=\"453\" y1=\"130\" x2=\"497\" y2=\"130\"/>\n</g>\n<g stroke=\"#e0a03c\" stroke-width=\"2.2\">\n  <line x1=\"82\" y1=\"235\" x2=\"188\" y2=\"235\"/>\n  <line x1=\"330\" y1=\"235\" x2=\"374\" y2=\"235\"/>\n  <line x1=\"453\" y1=\"235\" x2=\"497\" y2=\"235\"/>\n</g>\n<circle cx=\"135\" cy=\"62\" r=\"3.4\" fill=\"none\" stroke=\"#e0a03c\" stroke-width=\"1.6\"/>\n<text x=\"143\" y=\"57\" fill=\"#e0a03c\" font-size=\"15\" text-anchor=\"start\">S</text>\n<g fill=\"#8fa3bd\" font-size=\"13\" text-anchor=\"middle\">\n  <text x=\"135\" y=\"258\">中心投影法</text>\n  <text x=\"305\" y=\"258\">斜投影法</text>\n  <text x=\"475\" y=\"258\">正投影法</text>\n</g>\n<g fill=\"#e0a03c\" font-size=\"13\" text-anchor=\"middle\">\n  <text x=\"135\" y=\"280\">放大失真</text>\n  <text x=\"305\" y=\"280\">等长但倾斜</text>\n  <text x=\"475\" y=\"280\">反映实长</text>\n</g>"
+   },
+   {
+    "cap": "AB 与 CD 平行，投影 ab 与 cd 也平行；E 把 AB 分成 2:3，投影 e 也把 ab 分成 2:3。平行投影保住「平行」和「比例」这两件事，所以图上可以直接量取、按比例换算；换成中心投影，近处的段被放大、远处的段被缩小，比例就散了。",
+    "alt": "平行投影的平行性与定比性",
+    "svg": "<g stroke=\"#9aa8bd\" stroke-width=\"1\">\n  <line x1=\"80\" y1=\"240\" x2=\"560\" y2=\"240\"/>\n</g>\n<g stroke=\"currentColor\" stroke-width=\"2.2\">\n  <line x1=\"130\" y1=\"110\" x2=\"270\" y2=\"110\"/>\n  <line x1=\"150\" y1=\"170\" x2=\"290\" y2=\"170\"/>\n</g>\n<g stroke=\"#9aa8bd\" stroke-width=\"1\" stroke-dasharray=\"5 4\">\n  <line x1=\"130\" y1=\"110\" x2=\"130\" y2=\"252\"/>\n  <line x1=\"270\" y1=\"110\" x2=\"270\" y2=\"252\"/>\n  <line x1=\"150\" y1=\"170\" x2=\"150\" y2=\"252\"/>\n  <line x1=\"290\" y1=\"170\" x2=\"290\" y2=\"252\"/>\n  <line x1=\"186\" y1=\"110\" x2=\"186\" y2=\"252\"/>\n</g>\n<g stroke=\"#e0a03c\" stroke-width=\"2.2\">\n  <line x1=\"130\" y1=\"252\" x2=\"270\" y2=\"252\"/>\n  <line x1=\"150\" y1=\"252\" x2=\"290\" y2=\"252\"/>\n</g>\n<circle cx=\"186\" cy=\"110\" r=\"3.2\" fill=\"none\" stroke=\"#5b8def\" stroke-width=\"1.6\"/>\n<circle cx=\"186\" cy=\"252\" r=\"3.2\" fill=\"none\" stroke=\"#5b8def\" stroke-width=\"1.6\"/>\n<g fill=\"#8fa3bd\" font-size=\"13\">\n  <text x=\"122\" y=\"104\" text-anchor=\"end\">A</text>\n  <text x=\"278\" y=\"104\" text-anchor=\"start\">B</text>\n  <text x=\"142\" y=\"164\" text-anchor=\"end\">C</text>\n  <text x=\"298\" y=\"164\" text-anchor=\"start\">D</text>\n  <text x=\"186\" y=\"96\" text-anchor=\"middle\">E</text>\n  <text x=\"130\" y=\"270\" text-anchor=\"middle\">a</text>\n  <text x=\"150\" y=\"270\" text-anchor=\"middle\">c</text>\n  <text x=\"186\" y=\"270\" text-anchor=\"middle\">e</text>\n  <text x=\"270\" y=\"270\" text-anchor=\"middle\">b</text>\n  <text x=\"290\" y=\"270\" text-anchor=\"middle\">d</text>\n  <text x=\"500\" y=\"266\" text-anchor=\"middle\">投影面 P</text>\n</g>\n<g fill=\"#e0a03c\" font-size=\"13\" text-anchor=\"start\">\n  <text x=\"330\" y=\"100\">AB ∥ CD → ab ∥ cd</text>\n  <text x=\"330\" y=\"140\">AE : EB = ae : eb = 2 : 3</text>\n  <text x=\"330\" y=\"180\">投射线互相平行</text>\n</g>"
+   }
+  ],
+  "pts": [
+   [
+    "平行投影的两条作图性质",
+    "AB ∥ CD 时必有 ab ∥ cd（平行性）；点分线段的比例在投影中不变，AC:CB = ac:cb（定比性）。这两条让正投影图可以直接按比例量取，而中心投影做不到——透视图上同一段长度近大远小。"
+   ],
+   [
+    "投影法三要素与三类图的用途",
+    "投射线、投影面、物体三要素缺一不可。中心投影→透视图（建筑效果图）；平行斜投影→轴测图（斜二测、正等测）；平行正投影→多面正投影图（三视图）。工程图样一律用正投影，因为它度量性好。"
+   ],
+   [
+    "一个投影定不了形",
+    "同一个矩形投影，可能是长方体、圆柱，也可能是三棱柱——深度方向的信息全丢了。至少要两个方向的投影才能定形，实际用三个方向各投一次，这就是三视图的由来；只给一个投影的选项一定定不了形。"
+   ],
+   [
+    "第一角画法的六个基本视图",
+    "GB/T 17451 规定优先采用第一角画法：由前向后得主视图、由上向下得俯视图、由左向右得左视图，再加右视图、仰视图、后视图共六个。我国图样默认第一角，第三角画法（美、日）的视图位置正好相反。"
+   ]
+  ],
+  "note": "投射线交于一点是透视，互相平行才是工程图；图样只用<b>正投影</b>。"
+ },
+ "d2-s2": {
+  "figs": [
+   {
+    "cap": "左图是空间状态：三个互相垂直的投影面把物体围在中间；右图是摊平的结果——V 面不动，H 面绕 OX 轴向下翻 90°，W 面绕 OZ 轴向右翻 90°，三个投影落到同一张图纸上。翻转方向不能记反：H 向下、W 向右。",
+    "alt": "三投影面体系及其展开后的位置",
+    "svg": "<g stroke=\"#9aa8bd\" stroke-width=\"1\" fill=\"none\">\n  <rect x=\"110\" y=\"65\" width=\"190\" height=\"110\"/>\n  <polygon points=\"110,175 300,175 350,225 160,225\"/>\n  <polygon points=\"300,175 300,65 350,115 350,225\"/>\n  <rect x=\"380\" y=\"65\" width=\"110\" height=\"110\"/>\n  <rect x=\"380\" y=\"175\" width=\"110\" height=\"50\"/>\n  <rect x=\"490\" y=\"65\" width=\"50\" height=\"110\"/>\n</g>\n<g stroke=\"#9aa8bd\" stroke-width=\"1\" stroke-dasharray=\"12 3 2 3\">\n  <line x1=\"100\" y1=\"175\" x2=\"308\" y2=\"175\"/>\n  <line x1=\"300\" y1=\"55\" x2=\"300\" y2=\"186\"/>\n  <line x1=\"300\" y1=\"175\" x2=\"351\" y2=\"226\"/>\n  <line x1=\"372\" y1=\"175\" x2=\"500\" y2=\"175\"/>\n  <line x1=\"490\" y1=\"55\" x2=\"490\" y2=\"186\"/>\n</g>\n<g fill=\"#8fa3bd\" font-size=\"15\" text-anchor=\"middle\">\n  <text x=\"200\" y=\"126\">V</text>\n  <text x=\"238\" y=\"206\">H</text>\n  <text x=\"327\" y=\"152\">W</text>\n  <text x=\"435\" y=\"126\">V</text>\n  <text x=\"435\" y=\"203\">H</text>\n  <text x=\"515\" y=\"126\">W</text>\n</g>\n<text x=\"292\" y=\"169\" fill=\"#8fa3bd\" font-size=\"14\" text-anchor=\"end\">O</text>\n<text x=\"435\" y=\"52\" fill=\"#5b8def\" font-size=\"14\" text-anchor=\"middle\">展开</text>\n<text x=\"235\" y=\"284\" fill=\"#e0a03c\" font-size=\"13\" text-anchor=\"middle\">H 面绕 OX 向下翻 90°，W 面绕 OZ 向右翻 90°</text>"
+   },
+   {
+    "cap": "三视图的固定位置：主视图在左上，俯视图在它正下方（长对正），左视图在它正右方（高平齐）；俯视图的宽与左视图的宽相等，靠一条 45° 斜线转过去——从 a 引横线到 45° 线，再竖直向上就落在 a″ 上。",
+    "alt": "三视图的配置与三等关系，用 45 度线求侧面投影",
+    "svg": "<g fill=\"none\" stroke=\"#9aa8bd\" stroke-width=\"1\">\n  <rect x=\"100\" y=\"70\" width=\"170\" height=\"80\"/>\n  <rect x=\"100\" y=\"175\" width=\"170\" height=\"80\"/>\n  <rect x=\"320\" y=\"70\" width=\"80\" height=\"80\"/>\n</g>\n<g stroke=\"#9aa8bd\" stroke-width=\"1\" stroke-dasharray=\"5 4\">\n  <line x1=\"185\" y1=\"100\" x2=\"185\" y2=\"205\"/>\n  <line x1=\"185\" y1=\"100\" x2=\"370\" y2=\"100\"/>\n  <line x1=\"185\" y1=\"205\" x2=\"370\" y2=\"205\"/>\n  <line x1=\"370\" y1=\"205\" x2=\"370\" y2=\"100\"/>\n</g>\n<line x1=\"310\" y1=\"265\" x2=\"405\" y2=\"170\" stroke=\"#e0a03c\" stroke-width=\"1\"/>\n<g fill=\"none\" stroke=\"#5b8def\" stroke-width=\"1.8\">\n  <circle cx=\"185\" cy=\"100\" r=\"3.5\"/>\n  <circle cx=\"185\" cy=\"205\" r=\"3.5\"/>\n  <circle cx=\"370\" cy=\"100\" r=\"3.5\"/>\n</g>\n<g fill=\"#8fa3bd\" font-size=\"14\" text-anchor=\"middle\">\n  <text x=\"185\" y=\"60\">主视图</text>\n  <text x=\"360\" y=\"60\">左视图</text>\n  <text x=\"185\" y=\"272\">俯视图</text>\n</g>\n<g fill=\"#e0a03c\" font-size=\"13\" text-anchor=\"start\">\n  <text x=\"196\" y=\"168\">长对正</text>\n  <text x=\"274\" y=\"88\">高平齐</text>\n  <text x=\"336\" y=\"252\">宽相等</text>\n  <text x=\"390\" y=\"194\">45°</text>\n</g>\n<g fill=\"#5b8def\" font-size=\"15\" text-anchor=\"start\">\n  <text x=\"194\" y=\"92\">a′</text>\n  <text x=\"194\" y=\"197\">a</text>\n  <text x=\"378\" y=\"92\">a″</text>\n</g>"
+   }
+  ],
+  "pts": [
+   [
+    "求第三投影的三步口诀",
+    "已知两投影求第三投影：①按长对正作竖线定 x；②按高平齐作横线定 z；③宽度用 45° 斜线或分规从另一视图转过来。口诀：一竖一横一斜线。只凭两条线的交点定不出第三投影。"
+   ],
+   [
+    "无轴投影图怎么保三等",
+    "只画三个视图、不画投影轴时（工程上常用），三等关系照样成立，但不能再靠轴判断方位，宽相等必须用 45° 线或圆规量取。常见错误：去掉轴以后，把俯视图与左视图的宽画得不一样长。"
+   ],
+   [
+    "特殊位置点：投影面上与投影轴上",
+    "点在 H 面上（z=0）：a 与点本身重合，a′ 落在 OX 轴上、a″ 落在 OY_W 轴上；点在 OX 轴上：a 与 a′ 都落在 OX 轴，a″ 回到原点 O。判据就是「有几个坐标为零」。"
+   ],
+   [
+    "八个分角与第一角",
+    "三个投影面把空间分成八个分角，我国把物体放在第一分角（V 面之前、H 面之上、W 面之左），得到的视图叫第一角视图。第一分角里 y 表示到 V 面的距离，所以在俯视图上向下量取。"
+   ]
+  ],
+  "note": "先<b>长对正</b>、再<b>高平齐</b>，宽用 45° 线转过去——少画这条斜线，a″ 必错。"
+ },
+ "d2-s3": {
+  "figs": [
+   {
+    "cap": "以水平投影 ab 作一条直角边、以两端点的高度差 Δz 作另一条直角边，斜边就是 AB 的实长，斜边与 ab 的夹角就是直线对 H 面的倾角 α。求 β 就换正面投影配 Δy，求 γ 就换侧面投影配 Δx——投影和坐标差必须同面配对。",
+    "alt": "用直角三角形法求直线的实长与倾角",
+    "svg": "<g stroke=\"currentColor\" stroke-width=\"2.2\">\n  <line x1=\"150\" y1=\"250\" x2=\"400\" y2=\"250\"/>\n</g>\n<g stroke=\"#e0a03c\" stroke-width=\"1.6\" fill=\"none\">\n  <line x1=\"400\" y1=\"250\" x2=\"400\" y2=\"180\"/>\n  <line x1=\"150\" y1=\"250\" x2=\"400\" y2=\"180\"/>\n</g>\n<path d=\"M388 250 L388 238 L400 238\" fill=\"none\" stroke=\"#9aa8bd\" stroke-width=\"1\"/>\n<path d=\"M210 250 A60 60 0 0 0 207.8 233.8\" fill=\"none\" stroke=\"#e0a03c\" stroke-width=\"1\"/>\n<text x=\"216\" y=\"246\" fill=\"#e0a03c\" font-size=\"15\" text-anchor=\"start\">α</text>\n<g fill=\"#8fa3bd\" font-size=\"13\" text-anchor=\"middle\">\n  <text x=\"275\" y=\"276\">ab（水平投影长）</text>\n  <text x=\"300\" y=\"92\">斜边即实长，斜边与 ab 的夹角即倾角 α</text>\n</g>\n<text x=\"146\" y=\"242\" fill=\"#8fa3bd\" font-size=\"13\" text-anchor=\"end\">a</text>\n<text x=\"408\" y=\"268\" fill=\"#8fa3bd\" font-size=\"13\" text-anchor=\"start\">b</text>\n<text x=\"410\" y=\"218\" fill=\"#e0a03c\" font-size=\"13\" text-anchor=\"start\">Δz 坐标差</text>\n<text x=\"262\" y=\"196\" fill=\"#e0a03c\" font-size=\"15\" text-anchor=\"start\">实长 AB</text>"
+   },
+   {
+    "cap": "三条直线放在同一位置对比：水平线平行 H 面，水平投影反映实长、正面投影平行 OX；正平线的正面投影反映实长；一般位置直线的两个投影都倾斜、都短于实长。看「哪个投影特殊」，就能反推直线对投影面的相对位置。",
+    "alt": "水平线、正平线与一般位置直线的投影对比",
+    "svg": "<g stroke=\"#9aa8bd\" stroke-width=\"1\" stroke-dasharray=\"12 3 2 3\">\n  <line x1=\"62\" y1=\"170\" x2=\"198\" y2=\"170\"/>\n  <line x1=\"247\" y1=\"170\" x2=\"383\" y2=\"170\"/>\n  <line x1=\"432\" y1=\"170\" x2=\"568\" y2=\"170\"/>\n</g>\n<g stroke=\"currentColor\" stroke-width=\"2.2\">\n  <line x1=\"75\" y1=\"140\" x2=\"185\" y2=\"140\"/>\n  <line x1=\"75\" y1=\"215\" x2=\"185\" y2=\"215\"/>\n  <line x1=\"260\" y1=\"125\" x2=\"370\" y2=\"165\"/>\n  <line x1=\"260\" y1=\"205\" x2=\"370\" y2=\"205\"/>\n  <line x1=\"450\" y1=\"120\" x2=\"560\" y2=\"155\"/>\n  <line x1=\"450\" y1=\"200\" x2=\"560\" y2=\"235\"/>\n</g>\n<g stroke=\"#9aa8bd\" stroke-width=\"1\" stroke-dasharray=\"5 4\">\n  <line x1=\"75\" y1=\"140\" x2=\"75\" y2=\"215\"/>\n  <line x1=\"185\" y1=\"140\" x2=\"185\" y2=\"215\"/>\n  <line x1=\"260\" y1=\"125\" x2=\"260\" y2=\"205\"/>\n  <line x1=\"370\" y1=\"165\" x2=\"370\" y2=\"205\"/>\n  <line x1=\"450\" y1=\"120\" x2=\"450\" y2=\"200\"/>\n  <line x1=\"560\" y1=\"155\" x2=\"560\" y2=\"235\"/>\n</g>\n<g fill=\"#e0a03c\" font-size=\"13\" text-anchor=\"middle\">\n  <text x=\"130\" y=\"234\">ab 实长</text>\n  <text x=\"315\" y=\"116\">a′b′ 实长</text>\n  <text x=\"505\" y=\"106\">三投影都倾斜</text>\n</g>\n<g fill=\"#8fa3bd\" font-size=\"14\" text-anchor=\"middle\">\n  <text x=\"130\" y=\"272\">水平线</text>\n  <text x=\"315\" y=\"272\">正平线</text>\n  <text x=\"505\" y=\"272\">一般位置直线</text>\n</g>"
+   }
+  ],
+  "pts": [
+   [
+    "平行线的倾角速判",
+    "正平线 β=0，其正面投影与 OX 的夹角就是 α、与 OZ 的夹角就是 γ；水平线 α=0，正面投影平行 OX；侧平线 γ=0。口诀：与哪个面平行，那个倾角就是 0，另两个角在反映实长的那条投影上量。"
+   ],
+   [
+    "垂直线的「一点两线」",
+    "铅垂线（⊥H）：水平投影积聚成一个点，正面、侧面投影都反映实长且垂直于相应的轴；正垂线的正面投影是点；侧垂线的侧面投影是点。判据：哪个投影是点，直线就垂直于哪个投影面。"
+   ],
+   [
+    "直角三角形法的四个量要配对",
+    "投影长、坐标差、实长、倾角四量组成一个直角三角形，一次只能求一个倾角：求 α 用水平投影 ab 配 Δz；求 β 用正面投影 a′b′ 配 Δy；求 γ 用侧面投影 a″b″ 配 Δx。最常见的错是拿 ab 去配 Δy。"
+   ],
+   [
+    "投影平行于轴意味着什么",
+    "一般位置直线的三个投影都倾斜、都小于实长；只要有一个投影平行于投影轴（例如正面投影 ∥ OX），这条线就平行于另一个投影面，绝不是一般位置直线——这是判断题最快的判据。"
+   ]
+  ],
+  "note": "投影聚成点→垂直于该面；投影反映实长→平行于该面。"
+ },
+ "d2-s4": {
+  "figs": [
+   {
+    "cap": "正平面平行 V 面：正面投影是实形，水平投影和侧面投影都积聚成平行于轴的直线。铅垂面垂直 H 面：水平投影积聚成一条倾斜直线，正面投影是缩小的类似形。一般位置平面三个投影都是类似形，没有一个能反映实形。",
+    "alt": "正平面、铅垂面与一般位置平面的投影对比",
+    "svg": "<g stroke=\"#9aa8bd\" stroke-width=\"1\" stroke-dasharray=\"12 3 2 3\">\n  <line x1=\"62\" y1=\"170\" x2=\"198\" y2=\"170\"/>\n  <line x1=\"247\" y1=\"170\" x2=\"383\" y2=\"170\"/>\n  <line x1=\"432\" y1=\"170\" x2=\"568\" y2=\"170\"/>\n</g>\n<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\">\n  <polygon points=\"85,115 175,115 130,160\"/>\n  <polygon points=\"262,120 352,150 305,160\"/>\n  <polygon points=\"450,115 560,145 505,165\"/>\n  <polygon points=\"450,205 560,235 505,255\"/>\n</g>\n<g stroke=\"currentColor\" stroke-width=\"2.2\">\n  <line x1=\"85\" y1=\"215\" x2=\"175\" y2=\"215\"/>\n  <line x1=\"262\" y1=\"218\" x2=\"352\" y2=\"190\"/>\n</g>\n<g stroke=\"#9aa8bd\" stroke-width=\"1\" stroke-dasharray=\"5 4\">\n  <line x1=\"85\" y1=\"115\" x2=\"85\" y2=\"215\"/>\n  <line x1=\"175\" y1=\"115\" x2=\"175\" y2=\"215\"/>\n  <line x1=\"262\" y1=\"120\" x2=\"262\" y2=\"218\"/>\n  <line x1=\"352\" y1=\"150\" x2=\"352\" y2=\"190\"/>\n  <line x1=\"305\" y1=\"160\" x2=\"305\" y2=\"204\"/>\n  <line x1=\"450\" y1=\"115\" x2=\"450\" y2=\"205\"/>\n  <line x1=\"560\" y1=\"145\" x2=\"560\" y2=\"235\"/>\n  <line x1=\"505\" y1=\"165\" x2=\"505\" y2=\"255\"/>\n</g>\n<g fill=\"#e0a03c\" font-size=\"13\" text-anchor=\"middle\">\n  <text x=\"130\" y=\"192\">V 面实形</text>\n  <text x=\"307\" y=\"242\">H 面积聚成线</text>\n  <text x=\"505\" y=\"105\">三个类似形</text>\n</g>\n<g fill=\"#8fa3bd\" font-size=\"14\" text-anchor=\"middle\">\n  <text x=\"130\" y=\"272\">正平面</text>\n  <text x=\"315\" y=\"272\">铅垂面</text>\n  <text x=\"505\" y=\"272\">一般位置面</text>\n</g>"
+   },
+   {
+    "cap": "已知平面 △ABC 的两面投影和点的正面投影 d′，求 d：过 d′ 作一条水平辅助线 1′2′（平行 OX，与两边相交），先求出它的水平投影 12，再由 d′ 竖直向下作投影连线，与 12 的交点就是 d。辅助线法的实质：点必须落在平面内的一条直线上。",
+    "alt": "用水平辅助线在平面内取点",
+    "svg": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\">\n  <path d=\"M170 80L340 145L120 145Z\"/>\n  <path d=\"M170 205L340 270L120 270Z\"/>\n</g>\n<g stroke=\"#9aa8bd\" stroke-width=\"1\" stroke-dasharray=\"5 4\">\n  <line x1=\"170\" y1=\"80\" x2=\"170\" y2=\"205\"/>\n  <line x1=\"340\" y1=\"145\" x2=\"340\" y2=\"270\"/>\n  <line x1=\"120\" y1=\"145\" x2=\"120\" y2=\"270\"/>\n  <line x1=\"200\" y1=\"110\" x2=\"200\" y2=\"235\"/>\n</g>\n<g stroke=\"#e0a03c\" stroke-width=\"1.6\">\n  <line x1=\"147\" y1=\"110\" x2=\"248\" y2=\"110\"/>\n  <line x1=\"147\" y1=\"235\" x2=\"248\" y2=\"235\"/>\n</g>\n<g fill=\"none\" stroke=\"#e0a03c\" stroke-width=\"1.4\">\n  <circle cx=\"147\" cy=\"110\" r=\"2.6\"/>\n  <circle cx=\"248\" cy=\"110\" r=\"2.6\"/>\n  <circle cx=\"147\" cy=\"235\" r=\"2.6\"/>\n  <circle cx=\"248\" cy=\"235\" r=\"2.6\"/>\n</g>\n<g fill=\"none\" stroke=\"#5b8def\" stroke-width=\"1.6\">\n  <circle cx=\"200\" cy=\"110\" r=\"3.2\"/>\n  <circle cx=\"200\" cy=\"235\" r=\"3.2\"/>\n</g>\n<g fill=\"#8fa3bd\" font-size=\"13\">\n  <text x=\"163\" y=\"74\" text-anchor=\"end\">a′</text>\n  <text x=\"346\" y=\"140\" text-anchor=\"start\">b′</text>\n  <text x=\"114\" y=\"140\" text-anchor=\"end\">c′</text>\n  <text x=\"163\" y=\"199\" text-anchor=\"end\">a</text>\n  <text x=\"346\" y=\"266\" text-anchor=\"start\">b</text>\n  <text x=\"114\" y=\"266\" text-anchor=\"end\">c</text>\n</g>\n<g fill=\"#5b8def\" font-size=\"14\">\n  <text x=\"205\" y=\"102\" text-anchor=\"start\">d′</text>\n  <text x=\"205\" y=\"250\" text-anchor=\"start\">d</text>\n</g>\n<g fill=\"#e0a03c\" font-size=\"13\">\n  <text x=\"240\" y=\"102\" text-anchor=\"end\">1′</text>\n  <text x=\"143\" y=\"102\" text-anchor=\"end\">2′</text>\n  <text x=\"252\" y=\"250\" text-anchor=\"start\">1</text>\n  <text x=\"143\" y=\"250\" text-anchor=\"end\">2</text>\n</g>\n<g fill=\"#8fa3bd\" font-size=\"13\" text-anchor=\"start\">\n  <text x=\"372\" y=\"100\">① 过 d′ 作 1′2′ ∥ OX</text>\n  <text x=\"372\" y=\"124\">② 求出 1、2，连成 12</text>\n  <text x=\"372\" y=\"148\">③ 由 d′ 向下作连线，</text>\n  <text x=\"372\" y=\"172\">　 与 12 的交点即 d</text>\n</g>"
+   }
+  ],
+  "pts": [
+   [
+    "平面的迹线表示法",
+    "平面与投影面的交线叫迹线：与 H 面交于 PH、与 V 面交于 PV、与 W 面交于 PW。垂直面用迹线表示最省事——它那个积聚投影就是相应的迹线本身。迹线表示法在换面法里特别常用。"
+   ],
+   [
+    "最大斜度线求平面对 H 面的倾角",
+    "三步：①在平面内作一条水平线；②作与它垂直的直线（最大斜度线，其水平投影必垂直于水平线的水平投影）；③用直角三角形法求该线对 H 面的倾角，即为平面对 H 面的倾角 α。"
+   ],
+   [
+    "平面内取点用哪种辅助线",
+    "两种：水平辅助线（平行 OX，作图最快，先画正面投影再投到水平投影）和过顶点的辅助线（任意位置都能用）。判断点是否在平面内，必须靠辅助线验证，只看一个投影落在图形内是不够的。"
+   ],
+   [
+    "三类平面的一句话判据",
+    "一个投影积聚成倾斜直线→投影面垂直面；一个投影反映实形、另两个积聚成平行于轴的直线→投影面平行面；三个投影都是类似形→一般位置平面。注意平行面的那两条积聚线一定平行于对应的投影轴。"
+   ]
+  ],
+  "note": "点在面上，先过点作<b>辅助线</b>：辅助线两个投影都落在平面内，点的投影才在线上。"
+ }
+}

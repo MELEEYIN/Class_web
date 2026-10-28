@@ -1,0 +1,18 @@
+<div class="ex">
+<div class="ex-h"><span class="ex-n">练 1</span>先自己做，再展开答案</div>
+<p class="ex-q">求一阶线性方程 <span class="fm">y′ − 2xy = x e<sup>x²</sup></span> 的通解。</p>
+<details class="ex-a"><summary>展开答案与解析</summary>
+<div class="ex-a-body">
+<p><b>解　</b>已是标准形 y′ + P(x)y = Q(x)，其中 P = −2x，Q = x e<sup>x²</sup>，故 ∫P dx = −x²，e<sup>−∫P dx</sup> = e<sup>x²</sup>；<br>套通解公式：y = e<sup>x²</sup>[ ∫ x e<sup>x²</sup>·e<sup>−x²</sup>dx + C ] = e<sup>x²</sup>[ ∫ x dx + C ]；<br>积分得 <b>y = ( <span class="fr"><span class="n">x²</span><span class="d">2</span></span> + C )e<sup>x²</sup></b>。</p>
+<p class="ex-t">公式里乘在外面的因子是 e<sup>−∫P dx</sup>，被积的那一份才是 e<sup>∫P dx</sup>，两个别抄反。本题的 e<sup>x²</sup> 与 e<sup>−x²</sup> 正好抵消，是出题人故意凑的，不是巧合。</p>
+</div></details>
+</div>
+<div class="ex">
+<div class="ex-h"><span class="ex-n">练 2</span>先自己做，再展开答案</div>
+<p class="ex-q">求方程 <span class="fm">y′ = <span class="fr"><span class="n">1</span><span class="d">x + y</span></span></span> 的通解（提示：把 x 看成 y 的函数）。</p>
+<details class="ex-a"><summary>展开答案与解析</summary>
+<div class="ex-a-body">
+<p><b>解　</b>右端把 x、y 搅成一块，直接分离不了，两边取倒数得 <span class="fm"><span class="fr"><span class="n">dx</span><span class="d">dy</span></span> = x + y</span>，即 <span class="fm"><span class="fr"><span class="n">dx</span><span class="d">dy</span></span> − x = y</span>——这是以 x 为未知函数的一阶线性方程；<br>此时 P = −1，Q = y，∫P dy = −y，套公式 x = e<sup>y</sup>[ ∫ y e<sup>−y</sup>dy + C ]；<br>分部积分 ∫ y e<sup>−y</sup>dy = −(y + 1)e<sup>−y</sup>，所以 <b>x = Ce<sup>y</sup> − y − 1</b>，即 <b>x + y + 1 = Ce<sup>y</sup></b>。</p>
+<p class="ex-t">看到 y′ = 1/(x + y) 这种「y 被搅进分式」的题，别硬凑分离变量：把 x 当未知函数、两边取倒数，它立刻变成一阶线性。这是最常被漏掉的换元方向。</p>
+</div></details>
+</div>

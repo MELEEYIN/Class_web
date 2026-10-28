@@ -1,0 +1,9 @@
+<div class="ex">
+<div class="ex-h"><span class="ex-n">练 1</span>先自己做，再展开答案</div>
+<p class="ex-q">求可分离变量方程 <span class="fm">y′ = e<sup>x+y</sup></span> 满足 <span class="fm">y(0) = 0</span> 的特解，并写出解成立的区间。</p>
+<details class="ex-a"><summary>展开答案与解析</summary>
+<div class="ex-a-body">
+<p><b>解　</b>把右端拆开：y′ = e<sup>x</sup>·e<sup>y</sup>，两边同除 e<sup>y</sup>（它恒不为 0，不会丢解）得 e<sup>−y</sup>dy = e<sup>x</sup>dx；<br>两边积分：−e<sup>−y</sup> = e<sup>x</sup> + C，常数只写一个；<br>代入 y(0) = 0：−1 = 1 + C，得 C = −2，即 e<sup>−y</sup> = 2 − e<sup>x</sup>；<br>取对数化成显式：<b>y = −ln(2 − e<sup>x</sup>)</b>，由 2 − e<sup>x</sup> &gt; 0 得 <b>x &lt; ln 2</b>。</p>
+<p class="ex-t">除的是 e<sup>y</sup> 这种恒正的因子，所以不丢解；若除的是 y、1 − y 这类会取零的因子，必须单独检查被除式 = 0 对应的常数解。最后别忘了写出 x &lt; ln 2 这个区间。</p>
+</div></details>
+</div>

@@ -1,0 +1,69 @@
+<p class="fig-intro">重积分的公式不多，难的是「把区域看清」：图 10-1 说明二重积分为什么是曲顶柱体的体积，图 10-2 说明极坐标下那个不能漏掉的 r 从哪里来。</p>
+
+<figure class="fig"><svg class="figsvg" viewBox="0 0 640 300" role="img" aria-label="曲顶柱体示意">
+  <path d="M120 250 H585" stroke="#9aa8bd" stroke-width="1.6" fill="none"/>
+  <path d="M577 246 L589 250 L577 254" stroke="#9aa8bd" stroke-width="1.6" fill="none"/>
+  <path d="M120 250 V45" stroke="#9aa8bd" stroke-width="1.6" fill="none"/>
+  <path d="M116 54 L120 42 L124 54" stroke="#9aa8bd" stroke-width="1.6" fill="none"/>
+  <path d="M120 250 L202 168" stroke="#9aa8bd" stroke-width="1.6" fill="none"/>
+  <path d="M205 165 L192 167 L198 178 Z" fill="#9aa8bd"/>
+  <text x="96" y="266" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">O</text>
+  <text x="574" y="268" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">x</text>
+  <text x="128" y="40" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">z</text>
+  <text x="208" y="158" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">y</text>
+
+  <path d="M250 214 C248 190 296 176 350 177 C412 178 462 190 470 206 C477 221 436 237 378 239 C312 241 252 236 250 214 Z" fill="rgba(91,141,239,.14)" stroke="#5b8def" stroke-width="1.8"/>
+  <text x="428" y="228" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">D</text>
+
+  <path d="M250 112 C248 88 298 74 352 76 C414 78 464 90 472 106 C479 121 438 137 380 139 C314 141 252 136 250 112 Z" fill="rgba(91,141,239,.10)" stroke="#5b8def" stroke-width="1.8"/>
+  <path d="M262 104 C320 88 424 90 464 104" stroke="#5b8def" stroke-width="1" fill="none" opacity=".55"/>
+  <path d="M330 77 C328 100 340 124 360 139" stroke="#5b8def" stroke-width="1" fill="none" opacity=".55"/>
+  <path d="M432 86 C430 106 436 122 450 136" stroke="#5b8def" stroke-width="1" fill="none" opacity=".55"/>
+
+  <path d="M250 214 V112" stroke="#9aa8bd" stroke-width="1.4" fill="none"/>
+  <path d="M470 206 V106" stroke="#9aa8bd" stroke-width="1.4" fill="none"/>
+  <path d="M380 237 V137" stroke="#9aa8bd" stroke-width="1.4" fill="none"/>
+  <path d="M352 177 V76" stroke="#9aa8bd" stroke-width="1.2" stroke-dasharray="4 4" fill="none" opacity=".8"/>
+
+  <path d="M298 206 L338 199 L346 215 L306 222 Z" fill="rgba(224,160,60,.18)" stroke="#e0a03c" stroke-width="1.4"/>
+  <path d="M298 110 L338 103 L346 119 L306 126 Z" fill="rgba(224,160,60,.18)" stroke="#e0a03c" stroke-width="1.4"/>
+  <path d="M298 206 V110" stroke="#e0a03c" stroke-width="1.2" stroke-dasharray="4 4"/>
+  <path d="M338 199 V103" stroke="#e0a03c" stroke-width="1.2" stroke-dasharray="4 4"/>
+  <path d="M346 215 V119" stroke="#e0a03c" stroke-width="1.2" stroke-dasharray="4 4"/>
+  <path d="M306 222 V126" stroke="#e0a03c" stroke-width="1.2" stroke-dasharray="4 4"/>
+
+  <path d="M244 196 L296 205" stroke="#e0a03c" stroke-width="1" stroke-dasharray="3 3" fill="none"/>
+  <text x="206" y="196" font-family="system-ui,sans-serif" font-size="11.5" fill="#8fa3bd">Δσ</text>
+  <path d="M212 74 L296 90" stroke="#e0a03c" stroke-width="1" stroke-dasharray="3 3" fill="none"/>
+  <text x="140" y="70" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">z = f (x, y)</text>
+  <text x="392" y="52" font-family="system-ui,sans-serif" font-size="12.5" fill="#8fa3bd">V = ∬ f (x, y) dσ</text>
+  <text x="368" y="278" font-family="system-ui,sans-serif" font-size="11.5" fill="#8fa3bd">细柱体积 ≈ f (ξ, η) Δσ</text>
+</svg><figcaption><b>图 10-1</b>曲顶柱体：底为 D，顶为 z = f (x, y)，取一点 (ξ, η) 处高 f (ξ, η) 的细柱，体积 ≈ f (ξ, η)Δσ；分割、求和、取极限就得到 ∬<sub>D</sub>f (x, y)dσ。</figcaption></figure>
+
+<figure class="fig"><svg class="figsvg" viewBox="0 0 640 300" role="img" aria-label="极坐标面积元示意">
+  <path d="M210 240 H585" stroke="#9aa8bd" stroke-width="1.6" fill="none"/>
+  <path d="M577 236 L589 240 L577 244" stroke="#9aa8bd" stroke-width="1.6" fill="none"/>
+  <path d="M210 260 V42" stroke="#9aa8bd" stroke-width="1.6" fill="none"/>
+  <path d="M206 50 L210 38 L214 50" stroke="#9aa8bd" stroke-width="1.6" fill="none"/>
+  <text x="190" y="258" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">O</text>
+  <text x="568" y="262" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">x</text>
+  <text x="196" y="44" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">y</text>
+
+  <path d="M210 240 L410 240 A200 200 0 0 0 324.7 76.2 Z" fill="rgba(91,141,239,.13)" stroke="#5b8def" stroke-width="1.8"/>
+  <path d="M310 240 A100 100 0 0 0 267.4 158.1" stroke="#9aa8bd" stroke-width="1" fill="none" stroke-dasharray="4 4" opacity=".7"/>
+
+  <path d="M210 240 L400 178" stroke="#e0a03c" stroke-width="1.2" stroke-dasharray="4 4" fill="none"/>
+  <path d="M210 240 L383 140" stroke="#e0a03c" stroke-width="1.2" stroke-dasharray="4 4" fill="none"/>
+  <path d="M265 240 A55 55 0 0 0 241.5 194.9" stroke="#e0a03c" stroke-width="1.4" fill="none"/>
+  <text x="268" y="226" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">θ</text>
+
+  <path d="M369.8 188.1 A168 168 0 0 0 355.5 156 L335.6 167.5 A145 145 0 0 1 347.9 195.2 Z" fill="rgba(224,160,60,.22)" stroke="#e0a03c" stroke-width="1.4"/>
+  <path d="M384 193 L368 187" stroke="#e0a03c" stroke-width="1" stroke-dasharray="3 3" fill="none"/>
+  <text x="388" y="198" font-family="system-ui,sans-serif" font-size="11.5" fill="#8fa3bd">dr</text>
+  <path d="M376 157 L365 167" stroke="#e0a03c" stroke-width="1" stroke-dasharray="3 3" fill="none"/>
+  <text x="380" y="154" font-family="system-ui,sans-serif" font-size="11.5" fill="#8fa3bd">r dθ</text>
+  <text x="300" y="216" font-family="system-ui,sans-serif" font-size="11.5" fill="#8fa3bd">r</text>
+
+  <text x="448" y="86" font-family="system-ui,sans-serif" font-size="13" fill="#8fa3bd">dσ = r dr dθ</text>
+  <text x="448" y="110" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">先定 θ 的范围，再对每个 θ 定 r</text>
+</svg><figcaption><b>图 10-2</b>极坐标面积元：θ 方向的弧长是 r dθ，r 方向的宽是 dr，小曲边四边形面积 dσ ≈ r · dr · dθ，那个 r 就是雅可比，换成极坐标时绝不能漏。</figcaption></figure>

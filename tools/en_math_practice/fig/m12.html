@@ -1,0 +1,58 @@
+<p class="fig-intro">先看两张图建立直觉：<b>高斯公式</b>把闭曲面上的通量换成内部散度的三重积分，曲面不闭就先补一张面；<b>斯托克斯公式</b>把空间闭曲线的环流量换成它张成的曲面片上的旋度积分，绕向与法向量必须按右手法则配套。</p>
+
+<figure class="fig"><svg class="figsvg" viewBox="0 0 640 300" role="img" aria-label="高斯公式示意：闭曲面外侧通量等于内部散度的三重积分，曲面不闭时先补面">
+<defs>
+<marker id="gm1" markerWidth="8" markerHeight="8" refX="6.6" refY="4" orient="auto"><path d="M0.4 0.6 L7.6 4 L0.4 7.4 Z" fill="#e0a03c"/></marker>
+<marker id="gm2" markerWidth="8" markerHeight="8" refX="6.6" refY="4" orient="auto"><path d="M0.4 0.6 L7.6 4 L0.4 7.4 Z" fill="#9aa8bd"/></marker>
+</defs>
+<text x="28" y="26" font-family="system-ui,sans-serif" font-size="12.5" fill="#8fa3bd">∬Σ P dydz + Q dzdx + R dxdy = ∭Ω div F dV</text>
+<text x="28" y="46" font-family="system-ui,sans-serif" font-size="11.5" fill="#8fa3bd">闭曲面取外侧：通量 = 散度的三重积分</text>
+<ellipse cx="165" cy="160" rx="105" ry="66" fill="rgba(91,141,239,.14)" stroke="#5b8def" stroke-width="2"/>
+<path d="M165 127 L165 98" stroke="#e0a03c" stroke-width="1.8" marker-end="url(#gm1)"/>
+<path d="M210.5 143.5 L250.5 129" stroke="#e0a03c" stroke-width="1.8" marker-end="url(#gm1)"/>
+<path d="M210.5 176.5 L250.5 191" stroke="#e0a03c" stroke-width="1.8" marker-end="url(#gm1)"/>
+<path d="M165 193 L165 222" stroke="#e0a03c" stroke-width="1.8" marker-end="url(#gm1)"/>
+<path d="M119.5 176.5 L79.5 191" stroke="#e0a03c" stroke-width="1.8" marker-end="url(#gm1)"/>
+<path d="M119.5 143.5 L79.5 129" stroke="#e0a03c" stroke-width="1.8" marker-end="url(#gm1)"/>
+<text x="165" y="165" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">Ω</text>
+<text x="262" y="122" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">n</text>
+<text x="284" y="150" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">Σ</text>
+<text x="284" y="168" font-family="system-ui,sans-serif" font-size="11.5" fill="#8fa3bd">外侧</text>
+<path d="M60 266 L60 238" stroke="#9aa8bd" stroke-width="1.6" marker-end="url(#gm2)"/>
+<path d="M60 266 L100 278" stroke="#9aa8bd" stroke-width="1.6" marker-end="url(#gm2)"/>
+<path d="M60 266 L28 252" stroke="#9aa8bd" stroke-width="1.6" marker-end="url(#gm2)"/>
+<text x="54" y="232" font-family="system-ui,sans-serif" font-size="11.5" fill="#8fa3bd">z</text>
+<text x="104" y="284" font-family="system-ui,sans-serif" font-size="11.5" fill="#8fa3bd">x</text>
+<text x="16" y="246" font-family="system-ui,sans-serif" font-size="11.5" fill="#8fa3bd">y</text>
+<path d="M408 212 A92 92 0 0 1 592 212" fill="rgba(91,141,239,.14)" stroke="#5b8def" stroke-width="2"/>
+<ellipse cx="500" cy="212" rx="92" ry="26" fill="rgba(224,160,60,.12)" stroke="#e0a03c" stroke-width="1.8" stroke-dasharray="6 4"/>
+<path d="M500 198 L500 240" stroke="#e0a03c" stroke-width="1.8" marker-end="url(#gm1)"/>
+<text x="508" y="252" font-family="system-ui,sans-serif" font-size="11.5" fill="#8fa3bd">n₁</text>
+<text x="500" y="106" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">Σ 上半球面（不闭）</text>
+<text x="500" y="270" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11.5" fill="#8fa3bd">补面 Σ₁：z = 0，取下侧</text>
+<text x="300" y="292" font-family="system-ui,sans-serif" font-size="11.5" fill="#8fa3bd">不闭先补面：∬Σ = ∭Ω div F dV − ∬Σ₁</text>
+</svg><figcaption><b>图 12-1</b>高斯公式：闭曲面上的通量等于内部散度 div F = P<sub>x</sub> + Q<sub>y</sub> + R<sub>z</sub> 的三重积分，曲面必须取外侧；曲面不闭就先补一张简单的面（常补平面），用高斯算整体再减去补面上的积分。</figcaption></figure>
+
+<figure class="fig"><svg class="figsvg" viewBox="0 0 640 300" role="img" aria-label="斯托克斯公式示意：空间闭曲线与其张成的曲面片，绕向与法向量按右手法则">
+<defs>
+<marker id="sm1" markerWidth="8" markerHeight="8" refX="6.6" refY="4" orient="auto"><path d="M0.4 0.6 L7.6 4 L0.4 7.4 Z" fill="#e0a03c"/></marker>
+<marker id="sm2" markerWidth="8" markerHeight="8" refX="6.6" refY="4" orient="auto"><path d="M0.4 0.6 L7.6 4 L0.4 7.4 Z" fill="#9aa8bd"/></marker>
+</defs>
+<text x="28" y="26" font-family="system-ui,sans-serif" font-size="12.5" fill="#8fa3bd">∮Γ P dx + Q dy + R dz = ∬Σ (rot F · n) dS</text>
+<text x="28" y="46" font-family="system-ui,sans-serif" font-size="11.5" fill="#8fa3bd">Γ 是 Σ 的边界，Γ 的绕向与 n 按右手法则配套</text>
+<ellipse cx="352" cy="168" rx="116" ry="60" transform="rotate(-10 352 168)" fill="rgba(91,141,239,.14)" stroke="#5b8def" stroke-width="2"/>
+<path d="M290 162 L420 182" stroke="#9aa8bd" stroke-width="1.2" stroke-dasharray="5 4" opacity=".85"/>
+<path d="M310 204 L400 132" stroke="#9aa8bd" stroke-width="1.2" stroke-dasharray="5 4" opacity=".85"/>
+<path d="M336 230 Q376 236 416 228" stroke="#e0a03c" stroke-width="2" fill="none" marker-end="url(#sm1)"/>
+<path d="M352 168 L398 74" stroke="#e0a03c" stroke-width="1.9" marker-end="url(#sm1)"/>
+<text x="404" y="70" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">n</text>
+<text x="392" y="200" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">Σ</text>
+<text x="473" y="158" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">Γ</text>
+<path d="M60 266 L60 238" stroke="#9aa8bd" stroke-width="1.6" marker-end="url(#sm2)"/>
+<path d="M60 266 L100 278" stroke="#9aa8bd" stroke-width="1.6" marker-end="url(#sm2)"/>
+<path d="M60 266 L28 252" stroke="#9aa8bd" stroke-width="1.6" marker-end="url(#sm2)"/>
+<text x="54" y="232" font-family="system-ui,sans-serif" font-size="11.5" fill="#8fa3bd">z</text>
+<text x="104" y="284" font-family="system-ui,sans-serif" font-size="11.5" fill="#8fa3bd">x</text>
+<text x="16" y="246" font-family="system-ui,sans-serif" font-size="11.5" fill="#8fa3bd">y</text>
+<text x="236" y="292" font-family="system-ui,sans-serif" font-size="11.5" fill="#8fa3bd">做法：选一张以 Γ 为边界的平面片，把空间曲线积分化成二重积分</text>
+</svg><figcaption><b>图 12-2</b>斯托克斯公式：沿空间闭曲线 Γ 的环流量，等于以 Γ 为边界的曲面 Σ 上旋度 rot F = (R<sub>y</sub> − Q<sub>z</sub>, P<sub>z</sub> − R<sub>x</sub>, Q<sub>x</sub> − P<sub>y</sub>) 的通量；Γ 的绕向与 n 必须成右手法则，方向反了整体变号。</figcaption></figure>

@@ -1,0 +1,16 @@
+<div class="ex">
+  <div class="ex-h"><span class="ex-n">练 1</span>先自己做，再展开答案</div>
+  <p class="ex-q">求 <span class="fm"><span class="lm">lim<span class="s">x→0</span></span> <span class="fr"><span class="n">e<sup>x</sup> − 1 − x</span><span class="d">x<sup>2</sup></span></span></span>。</p>
+  <details class="ex-a"><summary>展开答案与解析</summary><div class="ex-a-body">
+    <p><b>解　</b>第一步，x → 0 时分子、分母都趋于 0，是 0/0 型，且两函数在 0 的去心邻域内可导，可用洛必达；<br>第二步，求导一次得 <span class="fm"><span class="fr"><span class="n">e<sup>x</sup> − 1</span><span class="d">2x</span></span></span>，仍为 0/0 型，继续用；<br>第三步，再求导得 <span class="fm"><span class="fr"><span class="n">e<sup>x</sup></span><span class="d">2</span></span></span>，此时已不是未定式，直接代入 x = 0，极限为 <span class="fm"><span class="fr"><span class="n">1</span><span class="d">2</span></span></span>。</p>
+    <p class="ex-t">洛必达每用一次都要回头确认「现在还是未定式吗」；这题也能用 <span class="fm">e<sup>x</sup> = 1 + x + x<sup>2</sup>/2 + o(x<sup>2</sup>)</span> 一步出答案，两种方法都该会。</p>
+  </div></details>
+</div>
+<div class="ex">
+  <div class="ex-h"><span class="ex-n">练 2</span>先自己做，再展开答案</div>
+  <p class="ex-q">求 <span class="fm"><span class="lm">lim<span class="s">x→+∞</span></span> x<sup>1/x</sup></span>。</p>
+  <details class="ex-a"><summary>展开答案与解析</summary><div class="ex-a-body">
+    <p><b>解　</b>第一步，这是 ∞<sup>0</sup> 型，不能直接用洛必达；设 <span class="fm">y = x<sup>1/x</sup></span>，两边取对数得 <span class="fm">ln y = <span class="fr"><span class="n">ln x</span><span class="d">x</span></span></span>；<br>第二步，x → +∞ 时 (ln x)/x 是 ∞/∞ 型，用洛必达得 <span class="fm"><span class="fr"><span class="n">1/x</span><span class="d">1</span></span> → 0</span>；<br>第三步，所以 <span class="fm">ln y → 0</span>，由指数函数的连续性得 <span class="fm">y → e<sup>0</sup> = 1</span>。</p>
+    <p class="ex-t">∞<sup>0</sup>、0<sup>0</sup>、1<sup>∞</sup> 这三种幂指型一律先取对数，化成 0·∞ 或 ∞/∞，再决定用洛必达还是等价替换。</p>
+  </div></details>
+</div>

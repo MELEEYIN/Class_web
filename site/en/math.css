@@ -587,3 +587,48 @@ html[data-theme="dark"] .explain .expl-eg { color: #d8e4f5; }
 
 /* 页头 h1 后面的编号（13 章 / 9 章）别贴着标题 */
 .doc-head h1 .hno { margin-left: .55em; }
+
+/* ---------------------------------------------------------- 工程制图：节内图解
+   每节的知识点前放 1–2 张手写 SVG 图（视图、剖视、尺寸标注示意），
+   图下配一句「这张图在看什么」。线稿颜色统一走 currentColor / 三个语义色，
+   由下面的属性映射转成主题变量，深浅色都不会糊。 */
+.figset {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin: 14px 0 18px;
+}
+.figset figure.dfig {
+  margin: 0;
+  padding: 10px 12px 8px;
+}
+figure.dfig .figsvg { color: var(--ink-2); }
+
+/* 没写 fill 的图形一律透明：SVG 默认填充是纯黑，在深浅两色下都会糊成一团黑块 */
+figure.dfig .figsvg rect:not([fill]),
+figure.dfig .figsvg circle:not([fill]),
+figure.dfig .figsvg ellipse:not([fill]),
+figure.dfig .figsvg path:not([fill]),
+figure.dfig .figsvg polygon:not([fill]) { fill: none; }
+figure.dfig .figsvg [stroke="#9aa8bd"] { stroke: var(--line-2); }
+figure.dfig .figsvg [stroke="#5b8def"] { stroke: var(--accent); }
+figure.dfig .figsvg [stroke="#e0a03c"] { stroke: rgb(var(--warn-rgb)); }
+figure.dfig .figsvg [fill="#9aa8bd"] { fill: var(--ink-4); }
+figure.dfig .figsvg [fill="#8fa3bd"] { fill: var(--ink-3); }
+figure.dfig .figsvg [fill="#5b8def"] { fill: var(--accent); }
+figure.dfig .figsvg [fill="#e0a03c"] { fill: rgb(var(--warn-rgb)); }
+figure.dfig figcaption { font-size: 12.6px; line-height: 1.78; }
+.fig-note {
+  margin: 10px 0 22px;
+  padding: 3px 0 3px 12px;
+  border-left: 3px solid var(--line-2);
+  font-size: 13.6px;
+  line-height: 1.85;
+  color: var(--ink-3);
+}
+.fig-note b { color: var(--kpt-label); }
+ol.kpt > li.add { background: rgb(var(--accent-rgb) / .05); }
+ol.kpt > li.add > b { color: var(--accent); }
+@media (max-width: 760px) {
+  .figset { grid-template-columns: 1fr; }
+}

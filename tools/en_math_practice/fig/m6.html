@@ -1,0 +1,41 @@
+<p class="fig-intro">先看两张图把「元素法」立起来：面积是无数根窄矩形拼出来的，旋转体是无数片薄圆盘叠出来的。两件事共用一个套路——先写微元，再积分，上下限由图形的边界决定。</p>
+<figure class="fig"><svg class="figsvg" viewBox="0 0 640 300" role="img" aria-label="面积微元示意：曲线下方用窄矩形条近似">
+<path d="M60 230 H600" stroke="#9aa8bd" stroke-width="1.6" fill="none"/>
+<path d="M90 256 V50" stroke="#9aa8bd" stroke-width="1.6" fill="none"/>
+<path d="M600 230 L591 226 L591 234 Z" fill="#9aa8bd"/>
+<path d="M90 50 L86 59 L94 59 Z" fill="#9aa8bd"/>
+<path d="M140 230 L180 192.9 L220 159.5 L260 132.9 L300 115.9 L340 110 L380 115.9 L420 132.9 L460 159.5 L500 192.9 L540 230 L140 230 Z" fill="rgba(91,141,239,.14)" stroke="none"/>
+<path d="M140 230 L180 192.9 L220 159.5 L260 132.9 L300 115.9 L340 110 L380 115.9 L420 132.9 L460 159.5 L500 192.9 L540 230" stroke="#5b8def" stroke-width="2" fill="none" stroke-linejoin="round"/>
+<path d="M300 116 L314 117 L314 230 L300 230 Z" fill="rgba(224,160,60,.26)" stroke="#e0a03c" stroke-width="1.6"/>
+<path d="M300 116 H90" stroke="#e0a03c" stroke-width="1.2" stroke-dasharray="5 4" fill="none"/>
+<text x="58" y="120" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">f(x)</text>
+<text x="392" y="98" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">y = f(x)</text>
+<text x="136" y="250" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">a</text>
+<text x="538" y="250" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">b</text>
+<text x="296" y="250" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">x</text>
+<text x="326" y="248" font-family="system-ui,sans-serif" font-size="11" fill="#e0a03c">dx</text>
+<text x="606" y="234" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">x</text>
+<text x="66" y="52" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">y</text>
+<text x="72" y="246" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">O</text>
+<text x="370" y="272" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">dA = f(x)dx</text>
+</svg><figcaption><b>图 6-1</b> 面积微元：把 [a, b] 切成窄条，第 i 条近似成高 f(x)、宽 dx 的小矩形，dA = f(x)dx，累加取极限就是 ∫<sub>a</sub><sup>b</sup>f(x)dx。</figcaption></figure>
+<figure class="fig"><svg class="figsvg" viewBox="0 0 640 300" role="img" aria-label="圆盘法示意：曲线绕 x 轴旋转，切片为薄圆盘">
+<path d="M140 185 L200 172 L260 161 L320 151 L380 143 L440 136 L500 130 L540 127 L540 273 L500 270 L440 264 L380 257 L320 249 L260 239 L200 228 L140 215 Z" fill="rgba(91,141,239,.14)" stroke="none"/>
+<path d="M140 185 L200 172 L260 161 L320 151 L380 143 L440 136 L500 130 L540 127" stroke="#5b8def" stroke-width="2" fill="none" stroke-linejoin="round"/>
+<path d="M140 215 L200 228 L260 239 L320 249 L380 257 L440 264 L500 270 L540 273" stroke="#5b8def" stroke-width="2" fill="none" stroke-linejoin="round"/>
+<path d="M60 200 H600" stroke="#9aa8bd" stroke-width="1.6" fill="none"/>
+<path d="M80 272 V52" stroke="#9aa8bd" stroke-width="1.6" fill="none"/>
+<path d="M600 200 L591 196 L591 204 Z" fill="#9aa8bd"/>
+<path d="M80 52 L76 61 L84 61 Z" fill="#9aa8bd"/>
+<ellipse cx="320" cy="200" rx="7" ry="49" fill="rgba(224,160,60,.26)" stroke="#e0a03c" stroke-width="1.6"/>
+<path d="M320 151 V249" stroke="#e0a03c" stroke-width="1.2" stroke-dasharray="5 4" fill="none"/>
+<path d="M320 151 H80" stroke="#e0a03c" stroke-width="1.2" stroke-dasharray="5 4" fill="none"/>
+<text x="86" y="146" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">f(x)</text>
+<text x="328" y="180" font-family="system-ui,sans-serif" font-size="12" fill="#e0a03c">y</text>
+<text x="332" y="214" font-family="system-ui,sans-serif" font-size="11" fill="#e0a03c">dx</text>
+<text x="62" y="214" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">O</text>
+<text x="606" y="204" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">x</text>
+<text x="60" y="54" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">y</text>
+<text x="420" y="118" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">y = f(x)</text>
+<text x="388" y="290" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">dV = πy²dx</text>
+</svg><figcaption><b>图 6-2</b> 圆盘法：曲线绕 x 轴旋转后，垂直于轴切一刀得到一个半径为 y、厚度为 dx 的薄圆盘，dV = πy²dx，所以 V = π∫<sub>a</sub><sup>b</sup>y²dx。</figcaption></figure>

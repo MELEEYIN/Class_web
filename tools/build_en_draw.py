@@ -9,6 +9,7 @@ build_en_draw.py — 生成 site/en/draw.html（工程制图 · 课件对照版�
 用法：python tools/build_en_draw.py
 """
 import io
+import json
 import os
 import sys
 
@@ -22,6 +23,37 @@ from draw_data_b import CH as CH_B
 
 CH = CH_A + CH_B
 OUT = os.path.join(ROOT, "site", "en", "draw.html")
+
+# 补充内容（图解 + 追加知识点）放在 tools/draw_extra/dN.json 里：
+#   { "d1-s1": { "figs": [{"cap": "...", "alt": "...", "svg": "<g>...</g>", "box": "0 0 640 320"}],
+#                "pts": [["标题", "说明"], ...], "note": "一句看图口诀" } }
+# 与 draw_data_a/b.py 里的基础内容分开存放，重跑生成器不会丢。
+EXTRA_DIR = os.path.join(HERE, "draw_extra")
+
+
+def load_extra():
+    ex = {}
+    if os.path.isdir(EXTRA_DIR):
+        for fn in sorted(os.listdir(EXTRA_DIR)):
+            if fn.endswith(".json"):
+                with io.open(os.path.join(EXTRA_DIR, fn), encoding="utf-8") as f:
+                    ex.update(json.load(f))
+    return ex
+
+
+EX = load_extra()
+N_FIG = sum(len(v.get("figs", [])) for v in EX.values())
+N_ADD = sum(len(v.get("pts", [])) for v in EX.values())
+
+
+def ch_extra(ch):
+    """这一章的补充内容总数（图解 / 追加知识点）。"""
+    figs = add = 0
+    for i, _s in enumerate(ch["secs"]):
+        e = EX.get("%s-s%d" % (ch["id"], i + 1), {})
+        figs += len(e.get("figs", []))
+        add += len(e.get("pts", []))
+    return figs, add
 
 N_SEC = sum(len(c["secs"]) for c in CH)
 N_PT = sum(len(s[4]) for c in CH for s in c["secs"])
@@ -50,14 +82,33 @@ def render_secs(ch):
 
 def render_points(ch):
     out = []
+    figno = 0
     for i, s in enumerate(ch["secs"]):
+        key = "%s-s%d" % (ch["id"], i + 1)
+        e = EX.get(key, {})
         pts = s[4]
-        items = "".join('<li id="%s-s%d-p%d"><b>%s</b><span class="kd">%s</span></li>'
-                        % (ch["id"], i + 1, j + 1, t, d) for j, (t, d) in enumerate(pts))
-        out.append('<div class="sect-h" id="%s-s%d">%s<span class="pgx">%s · %d 条</span></div>'
-                   '<ol class="kpt">%s</ol>' % (ch["id"], i + 1, s[0], s[1], len(pts), items))
-    return ('<div class="mod" id="%s-m2"><h3><span class="mtag">M2</span>逐节知识点'
-            '<span class="msub">按课件节次展开 · 规范 / 画法 / 判断</span></h3>%s</div>'
+        add = e.get("pts", [])
+        items = "".join('<li id="%s-p%d"><b>%s</b><span class="kd">%s</span></li>'
+                        % (key, j + 1, t, d) for j, (t, d) in enumerate(pts))
+        items += "".join('<li id="%s-x%d" class="add"><b>%s</b><span class="kd">%s</span></li>'
+                         % (key, j + 1, t, d) for j, (t, d) in enumerate(add))
+        figs = []
+        for f in e.get("figs", []):
+            figno += 1
+            figs.append(
+                '<figure class="fig dfig">'
+                '<svg class="figsvg" viewBox="%s" role="img" aria-label="%s">%s</svg>'
+                '<figcaption><b>图 %d-%d</b>%s</figcaption></figure>'
+                % (f.get("box", "0 0 640 320"), f.get("alt", s[0]), f["svg"],
+                   ch["no"], figno, f["cap"]))
+        figh = ('<div class="figset">%s</div>' % "".join(figs)) if figs else ""
+        note = e.get("note", "")
+        noteh = ('<p class="fig-note"><b>看图口诀　</b>%s</p>' % note) if note else ""
+        out.append('<div class="sect-h" id="%s">%s<span class="pgx">%s · %d 条</span></div>%s'
+                   '<ol class="kpt">%s</ol>%s'
+                   % (key, s[0], s[1], len(pts) + len(add), figh, items, noteh))
+    return ('<div class="mod" id="%s-m2"><h3><span class="mtag">M2</span>逐节知识点与图解'
+            '<span class="msub">按课件节次展开 · 规范 / 画法 / 判断 · 每节配图</span></h3>%s</div>'
             % (ch["id"], "".join(out)))
 
 
@@ -106,8 +157,8 @@ def render_ch(ch):
         '    <div class="ut">\n'
         '      <h2 class="u2t">' + ch["title"] + '<span class="uzh">第 ' + str(n) + ' 章</span></h2>\n'
         '      <p class="usub">课件 ' + ch["pages"] + '　·　' + str(len(ch["secs"])) +
-        ' 节　·　' + str(sum(len(s[4]) for s in ch["secs"])) + ' 条知识点　·　' +
-        str(len(ch["ex"])) + ' 道例题</p>\n'
+        ' 节　·　' + str(sum(len(s[4]) for s in ch["secs"]) + ch_extra(ch)[1]) + ' 条知识点　·　' +
+        str(len(ch["ex"])) + ' 道例题　·　' + str(ch_extra(ch)[0]) + ' 张图解</p>\n'
         '    </div>\n'
         '    <div class="ubadges">\n'
         '      <span class="verdict off">课件口径</span>\n'
@@ -188,6 +239,7 @@ HEAD = """<!DOCTYPE html>
                 <span class="chipk"><b>9</b> 章</span>
                 <span class="chipk"><b>@@NSEC@@</b> 节</span>
                 <span class="chipk"><b>@@NPT@@</b> 条知识点</span>
+                <span class="chipk"><b>@@NFIG@@</b> 张图解</span>
                 <span class="chipk lv"><b>@@NEX@@</b> 道例题</span>
               </div>
             </header>
@@ -248,10 +300,11 @@ def main():
                 .replace("@@NAV@@", build_nav("./b1.html", "draw"))
                 .replace("@@CHAPTERS@@", "\n".join(render_ch(c) for c in CH))
                 .replace("@@NSEC@@", str(N_SEC))
-                .replace("@@NPT@@", str(N_PT))
-                .replace("@@NEX@@", str(N_EX)))
+                .replace("@@NPT@@", str(N_PT + N_ADD))
+                .replace("@@NEX@@", str(N_EX))
+                .replace("@@NFIG@@", str(N_FIG)))
     io.open(OUT, "w", encoding="utf-8", newline="\n").write(page)
-    print("chapters", len(CH), "secs", N_SEC, "points", N_PT, "examples", N_EX)
+    print("chapters", len(CH), "secs", N_SEC, "points", N_PT, "+", N_ADD, "figs", N_FIG, "examples", N_EX)
     print("written:", OUT, len(page))
 
 

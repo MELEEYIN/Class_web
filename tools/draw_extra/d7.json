@@ -1,0 +1,190 @@
+{
+ "d7-s1": {
+  "figs": [
+   {
+    "cap": "外螺纹的可见轮廓是大径，画粗实线；牙底小径用细实线，约为大径的 0.85 倍。右端视图里大径画整圆、小径只画约 3/4 圈，缺口一般留在右上，提醒它不是完整的圆，倒角圆不画。",
+    "alt": "外螺纹的主视图与端视图规定画法",
+    "svg": "<g stroke='currentColor' stroke-width='2.2' fill='none'>\n  <line x1='90' y1='104' x2='268' y2='104'/>\n  <line x1='90' y1='184' x2='268' y2='184'/>\n  <line x1='90' y1='104' x2='90' y2='184'/>\n  <line x1='234' y1='104' x2='234' y2='184'/>\n  <circle cx='352' cy='144' r='40'/>\n</g>\n<g stroke='#9aa8bd' stroke-width='1' fill='none'>\n  <line x1='90' y1='110' x2='268' y2='110'/>\n  <line x1='90' y1='178' x2='268' y2='178'/>\n  <path d='M386 144A34 34 0 1 0 352 178'/>\n</g>\n<line x1='70' y1='144' x2='408' y2='144' stroke='#9aa8bd' stroke-width='1' stroke-dasharray='12 3 2 3'/>\n<g fill='#8fa3bd' font-size='13' text-anchor='start'>\n  <text x='90' y='214' text-anchor='start'>牙顶（大径 d）画粗实线</text>\n  <text x='90' y='238' text-anchor='start'>牙底（小径 d₁≈0.85d）画细实线</text>\n  <text x='90' y='262' text-anchor='start'>螺纹终止线也是粗实线，画到牙顶</text>\n</g>\n<text x='352' y='208' fill='#8fa3bd' font-size='13' text-anchor='middle'>端视图</text>\n<text x='410' y='120' fill='#8fa3bd' font-size='13' text-anchor='start'>小径圆只画 3/4 圈</text>"
+   },
+   {
+    "cap": "把螺纹沿轴线剖开看到的牙型：牙顶到牙底是牙深，相邻两牙对应点的轴向距离是螺距 p；同一条螺旋线上相邻两牙的距离是导程 Ph，双线螺纹 Ph = 2p，三线 Ph = 3p，线数 n = Ph / p。",
+    "alt": "螺纹的牙型、螺距与导程",
+    "svg": "<path d='M96 120L111 120L138 144L151 120L165 120L178 144L191 120L205 120L218 144L231 120L245 120L258 144L271 120L285 120L298 144L311 120L325 120L338 144L351 120L365 120L378 144L391 120L405 120L418 144L431 120L445 120L445 190L96 190Z' stroke='currentColor' stroke-width='2.2' fill='none'/>\n<g stroke='#e0a03c' stroke-width='1'>\n  <line x1='118' y1='114' x2='118' y2='88'/>\n  <line x1='158' y1='114' x2='158' y2='56'/>\n  <line x1='238' y1='114' x2='238' y2='56'/>\n  <line x1='118' y1='96' x2='158' y2='96'/>\n  <line x1='158' y1='62' x2='238' y2='62'/>\n  <path d='M118 96l9-3.4v6.8z' fill='#e0a03c' stroke='none'/>\n  <path d='M158 96l-9-3.4v6.8z' fill='#e0a03c' stroke='none'/>\n  <path d='M158 62l9-3.4v6.8z' fill='#e0a03c' stroke='none'/>\n  <path d='M238 62l-9-3.4v6.8z' fill='#e0a03c' stroke='none'/>\n</g>\n<text x='138' y='88' fill='#e0a03c' font-size='13' text-anchor='middle'>p</text>\n<text x='198' y='54' fill='#e0a03c' font-size='13' text-anchor='middle'>Ph = 2p</text>\n<text x='150' y='172' fill='#8fa3bd' font-size='13' text-anchor='start'>牙型角 α = 60°</text>\n<g fill='#8fa3bd' font-size='13' text-anchor='start'>\n  <text x='96' y='214' text-anchor='start'>粗牙不注螺距，细牙必须注：M20 与 M20×1.5</text>\n  <text x='96' y='238' text-anchor='start'>右旋不注、左旋注 LH；线数 n = Ph / p</text>\n</g>"
+   }
+  ],
+  "pts": [
+   [
+    "螺距与导程两笔账",
+    "导程 Ph = 螺距 P × 线数 n。单线 Ph = P，双线 Ph = 2P。标记 Tr40×14(P7) 里 14 是导程、括号中 7 是螺距，反过来可推线数 n = Ph / P = 2，这类反推题最常见。"
+   ],
+   [
+    "旋向怎么判断",
+    "轴线竖直时看可见螺纹的右侧牙型：右高左低为右旋。也可用右手法则——四指顺螺旋线旋进方向握住，拇指指向轴向即右旋。右旋不注，左旋必须注 LH，漏注即错。"
+   ],
+   [
+    "不通孔螺纹的画法",
+    "钻孔底部画 120° 锥角，螺纹终止线（粗实线）到孔底之间要留一段无螺纹的光孔，长约 0.5d。螺纹长度从端面量到终止线，不把锥尖算进去，算进去就多标了一截。"
+   ],
+   [
+    "标记里的字母家族",
+    "M 普通螺纹、Tr 梯形、B 锯齿形、G 非螺纹密封管螺纹、Rc 锥管内螺纹、Rp 圆柱内螺纹、R 锥管外螺纹。管螺纹的尺寸代号是英寸数而不是毫米，标注时不写单位。"
+   ]
+  ],
+  "note": "粗细线记反是头号错：<b>外螺纹大径粗、内螺纹小径粗</b>，旋合段一律按外螺纹画。"
+ },
+ "d7-s2": {
+  "figs": [
+   {
+    "cap": "螺栓连接的比例画法：各部分尺寸都用螺纹大径 d 折算，螺母厚 0.8d、垫圈厚 0.15d、螺栓头高约 0.7d。被连接件画剖面线，螺栓、螺母、垫圈是标准件按不剖画；螺栓杆与通孔之间留间隙，画成两条线。",
+    "alt": "螺栓连接的比例画法与间隙",
+    "svg": "<defs>\n  <pattern id='hp7a' width='9' height='9' patternUnits='userSpaceOnUse' patternTransform='rotate(45)'>\n    <line x1='0' y1='0' x2='0' y2='9' stroke='#9aa8bd' stroke-width='1'/>\n  </pattern>\n</defs>\n<g fill='url(#hp7a)' stroke='none'>\n  <rect x='160' y='120' width='95' height='50'/>\n  <rect x='345' y='120' width='95' height='50'/>\n  <rect x='160' y='170' width='95' height='60'/>\n  <rect x='345' y='170' width='95' height='60'/>\n</g>\n<g stroke='currentColor' stroke-width='2.2' fill='none'>\n  <line x1='260' y1='34' x2='260' y2='230'/>\n  <line x1='340' y1='34' x2='340' y2='230'/>\n  <line x1='260' y1='34' x2='340' y2='34'/>\n  <rect x='240' y='44' width='120' height='64'/>\n  <rect x='212' y='108' width='176' height='12'/>\n  <rect x='160' y='120' width='280' height='50'/>\n  <rect x='160' y='170' width='280' height='60'/>\n  <rect x='240' y='230' width='120' height='56'/>\n  <line x1='255' y1='120' x2='255' y2='230'/>\n  <line x1='345' y1='120' x2='345' y2='230'/>\n</g>\n<g stroke='#9aa8bd' stroke-width='1' fill='none'>\n  <line x1='266' y1='34' x2='266' y2='108'/>\n  <line x1='334' y1='34' x2='334' y2='108'/>\n</g>\n<line x1='300' y1='30' x2='300' y2='290' stroke='#9aa8bd' stroke-width='1' stroke-dasharray='12 3 2 3'/>\n<g stroke='#e0a03c' stroke-width='1'>\n  <line x1='360' y1='44' x2='476' y2='44'/>\n  <line x1='388' y1='108' x2='476' y2='108'/>\n  <line x1='470' y1='44' x2='470' y2='108'/>\n  <path d='M470 44l-3.4 9h6.8z' fill='#e0a03c' stroke='none'/>\n  <path d='M470 108l-3.4-9h6.8z' fill='#e0a03c' stroke='none'/>\n</g>\n<text x='478' y='80' fill='#e0a03c' font-size='13' text-anchor='start'>0.8d</text>\n<g fill='#8fa3bd' font-size='13' text-anchor='start'>\n  <text x='44' y='68' text-anchor='start'>螺母</text>\n  <text x='44' y='112' text-anchor='start'>垫圈 0.15d</text>\n  <text x='44' y='146' text-anchor='start'>被连接件</text>\n  <text x='44' y='252' text-anchor='start'>螺栓</text>\n  <text x='450' y='150' text-anchor='start'>两板接触面画一条线</text>\n  <text x='450' y='196' text-anchor='start'>螺栓与孔壁留间隙</text>\n</g>\n<g stroke='#9aa8bd' stroke-width='1'>\n  <line x1='76' y1='66' x2='238' y2='70'/>\n  <line x1='126' y1='110' x2='208' y2='114'/>\n  <line x1='100' y1='144' x2='156' y2='146'/>\n  <line x1='76' y1='248' x2='236' y2='250'/>\n  <line x1='446' y1='146' x2='414' y2='167'/>\n  <line x1='446' y1='192' x2='352' y2='180'/>\n</g>"
+   },
+   {
+    "cap": "双头螺柱一端旋入较厚零件的螺纹孔，旋入端长度 bm 由被旋入件的材料决定：钢或青铜取 1d，铸铁取 1.25d，铝取 2d。拧紧后螺纹终止线应与两零件结合面平齐，既不能露出，也不能顶到孔底。",
+    "alt": "双头螺柱的旋入端长度",
+    "svg": "<defs>\n  <pattern id='hp7b' width='9' height='9' patternUnits='userSpaceOnUse' patternTransform='rotate(45)'>\n    <line x1='0' y1='0' x2='0' y2='9' stroke='#9aa8bd' stroke-width='1'/>\n  </pattern>\n</defs>\n<g fill='url(#hp7b)' stroke='none'>\n  <rect x='150' y='90' width='123' height='40'/>\n  <rect x='327' y='90' width='123' height='40'/>\n  <rect x='150' y='130' width='128' height='120'/>\n  <rect x='322' y='130' width='128' height='120'/>\n  <rect x='278' y='200' width='44' height='50'/>\n</g>\n<g stroke='currentColor' stroke-width='2.2' fill='none'>\n  <rect x='150' y='90' width='300' height='40'/>\n  <rect x='150' y='130' width='300' height='120'/>\n  <line x1='273' y1='90' x2='273' y2='130'/>\n  <line x1='327' y1='90' x2='327' y2='130'/>\n  <line x1='278' y1='34' x2='278' y2='185'/>\n  <line x1='322' y1='34' x2='322' y2='185'/>\n  <line x1='278' y1='34' x2='322' y2='34'/>\n  <rect x='258' y='44' width='84' height='34'/>\n  <rect x='250' y='78' width='100' height='12'/>\n  <line x1='278' y1='185' x2='322' y2='185'/>\n  <line x1='282' y1='185' x2='282' y2='200'/>\n  <line x1='318' y1='185' x2='318' y2='200'/>\n  <line x1='282' y1='200' x2='318' y2='200'/>\n</g>\n<g stroke='#9aa8bd' stroke-width='1' fill='none'>\n  <line x1='282' y1='34' x2='282' y2='185'/>\n  <line x1='318' y1='34' x2='318' y2='185'/>\n  <line x1='278' y1='185' x2='278' y2='200'/>\n  <line x1='322' y1='185' x2='322' y2='200'/>\n</g>\n<line x1='300' y1='30' x2='300' y2='290' stroke='#9aa8bd' stroke-width='1' stroke-dasharray='12 3 2 3'/>\n<g stroke='#e0a03c' stroke-width='1'>\n  <line x1='450' y1='130' x2='486' y2='130'/>\n  <line x1='322' y1='185' x2='486' y2='185'/>\n  <line x1='480' y1='130' x2='480' y2='185'/>\n  <path d='M480 130l-3.4 9h6.8z' fill='#e0a03c' stroke='none'/>\n  <path d='M480 185l-3.4-9h6.8z' fill='#e0a03c' stroke='none'/>\n</g>\n<text x='488' y='162' fill='#e0a03c' font-size='13' text-anchor='start'>bm</text>\n<g fill='#8fa3bd' font-size='13' text-anchor='start'>\n  <text x='44' y='54' text-anchor='start'>螺母</text>\n  <text x='44' y='104' text-anchor='start'>上件</text>\n  <text x='44' y='214' text-anchor='start'>下件</text>\n  <text x='150' y='272' text-anchor='start'>旋入端 bm 按材料取：钢、青铜 1d；铸铁 1.25d；铝 2d</text>\n</g>\n<g stroke='#9aa8bd' stroke-width='1'>\n  <line x1='78' y1='58' x2='254' y2='60'/>\n  <line x1='78' y1='106' x2='148' y2='110'/>\n  <line x1='78' y1='210' x2='148' y2='206'/>\n</g>"
+   }
+  ],
+  "pts": [
+   [
+    "螺栓长度先估后查",
+    "l = t₁ + t₂ + 垫圈 0.15d + 螺母 0.8d + 伸出 0.2～0.3d，算完按标准系列取整（60、65、70…）。例：M10、两板厚 20 与 25，得 20+25+2+8+3 ≈ 58，取 60。"
+   ],
+   [
+    "双头螺柱的 bm 分三档",
+    "旋入端长度按被旋入件材料取：钢、青铜 bm = 1d，铸铁 1.25d，铝合金 2d。旋入后螺纹终止线应与结合面平齐——线露在外面是没拧到底，埋进去则会顶死，两种都算错。"
+   ],
+   [
+    "螺钉连接的三处细节",
+    "螺钉头部开槽画成一条加粗单线，与轴线成 45°；螺纹终止线画在螺纹孔内；两零件接触面画一条线，螺钉杆与通孔之间留间隙画两条线，而且整套图里不出现螺母。"
+   ],
+   [
+    "紧固件标记怎么写",
+    "格式是「名称 标准号 规格」：螺栓 GB/T 5782 M20×80、螺母 GB/T 6170 M20、垫圈 GB/T 97.1 20。双头螺柱按旋入端分：GB/T 897（bm = 1d）、898（1.25d）、899（2d）。"
+   ]
+  ],
+  "note": "螺栓穿孔留间隙、双头螺柱按材料定 bm、螺钉不用螺母——三种连接一句话分清。"
+ },
+ "d7-s3": {
+  "figs": [
+   {
+    "cap": "平键是标准件，标记「键 8×7×40」里的三个数字依次是宽度 b、高度 h、长度 L，顺序不能颠倒，写成 40×7×8 就全错了。主视图量长和高，端视图量宽和高，键长 L 取标准系列并略短于轮毂长度。",
+    "alt": "平键的长宽高与标记顺序",
+    "svg": "<g stroke='currentColor' stroke-width='2.2' fill='none'>\n  <rect x='90' y='100' width='290' height='70'/>\n  <rect x='420' y='100' width='60' height='70'/>\n</g>\n<g stroke='#e0a03c' stroke-width='1'>\n  <line x1='90' y1='172' x2='90' y2='206'/>\n  <line x1='380' y1='172' x2='380' y2='206'/>\n  <line x1='90' y1='200' x2='380' y2='200'/>\n  <path d='M90 200l9-3.4v6.8z' fill='#e0a03c' stroke='none'/>\n  <path d='M380 200l-9-3.4v6.8z' fill='#e0a03c' stroke='none'/>\n  <line x1='420' y1='172' x2='420' y2='206'/>\n  <line x1='480' y1='172' x2='480' y2='206'/>\n  <line x1='420' y1='200' x2='480' y2='200'/>\n  <path d='M420 200l9-3.4v6.8z' fill='#e0a03c' stroke='none'/>\n  <path d='M480 200l-9-3.4v6.8z' fill='#e0a03c' stroke='none'/>\n  <line x1='382' y1='100' x2='406' y2='100'/>\n  <line x1='382' y1='170' x2='406' y2='170'/>\n  <line x1='400' y1='100' x2='400' y2='170'/>\n  <path d='M400 100l-3.4 9h6.8z' fill='#e0a03c' stroke='none'/>\n  <path d='M400 170l-3.4-9h6.8z' fill='#e0a03c' stroke='none'/>\n</g>\n<g fill='#e0a03c' font-size='13' text-anchor='middle'>\n  <text x='235' y='192' text-anchor='middle'>L = 40</text>\n  <text x='450' y='192' text-anchor='middle'>b = 8</text>\n  <text x='400' y='88' text-anchor='middle'>h = 7</text>\n</g>\n<g fill='#8fa3bd' font-size='13' text-anchor='start'>\n  <text x='70' y='240' text-anchor='start'>标记：键 8×7×40 GB/T 1096</text>\n  <text x='70' y='264' text-anchor='start'>顺序永远是 宽 b × 高 h × 长 L；A 型圆头、B 型平头</text>\n  <text x='70' y='288' text-anchor='start'>轴槽深 t、毂槽深 t₁ 查表，图上注 d − t 与 d + t₁</text>\n</g>"
+   },
+   {
+    "cap": "键连接剖视：键的下半部分嵌在轴槽里，上半部分伸进轮毂槽。两侧面是工作面，与键槽侧面贴合，只画一条线；键的顶面与轮毂槽底面之间留有间隙，必须画成两条线，这是每年必考的细节。",
+    "alt": "平键连接的配合面与顶面间隙",
+    "svg": "<defs>\n  <pattern id='hp7c' width='9' height='9' patternUnits='userSpaceOnUse' patternTransform='rotate(45)'>\n    <line x1='0' y1='0' x2='0' y2='9' stroke='#9aa8bd' stroke-width='1'/>\n  </pattern>\n  <pattern id='hp7d' width='9' height='9' patternUnits='userSpaceOnUse' patternTransform='rotate(135)'>\n    <line x1='0' y1='0' x2='0' y2='9' stroke='#9aa8bd' stroke-width='1'/>\n  </pattern>\n</defs>\n<g fill='url(#hp7c)' stroke='none'>\n  <rect x='60' y='120' width='110' height='80'/>\n  <rect x='170' y='140' width='80' height='60'/>\n  <rect x='250' y='120' width='170' height='80'/>\n  <rect x='100' y='44' width='70' height='76'/>\n  <rect x='250' y='44' width='130' height='76'/>\n  <rect x='170' y='44' width='80' height='56'/>\n  <rect x='100' y='200' width='280' height='80'/>\n</g>\n<g fill='url(#hp7d)' stroke='none'>\n  <rect x='170' y='108' width='80' height='32'/>\n</g>\n<g stroke='currentColor' stroke-width='2.2' fill='none'>\n  <path d='M60 120H170V140H250V120H420V200H60Z'/>\n  <rect x='100' y='44' width='280' height='236'/>\n  <line x1='100' y1='120' x2='170' y2='120'/>\n  <line x1='250' y1='120' x2='380' y2='120'/>\n  <line x1='100' y1='200' x2='380' y2='200'/>\n  <line x1='100' y1='120' x2='100' y2='200'/>\n  <line x1='380' y1='120' x2='380' y2='200'/>\n  <line x1='170' y1='100' x2='250' y2='100'/>\n  <line x1='170' y1='100' x2='170' y2='120'/>\n  <line x1='250' y1='100' x2='250' y2='120'/>\n  <rect x='170' y='108' width='80' height='32'/>\n</g>\n<line x1='42' y1='160' x2='430' y2='160' stroke='#9aa8bd' stroke-width='1' stroke-dasharray='12 3 2 3'/>\n<text x='60' y='34' fill='#8fa3bd' font-size='13' text-anchor='start'>键顶面与毂槽底留间隙，两侧面为配合面</text>\n<g fill='#8fa3bd' font-size='13' text-anchor='start'>\n  <text x='440' y='64' text-anchor='start'>轮毂</text>\n  <text x='440' y='116' text-anchor='start'>键</text>\n  <text x='440' y='232' text-anchor='start'>轴</text>\n</g>\n<g stroke='#9aa8bd' stroke-width='1'>\n  <line x1='434' y1='58' x2='382' y2='54'/>\n  <line x1='434' y1='112' x2='252' y2='116'/>\n  <line x1='434' y1='228' x2='422' y2='196'/>\n</g>"
+   }
+  ],
+  "pts": [
+   [
+    "键槽尺寸靠查表",
+    "键槽宽 b 由轴径查表，槽深有轴槽 t 和毂槽 t₁ 两个值。图上标成 d − t（轴）和 d + t₁（毂）。例 d = 30 查得 b = 8、t = 4.0、t₁ = 3.3，即注 Ø30−4.0 与 Ø30+3.3。"
+   ],
+   [
+    "键长怎么定",
+    "键长 L 从标准系列（10、12、14、16…）里取，并比轮毂长度短 5～10 mm，太长会顶住轮毂端面。标记中第三个数字就是全长 L，不是有效工作长度，别按受力长度填。"
+   ],
+   [
+    "销的标记与配作",
+    "圆柱销 GB/T 119.1 6 m6×30，依次是直径、公差带、长度；圆锥销 GB/T 117 6×30 注的是小端直径。销孔一般与销配作，图上注「配作」或「与××配作」，不另注公差。"
+   ],
+   [
+    "半圆键与楔键",
+    "半圆键靠两侧面工作，能绕槽底摆动，适合锥形轴端和轻载；楔键上表面有 1:100 斜度，靠楔紧传力，可传单向轴向力，但会把轴与轮毂顶偏，高速或精度要求高时不能用。"
+   ]
+  ],
+  "note": "键看三个数，顺序是<b>宽×高×长</b>；两侧面配合画一条线，顶面留间隙画两条线。"
+ },
+ "d7-s4": {
+  "figs": [
+   {
+    "cap": "把一个轮齿放大看：齿顶线与齿根线用粗实线，分度线用细点画线。齿顶高 hₐ = m，齿根高 h_f = 1.25m，全齿高 2.25m；分度圆上齿厚与齿槽宽相等，都等于 πm/2。",
+    "alt": "轮齿的齿顶、分度、齿根三条线与齿高",
+    "svg": "<g stroke='currentColor' stroke-width='2.2' fill='none'>\n  <polygon points='244,211 356,211 319,110 281,110'/>\n  <line x1='180' y1='211' x2='244' y2='211'/>\n  <line x1='356' y1='211' x2='420' y2='211'/>\n</g>\n<line x1='150' y1='155' x2='470' y2='155' stroke='#9aa8bd' stroke-width='1' stroke-dasharray='12 3 2 3'/>\n<g stroke='#e0a03c' stroke-width='1'>\n  <line x1='322' y1='110' x2='480' y2='110'/>\n  <line x1='470' y1='110' x2='470' y2='155'/>\n  <path d='M470 110l-3.4 9h6.8z' fill='#e0a03c' stroke='none'/>\n  <path d='M470 155l-3.4-9h6.8z' fill='#e0a03c' stroke='none'/>\n  <line x1='420' y1='211' x2='437' y2='211'/>\n  <line x1='430' y1='155' x2='430' y2='211'/>\n  <path d='M430 155l-3.4 9h6.8z' fill='#e0a03c' stroke='none'/>\n  <path d='M430 211l-3.4-9h6.8z' fill='#e0a03c' stroke='none'/>\n</g>\n<text x='480' y='138' fill='#e0a03c' font-size='13' text-anchor='start'>ha = m</text>\n<text x='430' y='232' fill='#e0a03c' font-size='13' text-anchor='middle'>hf = 1.25m</text>\n<g fill='#8fa3bd' font-size='13' text-anchor='start'>\n  <text x='248' y='92' text-anchor='start'>齿顶线（粗实线）</text>\n  <text x='150' y='146' text-anchor='start'>分度线 点画线</text>\n  <text x='60' y='238' text-anchor='start'>齿根线（粗实线）</text>\n  <text x='60' y='272' text-anchor='start'>分度圆上：齿厚 s = 齿槽宽 e = πm/2，齿距 p = πm</text>\n</g>"
+   },
+   {
+    "cap": "一对啮合齿轮的分度圆相切于节点，中心距就是两分度圆半径之和。齿顶圆要越过对方的分度圆、又留出顶隙 c = 0.25m，所以画出来两个齿顶圆并不相切，只是各自越过对方分度圆一点点，这是判断啮合画法的关键。",
+    "alt": "两齿轮啮合的分度圆相切与中心距",
+    "svg": "<g stroke='#9aa8bd' stroke-width='1' stroke-dasharray='12 3 2 3'>\n  <circle cx='180' cy='160' r='60'/>\n  <circle cx='312' cy='160' r='72'/>\n  <line x1='96' y1='160' x2='400' y2='160'/>\n  <line x1='180' y1='56' x2='180' y2='230'/>\n  <line x1='312' y1='56' x2='312' y2='230'/>\n</g>\n<g stroke='currentColor' stroke-width='2.2' fill='none'>\n  <circle cx='180' cy='160' r='66'/>\n  <circle cx='312' cy='160' r='78'/>\n</g>\n<g stroke='#e0a03c' stroke-width='1'>\n  <line x1='180' y1='64' x2='312' y2='64'/>\n  <path d='M180 64l9-3.4v6.8z' fill='#e0a03c' stroke='none'/>\n  <path d='M312 64l-9-3.4v6.8z' fill='#e0a03c' stroke='none'/>\n</g>\n<text x='246' y='52' fill='#e0a03c' font-size='13' text-anchor='middle'>a = m(z₁+z₂)/2</text>\n<g fill='#8fa3bd' font-size='13' text-anchor='start'>\n  <text x='60' y='250' text-anchor='start'>两分度圆相切于节点，中心距即两分度半径之和</text>\n  <text x='60' y='276' text-anchor='start'>顶隙 c = 0.25m；齿顶圆要越过对方分度圆一点</text>\n</g>"
+   }
+  ],
+  "pts": [
+   [
+    "模数必须取标准值",
+    "m = p/π = d/z，是齿轮几何尺寸的核心参数。标准系列有 1、1.25、1.5、2、2.5、3、4、5、6、8、10…，算出非标准值时要靠到最近的标准模数再重算尺寸。"
+   ],
+   [
+    "传动比与中心距",
+    "i = n₁/n₂ = z₂/z₁ = d₂/d₁；中心距 a = (d₁+d₂)/2 = m(z₁+z₂)/2。考试多是给 m、z₁、z₂ 一步算出 a，注意先算分度圆直径再平均，别直接拿齿顶圆。"
+   ],
+   [
+    "斜齿圆柱齿轮",
+    "多一个螺旋角 β：法向模数 mₙ = mₜ·cosβ，分度圆 d = mₙz/cosβ，中心距 a = mₙ(z₁+z₂)/(2cosβ)。图纸上标成 mₙ = 3、z = 20、β = 15°、右旋。"
+   ],
+   [
+    "零件图右上角的参数表",
+    "齿轮零件图的右上角必须列出：模数、齿数、齿形角 20°、精度等级（如 7-GB/T 10095）、配对齿轮图号，以及齿顶圆直径及其偏差。缺一项就是典型扣分点。"
+   ]
+  ],
+  "note": "先算 <b>d = mz</b>，再 +2 得齿顶、−2.5 得齿根；分度圆永远画细点画线。"
+ },
+ "d7-s5": {
+  "figs": [
+   {
+    "cap": "深沟球轴承剖视：内圈套在轴上、外圈装在孔里，中间一排滚动体由保持架隔开。6206 的 d = 30、D = 62、B = 16，画图可用简化画法，只画内外圈和滚动体轮廓，同一视图里对称的一半画剖面线、另一半不画。",
+    "alt": "深沟球轴承的结构与三个安装尺寸",
+    "svg": "<defs>\n  <pattern id='hp7e' width='9' height='9' patternUnits='userSpaceOnUse' patternTransform='rotate(45)'>\n    <line x1='0' y1='0' x2='0' y2='9' stroke='#9aa8bd' stroke-width='1'/>\n  </pattern>\n  <pattern id='hp7f' width='9' height='9' patternUnits='userSpaceOnUse' patternTransform='rotate(135)'>\n    <line x1='0' y1='0' x2='0' y2='9' stroke='#9aa8bd' stroke-width='1'/>\n  </pattern>\n</defs>\n<g fill='url(#hp7e)' stroke='none'>\n  <rect x='210' y='116' width='180' height='12'/>\n  <rect x='210' y='192' width='180' height='12'/>\n</g>\n<g fill='url(#hp7f)' stroke='none'>\n  <rect x='210' y='80' width='180' height='18'/>\n  <rect x='210' y='222' width='180' height='18'/>\n</g>\n<g stroke='currentColor' stroke-width='2.2' fill='none'>\n  <rect x='210' y='116' width='180' height='12'/>\n  <rect x='210' y='192' width='180' height='12'/>\n  <rect x='210' y='80' width='180' height='18'/>\n  <rect x='210' y='222' width='180' height='18'/>\n  <circle cx='250' cy='107' r='9'/>\n  <circle cx='310' cy='107' r='9'/>\n  <circle cx='370' cy='107' r='9'/>\n  <circle cx='250' cy='213' r='9'/>\n  <circle cx='310' cy='213' r='9'/>\n  <circle cx='370' cy='213' r='9'/>\n</g>\n<g stroke='#9aa8bd' stroke-width='1' fill='none'>\n  <line x1='259' y1='107' x2='301' y2='107'/>\n  <line x1='319' y1='107' x2='361' y2='107'/>\n  <line x1='259' y1='213' x2='301' y2='213'/>\n  <line x1='319' y1='213' x2='361' y2='213'/>\n</g>\n<line x1='180' y1='160' x2='432' y2='160' stroke='#9aa8bd' stroke-width='1' stroke-dasharray='12 3 2 3'/>\n<g stroke='#e0a03c' stroke-width='1'>\n  <line x1='210' y1='128' x2='171' y2='128'/>\n  <line x1='210' y1='192' x2='171' y2='192'/>\n  <line x1='175' y1='128' x2='175' y2='192'/>\n  <path d='M175 128l-3.4 9h6.8z' fill='#e0a03c' stroke='none'/>\n  <path d='M175 192l-3.4-9h6.8z' fill='#e0a03c' stroke='none'/>\n  <line x1='390' y1='80' x2='436' y2='80'/>\n  <line x1='390' y1='240' x2='436' y2='240'/>\n  <line x1='430' y1='80' x2='430' y2='240'/>\n  <path d='M430 80l-3.4 9h6.8z' fill='#e0a03c' stroke='none'/>\n  <path d='M430 240l-3.4-9h6.8z' fill='#e0a03c' stroke='none'/>\n  <line x1='210' y1='240' x2='210' y2='268'/>\n  <line x1='390' y1='240' x2='390' y2='268'/>\n  <line x1='210' y1='262' x2='390' y2='262'/>\n  <path d='M210 262l9-3.4v6.8z' fill='#e0a03c' stroke='none'/>\n  <path d='M390 262l-9-3.4v6.8z' fill='#e0a03c' stroke='none'/>\n</g>\n<g fill='#e0a03c' font-size='13' text-anchor='start'>\n  <text x='100' y='164' text-anchor='start'>d = 30</text>\n  <text x='440' y='164' text-anchor='start'>D = 62</text>\n</g>\n<text x='300' y='254' fill='#e0a03c' font-size='13' text-anchor='middle'>B = 16</text>\n<g fill='#8fa3bd' font-size='13' text-anchor='start'>\n  <text x='44' y='86' text-anchor='start'>外圈</text>\n  <text x='44' y='116' text-anchor='start'>滚动体</text>\n  <text x='44' y='146' text-anchor='start'>内圈</text>\n</g>\n<g stroke='#9aa8bd' stroke-width='1'>\n  <line x1='78' y1='88' x2='208' y2='88'/>\n  <line x1='88' y1='112' x2='240' y2='107'/>\n  <line x1='78' y1='142' x2='238' y2='124'/>\n</g>"
+   }
+  ],
+  "pts": [
+   [
+    "代号的三段结构",
+    "前置代号-基本代号-后置代号。基本代号 = 类型 + 尺寸系列 + 内径：6206 里 6 是深沟球轴承、2 是尺寸系列（原 02，首位 0 省略）、06 是内径代号，读法从左往右。"
+   ],
+   [
+    "类型代号记七个",
+    "1 调心球、2 调心滚子、3 圆锥滚子、5 推力球、6 深沟球、7 角接触球、N 圆柱滚子。最常考 6 与 7，看到 3 就想到能同时承受径向和单向轴向力。"
+   ],
+   [
+    "内径换算与安装尺寸",
+    "内径代号 04 以上乘 5：08→40、10→50、12→60；00、01、02、03 特殊，对应 10、12、15、17。6206 的 d = 30、D = 62、B = 16，完整标记写作 GB/T 276—6206。"
+   ],
+   [
+    "后置代号与简化画法",
+    "后置 /P6 表示公差等级 6 级，/C2 表示游隙组别，都写在基本代号之后。剖视用简化画法时只画内外圈和滚动体轮廓，保持架可省，滚动体用圆或交叉线示意即可。"
+   ]
+  ],
+  "note": "看轴承只抓三个数：<b>d 内径、D 外径、B 宽度</b>；内外圈画粗实线，滚动体一排圆点。"
+ },
+ "d7-s6": {
+  "figs": [
+   {
+    "cap": "圆柱螺旋压缩弹簧的规定画法：两端各有 1.5～2 圈并紧磨平的支承圈，中间是节距相等的有效圈；簧丝断面画成小圆。D 是外径、D₂ 是中径，D₂ = D − d，画图时先定中径再加减簧丝半径。",
+    "alt": "圆柱螺旋压缩弹簧的直径与节距",
+    "svg": "<g stroke='currentColor' stroke-width='2.2' fill='none'>\n  <line x1='90' y1='112' x2='390' y2='112'/>\n  <line x1='90' y1='208' x2='390' y2='208'/>\n  <line x1='90' y1='112' x2='90' y2='208'/>\n  <line x1='390' y1='112' x2='390' y2='208'/>\n  <line x1='104' y1='119' x2='132' y2='201'/>\n  <line x1='132' y1='201' x2='160' y2='119'/>\n  <line x1='160' y1='119' x2='188' y2='201'/>\n  <line x1='188' y1='201' x2='216' y2='119'/>\n  <line x1='216' y1='119' x2='244' y2='201'/>\n  <line x1='244' y1='201' x2='272' y2='119'/>\n  <line x1='272' y1='119' x2='300' y2='201'/>\n  <line x1='300' y1='201' x2='328' y2='119'/>\n  <line x1='328' y1='119' x2='356' y2='201'/>\n  <circle cx='104' cy='119' r='7'/>\n  <circle cx='160' cy='119' r='7'/>\n  <circle cx='216' cy='119' r='7'/>\n  <circle cx='272' cy='119' r='7'/>\n  <circle cx='328' cy='119' r='7'/>\n  <circle cx='132' cy='201' r='7'/>\n  <circle cx='188' cy='201' r='7'/>\n  <circle cx='244' cy='201' r='7'/>\n  <circle cx='300' cy='201' r='7'/>\n  <circle cx='356' cy='201' r='7'/>\n</g>\n<line x1='70' y1='160' x2='404' y2='160' stroke='#9aa8bd' stroke-width='1' stroke-dasharray='12 3 2 3'/>\n<g stroke='#e0a03c' stroke-width='1'>\n  <line x1='392' y1='112' x2='416' y2='112'/>\n  <line x1='392' y1='208' x2='416' y2='208'/>\n  <line x1='410' y1='112' x2='410' y2='208'/>\n  <path d='M410 112l-3.4 9h6.8z' fill='#e0a03c' stroke='none'/>\n  <path d='M410 208l-3.4-9h6.8z' fill='#e0a03c' stroke='none'/>\n  <line x1='392' y1='119' x2='456' y2='119'/>\n  <line x1='392' y1='201' x2='456' y2='201'/>\n  <line x1='450' y1='119' x2='450' y2='201'/>\n  <path d='M450 119l-3.4 9h6.8z' fill='#e0a03c' stroke='none'/>\n  <path d='M450 201l-3.4-9h6.8z' fill='#e0a03c' stroke='none'/>\n  <line x1='104' y1='110' x2='104' y2='86'/>\n  <line x1='160' y1='110' x2='160' y2='86'/>\n  <line x1='104' y1='92' x2='160' y2='92'/>\n  <path d='M104 92l9-3.4v6.8z' fill='#e0a03c' stroke='none'/>\n  <path d='M160 92l-9-3.4v6.8z' fill='#e0a03c' stroke='none'/>\n  <line x1='90' y1='210' x2='90' y2='278'/>\n  <line x1='390' y1='210' x2='390' y2='278'/>\n  <line x1='90' y1='272' x2='390' y2='272'/>\n  <path d='M90 272l9-3.4v6.8z' fill='#e0a03c' stroke='none'/>\n  <path d='M390 272l-9-3.4v6.8z' fill='#e0a03c' stroke='none'/>\n</g>\n<g fill='#e0a03c' font-size='13' text-anchor='start'>\n  <text x='418' y='164' text-anchor='start'>D</text>\n  <text x='458' y='164' text-anchor='start'>D₂</text>\n</g>\n<g fill='#e0a03c' font-size='13' text-anchor='middle'>\n  <text x='132' y='84' text-anchor='middle'>t</text>\n  <text x='240' y='264' text-anchor='middle'>L₀</text>\n</g>\n<text x='420' y='92' fill='#8fa3bd' font-size='13' text-anchor='start'>簧丝 d</text>\n<line x1='414' y1='96' x2='338' y2='116' stroke='#9aa8bd' stroke-width='1'/>"
+   }
+  ],
+  "pts": [
+   [
+    "自由高度算一遍",
+    "H₀ = n·t + (n₂ − 0.5)d，n 为有效圈数、n₂ 为总圈数（含 1.5～2 圈支承圈），t 为节距。例 n = 5、n₂ = 7.5、t = 10、d = 4，得 H₀ = 50 + 7×4 = 78 mm。"
+   ],
+   [
+    "展开长度就是下料长度",
+    "簧丝展开长度 L = πD₂n₁/cosα，螺旋升角 α 一般 5°～9°，粗略计算可直接取 L ≈ πD₂n₁（n₁ 为总圈数）。车间下料长度就按算出的这个值取。"
+   ],
+   [
+    "圈数多了怎么省",
+    "有效圈数大于 4 时，只画两端各 1～2 圈，中间省略，用通过簧丝断面中心的细点画线把两端连起来。这是规定画法而不是偷懒，考试照此画才不算错。"
+   ],
+   [
+    "旋向与拉伸弹簧",
+    "图上不注旋向时一律按右旋绘制，左旋才注 LH。拉伸弹簧各圈并紧（t ≈ d），两端做出钩环；扭转弹簧两端是扭臂，钩环和扭臂都按标准画法画，不能随意改成圆圈。"
+   ]
+  ],
+  "note": "两端支承圈并紧磨平，中间有效圈等节距；<b>D₂ = D − d</b>，别忘了减掉簧丝。"
+ }
+}

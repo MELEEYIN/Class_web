@@ -1,0 +1,18 @@
+<div class="ex">
+<div class="ex-h"><span class="ex-n">练 1</span>先自己做，再展开答案</div>
+<p class="ex-q">求 <span class="fm">y″ − 4y′ + 13y = 0</span> 的通解。</p>
+<details class="ex-a"><summary>展开答案与解析</summary>
+<div class="ex-a-body">
+<p><b>解　</b>写特征方程 r² − 4r + 13 = 0，判别式 Δ = 16 − 52 = −36 &lt; 0；<br>求根 r = <span class="fr"><span class="n">4 ± 6i</span><span class="d">2</span></span> = 2 ± 3i，即 α = 2，β = 3；<br>共轭复根对应 <b>y = e<sup>2x</sup>(C<sub>1</sub>cos 3x + C<sub>2</sub>sin 3x)</b>。</p>
+<p class="ex-t">Δ &lt; 0 不要就此停手：把根整理成 α ± βi，再套 e<sup>αx</sup>(C<sub>1</sub>cos βx + C<sub>2</sub>sin βx)。β 取虚部前面的系数 3，不是 3i；α 是实部 2，两条指数都别落。</p>
+</div></details>
+</div>
+<div class="ex">
+<div class="ex-h"><span class="ex-n">练 2</span>先自己做，再展开答案</div>
+<p class="ex-q">求 <span class="fm">y″ + 6y′ + 9y = 0</span> 满足 <span class="fm">y(0) = 1</span>、<span class="fm">y′(0) = 0</span> 的特解。</p>
+<details class="ex-a"><summary>展开答案与解析</summary>
+<div class="ex-a-body">
+<p><b>解　</b>特征方程 r² + 6r + 9 = 0，即 (r + 3)² = 0，r = −3 是二重根；<br>二重根的通解要乘 x：y = (C<sub>1</sub> + C<sub>2</sub>x)e<sup>−3x</sup>；<br>由 y(0) = C<sub>1</sub> = 1；求导 y′ = [C<sub>2</sub> − 3(C<sub>1</sub> + C<sub>2</sub>x)]e<sup>−3x</sup>，由 y′(0) = C<sub>2</sub> − 3 = 0 得 C<sub>2</sub> = 3；<br>所以 <b>y = (1 + 3x)e<sup>−3x</sup></b>。</p>
+<p class="ex-t">重根时第二个解必须乘 x，写成 C<sub>1</sub>e<sup>−3x</sup> + C<sub>2</sub>e<sup>−3x</sup> 其实只有一个常数，初值一定定不出来；求 y′ 时把 (C<sub>1</sub> + C<sub>2</sub>x) 当一个整体用乘积法则，别只对 e<sup>−3x</sup> 求导。</p>
+</div></details>
+</div>

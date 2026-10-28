@@ -1,0 +1,167 @@
+{
+ "d8-s1": {
+  "figs": [
+   {
+    "alt": "零件图版面上的四项内容",
+    "cap": "一张完整的零件图，版面分四块：左边一组视图表达形状，视图旁注出全部尺寸，右上角写技术要求（未注倒角、热处理、未注公差），右下角是标题栏（名称、材料、比例、图号）。四块缺一不可，读图和画图都按这个顺序走。",
+    "svg": "<defs><pattern id='d8s1h' width='10' height='10' patternUnits='userSpaceOnUse'><path d='M0 10L10 0' stroke='#9aa8bd' stroke-width='1' fill='none'/></pattern></defs><rect x='44' y='38' width='552' height='246' fill='none' stroke='#9aa8bd' stroke-width='1'/><g fill='none' stroke='currentColor' stroke-width='2.2'><circle cx='150' cy='142' r='46'/><circle cx='150' cy='142' r='16'/><circle cx='150' cy='112' r='7'/><circle cx='150' cy='172' r='7'/><circle cx='120' cy='142' r='7'/><circle cx='180' cy='142' r='7'/><rect x='232' y='96' width='80' height='92' fill='url(#d8s1h)'/></g><g stroke='#e0a03c' stroke-width='1'><line x1='232' y1='96' x2='232' y2='82'/><line x1='312' y1='96' x2='312' y2='82'/><line x1='232' y1='86' x2='312' y2='86'/><line x1='104' y1='190' x2='104' y2='224'/><line x1='196' y1='190' x2='196' y2='224'/><line x1='104' y1='218' x2='196' y2='218'/></g><path d='M232 86l9-3.4v6.8z' fill='#e0a03c'/><path d='M312 86l-9-3.4v6.8z' fill='#e0a03c'/><path d='M104 218l9-3.4v6.8z' fill='#e0a03c'/><path d='M196 218l-9-3.4v6.8z' fill='#e0a03c'/><g fill='#e0a03c' font-size='13.5' text-anchor='middle'><text x='272' y='80'>80</text><text x='150' y='212'>Ø92</text></g><text x='150' y='84' fill='#5b8def' font-size='13.5' text-anchor='middle'>① 一组视图</text><text x='150' y='240' fill='#5b8def' font-size='13.5' text-anchor='middle'>② 完整尺寸</text><text x='344' y='66' fill='#5b8def' font-size='13.5' text-anchor='start'>③ 技术要求</text><g fill='#8fa3bd' font-size='13' text-anchor='start'><text x='344' y='92'>1 未注倒角 C1；</text><text x='344' y='112'>2 调质处理 220~250HBS；</text><text x='344' y='132'>3 未注圆角 R2；</text><text x='344' y='152'>4 未注公差按 GB/T 1804-m。</text></g><g fill='none' stroke='#9aa8bd' stroke-width='1'><rect x='396' y='214' width='200' height='70'/><line x1='396' y1='238' x2='596' y2='238'/><line x1='396' y1='258' x2='596' y2='258'/><line x1='456' y1='238' x2='456' y2='284'/><line x1='536' y1='238' x2='536' y2='284'/></g><text x='496' y='232' fill='#5b8def' font-size='13.5' text-anchor='middle'>④ 标题栏</text><g fill='#8fa3bd' font-size='13' text-anchor='middle'><text x='426' y='253'>名称</text><text x='496' y='253'>材料</text><text x='566' y='253'>比例</text><text x='496' y='276'>图号</text></g>"
+   },
+   {
+    "alt": "零件图与装配图的分工对比",
+    "cap": "左边是零件图：只画一个零件，尺寸注全，另附技术要求与标题栏；右边是装配图：画出若干零件的装配关系，每个零件用指引线加序号标出，底部配明细栏列出序号、名称、数量。看图的第一个判断就是分清单件还是装配体。",
+    "svg": "<g fill='none' stroke='currentColor' stroke-width='2.2'><path d='M72 120h56v8h84v28h-84v8h-56z'/></g><g stroke='#e0a03c' stroke-width='1'><line x1='72' y1='164' x2='72' y2='196'/><line x1='212' y1='156' x2='212' y2='196'/><line x1='72' y1='190' x2='212' y2='190'/></g><path d='M72 190l9-3.4v6.8z' fill='#e0a03c'/><path d='M212 190l-9-3.4v6.8z' fill='#e0a03c'/><text x='142' y='184' fill='#e0a03c' font-size='13.5' text-anchor='middle'>140</text><text x='142' y='90' fill='#5b8def' font-size='15' text-anchor='middle'>零件图</text><g fill='#8fa3bd' font-size='13' text-anchor='middle'><text x='142' y='216'>一个零件 · 尺寸齐全</text><text x='142' y='238'>技术要求 + 标题栏</text></g><g fill='none' stroke='currentColor' stroke-width='2.2'><rect x='392' y='118' width='168' height='46'/><rect x='430' y='126' width='90' height='30'/></g><g stroke='#e0a03c' stroke-width='1'><line x1='410' y1='118' x2='410' y2='104'/><line x1='410' y1='104' x2='438' y2='104'/><line x1='500' y1='126' x2='536' y2='112'/><line x1='536' y1='112' x2='566' y2='112'/></g><text x='424' y='98' fill='#e0a03c' font-size='13.5' text-anchor='middle'>1</text><text x='551' y='106' fill='#e0a03c' font-size='13.5' text-anchor='middle'>2</text><text x='484' y='90' fill='#5b8def' font-size='15' text-anchor='middle'>装配图</text><g fill='none' stroke='#9aa8bd' stroke-width='1'><rect x='372' y='196' width='224' height='64'/><line x1='372' y1='214' x2='596' y2='214'/><line x1='372' y1='232' x2='596' y2='232'/><line x1='372' y1='248' x2='596' y2='248'/><line x1='410' y1='196' x2='410' y2='260'/><line x1='500' y1='196' x2='500' y2='260'/></g><g fill='#8fa3bd' font-size='13' text-anchor='middle'><text x='391' y='210'>序号</text><text x='455' y='210'>名称</text><text x='548' y='210'>数量</text><text x='391' y='227'>1</text><text x='455' y='227'>端盖</text><text x='548' y='227'>1</text><text x='391' y='244'>2</text><text x='455' y='244'>轴</text><text x='548' y='244'>1</text></g><text x='484' y='282' fill='#8fa3bd' font-size='13' text-anchor='middle'>多个零件 · 序号 + 明细栏</text>"
+   }
+  ],
+  "pts": [
+   [
+    "比例不改变尺寸数字",
+    "图上注的数字永远是零件的真实大小，与本图比例无关：1:2 的图上注 100，量出来是 50，但数字仍写 100。比例只改图形的画法大小（GB/T 14690），所以量图必须换算，读数字不用换算。"
+   ],
+   [
+    "四位信息对应四道工序",
+    "零件图要同时满足备料、加工、检验：材料与件数在标题栏决定备料；尺寸与工艺结构决定加工路线；技术要求里的公差与粗糙度决定检验用什么量具。缺一项车间就无法完整交付。"
+   ],
+   [
+    "标题栏方向就是看图方向",
+    "标题栏画在图框右下角，其长边与图框底边重合；图纸折叠后标题栏露在外面，看图时以标题栏正立的方向为准。需要装订时，标题栏放在装订边一侧的右下角，装订边宽 25 mm。"
+   ],
+   [
+    "成套图样里的分工",
+    "一张装配图配若干张零件图，零件图的图号与装配图明细栏一一对应（如 D8-02）。装配图上只注配合与安装尺寸，零件的全部定形、定位尺寸在零件图上——查尺寸要翻零件图，不能拿装配图去量。"
+   ]
+  ],
+  "note": "四件套记法：<b>视图、尺寸、技术要求、标题栏</b>——少一件，车间就停在那儿。"
+ },
+ "d8-s2": {
+  "figs": [
+   {
+    "alt": "四个投影方向中选主视图方向",
+    "cap": "同一个弯板，从四个方向投影得到四张不同的视图。A 方向（前面）能同时看到横臂上的孔和立板的轮廓，形状特征最全，所以选它作主视图；C 方向（上方）只能得到俯视图；B、D 两个方向投出来是窄条，信息最少，不能作主视图。",
+    "svg": "<g fill='none' stroke='currentColor' stroke-width='2.2'><path d='M150 112h190v34h-136v86h-54z'/><circle cx='300' cy='129' r='9'/></g><g stroke='#e0a03c' stroke-width='1.6'><line x1='250' y1='268' x2='250' y2='249'/><line x1='110' y1='184' x2='135' y2='184'/><line x1='470' y1='72' x2='470' y2='91'/><line x1='420' y1='184' x2='355' y2='184'/></g><path d='M250 240l-4.5 9h9z' fill='#e0a03c'/><path d='M144 184l-9-4.5v9z' fill='#e0a03c'/><path d='M470 100l-4.5-9h9z' fill='#e0a03c'/><path d='M346 184l9-4.5v9z' fill='#e0a03c'/><g fill='#e0a03c' font-size='15' text-anchor='middle'><text x='232' y='262'>A</text><text x='100' y='178'>B</text><text x='486' y='98'>C</text><text x='432' y='178'>D</text></g><text x='500' y='226' fill='#5b8def' font-size='13.5' text-anchor='middle'>A 方向作主视图</text><g fill='#8fa3bd' font-size='13' text-anchor='middle'><text x='500' y='250'>B、D 方向信息最少</text><text x='500' y='274'>C 方向得俯视图</text></g>"
+   },
+   {
+    "alt": "阶梯轴的尺寸基准与开口尺寸链",
+    "cap": "阶梯轴的尺寸基准：径向以轴线为准，所以三个直径都注 Ø；轴向以左端面为基准，70 和 150 都从左端面量起同一基准。总长故意不注——注了就成为封闭尺寸链，加工时三个尺寸互相矛盾，误差无处释放。",
+    "svg": "<path d='M100 122h70v8h80v4h90v12h-90v4h-80v8h-70z' fill='none' stroke='currentColor' stroke-width='2.2'/><line x1='84' y1='140' x2='356' y2='140' stroke='#9aa8bd' stroke-width='1' stroke-dasharray='12 3 2 3'/><g stroke='#e0a03c' stroke-width='1'><line x1='135' y1='122' x2='135' y2='102'/><line x1='135' y1='102' x2='152' y2='102'/><line x1='210' y1='130' x2='210' y2='84'/><line x1='210' y1='84' x2='226' y2='84'/><line x1='295' y1='134' x2='295' y2='66'/><line x1='295' y1='66' x2='310' y2='66'/><line x1='100' y1='158' x2='100' y2='216'/><line x1='170' y1='158' x2='170' y2='190'/><line x1='100' y1='184' x2='170' y2='184'/><line x1='250' y1='150' x2='250' y2='216'/><line x1='100' y1='210' x2='250' y2='210'/></g><path d='M100 184l9-3.4v6.8z' fill='#e0a03c'/><path d='M170 184l-9-3.4v6.8z' fill='#e0a03c'/><path d='M100 210l9-3.4v6.8z' fill='#e0a03c'/><path d='M250 210l-9-3.4v6.8z' fill='#e0a03c'/><g fill='#e0a03c' font-size='13.5' text-anchor='start'><text x='158' y='106'>Ø36</text><text x='232' y='88'>Ø20</text><text x='316' y='70'>Ø12</text></g><g fill='#e0a03c' font-size='13.5' text-anchor='middle'><text x='135' y='178'>70</text><text x='175' y='204'>150</text></g><rect x='86' y='96' width='22' height='18' fill='none' stroke='#5b8def' stroke-width='1.4'/><text x='97' y='109' fill='#5b8def' font-size='13.5' text-anchor='middle'>A</text><line x1='97' y1='114' x2='100' y2='122' stroke='#5b8def' stroke-width='1'/><text x='366' y='144' fill='#5b8def' font-size='13' text-anchor='start'>基准 B（轴线）</text><g fill='#8fa3bd' font-size='13' text-anchor='start'><text x='100' y='252'>① 尺寸 70、150 都从基准 A 量起</text><text x='100' y='274'>② 总长不注：留一个开口环</text></g>"
+   }
+  ],
+  "pts": [
+   [
+    "三类零件的表达套路",
+    "轴套类：轴线水平放置，一个主视图加断面或局部剖表达键槽、退刀槽；盘盖类：两个基本视图，主视图取全剖或半剖；箱体类：三个以上视图，用局部剖表达内腔，主视图按工作位置放。"
+   ],
+   [
+    "基准要选在实物上",
+    "轴向基准常用端面、轴肩、对称面，径向基准用轴线，箱体用底面和主要孔的轴线。基准必须是实际存在的面或线，图上才能引出尺寸界线；选不到实体的基准，加工时无法对刀和测量。"
+   ],
+   [
+    "封闭尺寸链为什么禁止",
+    "若总长与各段尺寸全部注出，几个尺寸的误差互相牵制，加工时无法同时满足，实际总长会由各段误差累积决定。正确做法是留一个开口环（通常是最不重要的那一段）不注，让误差落在它身上。"
+   ],
+   [
+    "标注顺序跟加工顺序走",
+    "先注定形尺寸，再注定位尺寸，最后注总体尺寸；同一工序的尺寸集中写在一处，按车、铣、钻的顺序排列。这样工人看图就能排出工艺，不用来回翻视图找尺寸。"
+   ]
+  ],
+  "note": "先定方向（形状特征）、再定数量（最少视图）、最后定基准（长宽高各一个）。"
+ },
+ "d8-s3": {
+  "figs": [
+   {
+    "alt": "台阶轴的倒角与圆角",
+    "cap": "轴的两端都倒了 C2 的 45° 角：去锐边、便于装配、不伤密封圈。轴肩根部做出 R4 圆角，减小应力集中——这里是轴的强度薄弱处，做成直角过渡容易开裂。倒角注 C2（或 2×45°），圆角注 R4；不注时要在技术要求里写「未注圆角 R2」。",
+    "svg": "<path d='M100 112L104 108H300V116Q300 120 304 120H452L456 124V156L452 160H304Q300 160 300 156V172H104L100 168Z' fill='none' stroke='currentColor' stroke-width='2.2'/><line x1='86' y1='140' x2='474' y2='140' stroke='#9aa8bd' stroke-width='1' stroke-dasharray='12 3 2 3'/><line x1='148' y1='94' x2='106' y2='107' stroke='#e0a03c' stroke-width='1'/><line x1='318' y1='96' x2='303' y2='110' stroke='#e0a03c' stroke-width='1'/><text x='150' y='88' fill='#5b8def' font-size='13.5' text-anchor='middle'>① 倒角 C2</text><text x='330' y='88' fill='#5b8def' font-size='13.5' text-anchor='middle'>② 圆角 R4</text><g fill='#8fa3bd' font-size='13' text-anchor='start'><text x='100' y='212'>C2 即 2×45°，两端倒角去锐边、便于装配</text><text x='100' y='236'>R4 圆角减小轴肩根部的应力集中</text></g>"
+   },
+   {
+    "alt": "盲孔的钻尖角与沉头孔",
+    "cap": "钻头钻进零件时，端面必须与钻头轴线垂直，否则两刃受力不等，钻头会偏斜甚至折断。盲孔底部留下约 118° 的钻尖锥角，这个锥角是钻头形状造成的，不参与孔深计算：图中孔深量到圆柱段底部就算完。沉头孔先用锪钻锪平，给螺栓头让位。",
+    "svg": "<path d='M90 110H150V190L170 202L190 190V110H340V150H350V232H370V150H380V110H520V250H90Z' fill='none' stroke='currentColor' stroke-width='2.2'/><text x='170' y='84' fill='#5b8def' font-size='13.5' text-anchor='middle'>钻头轴线垂直于起钻面</text><text x='170' y='226' fill='#8fa3bd' font-size='13' text-anchor='middle'>118°</text><line x1='398' y1='130' x2='386' y2='144' stroke='#e0a03c' stroke-width='1'/><text x='404' y='126' fill='#8fa3bd' font-size='13' text-anchor='start'>沉头孔（锪平）</text><text x='300' y='276' fill='#8fa3bd' font-size='13' text-anchor='middle'>孔深只算圆柱段，118° 钻尖不计</text>"
+   }
+  ],
+  "pts": [
+   [
+    "倒角的标准写法",
+    "倒角尺寸系列是 C0.5、C1、C1.6、C2、C2.5、C3，C 后面跟毫米数，C2 就是 2×45°。轴端倒角常取 2×45°，孔口取 C1；只有非 45° 的倒角才写成「2×30°」这种形式，不能只写 C。"
+   ],
+   [
+    "圆角半径也要选标准值",
+    "圆角优先用 R1、R2、R3、R5、R8、R10、R12、R16、R20，不要随手写 R4.5。铸件图上圆角太多，逐个标注会挤满图面，通常在技术要求写一句「未注圆角 R2～R3」，只对特殊圆角单独注。"
+   ],
+   [
+    "退刀槽的两种注法",
+    "常用「槽宽×槽深」（3×1.5）或「槽宽×槽底直径」（3×18），两种写法都对，但同一张图只用一种。外螺纹退刀槽的直径要比螺纹小径小，否则刀具仍退不出来；退刀槽位置紧靠螺纹终止线。"
+   ],
+   [
+    "斜面钻孔先锪平",
+    "在斜面或圆弧面上直接下钻，钻头会顺着表面滑移，孔口不圆、孔轴线偏斜。正确做法是先锪出一个小平面（凸台或凹坑），再垂直下钻。盲孔的深度只量圆柱段，118° 钻尖不计入深度。"
+   ]
+  ],
+  "note": "倒角去锐边、圆角减应力、退刀槽让刀退出、锪平让钻头站直——四个动作各管一件事。"
+ },
+ "d8-s4": {
+  "figs": [
+   {
+    "alt": "表面粗糙度的三种符号与标注位置",
+    "cap": "表面粗糙度代号由符号与 Ra 数值组成：符号的尖端必须指向并接触被注表面，数值写在符号长线的上方；同一表面只注一次，多处要求相同时用「其余」统一注法。三种符号依次表示基本、去除材料（车、铣、磨）和不去除材料（铸、锻、冲压）。",
+    "svg": "<rect x='90' y='180' width='460' height='80' fill='none' stroke='currentColor' stroke-width='2.2'/><g fill='none' stroke='#5b8def' stroke-width='1.4'><path d='M164 170L170 180L186 152'/><path d='M314 170L320 180L336 152'/><path d='M336 152H304'/><path d='M464 170L470 180L490 148'/><circle cx='474' cy='170' r='7'/></g><text x='342' y='150' fill='#e0a03c' font-size='13.5' text-anchor='start'>Ra 3.2</text><text x='496' y='146' fill='#e0a03c' font-size='13.5' text-anchor='start'>Ra 12.5</text><text x='320' y='60' fill='#5b8def' font-size='13.5' text-anchor='middle'>尖端必须指向并接触被注表面</text><text x='320' y='84' fill='#8fa3bd' font-size='13' text-anchor='middle'>数值写在符号长线的上方</text><g fill='#8fa3bd' font-size='13' text-anchor='middle'><text x='170' y='282'>① 基本符号</text><text x='320' y='282'>② 去除材料</text><text x='470' y='282'>③ 不去除材料</text></g>"
+   },
+   {
+    "alt": "三种配合的公差带图",
+    "cap": "公差带图把孔和轴的允许范围画在零线两侧：零线代表公称尺寸。基孔制下孔 H7 的公差带总在零线之上；轴 g6 整段落在零线之下就有间隙，轴 k6 跨在零线上可能间隙也可能过盈，轴 s6 整段高过孔带就是过盈。",
+    "svg": "<defs><pattern id='d8s4h' width='9' height='9' patternUnits='userSpaceOnUse'><path d='M0 9L9 0' stroke='#9aa8bd' stroke-width='1' fill='none'/></pattern></defs><g stroke='#9aa8bd' stroke-width='1'><line x1='80' y1='176' x2='232' y2='176'/><line x1='260' y1='176' x2='412' y2='176'/><line x1='440' y1='176' x2='592' y2='176'/></g><rect x='100' y='136' width='100' height='40' fill='url(#d8s4h)' stroke='#5b8def' stroke-width='1.4'/><rect x='100' y='180' width='100' height='28' fill='url(#d8s4h)' stroke='#e0a03c' stroke-width='1.4'/><rect x='280' y='136' width='100' height='40' fill='url(#d8s4h)' stroke='#5b8def' stroke-width='1.4'/><rect x='280' y='156' width='100' height='34' fill='url(#d8s4h)' stroke='#e0a03c' stroke-width='1.4'/><rect x='460' y='140' width='100' height='36' fill='url(#d8s4h)' stroke='#5b8def' stroke-width='1.4'/><rect x='460' y='104' width='100' height='26' fill='url(#d8s4h)' stroke='#e0a03c' stroke-width='1.4'/><g fill='#5b8def' font-size='13.5' text-anchor='middle'><text x='155' y='92'>间隙配合 H7/g6</text><text x='335' y='92'>过渡配合 H7/k6</text><text x='515' y='84'>过盈配合 H7/s6</text></g><g fill='#8fa3bd' font-size='13' text-anchor='start'><text x='206' y='158'>H7</text><text x='206' y='200'>g6</text><text x='386' y='158'>H7</text><text x='386' y='206'>k6</text><text x='566' y='120'>s6</text><text x='566' y='162'>H7</text></g><text x='74' y='170' fill='#8fa3bd' font-size='13' text-anchor='middle'>0</text><text x='94' y='196' fill='#8fa3bd' font-size='13' text-anchor='end'>零线</text><g fill='#8fa3bd' font-size='13' text-anchor='middle'><text x='155' y='230'>孔大于轴：有间隙</text><text x='335' y='230'>可能间隙也可能过盈</text><text x='515' y='214'>轴高于孔：有过盈</text></g>"
+   }
+  ],
+  "pts": [
+   [
+    "粗糙度与加工方法对照",
+    "Ra 12.5 相当于粗车、钻孔；6.3 半精车；3.2 精车、精铣，是一般配合面的常用值；1.6 磨削；0.8 精磨；0.4 研磨、抛光。看到 3.2 就知道这道表面要精加工，成本比 12.5 高一截。"
+   ],
+   [
+    "统一注法省一半时间",
+    "多数表面要求相同时，在图右上角注「其余 Ra 6.3」，只把少数要求更高或更低的表面单独标注。同一表面只注一次；文字方向与尺寸数字一致，符号尖端一律指向表面，不能倒着画。"
+   ],
+   [
+    "公差等级对应加工能力",
+    "IT6～IT7 要磨或精车（Ra 0.8～1.6），IT8 精车，IT9 半精车，IT11 粗车。基孔制优先：孔用定值刀具（铰刀）和量具（塞规）加工检验，把孔定成 H 就省掉一大批刀具，轴按需要配不同公差带。"
+   ],
+   [
+    "形位公差怎么读",
+    "框格从左到右是项目符号、公差值、基准字母，如「◎ Ø0.02 A」读作：相对基准 A 的同轴度公差 0.02，公差带是直径 0.02 的圆柱。有基准的是位置公差，无基准的是形状公差；公差值前带 Ø 只用于轴线或中心平面。"
+   ]
+  ],
+  "note": "粗糙度看 Ra 数字（越小越光）、配合看大小写（H 是孔、g 是轴）、形位看框格（项目／公差／基准）。"
+ },
+ "d8-s5": {
+  "figs": [
+   {
+    "alt": "看零件图的五个步骤",
+    "cap": "看零件图按五步走，顺序不能跳：先看标题栏定零件类型与材料，再看视图想象形状，然后找基准读尺寸，接着读技术要求，最后归纳复述。第三步是卡壳最多的一步——找准长、宽、高三个方向的基准，尺寸才读得通。",
+    "svg": "<g fill='none' stroke='#9aa8bd' stroke-width='1.4'><rect x='90' y='44' width='140' height='36'/><rect x='90' y='96' width='140' height='36'/><rect x='90' y='200' width='140' height='36'/><rect x='90' y='252' width='140' height='36'/></g><rect x='90' y='148' width='140' height='36' fill='none' stroke='#5b8def' stroke-width='1.8'/><g stroke='#e0a03c' stroke-width='1.4'><line x1='160' y1='82' x2='160' y2='85'/><line x1='160' y1='134' x2='160' y2='137'/><line x1='160' y1='186' x2='160' y2='189'/><line x1='160' y1='238' x2='160' y2='241'/></g><path d='M160 94l-4.5-9h9z' fill='#e0a03c'/><path d='M160 146l-4.5-9h9z' fill='#e0a03c'/><path d='M160 198l-4.5-9h9z' fill='#e0a03c'/><path d='M160 250l-4.5-9h9z' fill='#e0a03c'/><g fill='#8fa3bd' font-size='14' text-anchor='middle'><text x='160' y='68'>① 标题栏</text><text x='160' y='120'>② 视图</text><text x='160' y='172'>③ 尺寸</text><text x='160' y='224'>④ 技术要求</text><text x='160' y='276'>⑤ 归纳</text></g><g fill='#8fa3bd' font-size='13' text-anchor='start'><text x='252' y='68'>名称、材料、比例、图号</text><text x='252' y='120'>主视图 + 其余视图，想象形状</text><text x='252' y='172'>找三个方向的尺寸基准</text><text x='252' y='224'>读粗糙度、公差、形位公差</text><text x='252' y='276'>复述形状，检查有没有缺尺寸</text></g>"
+   },
+   {
+    "alt": "底板的定形尺寸与定位尺寸",
+    "cap": "底板俯视图上，280 是这块板本身的定形尺寸；70 和 140 是确定孔相对位置的定位尺寸，必须从基准量起。B 是对称面、A 是左端面，两个方向各一个基准。定位尺寸若改从别处量，基准就乱了，装配时孔对不上。",
+    "svg": "<rect x='120' y='100' width='220' height='120' fill='none' stroke='currentColor' stroke-width='2.2'/><circle cx='175' cy='160' r='12' fill='none' stroke='currentColor' stroke-width='2.2'/><circle cx='285' cy='160' r='12' fill='none' stroke='currentColor' stroke-width='2.2'/><line x1='110' y1='160' x2='352' y2='160' stroke='#9aa8bd' stroke-width='1' stroke-dasharray='12 3 2 3'/><g stroke='#e0a03c' stroke-width='1'><line x1='175' y1='100' x2='175' y2='74'/><line x1='285' y1='100' x2='285' y2='74'/><line x1='175' y1='78' x2='285' y2='78'/><line x1='120' y1='220' x2='120' y2='278'/><line x1='175' y1='220' x2='175' y2='252'/><line x1='120' y1='246' x2='175' y2='246'/><line x1='340' y1='220' x2='340' y2='278'/><line x1='120' y1='272' x2='340' y2='272'/></g><path d='M175 78l9-3.4v6.8z' fill='#e0a03c'/><path d='M285 78l-9-3.4v6.8z' fill='#e0a03c'/><path d='M120 246l9-3.4v6.8z' fill='#e0a03c'/><path d='M175 246l-9-3.4v6.8z' fill='#e0a03c'/><path d='M120 272l9-3.4v6.8z' fill='#e0a03c'/><path d='M340 272l-9-3.4v6.8z' fill='#e0a03c'/><text x='230' y='72' fill='#e0a03c' font-size='13.5' text-anchor='middle'>140</text><text x='147' y='240' fill='#e0a03c' font-size='13.5' text-anchor='middle'>70</text><text x='230' y='266' fill='#e0a03c' font-size='13.5' text-anchor='middle'>280</text><line x1='187' y1='160' x2='246' y2='136' stroke='#e0a03c' stroke-width='1'/><text x='252' y='140' fill='#e0a03c' font-size='13.5' text-anchor='start'>2×Ø28</text><rect x='70' y='188' width='20' height='16' fill='none' stroke='#5b8def' stroke-width='1.4'/><text x='80' y='200' fill='#5b8def' font-size='13' text-anchor='middle'>A</text><line x1='90' y1='196' x2='120' y2='196' stroke='#5b8def' stroke-width='1'/><rect x='84' y='152' width='20' height='16' fill='none' stroke='#5b8def' stroke-width='1.4'/><text x='94' y='164' fill='#5b8def' font-size='13' text-anchor='middle'>B</text><g fill='#8fa3bd' font-size='13' text-anchor='start'><text x='372' y='124'>70、140：定位尺寸</text><text x='372' y='148'>280：定形尺寸</text><text x='372' y='196'>B＝对称面（宽向基准）</text><text x='372' y='220'>A＝左端面（长向基准）</text></g>"
+   }
+  ],
+  "pts": [
+   [
+    "标题栏先定三件事",
+    "看名称判断零件类别（轴、盘盖、箱体），决定用哪套读图思路；看材料判断毛坯与热处理（45 钢常调质、HT200 是铸件）；看图号与比例估计实物大小。三件事定完，后面的视图分析才有方向。"
+   ],
+   [
+    "先主视图，后其他视图",
+    "主视图反映形状特征和加工位置，读图时先把主视图轮廓吃透，再用俯视、左视补宽度和深度。剖视图上的剖面线方向一致、间隔相等，同一零件的同一张图只用一个方向，方向变了就是另一个零件。"
+   ],
+   [
+    "尺寸按三类归位",
+    "把图上尺寸分成定形（长宽高、Ø、R）、定位（孔心距、凸台位置）、总体（总长总宽总高）三类，定位尺寸一定从基准量起。归类后若发现某个结构没有尺寸，或同一尺寸注了两遍，那就是图没看对。"
+   ],
+   [
+    "用复述检验读图",
+    "读完合上图纸，用自己的话讲一遍：这个零件什么形状、怎么加工、哪几个面是关键（配合面、密封面）、它们的公差与粗糙度各是多少。讲不通的地方就是没读懂的地方，回去补看那一部分视图。"
+   ]
+  ],
+  "note": "标题栏→视图→基准读尺寸→技术要求→复述，五步走完再动笔答题。"
+ }
+}

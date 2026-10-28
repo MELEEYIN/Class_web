@@ -1,0 +1,9 @@
+<div class="ex">
+<div class="ex-h"><span class="ex-n">练 1</span>先自己做，再展开答案</div>
+<p class="ex-q">求可降阶方程 <span class="fm">y″ = 2y³</span> 满足 <span class="fm">y(0) = 1</span>、<span class="fm">y′(0) = 1</span> 的特解。</p>
+<details class="ex-a"><summary>展开答案与解析</summary>
+<div class="ex-a-body">
+<p><b>解　</b>方程里不显含 x，属「缺 x」型，令 y′ = p(y)，则 <span class="fm">y″ = p·<span class="fr"><span class="n">dp</span><span class="d">dy</span></span></span>；<br>代入得 p·<span class="fr"><span class="n">dp</span><span class="d">dy</span></span> = 2y³，两边对 y 积分得 <span class="fm">p² = y⁴ + C</span>；<br>由 y(0) = 1、y′(0) = 1 得 1 = 1 + C，C = 0，于是 p² = y⁴；又 p(1) = 1 &gt; 0，取 p = y²；<br>分离变量 <span class="fr"><span class="n">dy</span><span class="d">y²</span></span> = dx，积分得 −<span class="fr"><span class="n">1</span><span class="d">y</span></span> = x + C<sub>1</sub>，代入 y(0) = 1 得 C<sub>1</sub> = −1，所以 <b>y = <span class="fr"><span class="n">1</span><span class="d">1 − x</span></span></b>（x &lt; 1）。</p>
+<p class="ex-t">缺 x 时 y″ 要换成 p·dp/dy，写成 dp/dx 就降不下去；开方得 p = ±y² 时，符号由初值 y′(0) = 1 定，取反了答案会变成 y = 1/(1 + x)，代回原方程对不上初值。</p>
+</div></details>
+</div>

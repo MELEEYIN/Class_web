@@ -1,0 +1,16 @@
+<div class="ex">
+  <div class="ex-h"><span class="ex-n">练 1</span>先自己做，再展开答案</div>
+  <p class="ex-q">求 <span class="fm">f(x) = x − <span class="fr"><span class="n">3</span><span class="d">2</span></span>x<sup>2/3</sup></span> 的极值。</p>
+  <details class="ex-a"><summary>展开答案与解析</summary><div class="ex-a-body">
+    <p><b>解　</b>第一步，定义域为全体实数，<span class="fm">f′(x) = 1 − x<sup>−1/3</sup> = <span class="fr"><span class="n">x<sup>1/3</sup> − 1</span><span class="d">x<sup>1/3</sup></span></span></span>：x = 1 时 f′ = 0 是驻点，x = 0 时 f′ 不存在但 f 连续，两类点都要查；<br>第二步，判号：x &lt; 0 时 f′ &gt; 0，0 &lt; x &lt; 1 时 f′ &lt; 0，x &gt; 1 时 f′ &gt; 0，故在 x = 0 处左正右负，取极大值 <span class="fm">f(0) = 0</span>；<br>第三步，在 x = 1 处左负右正，取极小值 <span class="fm">f(1) = 1 − <span class="fr"><span class="n">3</span><span class="d">2</span></span> = −<span class="fr"><span class="n">1</span><span class="d">2</span></span></span>（也可用第二充分条件：<span class="fm">f″(x) = <span class="fr"><span class="n">1</span><span class="d">3</span></span>x<sup>−4/3</sup></span>，<span class="fm">f″(1) = <span class="fr"><span class="n">1</span><span class="d">3</span></span> &gt; 0</span>，故为极小）。</p>
+    <p class="ex-t">极值点未必是驻点：x = 0 处导数不存在，却是极大值点。只解 f′ = 0 会漏掉它，这是本题最大的坑。</p>
+  </div></details>
+</div>
+<div class="ex">
+  <div class="ex-h"><span class="ex-n">练 2</span>先自己做，再展开答案</div>
+  <p class="ex-q">求内接于半径为 R 的圆的矩形面积的最大值。</p>
+  <details class="ex-a"><summary>展开答案与解析</summary><div class="ex-a-body">
+    <p><b>解　</b>第一步，设矩形在第一象限的顶点为 (x,y)，则 <span class="fm">x<sup>2</sup> + y<sup>2</sup> = R<sup>2</sup></span>（x,y &gt; 0），面积 <span class="fm">S = (2x)(2y) = 4xy</span>；<br>第二步，由约束消元得 <span class="fm">y = √(R<sup>2</sup> − x<sup>2</sup>)</span>，于是 <span class="fm">S(x) = 4x√(R<sup>2</sup> − x<sup>2</sup>)</span>，0 &lt; x &lt; R；<br>第三步，<span class="fm">S′(x) = <span class="fr"><span class="n">4(R<sup>2</sup> − 2x<sup>2</sup>)</span><span class="d">√(R<sup>2</sup> − x<sup>2</sup>)</span></span></span>，令 S′ = 0 得 <span class="fm">x = <span class="fr"><span class="n">R</span><span class="d">√2</span></span></span>，此时 <span class="fm">y = <span class="fr"><span class="n">R</span><span class="d">√2</span></span></span>，矩形为正方形；<br>第四步，x 越过 R/√2 后 S′ 由正变负，故为最大值，<span class="fm">S<sub>max</sub> = 4 · <span class="fr"><span class="n">R</span><span class="d">√2</span></span> · <span class="fr"><span class="n">R</span><span class="d">√2</span></span> = 2R<sup>2</sup></span>。</p>
+    <p class="ex-t">应用题先把目标函数写成单变量再求导；最后要回代约束看实际意义（这里是正方形），别只报一个 R/√2 就结束。</p>
+  </div></details>
+</div>

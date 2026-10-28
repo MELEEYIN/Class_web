@@ -1,0 +1,79 @@
+<p class="fig-intro">先看两张图建立直觉：级数判敛不是「背一堆判别法」，而是一条固定的检查顺序——顺序对了，工具自然知道选哪个；而 p-级数为什么偏偏在 p = 1 处分界，把每一项看成一个矩形、用面积（积分）一比就明白了。</p>
+
+<figure class="fig"><svg class="figsvg" viewBox="0 0 640 340" role="img" aria-label="级数判敛流程示意：通项判零、绝对值级数、比值根值法、比较法四步">
+<defs>
+<marker id="m13ar" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#9aa8bd"/></marker>
+</defs>
+<text x="320" y="20" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12.5" fill="#8fa3bd">级数判敛：一条固定的检查顺序</text>
+
+<rect x="50" y="34" width="210" height="44" rx="8" fill="rgba(91,141,239,.14)" stroke="#5b8def" stroke-width="1.6"/>
+<text x="155" y="61" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#8fa3bd">① 通项 uₙ 是否趋于 0</text>
+
+<rect x="50" y="104" width="210" height="44" rx="8" fill="rgba(91,141,239,.14)" stroke="#5b8def" stroke-width="1.6"/>
+<text x="155" y="131" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#8fa3bd">② 先判 Σ|uₙ| 的敛散性</text>
+
+<rect x="50" y="174" width="210" height="44" rx="8" fill="rgba(91,141,239,.14)" stroke="#5b8def" stroke-width="1.6"/>
+<text x="155" y="201" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#8fa3bd">③ 比值法 / 根值法</text>
+
+<rect x="50" y="244" width="210" height="44" rx="8" fill="rgba(91,141,239,.14)" stroke="#5b8def" stroke-width="1.6"/>
+<text x="155" y="271" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#8fa3bd">④ ρ = 1 改用比较法</text>
+
+<rect x="330" y="34" width="250" height="44" rx="8" fill="rgba(224,160,60,.12)" stroke="#e0a03c" stroke-width="1.4"/>
+<text x="455" y="61" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">否 ⟹ 直接发散</text>
+
+<rect x="330" y="104" width="250" height="44" rx="8" fill="rgba(224,160,60,.12)" stroke="#e0a03c" stroke-width="1.4"/>
+<text x="455" y="131" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">收敛 ⟹ 绝对收敛</text>
+
+<rect x="330" y="174" width="250" height="44" rx="8" fill="rgba(224,160,60,.12)" stroke="#e0a03c" stroke-width="1.4"/>
+<text x="455" y="201" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">ρ ≠ 1 时直接得结论</text>
+
+<rect x="330" y="244" width="250" height="44" rx="8" fill="rgba(224,160,60,.12)" stroke="#e0a03c" stroke-width="1.4"/>
+<text x="455" y="271" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">与 p-级数、几何级数比</text>
+
+<line x1="155" y1="78" x2="155" y2="100" stroke="#9aa8bd" stroke-width="1.6" marker-end="url(#m13ar)"/>
+<line x1="155" y1="148" x2="155" y2="170" stroke="#9aa8bd" stroke-width="1.6" marker-end="url(#m13ar)"/>
+<line x1="155" y1="218" x2="155" y2="240" stroke="#9aa8bd" stroke-width="1.6" marker-end="url(#m13ar)"/>
+<line x1="262" y1="56" x2="326" y2="56" stroke="#9aa8bd" stroke-width="1.6" marker-end="url(#m13ar)"/>
+<line x1="262" y1="126" x2="326" y2="126" stroke="#9aa8bd" stroke-width="1.6" marker-end="url(#m13ar)"/>
+<line x1="262" y1="196" x2="326" y2="196" stroke="#9aa8bd" stroke-width="1.6" marker-end="url(#m13ar)"/>
+<line x1="262" y1="266" x2="326" y2="266" stroke="#9aa8bd" stroke-width="1.6" marker-end="url(#m13ar)"/>
+
+<rect x="50" y="298" width="530" height="32" rx="6" fill="rgba(91,141,239,.07)" stroke="#e0a03c" stroke-width="1.2" stroke-dasharray="5 4"/>
+<text x="315" y="318" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11.5" fill="#8fa3bd">交错级数另走一步：uₙ 单调递减且趋于 0 ⟹ 收敛，但可能只是条件收敛</text>
+</svg><figcaption><b>图 13-1</b> 判敛顺序：先看通项是否趋于 0，再判绝对值级数，然后才轮得到比值 / 根值法；走到第 ④ 步才换工具。顺序反了，就成了碰运气。</figcaption></figure>
+
+<figure class="fig"><svg class="figsvg" viewBox="0 0 640 320" role="img" aria-label="积分判别法示意：以宽 1 的矩形逼近曲线 y=1/x² 下的面积">
+<defs>
+<marker id="m13ax" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#9aa8bd"/></marker>
+</defs>
+<text x="455" y="74" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">第 n 项 1/n² = 第 n 个矩形的面积</text>
+<text x="455" y="98" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#e0a03c">p &gt; 1：面积之和有限，级数收敛</text>
+<text x="455" y="122" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">p ≤ 1：面积之和无限，级数发散</text>
+
+<path d="M70,260 L70,90 L78.7,119.5 L96,159.4 L113.4,184.4 L122,193.6 L139.4,207.5 L156.7,217.5 L174,224.9 L200.1,232.8 L217.4,236.7 L243.4,241.1 L269.5,244.4 L295.5,246.9 L330.1,249.4 L373.5,251.6 L416.8,253.2 L503.5,255.3 L590.2,256.5 L596,260 Z" fill="rgba(91,141,239,.14)" stroke="none"/>
+
+<rect x="70" y="90" width="86.7" height="170" fill="rgba(224,160,60,.10)" stroke="#e0a03c" stroke-width="1.1"/>
+<rect x="156.7" y="217.5" width="86.7" height="42.5" fill="rgba(224,160,60,.10)" stroke="#e0a03c" stroke-width="1.1"/>
+<rect x="243.4" y="241.1" width="86.7" height="18.9" fill="rgba(224,160,60,.10)" stroke="#e0a03c" stroke-width="1.1"/>
+<rect x="330.1" y="249.4" width="86.7" height="10.6" fill="rgba(224,160,60,.10)" stroke="#e0a03c" stroke-width="1.1"/>
+<rect x="416.8" y="253.2" width="86.7" height="6.8" fill="rgba(224,160,60,.10)" stroke="#e0a03c" stroke-width="1.1"/>
+
+<path d="M70,90 L78.7,119.5 L96,159.4 L113.4,184.4 L122,193.6 L139.4,207.5 L156.7,217.5 L174,224.9 L200.1,232.8 L217.4,236.7 L243.4,241.1 L269.5,244.4 L295.5,246.9 L330.1,249.4 L373.5,251.6 L416.8,253.2 L503.5,255.3 L590.2,256.5" fill="none" stroke="#5b8def" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+
+<line x1="70" y1="260" x2="600" y2="260" stroke="#9aa8bd" stroke-width="1.6" marker-end="url(#m13ax)"/>
+<line x1="70" y1="270" x2="70" y2="40" stroke="#9aa8bd" stroke-width="1.6" marker-end="url(#m13ax)"/>
+
+<line x1="70" y1="90" x2="330" y2="90" stroke="#e0a03c" stroke-width="1.2" stroke-dasharray="5 4"/>
+<line x1="156.7" y1="217.5" x2="156.7" y2="260" stroke="#e0a03c" stroke-width="1.2" stroke-dasharray="4 4"/>
+<line x1="330.1" y1="249.4" x2="330.1" y2="260" stroke="#e0a03c" stroke-width="1.2" stroke-dasharray="4 4"/>
+
+<text x="604" y="264" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">x</text>
+<text x="56" y="46" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">y</text>
+<text x="60" y="276" text-anchor="end" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">O</text>
+<text x="64" y="94" text-anchor="end" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">1</text>
+<text x="156" y="278" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">2</text>
+<text x="243" y="278" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">3</text>
+<text x="330" y="278" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#8fa3bd">4</text>
+<text x="252" y="230" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#5b8def">y = 1/x²</text>
+<text x="200" y="300" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11.5" fill="#8fa3bd">矩形高 1/n²、宽 1，面积逐个相加就是级数</text>
+</svg><figcaption><b>图 13-2</b> 积分判别法的几何含义：把第 n 项 1/n² 看成宽 1、高 1/n² 的矩形，矩形面积之和就是级数；p &gt; 1 时曲线下的总面积有限，级数收敛，p ≤ 1 时总面积无限，级数发散。</figcaption></figure>
