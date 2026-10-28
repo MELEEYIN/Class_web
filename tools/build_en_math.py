@@ -121,7 +121,7 @@ CH = [
             ("递推数列 a<sub>n+1</sub> = √(2 + a<sub>n</sub>)，a₁ = √2，证收敛并求极限",
              "先证有界（数学归纳法 a<sub>n</sub> &lt; 2），再证单调（a<sub>n+1</sub> − a<sub>n</sub> 的符号），"
              "单调有界 ⟹ 收敛；设极限为 A 代入递推式解 A² = 2 + A。"),
-            ("求 lim<sub>x→∞</sub> ((x²+1)/(x²−1))<sup>x²</sup>",
+            ("求 <span class='lm'>lim<span class='s'>x→∞</span></span> ((x²+1)/(x²−1))<sup>x²</sup>",
              "标准 1<sup>∞</sup>：底数写成 1 + 2/(x²−1)，指数乘除凑 e，答案 e²。别用洛必达硬做。"),
             ("证明方程 x = cos x 在 (0,1) 内有且仅有一个根",
              "零点定理证存在：令 f(x) = x − cos x，f(0) &lt; 0、f(1) &gt; 0；"
@@ -229,7 +229,7 @@ CH = [
             ("证明 x &gt; 0 时 ln(1 + x) &lt; x",
              "令 f(x) = x − ln(1+x)，f(0) = 0，f′(x) = x/(1+x) &gt; 0，故 f 单调增 ⟹ f(x) &gt; 0。"
              "也可用拉格朗日在 [0,x] 上做。"),
-            ("求 lim<sub>x→0</sub> (1/x² − 1/(x tan x))",
+            ("求 <span class='lm'>lim<span class='s'>x→0</span></span> (1/x² − 1/(x tan x))",
              "先通分，再用 tan x = x + x³/3 + … 展开到 x³，或用等价无穷小 tan x − x ~ x³/3，答案 1/3。"),
             ("求 f(x) = x³ − 3x 在 [−2, 2] 上的最值",
              "f′ = 3x² − 3 = 0 ⟹ x = ±1；比较 f(±1) = ∓2 与端点 f(±2) = ±2，最大 2，最小 −2。"),
@@ -317,14 +317,14 @@ CH = [
         pits=[
             "<b>换元必须同时换上下限</b>，否则算出来的数一定错；换限后不必再回代。",
             "<b>被积函数含绝对值或分段定义时要拆区间</b>，把 |x|、max/min、分段函数在分界点处切开。",
-            "<b>反常积分不能直接代端点。</b>要写成 lim<sub>b→∞</sub> 或 lim<sub>c→a⁺</sub> 的极限，"
+            "<b>反常积分不能直接代端点。</b>要写成 <span class='lm'>lim<span class='s'>b→∞</span></span> 或 <span class='lm'>lim<span class='s'>c→a⁺</span></span> 的极限，"
             "先算再取极限，顺序颠倒容易出假结果。",
             "<b>对称性只在对称区间、且被积函数有相应奇偶性时成立。</b>区间不对称就别用。",
             "<b>华里士公式只对 0 到 π/2 的纯 sin<sup>n</sup> 或 cos<sup>n</sup> 成立</b>，"
             "碰到 sin<sup>n</sup>x cos<sup>m</sup>x 要先化成同一函数。",
         ],
         drills=[
-            ("求 lim<sub>n→∞</sub> (1/n)[sin(π/n) + sin(2π/n) + … + sin(nπ/n)]",
+            ("求 <span class='lm'>lim<span class='s'>n→∞</span></span> (1/n)[sin(π/n) + sin(2π/n) + … + sin(nπ/n)]",
              "识别为和式极限：= (1/π)∫<sub>0</sub><sup>π</sup> sin x dx = 2/π。"
              "关键是把 1/n 写成 Δx、kπ/n 写成 x。"),
             ("求 ∫<sub>0</sub><sup>π</sup> x sin x/(1 + cos²x) dx",
@@ -929,6 +929,7 @@ HEAD = """<!DOCTYPE html>
       <button class="burger" id="burger" type="button" aria-label="打开目录">☰</button>
       <div class="crumb"><a href="./index.html">课程学习站</a><span class="sep">/</span><span class="cur">高等数学</span></div>
       <div class="top-r">
+        <a class="top-btn home-btn" href="../index.html" title="回到网站主页"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.6 12 4l8 6.6"/><path d="M6.4 9.4V19a1 1 0 0 0 1 1h3.1v-4.6h3v4.6h3.1a1 1 0 0 0 1-1V9.4"/></svg><span class="tl">返回主页</span></a>
         <button class="top-btn" id="themeBtn" type="button" title="切换深浅色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/><circle cx="12" cy="12" r="3.6"/></svg><span class="tl">浅色</span></button>
         <a class="top-btn" href="./b1.html"><span class="tl">大学英语</span></a>
       </div>

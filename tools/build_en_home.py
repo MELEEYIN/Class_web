@@ -139,7 +139,7 @@ HEAD = """<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>课程学习站 · 大学英语 + 高等数学</title>
-<meta name="description" content="课程学习站：高等数学（按宋浩讲义 13 章 75 节整理，含节表、核心公式、易错点）与大学英语（领航大学英语四册 24 单元，第 1 册课内习题已按 WE Learn 任务链重排）。">
+<meta name="description" content="课程学习站：高等数学（宋浩讲义 13 章 75 节）、大学英语（四册 24 单元）、工程制图（课件 9 章 38 节），都按「节表 → 逐节知识点 → 速查 → 易错 → 例题」组织。">
 <meta name="theme-color" content="#060d1a">
 <meta name="color-scheme" content="dark light">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2064%2064%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%232f63f6%27%2F%3E%3Cstop%20offset%3D%27.5%27%20stop-color%3D%27%237b7bff%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%231fc7ae%27%2F%3E%3C%2FlinearGradient%3E%3CclipPath%20id%3D%27c%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2715%27%2F%3E%3C%2FclipPath%3E%3C%2Fdefs%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2715%27%20fill%3D%27url%28%23g%29%27%2F%3E%3Cg%20clip-path%3D%27url%28%23c%29%27%3E%3Cpath%20d%3D%27M-8%2042%20L64%204%20L64%20-8%20L-8%2030%20Z%27%20fill%3D%27%23fff%27%20fill-opacity%3D%27.10%27%2F%3E%3C%2Fg%3E%3Crect%20x%3D%27.9%27%20y%3D%27.9%27%20width%3D%2762.2%27%20height%3D%2762.2%27%20rx%3D%2714.2%27%20fill%3D%27none%27%20stroke%3D%27%23fff%27%20stroke-opacity%3D%27.26%27%20stroke-width%3D%271.2%27%2F%3E%3Cg%20transform%3D%27translate%2832%2032%29%20scale%281.16%29%20translate%28-32%20-32%29%27%3E%3Cpath%20d%3D%27M32%2021.8c-4.4-3.2-8.8-4.3-13.2-3.9a1.4%201.4%200%200%200-1.3%201.4v25.1c0%201%20.9%201.7%201.9%201.6%203.9-.3%207.9.7%2011.4%203.1.7.5%201.7.5%202.4%200%203.5-2.4%207.5-3.4%2011.4-3.1%201%20.1%201.9-.6%201.9-1.6V19.3c0-.7-.6-1.3-1.3-1.4-4.4-.4-8.8.7-13.2%203.9z%27%20fill%3D%27%23fff%27%20fill-opacity%3D%27.97%27%2F%3E%3Cpath%20d%3D%27M32%2024.8v23.8%27%20stroke%3D%27%233d6bd6%27%20stroke-opacity%3D%27.4%27%20stroke-width%3D%271.8%27%20stroke-linecap%3D%27round%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E">
@@ -154,7 +154,7 @@ HEAD = """<!DOCTYPE html>
     <div class="side-top">
       <a class="brand" href="./index.html">
         <span class="brand-mark is-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 6.5c-1.75-1.3-3.5-1.85-5.3-1.65a.95.95 0 0 0-.85.95v9.9c0 .62.53 1.09 1.15 1.02 1.55-.16 3.1.28 4.45 1.24.32.23.74.23 1.06 0 1.35-.96 2.9-1.4 4.45-1.24.62.07 1.15-.4 1.15-1.02 V5.8a.95.95 0 0 0-.85-.95c-1.8-.2-3.55.35-5.3 1.65z" fill="currentColor" fill-opacity=".96"/><path d="M12 7.7v9.4" stroke="rgba(20,40,90,.45)" stroke-width="1" stroke-linecap="round"/></svg></span>
-        <span class="brand-txt"><b>课程学习站</b><small>高等数学 · 大学英语</small></span>
+        <span class="brand-txt"><b>课程学习站</b><small>高数 · 英语 · 制图</small></span>
       </a>
       <button class="side-x" id="sideX" type="button" aria-label="收起侧栏">✕</button>
     </div>
@@ -178,6 +178,7 @@ HEAD = """<!DOCTYPE html>
       <button class="burger" id="burger" type="button" aria-label="打开目录">☰</button>
       <div class="crumb"><a href="../index.html">校园主页</a><span class="sep">/</span><span class="cur">课程学习站</span></div>
       <div class="top-r">
+        <a class="top-btn home-btn" href="../index.html" title="回到网站主页"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.6 12 4l8 6.6"/><path d="M6.4 9.4V19a1 1 0 0 0 1 1h3.1v-4.6h3v4.6h3.1a1 1 0 0 0 1-1V9.4"/></svg><span class="tl">返回主页</span></a>
         <button class="top-btn" id="themeBtn" type="button" title="切换深浅色">@@THEME@@<span class="tl">浅色</span></button>
         <a class="top-btn" href="./math.html"><span class="tl">高等数学</span></a>
         <a class="top-btn" href="./b1.html"><span class="tl">第 1 册</span></a>
@@ -194,22 +195,22 @@ HEAD = """<!DOCTYPE html>
 
             <header class="hero">
               <div class="eyebrow">Campus · 课程学习子站</div>
-              <h1>两门课，<span>一套外壳</span></h1>
-              <p>高等数学负责「把公式背到能默写、把易错点变成不丢分」；大学英语负责「按平台任务链做完整单元的题」。两侧共用一套目录、一套检索、一套深浅色，换课不用重新找路。</p>
+              <h1>三门课，<span>一套外壳</span></h1>
+              <p>高等数学负责「把公式背到能默写、把图形看明白」；大学英语负责「按平台任务链做完整单元的题」；工程制图负责「把国标规范和画法练成条件反射」。三边共用一套目录、一套检索、一套外观，换课不用重新找路。</p>
               <div class="hero-stats">
-                <div><b>2</b><span>门课</span></div>
-                <div><b>@@UNITS@@</b><span>英语单元</span></div>
+                <div><b>3</b><span>门课</span></div>
                 <div><b>13</b><span>高数章</span></div>
-                <div><b>75</b><span>高数节</span></div>
+                <div><b>@@UNITS@@</b><span>英语单元</span></div>
+                <div><b>9</b><span>制图章</span></div>
               </div>
             </header>
 
-            <div class="sec-t"><h2 id="entry">从哪进</h2><em>两门课，三条主线</em></div>
+            <div class="sec-t"><h2 id="entry">从哪进</h2><em>三门课，四条主线</em></div>
             <div class="paths">
               <a class="path" href="./math.html">
                 <span class="pk">高等数学 · 13 章 75 节</span>
-                <b>按讲义章节推进</b>
-                <p>上册 7 章、下册 6 章，节次与页码照《宋浩高等数学讲义》。每章三层：节表（必会 / 怎么考）→ 核心公式 → 易错点与综合提高题型。</p>
+                <b>逐节讲解 + 图解 + 练习</b>
+                <p>上册 7 章、下册 6 章，节次与页码照《宋浩高等数学讲义》。章首图解 → 节表（必会 / 怎么考）→ <b>逐节讲解</b>（每节 900–1600 字）→ 核心公式 → 易错点 → 例题与节末练习（答案可折叠）。</p>
                 <span class="go">打开高等数学 →</span>
               </a>
               <a class="path" href="./b1.html">
@@ -217,6 +218,12 @@ HEAD = """<!DOCTYPE html>
                 <b>课内习题对齐版</b>
                 <p>六个单元的课内习题按 WE Learn 真实任务链重排，Translation 六组题面与参考译文按教材录入，配逐句结构对照与逐题解析。</p>
                 <span class="go">打开第 1 册 →</span>
+              </a>
+              <a class="path" href="./draw.html">
+                <span class="pk">工程制图 · 9 章 38 节</span>
+                <b>按课件章节推进</b>
+                <p>制图基本知识 → 正投影 → 立体投影 → 轴测图 → 组合体 → 表达方法 → 标准件 → 零件图 → 装配图。每章给规范速查、易错点与例题。</p>
+                <span class="go">打开工程制图 →</span>
               </a>
               <a class="path" href="#books">
                 <span class="pk">大学英语 · 四册</span>
@@ -246,7 +253,7 @@ HEAD = """<!DOCTYPE html>
 
             <div class="home-foot">
               <span>© 2026 校园主页 · 课程学习站 · 纯静态页面，不收集任何数据</span>
-              <span>高等数学：章节与页码取自《宋浩高等数学讲义》上下册 · 大学英语：按《领航大学英语·综合教程》四册编排</span>
+              <span>高等数学：宋浩讲义上下册 · 大学英语：领航大学英语四册 · 工程制图：320 页课件</span>
               <span>教材课文原文与官方练习不在站内（版权归外教社），请配合纸质教材与 WE Learn 平台使用。</span>
             </div>
 

@@ -18,6 +18,12 @@ MATH_CH = [
     (11, "曲线积分"), (12, "曲面积分"), (13, "无穷级数"),
 ]
 
+DRAW_CH = [
+    (1, "制图的基本知识"), (2, "正投影法基础"), (3, "立体的投影"),
+    (4, "轴测投影图"), (5, "组合体视图"), (6, "机件常用的表达方法"),
+    (7, "标准件、齿轮和弹簧"), (8, "零件图"), (9, "装配图"),
+]
+
 EN_UNITS = [
     (1, "College Life", "u1"),
     (2, "Understanding Relationships", "u2"),
@@ -58,8 +64,11 @@ def build_nav(unit_prefix="", active="math"):
     others = "".join(_item("./%s.html" % b, b.upper(), "第 %s 册" % b[1])
                      for b in ("b2", "b3", "b4"))
 
+    draw = "".join(_item("./draw.html#d%d" % n, "%02d" % n, t) for n, t in DRAW_CH)
+
     math_fold = "" if active == "math" else " fold"
     en_fold = "" if active == "en" else " fold"
+    draw_fold = "" if active == "draw" else " fold"
 
     math_box = (
         '<div class="nv-mod' + math_fold + '" data-mod="math">'
@@ -79,5 +88,18 @@ def build_nav(unit_prefix="", active="math"):
         '<div class="nv-grp">其他册</div>' + others +
         '</div></div>')
 
-    order = (en_box + math_box) if active == "en" else (math_box + en_box)
+    draw_box = (
+        '<div class="nv-mod' + draw_fold + '" data-mod="draw">'
+        '<button class="nv-h" type="button" data-fold="draw"><span class="chev">' + CHEV + '</span>'
+        '<b>工程制图</b><em>9</em></button>'
+        '<div class="nv-list">'
+        '<div class="nv-grp">第一～九章</div>' + draw +
+        '</div></div>')
+
+    if active == "en":
+        order = en_box + draw_box + math_box
+    elif active == "draw":
+        order = draw_box + math_box + en_box
+    else:
+        order = math_box + en_box + draw_box
     return '<nav class="side-nav" id="nav" aria-label="站点目录">' + order + '</nav>'

@@ -69,3 +69,7 @@ anime-import-bg.json
 
 # 本地临时目录：DOM dump、headless 截图、浏览器 profile、临时验证页
 tmp/
+
+# 本地临时转换目录（课件/教材转出的中间文件，不入库）
+.tmp_ppt/
+.slidep/

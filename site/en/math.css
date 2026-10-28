@@ -584,3 +584,6 @@ html[data-theme="dark"] .explain .expl-eg { color: #d8e4f5; }
   .explain .expl-h { font-size: 15.8px; margin-top: 22px; padding-top: 13px; }
   .explain .expl-eg { padding: 11px 12px 12px; font-size: 14.6px; }
 }
+
+/* 页头 h1 后面的编号（13 章 / 9 章）别贴着标题 */
+.doc-head h1 .hno { margin-left: .55em; }

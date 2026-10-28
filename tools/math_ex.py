@@ -8,12 +8,12 @@ EX[章号] = [(题目, 解, 点评), ...]
 
 EX = {
     1: [
-        ("求 lim<sub>x→0</sub> (1 − cos x) / (x sin x)。",
+        ("求 <span class='lm'>lim<span class='s'>x→0</span></span> (1 − cos x) / (x sin x)。",
          "分母 x·sin x 里 sin x ~ x，所以分母 ~ x²；<br>"
          "分子 1 − cos x ~ x²/2；<br>"
          "原式 = lim (x²/2)/x² = <b>1/2</b>。",
          "分子分母都是乘除结构，直接上等价无穷小；若写成 (1 − cos x)/(x·x) 再换，答案一样但更容易看清「谁是因子」。"),
-        ("求 lim<sub>x→∞</sub> (√(x² + x) − x)。",
+        ("求 <span class='lm'>lim<span class='s'>x→∞</span></span> (√(x² + x) − x)。",
          "有理化：乘 (√(x² + x) + x)/(√(x² + x) + x)，<br>"
          "分子变成 (x² + x) − x² = x，<br>"
          "原式 = lim x/(√(x² + x) + x) = 1/(1 + 1) = <b>1/2</b>。",
@@ -22,7 +22,7 @@ EX = {
     2: [
         ("设 f(x) = x² sin(1/x)（x ≠ 0），f(0) = 0，求 f′(0)。",
          "在 0 点只能用定义：<br>"
-         "f′(0) = lim<sub>x→0</sub> [f(x) − f(0)]/x = lim<sub>x→0</sub> x·sin(1/x) = 0<br>"
+         "f′(0) = <span class='lm'>lim<span class='s'>x→0</span></span> [f(x) − f(0)]/x = <span class='lm'>lim<span class='s'>x→0</span></span> x·sin(1/x) = 0<br>"
          "（因为 x → 0 是无穷小，sin(1/x) 有界）。",
          "这类题的坑是「先求导函数再代 0」——f′(x) 在 0 点根本不连续，必须回到定义。"),
         ("参数方程 x = t − sin t，y = 1 − cos t，求 d²y/dx²。",
@@ -32,7 +32,7 @@ EX = {
          "二阶导最后那次「再除 φ′(t)」是本单元第一号丢分点，可以记成：d²y/dx² = (d/dt)(y′<sub>x</sub>) / x′(t)。"),
     ],
     3: [
-        ("求 lim<sub>x→0</sub> (tan x − x)/x³。",
+        ("求 <span class='lm'>lim<span class='s'>x→0</span></span> (tan x − x)/x³。",
          "用等价无穷小：tan x − x ~ x³/3，所以原式 = <b>1/3</b>；<br>"
          "或用泰勒：tan x = x + x³/3 + o(x³)，代入同样得 1/3。",
          "tan x − x、x − sin x 这一对是最常考的「三阶无穷小」，记不住就现场展开到 x³。"),

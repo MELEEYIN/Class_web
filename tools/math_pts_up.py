@@ -31,7 +31,7 @@ PTS_UP = {
         # 3 函数的极限
         [
             ("两种定义", "x → x₀：∀ε &gt; 0, ∃δ &gt; 0，0 &lt; |x − x₀| &lt; δ 时 |f(x) − A| &lt; ε；x → ∞：∀ε &gt; 0, ∃X，|x| &gt; X 时成立。注意「去心」邻域。"),
-            ("左右极限", "lim<sub>x→x₀</sub> f 存在 ⟺ 左极限 = 右极限。分段函数在接缝处、含 |x − a|、含取整 [x] 的题，必须两边都算。"),
+            ("左右极限", "<span class='lm'>lim<span class='s'>x→x₀</span></span> f 存在 ⟺ 左极限 = 右极限。分段函数在接缝处、含 |x − a|、含取整 [x] 的题，必须两边都算。"),
             ("局部保号与局部有界", "若 lim f = A &gt; 0，则在 x₀ 的某去心邻域内 f &gt; 0；极限存在 ⟹ 局部有界。"),
             ("x → ∞ 的抓大头", "有理式看分子分母最高次：同次取系数比，分子低次则 → 0，分子高次则 → ∞。根式先同除最高次再取极限。"),
         ],
@@ -40,9 +40,9 @@ PTS_UP = {
             ("无穷小", "以 0 为极限的变量。0 是唯一的「常数无穷小」；有限个无穷小的和、积仍是无穷小。"),
             ("无穷大", "绝对值无限增大的变量，记 lim = ∞，它<b>不是数</b>，不能参与四则运算。f 是无穷大 ⟺ 1/f 是无穷小（f ≠ 0）。"),
             ("无界 ≠ 无穷大", "x sin x 在 (0, +∞) 上无界，但不是无穷大（会不断回到 0）。"),
-            ("垂直渐近线", "lim<sub>x→a⁺</sub> f(x) = ∞ 或 −∞ ⟹ x = a 是垂直渐近线。出现位置：分母零点、对数真数零点。"),
-            ("水平渐近线", "lim<sub>x→+∞</sub> f(x) = b 或 lim<sub>x→−∞</sub> = b ⟹ y = b（两侧可以不同）。"),
-            ("斜渐近线", "k = lim<sub>x→∞</sub> f(x)/x（k ≠ 0 且有限），b = lim<sub>x→∞</sub> [f(x) − kx]，则 y = kx + b。k = 0 时退化为水平渐近线。"),
+            ("垂直渐近线", "<span class='lm'>lim<span class='s'>x→a⁺</span></span> f(x) = ∞ 或 −∞ ⟹ x = a 是垂直渐近线。出现位置：分母零点、对数真数零点。"),
+            ("水平渐近线", "<span class='lm'>lim<span class='s'>x→+∞</span></span> f(x) = b 或 <span class='lm'>lim<span class='s'>x→−∞</span></span> = b ⟹ y = b（两侧可以不同）。"),
+            ("斜渐近线", "k = <span class='lm'>lim<span class='s'>x→∞</span></span> f(x)/x（k ≠ 0 且有限），b = <span class='lm'>lim<span class='s'>x→∞</span></span> [f(x) − kx]，则 y = kx + b。k = 0 时退化为水平渐近线。"),
         ],
         # 5 极限运算法则
         [
@@ -54,9 +54,9 @@ PTS_UP = {
         ],
         # 6 两个重要极限
         [
-            ("第一个重要极限", "lim<sub>x→0</sub> sin x / x = 1，推广成 lim<sub>u→0</sub> sin u / u = 1（u 可以是任何趋于 0 的式子）。"),
+            ("第一个重要极限", "<span class='lm'>lim<span class='s'>x→0</span></span> sin x / x = 1，推广成 <span class='lm'>lim<span class='s'>u→0</span></span> sin u / u = 1（u 可以是任何趋于 0 的式子）。"),
             ("三角型配套", "1 − cos x 型先化 2sin²(x/2)；tan x 型先拆 sin x / cos x；arcsin x、arctan x 型令 t = arcsin x 换元。"),
-            ("第二个重要极限", "lim<sub>x→∞</sub> (1 + 1/x)<sup>x</sup> = e，等价写法 lim<sub>u→0</sub> (1 + u)<sup>1/u</sup> = e。"),
+            ("第二个重要极限", "<span class='lm'>lim<span class='s'>x→∞</span></span> (1 + 1/x)<sup>x</sup> = e，等价写法 <span class='lm'>lim<span class='s'>u→0</span></span> (1 + u)<sup>1/u</sup> = e。"),
             ("1^∞ 型速算", "若 lim u = 1、lim v = ∞，则 lim u<sup>v</sup> = e<sup>lim v(u−1)</sup>。凑成 (1 + (u−1))<sup>1/(u−1)</sup> 再补指数，一步到位。"),
             ("夹逼准则", "0 ≤ a<sub>n</sub> ≤ b<sub>n</sub> 且 b<sub>n</sub> → 0，则 a<sub>n</sub> → 0。常用于含 n 项和、含 (−1)<sup>n</sup> 的放缩。"),
             ("递推数列两步走", "① 数学归纳证有界；② 作差 a<sub>n+1</sub> − a<sub>n</sub>（或作商）证单调；③ 设极限为 A 代入递推式解方程，舍去不合理的根。"),
@@ -72,7 +72,7 @@ PTS_UP = {
         ],
         # 8 连续性与间断点
         [
-            ("连续的定义", "lim<sub>x→x₀</sub> f(x) = f(x₀)。三个条件：在 x₀ 有定义、极限存在、二者相等。"),
+            ("连续的定义", "<span class='lm'>lim<span class='s'>x→x₀</span></span> f(x) = f(x₀)。三个条件：在 x₀ 有定义、极限存在、二者相等。"),
             ("单侧连续", "左连续 f(x₀⁻) = f(x₀)，右连续 f(x₀⁺) = f(x₀)；连续 ⟺ 既左连续又右连续。"),
             ("第一类间断点", "左右极限都存在：相等 ⟹ 可去间断点；不相等 ⟹ 跳跃间断点。"),
             ("第二类间断点", "至少一侧极限不存在：趋于 ∞ 为无穷间断点；来回振荡（如 sin(1/x)）为振荡间断点。"),
@@ -99,7 +99,7 @@ PTS_UP = {
     2: [
         # 1 导数概念
         [
-            ("定义式", "f′(x₀) = lim<sub>Δx→0</sub> [f(x₀ + Δx) − f(x₀)]/Δx = lim<sub>x→x₀</sub> [f(x) − f(x₀)]/(x − x₀)。用定义求导时先写出这个式子再化简。"),
+            ("定义式", "f′(x₀) = <span class='lm'>lim<span class='s'>Δx→0</span></span> [f(x₀ + Δx) − f(x₀)]/Δx = <span class='lm'>lim<span class='s'>x→x₀</span></span> [f(x) − f(x₀)]/(x − x₀)。用定义求导时先写出这个式子再化简。"),
             ("几何与物理意义", "切线斜率 k = f′(x₀)；瞬时速度 v = s′(t)；瞬时变化率。切线方程 y − f(x₀) = f′(x₀)(x − x₀)。"),
             ("可导与连续", "可导 ⟹ 连续，连续 ⇏ 可导。反例：y = |x| 在 0 点连续但左右导数分别为 −1、1。"),
             ("左右导数", "f′₋(x₀)、f′₊(x₀) 都存在且相等 ⟺ f′(x₀) 存在。分段点必须这样判。"),
@@ -221,7 +221,7 @@ PTS_UP = {
     5: [
         # 1 概念与性质
         [
-            ("定义", "分割 → 近似 → 求和 → 取极限：∫<sub>a</sub><sup>b</sup>f dx = lim<sub>λ→0</sub> Σ f(ξ<sub>i</sub>)Δx<sub>i</sub>。几何意义是代数和（x 轴下方为负）。"),
+            ("定义", "分割 → 近似 → 求和 → 取极限：∫<sub>a</sub><sup>b</sup>f dx = <span class='lm'>lim<span class='s'>λ→0</span></span> Σ f(ξ<sub>i</sub>)Δx<sub>i</sub>。几何意义是代数和（x 轴下方为负）。"),
             ("可积条件", "闭区间上连续 ⟹ 可积；有有限个第一类间断点也仍可积。"),
             ("基本性质", "线性、区间可加（∫<sub>a</sub><sup>b</sup> = ∫<sub>a</sub><sup>c</sup> + ∫<sub>c</sub><sup>b</sup>）、保号性、估值（m(b−a) ≤ ∫ ≤ M(b−a)）。"),
             ("积分中值定理", "f 连续 ⟹ ∃ξ ∈ [a,b]，∫<sub>a</sub><sup>b</sup>f dx = f(ξ)(b − a)，即「平均值 × 长度」。"),
