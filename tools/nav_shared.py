@@ -96,10 +96,17 @@ def build_nav(unit_prefix="", active="math"):
         '<div class="nv-grp">第一～九章</div>' + draw +
         '</div></div>')
 
+    sw = (
+        '<div class="subj-sw">'
+        '<a class="' + ('on' if active == 'math' else '') + '" href="./math.html">数学</a>'
+        '<a class="' + ('on' if active == 'en' else '') + '" href="./b1.html">英语</a>'
+        '<a class="' + ('on' if active == 'draw' else '') + '" href="./draw.html">制图</a>'
+        '</div>')
+
     if active == "en":
         order = en_box + draw_box + math_box
     elif active == "draw":
         order = draw_box + math_box + en_box
     else:
         order = math_box + en_box + draw_box
-    return '<nav class="side-nav" id="nav" aria-label="站点目录">' + order + '</nav>'
+    return sw + '<nav class="side-nav" id="nav" aria-label="站点目录">' + order + '</nav>'

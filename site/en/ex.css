@@ -840,3 +840,29 @@ html[data-wall="custom"] body::before { opacity: .16; }
   .top-btn.home-btn { width: auto; padding: 0 9px; }
   .top-btn.home-btn .tl { display: inline; font-size: 12px; }
 }
+
+/* 侧栏三栏后条目偏多：把每条压薄一点，让三栏在一屏里都能看见 */
+.side-nav .nv-i { padding-top: 6px; padding-bottom: 6px; }
+.side-nav .nv-grp { padding-top: 10px; padding-bottom: 4px; }
+
+/* 侧栏顶部的课程切换（数学 / 英语 / 制图）——条目太多时不用滚也能换课 */
+.subj-sw { display: flex; gap: 6px; padding: 0 14px 10px; }
+.subj-sw a {
+  flex: 1;
+  text-align: center;
+  padding: 7px 0;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink-3);
+  font-size: 12.2px;
+  text-decoration: none;
+  transition: color .16s var(--ease), border-color .16s var(--ease), background .16s var(--ease);
+}
+.subj-sw a:hover { border-color: rgb(var(--accent-rgb) / .45); color: var(--accent); text-decoration: none; }
+.subj-sw a.on {
+  border-color: rgb(var(--accent-rgb) / .5);
+  background: rgb(var(--accent-rgb) / .12);
+  color: var(--accent);
+  font-weight: 600;
+}
