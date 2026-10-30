@@ -94,7 +94,18 @@
     glass: true
   };
 
-  var objectUrl = null;    // 从 IndexedDB 里取出的图片 Blob 的临时地址
+  var objectUrl = null;
+  /* 标记「设置里存着图片，但这台设备上取不到」：只影响本次显示，不回写设置 */
+  var imageMissing = false;
+
+  /* 自定义图片转成绝对地址。
+     为什么必须转：--bg-image 里的 url() 是由 css/base.css 消费的，
+     相对路径会以那个样式表为基准解析（变成 /css/assets/xxx），必然 404。 */
+  function absUrl(u) {
+    if (!u) return '';
+    if (/^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(u)) return u;   /* http(s): / blob: / data: / //host */
+    try { return new URL(u, window.location.href).href; } catch (e) { return u; }
+  }    // 从 IndexedDB 里取出的图片 Blob 的临时地址
   var el = {};
 
   function loadConfig() {
@@ -127,10 +138,11 @@
 
     var DEFAULT_LIGHT = 'linear-gradient(180deg,#f3f8ff 0%,#eaf2fe 60%,#f5f9ff 100%)';
     var DEFAULT_DARK = 'linear-gradient(180deg,#060d1a 0%,#08111f 60%,#060d1a 100%)';
+    var wantImage = cfg.mode === 'image' && !imageMissing;
 
     /* 1. 底层渐变（自定义图片时用主题默认色打底，图片没加载出来也不难看） */
     var tint;
-    if (cfg.mode === 'image') {
+    if (wantImage) {
       tint = dark ? DEFAULT_DARK : DEFAULT_LIGHT;
     } else {
       tint = dark ? preset.dark : preset.light;
@@ -142,8 +154,8 @@
     var layer = 'none';
     var size = 'cover, cover';
 
-    if (cfg.mode === 'image') {
-      var url = objectUrl || cfg.imageUrl;
+    if (wantImage) {
+      var url = objectUrl || absUrl(cfg.imageUrl);
       if (url) layer = 'url("' + String(url).replace(/"/g, '%22') + '")';
     } else if (preset.gridSize) {
       layer = dark ? preset.dark : preset.light;
@@ -158,7 +170,7 @@
     root.style.setProperty('--bg-blur', cfg.blur + 'px');
 
     /* 4. 玻璃卡片：只有「真的有背景图」且开启玻璃时才半透明 */
-    body.classList.toggle('has-bg', cfg.mode === 'image' && layer !== 'none' && cfg.glass);
+    body.classList.toggle('has-bg', wantImage && layer !== 'none' && cfg.glass);
     root.setAttribute('data-glass', cfg.glass ? 'on' : 'off');
   }
 
@@ -180,6 +192,7 @@
     bind();
 
     apply();   // 先用预设/网址铺一层，别让用户看到空窗
+    if (cfg.mode === 'image' && cfg.imageUrl) verifyImage(absUrl(cfg.imageUrl));
 
     if (cfg.mode === 'image' && !cfg.imageUrl) {
       U.idbGet(IDB_KEY).then(function (blob) {
@@ -188,20 +201,40 @@
           objectUrl = URL.createObjectURL(blob);
           apply();
         } else {
-          // 存储里没有图（换了设备或清了数据），退回预设
-          cfg.mode = 'preset';
-          cfg.preset = 'theme';
-          saveConfig();
+          // 存储里没有图（换了设备 / 清了站点数据 / 无痕窗口）：这次先用渐变顶替，
+          // 但**不**把 cfg 写死成预设 —— 免得用户下次打开发现设置被清空了
+          imageMissing = true;
           apply();
+          syncControls();
+          verifyImage(absUrl(cfg.imageUrl));
         }
       }).catch(function () {
-        cfg.mode = 'preset';
+        imageMissing = true;
         apply();
+        syncControls();
       });
     }
 
     renderPresets();
     syncControls();
+  }
+
+  /* 网络图 / 失效的 blob：先探一次，加载失败就退回渐变，并把原因说清楚 */
+  var verifying = '';
+  function verifyImage(url) {
+    if (!url || verifying === url) return;
+    verifying = url;
+    var img = new Image();
+    img.onload = function () { verifying = ''; };
+    img.onerror = function () {
+      verifying = '';
+      if (imageMissing) return;
+      imageMissing = true;
+      apply();
+      syncControls();
+      U.toast('背景图加载失败（链接失效，或对方站点不允许外链）。已临时用渐变顶替，原设置保留。', 'warn', { timeout: 6000 });
+    };
+    img.src = url;
   }
 
   /* ======================================================================
@@ -414,6 +447,14 @@
     if (el.glass) el.glass.checked = cfg.glass;
 
     if (!el.current) return;
+
+    if (imageMissing) {
+      U.render(el.current, U.el('div', { class: 'notice' }, [
+        U.icon('i-info', 'ico'),
+        U.el('div', { text: '设置里记着这张背景图，但这台设备上已经取不到了（换设备、清了站点数据、无痕窗口都会这样）。重新选一张图就恢复，预设与滑杆设置都还在。' })
+      ]));
+      return;
+    }
 
     if (cfg.mode !== 'image') {
       U.render(el.current, U.el('div', { class: 'notice' }, [
