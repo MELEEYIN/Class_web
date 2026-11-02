@@ -103,6 +103,12 @@
       <div class="tl-stats" id="stats"></div>
     </div>
 
+    <!-- 按卡片颜色筛选：一个都不选＝显示全部；可以多选（例如「蓝 + 红」） -->
+    <div class="tl-colors" id="colorFilter" role="group" aria-label="按卡片颜色筛选">
+      <span class="tl-colors-lb">颜色</span>
+      <!-- 八个色点由 timeline.js 按站点八色系统生成，点一下切换选中 -->
+    </div>
+
     <!-- 记一笔：日期 + 时间 + 事件，回车即可提交 -->
     <div class="tl-addbox" id="addBox" hidden>
       <input class="input tl-datein" type="date" aria-label="日期">
@@ -112,15 +118,24 @@
     </div>
   </section>
 
-  <!-- ============ 近期总结（一处，输入即保存） ============ -->
-  <section class="card tl-sum">
+  <!-- ============ 近期总结（一处，输入即保存，可折叠） ============ -->
+  <section class="card tl-sum" id="sumCard">
     <div class="card-head">
       <h3 class="card-title">
-        <svg class="ico" aria-hidden="true"><use href="#i-note"/></svg>近期总结
+        <button class="tl-fold-btn" type="button" id="sumToggle"
+                aria-expanded="true" aria-controls="sumBody" title="点击收起／展开近期总结">
+          <svg class="ico" aria-hidden="true"><use href="#i-note"/></svg>
+          <span>近期总结</span>
+          <span class="tl-caret" aria-hidden="true">⌄</span>
+        </button>
       </h3>
+      <!-- 收起来之后用一行摘要代替正文，免得只剩个标题什么也看不到 -->
+      <span class="tl-sum-peek" id="sumPeek" hidden></span>
       <span class="tl-save" id="sumHint">自动保存</span>
     </div>
-    <textarea id="sum" rows="3" placeholder="最近在忙什么、下一步想怎么走……（内容自动保存，留空则清掉）"></textarea>
+    <div id="sumBody">
+      <textarea id="sum" rows="3" placeholder="最近在忙什么、下一步想怎么走……（内容自动保存，留空则清掉）"></textarea>
+    </div>
   </section>
 
   <!-- ============ 列表视图：每个有记录的日子一张卡片（三列） ============ -->

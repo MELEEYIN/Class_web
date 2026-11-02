@@ -29,6 +29,7 @@
   var WD = ['日', '一', '二', '三', '四', '五', '六'];
   var WD_MON = ['一', '二', '三', '四', '五', '六', '日'];   /* 月度视图列顺序：周一起 */
   var MODE_KEY = 'timeline.viewmode';                         /* 记住用户上次选的视图 */
+  var SUM_KEY = 'timeline.sumopen';                           /* 记住近期总结是否展开 */
 
   /* ======================================================================
      1. 数据层
@@ -171,8 +172,21 @@
   var view = {
     ym: U.fmtDate(today).slice(0, 7),
     q: '', editing: '',
-    mode: U.lsGet(MODE_KEY, 'list') === 'month' ? 'month' : 'list'
+    mode: U.lsGet(MODE_KEY, 'list') === 'month' ? 'month' : 'list',
+    /* 颜色筛选：存颜色序号，空数组 = 全部。故意不落盘 ——
+       筛选是临时动作，下次打开全显示最不容易让人以为「记录丢了」。 */
+    colors: [],
+    /* 近期总结默认展开，收起状态记在本地 */
+    sumOpen: U.lsGet(SUM_KEY, true) !== false
   };
+
+  /* 这一天是否通过当前的颜色的筛选（没有选任何颜色时一律通过） */
+  function colorPass(key) {
+    if (!view.colors.length) return true;
+    var day = data.days[key];
+    var d = U.parseDate(key);
+    return view.colors.indexOf(colorOf(day, d)) >= 0;
+  }
 
   var $ = U.$, $$ = U.$$;
   var hostDays, hostCal, hostStats, sumTa, sumHint, monthLabel, monthNav,
@@ -208,9 +222,11 @@
     if (searching && view.mode === 'month') view.mode = 'list';
     syncMode();
 
-    /* 列表：所有月份一起排（最新在前）；月度：只看当前月 */
+    /* 列表：所有月份一起排（最新在前）；月度：只看当前月。
+       两种视图都按颜色筛天数 —— 列表里直接隐藏，月度里只压暗（见 renderCal）。 */
     var isMonth = view.mode === 'month';
-    var keys = isMonth ? monthKeys(view.ym) : allKeys().slice().reverse();
+    var keys = (isMonth ? monthKeys(view.ym) : allKeys().slice().reverse())
+      .filter(colorPass);
 
     /* 3.1 工具条：月份导航与「回到今天」只在月度视图里有意义 */
     monthNav.hidden = !isMonth;
@@ -232,6 +248,10 @@
     /* 3.3 近期总结（一处，不跟月份绑） */
     if (sumTa.value !== data.recent) sumTa.value = data.recent || '';
     updateSumHint();
+    applySumState(view.sumOpen);
+
+    /* 3.35 颜色筛选的选中态 + 「显示全部」按钮显隐 */
+    syncColorFilter();
 
     /* 3.4 只渲染当前视图，另一个清空 */
     if (view.mode === 'month') {
@@ -298,6 +318,10 @@
         var cls = 'cal-day';
         if (out) cls += ' is-out';
         if (U.isSameDay(dt, today)) cls += ' is-today';
+        /* 颜色筛选：日历格子一个都不能少，不符合的压暗就行。
+           只压暗「有记录」的格子 —— 空格子本来就没有卡片、也就没有颜色，
+           拿它去比周几自动色会被误伤（比如所有周一都被算成蓝色）。 */
+        if (n && !colorPass(key)) cls += ' is-cf-out';
 
         /* 右上角：条数 + 颜色点（颜色点让「没记录但选过色」的日子也看得出） */
         var num = U.el('span', { class: 'cd-num' }, [
@@ -383,9 +407,19 @@
   function emptyState(searching, q) {
     var box = document.createElement('div');
     box.className = 'empty';
-    box.innerHTML = searching
-      ? '<strong>没有匹配的记录</strong><span>换个关键词试试；搜索是跨月份进行的。</span>'
-      : '<strong>还没有任何记录</strong><span>用上面的「记一笔」加第一条：填日期、时间、事件就行（时间框里已经有个冒号，直接敲数字）。</span>';
+    var cf = view.colors.length > 0;
+    if (searching && cf) {
+      box.innerHTML =
+        '<strong>没有同时符合的记录</strong><span>当前既在搜索、又按颜色筛了；换个关键词，或者点「显示全部」取消颜色筛选。</span>';
+    } else if (searching) {
+      box.innerHTML = '<strong>没有匹配的记录</strong><span>换个关键词试试；搜索是跨月份进行的。</span>';
+    } else if (cf) {
+      box.innerHTML =
+        '<strong>这个颜色下没有记录</strong><span>点色点可以取消这一色，或者按「显示全部」清空筛选。</span>';
+    } else {
+      box.innerHTML =
+        '<strong>还没有任何记录</strong><span>用上面的「记一笔」加第一条：填日期、时间、事件就行（时间框里已经有个冒号，直接敲数字）。</span>';
+    }
     return box;
   }
 
@@ -648,6 +682,37 @@
         render();
       });
     });
+
+    /* 颜色筛选：点色点切换那一色（可多选），点「显示全部」清空 */
+    var cfHost = $('#colorFilter');
+    if (cfHost) {
+      cfHost.addEventListener('click', function (ev) {
+        var dot = ev.target.closest ? ev.target.closest('.tl-cf') : null;
+        if (dot) {
+          var c = parseInt(dot.dataset.c, 10);
+          var i = view.colors.indexOf(c);
+          if (i >= 0) view.colors.splice(i, 1);
+          else view.colors.push(c);
+          render();
+          return;
+        }
+        if (ev.target.closest && ev.target.closest('#cfClear')) {
+          view.colors = [];
+          render();
+        }
+      });
+    }
+
+    /* 近期总结：点标题展开 / 收起，状态记在本机 */
+    var sumBtn = $('#sumToggle');
+    if (sumBtn) {
+      sumBtn.addEventListener('click', function () {
+        view.sumOpen = !view.sumOpen;
+        U.lsSet(SUM_KEY, view.sumOpen);
+        applySumState(view.sumOpen);
+      });
+    }
+
     addBox.addEventListener('keydown', function (ev) {
       if (ev.key === 'Enter') { ev.preventDefault(); quickAdd(); }
     });
@@ -703,6 +768,62 @@
   function updateSumHint(len) {
     if (len === undefined) len = sumTa.value.length;
     sumHint.textContent = len ? len + ' 字 · 自动保存' : '自动保存';
+  }
+
+  /* ---- 近期总结：展开 / 收起 ----
+     收起时把正文藏掉，并在标题右边补一行摘要 ——
+     只剩一个标题什么也看不到，等于把内容藏丢了。 */
+  function applySumState(open) {
+    var card = $('#sumCard');
+    var btn = $('#sumToggle');
+    var peek = $('#sumPeek');
+    if (!card) return;
+
+    card.classList.toggle('is-folded', !open);
+    if (btn) btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+
+    if (peek) {
+      if (open) {
+        peek.hidden = true;
+      } else {
+        var t = String(data.recent || '').replace(/\s+/g, ' ').trim();
+        peek.hidden = false;
+        peek.textContent = t ? (t.length > 68 ? t.slice(0, 68) + '…' : t) : '（还没写）';
+      }
+    }
+  }
+
+  /* ======================================================================
+     5b. 颜色筛选
+     ====================================================================== */
+  /* 八个色点按站点的八色系统生成，data-color 负责给 --cc，点一下切换选中 */
+  function buildColorFilter() {
+    var host = $('#colorFilter');
+    if (!host) return;
+    U.render(host, U.el('span', { class: 'tl-colors-lb', text: '颜色' }));
+    for (var i = 0; i < NCOLOR; i++) {
+      host.appendChild(U.el('button', {
+        type: 'button',
+        class: 'tl-cf',
+        'data-c': String(i),
+        'data-color': String(i),
+        title: '只看颜色 ' + (i + 1) + ' 的卡片',
+        'aria-pressed': 'false'
+      }));
+    }
+    host.appendChild(U.el('button', {
+      type: 'button', class: 'tl-cf-clear', id: 'cfClear', hidden: true, text: '显示全部'
+    }));
+  }
+
+  function syncColorFilter() {
+    $$('#colorFilter .tl-cf').forEach(function (b) {
+      var on = view.colors.indexOf(parseInt(b.dataset.c, 10)) >= 0;
+      b.classList.toggle('is-on', on);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    var clear = $('#cfClear');
+    if (clear) clear.hidden = !view.colors.length;
   }
 
   /* ======================================================================
@@ -856,6 +977,7 @@
     addBox = $('#addBox');
     if (!hostDays) return;
 
+    buildColorFilter();
     bind();
     bindTheme();
     bindBg();

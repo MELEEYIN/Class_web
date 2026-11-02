@@ -78,6 +78,41 @@
 
 .tl-stats { display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto; }
 
+/* ---- 按卡片颜色筛选 ----
+   八个色点直接取站点的 [data-color]，和日期卡片上的小圆点是同一套色；
+   未选中时压到 45% 透明度，选中时全亮 + 一圈同色描边，一眼能看出当前筛了哪几色。 */
+.tl-colors {
+  display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+  margin-top: 11px; padding-top: 10px;
+  border-top: 1px dashed var(--line);
+}
+.tl-colors-lb {
+  font-size: 11.5px; font-weight: 650; color: var(--muted);
+  margin-right: 1px; flex: none;
+}
+.tl-cf {
+  width: 18px; height: 18px; flex: none; padding: 0; cursor: pointer;
+  border: 0; border-radius: 50%;
+  background: var(--cc, var(--surface-3));
+  opacity: .45;
+  transition: opacity var(--t-fast) var(--ease), transform var(--t-fast) var(--ease),
+              box-shadow var(--t-fast) var(--ease);
+}
+.tl-cf:hover { opacity: .9; transform: scale(1.12); }
+.tl-cf.is-on {
+  opacity: 1;
+  /* 先垫一圈页面底色再套一圈同色，任何背景上都看得出「选中」 */
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--cc);
+}
+.tl-cf:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tl-cf-clear {
+  margin-left: 2px; height: 26px; padding: 0 9px;
+  font-size: 11.5px; font-weight: 650;
+  border: 1px solid var(--line-strong); border-radius: var(--r-pill);
+  background: var(--surface-2); color: var(--muted); cursor: pointer;
+}
+.tl-cf-clear:hover { color: var(--accent); border-color: var(--accent-line); }
+
 /* 工具条里的「记一笔」展开区（字段用站点标准的 .input 外观） */
 .tl-addbox {
   display: grid; gap: 8px; align-items: center;
@@ -98,6 +133,30 @@
    -------------------------------------------------------------------------- */
 .tl-sum { padding: 13px 15px; }
 .tl-sum .card-head { margin-bottom: 9px; }
+
+/* 标题行就是折叠开关：整行可点，回车/空格也能触发（它本身是 button） */
+.tl-fold-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 0; margin: 0; border: 0; background: none;
+  font: inherit; color: inherit; letter-spacing: inherit;
+  cursor: pointer; text-align: left; border-radius: var(--r-xs);
+}
+.tl-fold-btn:hover .tl-caret { color: var(--accent); }
+.tl-fold-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.tl-caret {
+  font-size: 13px; line-height: 1; color: var(--faint); flex: none;
+  transition: transform var(--t) var(--ease), color var(--t-fast) var(--ease);
+}
+/* 收起态：箭头转成「向右」，正文与标题下留白一起去掉 */
+.tl-sum.is-folded .tl-caret { transform: rotate(-90deg); }
+.tl-sum.is-folded .card-head { margin-bottom: 0; }
+.tl-sum.is-folded #sumBody { display: none; }
+/* 收起后显示一行摘要，代替正文 */
+.tl-sum-peek {
+  flex: 1 1 auto; min-width: 0;
+  font-size: 11.5px; color: var(--muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 .tl-sum textarea {
   width: 100%; min-height: 62px; resize: vertical;
   padding: 9px 11px; font: inherit; font-size: 13px; line-height: 1.62;
@@ -242,6 +301,8 @@
 #calBox .cal-day { cursor: pointer; }
 /* 这一天选过颜色：左边来一道色条，一眼能认出是哪类日子 */
 #calBox .cal-day[data-color] { border-left: 3px solid var(--cc); }
+/* 颜色筛选在月度视图里只压暗、不隐藏 —— 日历少一天就不成日历了 */
+#calBox .cal-day.is-cf-out { opacity: .3; }
 /* 格子右上角：条数 + 颜色点 */
 .tl-cd-r { display: flex; align-items: center; gap: 4px; }
 .tl-cd-c {
