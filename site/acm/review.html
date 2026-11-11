@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>知识点复习 · 错题卡 · ACM 子站</title>
+<meta name="description" content="把每次踩过的坑做成一张卡：坑点 / 知识点 / 思路 三大类，每类下面再按小类归拢。只看现象自己想，再展开对答案。">
+<meta name="theme-color" content="#060d1a">
+<script src="../js/boot.js"></script>
+<script>try{var _t=document.documentElement.getAttribute('data-theme')||'dark';document.documentElement.setAttribute('data-mode',_t);}catch(e){}</script>
+<link rel="stylesheet" href="./acm.css">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:rgb(var(--bg-rgb));color:var(--text);
+  font:14px/1.78 -apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",system-ui,sans-serif}
+/* ---------- 背景层：跟算法站共用一套（localStorage: acm.wall） ---------- */
+.bg{position:fixed;inset:-3%;z-index:0;pointer-events:none;
+  background-size:cover;background-position:center;background-repeat:no-repeat;
+  transition:opacity .35s,filter .35s}
+.bg-tint{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:linear-gradient(180deg,rgb(var(--bg-rgb) / .34),rgb(var(--bg-rgb) / .72) 48%,rgb(var(--bg-rgb) / .9))}
+body.has-bg .bg-tint{display:none}
+.bg-dim{position:fixed;inset:0;z-index:0;pointer-events:none;transition:background .25s}
+
+/* 预设背景，颜色与算法站一致 */
+.bg[data-p="aurora"]{background-image:
+  radial-gradient(58% 52% at 16% 6%, rgba(77,141,255,.55), transparent 62%),
+  radial-gradient(46% 44% at 88% 14%, rgba(45,212,191,.34), transparent 64%),
+  radial-gradient(72% 60% at 48% 104%, rgba(139,124,246,.42), transparent 62%)}
+.bg[data-p="grid"]{background-image:
+  linear-gradient(rgba(120,165,230,.16) 1px, transparent 1px),
+  linear-gradient(90deg, rgba(120,165,230,.16) 1px, transparent 1px);
+  background-size:44px 44px,44px 44px;background-repeat:repeat}
+.bg[data-p="dots"]{background-image:radial-gradient(rgba(120,165,230,.35) 1.5px, transparent 1.6px);
+  background-size:26px 26px;background-repeat:repeat}
+.bg[data-p="star"]{background-image:
+  radial-gradient(1.8px 1.8px at 22% 28%, rgba(160,200,255,.9), transparent),
+  radial-gradient(1.4px 1.4px at 68% 14%, rgba(255,255,255,.8), transparent),
+  radial-gradient(1.6px 1.6px at 44% 66%, rgba(255,255,255,.65), transparent),
+  radial-gradient(1.2px 1.2px at 86% 54%, rgba(140,190,255,.9), transparent),
+  radial-gradient(1.5px 1.5px at 12% 82%, rgba(255,255,255,.6), transparent),
+  radial-gradient(1.1px 1.1px at 56% 92%, rgba(180,210,255,.8), transparent);
+  background-size:420px 420px;background-repeat:repeat}
+.bg[data-p="wave"]{background-image:
+  repeating-linear-gradient(135deg, rgba(77,141,255,.12) 0 2px, transparent 2px 16px),
+  radial-gradient(80% 60% at 50% 0%, rgba(77,141,255,.22), transparent 72%)}
+.acm-nav,.top,.rv-bar,.rv-wrap{position:relative;z-index:1}
+a{color:var(--accent);text-decoration:none}
+code,pre{font-family:"Cascadia Code",Consolas,"SF Mono",Menlo,monospace}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-thumb{background:rgb(var(--accent-rgb) / .34);border-radius:8px;border:3px solid transparent;background-clip:content-box}
+::selection{background:rgb(var(--accent-rgb) / .35)}
+
+/* ---------- 顶部 ---------- */
+.top{background:rgb(var(--panel-rgb) / .58);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--line);padding:22px 24px 18px}
+.rv-max{max-width:1000px;margin:0 auto}
+.top h1{margin:0;font-size:23px;font-weight:700;letter-spacing:-.01em}
+.top .sub{color:var(--text-2);font-size:13px;margin:8px 0 0;max-width:820px}
+.rv-kpi{display:flex;gap:26px;margin-top:16px;flex-wrap:wrap}
+.rv-kpi div{display:flex;flex-direction:column;gap:2px}
+.rv-kpi b{font-size:21px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.rv-kpi span{font-size:11.5px;color:var(--text-3);letter-spacing:.04em}
+
+/* ---------- 工具条 ---------- */
+.rv-bar{position:sticky;top:0;z-index:20;background:rgb(var(--bg-rgb) / .93);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:10px 24px}
+.rv-bar-in{max-width:1000px;margin:0 auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.rv-search{flex:1 1 200px;min-width:150px;display:flex;align-items:center;gap:7px;
+  background:rgb(var(--panel-rgb) / .7);border:1px solid var(--line);border-radius:10px;padding:0 11px;height:34px}
+.rv-search input{flex:1;border:0;background:transparent;color:var(--text);font:inherit;font-size:13px;outline:none}
+.rv-search input::placeholder{color:var(--text-3)}
+.rv-search svg{width:15px;height:15px;color:var(--text-3);flex:none}
+.rv-chips{display:flex;gap:6px;flex-wrap:wrap}
+.rv-chip{border:1px solid var(--line);background:rgb(var(--panel-rgb) / .55);color:var(--text-2);
+  font:inherit;font-size:12.5px;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap}
+.rv-chip.on{border-color:rgb(var(--accent-rgb) / .55);background:rgb(var(--accent-rgb) / .16);color:var(--text);font-weight:600}
+
+/* ---------- 大类 ---------- */
+.rv-wrap{max-width:1000px;margin:0 auto;padding:24px 24px 80px}
+.rv-cat{margin:0 0 34px}
+.rv-cat-h{display:flex;align-items:baseline;gap:10px;margin:0 0 4px;padding-bottom:10px;border-bottom:1px solid var(--line-2)}
+.rv-cat-h h2{margin:0;font-size:18px;font-weight:700;letter-spacing:-.01em}
+.rv-cat-h .dot{width:9px;height:9px;border-radius:50%;flex:none;transform:translateY(-1px)}
+.rv-cat-h .cnt{font-size:12.5px;color:var(--text-3);font-variant-numeric:tabular-nums}
+.rv-cat-h .desc{margin-left:auto;font-size:12px;color:var(--text-3)}
+.d-keng{background:rgb(var(--danger-rgb))}
+.d-zhishi{background:rgb(var(--accent-rgb))}
+.d-silu{background:rgb(var(--vio-rgb))}
+
+/* ---------- 小类 ---------- */
+.rv-topic{margin:22px 0 12px;padding-left:11px;border-left:3px solid rgb(var(--accent-rgb) / .45)}
+.rv-topic h3{margin:0;font-size:14.5px;font-weight:650;letter-spacing:.01em;display:flex;align-items:baseline;gap:8px}
+.rv-topic h3 .cnt{font-size:11.5px;color:var(--text-3);font-weight:400}
+
+/* ---------- 卡片 ---------- */
+.rv-card{background:rgb(var(--panel-rgb) / var(--panel-a));border:1px solid var(--line);
+  border-radius:14px;padding:16px 19px;margin:0 0 12px;transition:border-color .18s}
+.rv-card:hover{border-color:rgb(var(--accent-rgb) / .3)}
+.rv-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:9px}
+.rv-id{font-family:Consolas,monospace;font-size:11.5px;font-weight:700;color:var(--accent);
+  background:rgb(var(--accent-rgb) / .13);border:1px solid rgb(var(--accent-rgb) / .28);
+  padding:1px 7px;border-radius:6px;letter-spacing:.03em}
+.rv-h h4{margin:0;font-size:16px;font-weight:650;flex:1 1 240px;line-height:1.5}
+.rv-pid{font-family:Consolas,monospace;font-size:11.5px;color:var(--text-3);white-space:nowrap}
+
+.rv-body p{margin:0 0 10px}
+.rv-body pre{margin:10px 0;background:var(--code-bg);border:1px solid var(--code-line);border-radius:10px;
+  padding:11px 13px;overflow:auto;font-size:12.6px;line-height:1.66;color:var(--code-text)}
+.rv-body code{background:rgb(var(--accent-rgb) / .12);padding:1px 5px;border-radius:5px;font-size:12.6px}
+.rv-body pre code{background:none;padding:0;font-size:inherit}
+.rv-body b{color:var(--text);font-weight:650}
+.rv-label{display:inline-block;font-size:11.5px;color:var(--text-3);letter-spacing:.06em;margin:2px 0}
+
+.rv-fold{margin-top:2px;border-top:1px dashed var(--line);padding-top:2px}
+.rv-fold summary{cursor:pointer;list-style:none;font-size:13px;color:var(--accent);
+  padding:8px 0 4px;user-select:none;display:flex;align-items:center;gap:7px}
+.rv-fold summary::-webkit-details-marker{display:none}
+.rv-fold summary::before{content:"▶";font-size:9px;transition:transform .18s;display:inline-block}
+.rv-fold[open] summary::before{transform:rotate(90deg)}
+.rv-fold summary:hover{text-decoration:underline}
+
+.rv-empty{text-align:center;padding:60px 20px;color:var(--text-3)}
+.rv-empty b{display:block;font-size:16px;color:var(--text-2);margin-bottom:6px}
+.rv-tip{margin:0 0 20px;padding:12px 16px;border-radius:12px;font-size:12.8px;color:var(--text-2);
+  background:rgb(var(--accent-rgb) / .08);border:1px solid rgb(var(--accent-rgb) / .18)}
+.rv-tip b{color:var(--text)}
+@media(max-width:640px){
+  .top{padding:18px 16px 14px}.rv-bar{padding:9px 16px}.rv-wrap{padding:16px 16px 70px}
+  .rv-kpi{gap:18px}.rv-kpi b{font-size:19px}
+  .rv-card{padding:14px 15px;border-radius:13px}
+  .rv-h h4{font-size:15.5px}
+  .rv-cat-h .desc{display:none}
+}
+</style>
+</head>
+<body>
+<div class="bg" id="bg" aria-hidden="true"></div>
+<div class="bg-tint" aria-hidden="true"></div>
+<div class="bg-dim" id="bgDim" aria-hidden="true"></div>
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;overflow:hidden">
+  <symbol id="i-graduation" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8.6 12 4.2l9.5 4.4L12 13 2.5 8.6Z"/><path d="M6.2 10.9V16c0 1.4 2.6 2.6 5.8 2.6s5.8-1.2 5.8-2.6v-5.1"/><path d="M21.5 9.4v5.2"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.6 12 3.8l8.5 6.8V20a1 1 0 0 1-1 1h-4.2v-6.2H8.7V21H4.5a1 1 0 0 1-1-1z"/></symbol>
+</svg>
+
+<header class="acm-nav" id="acmNav">
+  <div class="acm-wrap acm-nav-inner">
+    <a class="acm-brand" href="../index.html" title="回到校园主页">
+      <span class="acm-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-graduation"/></svg></span>
+      <span class="acm-brand-text"><strong>ACM 算法</strong><small>校园主页 · 子站</small></span>
+    </a>
+    <nav class="acm-tabs" aria-label="子站页面">
+      <a href="./index.html">首页</a>
+      <a href="./index.html">学习资料</a>
+      <a href="./practice.html">题练场</a>
+      <a href="./review.html" class="on" aria-current="page">复习</a>
+    </nav>
+    <div class="acm-nav-actions">
+      <button class="acm-btn acm-btn-icon" type="button" id="themeBtn" title="切换深色 / 浅色（全站共用）" aria-label="切换深色或浅色主题">
+        <svg class="ico" aria-hidden="true" id="themeIco"><use href="#i-moon"/></svg>
+      </button>
+      <a class="acm-btn" href="../index.html" title="返回校园主页">
+        <svg class="ico" aria-hidden="true"><use href="#i-home"/></svg><span class="label">回主页</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<header class="top"><div class="rv-max">
+  <h1>知识点复习 · 错题卡</h1>
+  <p class="sub">每张卡只记一个<b>真的踩过</b>的坑，分三级：<b>大类</b>（坑点 / 知识点 / 思路）→ <b>小类</b>（下标与边界、取模与溢出…）→ 卡片。
+  做题卡住时按小类翻，平时看只读「现象」，说得出原因就跳过。</p>
+  <div class="rv-kpi">
+    <div><b id="kAll">0</b><span>卡片总数</span></div>
+    <div><b id="kKeng">0</b><span>坑点</span></div>
+    <div><b id="kZhi">0</b><span>知识点</span></div>
+    <div><b id="kSilu">0</b><span>思路</span></div>
+  </div>
+</div></header>
+
+<div class="rv-bar"><div class="rv-bar-in">
+  <label class="rv-search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>
+    <input id="q" type="search" placeholder="搜标题、题号、小类、正文…" autocomplete="off" aria-label="搜索卡片">
+  </label>
+  <div class="rv-chips" id="chips">
+    <button type="button" class="rv-chip on" data-type="">全部</button>
+    <button type="button" class="rv-chip" data-type="坑点">坑点</button>
+    <button type="button" class="rv-chip" data-type="知识点">知识点</button>
+    <button type="button" class="rv-chip" data-type="思路">思路</button>
+  </div>
+</div></div>
+
+<div class="rv-wrap">
+  <p class="rv-tip" id="tip"></p>
+  <div id="list"></div>
+</div>
+
+<script src="./review-data.js"></script>
+<script>
+(function(){
+'use strict';
+var CARDS = window.__REVIEW_CARDS || [];
+var ORDER = ['坑点','知识点','思路'];
+var DESC  = {
+  '坑点':'都真的错过一次，改法能直接抄',
+  '知识点':'API、类型、边界的硬知识，一次记牢',
+  '思路':'这一类题的通用套路，忘了就从零推'
+};
+var DOT = {'坑点':'d-keng','知识点':'d-zhishi','思路':'d-silu'};
+
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function inline(t){
+  if(!t || !t.trim()) return '';
+  return t.split(/\n{2,}/).map(function(p){
+    p = p.trim(); if(!p) return '';
+    var one = /^>\s*一句话[：:]\s*([\s\S]+)$/.exec(p);
+    var h = esc(one ? one[1] : p)
+      .replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')
+      .replace(/`([^`]+)`/g,'<code>$1</code>')
+      .replace(/\n/g,'<br>');
+    return one ? '<p><span class="rv-label">一句话</span><br>'+h+'</p>' : '<p>'+h+'</p>';
+  }).join('');
+}
+function md(t){
+  if(!t) return '';
+  var re = /```[a-zA-Z]*\n([\s\S]*?)```/g, out = '', last = 0, m;
+  while((m = re.exec(t))){
+    out += inline(t.slice(last, m.index));
+    out += '<pre><code>'+esc(m[1].replace(/\n$/,''))+'</code></pre>';
+    last = re.lastIndex;
+  }
+  return out + inline(t.slice(last));
+}
+
+var q = '', type = '';
+
+function match(c){
+  if(type && c.type !== type) return false;
+  if(q){
+    var hay = [c.id,c.title,c.pid,c.type,c.topic,c.symptom,c.cause,c.fix,c.one].join(' ').toLowerCase();
+    if(hay.indexOf(q.toLowerCase()) < 0) return false;
+  }
+  return true;
+}
+
+function cardHTML(c){
+  return ''
+  + '<article class="rv-card" data-id="'+c.id+'">'
+  +   '<div class="rv-h">'
+  +     '<span class="rv-id">'+c.id+'</span>'
+  +     '<h4>'+esc(c.title)+'</h4>'
+  +     (c.pid ? '<span class="rv-pid">'+esc(c.pid)+'</span>' : '')
+  +   '</div>'
+  +   '<div class="rv-body"><span class="rv-label">现象</span>'+md(c.symptom)+'</div>'
+  +   '<details class="rv-fold"><summary>想好了，点开对答案</summary>'
+  +     '<div class="rv-body">'
+  +       (c.cause ? '<span class="rv-label">原因</span>'+md(c.cause) : '')
+  +       (c.fix   ? '<span class="rv-label">修法</span>'+md(c.fix)   : '')
+  +       (c.one   ? '<p><span class="rv-label">一句话</span><br>'
+  +                  + esc(c.one).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/`([^`]+)`/g,'<code>$1</code>')
+  +                  + '</p>' : '')
+  +     '</div>'
+  +   '</details>'
+  + '</article>';
+}
+
+function byDate(a,b){
+  if(a.date !== b.date) return a.date < b.date ? 1 : -1;
+  return a.id < b.id ? -1 : (a.id > b.id ? 1 : 0);
+}
+
+function render(){
+  var pool = CARDS.filter(match);
+  var cats = [];
+  ORDER.forEach(function(t){
+    var arr = pool.filter(function(c){ return c.type === t; });
+    if(arr.length) cats.push([t, arr]);
+  });
+  var known = {}; ORDER.forEach(function(t){ known[t] = 1; });
+  var other = pool.filter(function(c){ return !known[c.type]; });
+  if(other.length) cats.push(['其他', other]);
+
+  var html = cats.map(function(cat){
+    var catName = cat[0], catArr = cat[1];
+
+    // 小类分组
+    var topics = [], map = {};
+    catArr.forEach(function(c){
+      var t = c.topic || '其他';
+      if(!map[t]){ map[t] = []; topics.push(t); }
+      map[t].push(c);
+    });
+    topics.sort(function(a,b){
+      if(map[a].length !== map[b].length) return map[b].length - map[a].length;
+      return a.localeCompare(b, 'zh');
+    });
+
+    var body = topics.map(function(t){
+      var arr = map[t].slice().sort(byDate);
+      return '<div class="rv-topic"><h3>'+esc(t)+'<span class="cnt">'+arr.length+' 张</span></h3></div>'
+           + arr.map(cardHTML).join('');
+    }).join('');
+
+    return '<section class="rv-cat">'
+      + '<div class="rv-cat-h"><i class="dot '+(DOT[catName]||'d-keng')+'"></i>'
+      +   '<h2>'+catName+'</h2><span class="cnt">'+catArr.length+' 张 · '+topics.length+' 个小类</span>'
+      +   '<span class="desc">'+(DESC[catName]||'')+'</span></div>'
+      + body
+      + '</section>';
+  }).join('');
+
+  document.getElementById('list').innerHTML = html ||
+    '<div class="rv-empty"><b>没有匹配的卡</b>换个关键词或大类试试。</div>';
+
+  document.getElementById('kAll').textContent  = CARDS.length;
+  document.getElementById('kKeng').textContent = CARDS.filter(function(c){ return c.type === '坑点'; }).length;
+  document.getElementById('kZhi').textContent  = CARDS.filter(function(c){ return c.type === '知识点'; }).length;
+  document.getElementById('kSilu').textContent = CARDS.filter(function(c){ return c.type === '思路'; }).length;
+
+  var nTopic = 0;
+  cats.forEach(function(cat){
+    var s = {}; cat[1].forEach(function(c){ s[c.topic||'其他'] = 1; });
+    nTopic += Object.keys(s).length;
+  });
+  document.getElementById('tip').innerHTML = cats.length
+    ? '共 <b>'+CARDS.length+'</b> 张卡，<b>'+cats.length+'</b> 个大类、<b>'+nTopic+'</b> 个小类。'
+      + '做题卡住先按小类翻；平时只读「现象」，说得清原因就跳过。'
+    : '当前筛选条件下没有卡片。';
+}
+
+document.querySelectorAll('.rv-chip').forEach(function(b){
+  b.addEventListener('click', function(){
+    document.querySelectorAll('.rv-chip').forEach(function(x){ x.classList.remove('on'); });
+    b.classList.add('on'); type = b.getAttribute('data-type'); render();
+  });
+});
+document.getElementById('q').addEventListener('input', function(e){ q = e.target.value.trim(); render(); });
+
+document.getElementById('themeBtn').addEventListener('click', function(){
+  var root = document.documentElement;
+  var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  root.setAttribute('data-theme', next);
+  root.setAttribute('data-mode', next);
+  try { localStorage.setItem('cw.theme', JSON.stringify(next)); } catch(err){}
+  syncIcon();
+});
+function syncIcon(){
+  var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  var ico = document.getElementById('themeIco');
+  if(ico) ico.innerHTML = '<use href="'+(dark ? '#i-sun' : '#i-moon')+'"/>';
+}
+/* 背景：直接读算法站存在本机的 acm.wall，跟着那边一起变 */
+function initBg(){
+  var DEF = {p:'none',img:'',blur:0,op:100,dim:0}, st = {};
+  try { st = JSON.parse(localStorage.getItem('acm.wall') || 'null') || {}; } catch(e){ st = {}; }
+  for (var k in DEF) if (typeof st[k] === 'undefined') st[k] = DEF[k];
+
+  var bg  = document.getElementById('bg');
+  var dim = document.getElementById('bgDim');
+  var root = document.documentElement;
+  var custom = !!st.img;
+
+  root.setAttribute('data-wall', custom ? 'custom' : (st.p || 'none'));
+  bg.style.backgroundImage = custom ? 'url("' + st.img + '")' : '';
+  bg.setAttribute('data-p', custom ? '' : (st.p || 'none'));
+  bg.style.filter  = st.blur ? 'blur(' + st.blur + 'px)' : 'none';
+  bg.style.opacity = String(st.op / 100);
+  dim.style.background = st.dim ? 'rgba(0,0,0,' + (st.dim / 100) + ')' : 'transparent';
+  document.body.classList.toggle('has-bg', custom || (st.p && st.p !== 'none'));
+}
+/* 在算法站里改了背景，切回来这一页立刻跟着变 */
+window.addEventListener('storage', function(e){ if(e.key === 'acm.wall') initBg(); });
+
+syncIcon();
+initBg();
+render();
+})();
+</script>
+</body>
+</html>

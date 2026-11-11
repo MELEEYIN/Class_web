@@ -1077,3 +1077,18 @@ html[data-theme="light"] {
 .top-btn.top-home { color: var(--ink-3); }
 .top-btn.top-home:hover { color: var(--accent); }
 @media (max-width: 620px) { .top-btn.top-home .tl { display: none; } }
+
+/* 顶栏「复习」：放在最左、用主色强调——这是每天都要点的入口 */
+.top-btn.top-review {
+  color: var(--accent);
+  border-color: rgba(var(--accent-rgb) / .42);
+  background: rgba(var(--accent-rgb) / .10);
+  font-weight: 600;
+}
+.top-btn.top-review:hover {
+  color: var(--accent-ink);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.top-btn.top-review svg { color: currentColor; }
+@media (max-width: 620px) { .top-btn.top-review .tl { display: none; } }
