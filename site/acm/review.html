@@ -242,12 +242,11 @@ function inline(t){
   return t.split(/\n{2,}/).map(function(p){
     p = p.trim(); if(!p) return '';
     if(/^\|/.test(p)) return table(p);
-    var one = /^>\s*一句话[：:]\s*([\s\S]+)$/.exec(p);
-    var h = esc(one ? one[1] : p)
+    var h = esc(p)
       .replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')
       .replace(/`([^`]+)`/g,'<code>$1</code>')
       .replace(/\n/g,'<br>');
-    return one ? '<p><span class="rv-label">一句话</span><br>'+h+'</p>' : '<p>'+h+'</p>';
+    return '<p>'+h+'</p>';
   }).join('');
 }
 function table(p){
@@ -280,7 +279,7 @@ var q = '', cat = '';
 function match(c){
   if(cat && c.type !== cat) return false;
   if(q){
-    var hay = [c.id,c.title,c.pid,c.type,c.topic,c.symptom,c.cause,c.fix,c.one].join(' ').toLowerCase();
+    var hay = [c.id,c.title,c.pid,c.type,c.topic,c.symptom,c.cause,c.fix].join(' ').toLowerCase();
     if(hay.indexOf(q.toLowerCase()) < 0) return false;
   }
   return true;
@@ -299,9 +298,6 @@ function cardHTML(c){
   +     '<div class="rv-body">'
   +       (c.cause ? '<span class="rv-label">原因</span>'+md(c.cause) : '')
   +       (c.fix   ? '<span class="rv-label">修法</span>'+md(c.fix)   : '')
-  +       (c.one   ? '<p><span class="rv-label">一句话</span><br>'
-  +                  + esc(c.one).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/`([^`]+)`/g,'<code>$1</code>')
-  +                  + '</p>' : '')
   +     '</div>'
   +   '</details>'
   + '</article>';

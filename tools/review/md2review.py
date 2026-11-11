@@ -75,7 +75,6 @@ def parse(text):
             "symptom": sec["symptom"],
             "cause": sec["cause"],
             "fix": sec["fix"],
-            "one": sec["one"],
         })
     return cards
 

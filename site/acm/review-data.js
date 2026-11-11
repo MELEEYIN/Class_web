@@ -10,8 +10,7 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-11",
   "symptom": "```text\nstl_vector.h:1253: Assertion '__n < this->size()' failed.\n```\n\n或者更糟：不报错，直接 RE / 读到脏数据。\n\n```cpp\nvector<int> cnt(9);        // n = 9，1-based 用 cnt[9]\npoi num[800];              // 但 n² = 1521\nvector<int> vec;           // 空容器直接 vec[i]\n```",
   "cause": "1-based 下标时，**最大下标是 n，不是 n−1**，所以容量要 `n + 1`。\n\n空容器更彻底：`size()` 是 0，任何下标都越界。",
-  "fix": "```cpp\nvector<int> cnt(n + 1);            // 1-based\nint g[45][45];                     // 二维按最大 n 开满\nvector<int> v; v.assign(n + 1, 0); // 全局只声明，main 里再定大小\n```",
-  "one": "写下 `v[k]` 之前，先问「k 最大能到几」。"
+  "fix": "```cpp\nvector<int> cnt(n + 1);            // 1-based\nint g[45][45];                     // 二维按最大 n 开满\nvector<int> v; v.assign(n + 1, 0); // 全局只声明，main 里再定大小\n```"
  },
  {
   "id": "C02",
@@ -22,8 +21,7 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-10",
   "symptom": "样例整体错位一位：\n\n```text\n你的输出 6569 / -5440       正确 6569 / 4121\n```",
   "cause": "```cpp\nA.erase(A.begin() + ix);        // 删的是第 ix+1 个\nB.insert(B.begin() + iy, v);    // 插在第 iy+1 个之前\n```",
-  "fix": "```cpp\nA.erase(A.begin() + (ix-1));\nB.insert(B.begin() + (iy-1), v);\n```",
-  "one": "`begin()+k` 里的 `k` 是下标；题面的位置要先减 1。"
+  "fix": "```cpp\nA.erase(A.begin() + (ix-1));\nB.insert(B.begin() + (iy-1), v);\n```"
  },
  {
   "id": "C03",
@@ -34,8 +32,7 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-11",
   "symptom": "各种\"差一\"：最后一个元素没被处理、最后一个空没填就输出、剪枝太紧漏解。\n\n| 错写成 | 应为 |\n| :--- | :--- |\n| `if(d == n)` 输出 | `if(d > n)` |\n| `i < n`（1-based） | `i <= n` |\n| `n - end - 1`（1-based） | `n - end` |",
   "cause": "改了一半。下标体系是一个整体，改一处不改其余，一定差一。",
-  "fix": "四件套一起改：\n\n| 项目 | 0-based | 1-based |\n| :--- | :--- | :--- |\n| 数组大小 | `n` | `n + 1` |\n| 读入 | `i=0; i<n` | `i=1; i<=n` |\n| 初始 `last` | `-1` | `0` |\n| 剩余个数 | `n-last-1` | `n-last` |",
-  "one": "要么全 0 起，要么全 1 起，不许混着写。"
+  "fix": "四件套一起改：\n\n| 项目 | 0-based | 1-based |\n| :--- | :--- | :--- |\n| 数组大小 | `n` | `n + 1` |\n| 读入 | `i=0; i<n` | `i=1; i<=n` |\n| 初始 `last` | `-1` | `0` |\n| 剩余个数 | `n-last-1` | `n-last` |"
  },
  {
   "id": "C04",
@@ -46,8 +43,7 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-09",
   "symptom": "```cpp\nfor(int i = L;i<=R;i++){\n    while(i>0){ ...; i/=10; }   // i 被减到 0\n}\n```\n\n程序死循环，一行输出都没有（3 秒超时）。",
   "cause": "`while` 把外层循环变量 `i` 拆到 0，`for` 的 `i++` 又把它变回 1，`1 <= R` 永远成立。",
-  "fix": "```cpp\nint t = i;\nwhile(t > 0){ ... t /= 10; }\n```",
-  "one": "循环体里要 `%` `/` 拆 `i`，第一行先写 `int t = i;`。"
+  "fix": "```cpp\nint t = i;\nwhile(t > 0){ ... t /= 10; }\n```"
  },
  {
   "id": "C05",
@@ -58,8 +54,7 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-11",
   "symptom": "```cpp\nelse if(!c=='+'||!c=='-'||!c=='*'||!c=='/')   // 分支永远进不去\n```",
   "cause": "`!c` 是\"c 为假\"（字符 `'\\0'` 才算假），结果只有 0/1，再和 `'+'`（43）比，永远不等。",
-  "fix": "```cpp\nelse if(c!='+' && c!='-' && c!='*' && c!='/')\n```",
-  "one": "`!` 作用于**值**，`!=` 才是\"不等于\"。"
+  "fix": "```cpp\nelse if(c!='+' && c!='-' && c!='*' && c!='/')\n```"
  },
  {
   "id": "C06",
@@ -70,8 +65,7 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-11",
   "symptom": "写成 `c!='+' || c!='-'`，条件恒真，错误输入也被当合法。",
   "cause": "四个\"不是\"要**同时成立**才是\"都不是\"——那是交集，用 `&&`。`||` 表示并集，任意一个成立即可，恒真。",
-  "fix": "```cpp\nif(a != 1 && a != 2 && a != 3)        // 既不是 1 也不是 2 也不是 3\nif(a == 1 || a == 2 || a == 3)        // 是 1 或 2 或 3\n```",
-  "one": "多个\"都不是\" → `&&`；多个\"是其中之一\" → `||`。"
+  "fix": "```cpp\nif(a != 1 && a != 2 && a != 3)        // 既不是 1 也不是 2 也不是 3\nif(a == 1 || a == 2 || a == 3)        // 是 1 或 2 或 3\n```"
  },
  {
   "id": "C07",
@@ -82,8 +76,7 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-11",
   "symptom": "```cpp\nif(q3 && q5 && q7)          // 恒真\nif(num) continue;           // 恒真\n```",
   "cause": "`q3` 是函数地址（非零），`num` 是数组首地址（非零），转成 bool 永远是 true。",
-  "fix": "```cpp\nif(q3(x) && q5(x) && q7(x))   // 加括号才是调用\nif(cnt[d] > 1) continue;      // 数组要写下标\n```",
-  "one": "函数名/数组名单独出现时，都是**指针**，不是值。"
+  "fix": "```cpp\nif(q3(x) && q5(x) && q7(x))   // 加括号才是调用\nif(cnt[d] > 1) continue;      // 数组要写下标\n```"
  },
  {
   "id": "C08",
@@ -94,8 +87,7 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-11",
   "symptom": "```cpp\nif((x0 += dpx[i]) == x1 && (y0 += dpy[i]) == y1)\n```\n\n第一个条件不成立时，`&&` 短路，`y0` 没被加回去 —— 坐标永久跑偏。",
   "cause": "`&&` / `||` 是短路的，右侧可能不执行。把\"改状态\"写进条件里，执行与否就变得不确定。",
-  "fix": "```cpp\nint nx = x0 + dpx[i], ny = y0 + dpy[i];\nif(nx == x1 && ny == y1){ ... }\n```",
-  "one": "条件里只做比较，副作用单独一行写。"
+  "fix": "```cpp\nint nx = x0 + dpx[i], ny = y0 + dpy[i];\nif(nx == x1 && ny == y1){ ... }\n```"
  },
  {
   "id": "C09",
@@ -106,8 +98,7 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-10",
   "symptom": "`n=100000` 全是 `100000`：\n\n```text\n正确答案 166892800000\n你的输出 138917061632\n```",
   "cause": "`ans` 虽然是 `long long`，但 `x + y` 是 `int` 运算，超过 `2^31 ≈ 2.1e9` 就已经溢出了——**赋值时再转类型救不回来**。",
-  "fix": "```cpp\nlong long x, y;         // 参与运算的量本身就得是 long long\nans += x + y;\n```\n\n类型选择顺序：\n\n```text\n先看约束 → 算最大值 → 选类型\n10⁹  级 → int\n10¹⁸ 级 → long long\n超过  → __int128 或高精度\n```",
-  "one": "溢出发生在**运算**时，不是在**赋值**时。"
+  "fix": "```cpp\nlong long x, y;         // 参与运算的量本身就得是 long long\nans += x + y;\n```\n\n类型选择顺序：\n\n```text\n先看约束 → 算最大值 → 选类型\n10⁹  级 → int\n10¹⁸ 级 → long long\n超过  → __int128 或高精度\n```"
  },
  {
   "id": "C10",
@@ -118,8 +109,7 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-09",
   "symptom": "```cpp\na[i] = (i==0?0:a[i-1]) + (int)(100*sin(n+i)) % 3;\n```\n\n生成出来的\"有序数组\"变成 `2 4 6 6 6 4 4`，中途掉下去，二分全错。",
   "cause": "C++ 的 `%` 向零取整：`-95 % 3 == -2`（数学上是 `1`）。增量变成负数，前缀和不再递增。实测 200 万项里 30.8% 是负的。",
-  "fix": "```cpp\nint r = (int)(100*sin(n+i)) % 3;\nif(r < 0) r += 3;\n```",
-  "one": "C++ 的 `%` 可能返回负数，Python 不会——跨语言抄公式必查这一条。"
+  "fix": "```cpp\nint r = (int)(100*sin(n+i)) % 3;\nif(r < 0) r += 3;\n```"
  },
  {
   "id": "C11",
@@ -130,8 +120,7 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-11",
   "symptom": "```text\ncout << ceil(a)   →  -0    或  1e+15\nint num = (m-1) * 1.5;   →  应该 4，得到 3\n```",
   "cause": "`ceil/floor/round` 的返回类型是 `double`。`cout` 会按浮点格式输出（`-0`、`1e+15`）；赋给 `int` 时按数值截断，浮点误差会让 `3.9999` 变成 `3`。",
-  "fix": "```cpp\ncout << (long long)a;                  // 向零舍入，正负都对\nint num = (m-1) * 3 / 2;               // 能用整数算就别沾浮点\nint num = (int)ceil((m-1) * 1.5 + 1e-9);\n```",
-  "one": "浮点只用来算，输出和比较之前先转成整数。"
+  "fix": "```cpp\ncout << (long long)a;                  // 向零舍入，正负都对\nint num = (m-1) * 3 / 2;               // 能用整数算就别沾浮点\nint num = (int)ceil((m-1) * 1.5 + 1e-9);\n```"
  },
  {
   "id": "C12",
@@ -142,8 +131,7 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-11",
   "symptom": "```cpp\nint num1 = 0;                    // 只在程序开始时初始化一次\nfor(int i = 123; i <= 333; i++){\n    if(重复) num1 = 1;           // 一旦置 1，再也没人清零\n    if(num1) continue;           // 之后每一轮都被跳过\n}\n```",
   "cause": "变量的作用域是\"整个 main\"，但它的**生命周期语义**应该是\"每轮一份\"。",
-  "fix": "```cpp\nfor(int i = 123; i <= 333; i++){\n    bool dup = false;            // 声明在循环体内，每轮天然重置\n    ...\n}\n```",
-  "one": "只在本轮有效的标志，就声明在本轮里面。"
+  "fix": "```cpp\nfor(int i = 123; i <= 333; i++){\n    bool dup = false;            // 声明在循环体内，每轮天然重置\n    ...\n}\n```"
  },
  {
   "id": "C13",
@@ -154,8 +142,7 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-11",
   "symptom": "```cpp\nif(cnt[d] > 1) int num = 1;      // 新开了一个局部 num\nif(num) continue;                // 判断的是外层的 num 数组名 → 恒真\n```",
   "cause": "`if` 里那句 `int num = 1;` 声明的是**新的局部变量**，出了 `if` 就销毁；外层那个 `num` 根本没被改。",
-  "fix": "```cpp\nint dup = 0;\nif(cnt[d] > 1) dup = 1;          // 赋值，不是声明\nif(dup) continue;\n```",
-  "one": "`类型 名字 = 值` 是声明，`名字 = 值` 才是赋值。"
+  "fix": "```cpp\nint dup = 0;\nif(cnt[d] > 1) dup = 1;          // 赋值，不是声明\nif(dup) continue;\n```"
  },
  {
   "id": "C14",
@@ -166,8 +153,7 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-11",
   "symptom": "```cpp\nint n;\nvector<int> N(n);        // 此时 n 还是 0 → 空容器\n\nint main(){\n    cin >> n;            // 读到 4，但 N 不会变大\n}\n```\n\n之后 `N[i]` 全部越界。",
   "cause": "全局对象的构造发生在 `main` 之前，那时 `n` 还是 0。",
-  "fix": "```cpp\nvector<int> N;           // 全局只声明\nint main(){\n    cin >> n;\n    N.assign(n + 1, 0);  // 读到 n 之后再定大小\n}\n```",
-  "one": "全局容器只声明，`main` 里 `assign`。"
+  "fix": "```cpp\nvector<int> N;           // 全局只声明\nint main(){\n    cin >> n;\n    N.assign(n + 1, 0);  // 读到 n 之后再定大小\n}\n```"
  },
  {
   "id": "C15",
@@ -178,8 +164,7 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-11",
   "symptom": "```cpp\nint len = n.size();              // 定死\nfor(int i = 0; i < len; i++){\n    n.erase(i);                  // n 变短了，i 还在按旧长度走\n}\n```",
   "cause": "`len` 是快照，容器的 `size()` 是实时值。中途 `erase/insert` 之后，两者就不一致了。",
-  "fix": "```cpp\nfor(int i = 0; i < (int)n.size(); ){   // 每次重新问\n    if(要删) n.erase(i); else i++;\n}\n```",
-  "one": "会变的容器，长度就实时取，别提前存。"
+  "fix": "```cpp\nfor(int i = 0; i < (int)n.size(); ){   // 每次重新问\n    if(要删) n.erase(i); else i++;\n}\n```"
  },
  {
   "id": "C16",
@@ -190,8 +175,7 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-11",
   "symptom": "判题给了两组数据，只输出了第一组。\n\n```text\n5 1\n2\n5 2\n1\n0        ← 第二组被整个忽略\n```",
   "cause": "`main` 里没有循环，读完第一组就结束了。题面\"**每组数据**第一行为…\"就是信号。",
-  "fix": "```cpp\nint n, m;\nwhile(cin >> n >> m){        // 读到 EOF 自动停\n    ...\n}\n```\n\n| 题面措辞 | 写法 |\n| :--- | :--- |\n| 「每组数据第一行…」 | `while(cin>>n>>m)` |\n| 「第一行 T，表示组数」 | `while(T--)` |\n| 只有「输入一行…」 | 单组 |",
-  "one": "`while(cin>>...)` 的意思是\"还能读到就继续\"，不用管组数。"
+  "fix": "```cpp\nint n, m;\nwhile(cin >> n >> m){        // 读到 EOF 自动停\n    ...\n}\n```\n\n| 题面措辞 | 写法 |\n| :--- | :--- |\n| 「每组数据第一行…」 | `while(cin>>n>>m)` |\n| 「第一行 T，表示组数」 | `while(T--)` |\n| 只有「输入一行…」 | 单组 |"
  },
  {
   "id": "C17",
@@ -202,8 +186,7 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-11",
   "symptom": "```text\n14 4 19 1\nerror\n14 4 19 1 19 7 6 35 19 3 11 14 15 1 1 1 0 5 13 16 5 8 8\n```\n\n从第二个 `error` 开始全乱。",
   "cause": "`if(i > size){ cout<<\"error\"; continue; }` 写在读入之前。那一行剩下的数没被读走，下一次 `cin` 把它们当成了 `i` 和 `m`。",
-  "fix": "```cpp\nvector<int> v(m);\nfor(int j = 0;j<m;j++) cin>>v[j];      // 先读完，不管判不判错\nif(i > (int)a.size()){ cout<<\"error\"; continue; }\n```",
-  "one": "**判定之前先把这一行读干净**，报错的输入也要消费掉。"
+  "fix": "```cpp\nvector<int> v(m);\nfor(int j = 0;j<m;j++) cin>>v[j];      // 先读完，不管判不判错\nif(i > (int)a.size()){ cout<<\"error\"; continue; }\n```"
  },
  {
   "id": "C18",
@@ -214,8 +197,7 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-11",
   "symptom": "答案完全正确，就是过不了。\n\n| 错 | 对 |\n| :--- | :--- |\n| `NO!!!` | `No!!!`（大小写） |\n| `cout << real << ' ' << line` | 分数线在前 |\n| `\"    \"` 四个空格 | `setw(5)` |\n| 无场宽 | `printf(\"%8d\")` |\n| 输出 `-0.00000` | `if(fabs(x)<1e-10) x=0;` |\n| 行末无换行 | `cout << ... << '\\n'` |",
   "cause": "题面里的**每一个字**都是判分点：大小写、空格、顺序、行末换行。",
-  "fix": "对样例做逐字符比对（`diff` 或 `cat -A`），不要只看\"看起来一样\"。",
-  "one": "先让输出和样例**一字不差**，再谈算法对不对。"
+  "fix": "对样例做逐字符比对（`diff` 或 `cat -A`），不要只看\"看起来一样\"。"
  },
  {
   "id": "C19",
@@ -226,8 +208,7 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-11",
   "symptom": "平方数（4、9、25、49…）被判成素数。",
   "cause": "判素数写到 `i*i < a` 就停了，`i*i == a` 那一步没检查，于是把\"能被整除\"漏掉了。",
-  "fix": "```cpp\nfor(int i = 2; i*i <= a; i++)     // 必须有等号\n    if(a % i == 0) return false;\nreturn true;\n```",
-  "one": "判素数的循环上界是 `i*i <= a`，等号不能丢。"
+  "fix": "```cpp\nfor(int i = 2; i*i <= a; i++)     // 必须有等号\n    if(a % i == 0) return false;\nreturn true;\n```"
  },
  {
   "id": "C20",
@@ -238,8 +219,7 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-11",
   "symptom": "八个方向里有一个走不通，某些测试点永远错。",
   "cause": "```cpp\nint dx[8] = {-1,-1,-1, 0, 0, 1, 1, 1};\nint dy[8] = {-1, 0, 1,-1, 1,-1, 0, 1};   // 有一对配错了\n```\n\n两个数组必须一一对应，肉眼很难看出来。",
-  "fix": "先写 4 个方向再扩展，或者用表格核对：\n\n```text\n(-1,-1) (-1,0) (-1,1)\n( 0,-1)        ( 0,1)\n( 1,-1) ( 1,0) ( 1,1)\n```",
-  "one": "方向数组画成九宫格对一遍，比盯着两行数组看靠谱。"
+  "fix": "先写 4 个方向再扩展，或者用表格核对：\n\n```text\n(-1,-1) (-1,0) (-1,1)\n( 0,-1)        ( 0,1)\n( 1,-1) ( 1,0) ( 1,1)\n```"
  },
  {
   "id": "C21",
@@ -250,8 +230,7 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-11",
   "symptom": "```cpp\nif(d == 10){ ... }        // 缺 return，但 cnt 全满，循环空转，碰巧不出错\nif(ans == 0) cout << first;   // first 恰好是 -1，碰巧对\n```",
   "cause": "代码能跑对，靠的是数据的巧合，不是逻辑本身成立。",
-  "fix": "看到\"这里好像该有 return 但没有，居然也对\"，就补上；看到\"这个变量恰好等于期望值\"，就问它**为什么**等于。",
-  "one": "能解释\"为什么对\"的才对，说不清的迟早翻车。"
+  "fix": "看到\"这里好像该有 return 但没有，居然也对\"，就补上；看到\"这个变量恰好等于期望值\"，就问它**为什么**等于。"
  },
  {
   "id": "C22",
@@ -262,8 +241,7 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-11",
   "symptom": "```cpp\ndfs(d + 1, d);                  // ← 真正的 bug：d 是层号，不是选中的数\nif(cnt[i]) continue;            // 补丁：挡住重复\nif(num[d] < num[d-1]) continue; // 补丁：挡住逆序\n```\n\n两个 `if` 让输出\"看起来对\"，但参数传错一直没修。",
   "cause": "每加一个保护性判断，就多掩盖一层真正的错误。",
-  "fix": "```cpp\ndfs(d + 1, i);                  // 传选中的数字，两个补丁都不需要了\n```",
-  "one": "看到多余的保护性代码，先问「它在防什么」——那个情况往往就是 bug 本身。"
+  "fix": "```cpp\ndfs(d + 1, i);                  // 传选中的数字，两个补丁都不需要了\n```"
  },
  {
   "id": "C23",
@@ -274,8 +252,7 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-11",
   "symptom": "```cpp\nbool cnt[MAXN];\n...\n!cnt[(int)(a*j)];        // 只是算了一个值，然后扔掉\n```\n\n输出几万个垃圾数字（因为数组还没初始化，读到的是内存残留）。",
   "cause": "`!x` 是表达式，不是赋值。C++ 允许\"只算不存\"的语句，`-Wall` 也不报错。",
-  "fix": "```cpp\ncnt[id] = !cnt[id];\ncnt[id] ^= 1;            // 等价\n```",
-  "one": "取反必须落到 `=` 左边，否则什么都没发生。"
+  "fix": "```cpp\ncnt[id] = !cnt[id];\ncnt[id] ^= 1;            // 等价\n```"
  },
  {
   "id": "C24",
@@ -286,8 +263,7 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-11",
   "symptom": "```cpp\nint main(){\n    bool cnt[MAXN];      // 局部，内容不确定\n    for(...) if(cnt[i]) ...   // 读到的全是随机值\n}\n```",
   "cause": "全局/静态对象自动清零；**局部变量不清零**，里面是栈上的残留数据。",
-  "fix": "```cpp\nbool cnt[MAXN] = {};      // 显式清空\nstatic bool cnt[MAXN];    // 或者加 static\n```",
-  "one": "局部数组只有 `= {}` 才是 0。"
+  "fix": "```cpp\nbool cnt[MAXN] = {};      // 显式清空\nstatic bool cnt[MAXN];    // 或者加 static\n```"
  },
  {
   "id": "C25",
@@ -298,8 +274,7 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-10",
   "symptom": "查询一个比所有元素都大的数，输出的是 `n`（数组长度），题面要求 `-1`。",
   "cause": "`lower_bound` 返回迭代器，减 `begin()` 得到下标；找不到时返回 `end()`，减出来正好是 `n`。",
-  "fix": "```cpp\nint p = lower_bound(a, a+n, x) - a;\nif(p == n) p = -1;\n```\n\n两者的定义：\n\n| 函数 | 返回第一个满足 | 没有时 |\n| :--- | :--- | :--- |\n| `lower_bound` | `a[i] >= x` | `end()` |\n| `upper_bound` | `a[i] > x` | `end()` |",
-  "one": "`end() - begin() == size()`，这个 `size` 要手动翻译成 `-1`。"
+  "fix": "```cpp\nint p = lower_bound(a, a+n, x) - a;\nif(p == n) p = -1;\n```\n\n两者的定义：\n\n| 函数 | 返回第一个满足 | 没有时 |\n| :--- | :--- | :--- |\n| `lower_bound` | `a[i] >= x` | `end()` |\n| `upper_bound` | `a[i] > x` | `end()` |"
  },
  {
   "id": "C26",
@@ -310,8 +285,7 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-11",
   "symptom": "`n = 10⁷` 个数，`cin` 超 2 秒，`scanf` 约 1 秒，都过不了 700ms。",
   "cause": "每次\"向系统要数据\"都有固定开销。逐字符读 = 几千万次系统调用。",
-  "fix": "```cpp\nstatic char buf[1<<20];\nstatic int idx = 0, sz = 0;\ninline int gc(){\n    if(idx == sz){ sz = fread(buf,1,sizeof(buf),stdin); idx = 0; if(sz<=0) return -1; }\n    return buf[idx++];\n}\ninline int readInt(){\n    int c = gc();\n    while(c<'0'||c>'9'){ if(c==-1) return 0; c = gc(); }\n    int x = 0;\n    while(c>='0'&&c<='9'){ x = x*10 + (c-'0'); c = gc(); }\n    return x;\n}\n```\n\n实测 57MB 输入只触发 **57 次** `fread`，0.18 秒读完。",
-  "one": "读文件像打水——一次打一桶，别一勺一勺去井边。"
+  "fix": "```cpp\nstatic char buf[1<<20];\nstatic int idx = 0, sz = 0;\ninline int gc(){\n    if(idx == sz){ sz = fread(buf,1,sizeof(buf),stdin); idx = 0; if(sz<=0) return -1; }\n    return buf[idx++];\n}\ninline int readInt(){\n    int c = gc();\n    while(c<'0'||c>'9'){ if(c==-1) return 0; c = gc(); }\n    int x = 0;\n    while(c>='0'&&c<='9'){ x = x*10 + (c-'0'); c = gc(); }\n    return x;\n}\n```\n\n实测 57MB 输入只触发 **57 次** `fread`，0.18 秒读完。"
  },
  {
   "id": "C27",
@@ -322,11 +296,98 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-11",
   "symptom": "`n = 20`，开 `vector<int> cnt(10)`，用 `cnt[10..19]` 直接越界。",
   "cause": "把\"有 n 个元素\"和\"下标最大是 n\"混了。1-based 时合法下标是 `1..n`，共 `n` 个，但容量必须是 `n+1`（下标 0 空着）。",
-  "fix": "```cpp\nvector<int> cnt(n + 1);   // 1-based\nvector<int> cnt(n);       // 0-based\n```\n\n顺带：`size()` 返回 `size_t`（无符号），`for(int i = size()-1; i >= 0; i--)` 在 `size()==0` 时会变成巨大正数。统一转 `int`：\n\n```cpp\nfor(int i = (int)v.size()-1; i >= 0; i--)\n```",
-  "one": "先定 0 起还是 1 起，容量跟着 +1 或不 +1。"
+  "fix": "```cpp\nvector<int> cnt(n + 1);   // 1-based\nvector<int> cnt(n);       // 0-based\n```\n\n顺带：`size()` 返回 `size_t`（无符号），`for(int i = size()-1; i >= 0; i--)` 在 `size()==0` 时会变成巨大正数。统一转 `int`：\n\n```cpp\nfor(int i = (int)v.size()-1; i >= 0; i--)\n```"
  },
  {
   "id": "C28",
+  "title": "memset 只能填 0 和 -1",
+  "pid": "—",
+  "type": "知识点",
+  "topic": "内存初始化",
+  "date": "2026-11-11",
+  "symptom": "```cpp\nint a[100];\nmemset(a, 0, sizeof(a));      // ✓ 全 0\nmemset(a, -1, sizeof(a));     // ✓ 全 -1\nmemset(a, 1, sizeof(a));      // ✗ 得到 16843009\n```",
+  "cause": "`memset` 是**按字节**填的。`int` 占 4 字节，填 1 等于把每字节都写成 `0x01`，\n拼起来是 `0x01010101 = 16843009`。只有 `0x00` 和 `0xFF` 反复填满 4 字节后仍是 0 和 −1。",
+  "fix": "```cpp\nfill(a, a + 100, 1);              // 数组\nvector<int> v(n, 1);              // 容器直接构造\nmemset(a, 0x3f, sizeof(a));       // 想要\"大数\"可以，0x3f3f3f3f ≈ 1.06e9，两两相加不溢出\n```"
+ },
+ {
+  "id": "C29",
+  "title": "向上取整用 (a+b-1)/b，别用 ceil",
+  "pid": "B2016 / P1068",
+  "type": "知识点",
+  "topic": "数值计算",
+  "date": "2026-11-11",
+  "symptom": "```cpp\nint cnt = (int)ceil((double)a / b);     // a 很大时少 1\n```",
+  "cause": "`double` 只有 53 位有效位，`a > 9e15` 时除法结果已经不准；`ceil` 再放大误差。",
+  "fix": "非负整数向上取整：`(a + b - 1) / b`。\n\n```cpp\nint cnt = (a + b - 1) / b;              // a、b ≥ 0\n```\n\n顺带：`floor(a/b)` 对正数就是 `a/b`，不需要函数。"
+ },
+ {
+  "id": "C30",
+  "title": "printf / scanf 的格式符必须和类型对上",
+  "pid": "—",
+  "type": "知识点",
+  "topic": "输入输出",
+  "date": "2026-11-11",
+  "symptom": "```cpp\nlong long x = 1234567890123;\nprintf(\"%d\", x);          // 输出半截数或 0，不报错\n```",
+  "cause": "`%d` 只读 4 字节，`long long` 是 8 字节，读到的是后半段。",
+  "fix": "| 类型 | printf | scanf |\n| :--- | :--- | :--- |\n| `int` | `%d` | `%d` |\n| `long long` | `%lld` | `%lld` |\n| `double` | `%f` / `%.3f` | **`%lf`** |\n| `size_t` | `%zu` | `%zu` |\n| `char` | `%c` | `%c` |\n\n`scanf` 读 `double` 必须 `%lf`（`%f` 是 float）；`printf` 两者都用 `%f`。"
+ },
+ {
+  "id": "C31",
+  "title": "sort 的四个细节",
+  "pid": "—",
+  "type": "知识点",
+  "topic": "排序",
+  "date": "2026-11-11",
+  "symptom": "",
+  "cause": "",
+  "fix": ""
+ },
+ {
+  "id": "C32",
+  "title": "string::find 找不到返回 npos",
+  "pid": "P1308",
+  "type": "知识点",
+  "topic": "字符串",
+  "date": "2026-11-11",
+  "symptom": "```cpp\nif(s.find(\"ab\") == -1) ...        // 编译能过，永远不成立\nif(s.find(\"ab\")) ...              // 位置 0 时被判成\"没找到\"\n```",
+  "cause": "`find` 返回 `size_t`（无符号）。找不到时返回 `string::npos`（等于 `SIZE_MAX`），\n和无符号比较时 −1 会转成同一个数，但和有符号语义容易混；而位置 0 的 bool 值是 false。",
+  "fix": "```cpp\nsize_t p = s.find(\"ab\");\nif(p != string::npos) { /* 位置 p */ }\n```"
+ },
+ {
+  "id": "C33",
+  "title": "vector::erase 是 O(n)，还会让后面的迭代器失效",
+  "pid": "—",
+  "type": "知识点",
+  "topic": "容器与越界",
+  "date": "2026-11-11",
+  "symptom": "",
+  "cause": "",
+  "fix": ""
+ },
+ {
+  "id": "C34",
+  "title": "前缀和 vs 差分：问得多用前者，改得多用后者",
+  "pid": "—",
+  "type": "知识点",
+  "topic": "前缀和与差分",
+  "date": "2026-11-11",
+  "symptom": "",
+  "cause": "",
+  "fix": ""
+ },
+ {
+  "id": "C35",
+  "title": "位运算两个常用式子",
+  "pid": "—",
+  "type": "知识点",
+  "topic": "位运算",
+  "date": "2026-11-11",
+  "symptom": "",
+  "cause": "",
+  "fix": ""
+ },
+ {
+  "id": "C36",
   "title": "删数题：删第一个下降点，不是删最大的",
   "pid": "P1106",
   "type": "思路",
@@ -334,11 +395,10 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-11",
   "symptom": "`10200` 删 1 位：\n\n```text\n删最大的 2  →  1000\n删第 1 个 1 →  0200 → 200      ← 更小\n```",
   "cause": "只看\"谁大\"，没看\"谁重\"。决定结果的是**被改动的最高位**，不是被删的那个数有多大。",
-  "fix": "从左往右找第一个下降点 `s[i] > s[i+1]`，删掉 `s[i]`；单调就用栈维护到删够为止：\n\n```cpp\nwhile(k-- && !st.empty()){\n    while(!st.empty() && st.back() > c && k >= 0){ st.pop_back(); k--; }\n    st.push_back(c);\n}\n```",
-  "one": "删数的本质是\"把高位变小\"，所以找第一个下降点。"
+  "fix": "从左往右找第一个下降点 `s[i] > s[i+1]`，删掉 `s[i]`；单调就用栈维护到删够为止：\n\n```cpp\nwhile(k-- && !st.empty()){\n    while(!st.empty() && st.back() > c && k >= 0){ st.pop_back(); k--; }\n    st.push_back(c);\n}\n```"
  },
  {
-  "id": "C29",
+  "id": "C37",
   "title": "新值单调 ⇒ 用两个有序队列代替堆",
   "pid": "P6033",
   "type": "思路",
@@ -346,11 +406,10 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-10",
   "symptom": "合并果子加强版 `n = 10⁷`，优先队列 5 秒还没跑完（限时 700ms）。",
   "cause": "堆每次取最小要 `log n`，总共 `2.4×10⁸` 次操作。",
-  "fix": "- 队列 A：原始值，计数排序后从小到大\n- 队列 B：合并产生的新和，**天然递增**（每轮取的是当前最小的两个）\n- 每次比较两个队首，谁小取谁 → 每步 `O(1)`\n\n```cpp\nwhile(p <= MAXA && cnt[p] == 0) p++;          // A 挪到下一个非空桶\nif(p <= MAXA && (h >= t || p <= q2[h])) { v = p; cnt[p]--; }\nelse                                    { v = q2[h++]; }\n```",
-  "one": "新产生的值若单调，堆的 `log` 就能被两个指针省掉。"
+  "fix": "- 队列 A：原始值，计数排序后从小到大\n- 队列 B：合并产生的新和，**天然递增**（每轮取的是当前最小的两个）\n- 每次比较两个队首，谁小取谁 → 每步 `O(1)`\n\n```cpp\nwhile(p <= MAXA && cnt[p] == 0) p++;          // A 挪到下一个非空桶\nif(p <= MAXA && (h >= t || p <= q2[h])) { v = p; cnt[p]--; }\nelse                                    { v = q2[h++]; }\n```"
  },
  {
-  "id": "C30",
+  "id": "C38",
   "title": "交换的是值，不是标签",
   "pid": "P2053",
   "type": "思路",
@@ -358,11 +417,10 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-11",
   "symptom": "```cpp\nelse if(x1 > x2) cout << \"x2=\" << x2 << \";x1=\" << x1;   // 把标签也换了\n```\n\n题目要求\"小者在前\"，`x1`/`x2` 是**输出的两个位置**，不是\"正号根 / 负号根\"。",
   "cause": "把变量名当成了语义（谁大谁小），实际它们只是槽位。",
-  "fix": "```cpp\nif(x1 > x2) swap(x1, x2);\ncout << \"x1=\" << x1 << \";x2=\" << x2;\n```",
-  "one": "排序排的是值，标签是固定的位置。"
+  "fix": "```cpp\nif(x1 > x2) swap(x1, x2);\ncout << \"x1=\" << x1 << \";x2=\" << x2;\n```"
  },
  {
-  "id": "C31",
+  "id": "C39",
   "title": "\"这格填过吗\"必须有表",
   "pid": "P2615",
   "type": "思路",
@@ -370,11 +428,10 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-11",
   "symptom": "想只用坐标推算幻方每步落点，但第 4 条规则要问\"右上方有没有数\"——光有坐标答不出来。",
   "cause": "\"状态查询\"和\"状态记录\"是两件事。只有 `num[值] = 坐标` 只能反查值，查不了格子。",
-  "fix": "```cpp\nint g[45][45];          // 0 = 空，非 0 = 已填\n```\n\n一表两用：既存值，又用来判空，不用另开 `used`。",
-  "one": "凡是规则里出现\"这格有没有东西\"，就必须有一张按位置索引的表。"
+  "fix": "```cpp\nint g[45][45];          // 0 = 空，非 0 = 已填\n```\n\n一表两用：既存值，又用来判空，不用另开 `used`。"
  },
  {
-  "id": "C32",
+  "id": "C40",
   "title": "汉诺塔：先锁定\"最大盘搬家\"的中间状态",
   "pid": "1290",
   "type": "思路",
@@ -382,11 +439,10 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-11",
   "symptom": "参数 `from / to / via` 每层都在换角色，照着写总把 `to` 和 `via` 传反。",
   "cause": "三个柱子的角色随层数变化，靠记\"对调\"永远记不住。",
-  "fix": "先算死中间状态：盘 n 要落 C，则 A 只剩它、C 必须空，n−1 个只能全在 B。任务自动断成 `A→B` 和 `B→C`。\n\n参数不用背——**子任务的终点，永远是父任务的临时柱**：\n\n```cpp\nhanoi(n-1, from, via);   // 去仓库\ncout << from << \" to \" << to;\nhanoi(n-1, via, to);     // 出仓库\n```",
-  "one": "递归参数不是\"对调\"出来的，是从中间状态读出来的。"
+  "fix": "先算死中间状态：盘 n 要落 C，则 A 只剩它、C 必须空，n−1 个只能全在 B。任务自动断成 `A→B` 和 `B→C`。\n\n参数不用背——**子任务的终点，永远是父任务的临时柱**：\n\n```cpp\nhanoi(n-1, from, via);   // 去仓库\ncout << from << \" to \" << to;\nhanoi(n-1, via, to);     // 出仓库\n```"
  },
  {
-  "id": "C33",
+  "id": "C41",
   "title": "数\"个数\"不是数\"凑法\"",
   "pid": "P2141",
   "type": "思路",
@@ -394,11 +450,10 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-11",
   "symptom": "`1 2 3 4 5` 问\"有几个数能由另外两个数相加得到\"，输出 4，正确 3。",
   "cause": "`5 = 1+4 = 2+3`，两种凑法被算了两次。题目问的是**有多少个数满足**，不是有多少种凑法。",
-  "fix": "找到一个就收工：\n\n```cpp\nbool ok = false;\nfor(int i = 0;i < n && !ok;i++)\n    for(int j = i+1;j < n && !ok;j++)\n        if(a[i] + a[j] == a[k]) ok = true;\nif(ok) ans++;            // 每个 k 最多贡献 1\n```\n\n或者按值打标记 `good[sum] = true`，天然去重。",
-  "one": "`ans++` 放内层是数凑法，放外层才是数个数。"
+  "fix": "找到一个就收工：\n\n```cpp\nbool ok = false;\nfor(int i = 0;i < n && !ok;i++)\n    for(int j = i+1;j < n && !ok;j++)\n        if(a[i] + a[j] == a[k]) ok = true;\nif(ok) ans++;            // 每个 k 最多贡献 1\n```\n\n或者按值打标记 `good[sum] = true`，天然去重。"
  },
  {
-  "id": "C34",
+  "id": "C42",
   "title": "区间一律和 [0, size) 求交",
   "pid": "1294 / 1295",
   "type": "思路",
@@ -406,11 +461,10 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-11",
   "symptom": "删除 `[s,e)`、输出 `[l,r)` 越界后程序崩，或者多删/少输出。",
   "cause": "题面给的区间是\"请求\"，数组只认\"合法范围\"。两者不做交，就直接拿去当下标用了。",
-  "fix": "```text\n真正删除的 = [s,e) ∩ [0,size)\n真正输出的 = [l,r) ∩ [0,size)\n交集为空   → 不删 / 输出 null\n```\n\n```cpp\nif(s < (int)a.size()){\n    if(e > (int)a.size()) e = a.size();\n    if(s < e) a.erase(a.begin()+s, a.begin()+e);\n}\nif(l > (int)a.size()) l = a.size();\nif(r > (int)a.size()) r = a.size();\nif(l >= r) cout << \"null\";\n```",
-  "one": "凡是\"题面给的区间\"，先和 `[0,size)` 求交，再动手。"
+  "fix": "```text\n真正删除的 = [s,e) ∩ [0,size)\n真正输出的 = [l,r) ∩ [0,size)\n交集为空   → 不删 / 输出 null\n```\n\n```cpp\nif(s < (int)a.size()){\n    if(e > (int)a.size()) e = a.size();\n    if(s < e) a.erase(a.begin()+s, a.begin()+e);\n}\nif(l > (int)a.size()) l = a.size();\nif(r > (int)a.size()) r = a.size();\nif(l >= r) cout << \"null\";\n```"
  },
  {
-  "id": "C35",
+  "id": "C43",
   "title": "公式生成的数据，先验一遍有序",
   "pid": "1305 / 1295",
   "type": "思路",
@@ -418,7 +472,6 @@ window.__REVIEW_CARDS = [
   "date": "2026-11-11",
   "symptom": "题面说\"有序数组 `a`\"，`a[i] = a[i-1] + (int)(100*sin(n+i)) % 3`，结果数组是 `2 4 6 6 6 4 4`，二分全错。",
   "cause": "两处坑叠在一起：\n\n1. `%` 对负数返回负值 → 增量可能是 −1/−2（C10）\n2. 即使取模没问题，公式里的 `n` 写成 `1` 也全错",
-  "fix": "生成完先亲眼看一眼：\n\n```cpp\n// 调试时打印前 10 个，确认单调\nfor(int i = 0;i < min(n,10);i++) cerr << a[i] << ' ';\n```",
-  "one": "生成数据的题，第一件事是把数组打出来看是否真有序——比盯着代码找 bug 快十倍。"
+  "fix": "生成完先亲眼看一眼：\n\n```cpp\n// 调试时打印前 10 个，确认单调\nfor(int i = 0;i < min(n,10);i++) cerr << a[i] << ' ';\n```"
  }
 ];

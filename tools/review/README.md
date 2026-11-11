@@ -68,8 +68,6 @@ site/acm/review.html           ← 页面，读 window.__REVIEW_CARDS
 **修法**
 
 改哪一行、改成什么。
-
-> 一句话：下次遇到同类问题时的第一反应。
 ```
 
 2. 重新编译：
