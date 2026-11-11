@@ -42,7 +42,7 @@
 
 ---
 
-## 2. 三条数据管线（最重要）
+## 2. 两条数据管线（最重要）
 
 ### 2.1 错题卡：记「坑」
 
@@ -111,6 +111,11 @@ site/acm/solve.html        ← window.__SOLVE
 
 - 关键的一两步
 - 容易错的地方
+
+**答疑**
+
+Q: 新手真正卡住的疑问（疑问句，用学生的口气）
+A: 先结论、再原因，支持 `行内代码`、**粗体**、空行分段
 ```
 
 - `类型` 只能从这 11 个里选（决定分组和顺序）：
@@ -119,37 +124,22 @@ site/acm/solve.html        ← window.__SOLVE
 - 组内按题号排：`P` 前、`B` 次、纯数字最后
 - 洛谷题号会自动变成指向 `https://www.luogu.com.cn/problem/<pid>` 的链接
 
-### 2.3 题练场：每道题都要有「卡点答疑」
+### 2.3 每题都要有「答疑」
 
-题目数据在 `practice.html` 的 `window.__BANK`，**不要手改**，走 `tools/practice/add_problem.py`。
-每个题目对象除了题面 / 三语题解 / tests，**必须**带 `faq`——学生真正卡住的地方，正面回答，然后才给题解。
-
-```json
-"faq": [
-  {
-    "q": "这题要在 vector 里找 x 吗？怎么找？",
-    "a": "不用找。x 本身就是下标……（支持 `行内代码`、**粗体**、\n 换行）",
-    "table": {
-      "head": ["", "vector 存顺序", "值当下标的链表"],
-      "rows": [["找 x", "find O(n)", "nxt[x] O(1)"], ["总复杂度", "O(q²)", "O(q)"]]
-    }
-  }
-]
-```
+`**答疑**` 是可选项，但**每题都该有**——它回答的是学生真正卡住的地方，不是复述题解。用 `Q:` / `A:` 一问一答，3~5 条。`md2solve.py` 会把它们编进 `solve-data.js` 的 `faq` 字段，`solve.html` 渲染成「思路 / 关键」下面的一排问答。
 
 **写法标准**（这是判断「这题做得好不好」的尺子）：
 
 | 要 | 不要 |
 | :--- | :--- |
 | 直接引述学生的原话困惑（「怎么在 vector 里找到 x」） | 「注意边界情况」这种空话 |
-| 给具体数字、给对比表、给反例 | 只说「用链表就行」 |
-| 一条只回答一个疑问，3–5 条 | 一条塞三个问题 |
+| 给具体数字、给反例 | 只说「用链表就行」 |
+| 一条只回答一个疑问，3~5 条 | 一条塞三个问题 |
 | 点名具体某一行 / 某个字段 | 泛泛而谈 |
 
-- `q` 必须是**疑问句**，用学生的口气，不写「关于 xxx 的说明」
-- `a` 先给结论，再给原因，最多 3 段；需要对比就用 `table`，不要在 `a` 里堆文字
-- 渲染位置：`提示与思路`（折叠）→ **`卡点答疑`**（默认展开）→ 自测 → 参考解法
-- `faq` 缺失会被 `add_problem.py` 直接拦下
+- `Q` 必须是**疑问句**，用学生的口气，不写「关于 xxx 的说明」
+- `A` 先给结论，再给原因，最多 3 段
+- 改完 `solve.md` 跑 `python tools/review/md2solve.py`，再渲染断言
 
 ---
 
@@ -267,8 +257,6 @@ push 前一律先 `git fetch origin && git pull --rebase origin main`——这�
 | `git push` 被拒 | 远端有别人的提交 | `fetch` → `pull --rebase` → 再 push |
 | CRLF 警告 | `warning: CRLF will be replaced by LF` | 无害，提交时加 `-c core.safecrlf=false` |
 | 直接 `curl` 洛谷 | 拿不到内容（要求 JS / 被挡） | 用 WebFetch 抓，只问「题目名 + 难度」 |
-| 直接手改 `practice.html` 里的 `window.__BANK` | JSON 引号/逗号一错，整页白屏 | 走 `tools/practice/add_problem.py`，它负责解析与写回 |
-| 加题后忘了改文案 | 标题还写「123 道」 | 改 `practice.html` 的 `<title>`、`<meta description>`、`.sub` 三处题数与分篇数 |
 | 线上 404 / 502 | 部署还没好，或代理抖动 | 等 20 秒重试，最多 6 次 |
 | `curl` 只看状态码是 307 | 站点有跳转 | 加 `-L` |
 | 侧栏 sticky 被顶栏压住 | 遮住第一行 | `top` 用 `var(--acm-nav-h)`，高度 `calc(100vh - var(--acm-nav-h))` |
@@ -289,16 +277,9 @@ push 前一律先 `git fetch origin && git pull --rebase origin main`——这�
 ### 加一道题的思路
 
 1. 在 `tools/review/solve.md` 末尾追加，`难度` 去洛谷题目页确认
-2. `python tools/review/md2solve.py`
-3. 同上
-
-### 加一道练习题（题练场）
-
-1. 题面 / 三语题解 / tests / faq 先写成独立 JSON：`tmp/<pid>/problem.json`
-2. `python tools/practice/add_problem.py tmp/<pid>/problem.json --after <同组题号>`
-3. **三语题解必须先在全部 tests 上跑通**（C++ 用 g++、C 用 gcc、Python 用 3.x），跑不通不入库
-4. `--dry` 可先校验字段（缺 faq、tests 缺 tag 都会被拦）
-5. 渲染断言 → 提交
+2. 带上 `**答疑**`（Q/A 一问一答，见 2.3 写法标准）
+3. `python tools/review/md2solve.py`
+4. 渲染断言 → 提交 → 等部署
 
 ### 加一个新页面
 

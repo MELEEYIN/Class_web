@@ -32,6 +32,19 @@ def section(body, name):
     return m.group(1).strip() if m else ""
 
 
+def faqs(body):
+    """解析 **答疑** 段：Q: … / A: … 一问一答。"""
+    txt = section(body, "答疑")
+    if not txt:
+        return []
+    out = []
+    for seg in re.split(r"(?m)^Q[：:]\s*", txt)[1:]:
+        m = re.match(r"(?ms)(.*?)^A[：:]\s*(.*)", seg)
+        if m:
+            out.append({"q": m.group(1).strip(), "a": m.group(2).strip()})
+    return out
+
+
 def parse(text):
     items = []
     for p in re.split(r"(?m)^## ", text)[1:]:
@@ -50,6 +63,7 @@ def parse(text):
             "tag": field(block, "标签"),
             "idea": section(block, "思路"),
             "key": section(block, "关键"),
+            "faq": faqs(block),
         })
     return items
 
