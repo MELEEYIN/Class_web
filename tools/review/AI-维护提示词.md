@@ -42,7 +42,7 @@
 
 ---
 
-## 2. 两套数据管线（最重要）
+## 2. 三条数据管线（最重要）
 
 ### 2.1 错题卡：记「坑」
 
@@ -118,6 +118,38 @@ site/acm/solve.html        ← window.__SOLVE
 - `难度` 必须**从洛谷题目页取**（入门 / 普及− / 普及 / 普及+ / 提高+ …），校内 OJ 写 `校内`（卡片上不显示徽章）
 - 组内按题号排：`P` 前、`B` 次、纯数字最后
 - 洛谷题号会自动变成指向 `https://www.luogu.com.cn/problem/<pid>` 的链接
+
+### 2.3 题练场：每道题都要有「卡点答疑」
+
+题目数据在 `practice.html` 的 `window.__BANK`，**不要手改**，走 `tools/practice/add_problem.py`。
+每个题目对象除了题面 / 三语题解 / tests，**必须**带 `faq`——学生真正卡住的地方，正面回答，然后才给题解。
+
+```json
+"faq": [
+  {
+    "q": "这题要在 vector 里找 x 吗？怎么找？",
+    "a": "不用找。x 本身就是下标……（支持 `行内代码`、**粗体**、\n 换行）",
+    "table": {
+      "head": ["", "vector 存顺序", "值当下标的链表"],
+      "rows": [["找 x", "find O(n)", "nxt[x] O(1)"], ["总复杂度", "O(q²)", "O(q)"]]
+    }
+  }
+]
+```
+
+**写法标准**（这是判断「这题做得好不好」的尺子）：
+
+| 要 | 不要 |
+| :--- | :--- |
+| 直接引述学生的原话困惑（「怎么在 vector 里找到 x」） | 「注意边界情况」这种空话 |
+| 给具体数字、给对比表、给反例 | 只说「用链表就行」 |
+| 一条只回答一个疑问，3–5 条 | 一条塞三个问题 |
+| 点名具体某一行 / 某个字段 | 泛泛而谈 |
+
+- `q` 必须是**疑问句**，用学生的口气，不写「关于 xxx 的说明」
+- `a` 先给结论，再给原因，最多 3 段；需要对比就用 `table`，不要在 `a` 里堆文字
+- 渲染位置：`提示与思路`（折叠）→ **`卡点答疑`**（默认展开）→ 自测 → 参考解法
+- `faq` 缺失会被 `add_problem.py` 直接拦下
 
 ---
 
@@ -235,9 +267,12 @@ push 前一律先 `git fetch origin && git pull --rebase origin main`——这�
 | `git push` 被拒 | 远端有别人的提交 | `fetch` → `pull --rebase` → 再 push |
 | CRLF 警告 | `warning: CRLF will be replaced by LF` | 无害，提交时加 `-c core.safecrlf=false` |
 | 直接 `curl` 洛谷 | 拿不到内容（要求 JS / 被挡） | 用 WebFetch 抓，只问「题目名 + 难度」 |
+| 直接手改 `practice.html` 里的 `window.__BANK` | JSON 引号/逗号一错，整页白屏 | 走 `tools/practice/add_problem.py`，它负责解析与写回 |
+| 加题后忘了改文案 | 标题还写「123 道」 | 改 `practice.html` 的 `<title>`、`<meta description>`、`.sub` 三处题数与分篇数 |
 | 线上 404 / 502 | 部署还没好，或代理抖动 | 等 20 秒重试，最多 6 次 |
 | `curl` 只看状态码是 307 | 站点有跳转 | 加 `-L` |
 | 侧栏 sticky 被顶栏压住 | 遮住第一行 | `top` 用 `var(--acm-nav-h)`，高度 `calc(100vh - var(--acm-nav-h))` |
+| 自己写 `.acm-nav{position:relative}` 覆盖了 acm.css | 顶栏跟着内容滚走，用户问「怎么不固定」 | 页面里要重申 `.acm-nav{position:sticky;top:0;z-index:40}`，别让它继承 relative |
 | 背景图太亮、字看不清 | — | 有背景时至少压暗 `0.35`，再叠加用户设的 dim |
 
 ---
@@ -256,6 +291,14 @@ push 前一律先 `git fetch origin && git pull --rebase origin main`——这�
 1. 在 `tools/review/solve.md` 末尾追加，`难度` 去洛谷题目页确认
 2. `python tools/review/md2solve.py`
 3. 同上
+
+### 加一道练习题（题练场）
+
+1. 题面 / 三语题解 / tests / faq 先写成独立 JSON：`tmp/<pid>/problem.json`
+2. `python tools/practice/add_problem.py tmp/<pid>/problem.json --after <同组题号>`
+3. **三语题解必须先在全部 tests 上跑通**（C++ 用 g++、C 用 gcc、Python 用 3.x），跑不通不入库
+4. `--dry` 可先校验字段（缺 faq、tests 缺 tag 都会被拦）
+5. 渲染断言 → 提交
 
 ### 加一个新页面
 

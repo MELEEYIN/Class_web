@@ -41,7 +41,9 @@ body.has-bg .bg-tint{display:none}
 .bg[data-p="wave"]{background-image:
   repeating-linear-gradient(135deg, rgba(77,141,255,.12) 0 2px, transparent 2px 16px),
   radial-gradient(80% 60% at 50% 0%, rgba(77,141,255,.22), transparent 72%)}
-.acm-nav,.top,.rv-layout{position:relative;z-index:1}
+/* 顶栏固定：这一条必须在 acm.css 之后重申，别被下面的 relative 覆盖 */
+.acm-nav{position:sticky;top:0;z-index:40}
+.rv-layout{position:relative;z-index:1}
 a{color:var(--accent);text-decoration:none}
 code,pre{font-family:"Cascadia Code",Consolas,"SF Mono",Menlo,monospace}
 ::-webkit-scrollbar{width:11px;height:11px}
@@ -60,7 +62,7 @@ code,pre{font-family:"Cascadia Code",Consolas,"SF Mono",Menlo,monospace}
 /* ---------- 两栏布局：侧栏贴左，占满整高 ---------- */
 .rv-layout{display:grid;grid-template-columns:264px minmax(0,1fr);align-items:start;
   max-width:none;margin:0;padding:0}
-.rv-side{position:sticky;top:var(--acm-nav-h);height:calc(100vh - var(--acm-nav-h));
+.rv-side{align-self:start;position:sticky;top:var(--acm-nav-h);height:calc(100vh - var(--acm-nav-h));
   overflow:auto;padding:16px 12px 40px;border-right:1px solid var(--line);
   background:rgb(var(--panel-rgb) / .46);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
 .rv-side-in{padding:0}
