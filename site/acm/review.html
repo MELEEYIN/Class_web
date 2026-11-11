@@ -48,23 +48,22 @@ code,pre{font-family:"Cascadia Code",Consolas,"SF Mono",Menlo,monospace}
 ::-webkit-scrollbar-thumb{background:rgb(var(--accent-rgb) / .34);border-radius:8px;border:3px solid transparent;background-clip:content-box}
 ::selection{background:rgb(var(--accent-rgb) / .35)}
 
-/* ---------- 顶部 ---------- */
-.top{background:rgb(var(--panel-rgb) / .58);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-  border-bottom:1px solid var(--line);padding:22px 24px 18px}
-.rv-max{max-width:1180px;margin:0 auto}
-.top h1{margin:0;font-size:24px;font-weight:700;letter-spacing:-.015em}
-.top .sub{color:var(--text-2);font-size:13.5px;margin:8px 0 0;max-width:840px}
+/* ---------- 顶部标题（在主列里，和侧栏并排） ---------- */
+.rv-hero{padding:2px 0 20px;margin:0 0 18px;border-bottom:1px solid var(--line)}
+.rv-hero h1{margin:0;font-size:24px;font-weight:700;letter-spacing:-.015em}
+.rv-hero .sub{color:var(--text-2);font-size:13.5px;margin:8px 0 0;max-width:900px}
 .rv-kpi{display:flex;gap:28px;margin-top:16px;flex-wrap:wrap}
 .rv-kpi div{display:flex;flex-direction:column;gap:2px}
 .rv-kpi b{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
 .rv-kpi span{font-size:11.5px;color:var(--text-3);letter-spacing:.04em}
 
-/* ---------- 两栏布局 ---------- */
-.rv-layout{max-width:1180px;margin:0 auto;padding:24px 24px 90px;
-  display:grid;grid-template-columns:236px minmax(0,1fr);gap:30px;align-items:start}
-.rv-side{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;padding-right:4px}
-.rv-side-in{background:rgb(var(--panel-rgb) / .66);border:1px solid var(--line);border-radius:14px;
-  padding:12px 10px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+/* ---------- 两栏布局：侧栏贴左，占满整高 ---------- */
+.rv-layout{display:grid;grid-template-columns:264px minmax(0,1fr);align-items:start;
+  max-width:none;margin:0;padding:0}
+.rv-side{position:sticky;top:var(--acm-nav-h);height:calc(100vh - var(--acm-nav-h));
+  overflow:auto;padding:16px 12px 40px;border-right:1px solid var(--line);
+  background:rgb(var(--panel-rgb) / .46);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.rv-side-in{padding:0}
 .rv-search{display:flex;align-items:center;gap:7px;background:rgb(var(--bg-rgb) / .5);
   border:1px solid var(--line);border-radius:9px;padding:0 10px;height:32px;margin:0 2px 12px}
 .rv-search input{flex:1;min-width:0;border:0;background:transparent;color:var(--text);font:inherit;font-size:12.8px;outline:none}
@@ -86,7 +85,8 @@ code,pre{font-family:"Cascadia Code",Consolas,"SF Mono",Menlo,monospace}
 .rv-topics .nm{flex:1 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* ---------- 主列 ---------- */
-.rv-main{min-width:0}
+.rv-main{min-width:0;padding:26px 34px 90px}
+.rv-inner{max-width:1460px;margin:0 auto}
 .rv-tip{margin:0 0 18px;padding:11px 15px;border-radius:11px;font-size:13px;color:var(--text-2);
   background:rgb(var(--accent-rgb) / .08);border:1px solid rgb(var(--accent-rgb) / .18)}
 .rv-tip b{color:var(--text)}
@@ -139,15 +139,17 @@ code,pre{font-family:"Cascadia Code",Consolas,"SF Mono",Menlo,monospace}
 
 /* ---------- 窄屏：侧栏收成横条 ---------- */
 @media(max-width:980px){
-  .rv-layout{grid-template-columns:1fr;gap:16px;padding:16px 16px 70px}
-  .rv-side{position:static;max-height:none;padding:0}
-  .rv-side-in{padding:10px}
+  .rv-layout{grid-template-columns:1fr;padding:0}
+  .rv-side{position:static;height:auto;overflow:visible;
+    border-right:0;border-bottom:1px solid var(--line);padding:10px 12px}
   .rv-cats{flex-direction:row;overflow-x:auto;gap:6px;padding-bottom:2px}
   .rv-cats button{white-space:nowrap;padding:5px 12px;border:1px solid var(--line);border-radius:20px;font-size:12.8px}
   .rv-cats button.on{border-color:rgb(var(--accent-rgb) / .55)}
   .rv-cats .dot{display:none}
   .rv-side-t.topic,.rv-topics{display:none}
-  .top{padding:18px 16px 14px}.rv-kpi{gap:20px}.rv-kpi b{font-size:19px}
+  .rv-main{padding:16px 16px 70px}
+  .rv-hero{padding:2px 0 16px;margin-bottom:14px}
+  .rv-hero h1{font-size:20px}.rv-kpi{gap:20px}.rv-kpi b{font-size:19px}
   .rv-card{padding:15px 15px;border-radius:13px}
   .rv-h h4{font-size:15.5px}
   .rv-cat-h .desc{display:none}
@@ -189,17 +191,6 @@ code,pre{font-family:"Cascadia Code",Consolas,"SF Mono",Menlo,monospace}
   </div>
 </header>
 
-<header class="top"><div class="rv-max">
-  <h1>知识点复习 · 错题卡</h1>
-  <p class="sub">每张卡只记一个<b>真的踩过</b>的坑。左边按「大类 → 小类」翻；平时只读「现象」，说得出原因就跳过，说不清再展开。</p>
-  <div class="rv-kpi">
-    <div><b id="kAll">0</b><span>卡片总数</span></div>
-    <div><b id="kKeng">0</b><span>坑点</span></div>
-    <div><b id="kZhi">0</b><span>知识点</span></div>
-    <div><b id="kSilu">0</b><span>思路</span></div>
-  </div>
-</div></header>
-
 <div class="rv-layout">
   <aside class="rv-side">
     <div class="rv-side-in">
@@ -215,8 +206,20 @@ code,pre{font-family:"Cascadia Code",Consolas,"SF Mono",Menlo,monospace}
   </aside>
 
   <main class="rv-main">
-    <p class="rv-tip" id="tip"></p>
-    <div id="list"></div>
+    <div class="rv-inner">
+      <header class="rv-hero">
+        <h1>知识点复习 · 错题卡</h1>
+        <p class="sub">每张卡只记一个<b>真的踩过</b>的坑。左边按「大类 → 小类」翻；平时只读「现象」，说得出原因就跳过，说不清再展开。</p>
+        <div class="rv-kpi">
+          <div><b id="kAll">0</b><span>卡片总数</span></div>
+          <div><b id="kKeng">0</b><span>坑点</span></div>
+          <div><b id="kZhi">0</b><span>知识点</span></div>
+          <div><b id="kSilu">0</b><span>思路</span></div>
+        </div>
+      </header>
+      <p class="rv-tip" id="tip"></p>
+      <div id="list"></div>
+    </div>
   </main>
 </div>
 
@@ -452,8 +455,12 @@ function initBg(){
   bg.setAttribute('data-p', custom ? '' : (st.p || 'none'));
   bg.style.filter  = st.blur ? 'blur(' + st.blur + 'px)' : 'none';
   bg.style.opacity = String(st.op / 100);
-  dim.style.background = st.dim ? 'rgba(0,0,0,' + (st.dim / 100) + ')' : 'transparent';
-  document.body.classList.toggle('has-bg', custom || (st.p && st.p !== 'none'));
+
+  /* 压暗：有背景时至少压 35%，再叠加用户在算法站设的 dim，保证字看得清 */
+  var onBg = custom || (st.p && st.p !== 'none');
+  var a = onBg ? Math.max(0.35, st.dim / 100) : (st.dim / 100);
+  dim.style.background = a > 0 ? 'rgba(0,0,0,' + a.toFixed(3) + ')' : 'transparent';
+  document.body.classList.toggle('has-bg', onBg);
 }
 window.addEventListener('storage', function(e){ if(e.key === 'acm.wall') initBg(); });
 
