@@ -25,7 +25,7 @@ def field(block, key):
 
 def split_sections(body):
     """按 **现象** / **原因** / **修法** 切开，末尾的 > 一句话 单独摘出来"""
-    marks = ["**现象**", "**原因**", "**修法**"]
+    marks = ["**现象**", "**要点**", "**原因**", "**修法**"]
     pos = []
     for m in marks:
         i = body.find(m)
@@ -33,7 +33,13 @@ def split_sections(body):
             pos.append((i, m))
     pos.sort()
     out = {"symptom": "", "cause": "", "fix": "", "one": ""}
-    keymap = {"**现象**": "symptom", "**原因**": "cause", "**修法**": "fix"}
+    keymap = {"**现象**": "symptom", "**要点**": "symptom",
+              "**原因**": "cause", "**修法**": "fix"}
+
+    # 没有任何标准小标题（如「**两个工具**」）→ 整段当作要点
+    if not pos:
+        out["symptom"] = body.strip()
+        return out
     for idx, (i, m) in enumerate(pos):
         start = i + len(m)
         end = pos[idx + 1][0] if idx + 1 < len(pos) else len(body)

@@ -83,6 +83,7 @@ code,pre{font-family:"Cascadia Code",Consolas,"SF Mono",Menlo,monospace}
 .rv-topics a{font-size:12.6px;padding:5px 8px;border-left:2px solid transparent;border-radius:0 8px 8px 0}
 .rv-topics a.on{border-left-color:rgb(var(--accent-rgb));background:rgb(var(--accent-rgb) / .1);color:var(--text)}
 .rv-topics .nm{flex:1 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rv-nav-h{font-size:10.5px;color:var(--text-3);letter-spacing:.08em;padding:9px 8px 3px}
 
 /* ---------- 主列 ---------- */
 .rv-main{min-width:0;padding:26px 34px 90px}
@@ -293,13 +294,15 @@ function cardHTML(c){
   +     '<h4>'+esc(c.title)+'</h4>'
   +     (c.pid ? '<span class="rv-pid">'+esc(c.pid)+'</span>' : '')
   +   '</div>'
-  +   '<div class="rv-body"><span class="rv-label">现象</span>'+md(c.symptom)+'</div>'
-  +   '<details class="rv-fold"><summary>想好了，点开对答案</summary>'
-  +     '<div class="rv-body">'
-  +       (c.cause ? '<span class="rv-label">原因</span>'+md(c.cause) : '')
-  +       (c.fix   ? '<span class="rv-label">修法</span>'+md(c.fix)   : '')
-  +     '</div>'
-  +   '</details>'
+  +   '<div class="rv-body"><span class="rv-label">'+(c.cause || c.fix ? '现象' : '要点')+'</span>'+md(c.symptom)+'</div>'
+  +   ((c.cause || c.fix)
+      ? '<details class="rv-fold"><summary>想好了，点开对答案</summary>'
+        + '<div class="rv-body">'
+        +   (c.cause ? '<span class="rv-label">原因</span>'+md(c.cause) : '')
+        +   (c.fix   ? '<span class="rv-label">修法</span>'+md(c.fix)   : '')
+        + '</div>'
+        + '</details>'
+      : '')
   + '</article>';
 }
 
@@ -382,6 +385,7 @@ function buildNav(groups){
   var tp = document.getElementById('topicNav');
   var i = 0, out = '';
   groups.forEach(function(g){
+    if(groups.length > 1) out += '<div class="rv-nav-h">'+g.cat+'</div>';
     g.topics.forEach(function(t){
       out += '<a href="#t'+(i++)+'"><span class="nm">'+esc(t.name)+'</span><span class="ct">'+t.cards.length+'</span></a>';
     });
