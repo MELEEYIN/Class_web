@@ -1,0 +1,126 @@
+/* ==========================================================================
+   math750.css — 「750 题」栏目
+   --------------------------------------------------------------------------
+   题目卡 + 折叠答案 + MathML 排版。公式由构建期的 KaTeX 转成 MathML，
+   浏览器原生渲染，所以这里只管尺寸与间距，不需要加载任何数学字体。
+   ========================================================================== */
+
+/* ---------------------------------------------------------- 1. 题目卡 */
+.qlist { display: grid; gap: 10px; margin: 4px 0 24px; }
+
+.q {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-2);
+  padding: 12px 16px 8px;
+}
+
+.qh { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+
+.qn {
+  font: 600 12px/1.6 var(--mono);
+  color: var(--accent);
+  background: rgb(var(--accent-rgb) / .12);
+  border: 1px solid rgb(var(--accent-rgb) / .28);
+  border-radius: 6px;
+  padding: 0 7px;
+  cursor: pointer;
+  user-select: none;
+  transition: background .16s var(--ease), color .16s var(--ease), border-color .16s var(--ease);
+}
+.qn:hover { background: rgb(var(--accent-rgb) / .2); }
+.qn.done { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+.qtag {
+  font-size: 11.2px;
+  line-height: 1.7;
+  padding: 0 7px;
+  border-radius: 5px;
+  border: 1px solid var(--line);
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.qtag.t-base { color: #0f9e8c; border-color: rgba(15, 158, 140, .35); background: rgba(15, 158, 140, .08); }
+.qtag.t-mid { color: var(--accent); border-color: rgb(var(--accent-rgb) / .35); background: rgb(var(--accent-rgb) / .08); }
+.qtag.t-high { color: #c47b20; border-color: rgba(196, 123, 32, .38); background: rgba(196, 123, 32, .09); }
+.qtag.t-hard { color: rgb(var(--danger-rgb)); border-color: rgb(var(--danger-rgb) / .35); background: rgb(var(--danger-rgb) / .08); }
+
+.qb {
+  font-size: 14.2px;
+  line-height: 2.05;
+  color: var(--kpt-label);
+}
+.qb b, .ab b { color: var(--kpt-label); }
+
+/* ---------------------------------------------------------- 2. 折叠答案 */
+.ans { margin-top: 8px; border-top: 1px dashed var(--line); padding-top: 7px; }
+.ans > summary {
+  cursor: pointer;
+  font-size: 12.6px;
+  color: var(--accent);
+  list-style: none;
+  padding: 2px 0;
+}
+.ans > summary::-webkit-details-marker { display: none; }
+.ans > summary::before {
+  content: "▸";
+  display: inline-block;
+  width: 1em;
+  transition: transform .18s var(--ease);
+}
+.ans[open] > summary::before { transform: rotate(90deg); }
+
+.ab {
+  padding: 9px 0 10px;
+  font-size: 13.8px;
+  line-height: 2.05;
+  color: var(--kpt-ink);
+}
+
+.lbl {
+  display: inline-block;
+  padding: 0 6px;
+  margin-right: 4px;
+  border-radius: 5px;
+  font-size: 11.6px;
+  font-weight: 600;
+}
+.lbl-a { background: rgb(var(--accent-rgb) / .14); color: var(--accent); }
+.lbl-s { background: rgb(var(--warn-rgb) / .16); color: rgb(var(--warn-rgb)); }
+
+/* ---------------------------------------------------------- 3. 本节知识点 */
+.note {
+  margin: 0 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+  padding: 9px 13px;
+}
+.note > summary { font-size: 12.8px; color: var(--ink-2); cursor: pointer; }
+.note > summary::-webkit-details-marker { display: none; }
+.note > summary::before { content: "＋"; margin-right: 6px; color: var(--ink-4); }
+.note[open] > summary::before { content: "－"; }
+.nb { margin-top: 8px; font-size: 13.2px; line-height: 2; color: var(--kpt-ink); }
+
+/* ---------------------------------------------------------- 4. MathML */
+math { font-size: 1.04em; }
+math[display="block"] {
+  display: block;
+  margin: 10px 0;
+  padding: 2px 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+/* 太长的行间公式允许横向滚动，别把卡片撑破 */
+.qb math[display="block"], .ab math[display="block"] { max-width: 100%; }
+
+/* ---------------------------------------------------------- 5. 深色下的对比 */
+html[data-theme="dark"] .q { background: rgb(255 255 255 / .025); }
+html[data-theme="dark"] .qtag.t-base { color: #4fd1bd; }
+html[data-theme="dark"] .qtag.t-high { color: #e0a45c; }
+
+/* ---------------------------------------------------------- 6. 窄屏 */
+@media (max-width: 720px) {
+  .q { padding: 10px 12px 6px; }
+  .qb, .ab { font-size: 13.6px; }
+}

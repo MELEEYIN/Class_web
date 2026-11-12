@@ -101,6 +101,31 @@
   function applyFilter(q) {
     q = (q || '').trim().toLowerCase();
     var hit = 0;
+
+    /* 题库页（.q）：按题过滤，并收起没有命中题目的节标题与知识点块 */
+    var qCards = $$('.q');
+    if (qCards.length) {
+      qCards.forEach(function (card) {
+        var ok = !q || (card.textContent || '').toLowerCase().indexOf(q) > -1;
+        card.style.display = ok ? '' : 'none';
+        if (ok) hit++;
+      });
+      $$('.sect-h').forEach(function (h) {
+        var el = h.nextElementSibling, any = false, block = [];
+        while (el && !(el.classList.contains && el.classList.contains('sect-h'))) {
+          block.push(el);
+          if (el.classList && el.classList.contains('qlist')) {
+            if ($$('.q', el).some(function (c) { return c.style.display !== 'none'; })) any = true;
+          }
+          el = el.nextElementSibling;
+        }
+        h.style.display = any ? '' : 'none';
+        block.forEach(function (b) { b.style.display = any ? '' : 'none'; });
+      });
+      if (emptyTip) emptyTip.style.display = (!hit && q) ? '' : 'none';
+      return hit;
+    }
+
     if (!units.length) {
       /* 首页：按册过滤，命中的册整块保留 */
       $$('.book').forEach(function (b) {
@@ -290,6 +315,23 @@
       var isEg = !!btn.closest('.eg');
       btn.textContent = veiled ? (isEg ? '显示解答' : '显示解析') : (isEg ? '遮住解答' : '遮住解析自测');
       btn.classList.toggle('on', veiled);
+    });
+  });
+
+  /* ---------------------------------------- 6.5 题库：题号标记「做过了」 */
+  var QDONE_KEY = 'cw.m750.done';
+  var qdone = {};
+  try { qdone = JSON.parse(store.get(QDONE_KEY, '{}')) || {}; } catch (e) { qdone = {}; }
+  $$('.q > .qh .qn').forEach(function (badge) {
+    var card = badge.closest('.q');
+    if (!card) return;
+    var id = card.id;
+    if (qdone[id]) badge.classList.add('done');
+    badge.title = '点一下标记「做过了」（存在本机）';
+    badge.addEventListener('click', function () {
+      if (qdone[id]) delete qdone[id]; else qdone[id] = 1;
+      badge.classList.toggle('done', !!qdone[id]);
+      store.set(QDONE_KEY, JSON.stringify(qdone));
     });
   });
 

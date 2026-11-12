@@ -165,7 +165,7 @@ HEAD = """<!DOCTYPE html>
     </div>
     @@NAV@@
     <div class="side-foot">
-      <div class="pg-t"><span>内容规模</span><b>13 章 · 24 单元</b></div>
+      <div class="pg-t"><span>内容规模</span><b>13 章 · 150 题 · 24 单元</b></div>
       <div class="side-tools">
         <a class="mini-btn" href="./math.html">高等数学</a>
         <a class="mini-btn" href="./b1.html">大学英语</a>
@@ -205,13 +205,19 @@ HEAD = """<!DOCTYPE html>
               </div>
             </header>
 
-            <div class="sec-t"><h2 id="entry">从哪进</h2><em>三门课，四条主线</em></div>
+            <div class="sec-t"><h2 id="entry">从哪进</h2><em>三门课，五个入口</em></div>
             <div class="paths">
               <a class="path" href="./math.html">
                 <span class="pk">高等数学 · 13 章 75 节</span>
                 <b>逐节讲解 + 图解 + 练习</b>
                 <p>上册 7 章、下册 6 章，节次与页码照《宋浩高等数学讲义》。章首图解 → 节表（必会 / 怎么考）→ <b>逐节讲解</b>（每节 900–1600 字）→ 核心公式 → 易错点 → 例题与节末练习（答案可折叠）。</p>
                 <span class="go">打开高等数学 →</span>
+              </a>
+              <a class="path" href="./math750.html">
+                <span class="pk">高等数学 · 750 题</span>
+                <b>上册 1–150 题 · 逐题解析</b>
+                <p>宋浩《精选 750 题》题目册 + 答案册对照整理：按章、节归类，每题可点开「答案与解析」，题号能标记「做过了」。公式用 KaTeX 在构建期排好，不闪。</p>
+                <span class="go">开始刷题 →</span>
               </a>
               <a class="path" href="./b1.html">
                 <span class="pk">大学英语 · 第 1 册</span>

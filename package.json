@@ -1,0 +1,12 @@
+{
+  "name": "class-web-build",
+  "private": true,
+  "description": "构建期依赖：tools/build_en_math750.py 调 tools/katex_render.mjs 把 LaTeX 预渲染成 MathML，页面本身不加载任何数学脚本。",
+  "scripts": {
+    "build:750": "python tools/build_en_math750.py",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "katex": "^0.16.11"
+  }
+}
