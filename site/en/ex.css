@@ -866,3 +866,34 @@ html[data-wall="custom"] body::before { opacity: .16; }
   color: var(--accent);
   font-weight: 600;
 }
+
+/* 侧栏练习册：5 册做成小格子（逐条列出会把当前册挤出可视区） */
+.nv-vols {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  padding: 2px 9px 6px;
+}
+.nv-vol {
+  padding: 5px 0;
+  border-radius: 7px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--ink-3);
+  font: 500 11.4px/1.4 var(--mono);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  text-decoration: none;
+  transition: color .16s var(--ease), border-color .16s var(--ease), background .16s var(--ease);
+}
+.nv-vol:hover {
+  border-color: rgb(var(--accent-rgb) / .5);
+  color: var(--accent);
+  text-decoration: none;
+}
+.nv-vol.on {
+  border-color: rgb(var(--accent-rgb) / .55);
+  background: rgb(var(--accent-rgb) / .14);
+  color: var(--accent);
+  font-weight: 600;
+}

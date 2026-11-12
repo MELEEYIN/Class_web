@@ -33,6 +33,28 @@ EN_UNITS = [
     (6, "Food and Culture", "u6"),
 ]
 
+# 750 题练习册**按章拆页**（见 tools/build_en_math750.py）：
+# 第 1 章沿用 math750.html，其余 math750-N.html
+M750_CH = [
+    ("m750-1", "./math750.html", "第1章", "函数与极限"),
+    ("m750-2", "./math750-2.html", "第2章", "导数与微分"),
+    ("m750-3", "./math750-3.html", "第3章", "中值定理"),
+    ("m750-4", "./math750-4.html", "第4章", "不定积分"),
+    ("m750-5", "./math750-5.html", "第5章", "定积分"),
+    ("m750-6", "./math750-6.html", "第6章", "定积分应用"),
+    ("m750-7", "./math750-7.html", "第7章", "微分方程"),
+]
+
+
+def _vols(cur):
+    """练习册按章做成小格子：逐条列出会把当前页挤出可视区。"""
+    out = []
+    for key, href, label, name in M750_CH:
+        on = " on" if key == cur else ""
+        out.append('<a class="nv-vol%s" href="%s" title="%s">%s</a>'
+                   % (on, href, name, label))
+    return '<div class="nv-vols">' + "".join(out) + "</div>"
+
 CHEV = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" '
         'stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>')
 
@@ -46,10 +68,11 @@ def _item(href, no, title, on=False, unit=None):
             '<span class="tt">' + title + '</span><span class="mk"></span></a>')
 
 
-def build_nav(unit_prefix="", active="math"):
+def build_nav(unit_prefix="", active="math", cur=""):
     """unit_prefix 为空 → 单元用页内锚点；否则拼成跨页链接。
     active：当前页属于哪一栏，那一栏排前面并默认展开，另一栏收起来
             （侧栏只有两栏，不来回滚动）。
+    cur：当前页在侧栏里的标识（如 "m750-3"），用于高亮同一页的条目。
     """
     up = "".join(_item("./math.html#m%d" % n, "%02d" % n, t) for n, t in MATH_CH[:7])
     dn = "".join(_item("./math.html#m%d" % n, "%02d" % n, t) for n, t in MATH_CH[7:])
@@ -77,8 +100,8 @@ def build_nav(unit_prefix="", active="math"):
         '<div class="nv-list">'
         '<div class="nv-grp">上册 · 第一～七章</div>' + up +
         '<div class="nv-grp">下册 · 第八～十三章</div>' + dn +
-        '<div class="nv-grp">练习册</div>' +
-        _item("./math750.html", "750", "上册 1–300 题") +
+        '<div class="nv-grp">练习册 · 750 题</div>' +
+        _vols(cur) +
         '</div></div>')
 
     en_box = (

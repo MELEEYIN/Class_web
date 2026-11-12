@@ -165,7 +165,7 @@ HEAD = """<!DOCTYPE html>
     </div>
     @@NAV@@
     <div class="side-foot">
-      <div class="pg-t"><span>内容规模</span><b>13 章 · 150 题 · 24 单元</b></div>
+      <div class="pg-t"><span>内容规模</span><b>13 章 · 750 题 · 24 单元</b></div>
       <div class="side-tools">
         <a class="mini-btn" href="./math.html">高等数学</a>
         <a class="mini-btn" href="./b1.html">大学英语</a>
@@ -215,8 +215,8 @@ HEAD = """<!DOCTYPE html>
               </a>
               <a class="path" href="./math750.html">
                 <span class="pk">高等数学 · 750 题</span>
-                <b>上册 1–300 题 · 逐题解析</b>
-                <p>宋浩《精选 750 题》题目册 + 答案册对照整理：按章、节归类（函数与极限、导数与微分、中值定理…），每题可点开「答案与解析」，题号能标记「做过了」。公式用 KaTeX 在构建期排好，不闪。</p>
+                <b>上册 1–750 题 · 按章 7 页 · 逐题解析</b>
+                <p>宋浩《精选 750 题》题目册 + 答案册全 750 题对照整理，按章拆成 7 页：函数与极限、导数与微分、中值定理、不定积分、定积分、定积分应用、微分方程。每题可点开「答案与解析」，题号能标记「做过了」；公式在构建期排好，不闪。</p>
                 <span class="go">开始刷题 →</span>
               </a>
               <a class="path" href="./b1.html">

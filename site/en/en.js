@@ -83,6 +83,19 @@
     });
   });
 
+  /* 侧栏比自己高时会滚：打开页面先把它滚到「当前页」那一条，
+     否则练习册这类排在末尾的分组永远在可视区外。 */
+  (function revealCurrent() {
+    var box = $('#nav');
+    if (!box) return;
+    var cur = box.querySelector('.nv-vol.on, .nv-i.on');
+    if (!cur) return;
+    var r = cur.getBoundingClientRect(), br = box.getBoundingClientRect();
+    if (r.top < br.top || r.bottom > br.bottom) {
+      box.scrollTop += (r.top - br.top) - (br.height * 0.42);
+    }
+  })();
+
   /* ------------------------------------------------------ 3. 手机抽屉 */
   var burger = $('#burger');
   var sideX = $('#sideX');
