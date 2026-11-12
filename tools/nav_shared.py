@@ -78,7 +78,7 @@ def build_nav(unit_prefix="", active="math"):
         '<div class="nv-grp">上册 · 第一～七章</div>' + up +
         '<div class="nv-grp">下册 · 第八～十三章</div>' + dn +
         '<div class="nv-grp">练习册</div>' +
-        _item("./math750.html", "750", "上册 1–150 题") +
+        _item("./math750.html", "750", "上册 1–300 题") +
         '</div></div>')
 
     en_box = (

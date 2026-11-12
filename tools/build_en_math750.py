@@ -4,6 +4,7 @@ build_en_math750.py — 生成 site/en/math750.html（高等数学 · 750 题栏
 
 数据来源：宋浩《高等数学（上册）精选 750 题》题目册 + 答案册，
 已整理成 tools/data/math750_up.json（questions / answers / notes 三段）。
+题号范围与题量从数据的 limit 字段读取，扩充数据后直接重跑即可。
 
 公式在**构建期**用 KaTeX 渲染成静态 HTML（tools/katex_render.mjs），
 页面不带任何 JS 渲染器，也不闪 $...$。
@@ -33,6 +34,12 @@ RAW = json.load(io.open(DATA, encoding="utf-8"))
 Q = RAW["questions"]
 A = RAW["answers"]
 NOTES = RAW.get("notes", {})
+
+# 题号范围与全书题量：都从数据里读，换一批数据不用改代码
+FIRST = 1
+LAST = int(RAW.get("limit") or max(int(k) for k in Q))
+BOOK_TOTAL = 750
+RANGE = "%d–%d" % (FIRST, LAST)
 
 TAG_CLASS = {"基础题": "t-base", "中等题": "t-mid", "较高题": "t-high", "综合题": "t-hard"}
 
@@ -175,8 +182,8 @@ HEAD = """<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>高等数学 750 题 · 上册 1–150</title>
-<meta name="description" content="宋浩《高等数学（上册）精选750题》第 1–150 题：题目、答案与解析逐题对照，按章、节归类，答案默认折叠。">
+<title>高等数学 750 题 · 上册 @@RANGE@@</title>
+<meta name="description" content="宋浩《高等数学（上册）精选750题》第 @@RANGE@@ 题：题目、答案与解析逐题对照，按章、节归类，答案默认折叠。">
 <meta name="theme-color" content="#060d1a">
 <meta name="color-scheme" content="dark light">
 @@ICON@@
@@ -204,7 +211,7 @@ HEAD = """<!DOCTYPE html>
     </div>
     @@NAV@@
     <div class="side-foot">
-      <div class="pg-t"><span>题量</span><b>上册 150 / 750</b></div>
+      <div class="pg-t"><span>题量</span><b>上册 @@NTOTAL@@ / @@BOOK@@</b></div>
       <div class="side-tools">
         <a class="mini-btn" href="./math.html">高数正课</a>
       </div>
@@ -231,8 +238,8 @@ HEAD = """<!DOCTYPE html>
           <article class="doc doc-study" id="doc">
             <header class="doc-head">
               <div class="eyebrow">课程学习站 · 高等数学 · 练习册</div>
-              <h1>750 题<span class="hno">上册 1–150</span></h1>
-              <p class="lede">宋浩《高等数学（上册）精选 750 题》的题目册 + 答案册，按题号一一对照：先自己做，再点开「答案与解析」。全书 750 题连续编号，这里先放 <b>第 1–150 题</b>，全部按讲义章、节归类，方便跟着正课进度刷。</p>
+              <h1>750 题<span class="hno">上册 @@RANGE@@</span></h1>
+              <p class="lede">宋浩《高等数学（上册）精选 750 题》的题目册 + 答案册，按题号一一对照：先自己做，再点开「答案与解析」。全书 750 题连续编号，这里已收录 <b>第 @@RANGE@@ 题</b>，全部按讲义章、节归类，方便跟着正课进度刷。</p>
               <div class="chips">
                 <span class="chipk"><b>@@NQ@@</b> 题</span>
                 <span class="chipk"><b>@@NCH@@</b> 章 · <b>@@NSEC@@</b> 节</span>
@@ -304,7 +311,10 @@ def main():
                 .replace("@@TB@@", str(TAGS.get("基础题", 0)))
                 .replace("@@TM@@", str(TAGS.get("中等题", 0)))
                 .replace("@@TH@@", str(TAGS.get("较高题", 0)))
-                .replace("@@TX@@", str(TAGS.get("综合题", 0))))
+                .replace("@@TX@@", str(TAGS.get("综合题", 0)))
+                .replace("@@RANGE@@", RANGE)
+                .replace("@@NTOTAL@@", str(NQ))
+                .replace("@@BOOK@@", str(BOOK_TOTAL)))
     io.open(OUT, "w", encoding="utf-8", newline="\n").write(page)
     print("questions", NQ, "chapters", NCH, "sections", NSEC, "formulas", len(_tex))
     print("written:", OUT, len(page))
