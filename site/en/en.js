@@ -140,6 +140,18 @@
     }
 
     if (!units.length) {
+      /* 四级整卷页：按题过滤，没有命中的题卡收起 */
+      var qitems = $$('.qitem');
+      if (qitems.length) {
+        qitems.forEach(function (card) {
+          var ok = !q || (card.textContent || '').toLowerCase().indexOf(q) > -1;
+          card.style.display = ok ? '' : 'none';
+          if (ok) hit++;
+        });
+        $$('.qgroup').forEach(function (g) { g.style.display = q ? 'none' : ''; });
+        if (emptyTip) emptyTip.style.display = (!hit && q) ? '' : 'none';
+        return hit;
+      }
       /* 四级真题页：按套过滤，命中的整套保留；没有命中的考试分组整块收起 */
       var papers = $$('.paper');
       if (papers.length) {

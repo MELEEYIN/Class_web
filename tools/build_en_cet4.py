@@ -65,8 +65,10 @@ def render_session(sess):
             body.append('<p class="paper-note">这一套的原卷没有可用文字层，题干暂未录入。</p>')
         cards.append(
             '<article class="paper" id="%s-%d">'
-            '<div class="paper-h"><b>第 %d 套</b><span>%s</span></div>%s</article>'
-            % (sid, n, n, esc(sess["label"]), "".join(body)))
+            '<div class="paper-h"><b><a href="./cet4/%s-%d.html">第 %d 套</a></b>'
+            '<span>%s</span></div>%s'
+            '<a class="paper-go" href="./cet4/%s-%d.html">打开整套（题目 + 解析）→</a></article>'
+            % (sid, n, sid, n, n, esc(sess["label"]), "".join(body), sid, n))
     return (
         '<div class="sess" id="p%s">'
         '<div class="sess-h"><h3>%s</h3><em>3 套</em></div>'
@@ -82,7 +84,7 @@ def render_paper_index(data):
             '<tr><td class="p"><a href="#p%s">%s</a></td><td>%d 套</td>'
             '<td>%d 套可读</td><td>%s</td></tr>'
             % (sess["id"], esc(sess["label"]), len(sess["sets"]), done,
-               "写作 + 翻译 + 阅读主题" if done == 3 else
+               "整卷题目 + 解析" if done == 3 else
                ("部分套次为扫描件" if done else "扫描件，待补")))
     return (
         '<div class="tblwrap"><table class="ctbl"><colgroup><col style="width:28%"><col style="width:12%">'
@@ -168,12 +170,15 @@ HEAD = """<!DOCTYPE html>
 .paper { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); padding: 13px 15px; }
 .paper-h { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding-bottom: 8px; border-bottom: 1px dashed var(--line); }
 .paper-h b { font-size: 13.2px; }
+.paper-h b a { color: var(--ink); text-decoration: none; }
+.paper-h b a:hover { color: var(--accent); text-decoration: underline; }
 .paper-h span { font-size: 11.4px; color: var(--ink-4); }
 .paper-w, .paper-t { margin: 9px 0 0; font-size: 12.9px; line-height: 1.75; color: var(--ink-2); }
 .paper-w i, .paper-t i { display: inline-block; margin-right: 6px; padding: 1px 6px; border-radius: 5px; background: rgb(var(--accent-rgb) / .12); color: var(--accent); font-style: normal; font-size: 11px; font-weight: 600; }
 .paper-r { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
 .paper-r span { font-size: 11.8px; color: var(--ink-3); padding: 2px 7px; border-radius: 5px; background: rgb(var(--accent-rgb) / .07); }
 .paper-r b { margin-right: 4px; color: var(--ink-2); font-weight: 600; }
+.paper-go { display: inline-block; margin-top: 9px; font-size: 12.2px; }
 .paper-note { margin: 8px 0 0; font-size: 11.8px; color: var(--ink-4); }
 .wtypes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 14px 0; }
 @media (max-width: 900px) { .wtypes { grid-template-columns: 1fr; } }
@@ -249,7 +254,7 @@ table.trtbl td.tr { font-size: 12.5px; line-height: 1.8; color: var(--ink-2); }
             <header class="hero">
               <div class="eyebrow">CET-4 · 四级学习专区</div>
               <h1>四级考的不是英语，<span>是四个题型的分</span></h1>
-              <p>把 2023 年 3 月到 2026 年 6 月八次考试的 24 套真题拆开：写作与翻译原文逐套录入，两篇仔细阅读标出主题，再配一张分值表、一张命题规律表和一份 30 天计划。你要练的不是「读懂英语」，而是「在 130 分钟里把 710 分里的 425 分拿到」。</p>
+              <p>把 2023 年 3 月到 2026 年 6 月八次考试的 24 套真题逐套拆开：每套都能打开整卷页 —— 听力 25 题选项、阅读三节原文与题目、写作题干、翻译原文，最后一节是解析册的答案与讲解。再配一张分值表、一张命题规律表和一份 30 天计划。你要练的不是「读懂英语」，而是「在 130 分钟里把 710 分里的 425 分拿到」。</p>
               <div class="hero-stats">
                 <div><b>8</b><span>次考试</span></div>
                 <div><b>24</b><span>套真题</span></div>
@@ -281,7 +286,7 @@ table.trtbl td.tr { font-size: 12.5px; line-height: 1.8; color: var(--ink-2); }
             <div class="callout"><p><b>先算一笔账：</b>想稳过 425，听力 + 阅读最好拿到 300 分以上（各 150 分左右），写作 + 翻译合计 110 分以上。反过来，如果听力只有 120 分，写作和翻译就要接近 160 分才补得回来 —— 这就是为什么「只背作文模板」通常不够。</p></div>
 
             <div class="sec-t"><h2 id="papers">真题卷宗 · 24 套</h2><em>写作题与翻译题按原卷录入，阅读只标主题</em></div>
-            <p class="meta">下面每一套都给出 <b>Writing</b> 题干、<b>Translation</b> 中文原文和两篇仔细阅读的主题。答案没有录入：八次考试的解析册大多是扫描件，没有文字层，硬抄会抄错；需要核对答案时请对照本机解析 PDF。2026 年 6 月第 1、2 套原卷也是扫描件，暂缺。</p>
+            <p class="meta">下面是每套的摘要。点「打开整套」进入整卷页：<b>听力 25 题</b>的 A–D 选项、<b>阅读三节</b>（选词填空 / 段落匹配 / 两篇仔细阅读）原文与题目、写作题干、翻译原文，以及解析册的<b>答案与逐题讲解</b>（按 Part 折叠）。2026 年 6 月第 1、2 套原卷是扫描件，整卷页里只有原卷说明。</p>
             %%PAPERINDEX%%
             %%SESSIONS%%
 
