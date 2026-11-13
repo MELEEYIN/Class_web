@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-prep_math750_down.py — 把下册两段 md 解析成 tools/data/math750_down.json
+prep_math750_down.py — 把下册全部 md 解析成 tools/data/math750_down.json
 
-下册《高等数学（下册）精选 750 题》题号独立编号（1–750），目前只有 1–300：
+下册《高等数学（下册）精选 750 题》题号独立编号（1–750），分五段整理：
     高数750题下册_题目与答案_1-150.md
     高数750题下册_题目与答案_151-300.md
+    高数750题下册_题目与答案_301-450.md
+    高数750题下册_题目与答案_451-600.md
+    高数750题下册_题目与答案_601-750.md
 
 输出结构与上册一致：
     {"questions": {"1": {tag, ch, sec, body}}, "answers": {"1": "..."},
@@ -19,9 +22,13 @@ import os
 import re
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+BASE = r"C:/Users/LEEYIN/WorkBuddy/2026-11-11-22-42-20/750"
 
 SRC_A = r"C:/Users/LEEYIN/Downloads/Programs/高数750题下册_题目与答案_1-150.md"
-SRC_B = r"C:/Users/LEEYIN/WorkBuddy/2026-11-11-22-42-20/750/高数750题下册_题目与答案_151-300.md"
+SRC_B = os.path.join(BASE, "高数750题下册_题目与答案_151-300.md")
+SRC_C = os.path.join(BASE, "高数750题下册_题目与答案_301-450.md")
+SRC_D = os.path.join(BASE, "高数750题下册_题目与答案_451-600.md")
+SRC_E = os.path.join(BASE, "高数750题下册_题目与答案_601-750.md")
 OUT = os.path.join(HERE, "data", "math750_down.json")
 
 RE_ANCHOR = re.compile(r'^<a id="q(\d+)"></a>\s*$')
@@ -97,7 +104,7 @@ def parse_md(path):
 
 def main():
     qs, ans, notes = {}, {}, {}
-    for path in (SRC_A, SRC_B):
+    for path in (SRC_A, SRC_B, SRC_C, SRC_D, SRC_E):
         q, a, nt = parse_md(path)
         dup = set(qs) & set(q)
         assert not dup, ("题号重复", dup)
@@ -120,6 +127,22 @@ def main():
     for k, v in qs.items():
         if v["ch"].startswith("第9章") and v["sec"] == "未分节题目":
             v["sec"] = "第五节 隐函数的求导"
+
+    # 451–600 md 三处错标，按题号 + 内容（线积分/曲面积分关键词）订正：
+    #   ① q451–465 误标「第12章 曲面积分·综合提高题」，实际是曲线积分（∮_L 线积分），
+    #      应归入第11章 曲线积分·综合提高题（接 301–450 里的 q450）；
+    #   ② q466–475 挂在第11章下但无小节，同样归为第11章 曲线积分·综合提高题；
+    #   ③ q476–495 挂在第12章下无小节，实际是「第一类曲面积分（对面积的）」，
+    #      补回缺失的第一节标题。
+    # 于是第11章 = 356–475、第12章 = 476–600 与书本章节边界一致。
+    for k, v in qs.items():
+        n = int(k)
+        if 451 <= n <= 475:
+            v["ch"] = "第11章 曲线积分"
+            v["sec"] = "综合提高题"
+        elif 476 <= n <= 495:
+            v["ch"] = "第12章 曲面积分"
+            v["sec"] = "第一节 第一类曲面积分（对面积的曲面积分）"
 
     out = {"questions": qs, "answers": ans, "notes": notes}
     io.open(OUT, "w", encoding="utf-8", newline="\n").write(
