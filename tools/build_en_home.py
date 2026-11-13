@@ -139,7 +139,7 @@ HEAD = """<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>课程学习站 · 大学英语 + 高等数学</title>
-<meta name="description" content="课程学习站：高等数学（宋浩讲义 13 章 75 节）、大学英语（四册 24 单元）、工程制图（课件 9 章 38 节），都按「节表 → 逐节知识点 → 速查 → 易错 → 例题」组织。">
+<meta name="description" content="课程学习站：高等数学（宋浩讲义 13 章 75 节）、大学英语（四册 24 单元）、四级学习专区（24 套真题）、工程制图（课件 9 章 38 节），都按「节表 → 逐节知识点 → 速查 → 易错 → 例题」组织。">
 <meta name="theme-color" content="#060d1a">
 <meta name="color-scheme" content="dark light">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2064%2064%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%232f63f6%27%2F%3E%3Cstop%20offset%3D%27.5%27%20stop-color%3D%27%237b7bff%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%231fc7ae%27%2F%3E%3C%2FlinearGradient%3E%3CclipPath%20id%3D%27c%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2715%27%2F%3E%3C%2FclipPath%3E%3C%2Fdefs%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2715%27%20fill%3D%27url%28%23g%29%27%2F%3E%3Cg%20clip-path%3D%27url%28%23c%29%27%3E%3Cpath%20d%3D%27M-8%2042%20L64%204%20L64%20-8%20L-8%2030%20Z%27%20fill%3D%27%23fff%27%20fill-opacity%3D%27.10%27%2F%3E%3C%2Fg%3E%3Crect%20x%3D%27.9%27%20y%3D%27.9%27%20width%3D%2762.2%27%20height%3D%2762.2%27%20rx%3D%2714.2%27%20fill%3D%27none%27%20stroke%3D%27%23fff%27%20stroke-opacity%3D%27.26%27%20stroke-width%3D%271.2%27%2F%3E%3Cg%20transform%3D%27translate%2832%2032%29%20scale%281.16%29%20translate%28-32%20-32%29%27%3E%3Cpath%20d%3D%27M32%2021.8c-4.4-3.2-8.8-4.3-13.2-3.9a1.4%201.4%200%200%200-1.3%201.4v25.1c0%201%20.9%201.7%201.9%201.6%203.9-.3%207.9.7%2011.4%203.1.7.5%201.7.5%202.4%200%203.5-2.4%207.5-3.4%2011.4-3.1%201%20.1%201.9-.6%201.9-1.6V19.3c0-.7-.6-1.3-1.3-1.4-4.4-.4-8.8.7-13.2%203.9z%27%20fill%3D%27%23fff%27%20fill-opacity%3D%27.97%27%2F%3E%3Cpath%20d%3D%27M32%2024.8v23.8%27%20stroke%3D%27%233d6bd6%27%20stroke-opacity%3D%27.4%27%20stroke-width%3D%271.8%27%20stroke-linecap%3D%27round%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E">
@@ -205,7 +205,7 @@ HEAD = """<!DOCTYPE html>
               </div>
             </header>
 
-            <div class="sec-t"><h2 id="entry">从哪进</h2><em>三门课，五个入口</em></div>
+            <div class="sec-t"><h2 id="entry">从哪进</h2><em>三门课，六个入口</em></div>
             <div class="paths">
               <a class="path" href="./math.html">
                 <span class="pk">高等数学 · 13 章 75 节</span>
@@ -224,6 +224,12 @@ HEAD = """<!DOCTYPE html>
                 <b>课内习题对齐版</b>
                 <p>六个单元的课内习题按 WE Learn 真实任务链重排，Translation 六组题面与参考译文按教材录入，配逐句结构对照与逐题解析。</p>
                 <span class="go">打开第 1 册 →</span>
+              </a>
+              <a class="path" href="./cet4.html">
+                <span class="pk">四级学习专区 · 24 套真题</span>
+                <b>写作 + 翻译题库 · 分值表 · 30 天计划</b>
+                <p>2023.03–2026.06 八次考试 24 套原卷，每套可打开整卷页：听力 25 题选项、阅读三节原文与题目、写作题干、翻译原文，附解析册的答案与逐题讲解；另配题型分值与 30 天计划。</p>
+                <span class="go">进入四级专区 →</span>
               </a>
               <a class="path" href="./draw.html">
                 <span class="pk">工程制图 · 9 章 38 节</span>

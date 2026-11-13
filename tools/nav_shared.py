@@ -24,6 +24,19 @@ DRAW_CH = [
     (7, "标准件、齿轮和弹簧"), (8, "零件图"), (9, "装配图"),
 ]
 
+# 四级学习专区（/en/cet4.html）：侧栏只列「备考 + 8 次考试 + 题库」，
+# 不把 24 套试卷逐条铺开，否则侧栏会被挤出可视区。
+CET4_SESSIONS = [
+    ("2026-06", "2026 年 6 月", "26.6"),
+    ("2025-12", "2025 年 12 月", "25.12"),
+    ("2025-06", "2025 年 6 月", "25.6"),
+    ("2024-12", "2024 年 12 月", "24.12"),
+    ("2024-06", "2024 年 6 月", "24.6"),
+    ("2023-12", "2023 年 12 月", "23.12"),
+    ("2023-06", "2023 年 6 月", "23.6"),
+    ("2023-03", "2023 年 3 月（延期）", "23.3"),
+]
+
 EN_UNITS = [
     (1, "College Life", "u1"),
     (2, "Understanding Relationships", "u2"),
@@ -104,6 +117,7 @@ def build_nav(unit_prefix="", active="math", cur=""):
 
     math_fold = "" if active == "math" else " fold"
     en_fold = "" if active == "en" else " fold"
+    cet4_fold = "" if active == "cet4" else " fold"
     draw_fold = "" if active == "draw" else " fold"
 
     math_box = (
@@ -134,17 +148,38 @@ def build_nav(unit_prefix="", active="math", cur=""):
         '<div class="nv-grp">第一～九章</div>' + draw +
         '</div></div>')
 
+    cet4_box = (
+        '<div class="nv-mod' + cet4_fold + '" data-mod="cet4">'
+        '<button class="nv-h" type="button" data-fold="cet4"><span class="chev">' + CHEV + '</span>'
+        '<b>四级学习专区</b><em>22</em></button>'
+        '<div class="nv-list">'
+        '<div class="nv-grp">备考</div>' +
+        _item("./cet4.html#exam", "01", "考试结构与分值") +
+        _item("./cet4.html#rules", "02", "近年命题规律") +
+        _item("./cet4.html#plan", "03", "30 天备考计划") +
+        '<div class="nv-grp">真题卷宗 · 8 次考试</div>' +
+        _item("./cet4.html#papers", "ALL", "24 套真题总览") +
+        "".join(_item("./cet4.html#p%s" % sid, chip, title)
+                for sid, title, chip in CET4_SESSIONS) +
+        '<div class="nv-grp">题库</div>' +
+        _item("./cet4.html#writing", "W", "写作题库 · 22 题") +
+        _item("./cet4.html#translation", "T", "翻译题库 · 22 段") +
+        '</div></div>')
+
     sw = (
         '<div class="subj-sw">'
         '<a class="' + ('on' if active == 'math' else '') + '" href="./math.html">数学</a>'
         '<a class="' + ('on' if active == 'en' else '') + '" href="./b1.html">英语</a>'
+        '<a class="' + ('on' if active == 'cet4' else '') + '" href="./cet4.html">四级</a>'
         '<a class="' + ('on' if active == 'draw' else '') + '" href="./draw.html">制图</a>'
         '</div>')
 
-    if active == "en":
-        order = en_box + draw_box + math_box
+    if active == "cet4":
+        order = cet4_box + en_box + draw_box + math_box
+    elif active == "en":
+        order = en_box + cet4_box + draw_box + math_box
     elif active == "draw":
-        order = draw_box + math_box + en_box
+        order = draw_box + math_box + en_box + cet4_box
     else:
-        order = math_box + en_box + draw_box
+        order = math_box + en_box + cet4_box + draw_box
     return sw + '<nav class="side-nav" id="nav" aria-label="站点目录">' + order + '</nav>'
