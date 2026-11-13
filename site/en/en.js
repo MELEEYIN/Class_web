@@ -332,7 +332,7 @@
   });
 
   /* ---------------------------------------- 6.5 题库：题号标记「做过了」 */
-  var QDONE_KEY = 'cw.m750.done';
+  var QDONE_KEY = 'cw.' + (document.body.getAttribute('data-book') || 'm750') + '.done';
   var qdone = {};
   try { qdone = JSON.parse(store.get(QDONE_KEY, '{}')) || {}; } catch (e) { qdone = {}; }
   $$('.q > .qh .qn').forEach(function (badge) {

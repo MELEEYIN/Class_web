@@ -34,8 +34,9 @@ EN_UNITS = [
 ]
 
 # 750 题练习册**按章拆页**（见 tools/build_en_math750.py）：
-# 第 1 章沿用 math750.html，其余 math750-N.html
-M750_CH = [
+# 上册第 1 章沿用 math750.html，其余 math750-N.html；下册从 math750-8.html 起。
+# 下册目前只整理到第 10 章（1–300 题），后续补到 750 题时再加 11–13。
+M750_UP = [
     ("m750-1", "./math750.html", "第1章", "函数与极限"),
     ("m750-2", "./math750-2.html", "第2章", "导数与微分"),
     ("m750-3", "./math750-3.html", "第3章", "中值定理"),
@@ -44,16 +45,25 @@ M750_CH = [
     ("m750-6", "./math750-6.html", "第6章", "定积分应用"),
     ("m750-7", "./math750-7.html", "第7章", "微分方程"),
 ]
+M750_DOWN = [
+    ("m750-8", "./math750-8.html", "第8章", "向量与空间解析几何"),
+    ("m750-9", "./math750-9.html", "第9章", "多元函数微分"),
+    ("m750-10", "./math750-10.html", "第10章", "重积分"),
+]
 
 
-def _vols(cur):
+def _vols(cur, part="up"):
     """练习册按章做成小格子：逐条列出会把当前页挤出可视区。"""
+    rows = [("上册", M750_UP), ("下册", M750_DOWN)]
     out = []
-    for key, href, label, name in M750_CH:
-        on = " on" if key == cur else ""
-        out.append('<a class="nv-vol%s" href="%s" title="%s">%s</a>'
-                   % (on, href, name, label))
-    return '<div class="nv-vols">' + "".join(out) + "</div>"
+    for label, items in rows:
+        out.append('<div class="nv-sub">' + label + '</div><div class="nv-vols">')
+        for key, href, chip, name in items:
+            on = " on" if key == cur else ""
+            out.append('<a class="nv-vol%s" href="%s" title="%s %s">%s</a>'
+                       % (on, href, label, name, chip))
+        out.append('</div>')
+    return "".join(out)
 
 CHEV = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" '
         'stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>')

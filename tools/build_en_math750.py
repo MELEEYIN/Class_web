@@ -2,21 +2,21 @@
 """
 build_en_math750.py — 生成 site/en/math750*.html（高等数学 · 750 题栏目）
 
-数据来源：宋浩《高等数学（上册）精选 750 题》题目册 + 答案册，
-已由 tools/prep_math750.py 合并成 tools/data/math750_all.json（1–750）。
+数据来源：宋浩《高等数学（上册 / 下册）精选 750 题》题目册 + 答案册：
+    上册 → tools/data/math750_all.json   （1–750，prep_math750.py 生成）
+    下册 → tools/data/math750_down.json  （1–750，prep_math750_down.py 生成，目前 1–300）
 
-全 750 题**按章拆页**（一章一页，单页约 0.4–0.95 MB）：
-    math750.html    第1章 函数与极限
-    math750-2.html  第2章 导数与微分
-    ...
-    math750-7.html  第7章 微分方程
+上、下册各按章拆页（一章一页）：
+    上册：math750.html(第1章) … math750-7.html(第7章)
+    下册：math750-8.html(第8章) … math750-13.html(第13章)
 
 公式在**构建期**用 KaTeX 渲染成 MathML（tools/katex_render.mjs），
 页面不带任何 JS 渲染器，也不闪 $...$。
 
 用法：
-    python tools/build_en_math750.py            # 生成全部 5 册
-    python tools/build_en_math750.py --vol 3    # 只生成第 3 册（调试用）
+    python tools/build_en_math750.py               # 生成上、下册全部页面
+    python tools/build_en_math750.py --part down   # 只生成下册
+    python tools/build_en_math750.py --part up --vol 3  # 只生成上册第 3 章
 """
 import argparse
 import io
@@ -29,7 +29,10 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 SITE = os.path.join(ROOT, "site")
-DATA = os.path.join(HERE, "data", "math750_all.json")
+DATA_FILES = {
+    "up": os.path.join(HERE, "data", "math750_all.json"),
+    "down": os.path.join(HERE, "data", "math750_down.json"),
+}
 TMP_IN = os.path.join(ROOT, ".tmp_katex_in.json")
 TMP_OUT = os.path.join(ROOT, ".tmp_katex_out.json")
 
@@ -45,21 +48,46 @@ SHORT_CH = {
     "定积分": "定积分",
     "定积分的应用": "定积分应用",
     "微分方程": "微分方程",
+    "向量代数与空间解析几何": "空间解析几何",
+    "多元函数微分法及其应用": "多元函数微分",
+    "重积分": "重积分",
+    "曲线积分": "曲线积分",
+    "曲面积分": "曲面积分",
+    "无穷级数": "无穷级数",
 }
 
 BOOK_TOTAL = 750
 TAG_CLASS = {
     "基础题": "t-base", "中等题": "t-mid", "较高题": "t-high",
+    "中难题": "t-high", "提高题": "t-mid",
     "综合题": "t-hard", "缺题干": "t-miss",
 }
 
-RAW = json.load(io.open(DATA, encoding="utf-8"))
-ALL_Q = RAW["questions"]
-ALL_A = RAW["answers"]
-ALL_NOTES = RAW.get("notes", {})
+# 当前正在生成的上/下册与全局量（load_part 里重设）
+PART = "up"
+ALL_Q = {}
+ALL_A = {}
+ALL_NOTES = {}
+CHAPS = []
+Q = {}
+A = {}
+NOTES = {}
+TREE = []
 
 
-def build_chapters():
+def load_part(part):
+    """载入某册数据，返回该册的章列表；同时设置全局 ALL_Q / ALL_A / ALL_NOTES / CHAPS。"""
+    global ALL_Q, ALL_A, ALL_NOTES, CHAPS, PART
+    PART = part
+    raw = json.load(io.open(DATA_FILES[part], encoding="utf-8"))
+    ALL_Q = raw["questions"]
+    ALL_A = raw["answers"]
+    ALL_NOTES = raw.get("notes", {})
+    CHAPS = _collect_chapters()
+    return CHAPS
+
+
+def _collect_chapters():
     """按数据里出现的顺序收集章：[(章号, 章标题, 短名, 最小题号, 最大题号, 文件名), …]"""
     seen = {}
     order = []
@@ -79,13 +107,32 @@ def build_chapters():
     return order
 
 
-CHAPS = build_chapters()
+def all_chapters():
+    """上、下册所有已生成页面的章（按章号排序），供页内「按章」条与上一章/下一章跨册跳转。"""
+    chaps = []
+    for part in ("up", "down"):
+        if not os.path.exists(DATA_FILES[part]):
+            continue
+        raw = json.load(io.open(DATA_FILES[part], encoding="utf-8"))
+        q = raw["questions"]
+        seen = {}
+        order = []
+        for qid in sorted(q, key=lambda x: int(x)):
+            ch = q[qid]["ch"]
+            if ch not in seen:
+                m = re.search(r"第\s*(\d+)\s*章", ch)
+                no = int(m.group(1)) if m else len(order) + 1
+                title = re.sub(r"^第\s*\d+\s*章\s*", "", ch).strip()
+                fname = "math750.html" if no == 1 else "math750-%d.html" % no
+                seen[ch] = {"no": no, "ch": ch, "title": title,
+                            "short": SHORT_CH.get(title, title), "fname": fname}
+                order.append(seen[ch])
+        chaps.extend(order)
+    chaps.sort(key=lambda c: c["no"])
+    return chaps
 
-# 当前册的全局量（main 里按册重设）
-Q = {}
-A = {}
-NOTES = {}
-TREE = []
+
+ALL_CHAPS = all_chapters()
 
 # ----------------------------------------------------------------------
 # 1. 公式：先抽出来，统一交给 KaTeX 渲染
@@ -221,8 +268,8 @@ HEAD = """<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>高等数学 750 题 · @@RANGE@@</title>
-<meta name="description" content="宋浩《高等数学（上册）精选750题》@@RANGE@@：题目、答案与解析逐题对照，按节归类，答案默认折叠。">
+<title>高等数学 750 题 · @@PART@@ · @@RANGE@@</title>
+<meta name="description" content="宋浩《高等数学（@@PART@@）精选750题》@@RANGE@@：题目、答案与解析逐题对照，按节归类，答案默认折叠。">
 <meta name="theme-color" content="#060d1a">
 <meta name="color-scheme" content="dark light">
 @@ICON@@
@@ -233,7 +280,7 @@ HEAD = """<!DOCTYPE html>
 <link rel="stylesheet" href="./math.css">
 <link rel="stylesheet" href="./math750.css">
 </head>
-<body data-book="m750">
+<body data-book="@@BOOKATTR@@">
 <div class="app">
   <aside class="side" id="side">
     <div class="side-top">
@@ -278,7 +325,7 @@ HEAD = """<!DOCTYPE html>
             <header class="doc-head">
               <div class="eyebrow">课程学习站 · 高等数学 · 练习册</div>
               <h1>750 题<span class="hno">@@RANGE@@</span></h1>
-              <p class="lede">宋浩《高等数学（上册）精选 750 题》的题目册 + 答案册，按题号一一对照：先自己做，再点开「答案与解析」。全书 750 题连续编号，本站按章拆成 7 页，当前是 <b>@@RANGE@@</b>（第 @@QLO@@–@@QHI@@ 题）。</p>
+              <p class="lede">宋浩《高等数学（@@PART@@）精选 750 题》的题目册 + 答案册，按题号一一对照：先自己做，再点开「答案与解析」。全书按章拆页，当前是 <b>@@RANGE@@</b>（@@PART@@第 @@QLO@@–@@QHI@@ 题）。</p>
               <div class="chips">
                 <span class="chipk"><b>@@NQ@@</b> 题</span>
                 <span class="chipk"><b>@@NSEC@@</b> 节</span>
@@ -295,7 +342,7 @@ HEAD = """<!DOCTYPE html>
               <div class="callout ok">
                 <p><b>怎么刷</b></p>
                 <p>① 遮住答案，先按题号自己做一遍；② 卡住时点「答案与解析」，重点看解析里<b>第一步怎么想到的</b>，不是看结果；③ 每节开头有「本节知识点与公式」，忘了就先扫一眼；④ 做错的题在题号上点一下（会变蓝），下次打开还在。</p>
-                <p>题目与答案来自《高等数学（上册）精选 750 题》（宋浩主编）扫描件整理；公式用 KaTeX 排版。原书第 97 页缺失，第 721–725 题仅存答案，标为「缺题干」。整理过程中个别符号可能有出入，以纸质书为准。</p>
+                <p>题目与答案来自《高等数学（@@PART@@）精选 750 题》（宋浩主编）扫描件整理；公式用 KaTeX 排版。@@NOTE@@</p>
               </div>
 @@CHAPTERS@@
 @@VOLNAV@@
@@ -339,7 +386,7 @@ def ch_label(c):
 
 def volbar_html(cur):
     out = []
-    for c in CHAPS:
+    for c in ALL_CHAPS:
         on = " on" if c["no"] == cur else ""
         out.append('<a class="vol%s" href="./%s" title="%s">%s</a>'
                    % (on, c["fname"], c["ch"], c["short"]))
@@ -347,9 +394,9 @@ def volbar_html(cur):
 
 
 def volnav_html(cur):
-    idx = [c["no"] for c in CHAPS].index(cur)
-    prev = CHAPS[idx - 1] if idx > 0 else None
-    nxt = CHAPS[idx + 1] if idx + 1 < len(CHAPS) else None
+    idx = [c["no"] for c in ALL_CHAPS].index(cur)
+    prev = ALL_CHAPS[idx - 1] if idx > 0 else None
+    nxt = ALL_CHAPS[idx + 1] if idx + 1 < len(ALL_CHAPS) else None
     left = ('<a class="vnav prev" href="./%s"><span>← 上一章</span><b>%s %s</b></a>'
             % (prev["fname"], ch_label(prev), prev["title"])) if prev \
         else '<span class="vnav ghost"></span>'
@@ -379,6 +426,10 @@ def build_volume(vol):
 
     NQ, NCH, NSEC, TAGS = stats()
     rng = "第%d章 · %s" % (no, vol["title"])
+    part_label = "上册" if PART == "up" else "下册"
+    book_attr = "m750" if PART == "up" else "m750d"
+    note = (("原书第 97 页缺失，第 721–725 题仅存答案，标为「缺题干」。") if PART == "up" else "") \
+        + "整理过程中个别符号可能有出入，以纸质书为准。"
 
     math = io.open(os.path.join(SITE, "en", "math.html"), encoding="utf-8").read()
     icon = math[math.index('<link rel="icon"'):]
@@ -399,6 +450,9 @@ def build_volume(vol):
                 .replace("@@CHAPTERS@@", "\n".join(chapter_html(ch, i + 1)
                                                    for i, ch in enumerate(TREE)))
                 .replace("@@RANGE@@", rng)
+                .replace("@@PART@@", part_label)
+                .replace("@@BOOKATTR@@", book_attr)
+                .replace("@@NOTE@@", note)
                 .replace("@@NQ@@", str(NQ))
                 .replace("@@NCH@@", str(NCH))
                 .replace("@@NSEC@@", str(NSEC))
@@ -413,18 +467,23 @@ def build_volume(vol):
 
     out = os.path.join(SITE, "en", fname)
     io.open(out, "w", encoding="utf-8", newline="\n").write(page)
-    print("[第%d章] %-18s %3d 题 / %d 节 / %4d 公式 / %.2f MB"
-          % (no, fname, NQ, NSEC, len(_tex), len(page) / 1048576.0))
+    print("[%s 第%d章] %-18s %3d 题 / %d 节 / %4d 公式 / %.2f MB"
+          % (part_label, no, fname, NQ, NSEC, len(_tex), len(page) / 1048576.0))
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--vol", type=int, default=0, help="只生成某一章（1–7），默认全部")
+    ap.add_argument("--part", choices=["up", "down", "all"], default="all",
+                    help="上册 up / 下册 down / 全部 all")
+    ap.add_argument("--vol", type=int, default=0, help="只生成某一章（1–13），默认全部")
     args = ap.parse_args()
 
-    vols = [v for v in CHAPS if not args.vol or v["no"] == args.vol]
-    for v in vols:
-        build_volume(v)
+    parts = ["up", "down"] if args.part == "all" else [args.part]
+    for part in parts:
+        chaps = load_part(part)
+        vols = [v for v in chaps if not args.vol or v["no"] == args.vol]
+        for v in vols:
+            build_volume(v)
 
 
 if __name__ == "__main__":
