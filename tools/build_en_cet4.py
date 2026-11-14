@@ -47,11 +47,15 @@ def render_session(sess):
         n = s["set"]
         body = []
         if s["writing"]:
-            body.append(
-                '<p class="paper-w"><i>Writing</i>%s</p>' % esc(s["writing"]))
+            w = s["writing"]
+            if len(w) > 118:
+                w = w[:118].rsplit(" ", 1)[0] + " …"
+            body.append('<p class="paper-w"><i>Writing</i>%s</p>' % esc(w))
         if s["translation"]:
-            body.append(
-                '<p class="paper-t"><i>Translation</i>%s</p>' % esc(s["translation"]))
+            t = s["translation"]
+            if len(t) > 76:
+                t = t[:76] + "…"
+            body.append('<p class="paper-t"><i>Translation</i>%s</p>' % esc(t))
         if s["r1"] or s["r2"]:
             rr = []
             if s["r1"]:
@@ -285,7 +289,7 @@ table.trtbl td.tr { font-size: 12.5px; line-height: 1.8; color: var(--ink-2); }
             </table></div>
             <div class="callout"><p><b>先算一笔账：</b>想稳过 425，听力 + 阅读最好拿到 300 分以上（各 150 分左右），写作 + 翻译合计 110 分以上。反过来，如果听力只有 120 分，写作和翻译就要接近 160 分才补得回来 —— 这就是为什么「只背作文模板」通常不够。</p></div>
 
-            <div class="sec-t"><h2 id="papers">真题卷宗 · 24 套</h2><em>写作题与翻译题按原卷录入，阅读只标主题</em></div>
+            <div class="sec-t"><h2 id="papers">真题卷宗 · 24 套</h2><em>点卡片进入整卷页：题目 + 解析</em></div>
             <p class="meta">下面是每套的摘要。点「打开整套」进入整卷页：<b>听力 25 题</b>的 A–D 选项、<b>阅读三节</b>（选词填空 / 段落匹配 / 两篇仔细阅读）原文与题目、写作题干、翻译原文，以及解析册的<b>答案与逐题讲解</b>（按 Part 折叠）。2026 年 6 月第 1、2 套原卷是扫描件，整卷页里只有原卷说明。</p>
             %%PAPERINDEX%%
             %%SESSIONS%%

@@ -54,29 +54,62 @@ def load():
 
 CSS = """
 <style>
-.qitem { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 10px 13px; margin: 9px 0; }
-.qitem .qh { font-size: 12.6px; color: var(--ink-2); line-height: 1.75; margin-bottom: 5px; }
-.qitem .qn { display: inline-block; min-width: 26px; margin-right: 6px; padding: 0 6px; border-radius: 5px;
-  background: rgb(var(--accent-rgb) / .12); color: var(--accent); font-weight: 600; font-size: 11.6px; text-align: center; }
-.qgroup { margin: 16px 0 6px; font-size: 12.4px; color: var(--accent); font-weight: 600; }
-.opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 18px; }
-@media (max-width: 720px) { .opts { grid-template-columns: 1fr; } }
-.opts div { font-size: 12.4px; line-height: 1.7; color: var(--ink-3); }
-.opts b { color: var(--ink-2); margin-right: 4px; }
-.paper-body { font-size: 13.2px; line-height: 1.9; color: var(--ink-2); }
-.paper-body p { margin: 7px 0; }
-.paper-body p.dir { font-size: 12.3px; color: var(--ink-4); }
-.part { margin: 30px 0 8px; padding-bottom: 7px; border-bottom: 1px solid var(--line); }
-.part h2 { margin: 0; font-size: 17px; }
-.part em { font-style: normal; font-size: 12.4px; color: var(--ink-4); margin-left: 8px; }
-.solbox { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); margin: 12px 0; }
-.solbox summary { cursor: pointer; padding: 11px 14px; font-size: 13.2px; font-weight: 600; color: var(--ink); }
+/* 整卷页：正文按「文章」排版，题目按「题卡」排版，尽量贴近 MDN / Notion 的阅读密度 */
+.paper-body { font-size: 15px; line-height: 1.95; color: var(--ink-2); max-width: 76ch; }
+.paper-body p { margin: 12px 0; }
+.paper-body .rsec { margin: 34px 0 12px; padding: 9px 0 9px 13px; border-left: 3px solid var(--accent);
+  font-size: 15px; letter-spacing: .02em; color: var(--ink); background: rgb(var(--accent-rgb) / .06);
+  border-radius: 0 9px 9px 0; }
+.paper-body .rsub { margin: 24px 0 8px; font-size: 14.5px; color: var(--ink); }
+.paper-body p.rq { margin: 20px 0 8px; font-size: 14.7px; font-weight: 500; color: var(--ink); }
+.dirbox { margin: 14px 0; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.dirbox summary { padding: 8px 13px; font-size: 12.4px; color: var(--ink-4); cursor: pointer; }
+.dirbox p { margin: 0; padding: 0 13px 12px; font-size: 12.8px; line-height: 1.8; color: var(--ink-4); }
+.bank { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px 14px; margin: 18px 0;
+  padding: 13px 15px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.bank span { display: flex; gap: 5px; font-size: 13px; color: var(--ink-2); }
+.bank span b { font-size: 12.2px; font-weight: 600; color: var(--accent); }
+@media (max-width: 720px) { .bank { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.qnav { position: sticky; top: 0; z-index: 4; display: flex; flex-wrap: wrap; gap: 5px;
+  padding: 9px 0; margin: 2px 0 12px; background: var(--bg, transparent); backdrop-filter: blur(7px); }
+.qnav a { min-width: 27px; padding: 3px 6px; text-align: center; border-radius: 6px; border: 1px solid var(--line);
+  font-size: 12px; color: var(--ink-3); text-decoration: none; }
+.qnav a:hover { border-color: rgb(var(--accent-rgb) / .55); color: var(--accent); }
+.qlist { display: grid; gap: 10px; }
+.qgroup { margin: 18px 0 1px; font-size: 12.6px; font-weight: 600; color: var(--accent); }
+.qitem { display: grid; grid-template-columns: 38px 1fr; gap: 12px; padding: 13px 16px;
+  border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.qitem:target { border-color: rgb(var(--accent-rgb) / .6); background: rgb(var(--accent-rgb) / .05); }
+.qno { font-size: 20px; font-weight: 700; line-height: 1.15; text-align: right; color: rgb(var(--accent-rgb) / .7); }
+.qstem { margin: 0 0 9px; font-size: 14.2px; line-height: 1.75; color: var(--ink); }
+.opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px 22px; }
+.opt { display: grid; grid-template-columns: 22px 1fr; gap: 7px; font-size: 13.6px; line-height: 1.7; color: var(--ink-2); }
+.opt b { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px;
+  border-radius: 50%; border: 1px solid var(--line-2); font-size: 11.5px; color: var(--ink-3); }
+@media (max-width: 760px) {
+  .opts { grid-template-columns: 1fr; }
+  .qitem { grid-template-columns: 30px 1fr; padding: 12px 13px; }
+  .qno { font-size: 17px; }
+}
+
+.wcard { margin: 14px 0; padding: 16px 19px; border: 1px solid var(--line); border-radius: 12px;
+  background: linear-gradient(180deg, rgb(var(--accent-rgb) / .07), transparent 62%), var(--surface); }
+.wtag { margin-bottom: 7px; font-size: 11.6px; letter-spacing: .08em; color: var(--accent); }
+.wcard p { margin: 0; font-size: 14.7px; line-height: 1.95; color: var(--ink); }
+
+.solbox { margin: 12px 0; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.solbox summary { padding: 12px 16px; font-size: 13.4px; font-weight: 600; color: var(--ink); cursor: pointer; }
 .solbox summary::marker { color: var(--accent); }
-.solbody { padding: 0 14px 14px; border-top: 1px dashed var(--line); }
-.solbody p { margin: 7px 0; font-size: 12.6px; line-height: 1.85; color: var(--ink-2); }
-.navpair { display: flex; justify-content: space-between; gap: 10px; margin: 26px 0 4px; }
-.navpair a { font-size: 12.6px; }
-.meta2 { font-size: 12.4px; color: var(--ink-4); }
+.solbody { padding: 2px 16px 16px; border-top: 1px dashed var(--line); }
+.solbody p { margin: 12px 0; }
+.solbody .solh { margin: 26px 0 8px; font-size: 13.6px; font-weight: 600; color: var(--accent); }
+.solbody .solq { margin: 18px 0 6px; font-size: 13px; font-weight: 600; color: var(--ink); }
+.solbody p.en { color: var(--ink-3); font-size: 13.4px; line-height: 1.78; }
+.solbody p.zh { color: var(--ink); font-size: 14px; line-height: 1.95; }
+.navpair { display: flex; justify-content: space-between; gap: 10px; margin: 30px 0 6px; }
+.navpair a { font-size: 12.8px; }
+.meta2 { font-size: 12.6px; color: var(--ink-4); }
 </style>
 """
 
@@ -172,7 +205,10 @@ SESSION_ORDER = ["2026-06", "2025-12", "2025-06", "2024-12", "2024-06", "2023-12
 def render_listening(items, groups=None):
     if not items:
         return '<p class="meta">本套原卷未单列听力（该次考试听音与另一套一致，或原卷只提供写作与翻译）。</p>'
-    out = []
+    out = ['<nav class="qnav" aria-label="听力题号">']
+    for q in items:
+        out.append('<a href="#q%d">%d</a>' % (q["no"], q["no"]))
+    out.append('</nav><div class="qlist">')
     gmap = {g["from"]: g for g in (groups or [])}
     for q in items:
         g = gmap.get(q["no"])
@@ -180,27 +216,138 @@ def render_listening(items, groups=None):
             out.append('<div class="qgroup">Questions %d–%d · %s</div>'
                        % (g["from"], g["to"], esc(g["desc"])))
         o = q.get("opts", {})
-        cells = "".join('<div><b>%s</b>%s</div>' % (L, esc(o.get(L, ""))) for L in "ABCD")
-        stem = ('<div class="qh">%s</div>' % esc(q["stem"])) if q.get("stem") else ""
-        out.append('<div class="qitem"><div class="qh"><span class="qn">%d</span></div>'
-                  '<div class="qh">%s</div><div class="opts">%s</div></div>'
-                  % (q["no"], stem, cells))
+        cells = "".join('<div class="opt"><b>%s</b><span>%s</span></div>' % (L, esc(o.get(L, "")))
+                        for L in "ABCD")
+        stem = ('<p class="qstem">%s</p>' % esc(q["stem"])) if q.get("stem") else ""
+        out.append('<div class="qitem" id="q%d"><div class="qno">%d</div>'
+                   '<div class="qbody">%s<div class="opts">%s</div></div></div>'
+                   % (q["no"], q["no"], stem, cells))
+    out.append("</div>")
     return "".join(out)
 
 
+MARK = re.compile(r"^(Section [ABC]|Passage (One|Two)|Directions|Questions? \d|Reading Comprehension|Part [IVX]+)")
+QBANK = re.compile(r"^(?:[A-O]|0)\)")
+QNUM = re.compile(r"^\d{1,2}\.\s")
+
+
+def reading_blocks(text):
+    lines = [x.strip() for x in text.split("\n") if x.strip()]
+    out = []
+    i = 0
+    n = len(lines)
+    while i < n:
+        s = lines[i]
+        if re.match(r"^Section [ABC]$", s):
+            out.append(("h2", s)); i += 1; continue
+        if s in ("Passage One", "Passage Two"):
+            out.append(("h3", s)); i += 1; continue
+        if s.startswith("Directions"):
+            buf = [s]; i += 1
+            while i < n and not MARK.match(lines[i]) and not QNUM.match(lines[i]) and not QBANK.match(lines[i]):
+                buf.append(lines[i]); i += 1
+            out.append(("dir", " ".join(buf))); continue
+        if QBANK.match(s):
+            raw = []
+            while i < n and QBANK.match(lines[i]):
+                raw.append(lines[i]); i += 1
+            items = {}
+            for ln in raw:
+                parts = re.split(r"(?<![A-Za-z])([A-O0])\)\s*", ln)
+                for k in range(1, len(parts) - 1, 2):
+                    v = parts[k+1].strip()
+                    letter = "O" if parts[k] == "0" else parts[k]
+                    if v and letter not in items:
+                        items[letter] = v
+            out.append(("bank", sorted(items.items()))); continue
+        if QNUM.match(s):
+            buf = [s]; i += 1
+            while i < n and not QNUM.match(lines[i]) and not MARK.match(lines[i]) and not QBANK.match(lines[i]):
+                buf.append(lines[i]); i += 1
+            out.append(("q", " ".join(buf))); continue
+        buf = [s]; i += 1
+        while i < n and not MARK.match(lines[i]) and not QNUM.match(lines[i]) and not QBANK.match(lines[i]):
+            buf.append(lines[i]); i += 1
+            joined = " ".join(buf)
+            if re.search(r"[.?!。？！][”\"')]?$", buf[-1]) and len(joined) >= 140:
+                break
+        out.append(("p", " ".join(buf)))
+    return out
+
+
 def render_reading(text, note=""):
+    text = re.sub(r"<\d+>", "“", text)
+    text = re.sub(r",(\d)\s", ", ” ", text)
     if not text.strip():
         if note:
             return '<div class="callout"><p>%s</p></div>' % esc(note)
         return '<p class="meta">本套原卷为扫描件，阅读原文暂未录入。</p>'
+    blocks = reading_blocks(text)
     out = []
+    for kind, val in blocks:
+        if kind == "h2":
+            out.append('<h3 class="rsec">%s</h3>' % esc(val))
+        elif kind == "h3":
+            out.append('<h4 class="rsub">%s</h4>' % esc(val))
+        elif kind == "dir":
+            out.append('<details class="dirbox"><summary>考试说明 Directions</summary>'
+                       '<p>%s</p></details>' % esc(val))
+        elif kind == "bank":
+            out.append('<div class="bank">%s</div>'
+                       % "".join('<span><b>%s</b>%s</span>' % (esc(a), esc(w)) for a, w in val))
+        elif kind == "q":
+            out.append('<p class="rq">%s</p>' % esc(val))
+        else:
+            out.append('<p>%s</p>' % esc(val))
+    return '<div class="paper-body">%s</div>' % "".join(out)
+
+
+def paragraphs(text):
+    out = []
+    buf = ""
     for ln in text.split("\n"):
         s = ln.strip()
         if not s:
             continue
-        cls = ' class="dir"' if s.startswith("Directions") or s.startswith("Section") else ""
-        out.append("<p%s>%s</p>" % (cls, esc(s)))
-    return '<div class="paper-body">%s</div>' % "".join(out)
+        if re.match(r"^(Part [IVX]+|Section [ABC]|Listening Comprehension|Reading Comprehension|Writing|Translation)", s):
+            if buf: out.append(buf); buf = ""
+            out.append("@H@" + s)
+            continue
+        buf = (buf + " " + s).strip() if buf else s
+        if re.search(r"[.?!。？！][”\"')]?$", s) and len(buf) >= 90:
+            out.append(buf); buf = ""
+    if buf: out.append(buf)
+    return out
+
+
+def sol_blocks(text):
+    """OCR 解析册是「英文原文 / 中文讲解」交错的行，按语种分块比合并成长段好读。"""
+    out = []
+    cur = None
+    buf = []
+    def flush():
+        nonlocal cur, buf
+        if buf:
+            out.append((cur, " ".join(buf)))
+            buf = []
+    for ln in text.split("\n"):
+        s = ln.strip()
+        if not s:
+            continue
+        if re.match(r"^(Part [IVX]+|Section [ABC]|Listening Comprehension|Reading Comprehension|Writing|Translation)$", s):
+            flush(); cur = None
+            out.append(("h", s)); continue
+        if re.match(r"^\d{1,2}\s*[\.、]\s*\S", s) and len(s) < 120:
+            flush(); cur = None
+            out.append(("qh", s)); continue
+        zh = len(re.findall(r"[\u4e00-\u9fff]", s))
+        ratio = zh / max(len(s), 1)
+        kind = "zh" if ratio > 0.2 else "en"
+        if kind != cur:
+            flush(); cur = kind
+        buf.append(s)
+    flush()
+    return out
 
 
 def render_solution(sol, has_text):
@@ -212,20 +359,28 @@ def render_solution(sol, has_text):
                 '解析册是扫描件，正在做文字识别与校对，完成后会补在这一节。</p></div>')
     names = [("writing", "Part I 写作"), ("listening", "Part II 听力"),
              ("reading", "Part III 阅读"), ("translation", "Part IV 翻译")]
-    out = []
+    note = ('<div class="callout"><p><b>解析来自配套解析册的扫描件 OCR。</b>中文讲解与答案可直接检索；'
+            '英文原文、范文和选项里的单词可能有识别错字（例如把撇号认成 5、把 in 认成 1n），'
+            '引用到作文或翻译时请以原解析册为准。</p></div>')
+    out = [note]
     for key, name in names:
         txt = sol.get(key)
         if not txt:
             continue
-        body = "".join("<p>%s</p>" % esc(x.strip()) for x in txt.split("\n") if x.strip())
+        body = []
+        for kind, val in sol_blocks(txt):
+            if kind == "h":
+                body.append('<h5 class="solh">%s</h5>' % esc(val))
+            elif kind == "qh":
+                body.append('<h6 class="solq">%s</h6>' % esc(val))
+            else:
+                body.append('<p class="%s">%s</p>' % (kind, esc(val)))
         out.append('<details class="solbox"><summary>%s 解析</summary>'
-                   '<div class="solbody">%s</div></details>' % (name, body))
-    if not out:
+                   '<div class="solbody">%s</div></details>' % (name, "".join(body)))
+    if len(out) == 1:
         return '<div class="callout"><p>解析已识别，但没匹配到 Part 分段，请查看原解析册。</p></div>'
-    note = ('<div class="callout"><p><b>解析来自配套解析册的扫描件 OCR。</b>中文讲解与答案可直接检索；'
-            '英文原文、范文和选项里的单词可能有识别错字（例如把撇号认成 5、把 in 认成 1n），'
-            '引用到作文或翻译时请以原解析册为准。</p></div>')
-    return note + "".join(out)
+    return "".join(out)
+
 
 
 def build_body(p):
@@ -256,7 +411,8 @@ def build_body(p):
     body = [hero]
     body.append('<div class="sec-t"><h2 id="writing">Part I · 写作</h2><em>120–180 词，30 分钟</em></div>')
     if p.get("writing"):
-        body.append('<div class="paper-body"><p>%s</p></div>' % esc(p["writing"]))
+        body.append('<div class="wcard"><div class="wtag">Writing · 30 分钟 · 120–180 词</div>'
+                    '<p>%s</p></div>' % esc(p["writing"]))
     else:
         body.append('<div class="callout"><p>这一套原卷是扫描件，写作题干暂未录入。</p></div>')
 
@@ -271,7 +427,8 @@ def build_body(p):
 
     body.append('<div class="sec-t"><h2 id="translation">Part IV · 翻译</h2><em>140–160 字，30 分钟</em></div>')
     if p.get("translation"):
-        body.append('<div class="paper-body"><p>%s</p></div>' % esc(p["translation"]))
+        body.append('<div class="wcard"><div class="wtag">Translation · 30 分钟 · 140–160 字</div>'
+                    '<p>%s</p></div>' % esc(p["translation"]))
     else:
         body.append('<div class="callout"><p>这一套原卷是扫描件，翻译原文暂未录入。</p></div>')
 
