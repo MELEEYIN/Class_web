@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2023 年 3 月（延期考试） 第 2 套 · 六级学习专区</title>
+<meta name="description" content="2023 年 3 月（延期考试） 第 2 套：写作、听力、阅读、翻译原文与答案解析">
+<meta name="theme-color" content="#060d1a">
+<meta name="color-scheme" content="dark light">
+<script src="../../js/boot.js"></script>
+<link rel="stylesheet" href="../../acm/assets/shell.css">
+<link rel="stylesheet" href="../../acm/assets/content.css">
+<link rel="stylesheet" href="../ex.css">
+
+<style>
+/* 整卷页：正文按「文章」排版，题目按「题卡」排版，尽量贴近 MDN / Notion 的阅读密度 */
+.paper-body { font-size: 15px; line-height: 1.95; color: var(--ink-2); max-width: 76ch; }
+.paper-body p { margin: 12px 0; }
+.paper-body .rsec { margin: 34px 0 12px; padding: 9px 0 9px 13px; border-left: 3px solid var(--accent);
+  font-size: 15px; letter-spacing: .02em; color: var(--ink); background: rgb(var(--accent-rgb) / .06);
+  border-radius: 0 9px 9px 0; }
+.paper-body .rsub { margin: 24px 0 8px; font-size: 14.5px; color: var(--ink); }
+.paper-body p.rq { margin: 20px 0 8px; font-size: 14.7px; font-weight: 500; color: var(--ink); }
+.dirbox { margin: 14px 0; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.dirbox summary { padding: 8px 13px; font-size: 12.4px; color: var(--ink-4); cursor: pointer; }
+.dirbox p { margin: 0; padding: 0 13px 12px; font-size: 12.8px; line-height: 1.8; color: var(--ink-4); }
+.bank { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px 14px; margin: 18px 0;
+  padding: 13px 15px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.bank span { display: flex; gap: 5px; font-size: 13px; color: var(--ink-2); }
+.bank span b { font-size: 12.2px; font-weight: 600; color: var(--accent); }
+@media (max-width: 720px) { .bank { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.qnav { position: sticky; top: 0; z-index: 4; display: flex; flex-wrap: wrap; gap: 5px;
+  padding: 9px 0; margin: 2px 0 12px; background: var(--bg, transparent); backdrop-filter: blur(7px); }
+.qnav a { min-width: 27px; padding: 3px 6px; text-align: center; border-radius: 6px; border: 1px solid var(--line);
+  font-size: 12px; color: var(--ink-3); text-decoration: none; }
+.qnav a:hover { border-color: rgb(var(--accent-rgb) / .55); color: var(--accent); }
+.qlist { display: grid; gap: 10px; }
+.qgroup { margin: 18px 0 1px; font-size: 12.6px; font-weight: 600; color: var(--accent); }
+.qitem { display: grid; grid-template-columns: 38px 1fr; gap: 12px; padding: 13px 16px;
+  border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.qitem:target { border-color: rgb(var(--accent-rgb) / .6); background: rgb(var(--accent-rgb) / .05); }
+.qno { font-size: 20px; font-weight: 700; line-height: 1.15; text-align: right; color: rgb(var(--accent-rgb) / .7); }
+.qstem { margin: 0 0 9px; font-size: 14.2px; line-height: 1.75; color: var(--ink); }
+.opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px 22px; }
+.opt { display: grid; grid-template-columns: 22px 1fr; gap: 7px; font-size: 13.6px; line-height: 1.7; color: var(--ink-2); }
+.opt b { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px;
+  border-radius: 50%; border: 1px solid var(--line-2); font-size: 11.5px; color: var(--ink-3); }
+@media (max-width: 760px) {
+  .opts { grid-template-columns: 1fr; }
+  .qitem { grid-template-columns: 30px 1fr; padding: 12px 13px; }
+  .qno { font-size: 17px; }
+}
+
+.wcard { margin: 14px 0; padding: 16px 19px; border: 1px solid var(--line); border-radius: 12px;
+  background: linear-gradient(180deg, rgb(var(--accent-rgb) / .07), transparent 62%), var(--surface); }
+.wtag { margin-bottom: 7px; font-size: 11.6px; letter-spacing: .08em; color: var(--accent); }
+.wcard p { margin: 0; font-size: 14.7px; line-height: 1.95; color: var(--ink); }
+
+.solbox { margin: 12px 0; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.solbox summary { padding: 12px 16px; font-size: 13.4px; font-weight: 600; color: var(--ink); cursor: pointer; }
+.solbox summary::marker { color: var(--accent); }
+.solbody { padding: 2px 16px 16px; border-top: 1px dashed var(--line); }
+.solbody p { margin: 12px 0; }
+.solbody .solh { margin: 26px 0 8px; font-size: 13.6px; font-weight: 600; color: var(--accent); }
+.solbody .solq { margin: 18px 0 6px; font-size: 13px; font-weight: 600; color: var(--ink); }
+.solbody p.en { color: var(--ink-3); font-size: 13.4px; line-height: 1.78; }
+.solbody p.zh { color: var(--ink); font-size: 14px; line-height: 1.95; }
+.navpair { display: flex; justify-content: space-between; gap: 10px; margin: 30px 0 6px; }
+.navpair a { font-size: 12.8px; }
+.meta2 { font-size: 12.6px; color: var(--ink-4); }
+</style>
+
+</head>
+<body data-book="cet4">
+<div class="app">
+  <aside class="side" id="side">
+    <div class="side-top">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark is-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 6.5c-1.75-1.3-3.5-1.85-5.3-1.65a.95.95 0 0 0-.85.95v9.9c0 .62.53 1.09 1.15 1.02 1.55-.16 3.1.28 4.45 1.24.32.23.74.23 1.06 0 1.35-.96 2.9-1.4 4.45-1.24.62.07 1.15-.4 1.15-1.02 V5.8a.95.95 0 0 0-.85-.95c-1.8-.2-3.55.35-5.3 1.65z" fill="currentColor" fill-opacity=".96"/><path d="M12 7.7v9.4" stroke="rgba(20,40,90,.45)" stroke-width="1" stroke-linecap="round"/></svg></span>
+        <span class="brand-txt"><b>课程学习站</b><small>高数 · 英语 · 四级 · 制图</small></span>
+      </a>
+      <button class="side-x" id="sideX" type="button" aria-label="收起侧栏">✕</button>
+    </div>
+    <div class="side-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>
+      <input id="sideSearch" type="search" placeholder="搜本题干、选项…" autocomplete="off" aria-label="搜索">
+      <kbd>Ctrl K</kbd>
+    </div>
+    <div class="subj-sw"><a class="" href="../math.html">数学</a><a class="" href="../b1.html">英语</a><a class="" href="../cet4.html">四级</a><a class="on" href="../cet6.html">六级</a><a class="" href="../draw.html">制图</a></div><nav class="side-nav" id="nav" aria-label="站点目录"><div class="nv-mod" data-mod="cet6"><button class="nv-h" type="button" data-fold="cet6"><span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span><b>六级学习专区</b><em>24</em></button><div class="nv-list"><div class="nv-grp">备考</div><a class="nv-i" href="../cet6.html#exam"><span class="no">01</span><span class="tt">考试结构与分值</span><span class="mk"></span></a><a class="nv-i" href="../cet6.html#rules"><span class="no">02</span><span class="tt">近年命题规律</span><span class="mk"></span></a><a class="nv-i" href="../cet6.html#plan"><span class="no">03</span><span class="tt">30 天备考计划</span><span class="mk"></span></a><div class="nv-grp">真题卷宗 · 8 次考试</div><a class="nv-i" href="../cet6.html#papers"><span class="no">ALL</span><span class="tt">24 套真题总览</span><span class="mk"></span></a><a class="nv-i" href="../cet6.html#p2026-06"><span class="no">26.6</span><span class="tt">2026 年 6 月</span><span class="mk"></span></a><a class="nv-i" href="../cet6.html#p2025-12"><span class="no">25.12</span><span class="tt">2025 年 12 月</span><span class="mk"></span></a><a class="nv-i" href="../cet6.html#p2025-06"><span class="no">25.6</span><span class="tt">2025 年 6 月</span><span class="mk"></span></a><a class="nv-i" href="../cet6.html#p2024-12"><span class="no">24.12</span><span class="tt">2024 年 12 月</span><span class="mk"></span></a><a class="nv-i" href="../cet6.html#p2024-06"><span class="no">24.6</span><span class="tt">2024 年 6 月</span><span class="mk"></span></a><a class="nv-i" href="../cet6.html#p2023-12"><span class="no">23.12</span><span class="tt">2023 年 12 月</span><span class="mk"></span></a><a class="nv-i" href="../cet6.html#p2023-06"><span class="no">23.6</span><span class="tt">2023 年 6 月</span><span class="mk"></span></a><a class="nv-i" href="../cet6.html#p2023-03"><span class="no">23.3</span><span class="tt">2023 年 3 月（延期）</span><span class="mk"></span></a><div class="nv-grp">题库</div><a class="nv-i" href="../cet6.html#writing"><span class="no">W</span><span class="tt">写作题库</span><span class="mk"></span></a><a class="nv-i" href="../cet6.html#translation"><span class="no">T</span><span class="tt">翻译题库</span><span class="mk"></span></a></div></div><div class="nv-mod fold" data-mod="cet4"><button class="nv-h" type="button" data-fold="cet4"><span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span><b>四级学习专区</b><em>22</em></button><div class="nv-list"><div class="nv-grp">备考</div><a class="nv-i" href="../cet4.html#exam"><span class="no">01</span><span class="tt">考试结构与分值</span><span class="mk"></span></a><a class="nv-i" href="../cet4.html#rules"><span class="no">02</span><span class="tt">近年命题规律</span><span class="mk"></span></a><a class="nv-i" href="../cet4.html#plan"><span class="no">03</span><span class="tt">30 天备考计划</span><span class="mk"></span></a><div class="nv-grp">真题卷宗 · 8 次考试</div><a class="nv-i" href="../cet4.html#papers"><span class="no">ALL</span><span class="tt">24 套真题总览</span><span class="mk"></span></a><a class="nv-i" href="../cet4.html#p2026-06"><span class="no">26.6</span><span class="tt">2026 年 6 月</span><span class="mk"></span></a><a class="nv-i" href="../cet4.html#p2025-12"><span class="no">25.12</span><span class="tt">2025 年 12 月</span><span class="mk"></span></a><a class="nv-i" href="../cet4.html#p2025-06"><span class="no">25.6</span><span class="tt">2025 年 6 月</span><span class="mk"></span></a><a class="nv-i" href="../cet4.html#p2024-12"><span class="no">24.12</span><span class="tt">2024 年 12 月</span><span class="mk"></span></a><a class="nv-i" href="../cet4.html#p2024-06"><span class="no">24.6</span><span class="tt">2024 年 6 月</span><span class="mk"></span></a><a class="nv-i" href="../cet4.html#p2023-12"><span class="no">23.12</span><span class="tt">2023 年 12 月</span><span class="mk"></span></a><a class="nv-i" href="../cet4.html#p2023-06"><span class="no">23.6</span><span class="tt">2023 年 6 月</span><span class="mk"></span></a><a class="nv-i" href="../cet4.html#p2023-03"><span class="no">23.3</span><span class="tt">2023 年 3 月（延期）</span><span class="mk"></span></a><div class="nv-grp">题库</div><a class="nv-i" href="../cet4.html#writing"><span class="no">W</span><span class="tt">写作题库 · 22 题</span><span class="mk"></span></a><a class="nv-i" href="../cet4.html#translation"><span class="no">T</span><span class="tt">翻译题库 · 22 段</span><span class="mk"></span></a></div></div><div class="nv-mod fold" data-mod="en"><button class="nv-h" type="button" data-fold="en"><span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span><b>大学英语</b><em>4</em></button><div class="nv-list"><div class="nv-grp">第 1 册 · 六个单元</div><a class="nv-i" href="../b1.html#u1"><span class="no">01</span><span class="tt">College Life</span><span class="mk"></span></a><a class="nv-i" href="../b1.html#u2"><span class="no">02</span><span class="tt">Understanding Relationships</span><span class="mk"></span></a><a class="nv-i" href="../b1.html#u3"><span class="no">03</span><span class="tt">Holidays and Traditions</span><span class="mk"></span></a><a class="nv-i" href="../b1.html#u4"><span class="no">04</span><span class="tt">Leisure</span><span class="mk"></span></a><a class="nv-i" href="../b1.html#u5"><span class="no">05</span><span class="tt">Language Learning</span><span class="mk"></span></a><a class="nv-i" href="../b1.html#u6"><span class="no">06</span><span class="tt">Food and Culture</span><span class="mk"></span></a><div class="nv-grp">其他册</div><a class="nv-i" href="../b2.html"><span class="no">B2</span><span class="tt">第 2 册</span><span class="mk"></span></a><a class="nv-i" href="../b3.html"><span class="no">B3</span><span class="tt">第 3 册</span><span class="mk"></span></a><a class="nv-i" href="../b4.html"><span class="no">B4</span><span class="tt">第 4 册</span><span class="mk"></span></a></div></div><div class="nv-mod fold" data-mod="draw"><button class="nv-h" type="button" data-fold="draw"><span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span><b>工程制图</b><em>9</em></button><div class="nv-list"><div class="nv-grp">第一～九章</div><a class="nv-i" href="../draw.html#d1"><span class="no">01</span><span class="tt">制图的基本知识</span><span class="mk"></span></a><a class="nv-i" href="../draw.html#d2"><span class="no">02</span><span class="tt">正投影法基础</span><span class="mk"></span></a><a class="nv-i" href="../draw.html#d3"><span class="no">03</span><span class="tt">立体的投影</span><span class="mk"></span></a><a class="nv-i" href="../draw.html#d4"><span class="no">04</span><span class="tt">轴测投影图</span><span class="mk"></span></a><a class="nv-i" href="../draw.html#d5"><span class="no">05</span><span class="tt">组合体视图</span><span class="mk"></span></a><a class="nv-i" href="../draw.html#d6"><span class="no">06</span><span class="tt">机件常用的表达方法</span><span class="mk"></span></a><a class="nv-i" href="../draw.html#d7"><span class="no">07</span><span class="tt">标准件、齿轮和弹簧</span><span class="mk"></span></a><a class="nv-i" href="../draw.html#d8"><span class="no">08</span><span class="tt">零件图</span><span class="mk"></span></a><a class="nv-i" href="../draw.html#d9"><span class="no">09</span><span class="tt">装配图</span><span class="mk"></span></a></div></div><div class="nv-mod fold" data-mod="math"><button class="nv-h" type="button" data-fold="math"><span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span><b>高等数学</b><em>13</em></button><div class="nv-list"><div class="nv-grp">上册 · 第一～七章</div><a class="nv-i" href="../math.html#m1"><span class="no">01</span><span class="tt">函数与极限</span><span class="mk"></span></a><a class="nv-i" href="../math.html#m2"><span class="no">02</span><span class="tt">导数与微分</span><span class="mk"></span></a><a class="nv-i" href="../math.html#m3"><span class="no">03</span><span class="tt">中值定理与导数应用</span><span class="mk"></span></a><a class="nv-i" href="../math.html#m4"><span class="no">04</span><span class="tt">不定积分</span><span class="mk"></span></a><a class="nv-i" href="../math.html#m5"><span class="no">05</span><span class="tt">定积分</span><span class="mk"></span></a><a class="nv-i" href="../math.html#m6"><span class="no">06</span><span class="tt">定积分的应用</span><span class="mk"></span></a><a class="nv-i" href="../math.html#m7"><span class="no">07</span><span class="tt">微分方程</span><span class="mk"></span></a><div class="nv-grp">下册 · 第八～十三章</div><a class="nv-i" href="../math.html#m8"><span class="no">08</span><span class="tt">向量代数与空间解析几何</span><span class="mk"></span></a><a class="nv-i" href="../math.html#m9"><span class="no">09</span><span class="tt">多元函数微分法</span><span class="mk"></span></a><a class="nv-i" href="../math.html#m10"><span class="no">10</span><span class="tt">重积分</span><span class="mk"></span></a><a class="nv-i" href="../math.html#m11"><span class="no">11</span><span class="tt">曲线积分</span><span class="mk"></span></a><a class="nv-i" href="../math.html#m12"><span class="no">12</span><span class="tt">曲面积分</span><span class="mk"></span></a><a class="nv-i" href="../math.html#m13"><span class="no">13</span><span class="tt">无穷级数</span><span class="mk"></span></a><div class="nv-grp">练习册 · 750 题</div><div class="nv-sub">上册</div><div class="nv-vols"><a class="nv-vol" href="../math750.html" title="上册 函数与极限">第1章</a><a class="nv-vol" href="../math750-2.html" title="上册 导数与微分">第2章</a><a class="nv-vol" href="../math750-3.html" title="上册 中值定理">第3章</a><a class="nv-vol" href="../math750-4.html" title="上册 不定积分">第4章</a><a class="nv-vol" href="../math750-5.html" title="上册 定积分">第5章</a><a class="nv-vol" href="../math750-6.html" title="上册 定积分应用">第6章</a><a class="nv-vol" href="../math750-7.html" title="上册 微分方程">第7章</a></div><div class="nv-sub">下册</div><div class="nv-vols"><a class="nv-vol" href="../math750-8.html" title="下册 向量与空间解析几何">第8章</a><a class="nv-vol" href="../math750-9.html" title="下册 多元函数微分">第9章</a><a class="nv-vol" href="../math750-10.html" title="下册 重积分">第10章</a><a class="nv-vol" href="../math750-11.html" title="下册 曲线积分">第11章</a><a class="nv-vol" href="../math750-12.html" title="下册 曲面积分">第12章</a><a class="nv-vol" href="../math750-13.html" title="下册 无穷级数">第13章</a></div></div></div></nav>
+    <div class="side-foot">
+      <div class="pg-t"><span>本套</span><b>0 题听力 · 30 题阅读</b></div>
+      <div class="side-tools">
+        <a class="mini-btn" href="../cet6.html">六级专区</a>
+        <a class="mini-btn" href="./2023-03-1.html">上一套</a>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="top" id="top">
+      <button class="burger" id="burger" type="button" aria-label="打开目录">☰</button>
+      <div class="crumb"><a href="../../index.html">校园主页</a><span class="sep">/</span><a href="../index.html">课程学习站</a><span class="sep">/</span><a href="../cet6.html">六级学习专区</a><span class="sep">/</span><span class="cur">2023 年 3 月（延期考试） 第 2 套</span></div>
+      <div class="top-r">
+        <a class="top-btn home-btn" href="../../index.html" title="回到网站主页"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.6 12 4l8 6.6"/><path d="M6.4 9.4V19a1 1 0 0 0 1 1h3.1v-4.6h3v4.6h3.1a1 1 0 0 0 1-1V9.4"/></svg><span class="tl">返回主页</span></a>
+        <button class="top-btn" id="themeBtn" type="button" title="切换深浅色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/><circle cx="12" cy="12" r="3.6"/></svg><span class="tl">浅色</span></button>
+        <a class="top-btn" href="../cet6.html"><span class="tl">六级专区</span></a>
+      </div>
+    </header>
+
+    <button class="to-top" id="toTop" type="button" aria-label="回到顶部" title="回到顶部"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
+
+    <div class="scroll" id="scroll">
+      <div class="readbar"><i id="readBar"></i></div>
+      <div class="view">
+        <div class="stage">
+          <article class="doc doc-study" id="doc">
+<header class="hero"><div class="eyebrow">CET-6 · 2023 年 3 月（延期考试） · 第 2 套</div><h1>2023 年 3 月（延期考试） <span>第 2 套</span></h1><p>本次考试听力和阅读三套共用一套，原卷只提供写作与翻译；听读内容见第 1 套</p><div class="hero-stats"><div><b>0</b><span>听力题</span></div><div><b>0</b><span>阅读题</span></div><div><b>1</b><span>篇写作</span></div><div><b>1</b><span>段翻译</span></div></div></header><div class="sec-t"><h2 id="writing">Part I · 写作</h2><em>150–200 词，30 分钟</em></div><div class="wcard"><div class="wtag">Writing · 30 分钟 · 150–200 词</div><p>For this part, you are allowed 30 minutes to write an essay that begins with the sentence "People are now increasingly aware of the challenges in making a decision when faced with too many choices." You can make comments, cite examples or use your personal experiences to develop your essay. You should write at least 150 words but no more than 200 words.</p></div><div class="sec-t"><h2 id="listening">Part II · 听力</h2><em>本次未单列听力</em></div><div class="sec-t"><h2 id="reading">Part III · 阅读</h2><em>选词填空 + 段落匹配 + 两篇仔细阅读</em></div><div class="callout"><p>本次考试听力和阅读三套共用一套，原卷只提供写作与翻译；听读内容见第 1 套</p></div><div class="sec-t"><h2 id="translation">Part IV · 翻译</h2><em>180–200 字，30 分钟</em></div><div class="wcard"><div class="wtag">Translation · 30 分钟 · 180–200 字</div><p>郑和是中国历史上最杰出的航海家,在航海、外交、军事等诸多领域都表现出非凡的智慧和卓越的才能。他曾七次率领庞大的船队远航,访问了西太平洋和印度洋的许多国家和地区,加深了中国同东南亚、东非的相互了解。郑和下西洋对中外的经济和文化交流起到了十分积极的推进作用,也为维护区域和平做出了巨大贡献。为了永远铭记郑和及其丰功伟绩，7 月11 日，即郑和首次率船队远航启程的日子，被定为中国的航海节。</p></div><div class="sec-t"><h2 id="solution">答案解析</h2><em>来自配套解析册</em></div><div class="callout"><p><b>解析整理中。</b>原卷题目已经录入；解析册是扫描件，正在做文字识别与校对，完成后会补在这一节。</p></div><div class="navpair"><a href="./2023-03-1.html">← 2023 年 3 月（延期考试） 第 1 套</a><a href="../cet6.html">六级专区总览 →</a><a href="./2023-03-3.html">2023 年 3 月（延期考试） 第 3 套 →</a></div><div class="home-foot"><span>© 2026 校园主页 · 课程学习站 · 纯静态页面，不收集任何数据</span><span>真题原文版权归原出版方与考试机构；本页仅用于个人备考</span></div>
+          </article>
+        </div>
+        <aside class="rail" id="rail">
+          <div class="rail-in">
+            <div class="rail-t">本页目录</div>
+            <nav id="tocList"></nav>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="mask"></div>
+<script src="../skin.js"></script>
+<script src="../en.js"></script>
+</body>
+</html>
