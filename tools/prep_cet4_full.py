@@ -33,10 +33,22 @@ def rows_of(doc, order=None):
     return rows
 
 def clean(t):
-    t=t.replace("\u00ad","")
-    t=re.sub(r"\d{4}\s*年\s*\d{1,2}\s*月\s*四级真题[^•·\n]*[•·]?\s*\d?","",t)
-    t=re.sub(r"[^\n]*•\s*\d{4}[^\n]*", "", t)
-    return t
+    t = t.replace("\u00ad", "")
+    t = re.sub(r"\d{4}\s*年\s*\d{1,2}\s*月\s*四级真题[^•·\n]*[•·]?\s*\d?", "", t)
+    t = re.sub(r"[^\n]*•\s*\d{4}[^\n]*", "", t)
+    out = []
+    for ln in t.split("\n"):
+        s = " ".join(ln.split())
+        if not s:
+            continue
+        # 原卷 PDF 里夹带的商家水印/店铺名，一律不进页面
+        if re.search(r"淘宝|天猫|旗舰店|易提分|百度云|拼多多|京东", s):
+            continue
+        s = s.replace("谈辰教育", "").replace("谈辰图书企业店", "").strip()
+        if s:
+            out.append(s)
+    return "\n".join(out)
+
 
 def extract_q(rows, lo, hi):
     qs=[(pg,y,x,txt) for pg,y,x,txt in rows if re.match(r"^\s*(\d{1,2})\.", txt)]

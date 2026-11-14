@@ -19,6 +19,9 @@ def clean(pages):
         if re.search(r"第\s*\d+\s*页[，,]\s*共\s*\d+\s*页", s): continue
         if re.search(r"四级\s*20\d\d\.\d+", s): continue
         if re.match(r"^•?\s*四级\s*20\d\d", s): continue
+        if re.search(r"淘宝|天猫|旗舰店|易提分|百度云|拼多多|京东", s): continue
+        s = s.replace("谈辰教育", "").replace("谈辰图书企业店", "").strip()
+        if not s: continue
         out.append(s)
     return "\n".join(out)
 
