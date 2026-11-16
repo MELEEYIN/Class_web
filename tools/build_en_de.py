@@ -202,7 +202,7 @@ CHAPTERS += [
                              rows=[["1", "激励方程 J=…、K=…", "漏写某个触发器的输入"],
                                    ["2", "状态方程 Q* = …", "忘记代入特性方程"],
                                    ["3", "输出方程 Z = …", "把输出当成状态"],
-                                   ["4", "状态表 / 状态图", "无效状态没列"]]),
+                                   ["4", "按现态列出次态", "无效状态没列"]]),
                   note="异步时序电路还要看每个触发器的时钟是不是同一个，只有被时钟触发的才更新。"),
              dict(h="6.2 同步时序电路设计",
                   ps=["步骤：画原始状态图 → 状态化简 → 状态编码 → 选触发器 → 求激励方程与输出方程 → 画电路 → 检查自启动。",
@@ -320,6 +320,8 @@ CSS = """
   background: rgb(var(--accent-rgb) / .06); border-radius: 0 8px 8px 0; font-size: 13px; color: var(--ink-3); }
 .de-ex { margin: 12px 0; }
 .de-ex .solbody p { margin: 9px 0; font-size: 14px; line-height: 1.9; }
+.de-chip { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 11.6px; font-weight: 600;
+  color: var(--accent); background: rgb(var(--accent-rgb) / .12); border: 1px solid rgb(var(--accent-rgb) / .3); white-space: nowrap; }
 .de-tips { margin: 14px 0 22px; padding: 12px 16px; border: 1px dashed var(--line-2); border-radius: 10px; }
 .de-tips b { display: block; margin-bottom: 4px; font-size: 12.6px; color: var(--accent); }
 .de-tips ul { margin: 4px 0 0; padding-left: 18px; }
@@ -344,6 +346,7 @@ HEAD = """<!DOCTYPE html>
 <link rel="stylesheet" href="../acm/assets/shell.css">
 <link rel="stylesheet" href="../acm/assets/content.css">
 <link rel="stylesheet" href="./ex.css">
+<link rel="stylesheet" href="./stm32.css">
 %%CSS%%
 </head>
 <body data-book="de">
@@ -415,12 +418,22 @@ TOPHAT = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-wid
 
 
 def render_chapter(ch):
-    out = ['<div class="sec-t"><h2 id="c%d">第 %d 章 · %s</h2><em>%s</em></div>'
-           % (ch["no"], ch["no"], esc(ch["title"]), esc(ch["tag"]))]
-    out.append('<p class="meta">%s</p>' % esc(ch["intro"]))
-    out.append('<div class="de-box">')
-    for sec in ch["sections"]:
-        out.append("<h3>%s</h3>" % esc(sec["h"]))
+    no = ch["no"]
+    out = ['<section class="unit stm" id="c%d" data-title="%02d · %s">' % (no, no, esc(ch["title"]))]
+    badge = {1: "基础", 2: "核心", 3: "选学", 4: "核心", 5: "核心",
+             6: "必考", 7: "基础", 8: "必考", 9: "必考"}.get(no, "核心")
+    goals = "".join("<li>%s</li>" % esc(sec["h"].split("：")[0]) for sec in ch["sections"][:4])
+    out.append('<div class="uhead"><div class="uno">%02d</div>'
+               '<div class="ut"><h2 class="u2t">%s<span class="uzh">第 %d 章</span></h2>'
+               '<p class="usub">%d 节 · %d 道例题 · %s</p></div>'
+               '<div class="ubadges"><span class="de-chip">%s</span></div></div>'
+               % (no, esc(ch["title"]), no, len(ch["sections"]),
+                  len(ch.get("examples", [])), esc(ch["tag"]), esc(badge)))
+    out.append('<p class="lead">%s</p>' % esc(ch["intro"]))
+    out.append('<div class="callout ok stm-goal"><p><b>读完这一章你能做到</b></p><ul>%s</ul></div>' % goals)
+    for k, sec in enumerate(ch["sections"], 1):
+        out.append('<div class="sect-h" id="c%d-s%d">%s<span class="pgx">必背</span></div>'
+                   % (no, k, esc(sec["h"])))
         for p in sec["ps"]:
             out.append("<p>%s</p>" % esc(p))
         tb = sec.get("table")
@@ -430,16 +443,32 @@ def render_chapter(ch):
                            for r in tb["rows"])
             out.append("<table><thead><tr>%s</tr></thead><tbody>%s</tbody></table>" % (head, rows))
         if sec.get("note"):
-            out.append('<div class="note">%s</div>' % esc(sec["note"]))
-    out.append("</div>")
-    for ex in ch.get("examples", []):
-        body = "".join("<p>%s</p>" % esc(x) for x in ex["a"])
-        out.append('<div class="de-ex"><details class="solbox"><summary>例题：%s</summary>'
-                   '<div class="solbody">%s</div></details></div>' % (esc(ex["q"]), body))
+            out.append('<div class="callout"><p>%s</p></div>' % esc(sec["note"]))
+    if ch.get("examples"):
+        out.append('<div class="sect-h" id="c%d-ex">例题<span class="pgx">先做再展开</span></div>' % no)
+        items = []
+        for ex in ch["examples"]:
+            ans = "".join("<p>%s</p>" % esc(x) for x in ex["a"])
+            items.append('<li><p class="exq">%s</p><div class="exa">%s</div></li>' % (esc(ex["q"]), ans))
+        out.append('<div class="exgrp veiled"><div class="exh"><b>本章例题</b> · %d 题'
+                   '<span class="exk self">自编 · 按真题题型</span>'
+                   '<button class="chip act" type="button" data-veil="1">显示解析</button></div>'
+                   '<ol class="exlist">%s</ol></div>' % (len(ch["examples"]), "".join(items)))
     if ch.get("tips"):
-        out.append('<div class="de-tips"><b>易错点</b><ul>%s</ul></div>'
+        out.append('<div class="callout warn"><p><b>易错点</b></p><ul>%s</ul></div>'
                    % "".join("<li>%s</li>" % esc(t) for t in ch["tips"]))
+    out.append('</section>')
     return "".join(out)
+
+
+def render_map():
+    cards = []
+    for ch in CHAPTERS:
+        cards.append('<a class="stm-mc" href="#c%d"><span class="stm-mk">CH %02d</span>'
+                     '<b>%s</b><span class="stm-md">%s</span></a>'
+                     % (ch["no"], ch["no"], esc(ch["title"]), esc(ch["tag"])))
+    return ('<div class="sec-t"><h2 id="map">课程地图</h2><em>九章，按期末考的顺序</em></div>'
+            '<div class="stm-map">%s</div>' % "".join(cards))
 
 
 def render_appendix():
@@ -457,9 +486,10 @@ def render_appendix():
         ("存储器容量", "字数 × 字长 = 2^n × m 位"),
         ("采样定理", "fs ≥ 2·fmax"),
     ]
-    box = "".join('<div><b>%s</b>　%s</div>' % (esc(a), esc(b)) for a, b in formulas)
+    rows = "".join("<tr><td>%s</td><td><code>%s</code></td></tr>" % (esc(a), esc(b))
+                   for a, b in formulas)
     return ('<div class="sec-t"><h2 id="formula">公式速查</h2><em>考前最后看一遍</em></div>'
-            '<div class="de-box"><div class="formula">%s</div></div>' % box)
+            '<table><thead><tr><th>项目</th><th>公式</th></tr></thead><tbody>%s</tbody></table>' % rows)
 
 
 def main():
@@ -467,6 +497,7 @@ def main():
             '<h1>九章，<span>一张速查表</span></h1>'
             '<p>按期末考的顺序排：先用数制与码制打底，再用逻辑代数化简，后面组合、触发器、时序、存储器、555、AD/DA 逐章过。'
             '每章给「考什么 → 怎么算 → 例题 → 易错点」，例题答案默认折叠，先自己做。</p>'
+            '<p style="margin-top:14px"><a class="mini-btn" href="#map">先看课程地图 →</a></p>'
             '<div class="hero-stats"><div><b>9</b><span>章</span></div>'
             '<div><b>30</b><span>节</span></div>'
             '<div><b>12</b><span>例题</span></div>'
@@ -474,6 +505,7 @@ def main():
     body.append('<div class="callout ok"><p><b>怎么用：</b>时间紧就按「第 2 章 → 第 4 章 → 第 5–6 章 → 第 8–9 章」的顺序，'
                 '这四块占期末大题的大头；第 1、3、7 章用零碎时间过公式和表格。每章末尾的易错点，'
                 '就是阅卷时最常扣分的地方。</p></div>')
+    body.append(render_map())
     body.append("".join(render_chapter(ch) for ch in CHAPTERS))
     body.append(render_appendix())
     body.append('<div class="callout"><p><b>说明：</b>课程结构参考期末速成课的字幕（数制、逻辑代数、门电路、组合、触发器、时序、存储器、脉冲、AD/DA 共 9 章），'
