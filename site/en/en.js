@@ -358,23 +358,6 @@
     });
   });
 
-  /* ---------------------------------------- 6.5 题库：题号标记「做过了」 */
-  var QDONE_KEY = 'cw.' + (document.body.getAttribute('data-book') || 'm750') + '.done';
-  var qdone = {};
-  try { qdone = JSON.parse(store.get(QDONE_KEY, '{}')) || {}; } catch (e) { qdone = {}; }
-  $$('.q > .qh .qn').forEach(function (badge) {
-    var card = badge.closest('.q');
-    if (!card) return;
-    var id = card.id;
-    if (qdone[id]) badge.classList.add('done');
-    badge.title = '点一下标记「做过了」（存在本机）';
-    badge.addEventListener('click', function () {
-      if (qdone[id]) delete qdone[id]; else qdone[id] = 1;
-      badge.classList.toggle('done', !!qdone[id]);
-      store.set(QDONE_KEY, JSON.stringify(qdone));
-    });
-  });
-
   /* ------------------------------------------- 7. 标记已学 + 进度 */
   var DONE_KEY = 'en.done.' + (document.body.getAttribute('data-book') || 'b1');
   var done = {};
@@ -412,23 +395,30 @@
   });
   paintProgress();
 
-  /* -------------------------------- 8. 数学题「做过了」标记（只存本机）
-     为什么放在运行时而不是生成期：
-       题目由四个生成器（骨架 / 讲解 / 练习 / 图解）分别产出，让每个生成器
-       都写一遍按钮和 id 既重复又容易漏。这里统一在页面加载后扫一遍
-       .eg（章末例题）与 .ex（节末练习），按题干文本取 hash 当 id，
-       增删别的题不会让已标记的题错位（题干改了就当作新题，合理）。
-     只对 data-book="math" 生效，b1/draw 等页面的 .eg 不受影响。 */
+  /* ---------------------------- 8. 题目「做过了」标记（高数页 + 750 题页）
+     挂在运行时而不是生成期的理由：
+       题目由四个生成器（骨架 / 讲解 / 练习 / 图解）和 750 题的构建脚本分别产出，
+       让每个生成器都写一遍按钮和 id 既重复又容易漏。这里统一扫两种题卡：
+         · 高数讲解页：.eg（章末例题）、.ex（节末练习）
+         · 750 题页：  .qlist .q（每题一张卡）
+       id 优先用元素自带的 id（750 题的 q1…q130），否则取题干文本的 hash——
+       这样增删别的题不会让已标记的题错位；题干改了当作新题（题变了本该重做）。 */
   (function () {
-    if ((document.body.getAttribute('data-book') || '') !== 'math') return;
-    var boxes = $$('.doc-study .eg, .doc-study .ex').filter(function (b) {
-      return !!b.querySelector('.eg-q, .ex-q');
+    var book = document.body.getAttribute('data-book') || '';
+    if (!book) return;
+    var boxes = $$('.doc-study .eg, .doc-study .ex, .qlist .q').filter(function (b) {
+      return !!(b.querySelector('.eg-q, .ex-q, .qb'));
     });
     if (!boxes.length) return;
 
-    var KEY = 'cw.math.qdone';
+    var KEY = 'cw.' + book + '.qdone';
+    var LEGACY = 'cw.' + book + '.done';   // 750 题早期版本用这个键，先读进来做迁移
     var done = {};
-    try { done = JSON.parse(store.get(KEY, '{}')) || {}; } catch (e) { done = {}; }
+    try { done = JSON.parse(store.get(LEGACY, '{}')) || {}; } catch (e) { done = {}; }
+    try {
+      var cur = JSON.parse(store.get(KEY, '{}')) || {};
+      for (var k in cur) { if (cur[k]) done[k] = cur[k]; }
+    } catch (e2) { /* 旧数据坏了就算了 */ }
 
     function hash(str) {
       var h = 5381, i;
@@ -439,13 +429,14 @@
 
     var used = {};
     boxes.forEach(function (box) {
-      var q = box.querySelector('.eg-q, .ex-q');
-      var head = box.querySelector('.eg-h, .ex-h');
-      var no = box.querySelector('.eg-n, .ex-n');
+      var q = box.querySelector('.eg-q, .ex-q, .qb');
+      var head = box.querySelector('.eg-h, .ex-h, .qh');
+      var no = box.querySelector('.eg-n, .ex-n, .qn');
       if (!head || !q) return;
 
-      var base = 'q' + hash(q.textContent), id = base, k = 2;
-      while (used[id]) { id = base + '-' + (k++); }
+      var base = (box.id && !used[box.id]) ? box.id : 'q' + hash(q.textContent);
+      var id = base, n = 2;
+      while (used[id]) { id = base + '-' + (n++); }
       used[id] = 1;
       box.setAttribute('data-qid', id);
 
@@ -456,16 +447,29 @@
       btn.title = '标记这道题做过了（只存在本机）';
       btn.setAttribute('aria-pressed', 'false');
       btn.setAttribute('aria-label', '标记做过了');
-      if (no && no.parentNode === head) no.insertAdjacentElement('afterend', btn);
-      else head.insertBefore(btn, head.firstChild);
 
-      btn.addEventListener('click', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
+      if (box.classList.contains('q')) {
+        btn.classList.add('at-end');          // 750 题：推到卡片右上角
+        head.appendChild(btn);
+      } else if (no && no.parentNode === head) {
+        no.insertAdjacentElement('afterend', btn);
+      } else {
+        head.insertBefore(btn, head.firstChild);
+      }
+
+      function toggle(e) {
+        if (e) { e.preventDefault(); e.stopPropagation(); }
         if (done[id]) delete done[id]; else done[id] = 1;
         store.set(KEY, JSON.stringify(done));
         paint();
-      });
+      }
+
+      btn.addEventListener('click', toggle);
+      if (no) {                              // 750 题沿用「点题号也能标」的习惯
+        no.style.cursor = 'pointer';
+        no.title = '点一下标记做过了';
+        no.addEventListener('click', toggle);
+      }
     });
 
     var chip = null;
@@ -479,40 +483,40 @@
     var units = $$('.doc-study .unit');
 
     function paint() {
-      var total = 0, allDone = 0;
+      var total = boxes.length, allDone = 0;
+      boxes.forEach(function (b) {
+        var on = !!done[b.getAttribute('data-qid')];
+        b.classList.toggle('is-done', on);
+        var bt = b.querySelector('.qdone');
+        if (bt) {
+          bt.classList.toggle('on', on);
+          bt.setAttribute('aria-pressed', on ? 'true' : 'false');
+        }
+        if (on) allDone++;
+      });
+
+      if (chip) {
+        chip.innerHTML = '已做 <b>' + allDone + '</b> / ' + total;
+        chip.title = '点每道题前面的圈标记「做过了」，进度只存在这台设备';
+      }
+
       units.forEach(function (u) {
-        /* 只统计真正带题干的块：页面里还有少量空壳 .ex/.eg（图注、分隔），
-           它们没有 data-qid，算进总数会让「0 / 167」和按钮数（120）对不上 */
         var bs = $$('.eg, .ex', u).filter(function (b) {
           return b.hasAttribute('data-qid');
         });
+        if (!bs.length) return;
         var n = 0;
-        bs.forEach(function (b) {
-          var on = !!done[b.getAttribute('data-qid')];
-          b.classList.toggle('is-done', on);
-          var bt = b.querySelector('.qdone');
-          if (bt) {
-            bt.classList.toggle('on', on);
-            bt.setAttribute('aria-pressed', on ? 'true' : 'false');
-          }
-          if (on) { n++; allDone++; }
-        });
-        total += bs.length;
+        bs.forEach(function (b) { if (done[b.getAttribute('data-qid')]) n++; });
         var sub = u.querySelector('.uhead .usub');
-        if (sub && bs.length) {
-          var tag = sub.querySelector('.q-unit');
-          if (!tag) {
-            tag = document.createElement('i');
-            tag.className = 'q-unit';
-            sub.appendChild(tag);
-          }
-          tag.textContent = '题目 ' + n + ' / ' + bs.length;
+        if (!sub) return;
+        var tag = sub.querySelector('.q-unit');
+        if (!tag) {
+          tag = document.createElement('i');
+          tag.className = 'q-unit';
+          sub.appendChild(tag);
         }
+        tag.textContent = '题目 ' + n + ' / ' + bs.length;
       });
-      if (chip) {
-        chip.innerHTML = '题目 <b>' + allDone + '</b> / ' + total;
-        chip.title = '点每道题前面的勾标记「做过了」，进度只存在这台设备';
-      }
     }
 
     paint();

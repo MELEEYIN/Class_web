@@ -203,3 +203,18 @@ html[data-theme="dark"] .qtag.t-high { color: #e0a45c; }
   .volnav { grid-template-columns: 1fr; }
   .volnav .vnav.next { text-align: left; }
 }
+
+/* --------------------------------------------------- 题目「做过了」标记
+   en.js 第 8 节注入：750 题页的按钮推到卡片右上角，点题号也能切换。
+   圆形按钮本体沿用 math.css 的 .qdone / .qdone.on。 */
+.doc-study .qdone.at-end { margin-left: auto; }
+.doc-study .q.is-done {
+  border-color: rgb(var(--ok-rgb) / .3);
+  background: rgb(var(--ok-rgb) / .03);
+}
+.doc-study .q.is-done .qb { color: var(--ink-3); }
+.doc-study .q.is-done .qn {
+  border-color: rgb(var(--ok-rgb) / .35);
+  background: rgb(var(--ok-rgb) / .1);
+  color: rgb(var(--ok-rgb));
+}
