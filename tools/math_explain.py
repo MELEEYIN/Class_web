@@ -54,7 +54,11 @@ def nowrap_short_formulas(body):
         head, inner, tail = m.group(1), m.group(2), m.group(3)
         plain = TAG_RE.sub("", inner)
         if len(plain) <= FM_WRAP_MAX and " " in inner:
-            inner = inner.replace(" ", "&#160;")
+            # 只替换「标签之外」的空格：直接 replace 会把 <span class="fr"> 里的空格
+            # 也换成 &#160;，生成 <span&#160;class="fr"> 这种坏标签，导致公式排版失效。
+            parts = re.split(r"(<[^>]+>)", inner)
+            inner = "".join(x if x.startswith("<") else x.replace(" ", "&#160;")
+                            for x in parts)
         return head + inner + tail
 
     return FM_RE.sub(fix, body)

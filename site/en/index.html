@@ -19,7 +19,7 @@
     <div class="side-top">
       <a class="brand" href="./index.html">
         <span class="brand-mark is-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 6.5c-1.75-1.3-3.5-1.85-5.3-1.65a.95.95 0 0 0-.85.95v9.9c0 .62.53 1.09 1.15 1.02 1.55-.16 3.1.28 4.45 1.24.32.23.74.23 1.06 0 1.35-.96 2.9-1.4 4.45-1.24.62.07 1.15-.4 1.15-1.02 V5.8a.95.95 0 0 0-.85-.95c-1.8-.2-3.55.35-5.3 1.65z" fill="currentColor" fill-opacity=".96"/><path d="M12 7.7v9.4" stroke="rgba(20,40,90,.45)" stroke-width="1" stroke-linecap="round"/></svg></span>
-        <span class="brand-txt"><b>课程学习站</b><small>高数 · 英语 · 制图</small></span>
+        <span class="brand-txt"><b>课程学习站</b><small>高数 · 英语 · 制图 · 单片机</small></span>
       </a>
       <button class="side-x" id="sideX" type="button" aria-label="收起侧栏">✕</button>
     </div>
@@ -60,22 +60,25 @@
 
             <header class="hero">
               <div class="eyebrow">Campus · 课程学习子站</div>
-              <h1>三门课，<span>一套外壳</span></h1>
-              <p>高等数学负责「把公式背到能默写、把图形看明白」；大学英语负责「按平台任务链做完整单元的题」；工程制图负责「把国标规范和画法练成条件反射」。三边共用一套目录、一套检索、一套外观，换课不用重新找路。</p>
+              <h1>六门课，<span>一套外壳</span></h1>
+              <p>高等数学负责「把公式背到能默写、把图形看明白」；大学英语负责「按平台任务链做完整单元的题」；工程制图负责「把国标规范和画法练成条件反射」；数字电子技术负责「把门电路与时序逻辑推到底」；模拟电子技术负责「看懂一条从信号到电源的放大链路」；STM32 单片机负责「让代码真的驱动硬件」。六边共用一套目录、一套检索、一套外观，换课不用重新找路。</p>
               <div class="hero-stats">
-                <div><b>3</b><span>门课</span></div>
+                <div><b>6</b><span>门课</span></div>
                 <div><b>13</b><span>高数章</span></div>
                 <div><b>24</b><span>英语单元</span></div>
                 <div><b>9</b><span>制图章</span></div>
+                <div><b>9</b><span>数电章</span></div>
+                <div><b>10</b><span>模电章</span></div>
+                <div><b>19</b><span>单片机课</span></div>
               </div>
             </header>
 
-            <div class="sec-t"><h2 id="entry">从哪进</h2><em>三门课，九个入口</em></div>
+            <div class="sec-t"><h2 id="entry">从哪进</h2><em>六门课，十个入口</em></div>
             <div class="paths">
               <a class="path" href="./math.html">
                 <span class="pk">高等数学 · 13 章 75 节</span>
-                <b>逐节讲解 + 图解 + 练习</b>
-                <p>上册 7 章、下册 6 章，节次与页码照《宋浩高等数学讲义》。章首图解 → 节表（必会 / 怎么考）→ <b>逐节讲解</b>（每节 900–1600 字）→ 核心公式 → 易错点 → 例题与节末练习（答案可折叠）。</p>
+                <b>15 分钟速览 + 逐节讲解 + 例题</b>
+                <p>上册 7 章、下册 6 章，节次与页码照《宋浩高等数学讲义》。每章开头一张 <b>15 分钟速览</b>（必背三条 / 高频失分 / 配套视频）→ 章首图解 → 节表（必会 / 怎么考）→ <b>逐节讲解</b>（每节 900–1600 字）→ 核心公式 → 易错点 → <b>4 道章末例题</b>与节末练习（答案可折叠）。全站 52 道例题、27 讲 B 站视频已对应到章。</p>
                 <span class="go">打开高等数学 →</span>
               </a>
               <a class="path" href="./math750.html">
@@ -114,6 +117,13 @@
                 <p>按教材顺序：二极管与晶体管、基本放大、差分与多级、集成运放、频率响应、反馈、运算与处理、波形产生、功率放大、直流电源。每章带公式、例题（解析默认遮住）与易错点，末尾有公式速查表。</p>
                 <span class="go">打开模电 →</span>
               </a>
+              <a class="path" href="./stm32.html">
+                <span class="pk">STM32 单片机 · 19 课</span>
+                <b>标准库 · 从点灯到总线</b>
+                <p>六篇 19 课按「篇—课」推进：GPIO 输出/输入 → OLED → EXTI → 定时中断 / PWM / 输入捕获 / 编码器 → ADC → DMA → USART / I2C+MPU6050 / SPI+W25Q64 → RTC / PWR / 看门狗 / 内部 FLASH。每课固定四件：<b>要解决什么问题</b>、<b>原理与寄图层</b>、<b>能直接编译的标准库代码</b>、<b>四道带解析的练习</b>，另附库函数与报错速查表。</p>
+                <span class="go">打开 STM32 课程 →</span>
+              </a>
+
               <a class="path" href="./draw.html">
                 <span class="pk">工程制图 · 9 章 38 节</span>
                 <b>按课件章节推进</b>

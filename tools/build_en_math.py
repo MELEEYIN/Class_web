@@ -28,6 +28,7 @@ from math_pts_up import PTS_UP
 from math_pts_dn import PTS_DN
 from math_figs import FIGS
 from math_ex import EX
+from math_quick import QUICK as QUICK_CARD
 
 PTS = {}
 PTS.update(PTS_UP)
@@ -811,18 +812,47 @@ def render_examples(ch):
     if not rows:
         return ""
     blocks = []
-    for i, (q, sol, tip) in enumerate(rows):
+    for i, row in enumerate(rows):
+        q, sol, tip = row[0], row[1], row[2]
+        lv = row[3] if len(row) > 3 else ""
+        lv_html = ('<span class="eg-lv">%s</span>' % lv) if lv else ""
         blocks.append(
             '<div class="eg">'
-            '<div class="eg-h"><span class="eg-n">例 %d</span><b>题目</b>'
+            '<div class="eg-h"><span class="eg-n">例 %d</span>%s<b>题目</b>'
             '<button class="chip act" type="button" data-veil>遮住解答</button></div>'
             '<p class="eg-q">%s</p>'
             '<div class="eg-s"><b>解　</b>%s</div>'
             '<p class="eg-t">%s</p>'
-            '</div>' % (i + 1, q, sol, tip))
+            '</div>' % (i + 1, lv_html, q, sol, tip))
     return ('<div class="mod" id="%s-m5"><h3><span class="mtag">M5</span>例题精讲'
             '<span class="msub">先盖住解自己做，再对答案</span></h3>%s</div>'
             % (ch["id"], "".join(blocks)))
+
+
+def render_quick_card(ch):
+    """M0：15 分钟速览。放在章导语之后、节表之前，给「先抓哪三句」一个答案。"""
+    q = QUICK_CARD.get(ch["no"])
+    if not q:
+        return ""
+    must = "".join("<li>%s</li>" % m for m in q["must"])
+    has_vid = bool(q.get("videos"))
+    cls = "qk-grid" if has_vid else "qk-grid two"
+    vid = ""
+    if has_vid:
+        vid = ('<div class="qk-c"><b>配套视频</b><ul class="qk-v">'
+               + "".join('<li><span class="qk-vt">%s</span><span class="qk-vd">%s</span></li>'
+                         % (t, d) for t, d in q["videos"])
+               + '</ul></div>')
+    return (
+        '<div class="mod qk" id="' + ch["id"] + '-m0">'
+        '<h3><span class="mtag">M0</span>15 分钟速览'
+        '<span class="msub">先看这一块，再决定要不要逐节细读</span></h3>'
+        '<div class="' + cls + '">'
+        '<div class="qk-c"><b>必背三条</b><ol>' + must + '</ol></div>'
+        '<div class="qk-c"><b>高频失分</b><p>' + q["trap"] + '</p>'
+        '<p class="qk-time">建议学时　' + q["hours"] + '</p></div>'
+        + vid +
+        '</div></div>')
 
 
 def render_ch(ch):
@@ -847,9 +877,10 @@ def render_ch(ch):
         '      <button class="btn-done" type="button" data-unit="' + ch["id"] + '">标记已学</button>\n'
         '    </div>\n'
         '  </div>\n'
-        '  <p class="lead">' + ch["lead"] + '</p>\n'
     )
-    return head + body + "\n</section>"
+    # M0 速览紧跟标题、排在导语与章首图之前：先给「抓哪三条」，再展开。
+    return (head + render_quick_card(ch) +
+            '  <p class="lead">' + ch["lead"] + '</p>\n' + body + "\n</section>")
 
 
 def render_quick():
@@ -881,6 +912,7 @@ def main():
     page = page.replace("@@NSEC@@", str(nsec))
     page = page.replace("@@NCH@@", str(len(CH)))
     page = page.replace("@@NPTS@@", str(sum(len(x) for _c in CH for x in PTS.get(_c["no"], []))))
+    page = page.replace("@@NEX@@", str(sum(len(EX.get(_c["no"], [])) for _c in CH)))
     io.open(OUT, "w", encoding="utf-8", newline="\n").write(page)
     print("written:", OUT, len(page), "chars")
 
@@ -945,20 +977,22 @@ HEAD = """<!DOCTYPE html>
             <header class="doc-head">
               <div class="eyebrow">课程学习站 · 高等数学</div>
               <h1>高等数学<span class="hno">13 章</span></h1>
-              <p class="lede">章节、节次与页码按两份讲义原样排：上册 7 章、下册 6 章，共 @@NSEC@@ 节。每一章只做三件事——先用「节表」看清这一节必须会什么、通常怎么考，再把「核心公式」背到能默写，最后过一遍「易错点 + 综合提高」把会做的题变成不丢分的题。</p>
+              <p class="lede">章节、节次与页码按两份讲义原样排：上册 7 章、下册 6 章，共 @@NSEC@@ 节。每章开头先给一张 <b>15 分钟速览</b>（必背三条 + 高频失分 + 配套视频），再往下才是节表、逐节知识点、公式、易错与例题——赶时间只看速览，想学透再逐节读。</p>
               <div class="chips">
                 <span class="chipk"><b>@@NCH@@</b> 章</span>
                 <span class="chipk"><b>@@NSEC@@</b> 节</span>
                 <span class="chipk"><b>@@NPTS@@</b> 条知识点</span>
+                <span class="chipk"><b>@@NEX@@</b> 道章末例题</span>
+                <span class="chipk">27 讲视频配套</span>
                 <span class="chipk lv">上册 7 章 · 下册 6 章</span>
-                <span class="chipk">公式零依赖手排</span>
               </div>
             </header>
 
             <div class="docbody">
               <div class="callout ok">
                 <p><b>怎么用这一页</b></p>
-                <p>① 按讲义进度点章，M1 节表先看清这一章有几节、每节大概考什么；② <b>M2 逐节知识点</b>是主体：每节 3–7 条，把定义、公式、套路写成了可以直接背的句子，按节读完就等于过了一遍讲义；③ M3 的公式表考前单独抄一遍、合上默写；④ M4 的易错点大多是阅卷扣分点；⑤ 每章末的「综合提高」是讲义自带的题型，先自己想 30 秒再看思路。</p>
+                <p>① <b>M0 速览</b>：每章开头三列——必背三条（能默写就算过关）、高频失分（这一章最容易丢的那一分）、配套视频（对应 B 站「高等数学（上）全集」的哪几讲、多长）。只剩两周就只看这一块。</p>
+                <p>② <b>M1 节表</b>看这一章有几节、每节必须会什么、通常怎么考；③ <b>M2 逐节知识点</b>是主体：每节 3–7 条，按节读完等于过了一遍讲义；④ <b>M3 公式表</b>考前单独抄一遍、合上默写；⑤ <b>M4 易错点</b>大多是阅卷扣分点；⑥ <b>M5 例题</b>每章四道，按「基础 → 综合」排，先盖住解自己做。节末另有 1–2 道随堂练习，跟着节走。</p>
                 <p>章节目录与页码取自《宋浩高等数学讲义》上册（第一～七章）与下册（第八～十三章）；公式与易错点按这些节的内容整理。</p>
               </div>
               @@CHAPTERS@@
