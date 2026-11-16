@@ -41,6 +41,8 @@ def clean(t):
         s = " ".join(ln.split())
         if not s:
             continue
+        # 页码被 OCR 粘成题号（如 “84. And Morrison…”），去掉行首的超范围数字
+        s = re.sub(r"^(?:[6-9]\d|\d{3})\.\s*", "", s)
         # 原卷 PDF 里夹带的商家水印/店铺名，一律不进页面
         if re.search(r"淘宝|天猫|旗舰店|易提分|百度云|拼多多|京东", s):
             continue

@@ -176,6 +176,7 @@ def build_nav(unit_prefix="", active="math", cur=""):
         '<div class="nv-grp">题库</div>' +
         _item("./cet4.html#writing", "W", "写作题库 · 22 题") +
         _item("./cet4.html#translation", "T", "翻译题库 · 22 段") +
+        _item("./cet4-drill.html", "DR", "专项练习") +
         '</div></div>')
 
     cet6_box = (
@@ -194,16 +195,10 @@ def build_nav(unit_prefix="", active="math", cur=""):
         '<div class="nv-grp">题库</div>' +
         _item("./cet6.html#writing", "W", "写作题库") +
         _item("./cet6.html#translation", "T", "翻译题库") +
+        _item("./cet6-drill.html", "DR", "专项练习") +
         '</div></div>')
 
-    sw = (
-        '<div class="subj-sw">'
-        '<a class="' + ('on' if active == 'math' else '') + '" href="./math.html">数学</a>'
-        '<a class="' + ('on' if active == 'en' else '') + '" href="./b1.html">英语</a>'
-        '<a class="' + ('on' if active == 'cet4' else '') + '" href="./cet4.html">四级</a>'
-        '<a class="' + ('on' if active == 'cet6' else '') + '" href="./cet6.html">六级</a>'
-        '<a class="' + ('on' if active == 'draw' else '') + '" href="./draw.html">制图</a>'
-        '</div>')
+    # 侧栏顶部的科目方框已按需求移除：各页只保留目录树，入口都在目录分组里
 
     if active == "cet4":
         order = cet4_box + cet6_box + en_box + draw_box + math_box
@@ -215,4 +210,4 @@ def build_nav(unit_prefix="", active="math", cur=""):
         order = draw_box + math_box + en_box + cet4_box + cet6_box
     else:
         order = math_box + en_box + cet4_box + cet6_box + draw_box
-    return sw + '<nav class="side-nav" id="nav" aria-label="站点目录">' + order + '</nav>'
+    return '<nav class="side-nav" id="nav" aria-label="站点目录">' + order + '</nav>'
