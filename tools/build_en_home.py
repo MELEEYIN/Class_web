@@ -205,7 +205,7 @@ HEAD = """<!DOCTYPE html>
               </div>
             </header>
 
-            <div class="sec-t"><h2 id="entry">从哪进</h2><em>三门课，八个入口</em></div>
+            <div class="sec-t"><h2 id="entry">从哪进</h2><em>三门课，九个入口</em></div>
             <div class="paths">
               <a class="path" href="./math.html">
                 <span class="pk">高等数学 · 13 章 75 节</span>
@@ -242,6 +242,12 @@ HEAD = """<!DOCTYPE html>
                 <b>数制 → 逻辑代数 → 组合 → 时序</b>
                 <p>按期末考的顺序排：数制与码制、逻辑代数与卡诺图、门电路、组合逻辑、锁存器与触发器、时序逻辑与计数器、存储器、555 定时器、AD/DA。每章带公式、例题（答案折叠）与易错点，末尾有公式速查表。</p>
                 <span class="go">打开数电 →</span>
+              </a>
+              <a class="path" href="./ae.html">
+                <span class="pk">模拟电子技术 · 10 章 34 节</span>
+                <b>器件 → 放大 → 反馈 → 电源</b>
+                <p>按教材顺序：二极管与晶体管、基本放大、差分与多级、集成运放、频率响应、反馈、运算与处理、波形产生、功率放大、直流电源。每章带公式、例题（解析默认遮住）与易错点，末尾有公式速查表。</p>
+                <span class="go">打开模电 →</span>
               </a>
               <a class="path" href="./draw.html">
                 <span class="pk">工程制图 · 9 章 38 节</span>

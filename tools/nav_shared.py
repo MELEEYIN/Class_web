@@ -99,6 +99,13 @@ CHEV = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width
 # site/en/stm32/lessons/*.md 渲染到 site/en/stm32.html）。
 # 与正文一致是硬约束：改这里必须同时改 md 的编号与标题，否则侧栏、进度、
 # 页内目录三处会对不上。
+AE_CH = [
+    (1, "常用半导体器件"), (2, "基本放大电路"), (3, "多级与差分放大"),
+    (4, "集成运算放大电路"), (5, "频率响应"), (6, "反馈放大电路"),
+    (7, "信号的运算与处理"), (8, "波形产生与信号转换"),
+    (9, "功率放大电路"), (10, "直流电源"),
+]
+
 DE_CH = [
     (1, "数制与码制"), (2, "逻辑代数基础"), (3, "门电路"), (4, "组合逻辑电路"),
     (5, "锁存器与触发器"), (6, "时序逻辑电路"), (7, "存储器"),
@@ -201,6 +208,7 @@ def build_nav(unit_prefix="", active="math", cur=""):
     cet6_fold = "" if active == "cet6" else " fold"
     draw_fold = "" if active == "draw" else " fold"
     de_fold = "" if active == "de" else " fold"
+    ae_fold = "" if active == "ae" else " fold"
 
     math_box = (
         '<div class="nv-mod' + math_fold + '" data-mod="math">'
@@ -281,20 +289,33 @@ def build_nav(unit_prefix="", active="math", cur=""):
         _item("./de.html#formula", "FX", "公式速查") +
         '</div></div>')
 
+    ae_box = (
+        '<div class="nv-mod' + ae_fold + '" data-mod="ae">'
+        '<button class="nv-h" type="button" data-fold="ae"><span class="chev">' + CHEV + '</span>'
+        '<b>模拟电子技术</b><em>10</em></button>'
+        '<div class="nv-list">'
+        '<div class="nv-grp">十章 · 期末速成</div>' +
+        "".join(_item("./ae.html#c%d" % n, "%02d" % n, t) for n, t in AE_CH) +
+        '<div class="nv-grp">速查</div>' +
+        _item("./ae.html#formula", "FX", "公式速查") +
+        '</div></div>')
+
     stm_box = stm32_box(open_by_default=(active == "stm32"))
 
     if active == "cet4":
-        order = cet4_box + cet6_box + de_box + en_box + draw_box + math_box + stm_box
+        order = cet4_box + cet6_box + de_box + ae_box + en_box + draw_box + math_box + stm_box
     elif active == "cet6":
-        order = cet6_box + cet4_box + de_box + en_box + draw_box + math_box + stm_box
+        order = cet6_box + cet4_box + de_box + ae_box + en_box + draw_box + math_box + stm_box
     elif active == "en":
-        order = en_box + cet4_box + cet6_box + de_box + draw_box + math_box + stm_box
+        order = en_box + cet4_box + cet6_box + de_box + ae_box + draw_box + math_box + stm_box
     elif active == "draw":
-        order = draw_box + math_box + en_box + cet4_box + cet6_box + de_box + stm_box
+        order = draw_box + math_box + en_box + cet4_box + cet6_box + de_box + ae_box + stm_box
+    elif active == "ae":
+        order = ae_box + math_box + en_box + cet4_box + cet6_box + de_box + draw_box + stm_box
     elif active == "de":
-        order = de_box + math_box + en_box + cet4_box + cet6_box + draw_box + stm_box
+        order = de_box + ae_box + math_box + en_box + cet4_box + cet6_box + draw_box + stm_box
     elif active == "stm32":
-        order = stm_box + de_box + math_box + en_box + cet4_box + cet6_box + draw_box
+        order = stm_box + de_box + ae_box + math_box + en_box + cet4_box + cet6_box + draw_box
     else:
-        order = math_box + en_box + cet4_box + cet6_box + de_box + draw_box + stm_box
+        order = math_box + en_box + cet4_box + cet6_box + de_box + ae_box + draw_box + stm_box
     return '<nav class="side-nav" id="nav" aria-label="站点目录">' + order + '</nav>'
