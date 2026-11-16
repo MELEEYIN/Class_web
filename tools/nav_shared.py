@@ -37,6 +37,12 @@ CET4_SESSIONS = [
     ("2023-03", "2023 年 3 月（延期）", "23.3"),
 ]
 
+DE_CH = [
+    (1, "数制与码制"), (2, "逻辑代数基础"), (3, "门电路"), (4, "组合逻辑电路"),
+    (5, "锁存器与触发器"), (6, "时序逻辑电路"), (7, "存储器"),
+    (8, "脉冲发生与整形"), (9, "A/D 与 D/A 转换"),
+]
+
 CET6_SESSIONS = [
     ("2026-06", "2026 年 6 月", "26.6"),
     ("2025-12", "2025 年 12 月", "25.12"),
@@ -130,6 +136,7 @@ def build_nav(unit_prefix="", active="math", cur=""):
     en_fold = "" if active == "en" else " fold"
     cet4_fold = "" if active == "cet4" else " fold"
     cet6_fold = "" if active == "cet6" else " fold"
+    de_fold = "" if active == "de" else " fold"
     draw_fold = "" if active == "draw" else " fold"
 
     math_box = (
@@ -179,6 +186,17 @@ def build_nav(unit_prefix="", active="math", cur=""):
         _item("./cet4-drill.html", "DR", "专项练习") +
         '</div></div>')
 
+    de_box = (
+        '<div class="nv-mod' + de_fold + '" data-mod="de">'
+        '<button class="nv-h" type="button" data-fold="de"><span class="chev">' + CHEV + '</span>'
+        '<b>数字电子技术</b><em>9</em></button>'
+        '<div class="nv-list">'
+        '<div class="nv-grp">九章 · 期末速成</div>' +
+        "".join(_item("./de.html#c%d" % n, "%02d" % n, t) for n, t in DE_CH) +
+        '<div class="nv-grp">速查</div>' +
+        _item("./de.html#formula", "FX", "公式速查") +
+        '</div></div>')
+
     cet6_box = (
         '<div class="nv-mod' + cet6_fold + '" data-mod="cet6">'
         '<button class="nv-h" type="button" data-fold="cet6"><span class="chev">' + CHEV + '</span>'
@@ -201,13 +219,15 @@ def build_nav(unit_prefix="", active="math", cur=""):
     # 侧栏顶部的科目方框已按需求移除：各页只保留目录树，入口都在目录分组里
 
     if active == "cet4":
-        order = cet4_box + cet6_box + en_box + draw_box + math_box
+        order = cet4_box + cet6_box + de_box + en_box + draw_box + math_box
     elif active == "cet6":
-        order = cet6_box + cet4_box + en_box + draw_box + math_box
+        order = cet6_box + cet4_box + de_box + en_box + draw_box + math_box
+    elif active == "de":
+        order = de_box + math_box + en_box + cet4_box + cet6_box + draw_box
     elif active == "en":
-        order = en_box + cet4_box + cet6_box + draw_box + math_box
+        order = en_box + cet4_box + cet6_box + de_box + draw_box + math_box
     elif active == "draw":
-        order = draw_box + math_box + en_box + cet4_box + cet6_box
+        order = draw_box + math_box + en_box + cet4_box + cet6_box + de_box
     else:
-        order = math_box + en_box + cet4_box + cet6_box + draw_box
+        order = math_box + en_box + cet4_box + cet6_box + de_box + draw_box
     return '<nav class="side-nav" id="nav" aria-label="站点目录">' + order + '</nav>'
