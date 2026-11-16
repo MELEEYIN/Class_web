@@ -22,6 +22,8 @@ DRAW_CH = [
     (1, "制图的基本知识"), (2, "正投影法基础"), (3, "立体的投影"),
     (4, "轴测投影图"), (5, "组合体视图"), (6, "机件常用的表达方法"),
     (7, "标准件、齿轮和弹簧"), (8, "零件图"), (9, "装配图"),
+    (10, "几何元素间的相对位置"), (11, "换面法"), (12, "截交线"),
+    (13, "相贯线"), (14, "尺寸标注的方法"), (15, "计算机绘图入门"),
 ]
 
 # 四级学习专区（/en/cet4.html）：侧栏只列「备考 + 8 次考试 + 题库」，
@@ -201,6 +203,8 @@ def build_nav(unit_prefix="", active="math", cur=""):
                      for b in ("b2", "b3", "b4"))
 
     draw = "".join(_item("./draw.html#d%d" % n, "%02d" % n, t) for n, t in DRAW_CH)
+    draw_a = "".join(_item("./draw.html#d%d" % n, "%02d" % n, t) for n, t in DRAW_CH if n <= 9)
+    draw_b = "".join(_item("./draw.html#d%d" % n, "%02d" % n, t) for n, t in DRAW_CH if n > 9)
 
     math_fold = "" if active == "math" else " fold"
     en_fold = "" if active == "en" else " fold"
@@ -233,9 +237,10 @@ def build_nav(unit_prefix="", active="math", cur=""):
     draw_box = (
         '<div class="nv-mod' + draw_fold + '" data-mod="draw">'
         '<button class="nv-h" type="button" data-fold="draw"><span class="chev">' + CHEV + '</span>'
-        '<b>工程制图</b><em>9</em></button>'
+        '<b>工程制图</b><em>15</em></button>'
         '<div class="nv-list">'
-        '<div class="nv-grp">第一～九章</div>' + draw +
+        '<div class="nv-grp">课件 · 第一～九章</div>' + draw_a +
+        '<div class="nv-grp">字幕专题 · 第十～十五章</div>' + draw_b +
         '</div></div>')
 
     cet4_box = (

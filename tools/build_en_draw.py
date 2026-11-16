@@ -20,8 +20,9 @@ sys.path.insert(0, HERE)
 from nav_shared import build_nav
 from draw_data_a import CH as CH_A
 from draw_data_b import CH as CH_B
+from draw_data_c import CH as CH_C
 
-CH = CH_A + CH_B
+CH = CH_A + CH_B + CH_C
 OUT = os.path.join(ROOT, "site", "en", "draw.html")
 
 # 补充内容（图解 + 追加知识点）放在 tools/draw_extra/dN.json 里：
@@ -179,7 +180,7 @@ HEAD = """<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>工程制图 · 课件对照版</title>
-<meta name="description" content="按 320 页《工程制图》课件整理的工程制图学习页：九章 33 节，逐节给知识点、规范速查、易错点与例题。">
+<meta name="description" content="工程制图学习页：课件九章 + 课程字幕补出的六个专题（相对位置、换面法、截交线、相贯线、尺寸标注、计算机绘图），共十五章 64 节，逐节给知识点、规范速查、易错点与例题。">
 <meta name="theme-color" content="#060d1a">
 <meta name="color-scheme" content="dark light">
 @@ICON@@
@@ -206,7 +207,7 @@ HEAD = """<!DOCTYPE html>
     </div>
     @@NAV@@
     <div class="side-foot">
-      <div class="pg-t"><span>制图进度</span><b id="pgNum">0 / 9</b></div>
+      <div class="pg-t"><span>制图进度</span><b id="pgNum">0 / 15</b></div>
       <div class="pg-bar"><i id="pgBar"></i></div>
       <div class="side-tools"><a class="mini-btn" href="./index.html">总览</a></div>
     </div>
@@ -233,10 +234,10 @@ HEAD = """<!DOCTYPE html>
           <article class="doc doc-study" id="doc">
             <header class="doc-head">
               <div class="eyebrow">课程学习站 · 工程制图</div>
-              <h1>工程制图<span class="hno">9 章</span></h1>
-              <p class="lede">按《工程制图》课件（320 页）的章、节顺序整理：九章 33 节。每章四段——先用「节表」看清这一节必须会什么、平常怎么考，再按节把规范、画法、判断要点写成人能直接背的句子，然后是规范速查表、易错点，最后是例题。判断题和作图题的分都在 M2 与 M4 里。</p>
+              <h1>工程制图<span class="hno">15 章</span></h1>
+              <p class="lede">课件九章 + 课程字幕补出的六个专题（相对位置、换面法、截交线、相贯线、尺寸标注、计算机绘图），共十五章 64 节。每章四段——先用「节表」看清这一节必须会什么、平常怎么考，再按节把规范、画法、判断要点写成人能直接背的句子，然后是规范速查表、易错点，最后是例题。判断题和作图题的分都在 M2 与 M4 里。</p>
               <div class="chips">
-                <span class="chipk"><b>9</b> 章</span>
+                <span class="chipk"><b>15</b> 章</span>
                 <span class="chipk"><b>@@NSEC@@</b> 节</span>
                 <span class="chipk"><b>@@NPT@@</b> 条知识点</span>
                 <span class="chipk"><b>@@NFIG@@</b> 张图解</span>
@@ -248,7 +249,7 @@ HEAD = """<!DOCTYPE html>
               <div class="callout ok">
                 <p><b>怎么用这一页</b></p>
                 <p>① 先看 M1 节表，知道这一章有几节、每节考什么；② M2 按节读，画法类的内容（圆弧连接、相贯线、剖视）建议拿纸跟着画一遍；③ M3 的规范表是判断题的题库，考前扫一遍；④ M4 的每条都对应一个具体扣分点；⑤ M5 例题先遮住解答自己做。</p>
-                <p>章节与页码取自《工程制图》课件（刘小年、刘国庆主编）共 320 页；知识点按课件正文整理，措辞做了压缩。</p>
+                <p>章节与页码取自《工程制图》课件（刘小年、刘国庆主编）共 320 页；后六章按课程字幕《史上最强工程制图》对应章节（第 3、4、8、9、12、7 章）补写，知识点按课件正文与字幕整理，措辞做了压缩。</p>
               </div>
 @@CHAPTERS@@
             </div>
