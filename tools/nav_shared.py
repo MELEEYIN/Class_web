@@ -37,12 +37,6 @@ CET4_SESSIONS = [
     ("2023-03", "2023 年 3 月（延期）", "23.3"),
 ]
 
-DE_CH = [
-    (1, "数制与码制"), (2, "逻辑代数基础"), (3, "门电路"), (4, "组合逻辑电路"),
-    (5, "锁存器与触发器"), (6, "时序逻辑电路"), (7, "存储器"),
-    (8, "脉冲发生与整形"), (9, "A/D 与 D/A 转换"),
-]
-
 CET6_SESSIONS = [
     ("2026-06", "2026 年 6 月", "26.6"),
     ("2025-12", "2025 年 12 月", "25.12"),
@@ -101,6 +95,75 @@ def _vols(cur, part="up"):
 CHEV = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" '
         'stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>')
 
+# ---------------------------------------------------------------- STM32（正文由 tools/build_en_stm32.py 从
+# site/en/stm32/lessons/*.md 渲染到 site/en/stm32.html）。
+# 与正文一致是硬约束：改这里必须同时改 md 的编号与标题，否则侧栏、进度、
+# 页内目录三处会对不上。
+DE_CH = [
+    (1, "数制与码制"), (2, "逻辑代数基础"), (3, "门电路"), (4, "组合逻辑电路"),
+    (5, "锁存器与触发器"), (6, "时序逻辑电路"), (7, "存储器"),
+    (8, "脉冲发生与整形"), (9, "A/D 与 D/A 转换"),
+]
+
+STM32_PARTS = [
+    ("第一篇 · 起步", [
+        ("s01", "认识 STM32 与最小系统板"),
+        ("s02", "建工程：Keil、标准库与第一个 main"),
+    ]),
+    ("第二篇 · GPIO 与显示", [
+        ("s03", "GPIO 输出：LED 与蜂鸣器"),
+        ("s04", "GPIO 输入：按键与光敏传感器"),
+        ("s05", "OLED：用软件 I2C 驱动 SSD1306"),
+    ]),
+    ("第三篇 · 中断与定时器", [
+        ("s06", "EXTI 外部中断：红外计次与旋转编码器"),
+        ("s07", "TIM 定时中断：给系统装一个心跳"),
+        ("s08", "输出比较与 PWM：呼吸灯、舵机、直流电机"),
+        ("s09", "输入捕获：测频率与占空比"),
+        ("s10", "编码器接口：正交解码测速"),
+    ]),
+    ("第四篇 · 模拟与数据通路", [
+        ("s11", "ADC：把电压读成 12 位数字"),
+        ("s12", "DMA：让数据自己搬家"),
+    ]),
+    ("第五篇 · 通信总线", [
+        ("s13", "USART 串口：收发、数据包与串口下载"),
+        ("s14", "I2C 与 MPU6050：六轴姿态传感器"),
+        ("s15", "SPI 与 W25Q64：外部 Flash"),
+    ]),
+    ("第六篇 · 系统与可靠性", [
+        ("s16", "Unix 时间戳与 RTC / BKP：断电也不丢的时间"),
+        ("s17", "PWR 电源控制：睡眠、停止、待机"),
+        ("s18", "看门狗：让跑飞的程序自己回来"),
+        ("s19", "内部 FLASH 与芯片 ID：把参数存进芯片里"),
+    ]),
+]
+
+STM32_APPENDIX = ("apx", "速查表：库函数 · 报错 · 接线")
+
+
+def stm32_box(open_by_default=False, href="./stm32.html"):
+    """侧栏里的 STM32 一栏。open_by_default=True 用在 stm32.html 自己那页。"""
+    mod = "nv-mod" if open_by_default else "nv-mod fold"
+    out = ['<!--stm32-nav--><div class="' + mod + '" data-mod="stm32">'
+           '<button class="nv-h" type="button" data-fold="stm32"><span class="chev">' + CHEV + '</span>'
+           '<b>STM32 单片机</b><em>19</em></button><div class="nv-list">']
+    n = 0
+    for part, lessons in STM32_PARTS:
+        out.append('<div class="nv-grp">' + part + '</div>')
+        for lid, title in lessons:
+            n += 1
+            out.append(_item('%s#%s' % (href, lid), '%02d' % n, title, unit=lid))
+    out.append('<div class="nv-grp">附录</div>')
+    out.append(_item('%s#%s' % (href, STM32_APPENDIX[0]), '附', STM32_APPENDIX[1],
+                     unit=STM32_APPENDIX[0]))
+    out.append('</div></div><!--/stm32-nav-->')
+    return "".join(out)
+
+
+CHEV = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" '
+        'stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>')
+
 
 def _item(href, no, title, on=False, unit=None):
     attrs = ' class="nv-i' + (' on' if on else '') + '"'
@@ -136,8 +199,8 @@ def build_nav(unit_prefix="", active="math", cur=""):
     en_fold = "" if active == "en" else " fold"
     cet4_fold = "" if active == "cet4" else " fold"
     cet6_fold = "" if active == "cet6" else " fold"
-    de_fold = "" if active == "de" else " fold"
     draw_fold = "" if active == "draw" else " fold"
+    de_fold = "" if active == "de" else " fold"
 
     math_box = (
         '<div class="nv-mod' + math_fold + '" data-mod="math">'
@@ -186,17 +249,6 @@ def build_nav(unit_prefix="", active="math", cur=""):
         _item("./cet4-drill.html", "DR", "专项练习") +
         '</div></div>')
 
-    de_box = (
-        '<div class="nv-mod' + de_fold + '" data-mod="de">'
-        '<button class="nv-h" type="button" data-fold="de"><span class="chev">' + CHEV + '</span>'
-        '<b>数字电子技术</b><em>9</em></button>'
-        '<div class="nv-list">'
-        '<div class="nv-grp">九章 · 期末速成</div>' +
-        "".join(_item("./de.html#c%d" % n, "%02d" % n, t) for n, t in DE_CH) +
-        '<div class="nv-grp">速查</div>' +
-        _item("./de.html#formula", "FX", "公式速查") +
-        '</div></div>')
-
     cet6_box = (
         '<div class="nv-mod' + cet6_fold + '" data-mod="cet6">'
         '<button class="nv-h" type="button" data-fold="cet6"><span class="chev">' + CHEV + '</span>'
@@ -218,16 +270,31 @@ def build_nav(unit_prefix="", active="math", cur=""):
 
     # 侧栏顶部的科目方框已按需求移除：各页只保留目录树，入口都在目录分组里
 
+    de_box = (
+        '<div class="nv-mod' + de_fold + '" data-mod="de">'
+        '<button class="nv-h" type="button" data-fold="de"><span class="chev">' + CHEV + '</span>'
+        '<b>数字电子技术</b><em>9</em></button>'
+        '<div class="nv-list">'
+        '<div class="nv-grp">九章 · 期末速成</div>' +
+        "".join(_item("./de.html#c%d" % n, "%02d" % n, t) for n, t in DE_CH) +
+        '<div class="nv-grp">速查</div>' +
+        _item("./de.html#formula", "FX", "公式速查") +
+        '</div></div>')
+
+    stm_box = stm32_box(open_by_default=(active == "stm32"))
+
     if active == "cet4":
-        order = cet4_box + cet6_box + de_box + en_box + draw_box + math_box
+        order = cet4_box + cet6_box + de_box + en_box + draw_box + math_box + stm_box
     elif active == "cet6":
-        order = cet6_box + cet4_box + de_box + en_box + draw_box + math_box
-    elif active == "de":
-        order = de_box + math_box + en_box + cet4_box + cet6_box + draw_box
+        order = cet6_box + cet4_box + de_box + en_box + draw_box + math_box + stm_box
     elif active == "en":
-        order = en_box + cet4_box + cet6_box + de_box + draw_box + math_box
+        order = en_box + cet4_box + cet6_box + de_box + draw_box + math_box + stm_box
     elif active == "draw":
-        order = draw_box + math_box + en_box + cet4_box + cet6_box + de_box
+        order = draw_box + math_box + en_box + cet4_box + cet6_box + de_box + stm_box
+    elif active == "de":
+        order = de_box + math_box + en_box + cet4_box + cet6_box + draw_box + stm_box
+    elif active == "stm32":
+        order = stm_box + de_box + math_box + en_box + cet4_box + cet6_box + draw_box
     else:
-        order = math_box + en_box + cet4_box + cet6_box + de_box + draw_box
+        order = math_box + en_box + cet4_box + cet6_box + de_box + draw_box + stm_box
     return '<nav class="side-nav" id="nav" aria-label="站点目录">' + order + '</nav>'

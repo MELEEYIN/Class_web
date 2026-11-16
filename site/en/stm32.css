@@ -1,0 +1,113 @@
+/* ==========================================================================
+   stm32.css — /en/stm32.html（STM32 单片机课）的增量样式
+   --------------------------------------------------------------------------
+   只补三样东西，其余全部复用 shell.css / content.css / en.css / math.css：
+     1) 课程地图（.stm-map / .stm-mc）：六篇的入口卡片
+     2) 每课的「读完你能做到」清单（.stm-goal）收紧行距
+     3) 接线表 / 寄存器表里的小字号（.stm-mini）与代码块上限高度
+   换主题时不用动这个文件：颜色一律走 var(--*)，深/浅色都跟着变。
+   ========================================================================== */
+
+/* ------------------------------------------------------------- 1. 课程地图 */
+.stm-map {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 14px 0 26px;
+}
+
+.stm-mc {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 15px 15px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md, 14px);
+  background: rgb(var(--panel-rgb) / var(--panel-a));
+  text-decoration: none;
+  color: inherit;
+  overflow: hidden;
+  transition: border-color var(--t, .2s) ease, transform var(--t, .2s) var(--ease-out, ease);
+}
+
+.stm-mc::after {
+  content: "";
+  position: absolute;
+  right: -34px;
+  top: -34px;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(var(--accent-rgb) / .16), transparent 68%);
+  opacity: 0;
+  transition: opacity var(--t, .2s) ease;
+}
+
+.stm-mc:hover {
+  border-color: rgb(var(--accent-rgb) / .42);
+  transform: translateY(-2px);
+}
+
+.stm-mc:hover::after { opacity: 1; }
+
+.stm-mk {
+  align-self: flex-start;
+  font-family: var(--mono, monospace);
+  font-size: 10.5px;
+  letter-spacing: .08em;
+  padding: 2px 7px;
+  border-radius: 6px;
+  color: rgb(var(--accent-rgb));
+  background: rgb(var(--accent-rgb) / .1);
+  border: 1px solid rgb(var(--accent-rgb) / .22);
+}
+
+.stm-mc b {
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+.stm-md {
+  font-size: 12.4px;
+  line-height: 1.7;
+  color: var(--ink-3);
+}
+
+/* --------------------------------------------------- 2. 每课目标清单收紧一点 */
+.doc-study .stm-goal { margin: 10px 0 18px; }
+.doc-study .stm-goal ul { margin: 4px 0 0; padding-left: 20px; }
+.doc-study .stm-goal li { margin: 3px 0; font-size: 13.6px; line-height: 1.72; }
+
+/* ------------------------------------------------------- 3. 表格与代码块细节 */
+.doc-study table td.n,
+.doc-study table th.n { white-space: nowrap; text-align: right; font-family: var(--mono, monospace); font-size: 12.2px; }
+
+.doc-study table td.p { color: var(--ink); font-weight: 650; }
+
+.doc-study .codebox pre { max-height: 520px; }
+
+.doc-study .codebox .cp[data-copy] { opacity: 0; }
+
+.doc-study .codebox:hover .cp[data-copy],
+.doc-study .codebox .cp[data-copy]:focus { opacity: 1; }
+
+.doc-study .codebox .cp.done { color: rgb(var(--ok-rgb)); border-color: rgb(var(--ok-rgb) / .45); }
+
+/* 每课之间给一道明显的分隔，长页面里不至于糊成一片 */
+.doc-study .unit.stm + .unit.stm { margin-top: 34px; }
+
+@media (max-width: 1100px) {
+  .stm-map { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 720px) {
+  .stm-map { grid-template-columns: 1fr; }
+  .doc-study .codebox pre { font-size: 11.6px; }
+}
+
+@media print {
+  .stm-map { grid-template-columns: repeat(2, 1fr); }
+  .stm-mc { break-inside: avoid; }
+}
