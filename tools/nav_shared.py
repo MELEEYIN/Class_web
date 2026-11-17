@@ -221,6 +221,8 @@ def build_nav(unit_prefix="", active="math", cur=""):
         '<div class="nv-list">'
         '<div class="nv-grp">上册 · 第一～七章</div>' + up +
         '<div class="nv-grp">下册 · 第八～十三章</div>' + dn +
+        '<div class="nv-grp">速查</div>' +
+        _item("./math-formula.html", "F", "公式总表 · 248 条") +
         '<div class="nv-grp">练习册 · 750 题</div>' +
         _vols(cur) +
         '</div></div>')

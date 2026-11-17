@@ -1224,3 +1224,24 @@ iframe 载入页面再截图，或直接读 `document.documentElement.scrollWidt
 **注意**：验证时如果开的是无头浏览器，`prefers-reduced-motion` 可能默认是 `reduce`，
 背景动画本来就是关的，测不出这一项的收益——要验证小屏动画降级，得看
 `getComputedStyle(document.body, '::before').animationName` 而不是测 DCL。
+
+### 公式总表（`/en/math-formula.html`，2026-11）
+
+高数页的公式散在各章（M3 公式组），随手要查一条「∫sec x dx 等于什么」时并不好找。
+所以单独做了一页**速查**：8 组 40 张表 **248 条**，覆盖极限、导数、中值定理与泰勒、
+不定积分、定积分与应用、多元与重积分、级数，最后单独一组建模「导数与积分的互逆关系、
+常用不等式、概念之间的蕴含关系」。
+
+```bash
+python tools/build_en_math_formula.py      # 数据 → site/en/math-formula.html
+python tools/patch_nav_formula.py          # 把入口插进 /en 各页侧栏（幂等）
+```
+
+- 数据在 `tools/math_formula.py`，结构是 `SECTIONS → tables → rows`，
+  每行两列：左公式、右条件与说明。**条件比公式更容易丢分**，所以右列不是可选项。
+- 数据里可以直接写 LaTeX 习惯的 `^{...}` / `_{...}`，生成器用 `mathify()` 转成
+  `<sup>` / `<sub>`；`　　`（全角双空格）会被转成 `<br>`，用来分隔「同一行的两个相关公式」。
+- 搜索框是纯前端过滤（`math-formula.js`）：按行文本匹配，把没命中的行、空表、空组
+  一起隐藏；`/` 聚焦搜索框，`Esc` 清空。
+- 侧栏入口由 `patch_nav_formula.py` 插入 24 个页面（`b2–b4` 用的是无侧栏的旧外壳，不参与），
+  高数页顶部 chips 里也放了一个可点的「公式总表 · 248 条」。

@@ -985,6 +985,7 @@ HEAD = """<!DOCTYPE html>
                 <span class="chipk"><b>@@NEX@@</b> 道章末例题</span>
                 <span class="chipk">27 讲视频配套</span>
                 <span class="chipk lv">上册 7 章 · 下册 6 章</span>
+                <a class="chipk lv" href="./math-formula.html">公式总表 · 248 条</a>
               </div>
             </header>
 

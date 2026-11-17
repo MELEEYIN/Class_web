@@ -844,3 +844,7 @@ ol.kpt > li.add > b { color: var(--accent); }
   .doc-study .expl-s,
   .doc-study .ex-a-body { overflow-wrap: anywhere; }
 }
+
+/* doc-head 里可点的 chip（指向公式总表） */
+.doc-study a.chipk { text-decoration: none; }
+.doc-study a.chipk:hover { border-color: var(--accent); color: var(--accent); }
