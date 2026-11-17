@@ -817,3 +817,30 @@ ol.kpt > li.add > b { color: var(--accent); }
 @media (max-width: 820px) {
   .doc-study .unit { contain-intrinsic-size: auto 14000px; }
 }
+
+/* 公式换行：短公式靠 fm-nw 整体不拆（原来是往空格里塞 &#160;，窄屏会撑破容器），
+   长公式不加，允许在空格处折行，避免手机上被裁掉。 */
+.doc-study .fm.fm-nw { white-space: nowrap; }
+
+/* 公式里的长串往往没有空格（dx/(x²√(x²+1))），normal 换行无处可断，
+   在窄屏就会把容器撑宽、整页右侧被裁。允许在必要时任意断行。 */
+.doc-study .fm { overflow-wrap: anywhere; }
+/* 窄屏下连「短公式不拆行」也放开：320px 宽里 30 个字符本来就放不下。 */
+@media (max-width: 820px) {
+  /* .fm 的基础规则是 white-space: nowrap（桌面靠它让公式不拆行），
+     手机上这个占满整行就会撑破容器，必须整体放开。 */
+  .doc-study .fm,
+  .doc-study .fm.fm-nw { white-space: normal; }
+}
+
+/* 窄屏还有两类撑宽的元凶：多列表格（内容宽度决定列宽）、以及个别含长串的段落。
+   桌面不动，只在 ≤820px 收口。 */
+@media (max-width: 820px) {
+  .doc-study table { table-layout: fixed; width: 100%; }
+  .doc-study th,
+  .doc-study td,
+  .doc-study p,
+  .doc-study li,
+  .doc-study .expl-s,
+  .doc-study .ex-a-body { overflow-wrap: anywhere; }
+}

@@ -1115,10 +1115,11 @@ md 的写法是一套极简约定（见 `site/en/stm32/_STYLE.md`）：`# NN · 
 python tools/build_en_math.py      # ① 生成骨架：13 章 · 节表 · 知识点 · 公式 · 易错点 · 例题
 python tools/math_explain.py       # ② 注入逐节讲解（tools/en_math_explain/mN.html，75 块）
 python tools/math_practice.py      # ③ 注入节末练习 + 章首图解（tools/en_math_practice/）
-python tools/build_en_home.py      # ④ 首页卡片与统计
+python tools/math_nowrap.py        # ④ 公式里的 &#160; 还原成空格，短公式改用 class 控制不折行
+python tools/build_en_home.py      # ⑤ 首页卡片与统计
 ```
 
-第 ① 步会把整页重写成「没有讲解、没有练习、没有图解」的骨架；②③ 都是幂等的（靠 `<!--EXPL:-->` / `<!--EX:-->` 标记先剥离再插入），漏跑任何一步，页面上就少一大块。
+第 ① 步会把整页重写成「没有讲解、没有练习、没有图解」的骨架；②③④ 都是幂等的（靠 `<!--EXPL:-->` / `<!--EX:-->` 标记先剥离再插入），漏跑任何一步，页面上就少一大块。
 
 ### 数据源分工
 
@@ -1200,6 +1201,25 @@ python tools/build_en_home.py      # ④ 首页卡片与统计
 
 另外 `math.css` / `math750.css` 在窄屏把 `contain-intrinsic-size` 从 6200px 放宽到 14000px
 （390px 宽时每章约为桌面的 1.5 倍高），避免滚动跨章时反复修正高度导致滚动条跳动。
+
+### 窄屏的横向溢出（2026-11 修）
+
+手机上一度出现「右侧文字被切」。根因有两层，都不是 CSS 能直接救的：
+
+1. **公式里的空格是不换行空格**。早期为了让短公式不拆行，构建时把 `.fm` 里的普通空格
+   全换成了 `&#160;`——字符本身不换行，`word-break`/`overflow-wrap` 都改不动它。
+   现在 `tools/math_nowrap.py` 把这些空格还原，短公式（≤30 字）改用 `class="fm fm-nw"`
+   + `white-space: nowrap` 维持原效果。
+2. **`.fm` 的基础规则本身是 `white-space: nowrap`**，长公式里又常常没有空格
+   （`dx/(x²√(x²+1))`），任何换行算法都无处下刀。窄屏下把 `.fm` 整体放开为 `normal`，
+   并加 `overflow-wrap: anywhere` 允许在任意字符处断。
+
+配套：窄屏给 `table` 加 `table-layout: fixed`、给 `td/p/li` 加 `overflow-wrap: anywhere`，
+否则 4 列表格会把容器撑到 660px。
+
+**验证方式**：Chrome 的 `--window-size=390` 实际 innerWidth 是 491（最小窗口限制），
+截图会裁掉右边 100px，看起来像溢出。要看真实的 390 宽布局，用一个 `width:390px` 的
+iframe 载入页面再截图，或直接读 `document.documentElement.scrollWidth === clientWidth`。
 
 **注意**：验证时如果开的是无头浏览器，`prefers-reduced-motion` 可能默认是 `reduce`，
 背景动画本来就是关的，测不出这一项的收益——要验证小屏动画降级，得看
