@@ -811,3 +811,9 @@ ol.kpt > li.add > b { color: var(--accent); }
 .doc-study td:has(.lm) {
   line-height: 2.15;
 }
+
+/* 窄屏下正文更长（390px 宽时每章约为桌面的 1.5 倍高），原先 6200px 的估算偏低，
+   滚动跨章时浏览器要反复修正高度，表现为滚动条跳、卡顿。按实测放宽估算。 */
+@media (max-width: 820px) {
+  .doc-study .unit { contain-intrinsic-size: auto 14000px; }
+}

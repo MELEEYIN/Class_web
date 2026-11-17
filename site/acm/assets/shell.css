@@ -1111,3 +1111,34 @@ body.is-scrolling .doc {
 @media (prefers-reduced-motion: no-preference) {
   .side, .top { transition: background-color .18s ease; }
 }
+
+/* ==========================================================================
+   小屏（≤820px）性能降级
+   —— 桌面已经靠 content-visibility 与滚动降级跑顺了，手机上仍然卡，原因是
+      物理像素和图层成本：390×844 @DPR3 ≈ 296 万像素，是 1440×900 @DPR1 的 2.3 倍，
+      backdrop-filter、阴影、全屏图层动画都按物理像素收费。
+   三处改动，都是为了把这笔账砍掉，观感损失控制在「几乎看不出」。
+   ========================================================================== */
+@media (max-width: 820px) {
+  /* ① 背景极光漂移：一个 inset:-12% 的全屏图层做 34s 循环，且带 filter。
+        手机合成器要一直处理这张放大的模糊图；背景图本身还在，只是不再飘。 */
+  body::before { animation: none; }
+
+  /* ② 正文卡片的毛玻璃：移动端占满整宽，是面积最大的一个模糊层。
+        改成不模糊，靠 --side-bg 的半透明底色维持玻璃观感。 */
+  html:not([data-wall="none"]) .doc,
+  .doc {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  /* ③ 侧栏 / 顶栏保留模糊但降一档（面积小，8px 与 16px 肉眼差别很小） */
+  .side {
+    -webkit-backdrop-filter: saturate(150%) blur(8px);
+    backdrop-filter: saturate(150%) blur(8px);
+  }
+  .top {
+    -webkit-backdrop-filter: saturate(150%) blur(8px);
+    backdrop-filter: saturate(150%) blur(8px);
+  }
+}

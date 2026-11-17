@@ -228,3 +228,6 @@ html[data-theme="dark"] .qtag.t-high { color: #e0a45c; }
 @media print {
   .doc-study .q { content-visibility: visible; contain-intrinsic-size: none; }
 }
+@media (max-width: 820px) {
+  .doc-study .q { contain-intrinsic-size: auto 380px; }
+}

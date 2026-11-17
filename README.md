@@ -1184,3 +1184,23 @@ python tools/build_en_home.py      # ④ 首页卡片与统计
 
 另外顺手修了含 `lim` 上下标的段落行距：`.lm` 是 `inline-flex` 的两行结构，
 段落行高 1.95 时下标会压住下一行文字，现在用 `p:has(.lm) { line-height: 2.15 }` 单独放大。
+
+### 小屏（≤820px）为什么要单独降级
+
+手机的物理像素是主要变量：390×844 @DPR3 ≈ 296 万像素，是 1440×900 @DPR1 的 **2.3 倍**，
+而 `backdrop-filter`、大阴影、全屏图层动画都按物理像素收费。所以桌面跑顺了，手机上仍然卡。
+
+`shell.css` 末尾的 `@media (max-width: 820px)` 做了三件事：
+
+| 降级项 | 原因 | 观感影响 |
+|---|---|---|
+| `body::before { animation: none }` | 一个 `inset:-12%` 的全屏图层做 34s 循环，合成器要一直处理这张放大图 | 背景图还在，只是不再缓慢漂移 |
+| `.doc` 去掉 `backdrop-filter` | 移动端占满整宽，是面积最大的模糊层 | 玻璃卡片变半透明实色，底色与边框不变 |
+| `.side` / `.top` 的 `blur` 16–20px → 8px | 面积小，但 20px 模糊在 DPR3 下依然可观 | 肉眼几乎看不出 |
+
+另外 `math.css` / `math750.css` 在窄屏把 `contain-intrinsic-size` 从 6200px 放宽到 14000px
+（390px 宽时每章约为桌面的 1.5 倍高），避免滚动跨章时反复修正高度导致滚动条跳动。
+
+**注意**：验证时如果开的是无头浏览器，`prefers-reduced-motion` 可能默认是 `reduce`，
+背景动画本来就是关的，测不出这一项的收益——要验证小屏动画降级，得看
+`getComputedStyle(document.body, '::before').animationName` 而不是测 DCL。
