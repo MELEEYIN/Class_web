@@ -785,3 +785,29 @@ ol.kpt > li.add > b { color: var(--accent); }
 @media print {
   .doc-study .qdone { display: none; }
 }
+
+
+/* ==========================================================================
+   首屏优化：13 章正文一次性布局太贵（本地实测 DCL 1.79s / 首屏 0.92s）。
+   给每个 .unit 加 content-visibility: auto，浏览器只布局靠近视口的章节，
+   屏外的等滚过去再算；contain-intrinsic-size 用 auto，会记住实测高度，
+   所以滚动条不会来回跳。
+   注意：靠 rect 算位置的地方（目录高亮）在未渲染章节上拿到的是估算值，
+   但 Chrome 会在元素接近视口时提前渲染，当前可见章节的 rect 是准的。
+   ========================================================================== */
+.doc-study .unit {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 6200px;
+}
+@media print {
+  .doc-study .unit { content-visibility: visible; contain-intrinsic-size: none; }
+}
+
+/* 含 lim 上下标的段落：.lm 是 inline-flex 的「两行」结构，段落行高不够时
+   会和上下行贴在一起（截图里 b→+∞ 的下标压住了下一行文字）。
+   只对含 .lm 的段落放大行高，不动其他正文。 */
+.doc-study p:has(.lm),
+.doc-study li:has(.lm),
+.doc-study td:has(.lm) {
+  line-height: 2.15;
+}

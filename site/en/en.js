@@ -307,7 +307,33 @@
   var readBar = $('#readBar');
   var toTop = $('#toTop');
 
+  /* 滚动处理拆成两层：
+       ① onScroll 每个事件只做「关毛玻璃 + 排一帧」，本身不碰布局；
+       ② onScrollIdle 在 rAF 里跑一次，做进度条、目录高亮。
+     原来每个 scroll 事件都直接跑 30 多次 getBoundingClientRect + 重建目录，
+     在近 3 万节点的长页上会明显掉帧。 */
+  var scrollTicking = false;
+  var scrollTimer = 0;
+
   function onScroll() {
+    if (scrollTimer === 0) document.body.classList.add('is-scrolling');
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(function () {
+      scrollTimer = 0;
+      document.body.classList.remove('is-scrolling');
+    }, 180);
+
+    if (scrollTicking) return;
+    scrollTicking = true;
+    /* 用 16ms 定时器而不是 rAF：后台标签页、无头环境里 rAF 会被暂停，
+       目录高亮会直接不更新；16ms 合并后的开销与 rAF 同量级。 */
+    setTimeout(function () {
+      scrollTicking = false;
+      onScrollIdle();
+    }, 16);
+  }
+
+  function onScrollIdle() {
     var sc = $('#scroll') || document.scrollingElement;
     var top = sc.scrollTop || window.scrollY || 0;
     var hgt = (sc.scrollHeight - sc.clientHeight) || 1;

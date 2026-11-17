@@ -1092,3 +1092,22 @@ html[data-theme="light"] {
 }
 .top-btn.top-review svg { color: currentColor; }
 @media (max-width: 620px) { .top-btn.top-review .tl { display: none; } }
+
+/* ==========================================================================
+   滚动期降级：backdrop-filter 每帧都要重算背景模糊，是长页面滚动最贵的一项。
+   en.js 在滚动开始给 body 加 .is-scrolling、停止 180ms 后移除，
+   期间把常驻的毛玻璃（侧栏 / 顶栏 / 正文卡片）临时关掉，观感几乎无感。
+   ========================================================================== */
+body.is-scrolling .side,
+body.is-scrolling .top {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+html:not([data-wall="none"]) body.is-scrolling .doc,
+body.is-scrolling .doc {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .side, .top { transition: background-color .18s ease; }
+}

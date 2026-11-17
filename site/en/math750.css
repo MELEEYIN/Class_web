@@ -218,3 +218,13 @@ html[data-theme="dark"] .qtag.t-high { color: #e0a45c; }
   background: rgb(var(--ok-rgb) / .1);
   color: rgb(var(--ok-rgb));
 }
+
+/* 750 题：130 张卡一次布局同样很贵，屏外的先跳过（与 math.html 的 .unit 同一思路）。
+   contain-intrinsic-size 用 auto，实测过的高度会被记住，滚动条不会抖。 */
+.doc-study .q {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 240px;
+}
+@media print {
+  .doc-study .q { content-visibility: visible; contain-intrinsic-size: none; }
+}

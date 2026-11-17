@@ -1159,3 +1159,28 @@ python tools/build_en_home.py      # ④ 首页卡片与统计
   所以之前点过的题不会丢。
 - **只对有题干的块生效**：`b1.html`（英语例句）、`draw.html`（制图例题）里也有 `.eg`，
   但 `data-book` 不是 math/m750，不会被注入；页面里还有几十个空壳 `.ex`（图注、分隔），按 `data-qid` 过滤掉。
+
+## 十九、长页面的性能（2026-11）
+
+高数讲解页有 1.2MB / 2.9 万节点 / 54 张内联 SVG，750 题页 46261 节点（MathML），
+不加处理时打开与滚动都明显发涩。做的三件事，改动都很小，但都是量级上的收益：
+
+| 措施 | 位置 | 效果（本地 file:// 无头实测） |
+|---|---|---|
+| 屏外章节跳过布局：`.unit` / `.q` 加 `content-visibility: auto` | `math.css`、`math750.css` | 讲解页 DCL 1791ms → 329ms，首屏 920ms → 324ms；750 页 DCL 361ms → 191ms |
+| 滚动期关掉毛玻璃：`body.is-scrolling` 时 `.side/.top/.doc` 的 `backdrop-filter: none` | `shell.css` + `en.js` | 滚动时不再每帧重算 4–20px 的高斯模糊 |
+| 滚动处理合并到 16ms 一次 | `en.js` | 原来每个 scroll 事件都跑 30 多次 `getBoundingClientRect` 并可能重建右侧目录 |
+
+### 三个注意点
+
+1. **`content-visibility` 会让「未渲染元素」的 rect 变成估算值。** 靠 rect 判断位置的逻辑
+   （右侧目录高亮）在远处章节上会不精确，但 Chrome 会在元素接近视口时提前渲染，
+   当前可见章节的 rect 是准的。实测 `#m7` 直达后 `m7` 的 `rect.top = 136`、目录正确高亮「微分方程」。
+   打印时用 `@media print` 关掉（否则可能印出空白章）。
+2. **节流别用 `requestAnimationFrame`。** 后台标签页与无头环境会暂停 rAF，目录高亮直接不更新
+   （本地验证时踩到过）。用 `setTimeout(…, 16)` 合并，开销同量级且任何情况都会执行。
+3. **`contain-intrinsic-size` 用 `auto <长度>`。** 只给长度的话滚动条会按估算高度抖；
+   加 `auto` 后浏览器会记住实测高度，第二次经过就准了。
+
+另外顺手修了含 `lim` 上下标的段落行距：`.lm` 是 `inline-flex` 的两行结构，
+段落行高 1.95 时下标会压住下一行文字，现在用 `p:has(.lm) { line-height: 2.15 }` 单独放大。
