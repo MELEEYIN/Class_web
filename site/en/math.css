@@ -797,7 +797,10 @@ ol.kpt > li.add > b { color: var(--accent); }
    ========================================================================== */
 .doc-study .unit {
   content-visibility: auto;
-  contain-intrinsic-size: auto 6200px;
+  /* 估算值按实测校准（750px 宽下 13 章平均约 2.6 万 px，桌面更宽会矮一些）。
+     估算偏差只影响「未渲染时」的滚动条长度；真正的跳变由 en.js 第 9 节的
+     预热处理——在视口外提前渲染，让高度修正发生在看不见的地方。 */
+  contain-intrinsic-size: auto 20000px;
 }
 @media print {
   .doc-study .unit { content-visibility: visible; contain-intrinsic-size: none; }
@@ -815,7 +818,7 @@ ol.kpt > li.add > b { color: var(--accent); }
 /* 窄屏下正文更长（390px 宽时每章约为桌面的 1.5 倍高），原先 6200px 的估算偏低，
    滚动跨章时浏览器要反复修正高度，表现为滚动条跳、卡顿。按实测放宽估算。 */
 @media (max-width: 820px) {
-  .doc-study .unit { contain-intrinsic-size: auto 14000px; }
+  .doc-study .unit { contain-intrinsic-size: auto 24000px; }
 }
 
 /* 公式换行：短公式靠 fm-nw 整体不拆（原来是往空格里塞 &#160;，窄屏会撑破容器），

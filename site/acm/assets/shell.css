@@ -310,7 +310,9 @@ body::after {
 .top-btn svg { width: 14px; height: 14px; }
 
 /* 滚动区 */
-.scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; scroll-behavior: smooth; }
+.scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; }
+/* 不用 scroll-behavior: smooth：目录锚点跨两万 px 平滑滚动时会经过未渲染的
+   章节，视觉上是白块跟进；而且触屏手势滚动本来就不吃这个值。 */
 .scroll::-webkit-scrollbar { width: 11px; }
 .scroll::-webkit-scrollbar-thumb { background: rgba(var(--accent-rgb) / .16); border-radius: 8px; border: 3px solid transparent; background-clip: content-box; }
 .scroll::-webkit-scrollbar-thumb:hover { background: rgba(var(--accent-rgb) / .3); background-clip: content-box; }
@@ -932,21 +934,20 @@ html[data-wall="custom"] body::after { opacity: .35; }
 
 /* 有背景图时：正文与右栏落在一块半透明「纸面」上，保证可读 */
 html:not([data-wall="none"]) .doc {
-  background: rgba(var(--bg-rgb) / .78);
+  background: rgba(var(--bg-rgb) / .87);
   border: 1px solid var(--line);
   border-radius: 16px;
   padding: 26px 28px 34px;
   box-shadow: 0 22px 60px -34px rgba(0, 0, 0, .55);
-  backdrop-filter: blur(5px) saturate(120%);
-  -webkit-backdrop-filter: blur(5px) saturate(120%);
+  /* 不做 backdrop-filter：这块纸面是「整篇文章」一个元素（高可达 20 万 px），
+     模糊面积等于全文，滚动时每帧都要重算；且 0.87 的不透明度下 5px 模糊
+     在视觉上几乎看不出来。去掉它，滚动期不再有大图层重建。 */
 }
 html:not([data-wall="none"]) .rail-in {
-  background: rgba(var(--bg-rgb) / .7);
+  background: rgba(var(--bg-rgb) / .84);
   border: 1px solid var(--line);
   border-radius: 12px;
   padding: 13px 14px;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
 }
 html:not([data-wall="none"]) .fnt { background: rgba(var(--bg-rgb) / .55); }
 html:not([data-wall="none"]) .pager a { background: rgba(var(--bg-rgb) / .74); backdrop-filter: blur(3px); }
@@ -958,21 +959,20 @@ html:not([data-wall="none"]) .stage { padding-top: 26px; }
 
 /* 有背景图时：正文与右栏落在一块半透明「纸面」上，保证可读 */
 html:not([data-wall="none"]) .doc {
-  background: rgba(var(--bg-rgb) / .78);
+  background: rgba(var(--bg-rgb) / .87);
   border: 1px solid var(--line);
   border-radius: 16px;
   padding: 26px 28px 34px;
   box-shadow: 0 22px 60px -34px rgba(0, 0, 0, .55);
-  backdrop-filter: blur(5px) saturate(120%);
-  -webkit-backdrop-filter: blur(5px) saturate(120%);
+  /* 不做 backdrop-filter：这块纸面是「整篇文章」一个元素（高可达 20 万 px），
+     模糊面积等于全文，滚动时每帧都要重算；且 0.87 的不透明度下 5px 模糊
+     在视觉上几乎看不出来。去掉它，滚动期不再有大图层重建。 */
 }
 html:not([data-wall="none"]) .rail-in {
-  background: rgba(var(--bg-rgb) / .7);
+  background: rgba(var(--bg-rgb) / .84);
   border: 1px solid var(--line);
   border-radius: 12px;
   padding: 13px 14px;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
 }
 html:not([data-wall="none"]) .fnt { background: rgba(var(--bg-rgb) / .55); }
 html:not([data-wall="none"]) .pager a { background: rgba(var(--bg-rgb) / .74); backdrop-filter: blur(3px); }
@@ -1094,20 +1094,14 @@ html[data-theme="light"] {
 @media (max-width: 620px) { .top-btn.top-review .tl { display: none; } }
 
 /* ==========================================================================
-   滚动期降级：backdrop-filter 每帧都要重算背景模糊，是长页面滚动最贵的一项。
-   en.js 在滚动开始给 body 加 .is-scrolling、停止 180ms 后移除，
-   期间把常驻的毛玻璃（侧栏 / 顶栏 / 正文卡片）临时关掉，观感几乎无感。
+   关于滚动期的毛玻璃降级 —— 2026-11 撤销动态切换
+   早期做法是滚动时给 body 加 .is-scrolling，把 .side/.top/.doc 的
+   backdrop-filter 临时置 none。但它会让这三个元素在滚动开始与结束时
+   各销毁/重建一次合成层：桌面看不出，平板上表现为「滑动时闪一下」
+   （大面积图层重建 + 背景从模糊突变清晰）。
+   现在改成静态策略：正文纸面与右栏底板完全不用模糊（面积太大、收益近零），
+   侧栏与顶栏常驻一个小半径模糊，滚动期间不再做任何属性翻转。
    ========================================================================== */
-body.is-scrolling .side,
-body.is-scrolling .top {
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
-}
-html:not([data-wall="none"]) body.is-scrolling .doc,
-body.is-scrolling .doc {
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
-}
 @media (prefers-reduced-motion: no-preference) {
   .side, .top { transition: background-color .18s ease; }
 }
@@ -1119,18 +1113,14 @@ body.is-scrolling .doc {
       backdrop-filter、阴影、全屏图层动画都按物理像素收费。
    三处改动，都是为了把这笔账砍掉，观感损失控制在「几乎看不出」。
    ========================================================================== */
-@media (max-width: 820px) {
+/* 断点覆盖到 1024px 并加上 pointer: coarse —— 平板横屏（1024）此前漏在断点外，
+   背景漂移动画和 16–20px 的大半径模糊照旧在跑，这正是「平板比手机还晃」的原因之一。 */
+@media (max-width: 1024px), (pointer: coarse) {
   /* ① 背景极光漂移：一个 inset:-12% 的全屏图层做 34s 循环，且带 filter。
         手机合成器要一直处理这张放大的模糊图；背景图本身还在，只是不再飘。 */
   body::before { animation: none; }
 
-  /* ② 正文卡片的毛玻璃：移动端占满整宽，是面积最大的一个模糊层。
-        改成不模糊，靠 --side-bg 的半透明底色维持玻璃观感。 */
-  html:not([data-wall="none"]) .doc,
-  .doc {
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
+  /* ② 正文纸面与右栏底板已经全局不带模糊（见上方说明），这里无需再降级。 */
 
   /* ③ 侧栏 / 顶栏保留模糊但降一档（面积小，8px 与 16px 肉眼差别很小） */
   .side {

@@ -313,16 +313,11 @@
      原来每个 scroll 事件都直接跑 30 多次 getBoundingClientRect + 重建目录，
      在近 3 万节点的长页上会明显掉帧。 */
   var scrollTicking = false;
-  var scrollTimer = 0;
 
+  /* 不再维护 body.is-scrolling：它唯一的用途是滚动期关掉 backdrop-filter，
+     而那次翻转会让侧栏/顶栏/纸面各重建一次合成层，平板上就是「滑动时闪一下」。
+     现在毛玻璃是静态配置（见 shell.css），滚动期间不做任何属性切换。 */
   function onScroll() {
-    if (scrollTimer === 0) document.body.classList.add('is-scrolling');
-    clearTimeout(scrollTimer);
-    scrollTimer = setTimeout(function () {
-      scrollTimer = 0;
-      document.body.classList.remove('is-scrolling');
-    }, 180);
-
     if (scrollTicking) return;
     scrollTicking = true;
     /* 用 16ms 定时器而不是 rAF：后台标签页、无头环境里 rAF 会被暂停，
@@ -367,8 +362,10 @@
 
   if (toTop) {
     toTop.addEventListener('click', function () {
-      if (scrollHost) scrollHost.scrollTo({ top: 0, behavior: 'smooth' });
-      else window.scrollTo({ top: 0, behavior: 'smooth' });
+      /* 瞬时而非平滑：跨两万 px 的平滑滚动会经过未渲染的章节，
+         看到的是白块跟进。 */
+      if (scrollHost) scrollHost.scrollTo({ top: 0, behavior: 'instant' });
+      else window.scrollTo({ top: 0, behavior: 'instant' });
     });
   }
 
@@ -546,5 +543,33 @@
     }
 
     paint();
+  })();
+
+  /* --------------------------- 9. content-visibility 预热（消除滚动跳变）
+     屏外章节只按 contain-intrinsic-size 的估算高度占位；滚到它时才真实渲染，
+     两者差值（实测每章 1.3 万–4.4 万 px，估算只有 2 万）会让整页高度突然变化，
+     用户看到的就是「滑动时画面猛跳一下」。这里在视口上下各提前 4000px（约四屏）主动
+     触发渲染（读一次 offsetHeight），把高度修正挪到屏幕之外完成。 */
+  (function () {
+    var host = $('#scroll');
+    var wraps = $$('.doc-study .unit, .doc-study .q');
+    if (!host || !wraps.length || !('IntersectionObserver' in window)) return;
+    if (!window.CSS || !CSS.supports || !CSS.supports('content-visibility', 'auto')) return;
+
+    function warm(el) {
+      if (el.getAttribute('data-warm')) return;
+      el.setAttribute('data-warm', '1');
+      void el.offsetHeight;
+    }
+
+    var io = new IntersectionObserver(function (list) {
+      for (var i = 0; i < list.length; i++) {
+        if (!list[i].isIntersecting) continue;
+        warm(list[i].target);
+        io.unobserve(list[i].target);
+      }
+    }, { root: host, rootMargin: '4000px 0px 4000px 0px' });
+
+    wraps.forEach(function (el) { io.observe(el); });
   })();
 })();
