@@ -196,7 +196,7 @@ HEAD = """<!DOCTYPE html>
             <header class="hero">
               <div class="eyebrow">Campus · 课程学习子站</div>
               <h1>六门课，<span>一套外壳</span></h1>
-              <p>高等数学负责「把公式背到能默写、把图形看明白」；大学英语负责「按平台任务链做完整单元的题」；工程制图负责「把国标规范和画法练成条件反射」；数字电子技术负责「把门电路与时序逻辑推到底」；模拟电子技术负责「看懂一条从信号到电源的放大链路」；STM32 单片机负责「让代码真的驱动硬件」。六边共用一套目录、一套检索、一套外观，换课不用重新找路。</p>
+              <p>高等数学负责「把公式背到能默写、把图形看明白」；大学英语负责「按平台任务链做完整单元的题」；工程制图负责「把国标规范和画法练成条件反射」；数字电子技术负责「把门电路与时序逻辑推到底」；模拟电子技术负责「看懂一条从信号到电源的放大链路」；STM32 单片机负责「让代码真的驱动硬件」——标准库 19 课讲寄存器与库函数，HAL 24 课讲 CubeMX 与图形化配置。六门课共用一套目录、一套检索、一套外观，换课不用重新找路。</p>
               <div class="hero-stats">
                 <div><b>6</b><span>门课</span></div>
                 <div><b>13</b><span>高数章</span></div>
@@ -204,11 +204,11 @@ HEAD = """<!DOCTYPE html>
                 <div><b>9</b><span>制图章</span></div>
                 <div><b>9</b><span>数电章</span></div>
                 <div><b>10</b><span>模电章</span></div>
-                <div><b>19</b><span>单片机课</span></div>
+                <div><b>43</b><span>单片机课</span></div>
               </div>
             </header>
 
-            <div class="sec-t"><h2 id="entry">从哪进</h2><em>六门课，十个入口</em></div>
+            <div class="sec-t"><h2 id="entry">从哪进</h2><em>六门课，十一个入口</em></div>
             <div class="paths">
               <a class="path" href="./math.html">
                 <span class="pk">高等数学 · 13 章 75 节</span>
@@ -257,6 +257,12 @@ HEAD = """<!DOCTYPE html>
                 <b>标准库 · 从点灯到总线</b>
                 <p>六篇 19 课按「篇—课」推进：GPIO 输出/输入 → OLED → EXTI → 定时中断 / PWM / 输入捕获 / 编码器 → ADC → DMA → USART / I2C+MPU6050 / SPI+W25Q64 → RTC / PWR / 看门狗 / 内部 FLASH。每课固定四件：<b>要解决什么问题</b>、<b>原理与寄图层</b>、<b>能直接编译的标准库代码</b>、<b>四道带解析的练习</b>，另附库函数与报错速查表。</p>
                 <span class="go">打开 STM32 课程 →</span>
+              </a>
+              <a class="path" href="./stm32-hal.html">
+                <span class="pk">STM32 HAL 库 · 24 课</span>
+                <b>CubeMX · 从图形化配置到外设</b>
+                <p>同一块 F103C8T6 的第二种写法：CubeMX 点引脚 / 时钟 / 外设 → 生成 HAL 工程 → 只在 USER CODE 区写业务。24 课六篇：HAL 框架与 CubeMX → GPIO / EXTI / NVIC → USART → 看门狗 / 定时器 / PWM / 捕获 / 高级定时器 → I2C / SPI / DMA / ADC → RTC / 低功耗 / CAN / 提高篇。每课给 CubeMX 配置表、可编译的 HAL 代码、坑与四道练习，附录附 199 讲视频对照与 HAL API 速查。</p>
+                <span class="go">打开 HAL 课程 →</span>
               </a>
 
               <a class="path" href="./draw.html">

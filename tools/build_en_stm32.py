@@ -531,7 +531,7 @@ def main():
     nsec = sum(L["nsec"] for L in lessons)
     nex = sum(L["nex"] for L in lessons)
 
-    page = HEAD.replace("@@NAV@@", build_nav("", "stm32"))
+    page = HEAD.replace("@@NAV@@", build_nav("./b1.html", "stm32"))
     page = page.replace("@@MAP@@", render_map())
     page = page.replace("@@BILL@@", render_bill())
     page = page.replace("@@LESSONS@@", body)

@@ -150,9 +150,53 @@ STM32_PARTS = [
 
 STM32_APPENDIX = ("apx", "速查表：库函数 · 报错 · 接线")
 
+# ---------------------------------------------------------------- STM32 HAL 库课程
+# 正文由 tools/build_en_stm32_hal.py 从 site/en/stm32-hal/lessons/*.md 渲染。
+# 与 md 的编号/标题必须一致，否则侧栏、进度、页内目录三处对不上。
+STM32_HAL_PARTS = [
+    ("第一篇 · HAL 与工具", [
+        ("s01", "认识 STM32 与 HAL 开发方式"),
+        ("s02", "工具链与第一个 HAL 工程"),
+        ("s03", "HAL 框架与 STM32CubeMX"),
+        ("s04", "时钟树、SysTick 与系统时钟"),
+        ("s05", "延时、printf 与启动过程"),
+    ]),
+    ("第二篇 · GPIO 与中断", [
+        ("s06", "GPIO 结构与八种工作模式"),
+        ("s07", "HAL GPIO 配置与点灯实战"),
+        ("s08", "NVIC 中断优先级与中断机制"),
+        ("s09", "EXTI 外部中断与 HAL 回调"),
+    ]),
+    ("第三篇 · 串口通信", [
+        ("s10", "USART 原理与波特率"),
+        ("s11", "HAL 串口收发与中断回调"),
+    ]),
+    ("第四篇 · 定时器与看门狗", [
+        ("s12", "看门狗：IWDG 与 WWDG"),
+        ("s13", "基本定时器与定时中断"),
+        ("s14", "通用定时器 PWM 输出"),
+        ("s15", "输入捕获与脉宽测量"),
+        ("s16", "高级定时器：重复计数、互补与死区"),
+        ("s17", "PWM 输入模式"),
+    ]),
+    ("第五篇 · 总线与数据通路", [
+        ("s18", "I2C 与 OLED / MPU6050"),
+        ("s19", "SPI 与 W25Q64"),
+        ("s20", "DMA：让数据自己搬家"),
+        ("s21", "ADC 与 DAC"),
+    ]),
+    ("第六篇 · 系统与进阶", [
+        ("s22", "RTC 与低功耗"),
+        ("s23", "通信扩展：CAN · RS485 · 单总线 · 无线"),
+        ("s24", "提高篇：文件系统、图片音频、USB 与 IAP"),
+    ]),
+]
 
-def stm32_box(open_by_default=False, href="./stm32.html"):
-    """侧栏里的 STM32 一栏。open_by_default=True 用在 stm32.html 自己那页。"""
+STM32_HAL_APPENDIX = ("apx", "速查表：HAL API · CubeMX · 报错")
+
+
+def stm32_box(open_by_default=False, href="./stm32.html", unit_prefix=""):
+    """侧栏里的 STM32 标准库一栏。open_by_default=True 用在标准库页自己那页。"""
     mod = "nv-mod" if open_by_default else "nv-mod fold"
     out = ['<!--stm32-nav--><div class="' + mod + '" data-mod="stm32">'
            '<button class="nv-h" type="button" data-fold="stm32"><span class="chev">' + CHEV + '</span>'
@@ -162,11 +206,36 @@ def stm32_box(open_by_default=False, href="./stm32.html"):
         out.append('<div class="nv-grp">' + part + '</div>')
         for lid, title in lessons:
             n += 1
-            out.append(_item('%s#%s' % (href, lid), '%02d' % n, title, unit=lid))
+            out.append(_item('%s#%s' % (href, lid), '%02d' % n, title,
+                             unit=(unit_prefix + lid if unit_prefix else lid)))
     out.append('<div class="nv-grp">附录</div>')
     out.append(_item('%s#%s' % (href, STM32_APPENDIX[0]), '附', STM32_APPENDIX[1],
-                     unit=STM32_APPENDIX[0]))
+                     unit=(unit_prefix + STM32_APPENDIX[0] if unit_prefix else STM32_APPENDIX[0])))
+    out.append('<div class="nv-grp">相关课程</div>')
+    out.append(_item("./stm32-hal.html", "HAL", "HAL 库课程 · 24 课"))
     out.append('</div></div><!--/stm32-nav-->')
+    return "".join(out)
+
+
+def stm32_hal_box(open_by_default=False, href="./stm32-hal.html", unit_prefix=""):
+    """侧栏里的 STM32 HAL 库一栏。"""
+    mod = "nv-mod" if open_by_default else "nv-mod fold"
+    out = ['<!--stm32-hal-nav--><div class="' + mod + '" data-mod="stm32hal">'
+           '<button class="nv-h" type="button" data-fold="stm32hal"><span class="chev">' + CHEV + '</span>'
+           '<b>STM32 HAL 库</b><em>24</em></button><div class="nv-list">']
+    n = 0
+    for part, lessons in STM32_HAL_PARTS:
+        out.append('<div class="nv-grp">' + part + '</div>')
+        for lid, title in lessons:
+            n += 1
+            out.append(_item('%s#%s' % (href, lid), '%02d' % n, title,
+                             unit=(unit_prefix + lid if unit_prefix else lid)))
+    out.append('<div class="nv-grp">附录</div>')
+    out.append(_item('%s#%s' % (href, STM32_HAL_APPENDIX[0]), '附', STM32_HAL_APPENDIX[1],
+                     unit=(unit_prefix + STM32_HAL_APPENDIX[0] if unit_prefix else STM32_HAL_APPENDIX[0])))
+    out.append('<div class="nv-grp">相关课程</div>')
+    out.append(_item("./stm32.html", "STD", "标准库课程 · 19 课"))
+    out.append('</div></div><!--/stm32-hal-nav-->')
     return "".join(out)
 
 
@@ -307,7 +376,10 @@ def build_nav(unit_prefix="", active="math", cur=""):
         _item("./ae.html#formula", "FX", "公式速查") +
         '</div></div>')
 
-    stm_box = stm32_box(open_by_default=(active == "stm32"))
+    stm_box = stm32_box(open_by_default=(active == "stm32"),
+                        unit_prefix=("std-" if active == "stm32hal" else ""))
+    hal_box = stm32_hal_box(open_by_default=(active == "stm32hal"),
+                            unit_prefix=("hal-" if active == "stm32" else ""))
 
     if active == "cet4":
         order = cet4_box + cet6_box + de_box + ae_box + en_box + draw_box + math_box + stm_box
@@ -322,7 +394,9 @@ def build_nav(unit_prefix="", active="math", cur=""):
     elif active == "de":
         order = de_box + ae_box + math_box + en_box + cet4_box + cet6_box + draw_box + stm_box
     elif active == "stm32":
-        order = stm_box + de_box + ae_box + math_box + en_box + cet4_box + cet6_box + draw_box
+        order = stm_box + hal_box + de_box + ae_box + math_box + en_box + cet4_box + cet6_box + draw_box
+    elif active == "stm32hal":
+        order = hal_box + stm_box + de_box + ae_box + math_box + en_box + cet4_box + cet6_box + draw_box
     else:
         order = math_box + en_box + cet4_box + cet6_box + de_box + ae_box + draw_box + stm_box
     return '<nav class="side-nav" id="nav" aria-label="站点目录">' + order + '</nav>'
