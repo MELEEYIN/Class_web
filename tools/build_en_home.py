@@ -196,7 +196,7 @@ HEAD = """<!DOCTYPE html>
             <header class="hero">
               <div class="eyebrow">Campus · 课程学习子站</div>
               <h1>六门课，<span>一套外壳</span></h1>
-              <p>高等数学负责「把公式背到能默写、把图形看明白」；大学英语负责「按平台任务链做完整单元的题」；工程制图负责「把国标规范和画法练成条件反射」；数字电子技术负责「把门电路与时序逻辑推到底」；模拟电子技术负责「看懂一条从信号到电源的放大链路」；STM32 单片机负责「让代码真的驱动硬件」——标准库 19 课讲寄存器与库函数，HAL 24 课讲 CubeMX 与图形化配置。六门课共用一套目录、一套检索、一套外观，换课不用重新找路。</p>
+              <p>高等数学负责「把公式背到能默写、把图形看明白」；大学英语负责「按平台任务链做完整单元的题」；工程制图负责「把国标规范和画法练成条件反射」；数字电子技术负责「把门电路与时序逻辑推到底」；模拟电子技术负责「看懂一条从信号到电源的放大链路」；STM32 单片机负责「让代码真的驱动硬件」——标准库 19 课讲寄存器与库函数，HAL 24 课讲 CubeMX 与图形化配置；另有电子与单片机资料库 12 套完整教程。六门课共用一套目录、一套检索、一套外观，换课不用重新找路。</p>
               <div class="hero-stats">
                 <div><b>6</b><span>门课</span></div>
                 <div><b>13</b><span>高数章</span></div>
@@ -208,7 +208,7 @@ HEAD = """<!DOCTYPE html>
               </div>
             </header>
 
-            <div class="sec-t"><h2 id="entry">从哪进</h2><em>六门课，十一个入口</em></div>
+            <div class="sec-t"><h2 id="entry">从哪进</h2><em>六门课，十二个入口</em></div>
             <div class="paths">
               <a class="path" href="./math.html">
                 <span class="pk">高等数学 · 13 章 75 节</span>
@@ -263,6 +263,13 @@ HEAD = """<!DOCTYPE html>
                 <b>CubeMX · 从图形化配置到外设</b>
                 <p>同一块 F103C8T6 的第二种写法：CubeMX 点引脚 / 时钟 / 外设 → 生成 HAL 工程 → 只在 USER CODE 区写业务。24 课六篇：HAL 框架与 CubeMX → GPIO / EXTI / NVIC → USART → 看门狗 / 定时器 / PWM / 捕获 / 高级定时器 → I2C / SPI / DMA / ADC → RTC / 低功耗 / CAN / 提高篇。每课给 CubeMX 配置表、可编译的 HAL 代码、坑与四道练习，附录附 199 讲视频对照与 HAL API 速查。</p>
                 <span class="go">打开 HAL 课程 →</span>
+              </a>
+
+              <a class="path" href="./electronics.html">
+                <span class="pk">电子与单片机资料库 · 12 套</span>
+                <b>电路 · 数电 · 51 · STM32 · HAL · 微机</b>
+                <p>从整站离线包里完整收进 12 套电子与单片机教程：邱关源《电路》12 章、数字电子技术、时序逻辑、51 单片机 35 章、51 汇编、51 前置、微机原理 12 篇、STM32 深度版 22 章 / 江协版 15 章 49 节、TIM 定时器 13 节、蓝桥杯 G431、F103C8T6 HAL 14 章，共 23 个页面。保留原教程的章节分页、搜索、深色模式与学习进度，与本站 STM32 标准库/HAL 两门短课互为补充。</p>
+                <span class="go">打开资料库 →</span>
               </a>
 
               <a class="path" href="./draw.html">

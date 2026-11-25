@@ -1,0 +1,1890 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>51 单片机汇编语言教程 · 两周速通</title>
+<style>
+:root{--bg:#f6f8fb;--card:#fff;--ink:#1f2933;--ink2:#52606d;--ink3:#7b8794;
+--line:#e3e8f0;--brand:#7c3aed;--brand2:#0f9d76;--code-bg:#0f172a;--code-fg:#e6edf7;
+--inline:#f1edfd;--warn-bg:#fffaf0;--warn-bd:#f0d9a8;--tip-bg:#f3efff;--tip-bd:#d5c8f7;}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);
+font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;font-size:15px;line-height:1.8;}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:280px;background:var(--card);
+border-right:1px solid var(--line);overflow-y:auto;z-index:40;transform:translateX(-100%);transition:transform .22s}
+.sidebar.open{transform:translateX(0)}
+.brand{padding:16px;border-bottom:1px solid var(--line)}
+.brand h1{margin:0 0 4px;font-size:15.5px}
+.brand .sub{font-size:11.5px;color:var(--ink3)}
+.sb-progress{padding:11px 16px;border-bottom:1px solid var(--line);font-size:12.5px}
+.sb-progress .row{display:flex;justify-content:space-between;color:var(--ink2)}
+.sb-progress .bar{height:6px;background:var(--inline);border-radius:4px;margin-top:6px;overflow:hidden}
+.sb-progress .bar i{display:block;height:100%;width:0;background:var(--brand2);transition:width .3s}
+.themebar{padding:10px 16px;border-bottom:1px solid var(--line)}
+.themebar button{width:100%;padding:6px 12px;border-radius:8px;border:1px solid var(--line);
+background:var(--inline);color:var(--ink2);font-size:12.5px;cursor:pointer;font-family:inherit}
+.themebar button:hover{border-color:var(--brand);color:var(--brand)}
+.sb-search{padding:10px 16px;border-bottom:1px solid var(--line)}
+.sb-search input{width:100%;padding:7px 10px;border:1px solid var(--line);border-radius:7px;
+background:var(--inline);color:var(--ink);font-size:13px;outline:none;font-family:inherit}
+.sb-search input:focus{border-color:var(--brand)}
+.sb-list{padding:6px 0 40px}
+.sb-week{padding:11px 16px 4px;font-size:11px;color:var(--ink3);font-weight:700;line-height:1.5}
+.sb-item{display:flex;align-items:center;gap:8px;padding:7px 16px;text-decoration:none;
+color:var(--ink);font-size:13px;border-left:3px solid transparent;line-height:1.4}
+.sb-item:hover{background:var(--inline)}
+.sb-item.active{background:var(--inline);border-left-color:var(--brand);color:var(--brand);font-weight:700}
+.sb-item .num{flex:none;width:26px;height:26px;border-radius:7px;background:var(--inline);
+display:flex;align-items:center;justify-content:center;font-size:11.5px;color:var(--ink3)}
+.sb-item.active .num{background:var(--brand);color:#fff}
+.sb-item.done .num{background:var(--brand2);color:#fff}
+.sb-item .tt{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-item .chk{opacity:.14;font-size:12px}
+.sb-item.done .chk{opacity:1;color:var(--brand2)}
+.main{padding:0 16px 90px}
+.menubtn{position:fixed;left:12px;top:12px;z-index:60;width:40px;height:40px;border-radius:10px;
+border:1px solid var(--line);background:var(--card);font-size:18px;cursor:pointer}
+.page{display:none;max-width:900px;margin:0 auto}
+.page.active{display:block}
+.pbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;
+margin:0 -16px 18px;padding:9px 18px;background:var(--card);border-bottom:1px solid var(--line)}
+.pb-l{display:flex;align-items:center;gap:9px;flex:1;min-width:0}
+.pbnum{flex:none;width:30px;height:30px;border-radius:8px;background:var(--brand);color:#fff;
+display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700}
+.pbtt{font-size:15px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.donebtn{flex:none;padding:6px 13px;border-radius:8px;border:1px solid var(--line);
+background:var(--inline);color:var(--ink2);font-size:12.5px;cursor:pointer;font-family:inherit}
+.donebtn.on{background:#eafaf4;border-color:var(--brand2);color:var(--brand2);font-weight:700}
+.body{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:24px 28px}
+.body h2{font-size:19px;margin:30px 0 12px;padding-bottom:8px;border-bottom:2px solid var(--line)}
+.body h2:first-child{margin-top:0}
+.body h3{font-size:16px;margin:20px 0 8px;color:var(--ink2)}
+.body p{margin:10px 0}
+.body ul,.body ol{margin:10px 0;padding-left:24px}
+.body li{margin:5px 0}
+.body table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14px}
+.body th,.body td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top}
+.body th{background:var(--inline);font-weight:700}
+.body code{background:var(--inline);border-radius:4px;padding:1px 5px;
+font-family:Consolas,"Courier New",monospace;font-size:.92em;color:#4c1d95}
+pre.code{background:var(--code-bg);color:var(--code-fg);padding:14px 16px;border-radius:10px;
+overflow-x:auto;font-family:Consolas,"Courier New",monospace;font-size:12.8px;line-height:1.65;margin:14px 0}
+.box{border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin:14px 0;background:#fbfcfe;font-size:14px}
+.box.tip{background:var(--tip-bg);border-color:var(--tip-bd)}
+.box.warn{background:var(--warn-bg);border-color:var(--warn-bd)}
+img.fig{display:block;max-width:100%;height:auto;margin:18px auto;border:1px solid var(--line);
+border-radius:10px;background:#fff;padding:6px}
+details.ans{margin:18px 0;border:1px solid var(--line);border-radius:10px;
+background:var(--inline);padding:0 16px}
+details.ans[open]{padding-bottom:10px}
+details.ans summary{cursor:pointer;padding:11px 0;font-size:14px;font-weight:700;
+color:var(--brand);outline:none}
+details.ans ol{margin:6px 0 0;padding-left:24px}
+details.ans li{margin:8px 0;font-size:14px;line-height:1.75}
+.hero{margin:0 -16px 20px;padding:40px 28px 32px;
+background:linear-gradient(135deg,#4c1d95,#7c3aed 55%,#a78bfa);color:#fff}
+.hero .tag{display:inline-block;background:rgba(255,255,255,.2);border-radius:20px;
+padding:3px 14px;font-size:12.5px;margin-bottom:12px}
+.hero h1{margin:0 0 10px;font-size:27px;color:#fff}
+.hero p{margin:0;opacity:.94;font-size:14.5px;max-width:720px}
+.hero .meta{margin-top:14px;font-size:13px;opacity:.92;line-height:2}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin:14px 0}
+.card{display:block;text-decoration:none;background:var(--card);border:1px solid var(--line);
+border-radius:11px;padding:14px 16px}
+.card:hover{border-color:var(--brand)}
+.card .n{font-size:12px;color:var(--brand);font-weight:700}
+.card .t{margin:4px 0;font-size:15px;font-weight:700;color:var(--ink)}
+.daynav{display:flex;justify-content:space-between;gap:10px;margin:18px 0 0;font-size:13.5px}
+.daynav a{flex:1;text-decoration:none;color:var(--brand);background:var(--card);
+border:1px solid var(--line);border-radius:9px;padding:10px 14px}
+.daynav a.next{text-align:right}
+.daynav a.dis{color:var(--ink3);background:var(--inline);pointer-events:none;border-style:dashed}
+html[data-theme="dark"]{
+  --bg:#12101c;--card:#1a1726;--ink:#e2ddf0;--ink2:#a99fc4;--ink3:#877da0;
+  --line:#2d2740;--brand:#a78bfa;--brand2:#3fce9e;--inline:#241f33;
+  --code-bg:#0b0912;--code-fg:#e6edf7;
+  --warn-bg:#241f13;--warn-bd:#453a1e;--tip-bg:#1e1830;--tip-bd:#3a2f57;}
+html[data-theme="dark"] .box{background:#1b1728;border-color:var(--line)}
+html[data-theme="dark"] .body code{color:#c4b5fd}
+html[data-theme="dark"] .donebtn.on{background:#12301f}
+html[data-theme="dark"] .hero{background:linear-gradient(135deg,#2a1259,#5b21b6 55%,#7c3aed)}
+@media (min-width:940px){
+.sidebar{transform:translateX(0)}
+.main{margin-left:280px;padding:0 24px 90px}
+.menubtn{display:none}
+.hero{margin:0 -24px 20px}
+.pbar{margin:0 -24px 18px}
+}
+@media print{
+.sidebar,.menubtn,.pbar,.daynav,.sb-search,.themebar{display:none!important}
+.main{margin:0;padding:0}
+.page{display:block!important;page-break-after:always}
+.body{border:none;padding:0}
+details.ans{display:block!important}
+details.ans>ol{display:block!important}
+}
+</style>
+</head>
+<body>
+<button class="menubtn" id="menubtn">☰</button>
+<aside class="sidebar" id="sidebar">
+  <div class="brand"><h1>51 汇编语言教程</h1>
+    <div class="sub">两周 · 14 天 · 对齐普中课程体系</div></div>
+  <div class="sb-progress">
+    <div class="row"><span>学习进度</span><span><b id="doneNum">0</b> / 14</span></div>
+    <div class="bar"><i id="doneBar"></i></div>
+  </div>
+  <div class="themebar"><button id="themeBtn" type="button">🌙 深色模式</button></div>
+  <div class="sb-search">
+    <input id="q" type="search" placeholder="搜索指令或关键词…" autocomplete="off">
+    <div id="results" style="margin-top:6px"></div>
+  </div>
+  <nav class="sb-list" id="sblist">
+<a class="sb-item" href="#home" data-page="home"><span class="num">⌂</span><span class="tt">首页 · 两周计划</span></a>
+<div class="sb-week">第一周 · 基础指令　第 1-7 天</div>
+<a class="sb-item" href="#d1" data-page="d1" data-day="1"><span class="num">1</span><span class="tt">为什么学汇编 + 建立汇编工程</span><span class="chk">✓</span></a>
+<a class="sb-item" href="#d2" data-page="d2" data-day="2"><span class="num">2</span><span class="tt">存储器结构与七种寻址方式</span><span class="chk">✓</span></a>
+<a class="sb-item" href="#d3" data-page="d3" data-day="3"><span class="num">3</span><span class="tt">数据传送指令</span><span class="chk">✓</span></a>
+<a class="sb-item" href="#d4" data-page="d4" data-day="4"><span class="num">4</span><span class="tt">算术运算与标志位</span><span class="chk">✓</span></a>
+<a class="sb-item" href="#d5" data-page="d5" data-day="5"><span class="num">5</span><span class="tt">逻辑运算与移位</span><span class="chk">✓</span></a>
+<a class="sb-item" href="#d6" data-page="d6" data-day="6"><span class="num">6</span><span class="tt">位操作与条件转移</span><span class="chk">✓</span></a>
+<a class="sb-item" href="#d7" data-page="d7" data-day="7"><span class="num">7</span><span class="tt">第一周复盘 + 综合实验</span><span class="chk">✓</span></a>
+<div class="sb-week">第二周 · 进阶与应用　第 8-14 天</div>
+<a class="sb-item" href="#d8" data-page="d8" data-day="8"><span class="num">8</span><span class="tt">无条件转移与循环</span><span class="chk">✓</span></a>
+<a class="sb-item" href="#d9" data-page="d9" data-day="9"><span class="num">9</span><span class="tt">子程序调用与堆栈</span><span class="chk">✓</span></a>
+<a class="sb-item" href="#d10" data-page="d10" data-day="10"><span class="num">10</span><span class="tt">查表指令 MOVC</span><span class="chk">✓</span></a>
+<a class="sb-item" href="#d11" data-page="d11" data-day="11"><span class="num">11</span><span class="tt">定时器汇编编程</span><span class="chk">✓</span></a>
+<a class="sb-item" href="#d12" data-page="d12" data-day="12"><span class="num">12</span><span class="tt">中断汇编</span><span class="chk">✓</span></a>
+<a class="sb-item" href="#d13" data-page="d13" data-day="13"><span class="num">13</span><span class="tt">串口汇编</span><span class="chk">✓</span></a>
+<a class="sb-item" href="#d14" data-page="d14" data-day="14"><span class="num">14</span><span class="tt">综合项目 + C 与汇编混合</span><span class="chk">✓</span></a>
+  </nav>
+</aside>
+<main class="main">
+
+<article class="page" id="home">
+  <div class="hero">
+    <span class="tag">两周速通 · 14 天 · 从零到能读反汇编</span>
+    <h1>51 单片机汇编语言教程</h1>
+    <p>你 C51 已经会了，现在补上「计算机到底怎么想」这一课。每天一个主题，全部配可运行的完整程序。</p>
+    <div class="meta">
+      <b>14 天</b> · 约 <b>28 小时</b> · <b>3</b> 张原理图<br>
+      单文件离线可用 · 自动记录进度 · 支持深色模式 · 每题配答案
+    </div>
+  </div>
+  <div class="body">
+    <h2>为什么值得花两周</h2>
+    <table>
+      <tr><th>你会得到</th><th>具体表现</th></tr>
+      <tr><td>看得懂反汇编</td><td>程序跑飞时知道 PC 跳到哪、堆栈有没有炸</td></tr>
+      <tr><td>算得准时序</td><td>每条指令几个周期是确定的，延时能算到微秒</td></tr>
+      <tr><td>理解 C 的代价</td><td>知道 <code>sbit</code>、<code>interrupt</code> 背后到底是什么指令</td></tr>
+      <tr><td>应付考试面试</td><td>指令字节数、周期数、标志位变化都是常考点</td></tr>
+    </table>
+
+    <h2>你的起点</h2>
+    <div class="box tip">
+      已经会：C 语言、C51 编程、GPIO/数码管/按键/中断/定时器/串口的基本用法、电路前三章、数电到 TTL。<br>
+      还不会：汇编语法、51 的存储器分区、指令周期、堆栈细节。<b>这份教程从零讲起，不假设你会看过反汇编。</b>
+    </div>
+
+    <h2>两周安排</h2>
+    <table>
+      <tr><th>周</th><th>重点</th><th>学完能做什么</th></tr>
+      <tr><td>第一周（1-7）</td><td>指令基础：传送、算术、逻辑、位操作</td><td>写点亮 LED、流水灯、按键控制</td></tr>
+      <tr><td>第二周（8-14）</td><td>程序结构：循环、子程序、查表、中断、串口</td><td>写完整的定时/中断/串口程序，能和 C 混合</td></tr>
+    </table>
+    <div class="box warn">
+      <b>建议节奏</b>：每天 2 小时 —— 30 分钟看，60 分钟敲代码并烧录，30 分钟做练习。<br>
+      只看不敲的话，第 5 天就会开始看不懂后面的例子。
+    </div>
+
+<h2>第一周 · 基础指令　第 1-7 天</h2><div class="cards">
+<a class="card" href="#d1"><div class="n">Day 1</div><div class="t">为什么学汇编 + 建立汇编工程</div></a>
+<a class="card" href="#d2"><div class="n">Day 2</div><div class="t">存储器结构与七种寻址方式</div></a>
+<a class="card" href="#d3"><div class="n">Day 3</div><div class="t">数据传送指令</div></a>
+<a class="card" href="#d4"><div class="n">Day 4</div><div class="t">算术运算与标志位</div></a>
+<a class="card" href="#d5"><div class="n">Day 5</div><div class="t">逻辑运算与移位</div></a>
+<a class="card" href="#d6"><div class="n">Day 6</div><div class="t">位操作与条件转移</div></a>
+<a class="card" href="#d7"><div class="n">Day 7</div><div class="t">第一周复盘 + 综合实验</div></a>
+</div>
+<h2>第二周 · 进阶与应用　第 8-14 天</h2><div class="cards">
+<a class="card" href="#d8"><div class="n">Day 8</div><div class="t">无条件转移与循环</div></a>
+<a class="card" href="#d9"><div class="n">Day 9</div><div class="t">子程序调用与堆栈</div></a>
+<a class="card" href="#d10"><div class="n">Day 10</div><div class="t">查表指令 MOVC</div></a>
+<a class="card" href="#d11"><div class="n">Day 11</div><div class="t">定时器汇编编程</div></a>
+<a class="card" href="#d12"><div class="n">Day 12</div><div class="t">中断汇编</div></a>
+<a class="card" href="#d13"><div class="n">Day 13</div><div class="t">串口汇编</div></a>
+<a class="card" href="#d14"><div class="n">Day 14</div><div class="t">综合项目 + C 与汇编混合</div></a>
+</div>
+  </div>
+</article>
+
+
+<article class="page" id="d1">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">1</span>
+      <span class="pbtt">Day 1 · 为什么学汇编 + 建立汇编工程</span></div>
+    <button class="donebtn" data-day="1">标记已学完</button>
+  </div>
+  <div class="body">
+
+<h2>1.1 你已经会 C51 了，为什么还要学汇编</h2>
+<p>看这段 C 和它编译出来的汇编（真实生成）：</p>
+<pre class="code">; C:  P2 = 0xFE;
+      MOV   P2,#0FEH      ; 2 字节，1 个机器周期</pre>
+<p><b>C 的每一行，最终都变成这样一条条汇编。</b>学汇编不是为了取代 C，而是为了：</p>
+<table>
+<tr><th>场景</th><th>为什么必须用汇编</th></tr>
+<tr><td>精确控制时序</td><td>C 的语句执行时间不确定（受优化影响），汇编每条指令的周期数是固定的</td></tr>
+<tr><td>调试「程序跑飞」</td><td>看反汇编窗口，才能知道 PC 跳到哪、堆栈有没有炸</td></tr>
+<tr><td>看懂启动代码</td><td>STARTUP.A51 就是汇编，它做了复位后最关键的初始化</td></tr>
+<tr><td>面试与考试</td><td>单片机岗位常考「这条指令几个周期」「执行后 CY 是多少」</td></tr>
+</table>
+<div class="box tip"><b>一句话</b>：C 是「怎么写」，汇编是「计算机怎么想」。学会后者，前者写得更明白。</div>
+
+<h2>1.2 33 条指令，先认这 4 类</h2>
+<table>
+<tr><th>类别</th><th>代表</th><th>作用</th></tr>
+<tr><td>数据传送</td><td>MOV、MOVC、MOVX</td><td>搬数据</td></tr>
+<tr><td>算术运算</td><td>ADD、SUBB、MUL</td><td>算数</td></tr>
+<tr><td>逻辑运算</td><td>ANL、ORL、XRL、RL</td><td>位运算</td></tr>
+<tr><td>控制转移</td><td>LJMP、DJNZ、LCALL</td><td>跳转、循环、调用</td></tr>
+</table>
+
+<h2>1.3 建立第一个汇编工程</h2>
+<ol>
+<li>Keil 里 <b>Project → New μVision Project</b>，选 AT89C52。</li>
+<li><b>File → New</b>，保存为 <code>main.a51</code>（扩展名必须是 <code>.a51</code> 或 <code>.asm</code>）。</li>
+<li>右键 <b>Source Group 1 → Add Files</b>，把 main.a51 加进去。</li>
+<li><b>F7</b> 编译。</li>
+</ol>
+<div class="box warn"><b>坑</b>：新建文件如果存成 <code>main.c</code>，Keil 会当 C 编译，汇编语句全部报错。扩展名一定要 <code>.a51</code>。</div>
+
+<img class="fig" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NDAiIGhlaWdodD0iNDcwIiB2aWV3Qm94PSIwIDAgOTQwIDQ3MCI+CjxkZWZzPgo8c3R5bGU+Ci53e2ZpbGw6bm9uZTtzdHJva2U6IzFhMWExYTtzdHJva2Utd2lkdGg6Mi40O3N0cm9rZS1saW5lY2FwOnJvdW5kO3N0cm9rZS1saW5lam9pbjpyb3VuZH0KLmN7ZmlsbDojZmZmZmZmO3N0cm9rZTojMWExYTFhO3N0cm9rZS13aWR0aDoyLjQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kfQoubntmaWxsOiMxYTFhMWE7c3Ryb2tlOm5vbmV9Ci50Yntmb250OjcwMCAxOXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojMWExYTFhfQoudHR7Zm9udDo3MDAgMTdweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzFhMWExYX0KLnRze2ZvbnQ6NDAwIDE0LjVweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzZiNzI4MH0KLnRue2ZvbnQ6NDAwIDE2cHggIk1pY3Jvc29mdCBZYUhlaSIsc2Fucy1zZXJpZjtmaWxsOiMxYTFhMWF9Ci5obHtmb250OjQwMCAxNXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojMWE2ZmI1fQouY3Vye2ZpbGw6bm9uZTtzdHJva2U6I2MwMzkyYjtzdHJva2Utd2lkdGg6Mi4yfQouY3VybHtmb250OjQwMCAxNXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojYzAzOTJifQouZGFzaHtmaWxsOm5vbmU7c3Ryb2tlOiM5YWEzYWY7c3Ryb2tlLXdpZHRoOjEuNDtzdHJva2UtZGFzaGFycmF5OjYgNH0KLmdse2ZvbnQ6NjAwIDE1LjVweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzFhMWExYX0KPC9zdHlsZT4KPG1hcmtlciBpZD0iYXIiIHZpZXdCb3g9IjAgMCAxMCAxMCIgcmVmWD0iOSIgcmVmWT0iNSIgbWFya2VyV2lkdGg9IjciIG1hcmtlckhlaWdodD0iNyIgb3JpZW50PSJhdXRvIj4KICA8cGF0aCBkPSJNMCwwIEwxMCw1IEwwLDEwIHoiIGZpbGw9IiMxYTFhMWEiLz48L21hcmtlcj4KPG1hcmtlciBpZD0iYXJyIiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjciIG9yaWVudD0iYXV0byI+CiAgPHBhdGggZD0iTTAsMCBMMTAsNSBMMCwxMCB6IiBmaWxsPSIjYzAzOTJiIi8+PC9tYXJrZXI+CjxtYXJrZXIgaWQ9ImFyYiIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI5IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNyIgbWFya2VySGVpZ2h0PSI3IiBvcmllbnQ9ImF1dG8iPgogIDxwYXRoIGQ9Ik0wLDAgTDEwLDUgTDAsMTAgeiIgZmlsbD0iIzFhNmZiNSIvPjwvbWFya2VyPgo8L2RlZnM+Cjx0ZXh0IHg9IjMwIiB5PSIzNCIgY2xhc3M9InRiIj7kuIDmnaHmsYfnvJbmjIfku6TnlLHlm5vpg6jliIbnu4TmiJA8L3RleHQ+Cjx0ZXh0IHg9IjMwIiB5PSI1OCIgY2xhc3M9InRzIj7mnLrlmajnnJ/mraPmiafooYznmoTmmK/jgIzmnLrlmajnoIHjgI3vvIzmoIflj7fjgIHms6jph4rov5nkupvlj6rmmK/nu5nkurrlkozmsYfnvJblmajnnIvnmoQ8L3RleHQ+CjxyZWN0IHg9IjcwIiB5PSIxMDQiIHdpZHRoPSIxNTAiIGhlaWdodD0iNDYiIHJ4PSI1IiBjbGFzcz0iYyIvPgo8cmVjdCB4PSI3MCIgeT0iMTA0IiB3aWR0aD0iNSIgaGVpZ2h0PSI0NiIgZmlsbD0iIzJmODU1YSIgc3Ryb2tlPSJub25lIi8+Cjx0ZXh0IHg9Ijg0IiB5PSIxMzUiIGNsYXNzPSJ0YiI+TE9PUDwvdGV4dD4KPHRleHQgeD0iMTQ1LjAiIHk9IjkyIiBjbGFzcz0idHQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuagh+WPtzwvdGV4dD4KPHJlY3QgeD0iMjMwIiB5PSIxMDQiIHdpZHRoPSIxMzAiIGhlaWdodD0iNDYiIHJ4PSI1IiBjbGFzcz0iYyIvPgo8cmVjdCB4PSIyMzAiIHk9IjEwNCIgd2lkdGg9IjUiIGhlaWdodD0iNDYiIGZpbGw9IiNjMDM5MmIiIHN0cm9rZT0ibm9uZSIvPgo8dGV4dCB4PSIyNDQiIHk9IjEzNSIgY2xhc3M9InRiIj5NT1Y8L3RleHQ+Cjx0ZXh0IHg9IjI5NS4wIiB5PSI5MiIgY2xhc3M9InR0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7mk43kvZznoIE8L3RleHQ+CjxyZWN0IHg9IjM3MCIgeT0iMTA0IiB3aWR0aD0iMTkwIiBoZWlnaHQ9IjQ2IiByeD0iNSIgY2xhc3M9ImMiLz4KPHJlY3QgeD0iMzcwIiB5PSIxMDQiIHdpZHRoPSI1IiBoZWlnaHQ9IjQ2IiBmaWxsPSIjMWE2ZmI1IiBzdHJva2U9Im5vbmUiLz4KPHRleHQgeD0iMzg0IiB5PSIxMzUiIGNsYXNzPSJ0YiI+QSAsICMzMEg8L3RleHQ+Cjx0ZXh0IHg9IjQ2NS4wIiB5PSI5MiIgY2xhc3M9InR0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7mk43kvZzmlbA8L3RleHQ+CjxyZWN0IHg9IjU3MCIgeT0iMTA0IiB3aWR0aD0iMzAwIiBoZWlnaHQ9IjQ2IiByeD0iNSIgY2xhc3M9ImMiLz4KPHJlY3QgeD0iNTcwIiB5PSIxMDQiIHdpZHRoPSI1IiBoZWlnaHQ9IjQ2IiBmaWxsPSIjYjc3OTFmIiBzdHJva2U9Im5vbmUiLz4KPHRleHQgeD0iNTg0IiB5PSIxMzUiIGNsYXNzPSJ0YiI+OyDms6jph4o8L3RleHQ+Cjx0ZXh0IHg9IjcyMC4wIiB5PSI5MiIgY2xhc3M9InR0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7ms6jph4o8L3RleHQ+Cjx0ZXh0IHg9IjcwIiB5PSIxNzYiIGNsYXNzPSJ0cyI+77yI5Y+v55yB77yJPC90ZXh0Pgo8dGV4dCB4PSIyMzAiIHk9IjE3NiIgY2xhc3M9InRzIj7lv4Xpobs8L3RleHQ+Cjx0ZXh0IHg9IjM3MCIgeT0iMTc2IiBjbGFzcz0idHMiPuW/hemhu+aciTwvdGV4dD4KPHRleHQgeD0iNTcwIiB5PSIxNzYiIGNsYXNzPSJ0cyI+5Y+v55yBPC90ZXh0Pgo8dGV4dCB4PSI3MCIgeT0iMzAwIiBjbGFzcz0idHQiPuaxh+e8luWZqOaKiuWug+e/u+ivkeaIkOacuuWZqOegge+8iDIg5a2X6IqC77yJ77yaPC90ZXh0Pgo8cmVjdCB4PSI3MCIgeT0iMzIwIiB3aWR0aD0iMTUwIiBoZWlnaHQ9IjU2IiByeD0iNSIgY2xhc3M9ImMiLz4KPHRleHQgeD0iMTQ1IiB5PSIzNDQiIGNsYXNzPSJ0YiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+NzRIPC90ZXh0Pgo8dGV4dCB4PSIxNDUiIHk9IjM2NiIgY2xhc3M9InRzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7mk43kvZznoIHvvIhNT1YgQSwjZGF0Ye+8iTwvdGV4dD4KPHJlY3QgeD0iMjI4IiB5PSIzMjAiIHdpZHRoPSIxNTAiIGhlaWdodD0iNTYiIHJ4PSI1IiBjbGFzcz0iYyIvPgo8dGV4dCB4PSIzMDMiIHk9IjM0NCIgY2xhc3M9InRiIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj4zMEg8L3RleHQ+Cjx0ZXh0IHg9IjMwMyIgeT0iMzY2IiBjbGFzcz0idHMiIHRleHQtYW5jaG9yPSJtaWRkbGUiPueri+WNs+aVsO+8iOaTjeS9nOaVsO+8iTwvdGV4dD4KPHRleHQgeD0iNzAiIHk9IjQwMCIgY2xhc3M9InRuIj7imIUg5py65Zmo56CB5Y+q5pyJIDIg5a2X6IqCIOKAlOKAlCDmoIflj7cgTE9PUCDlkozms6jph4rpg73kuI3ov5vmnLrlmajnoIHjgII8L3RleHQ+Cjx0ZXh0IHg9IjcwIiB5PSI0MjYiIGNsYXNzPSJ0cyI+4piFIOagh+WPt+WPquaYr+OAjOWcsOWdgOeahOWIq+WQjeOAje+8jOaxh+e8luWZqOS8muaKiuWug+aNoueul+aIkOWunumZheWcsOWdgO+8iOWmgiAwMDMwSO+8ieOAgjwvdGV4dD4KPHRleHQgeD0iNTEwIiB5PSIxOTAiIGNsYXNzPSJ0dCI+5bi46KeB5oyH5Luk55qE5a2X6IqC5pWwPC90ZXh0Pgo8dGV4dCB4PSI1MTAiIHk9IjIxNiIgY2xhc3M9InRuIj5NT1YgQSxSMDwvdGV4dD4KPHRleHQgeD0iNzIwIiB5PSIyMTYiIGNsYXNzPSJ0biI+MSDlrZfoioI8L3RleHQ+Cjx0ZXh0IHg9IjgwMCIgeT0iMjE2IiBjbGFzcz0idHMiPuacgOefrTwvdGV4dD4KPHRleHQgeD0iNTEwIiB5PSIyNDYiIGNsYXNzPSJ0biI+TU9WIEEsIzMwSDwvdGV4dD4KPHRleHQgeD0iNzIwIiB5PSIyNDYiIGNsYXNzPSJ0biI+MiDlrZfoioI8L3RleHQ+Cjx0ZXh0IHg9IjgwMCIgeT0iMjQ2IiBjbGFzcz0idHMiPuWQq+eri+WNs+aVsDwvdGV4dD4KPHRleHQgeD0iNTEwIiB5PSIyNzYiIGNsYXNzPSJ0biI+TU9WIDMwSCwjNTVIPC90ZXh0Pgo8dGV4dCB4PSI3MjAiIHk9IjI3NiIgY2xhc3M9InRuIj4zIOWtl+iKgjwvdGV4dD4KPHRleHQgeD0iODAwIiB5PSIyNzYiIGNsYXNzPSJ0cyI+5Zyw5Z2AK+eri+WNs+aVsDwvdGV4dD4KPHRleHQgeD0iNTEwIiB5PSIzMDYiIGNsYXNzPSJ0biI+TEpNUCBNQUlOPC90ZXh0Pgo8dGV4dCB4PSI3MjAiIHk9IjMwNiIgY2xhc3M9InRuIj4zIOWtl+iKgjwvdGV4dD4KPHRleHQgeD0iODAwIiB5PSIzMDYiIGNsYXNzPSJ0cyI+MTYg5L2N5Zyw5Z2APC90ZXh0Pgo8dGV4dCB4PSI1MTAiIHk9IjMzNiIgY2xhc3M9InRuIj5NT1ZDIEEsQEErRFBUUjwvdGV4dD4KPHRleHQgeD0iNzIwIiB5PSIzMzYiIGNsYXNzPSJ0biI+MSDlrZfoioI8L3RleHQ+Cjx0ZXh0IHg9IjgwMCIgeT0iMzM2IiBjbGFzcz0idHMiPumakOWQq+Wvu+WdgDwvdGV4dD4KPC9zdmc+Cg==" alt="a04_指令格式" loading="lazy">
+<h2>1.4 最小程序骨架</h2>
+<pre class="code">        ORG   0000H         ; 告诉汇编器：下面的代码放到 0000H 开始
+        LJMP  MAIN          ; 0000H 是复位入口，先跳到 MAIN
+
+        ORG   0030H         ; 跳过中断向量区（0000H~002FH）
+MAIN:   MOV   P2,#0FEH      ; P2.0 = 0 → 点亮 D1（低电平点亮）
+        SJMP  $             ; $ 表示「本行地址」，即原地死循环
+
+        END                 ; 汇编结束（必须有）</pre>
+<h3>逐行拆解</h3>
+<table>
+<tr><th>写法</th><th>含义</th><th>能不能省</th></tr>
+<tr><td><code>ORG 0000H</code></td><td>定位伪指令：从这里开始放代码</td><td>第一个可以省（默认 0000H）</td></tr>
+<tr><td><code>LJMP MAIN</code></td><td>长跳转，3 字节 2 周期</td><td>不能省（否则会执行到中断向量区）</td></tr>
+<tr><td><code>MAIN:</code></td><td>标号（Label），代表这一行的地址</td><td>可以叫任意名字</td></tr>
+<tr><td><code>SJMP $</code></td><td>短跳转到自己 = 死循环</td><td>C 里的 <code>while(1);</code></td></tr>
+<tr><td><code>END</code></td><td>汇编结束</td><td><b>不能省</b></td></tr>
+</table>
+
+<h2>1.5 实验现象</h2>
+<p>烧录后 D1 常亮。如果把 <code>#0FEH</code> 改成 <code>#0FFH</code>，D1 灭（因为 0FFH 是全高电平）。</p>
+
+<h2>1.6 易错点</h2>
+<div class="box warn"><b>① 扩展名错</b> —— 存成 .c 会被当 C 编译。</div>
+<div class="box warn"><b>② 忘了 END</b> —— 编译报错或链接异常。</div>
+<div class="box warn"><b>③ 标号后面忘加冒号</b> —— <code>MAIN</code> 写成 <code>MAIN:</code> 才算标号。</div>
+<div class="box warn"><b>④ 冒号写成中文全角</b> —— 汇编器不认。</div>
+
+<h2>1.7 今日练习</h2>
+<ol>
+<li><code>MOV P2,#0FEH</code> 这条指令几个字节？几个机器周期？</li>
+<li>为什么 0000H 处必须放一条跳转？</li>
+<li>写出「让 8 个 LED 全亮」的汇编指令。</li>
+</ol>
+<details class="ans"><summary>📖 参考答案（点击展开）</summary><ol><li><b>2 字节，1 个机器周期</b>。（MOV A,#data 是 2 字节；MOV A,Rn 才是 1 字节）</li><li>因为复位后 PC = 0000H，而 0000H~002FH 是<b>中断向量区</b>。如果顺序执行下去，会跑进各中断的入口地址，行为不可预测。所以要一条 LJMP 跳过整个向量区。</li><li><code>MOV P2,#00H</code>　（全 0 → 8 个 LED 全亮，因为低电平点亮）</li></ol></details>
+  </div>
+  <div class="daynav"><a class="dis">← 已是第一天</a><a class="next" href="#d2">Day 2　存储器结构与七种寻址方式 →</a></div>
+</article>
+<article class="page" id="d2">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">2</span>
+      <span class="pbtt">Day 2 · 存储器结构与七种寻址方式</span></div>
+    <button class="donebtn" data-day="2">标记已学完</button>
+  </div>
+  <div class="body">
+
+<h2>2.1 51 的存储器长什么样</h2>
+<img class="fig" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NDAiIGhlaWdodD0iNjYwIiB2aWV3Qm94PSIwIDAgOTQwIDY2MCI+CjxkZWZzPgo8c3R5bGU+Ci53e2ZpbGw6bm9uZTtzdHJva2U6IzFhMWExYTtzdHJva2Utd2lkdGg6Mi40O3N0cm9rZS1saW5lY2FwOnJvdW5kO3N0cm9rZS1saW5lam9pbjpyb3VuZH0KLmN7ZmlsbDojZmZmZmZmO3N0cm9rZTojMWExYTFhO3N0cm9rZS13aWR0aDoyLjQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kfQoubntmaWxsOiMxYTFhMWE7c3Ryb2tlOm5vbmV9Ci50Yntmb250OjcwMCAxOXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojMWExYTFhfQoudHR7Zm9udDo3MDAgMTdweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzFhMWExYX0KLnRze2ZvbnQ6NDAwIDE0LjVweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzZiNzI4MH0KLnRue2ZvbnQ6NDAwIDE2cHggIk1pY3Jvc29mdCBZYUhlaSIsc2Fucy1zZXJpZjtmaWxsOiMxYTFhMWF9Ci5obHtmb250OjQwMCAxNXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojMWE2ZmI1fQouY3Vye2ZpbGw6bm9uZTtzdHJva2U6I2MwMzkyYjtzdHJva2Utd2lkdGg6Mi4yfQouY3VybHtmb250OjQwMCAxNXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojYzAzOTJifQouZGFzaHtmaWxsOm5vbmU7c3Ryb2tlOiM5YWEzYWY7c3Ryb2tlLXdpZHRoOjEuNDtzdHJva2UtZGFzaGFycmF5OjYgNH0KLmdse2ZvbnQ6NjAwIDE1LjVweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzFhMWExYX0KPC9zdHlsZT4KPG1hcmtlciBpZD0iYXIiIHZpZXdCb3g9IjAgMCAxMCAxMCIgcmVmWD0iOSIgcmVmWT0iNSIgbWFya2VyV2lkdGg9IjciIG1hcmtlckhlaWdodD0iNyIgb3JpZW50PSJhdXRvIj4KICA8cGF0aCBkPSJNMCwwIEwxMCw1IEwwLDEwIHoiIGZpbGw9IiMxYTFhMWEiLz48L21hcmtlcj4KPG1hcmtlciBpZD0iYXJyIiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjciIG9yaWVudD0iYXV0byI+CiAgPHBhdGggZD0iTTAsMCBMMTAsNSBMMCwxMCB6IiBmaWxsPSIjYzAzOTJiIi8+PC9tYXJrZXI+CjxtYXJrZXIgaWQ9ImFyYiIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI5IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNyIgbWFya2VySGVpZ2h0PSI3IiBvcmllbnQ9ImF1dG8iPgogIDxwYXRoIGQ9Ik0wLDAgTDEwLDUgTDAsMTAgeiIgZmlsbD0iIzFhNmZiNSIvPjwvbWFya2VyPgo8L2RlZnM+Cjx0ZXh0IHg9IjMwIiB5PSIzNCIgY2xhc3M9InRiIj41MSDnmoTlrZjlgqjlmajvvJrnqIvluo/lkozmlbDmja7mmK/jgIzkuKTkuKrliIblvIDnmoTnqbrpl7TjgI08L3RleHQ+Cjx0ZXh0IHg9IjMwIiB5PSI1OCIgY2xhc3M9InRzIj7lk4jkvZvnu5PmnoQg4oCU4oCUIOeoi+W6j+WtmCBST03vvIhNT1ZDIOiuv+mXru+8ie+8jOaVsOaNruWtmCBSQU3vvIhNT1Yg6K6/6Zeu77yJ77yM5Zyw5Z2A6YeN5Y+g5L2G5LqS5LiN5bmy5omwPC90ZXh0Pgo8dGV4dCB4PSIyMDYuMCIgeT0iMTAwIiBjbGFzcz0idHQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuWGhemDqCBSQU3vvIgyNTYg5a2X6IqC77yJPC90ZXh0Pgo8cmVjdCB4PSI1NiIgeT0iMTE2IiB3aWR0aD0iMzAwIiBoZWlnaHQ9Ijc4IiByeD0iNCIgY2xhc3M9ImMiLz4KPHJlY3QgeD0iNTYiIHk9IjExNiIgd2lkdGg9IjYiIGhlaWdodD0iNzgiIGZpbGw9IiMxYTZmYjUiIHN0cm9rZT0ibm9uZSIvPgo8dGV4dCB4PSI3NCIgeT0iMTQwIiBjbGFzcz0idG4iPuW3peS9nOWvhOWtmOWZqOWMuiBSMH5SNzwvdGV4dD4KPHRleHQgeD0iNzQiIHk9IjE2MiIgY2xhc3M9InRzIj7lhbEgNCDnu4TvvIznlLEgUFNXIOeahCBSUzEvUlMwIOmAiee7hDwvdGV4dD4KPHRleHQgeD0iMzY2IiB5PSIxNDAiIGNsYXNzPSJ0cyI+MDBIPC90ZXh0Pgo8cmVjdCB4PSI1NiIgeT0iMTk4IiB3aWR0aD0iMzAwIiBoZWlnaHQ9IjYyIiByeD0iNCIgY2xhc3M9ImMiLz4KPHJlY3QgeD0iNTYiIHk9IjE5OCIgd2lkdGg9IjYiIGhlaWdodD0iNjIiIGZpbGw9IiMyZjg1NWEiIHN0cm9rZT0ibm9uZSIvPgo8dGV4dCB4PSI3NCIgeT0iMjIyIiBjbGFzcz0idG4iPuS9jeWvu+WdgOWMuu+8iDE2IOWtl+iKgu+8iTwvdGV4dD4KPHRleHQgeD0iNzQiIHk9IjI0NCIgY2xhc3M9InRzIj4yMEh+MkZI77yM5L2N5Zyw5Z2AIDAwSH43Rkg8L3RleHQ+Cjx0ZXh0IHg9IjM2NiIgeT0iMjIyIiBjbGFzcz0idHMiPjIwSDwvdGV4dD4KPHJlY3QgeD0iNTYiIHk9IjI2NCIgd2lkdGg9IjMwMCIgaGVpZ2h0PSI4NiIgcng9IjQiIGNsYXNzPSJjIi8+CjxyZWN0IHg9IjU2IiB5PSIyNjQiIHdpZHRoPSI2IiBoZWlnaHQ9Ijg2IiBmaWxsPSIjYjc3OTFmIiBzdHJva2U9Im5vbmUiLz4KPHRleHQgeD0iNzQiIHk9IjI4OCIgY2xhc3M9InRuIj7nlKjmiLcgUkFNIC8g5aCG5qCI5Yy6PC90ZXh0Pgo8dGV4dCB4PSI3NCIgeT0iMzEwIiBjbGFzcz0idHMiPjMwSH43RkjvvIzlpI3kvY3lkI4gU1AgPSAwN0g8L3RleHQ+Cjx0ZXh0IHg9IjM2NiIgeT0iMjg4IiBjbGFzcz0idHMiPjMwSDwvdGV4dD4KPHJlY3QgeD0iNTYiIHk9IjM1NCIgd2lkdGg9IjMwMCIgaGVpZ2h0PSI2NiIgcng9IjQiIGNsYXNzPSJjIi8+CjxyZWN0IHg9IjU2IiB5PSIzNTQiIHdpZHRoPSI2IiBoZWlnaHQ9IjY2IiBmaWxsPSIjOGU0NGFkIiBzdHJva2U9Im5vbmUiLz4KPHRleHQgeD0iNzQiIHk9IjM3OCIgY2xhc3M9InRuIj7pq5ggMTI4IOWtl+iKgiBSQU08L3RleHQ+Cjx0ZXh0IHg9Ijc0IiB5PSI0MDAiIGNsYXNzPSJ0cyI+ODBIfkZGSO+8jOS7hSA1MiDns7vliJfvvIzlj6rog73pl7TmjqXlr7vlnYA8L3RleHQ+Cjx0ZXh0IHg9IjM2NiIgeT0iMzc4IiBjbGFzcz0idHMiPjgwSDwvdGV4dD4KPHJlY3QgeD0iNTYiIHk9IjQyNCIgd2lkdGg9IjMwMCIgaGVpZ2h0PSI2NiIgcng9IjQiIGNsYXNzPSJjIi8+CjxyZWN0IHg9IjU2IiB5PSI0MjQiIHdpZHRoPSI2IiBoZWlnaHQ9IjY2IiBmaWxsPSIjYzAzOTJiIiBzdHJva2U9Im5vbmUiLz4KPHRleHQgeD0iNzQiIHk9IjQ0OCIgY2xhc3M9InRuIj5TRlIg54m55q6K5Yqf6IO95a+E5a2Y5ZmoPC90ZXh0Pgo8dGV4dCB4PSI3NCIgeT0iNDcwIiBjbGFzcz0idHMiPlAwL0FDQy9QU1cvVE1PROKApu+8iDgwSH5GRkjvvIk8L3RleHQ+Cjx0ZXh0IHg9IjM2NiIgeT0iNDQ4IiBjbGFzcz0idHMiPjgwSH48L3RleHQ+Cjx0ZXh0IHg9IjM2NiIgeT0iNDcwIiBjbGFzcz0idHMiPkZGSDwvdGV4dD4KPHRleHQgeD0iNjIwLjAiIHk9IjEwMCIgY2xhc3M9InR0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7nqIvluo/lrZjlgqjlmaggUk9N77yIOCBLQu+8iTwvdGV4dD4KPHJlY3QgeD0iNDcwIiB5PSIxMTYiIHdpZHRoPSIzMDAiIGhlaWdodD0iMTI4IiByeD0iNCIgY2xhc3M9ImMiLz4KPHJlY3QgeD0iNDcwIiB5PSIxMTYiIHdpZHRoPSI2IiBoZWlnaHQ9IjEyOCIgZmlsbD0iIzZiNDZjMSIgc3Ryb2tlPSJub25lIi8+Cjx0ZXh0IHg9IjQ4OCIgeT0iMTQwIiBjbGFzcz0idG4iPuS4reaWreWQkemHj+WMujwvdGV4dD4KPHRleHQgeD0iNDg4IiB5PSIxNjYiIGNsYXNzPSJ0cyI+MDAwMEggIOWkjeS9jeWFpeWPo++8iOeoi+W6j+S7jui/memHjOW8gOWni++8iTwvdGV4dD4KPHRleHQgeD0iNDg4IiB5PSIxODgiIGNsYXNzPSJ0cyI+MDAwM0ggIElOVDDjgIDjgIAwMDBCSCAg5a6a5pe25ZmoMDwvdGV4dD4KPHRleHQgeD0iNDg4IiB5PSIyMTAiIGNsYXNzPSJ0cyI+MDAxM0ggIElOVDHjgIDjgIAwMDFCSCAg5a6a5pe25ZmoMTwvdGV4dD4KPHRleHQgeD0iNDg4IiB5PSIyMzIiIGNsYXNzPSJ0cyI+MDAyM0ggIOS4suWPozwvdGV4dD4KPHRleHQgeD0iNzgwIiB5PSIxNDAiIGNsYXNzPSJ0cyI+MDAwMEg8L3RleHQ+CjxyZWN0IHg9IjQ3MCIgeT0iMjQ4IiB3aWR0aD0iMzAwIiBoZWlnaHQ9Ijg2IiByeD0iNCIgY2xhc3M9ImMiLz4KPHJlY3QgeD0iNDcwIiB5PSIyNDgiIHdpZHRoPSI2IiBoZWlnaHQ9Ijg2IiBmaWxsPSIjNmI0NmMxIiBzdHJva2U9Im5vbmUiLz4KPHRleHQgeD0iNDg4IiB5PSIyNzIiIGNsYXNzPSJ0biI+5L2g55qE56iL5bqPPC90ZXh0Pgo8dGV4dCB4PSI0ODgiIHk9IjI5NCIgY2xhc3M9InRzIj5PUkcgMDAzMEgg5LmL5ZCO5pS+5Luj56CBPC90ZXh0Pgo8dGV4dCB4PSI3ODAiIHk9IjI3MiIgY2xhc3M9InRzIj4wMDMwSDwvdGV4dD4KPHJlY3QgeD0iNDcwIiB5PSIzMzgiIHdpZHRoPSIzMDAiIGhlaWdodD0iNjYiIHJ4PSI0IiBjbGFzcz0iYyIvPgo8cmVjdCB4PSI0NzAiIHk9IjMzOCIgd2lkdGg9IjYiIGhlaWdodD0iNjYiIGZpbGw9IiM2YjQ2YzEiIHN0cm9rZT0ibm9uZSIvPgo8dGV4dCB4PSI0ODgiIHk9IjM2MiIgY2xhc3M9InRuIj7ooajmoLzmlbDmja7vvIjmn6XooajnlKjvvIk8L3RleHQ+Cjx0ZXh0IHg9IjQ4OCIgeT0iMzg0IiBjbGFzcz0idHMiPueUqCBEQiDlrprkuYnvvIznlLEgTU9WQyDor7vlj5Y8L3RleHQ+Cjx0ZXh0IHg9Ijc4MCIgeT0iMzYyIiBjbGFzcz0idHMiPuKApjFGRkZIPC90ZXh0Pgo8dGV4dCB4PSI1NiIgeT0iNTYwIiBjbGFzcz0idG4iPuKYhSDlpI3kvY3lkI4gUEMgPSAwMDAwSCDihpIg56iL5bqP5byA5aS05b+F6aG75pS+5LiA5p2h6Lez6L2s77yITEpNUCBNQUlO77yJ77yM6Lez6L+H5Lit5pat5ZCR6YeP5Yy644CCPC90ZXh0Pgo8dGV4dCB4PSI1NiIgeT0iNTg2IiBjbGFzcz0idG4iPuKYhSDlpI3kvY3lkI4gU1AgPSAwN0gg4oaSIOesrOS4gOasoSBQVVNIIOS8muWGmei/myAwOEjvvIzpgqPmraPmmK/nrKwgMSDnu4QgUjAg55qE5L2N572u44CCPC90ZXh0Pgo8dGV4dCB4PSI1NiIgeT0iNjEyIiBjbGFzcz0idHMiPiAgIOaJgOS7peinhOiMg+WBmuazleaYr+eoi+W6j+W8gOWktOWFiCBNT1YgU1AsIzYwSO+8jOaKiuWghuagiOaMquWIsCAzMEh+N0ZIIOeahOWuieWFqOWMuuOAgjwvdGV4dD4KPHRleHQgeD0iNTYiIHk9IjY0MiIgY2xhc3M9ImhsIj7imIUgUkFNIOWSjCBST00g5Zyw5Z2A6YO95LuOIDAwMDBIIOW8gOWni++8jOS9hueUqOS4jeWQjOaMh+S7pOiuv+mXru+8iE1PViB2cyBNT1ZD77yJ77yM5LqS5LiN5bmy5omw44CCPC90ZXh0Pgo8L3N2Zz4K" alt="a01_存储器空间" loading="lazy">
+<p>记住三个关键数字：</p>
+<table>
+<tr><th>区域</th><th>范围</th><th>要点</th></tr>
+<tr><td>工作寄存器</td><td>00H~1FH</td><td>4 组 R0~R7，用 PSW 的 RS1/RS0 切换</td></tr>
+<tr><td><b>位寻址区</b></td><td>20H~2FH</td><td>16 字节 = <b>128 个位</b>，位地址 00H~7FH</td></tr>
+<tr><td>用户 RAM</td><td>30H~7FH</td><td>80 字节，堆栈一般设在这里</td></tr>
+</table>
+<div class="box tip"><b>位地址怎么算</b>：20H 的 bit0 是位地址 00H，bit7 是 07H；21H 的 bit0 是 08H…… 2FH 的 bit7 是 7FH。<br>
+公式：<b>位地址 = (字节地址 − 20H) × 8 + 位号</b>。例：25H 的 bit3 → (25H−20H)×8+3 = 5×8+3 = <b>43 = 2BH</b>。</div>
+
+<h2>2.2 七种寻址方式</h2>
+<table>
+<tr><th>寻址方式</th><th>例子</th><th>意思</th><th>字节</th></tr>
+<tr><td>立即寻址</td><td><code>MOV A,#30H</code></td><td># 表示「数本身」</td><td>2</td></tr>
+<tr><td>寄存器寻址</td><td><code>MOV A,R0</code></td><td>数据在 R0 里</td><td>1</td></tr>
+<tr><td>直接寻址</td><td><code>MOV A,30H</code></td><td>数据在 RAM 30H 里</td><td>2</td></tr>
+<tr><td>寄存器间接</td><td><code>MOV A,@R0</code></td><td>R0 里存的是地址</td><td>1</td></tr>
+<tr><td>变址寻址</td><td><code>MOVC A,@A+DPTR</code></td><td>查表专用</td><td>1</td></tr>
+<tr><td>相对寻址</td><td><code>SJMP MAIN</code></td><td>PC 加偏移</td><td>2</td></tr>
+<tr><td>位寻址</td><td><code>SETB 20H.0</code></td><td>只操作一位</td><td>2</td></tr>
+</table>
+<div class="box warn"><b>最容易混的两个</b>：<br>
+<code>MOV A,30H</code> → 取 <b>30H 这个地址里</b>的内容<br>
+<code>MOV A,#30H</code> → 取 <b>30H 这个数</b><br>
+差一个 <code>#</code>，意思完全不同。</div>
+
+<h2>2.3 实验：地址与数据的区别</h2>
+<pre class="code">        ORG   0000H
+        LJMP  MAIN
+        ORG   0030H
+MAIN:   MOV   30H,#55H      ; 把 55H 存进 RAM 的 30H 单元
+        MOV   A,30H         ; 直接寻址：取 30H 里的内容 → A = 55H
+        MOV   R0,#30H       ; R0 里存「地址」30H
+        MOV   A,@R0         ; 间接寻址：取 R0 指向的单元 → A = 55H
+        MOV   A,#30H        ; 立即寻址：A = 30H（就是个数字）
+        SJMP  $</pre>
+<h3>执行后各寄存器的值</h3>
+<table>
+<tr><th>指令</th><th>执行后 A</th><th>为什么</th></tr>
+<tr><td><code>MOV 30H,#55H</code></td><td>—</td><td>RAM[30H] = 55H</td></tr>
+<tr><td><code>MOV A,30H</code></td><td><b>55H</b></td><td>取地址 30H 的内容</td></tr>
+<tr><td><code>MOV A,@R0</code></td><td><b>55H</b></td><td>R0=30H，取它指向的内容</td></tr>
+<tr><td><code>MOV A,#30H</code></td><td><b>30H</b></td><td>就是数字 30H</td></tr>
+</table>
+
+<h2>2.4 易错点</h2>
+<div class="box warn"><b>① 漏写 #</b> —— <code>MOV A,30H</code> 和 <code>MOV A,#30H</code> 完全两回事。</div>
+<div class="box warn"><b>② @R0 写成 R0</b> —— <code>MOV A,R0</code> 是取 R0 的值，<code>MOV A,@R0</code> 才是取 R0 指向的单元。</div>
+<div class="box warn"><b>③ 位地址和字节地址混用</b> —— <code>20H</code> 是字节地址，<code>20H.0</code> 才是位。</div>
+
+<h2>2.5 今日练习</h2>
+<ol>
+<li>位地址 2BH 对应哪个字节的哪一位？</li>
+<li><code>MOV A,40H</code> 和 <code>MOV A,#40H</code> 执行后 A 的值一样吗？</li>
+<li>写出「把 R0 指向的单元内容送到 A」的指令。</li>
+</ol>
+<details class="ans"><summary>📖 参考答案（点击展开）</summary><ol><li>位地址 2BH = 43。字节地址 = 20H + 43/8 = 20H + 5 = <b>25H</b>，位号 = 43 % 8 = <b>3</b>。<br>所以是 <b>25H 的 bit3</b>，写作 <code>25H.3</code>。</li><li><b>不一样</b>。<code>MOV A,40H</code> 是<b>直接寻址</b> —— 取 RAM 地址 40H 里的内容；<code>MOV A,#40H</code> 是<b>立即寻址</b> —— A 直接等于 40H 这个数。差一个 #。</li><li><code>MOV A,@R0</code>　（@ 表示「R0 里存的是地址」）</li></ol></details>
+  </div>
+  <div class="daynav"><a href="#d1">← Day 1　为什么学汇编 + 建立汇编工程</a><a class="next" href="#d3">Day 3　数据传送指令 →</a></div>
+</article>
+<article class="page" id="d3">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">3</span>
+      <span class="pbtt">Day 3 · 数据传送指令</span></div>
+    <button class="donebtn" data-day="3">标记已学完</button>
+  </div>
+  <div class="body">
+
+<h2>3.1 传送类指令总表</h2>
+<table>
+<tr><th>指令</th><th>方向</th><th>字节</th><th>说明</th></tr>
+<tr><td><code>MOV A,#data</code></td><td>立即数 → A</td><td>2</td><td>最常用</td></tr>
+<tr><td><code>MOV A,Rn</code></td><td>寄存器 → A</td><td>1</td><td>最快</td></tr>
+<tr><td><code>MOV A,direct</code></td><td>RAM → A</td><td>2</td><td>直接寻址</td></tr>
+<tr><td><code>MOV A,@Ri</code></td><td>Ri 指向的单元 → A</td><td>1</td><td>间接寻址</td></tr>
+<tr><td><code>MOV direct,A</code></td><td>A → RAM</td><td>2</td><td>反向也行</td></tr>
+<tr><td><code>MOV @Ri,#data</code></td><td>立即数 → Ri 指向的单元</td><td>2</td><td>间接写</td></tr>
+<tr><td><code>MOV DPTR,#data16</code></td><td>16 位立即数 → DPTR</td><td>3</td><td>查表/MOVX 前必用</td></tr>
+<tr><td><code>MOVX A,@DPTR</code></td><td>外部 RAM → A</td><td>1</td><td>访问片外 RAM</td></tr>
+<tr><td><code>MOVC A,@A+DPTR</code></td><td>ROM → A</td><td>1</td><td>查表专用</td></tr>
+<tr><td><code>PUSH direct</code></td><td>压栈</td><td>2</td><td>先 SP+1 再存</td></tr>
+<tr><td><code>POP direct</code></td><td>出栈</td><td>2</td><td>先取再 SP−1</td></tr>
+<tr><td><code>XCH A,Rn</code></td><td>A 与 Rn 互换</td><td>1</td><td>不产生中间变量</td></tr>
+</table>
+<div class="box warn"><b>硬规则</b>：<code>MOV</code> 不能「直接 → 直接」，也不能「@Ri → @Rj」。<br>
+<code>MOV 30H,40H</code> ✗ 非法！必须借助 A：<code>MOV A,40H</code> 再 <code>MOV 30H,A</code>。</div>
+
+<h2>3.2 三种「MOV」的区别</h2>
+<table>
+<tr><th>指令</th><th>访问哪里</th><th>典型用途</th></tr>
+<tr><td><code>MOV</code></td><td>内部 RAM + SFR</td><td>普通变量、端口</td></tr>
+<tr><td><code>MOVX</code></td><td><b>片外</b> RAM（用 RD/WR 引脚）</td><td>扩展 62256 之类</td></tr>
+<tr><td><code>MOVC</code></td><td><b>程序</b> ROM（用 PSEN 引脚）</td><td>查表</td></tr>
+</table>
+<p>三个指令对应三条不同的物理通路 —— 这就是哈佛结构在指令层的体现。</p>
+
+<h2>3.3 实验：把 30H~3FH 清零</h2>
+<pre class="code">        ORG   0000H
+        LJMP  MAIN
+        ORG   0030H
+MAIN:   MOV   R0,#30H       ; R0 = 起始地址
+        MOV   R2,#16        ; 循环 16 次
+CLR_1:  MOV   @R0,#00H      ; 把 R0 指向的单元清零
+        INC   R0            ; 地址 +1
+        DJNZ  R2,CLR_1      ; R2 减 1，不为 0 就继续
+        SJMP  $
+        END</pre>
+<h3>逐行拆解</h3>
+<table>
+<tr><th>指令</th><th>作用</th><th>字节/周期</th></tr>
+<tr><td><code>MOV R0,#30H</code></td><td>指针指向 30H</td><td>2 / 1</td></tr>
+<tr><td><code>MOV R2,#16</code></td><td>计数器 = 16</td><td>2 / 1</td></tr>
+<tr><td><code>MOV @R0,#00H</code></td><td>间接写 0</td><td>2 / 1</td></tr>
+<tr><td><code>INC R0</code></td><td>指针后移一位</td><td>1 / 1</td></tr>
+<tr><td><code>DJNZ R2,CLR_1</code></td><td>先减 1，非 0 则跳回</td><td>2 / 2</td></tr>
+</table>
+<p>这段循环共执行 16 次，每次 5 个机器周期 → 约 80 周期。</p>
+
+<h2>3.4 易错点</h2>
+<div class="box warn"><b>① MOV 直接到直接</b> —— 必须过 A。</div>
+<div class="box warn"><b>② 用 @R0 前没给 R0 赋值</b> —— 会写到随机地址，可能踩坏堆栈。</div>
+<div class="box warn"><b>③ DJNZ 是「先减再判断」</b> —— 初值写 16 就正好循环 16 次，不是 17 次。</div>
+
+<h2>3.5 今日练习</h2>
+<ol>
+<li>把 RAM 30H 的内容送到 40H（不能用 MOV 直接到直接）。</li>
+<li>用 XCH 交换 A 和 R3 的值。</li>
+<li>PUSH 30H 执行后 SP 变成多少？（假设 SP 原来是 07H）</li>
+</ol>
+<details class="ans"><summary>📖 参考答案（点击展开）</summary><ol><li><code>MOV A,30H</code> 然后 <code>MOV 40H,A</code>。　（MOV 不允许直接到直接，必须过累加器 A）</li><li><code>XCH A,R3</code>　（一条指令完成交换，不需要中间变量）</li><li>SP 原来 07H，PUSH 先执行 SP+1 → <b>SP = 08H</b>，数据存在 <b>08H</b> 单元。</li></ol></details>
+  </div>
+  <div class="daynav"><a href="#d2">← Day 2　存储器结构与七种寻址方式</a><a class="next" href="#d4">Day 4　算术运算与标志位 →</a></div>
+</article>
+<article class="page" id="d4">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">4</span>
+      <span class="pbtt">Day 4 · 算术运算与标志位</span></div>
+    <button class="donebtn" data-day="4">标记已学完</button>
+  </div>
+  <div class="body">
+
+<h2>4.1 算术指令与标志位</h2>
+<table>
+<tr><th>指令</th><th>作用</th><th>字节</th><th>周期</th><th>影响标志</th></tr>
+<tr><td><code>ADD A,#data</code></td><td>A = A + data</td><td>2</td><td>1</td><td>CY AC OV</td></tr>
+<tr><td><code>ADDC A,#data</code></td><td>A = A + data + CY（带进位）</td><td>2</td><td>1</td><td>CY AC OV</td></tr>
+<tr><td><code>SUBB A,#data</code></td><td>A = A − data − CY（带借位）</td><td>2</td><td>1</td><td>CY AC OV</td></tr>
+<tr><td><code>INC A / Rn / direct</code></td><td>加 1</td><td>1~2</td><td>1</td><td><b>不影响</b> CY</td></tr>
+<tr><td><code>DEC A / Rn</code></td><td>减 1</td><td>1</td><td>1</td><td><b>不影响</b> CY</td></tr>
+<tr><td><code>MUL AB</code></td><td>A×B，结果高字节在 B、低在 A</td><td>1</td><td><b>4</b></td><td>CY=0，OV=1 表示溢出</td></tr>
+<tr><td><code>DIV AB</code></td><td>A÷B，商在 A、余数在 B</td><td>1</td><td><b>4</b></td><td>CY=0，OV=1 表示除数为 0</td></tr>
+</table>
+<div class="box warn"><b>51 没有「不带借位的减法」</b>！只有 SUBB。<br>
+所以第一次做减法前必须 <code>CLR C</code>，否则会莫名其妙少 1。这是初学者最常踩的坑。</div>
+
+<h2>4.2 三个标志位怎么看</h2>
+<table>
+<tr><th>标志</th><th>名字</th><th>什么时候置 1</th></tr>
+<tr><td><b>CY</b></td><td>进位/借位</td><td>加法结果 > 255，或减法需要借位</td></tr>
+<tr><td><b>AC</b></td><td>半进位</td><td>bit3 向 bit4 有进位（BCD 调整用）</td></tr>
+<tr><td><b>OV</b></td><td>溢出</td><td>有符号数运算溢出（正+正得负，或负+负得正）</td></tr>
+</table>
+<pre class="code">MOV  A,#0FFH
+ADD  A,#01H          ; A = 00H, CY = 1, OV = 0
+                     ; 无符号看 CY（溢出），有符号看 OV（没溢出）</pre>
+
+<h2>4.3 实验：两个 16 位数相加</h2>
+<p>把 30H:31H（高:低）和 32H:33H 相加，结果存 34H:35H。</p>
+<pre class="code">        ORG   0000H
+        LJMP  MAIN
+        ORG   0030H
+MAIN:   MOV   A,31H         ; 取第一个数的低字节
+        ADD   A,33H         ; 加第二个数的低字节（产生 CY）
+        MOV   35H,A         ; 存结果低字节
+        MOV   A,30H         ; 取高字节
+        ADDC  A,32H         ; ★ 带进位加（把上一步的 CY 加进来）
+        MOV   34H,A         ; 存结果高字节
+        SJMP  $
+        END</pre>
+<h3>为什么低字节用 ADD、高字节用 ADDC</h3>
+<pre class="code">举例：1234H + 0FFFH
+  低字节：34H + FFH = 133H  → 存 33H，进位 CY=1
+  高字节：12H + 0FH + 1 = 22H  → 存 22H
+  结果：2233H ✓</pre>
+<p>如果高字节也用 <code>ADD</code>，就会丢掉那个进位，结果变成 2133H ✗。</p>
+
+<h2>4.4 实验：多字节乘法</h2>
+<pre class="code">        MOV   A,#20         ; A = 20
+        MOV   B,#10         ; B = 10
+        MUL   AB            ; 20 × 10 = 200
+                            ; 结果：B = 高字节 = 00H，A = 低字节 = C8H
+        SJMP  $</pre>
+<p>200 < 255，所以 B = 0、A = 0C8H。若乘出 300，则 B = 01H、A = 2CH。</p>
+
+<h2>4.5 易错点</h2>
+<div class="box warn"><b>① 减法前忘 CLR C</b> —— 结果少 1。</div>
+<div class="box warn"><b>② 用 ADD 做高位字节</b> —— 丢了进位。</div>
+<div class="box warn"><b>③ 以为 INC 会影响 CY</b> —— 不会。它只影响 AC/OV。</div>
+<div class="box warn"><b>④ DIV 前没检查 B 是否为 0</b> —— 除以 0 时 OV=1，结果无效。</div>
+
+<h2>4.6 今日练习</h2>
+<ol>
+<li><code>MOV A,#0FFH; ADD A,#01H</code> 之后 CY、OV、A 分别是多少？</li>
+<li>写一段代码算 50H − 30H（存到 R2）。</li>
+<li>MUL AB 之后，乘积 0x1234 时 A 和 B 各是什么？</li>
+</ol>
+<details class="ans"><summary>📖 参考答案（点击展开）</summary><ol><li>A = <b>00H</b>，CY = <b>1</b>（FFH+1 产生进位），OV = <b>0</b>（无符号看 CY 有溢出，有符号看 OV 没溢出：-1 + 1 = 0 正确）。</li><li><code>CLR C</code> → <code>MOV A,#50H</code> → <code>SUBB A,#30H</code> → <code>MOV R2,A</code>，结果 <b>20H</b>。</li><li><code>MUL AB</code> 结果 16 位：高字节在 <b>B</b>、低字节在 <b>A</b>。<br>0x1234 → B = <b>12H</b>，A = <b>34H</b>。</li></ol></details>
+  </div>
+  <div class="daynav"><a href="#d3">← Day 3　数据传送指令</a><a class="next" href="#d5">Day 5　逻辑运算与移位 →</a></div>
+</article>
+<article class="page" id="d5">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">5</span>
+      <span class="pbtt">Day 5 · 逻辑运算与移位</span></div>
+    <button class="donebtn" data-day="5">标记已学完</button>
+  </div>
+  <div class="body">
+
+<h2>5.1 逻辑运算指令</h2>
+<table>
+<tr><th>指令</th><th>作用</th><th>典型用途</th></tr>
+<tr><td><code>ANL A,#data</code></td><td>与（AND）</td><td>屏蔽某些位（清零）</td></tr>
+<tr><td><code>ORL A,#data</code></td><td>或（OR）</td><td>置位某些位</td></tr>
+<tr><td><code>XRL A,#data</code></td><td>异或（XOR）</td><td>取反某些位</td></tr>
+<tr><td><code>CPL A</code></td><td>A 全部取反</td><td>求反码</td></tr>
+<tr><td><code>CLR A</code></td><td>A = 0</td><td>清零（1 字节，比 MOV 快）</td></tr>
+</table>
+<p>这三个操作和你在 C 里写的 <code>&amp;=</code> <code>|=</code> <code>^=</code> 完全对应：</p>
+<pre class="code">ANL  A,#0FH      ; 等价 C: A &amp;= 0x0F   （保留低 4 位，高 4 位清 0）
+ORL  A,#0F0H     ; 等价 C: A |= 0xF0   （高 4 位置 1）
+XRL  A,#0FFH     ; 等价 C: A ^= 0xFF   （全部取反）</pre>
+
+<h2>5.2 移位与循环移位</h2>
+<table>
+<tr><th>指令</th><th>动作</th><th>移出的位去哪</th></tr>
+<tr><td><code>RL A</code></td><td>循环左移</td><td>bit7 → bit0（不经过 CY）</td></tr>
+<tr><td><code>RR A</code></td><td>循环右移</td><td>bit0 → bit7</td></tr>
+<tr><td><code>RLC A</code></td><td>带进位左移</td><td>bit7 → <b>CY</b>，CY → bit0</td></tr>
+<tr><td><code>RRC A</code></td><td>带进位右移</td><td>bit0 → <b>CY</b>，CY → bit7</td></tr>
+<tr><td><code>SWAP A</code></td><td>高低 4 位互换</td><td>—</td></tr>
+</table>
+<div class="box tip"><b>RL vs RLC 的区别</b>：<br>
+<code>RL A</code> 是「8 位圈内循环」，bit7 回到 bit0；<br>
+<code>RLC A</code> 是「9 位循环」，bit7 进 CY，CY 进 bit0 —— <b>多字节移位必须用 RLC</b>。</div>
+
+<h2>5.3 实验一：流水灯（RL 版）</h2>
+<pre class="code">        ORG   0000H
+        LJMP  MAIN
+        ORG   0030H
+MAIN:   MOV   A,#0FEH       ; 1111 1110 → P2.0 为 0（D1 亮）
+LOOP:   MOV   P2,A          ; 送到 LED
+        LCALL DELAY         ; 延时
+        RL    A             ; 循环左移：0 的位置往左移
+        SJMP  LOOP
+
+DELAY:  MOV   R5,#200       ; 外层
+D1:     MOV   R6,#250       ; 内层
+D2:     DJNZ  R6,D2
+        DJNZ  R5,D1
+        RET
+        END</pre>
+<p>A 的变化过程：<code>FE → FD → FB → F7 → EF → DF → BF → 7F → FE …</code>（那个 0 在往左跑）</p>
+
+<h2>5.4 实验二：SWAP 做 BCD 转换</h2>
+<pre class="code">        MOV   A,#25H        ; A = 0010 0101（BCD 的 25）
+        SWAP  A             ; A = 0101 0010（高低 4 位交换）
+                            ; 现在高 4 位是 5、低 4 位是 2
+        ANL   A,#0FH        ; 取低 4 位 → A = 02H（十位）
+        MOV   R2,A
+        MOV   A,#25H
+        ANL   A,#0FH        ; 取个位 → A = 05H
+        MOV   R3,A          ; R2=十位, R3=个位</pre>
+<p>这段就是「把一个字节拆成两个数字」的标准写法，后面显示数码管时天天用。</p>
+
+<h2>5.5 易错点</h2>
+<div class="box warn"><b>① RL 用于多字节数据</b> —— 会丢掉最高位，必须用 RLC。</div>
+<div class="box warn"><b>② SWAP 后忘了 ANL</b> —— 高 4 位还残留着原来的值。</div>
+<div class="box warn"><b>③ CLR A 和 MOV A,#0 混着用</b> —— 效果一样，但 CLR A 只要 1 字节 1 周期，更快。</div>
+
+<h2>5.6 今日练习</h2>
+<ol>
+<li><code>MOV A,#0FH; RL A</code> 之后 A 是多少？</li>
+<li>怎么把 A 的最低位置 1？（用 ORL）</li>
+<li>要判断 A 的 bit3 是不是 1，用什么指令？</li>
+</ol>
+<details class="ans"><summary>📖 参考答案（点击展开）</summary><ol><li>0FH = 0000 1111，RL 循环左移一位 → <b>0001 1110 = 1EH</b>（bit7 移到了 bit0，但 bit7 原来是 0 所以看不出来）。</li><li><code>ORL A,#01H</code>　（bit0 或 1 = 置 1，其他位不变）</li><li>两种写法：<br>① <code>ANL A,#08H</code> 再 <code>JNZ</code>（结果是 0 说明 bit3 为 0，非 0 说明为 1）<br>② <code>MOV C,ACC.3</code> 后用 <code>JC/JNC</code> 判断</li></ol></details>
+  </div>
+  <div class="daynav"><a href="#d4">← Day 4　算术运算与标志位</a><a class="next" href="#d6">Day 6　位操作与条件转移 →</a></div>
+</article>
+<article class="page" id="d6">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">6</span>
+      <span class="pbtt">Day 6 · 位操作与条件转移</span></div>
+    <button class="donebtn" data-day="6">标记已学完</button>
+  </div>
+  <div class="body">
+
+<h2>6.1 位操作指令</h2>
+<p>51 最强的特色之一：<b>能直接操作一位</b>，不用「读-改-写」整个字节。</p>
+<table>
+<tr><th>指令</th><th>作用</th><th>字节</th></tr>
+<tr><td><code>SETB bit</code></td><td>置 1</td><td>2</td></tr>
+<tr><td><code>CLR bit</code></td><td>清 0</td><td>2</td></tr>
+<tr><td><code>CPL bit</code></td><td>取反</td><td>2</td></tr>
+<tr><td><code>MOV C,bit</code></td><td>把某一位送到进位标志</td><td>2</td></tr>
+<tr><td><code>MOV bit,C</code></td><td>把 CY 写到某一位</td><td>2</td></tr>
+<tr><td><code>ANL C,bit</code> / <code>ORL C,bit</code></td><td>C 与/或某位</td><td>2</td></tr>
+</table>
+<p>能位寻址的只有两个区域：<b>20H~2FH</b>（位地址 00~7FH）和 <b>地址能被 8 整除的 SFR</b>（P0/P1/P2/P3/ACC/PSW/TCON 等）。</p>
+
+<h2>6.2 条件转移（位判断）</h2>
+<table>
+<tr><th>指令</th><th>判据</th><th>字节/周期</th></tr>
+<tr><td><code>JB bit,rel</code></td><td>该位 = 1 则跳</td><td>3 / 2</td></tr>
+<tr><td><code>JNB bit,rel</code></td><td>该位 = 0 则跳</td><td>3 / 2</td></tr>
+<tr><td><code>JBC bit,rel</code></td><td>该位 = 1 则跳，<b>并清 0</b></td><td>3 / 2</td></tr>
+<tr><td><code>JC rel</code></td><td>CY = 1 则跳</td><td>2 / 2</td></tr>
+<tr><td><code>JNC rel</code></td><td>CY = 0 则跳</td><td>2 / 2</td></tr>
+<tr><td><code>JZ rel</code></td><td>A = 0 则跳</td><td>2 / 2</td></tr>
+<tr><td><code>JNZ rel</code></td><td>A ≠ 0 则跳</td><td>2 / 2</td></tr>
+</table>
+
+<h2>6.3 实验：按键控制 LED</h2>
+<p>板上 K1 接 P3.1、D1 接 P2.0，都是低电平有效。</p>
+<pre class="code">        ORG   0000H
+        LJMP  MAIN
+        ORG   0030H
+MAIN:   JB    P3.1,NEXT     ; P3.1 = 1（按键没按）→ 跳到 NEXT
+        CLR   P2.0          ; 按键按下 → 点亮 D1
+        SJMP  MAIN
+NEXT:   SETB  P2.0          ; 松开 → 熄灭
+        SJMP  MAIN
+        END</pre>
+<h3>逐行拆解</h3>
+<table>
+<tr><th>指令</th><th>作用</th></tr>
+<tr><td><code>JB P3.1,NEXT</code></td><td>读 P3.1 这一位，是 1 就跳走</td></tr>
+<tr><td><code>CLR P2.0</code></td><td>直接把 P2.0 清零（不用读整个 P2）</td></tr>
+<tr><td><code>SETB P2.0</code></td><td>直接置 1</td></tr>
+</table>
+<div class="box tip"><b>这就是 C 里 <code>sbit LED=P2^0; LED=0;</code> 的底层实现</b> —— 编译器把它变成了 <code>CLR P2.0</code> 这一条指令。</div>
+
+<h2>6.4 实验二：位变量当标志</h2>
+<pre class="code">FLAG    BIT   20H.0         ; 在 20H 的 bit0 定义一位叫 FLAG
+        ORG   0000H
+        LJMP  MAIN
+        ORG   0030H
+MAIN:   CPL   FLAG          ; 翻转标志位
+        JB    FLAG,ON       ; FLAG=1 → 亮
+        CLR   P2.0
+        SJMP  MAIN
+ON:     SETB  P2.0
+        SJMP  MAIN
+        END</pre>
+<p><code>BIT</code> 是伪指令，它给 20H.0 起了个名字 —— 相当于 C 里的 <code>sbit</code>。</p>
+
+<h2>6.5 易错点</h2>
+<div class="box warn"><b>① 对不可位寻址的地址用位操作</b> —— 比如 <code>SETB 30H.0</code> 是非法的（30H 不在位寻址区）。</div>
+<div class="box warn"><b>② JB 和 JNB 搞反</b> —— 低电平有效的按键，没按时读到的是 1。</div>
+<div class="box warn"><b>③ JBC 会清位</b> —— 它跳转的同时把该位清 0，用来「取走一个标志」很方便，但别误用。</div>
+
+<h2>6.6 今日练习</h2>
+<ol>
+<li>把 P2.3 置 1，用一条指令写出来。</li>
+<li>判断 P3.2 是否为 0，为 0 则跳到 LABEL，怎么写？</li>
+<li><code>JB P3.1,NEXT</code> 和 <code>JNB P3.1,NEXT</code> 在按键电路里有什么区别？</li>
+</ol>
+<details class="ans"><summary>📖 参考答案（点击展开）</summary><ol><li><code>SETB P2.3</code>　（P2 是地址能被 8 整除的 SFR，可以位寻址）</li><li><code>JNB P3.2,LABEL</code>　（该位为 0 则跳）</li><li><code>JB P3.1,NEXT</code>：P3.1 = <b>1</b>（按键<b>没按</b>）时跳走 → 跳走说明没按。<br><code>JNB P3.1,NEXT</code>：P3.1 = <b>0</b>（按键<b>按下</b>）时跳走 → 跳走说明按下了。<br>因为按键低电平有效，两者逻辑正好相反。</li></ol></details>
+  </div>
+  <div class="daynav"><a href="#d5">← Day 5　逻辑运算与移位</a><a class="next" href="#d7">Day 7　第一周复盘 + 综合实验 →</a></div>
+</article>
+<article class="page" id="d7">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">7</span>
+      <span class="pbtt">Day 7 · 第一周复盘 + 综合实验</span></div>
+    <button class="donebtn" data-day="7">标记已学完</button>
+  </div>
+  <div class="body">
+
+<h2>7.1 第一周指令总表（背下来）</h2>
+<table>
+<tr><th>类别</th><th>指令</th><th>要点</th></tr>
+<tr><td>传送</td><td>MOV / MOVX / MOVC</td><td>RAM / 外RAM / ROM 三条不同通路</td></tr>
+<tr><td>栈</td><td>PUSH / POP</td><td>先 SP+1 存，先取再 SP−1</td></tr>
+<tr><td>算术</td><td>ADD / ADDC / SUBB / MUL / DIV</td><td>减法只有 SUBB，先 CLR C</td></tr>
+<tr><td>逻辑</td><td>ANL / ORL / XRL / CPL / CLR</td><td>对应 &amp; |= ^=</td></tr>
+<tr><td>移位</td><td>RL / RR / RLC / RRC / SWAP</td><td>多字节用带进位的</td></tr>
+<tr><td>位操作</td><td>SETB / CLR / CPL</td><td>只对位寻址区</td></tr>
+<tr><td>转移</td><td>JB / JNB / JBC / JC / JNC / JZ / JNZ</td><td>条件跳转</td></tr>
+</table>
+
+<h2>7.2 综合实验：完整流水灯</h2>
+<p>要求：8 个 LED 依次点亮，每个亮 200 ms，循环。</p>
+<pre class="code">        ORG   0000H
+        LJMP  MAIN
+        ORG   0030H
+MAIN:   MOV   A,#0FEH       ; 初值：只有 D1 亮
+LOOP:   MOV   P2,A          ; 输出到 LED
+        LCALL DELAY         ; 延时约 200ms
+        RL    A             ; 0 左移一位
+        SJMP  LOOP          ; 永远循环
+
+; --- 延时子程序：约 200ms ---
+DELAY:  MOV   R5,#200
+D1:     MOV   R6,#250
+D2:     DJNZ  R6,D2
+        DJNZ  R5,D1
+        RET
+        END</pre>
+
+<h2>7.3 算一下这个延时到底多久</h2>
+<p>内层循环 <code>DJNZ R6,D2</code> 是 2 个机器周期：</p>
+<pre class="code">内层：250 次 × 2 周期 = 500 周期
+外层：200 次 ×（500 + 2 + 2）= 200 × 504 = 100800 周期
+再加 LCALL/RET 等约 10 周期 → 约 100810 周期
+机器周期 = 1.0850694 μs
+延时 = 100810 × 1.0850694 ≈ 109.4 ms</pre>
+<div class="box warn"><b>不是 200ms！</b>实际只有约 109ms。要 200ms 得把 R5 改成 366（或加一层循环）。<b>这正好说明：汇编延时要自己算周期。</b></div>
+
+<h2>7.4 第一周自测（10 题）</h2>
+<ol>
+<li><code>MOV A,#30H</code> 和 <code>MOV A,30H</code> 区别？</li>
+<li>位地址 2BH 是哪个字节的哪一位？</li>
+<li>PUSH 之前 SP=07H，PUSH 后 SP 是多少？数据存在哪？</li>
+<li>为什么减法前要 CLR C？</li>
+<li><code>MUL AB</code> 几个周期？结果怎么分布？</li>
+<li><code>RL A</code> 和 <code>RLC A</code> 的区别？</li>
+<li>怎么把 P2.3 清零（一条指令）？</li>
+<li><code>DJNZ R2,LOOP</code> 连续执行几次才跳出？（R2 初值 5）</li>
+<li>哪些地址可以位寻址？</li>
+<li>程序开头为什么要有 ORG 0030H？</li>
+</ol>
+
+<h2>7.5 本周小结</h2>
+<div class="box tip">
+<b>三句话记住第一周</b><br>
+① <code>#</code> 是数字，没有 <code>#</code> 是地址；<code>@</code> 是「间接」。<br>
+② 减法只有 SUBB，先 <code>CLR C</code>；多字节加法用 ADDC。<br>
+③ 位操作 <code>SETB/CLR/CPL</code> 只能对 20H~2FH 和部分 SFR。
+</div>
+<details class="ans"><summary>📖 参考答案（点击展开）</summary><ol><li><code>MOV A,#30H</code> 是立即数（A=30H）；<code>MOV A,30H</code> 是直接寻址（取 RAM 30H 的内容）。</li><li>2BH = 43 → 20H + 43/8 = 25H，43%8 = 3 → <b>25H 的 bit3</b>。</li><li>PUSH 后 SP = <b>08H</b>，数据存在 <b>08H</b> 单元。</li><li>因为 51 只有「带借位减法」SUBB，没有普通减法。若 CY 当前是 1，会多减 1。所以先 CLR C。</li><li><code>MUL AB</code> 是 <b>4 个机器周期</b>。结果高字节在 B、低字节在 A。</li><li><code>RL A</code> 是 8 位循环（bit7 → bit0）；<code>RLC A</code> 是 9 位循环（bit7 → CY，CY → bit0）。多字节移位必须用 RLC。</li><li><code>CLR P2.3</code></li><li>执行 5 次：R2 从 5 减到 4、3、2、1、0 —— <b>第 5 次减到 0 时不跳，退出</b>。</li><li><b>20H~2FH</b>（位地址 00H~7FH）和<b>地址能被 8 整除的 SFR</b>（P0/P1/P2/P3/ACC/PSW/TCON/SCON/IE/IP 等）。</li><li>为了跳过 0000H~002FH 的中断向量区，把程序放在安全的地方。</li></ol></details>
+  </div>
+  <div class="daynav"><a href="#d6">← Day 6　位操作与条件转移</a><a class="next" href="#d8">Day 8　无条件转移与循环 →</a></div>
+</article>
+<article class="page" id="d8">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">8</span>
+      <span class="pbtt">Day 8 · 无条件转移与循环</span></div>
+    <button class="donebtn" data-day="8">标记已学完</button>
+  </div>
+  <div class="body">
+
+<h2>8.1 三种「跳」</h2>
+<table>
+<tr><th>指令</th><th>范围</th><th>字节</th><th>周期</th><th>什么时候用</th></tr>
+<tr><td><code>LJMP addr16</code></td><td>64KB 任意位置</td><td>3</td><td>2</td><td>最保险，随便跳</td></tr>
+<tr><td><code>AJMP addr11</code></td><td>同一 2KB 页内</td><td>2</td><td>2</td><td>省 1 字节（现在很少用）</td></tr>
+<tr><td><code>SJMP rel</code></td><td>−128 ~ +127 字节</td><td>2</td><td>2</td><td>循环、近距离跳</td></tr>
+</table>
+<div class="box warn"><b>SJMP 有距离限制</b>：跳太远会报 <code>TARGET OUT OF RANGE</code>。这时换 LJMP。</div>
+
+<h2>8.2 循环：DJNZ 和 CJNE</h2>
+<table>
+<tr><th>指令</th><th>动作</th><th>字节</th><th>周期</th></tr>
+<tr><td><code>DJNZ Rn,rel</code></td><td>Rn 减 1，非 0 则跳</td><td>2</td><td>2</td></tr>
+<tr><td><code>DJNZ direct,rel</code></td><td>RAM 单元减 1，非 0 则跳</td><td>3</td><td>2</td></tr>
+<tr><td><code>CJNE A,#data,rel</code></td><td>A 与 data 比较，<b>不等</b>则跳</td><td>3</td><td>2</td></tr>
+<tr><td><code>CJNE A,direct,rel</code></td><td>A 与 RAM 比较</td><td>3</td><td>2</td></tr>
+<tr><td><code>CJNE @Ri,#data,rel</code></td><td>间接比较</td><td>3</td><td>2</td></tr>
+</table>
+<div class="box tip"><b>CJNE 的副产品</b>：它比较后会自动设置 CY —— <code>CJNE A,#data,rel</code> 中若 A &lt; data，则 CY=1。<br>
+所以「大于/小于」判断可以这样写：<code>CJNE A,#50,$+3</code> 然后 <code>JC 小于</code>。</div>
+
+<h2>8.3 三种循环写法</h2>
+<h3>① 计数循环（最常用）</h3>
+<pre class="code">        MOV   R2,#10        ; 循环 10 次
+LOOP:   ...                 ; 循环体
+        DJNZ  R2,LOOP       ; R2-1，非 0 继续</pre>
+<h3>② 已知终值的循环（用 CJNE）</h3>
+<pre class="code">        MOV   A,#0
+LOOP:   ...
+        INC   A
+        CJNE  A,#10,LOOP    ; A 不等于 10 就继续</pre>
+<h3>③ 死循环</h3>
+<pre class="code">        SJMP  $             ; $ = 本行地址，等价 while(1);</pre>
+
+<h2>8.4 实验：延时子程序（和 C 版对照）</h2>
+<p>你在 C 里见过这个：</p>
+<pre class="code">void delay_ms(unsigned int ms)
+{
+    unsigned int i, j;
+    for (i = ms; i > 0; i--)
+        for (j = 110; j > 0; j--);
+}</pre>
+<p>汇编等价写法（用两个寄存器当 16 位计数器）：</p>
+<pre class="code">; 延时约 100ms（R5:R6 是 16 位计数器）
+DELAY:  MOV   R5,#0C8H      ; 高字节 = 200
+        MOV   R6,#00H       ; 低字节 = 0  → 共 200 × 256 = 51200 次
+D1:     DEC   R6            ; 低字节减 1
+        MOV   A,R6
+        CJNE  A,#0FFH,D1    ; 没借位就继续
+        DEC   R5            ; 低字节借位了，高字节减 1
+        MOV   A,R5
+        CJNE  A,#0FFH,D1
+        RET</pre>
+<div class="box tip"><b>对比一下</b>：C 的 <code>unsigned int j</code> 在汇编里就是「两个 8 位寄存器拼起来」，减 1 要判断借位 —— 这就是为什么 C 的循环比汇编慢。<br>
+汇编可以直接用 <code>DJNZ R6,D1</code> 一条指令搞定 8 位循环，快得多。</div>
+
+<h2>8.5 易错点</h2>
+<div class="box warn"><b>① DJNZ 的标号跳太远</b> —— 超过 −128~+127 就报错。</div>
+<div class="box warn"><b>② CJNE 是「不等则跳」</b> —— 不是「相等则跳」。相等就不跳，继续往下执行。</div>
+<div class="box warn"><b>③ 循环变量被循环体改掉</b> —— 导致次数不对。</div>
+
+<h2>8.6 今日练习</h2>
+<ol>
+<li>用 DJNZ 写一个「R2 从 50 减到 0」的循环。</li>
+<li><code>CJNE A,#10,NEXT</code> 什么时候跳？</li>
+<li>SJMP 最远能跳多远？为什么？</li>
+</ol>
+<details class="ans"><summary>📖 参考答案（点击展开）</summary><ol><li><code>MOV R2,#50</code> → <code>LOOP: ...</code> → <code>DJNZ R2,LOOP</code></li><li>A <b>不等于</b> 10 时跳。相等就不跳，继续往下执行。</li><li>−128 ~ +127 字节。因为 rel 是 <b>8 位有符号数</b>（补码）。跳太远要改用 LJMP。</li></ol></details>
+  </div>
+  <div class="daynav"><a href="#d7">← Day 7　第一周复盘 + 综合实验</a><a class="next" href="#d9">Day 9　子程序调用与堆栈 →</a></div>
+</article>
+<article class="page" id="d9">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">9</span>
+      <span class="pbtt">Day 9 · 子程序调用与堆栈</span></div>
+    <button class="donebtn" data-day="9">标记已学完</button>
+  </div>
+  <div class="body">
+
+<h2>9.1 调用和跳转的区别</h2>
+<table>
+<tr><th></th><th>跳转（LJMP/SJMP）</th><th>调用（LCALL）</th></tr>
+<tr><td>返回</td><td>不返回</td><td>执行到 RET 会回来</td></tr>
+<tr><td>堆栈</td><td>不操作</td><td><b>自动把返回地址压栈</b></td></tr>
+<tr><td>用途</td><td>分支、循环</td><td>子程序、函数</td></tr>
+</table>
+<pre class="code">        LCALL DELAY     ; ① 把下一条指令的地址压栈
+        ...             ; ③ RET 之后从这里继续
+DELAY:  ...             ; ② 执行子程序
+        RET             ; 弹出地址，跳回去</pre>
+
+<h2>9.2 堆栈是「向上长」的</h2>
+<img class="fig" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NDAiIGhlaWdodD0iNTIwIiB2aWV3Qm94PSIwIDAgOTQwIDUyMCI+CjxkZWZzPgo8c3R5bGU+Ci53e2ZpbGw6bm9uZTtzdHJva2U6IzFhMWExYTtzdHJva2Utd2lkdGg6Mi40O3N0cm9rZS1saW5lY2FwOnJvdW5kO3N0cm9rZS1saW5lam9pbjpyb3VuZH0KLmN7ZmlsbDojZmZmZmZmO3N0cm9rZTojMWExYTFhO3N0cm9rZS13aWR0aDoyLjQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kfQoubntmaWxsOiMxYTFhMWE7c3Ryb2tlOm5vbmV9Ci50Yntmb250OjcwMCAxOXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojMWExYTFhfQoudHR7Zm9udDo3MDAgMTdweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzFhMWExYX0KLnRze2ZvbnQ6NDAwIDE0LjVweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzZiNzI4MH0KLnRue2ZvbnQ6NDAwIDE2cHggIk1pY3Jvc29mdCBZYUhlaSIsc2Fucy1zZXJpZjtmaWxsOiMxYTFhMWF9Ci5obHtmb250OjQwMCAxNXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojMWE2ZmI1fQouY3Vye2ZpbGw6bm9uZTtzdHJva2U6I2MwMzkyYjtzdHJva2Utd2lkdGg6Mi4yfQouY3VybHtmb250OjQwMCAxNXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojYzAzOTJifQouZGFzaHtmaWxsOm5vbmU7c3Ryb2tlOiM5YWEzYWY7c3Ryb2tlLXdpZHRoOjEuNDtzdHJva2UtZGFzaGFycmF5OjYgNH0KLmdse2ZvbnQ6NjAwIDE1LjVweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzFhMWExYX0KPC9zdHlsZT4KPG1hcmtlciBpZD0iYXIiIHZpZXdCb3g9IjAgMCAxMCAxMCIgcmVmWD0iOSIgcmVmWT0iNSIgbWFya2VyV2lkdGg9IjciIG1hcmtlckhlaWdodD0iNyIgb3JpZW50PSJhdXRvIj4KICA8cGF0aCBkPSJNMCwwIEwxMCw1IEwwLDEwIHoiIGZpbGw9IiMxYTFhMWEiLz48L21hcmtlcj4KPG1hcmtlciBpZD0iYXJyIiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjciIG9yaWVudD0iYXV0byI+CiAgPHBhdGggZD0iTTAsMCBMMTAsNSBMMCwxMCB6IiBmaWxsPSIjYzAzOTJiIi8+PC9tYXJrZXI+CjxtYXJrZXIgaWQ9ImFyYiIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI5IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNyIgbWFya2VySGVpZ2h0PSI3IiBvcmllbnQ9ImF1dG8iPgogIDxwYXRoIGQ9Ik0wLDAgTDEwLDUgTDAsMTAgeiIgZmlsbD0iIzFhNmZiNSIvPjwvbWFya2VyPgo8L2RlZnM+Cjx0ZXh0IHg9IjMwIiB5PSIzNCIgY2xhc3M9InRiIj7loIbmoIjvvJo1MSDnmoTloIbmoIjmmK/jgIzlkJHkuIrplb/jgI3nmoQ8L3RleHQ+Cjx0ZXh0IHg9IjMwIiB5PSI1OCIgY2xhc3M9InRzIj5QVVNIIOWFiCBTUCsxIOWGjeWtmOaVsOaNru+8m1BPUCDlhYjlj5bmlbDmja7lho0gU1DiiJIx44CCU1Ag5aeL57uI5oyH5ZCR5qCI6aG25YWD57SgPC90ZXh0Pgo8dGV4dCB4PSIxNzAiIHk9IjEzMCIgY2xhc3M9InR0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7liJ3lp4vvvJpTUD0wN0g8L3RleHQ+CjxyZWN0IHg9IjkwIiB5PSIzODAiIHdpZHRoPSIxMjAiIGhlaWdodD0iNDAiIHJ4PSIzIiBjbGFzcz0iYyIvPgo8dGV4dCB4PSIxMDAiIHk9IjQwNSIgY2xhc3M9InRzIj4wNkg8L3RleHQ+CjxyZWN0IHg9IjkwIiB5PSIzMzYiIHdpZHRoPSIxMjAiIGhlaWdodD0iNDAiIHJ4PSIzIiBjbGFzcz0iYyIvPgo8dGV4dCB4PSIxMDAiIHk9IjM2MSIgY2xhc3M9InRzIj4wN0g8L3RleHQ+Cjx0ZXh0IHg9IjIyMCIgeT0iMzYxIiBjbGFzcz0idHQiPuKGkCBTUDwvdGV4dD4KPHJlY3QgeD0iOTAiIHk9IjI5MiIgd2lkdGg9IjEyMCIgaGVpZ2h0PSI0MCIgcng9IjMiIGNsYXNzPSJjIi8+Cjx0ZXh0IHg9IjEwMCIgeT0iMzE3IiBjbGFzcz0idHMiPjA4SDwvdGV4dD4KPHJlY3QgeD0iOTAiIHk9IjI0OCIgd2lkdGg9IjEyMCIgaGVpZ2h0PSI0MCIgcng9IjMiIGNsYXNzPSJjIi8+Cjx0ZXh0IHg9IjEwMCIgeT0iMjczIiBjbGFzcz0idHMiPjA5SDwvdGV4dD4KPHJlY3QgeD0iOTAiIHk9IjIwNCIgd2lkdGg9IjEyMCIgaGVpZ2h0PSI0MCIgcng9IjMiIGNsYXNzPSJjIi8+Cjx0ZXh0IHg9IjEwMCIgeT0iMjI5IiBjbGFzcz0idHMiPjBBSDwvdGV4dD4KPHJlY3QgeD0iOTAiIHk9IjE2MCIgd2lkdGg9IjEyMCIgaGVpZ2h0PSI0MCIgcng9IjMiIGNsYXNzPSJjIi8+Cjx0ZXh0IHg9IjEwMCIgeT0iMTg1IiBjbGFzcz0idHMiPjBCSDwvdGV4dD4KPGxpbmUgeDE9IjI5MCIgeTE9IjM4MCIgeDI9IjI5MCIgeTI9IjIwMCIgY2xhc3M9ImN1ciIgbWFya2VyLWVuZD0idXJsKCNhcnIpIi8+Cjx0ZXh0IHg9IjMwMCIgeT0iMzAwIiBjbGFzcz0idHMiIHRyYW5zZm9ybT0icm90YXRlKDkwIDMwMCAzMDApIj5QVVNIIOaWueWQkTwvdGV4dD4KPHRleHQgeD0iNDYwIiB5PSIxMzAiIGNsYXNzPSJ0dCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UFVTSCAzMEgg5ZCO77yaU1A9MDhIPC90ZXh0Pgo8cmVjdCB4PSIzODAiIHk9IjM4MCIgd2lkdGg9IjEyMCIgaGVpZ2h0PSI0MCIgcng9IjMiIGNsYXNzPSJjIi8+Cjx0ZXh0IHg9IjM5MCIgeT0iNDA1IiBjbGFzcz0idHMiPjA2SDwvdGV4dD4KPHJlY3QgeD0iMzgwIiB5PSIzMzYiIHdpZHRoPSIxMjAiIGhlaWdodD0iNDAiIHJ4PSIzIiBjbGFzcz0iYyIvPgo8dGV4dCB4PSIzOTAiIHk9IjM2MSIgY2xhc3M9InRzIj4wN0g8L3RleHQ+CjxyZWN0IHg9IjM4MCIgeT0iMjkyIiB3aWR0aD0iMTIwIiBoZWlnaHQ9IjQwIiByeD0iMyIgY2xhc3M9ImMiLz4KPHRleHQgeD0iMzkwIiB5PSIzMTciIGNsYXNzPSJ0cyI+MDhIPC90ZXh0Pgo8dGV4dCB4PSI0MzgiIHk9IjMxNyIgY2xhc3M9InRuIj4zMEgg55qE5YC8PC90ZXh0Pgo8dGV4dCB4PSI1MTAiIHk9IjMxNyIgY2xhc3M9InR0Ij7ihpAgU1A8L3RleHQ+CjxyZWN0IHg9IjM4MCIgeT0iMjQ4IiB3aWR0aD0iMTIwIiBoZWlnaHQ9IjQwIiByeD0iMyIgY2xhc3M9ImMiLz4KPHRleHQgeD0iMzkwIiB5PSIyNzMiIGNsYXNzPSJ0cyI+MDlIPC90ZXh0Pgo8cmVjdCB4PSIzODAiIHk9IjIwNCIgd2lkdGg9IjEyMCIgaGVpZ2h0PSI0MCIgcng9IjMiIGNsYXNzPSJjIi8+Cjx0ZXh0IHg9IjM5MCIgeT0iMjI5IiBjbGFzcz0idHMiPjBBSDwvdGV4dD4KPHJlY3QgeD0iMzgwIiB5PSIxNjAiIHdpZHRoPSIxMjAiIGhlaWdodD0iNDAiIHJ4PSIzIiBjbGFzcz0iYyIvPgo8dGV4dCB4PSIzOTAiIHk9IjE4NSIgY2xhc3M9InRzIj4wQkg8L3RleHQ+CjxsaW5lIHgxPSI1ODAiIHkxPSIzODAiIHgyPSI1ODAiIHkyPSIyMDAiIGNsYXNzPSJjdXIiIG1hcmtlci1lbmQ9InVybCgjYXJyKSIvPgo8dGV4dCB4PSI1OTAiIHk9IjMwMCIgY2xhc3M9InRzIiB0cmFuc2Zvcm09InJvdGF0ZSg5MCA1OTAgMzAwKSI+UFVTSCDmlrnlkJE8L3RleHQ+Cjx0ZXh0IHg9Ijc1MCIgeT0iMTMwIiBjbGFzcz0idHQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuWGjSBQVVNIIEFDQyDlkI7vvJpTUD0wOUg8L3RleHQ+CjxyZWN0IHg9IjY3MCIgeT0iMzgwIiB3aWR0aD0iMTIwIiBoZWlnaHQ9IjQwIiByeD0iMyIgY2xhc3M9ImMiLz4KPHRleHQgeD0iNjgwIiB5PSI0MDUiIGNsYXNzPSJ0cyI+MDZIPC90ZXh0Pgo8cmVjdCB4PSI2NzAiIHk9IjMzNiIgd2lkdGg9IjEyMCIgaGVpZ2h0PSI0MCIgcng9IjMiIGNsYXNzPSJjIi8+Cjx0ZXh0IHg9IjY4MCIgeT0iMzYxIiBjbGFzcz0idHMiPjA3SDwvdGV4dD4KPHJlY3QgeD0iNjcwIiB5PSIyOTIiIHdpZHRoPSIxMjAiIGhlaWdodD0iNDAiIHJ4PSIzIiBjbGFzcz0iYyIvPgo8dGV4dCB4PSI2ODAiIHk9IjMxNyIgY2xhc3M9InRzIj4wOEg8L3RleHQ+Cjx0ZXh0IHg9IjcyOCIgeT0iMzE3IiBjbGFzcz0idG4iPjMwSCDnmoTlgLw8L3RleHQ+CjxyZWN0IHg9IjY3MCIgeT0iMjQ4IiB3aWR0aD0iMTIwIiBoZWlnaHQ9IjQwIiByeD0iMyIgY2xhc3M9ImMiLz4KPHRleHQgeD0iNjgwIiB5PSIyNzMiIGNsYXNzPSJ0cyI+MDlIPC90ZXh0Pgo8dGV4dCB4PSI3MjgiIHk9IjI3MyIgY2xhc3M9InRuIj5BQ0Mg55qE5YC8PC90ZXh0Pgo8dGV4dCB4PSI4MDAiIHk9IjI3MyIgY2xhc3M9InR0Ij7ihpAgU1A8L3RleHQ+CjxyZWN0IHg9IjY3MCIgeT0iMjA0IiB3aWR0aD0iMTIwIiBoZWlnaHQ9IjQwIiByeD0iMyIgY2xhc3M9ImMiLz4KPHRleHQgeD0iNjgwIiB5PSIyMjkiIGNsYXNzPSJ0cyI+MEFIPC90ZXh0Pgo8cmVjdCB4PSI2NzAiIHk9IjE2MCIgd2lkdGg9IjEyMCIgaGVpZ2h0PSI0MCIgcng9IjMiIGNsYXNzPSJjIi8+Cjx0ZXh0IHg9IjY4MCIgeT0iMTg1IiBjbGFzcz0idHMiPjBCSDwvdGV4dD4KPGxpbmUgeDE9Ijg3MCIgeTE9IjM4MCIgeDI9Ijg3MCIgeTI9IjIwMCIgY2xhc3M9ImN1ciIgbWFya2VyLWVuZD0idXJsKCNhcnIpIi8+Cjx0ZXh0IHg9Ijg4MCIgeT0iMzAwIiBjbGFzcz0idHMiIHRyYW5zZm9ybT0icm90YXRlKDkwIDg4MCAzMDApIj5QVVNIIOaWueWQkTwvdGV4dD4KPHRleHQgeD0iNzAiIHk9IjQ1MCIgY2xhc3M9InRuIj7imIUgNTEg55qE5aCG5qCI5piv44CM5ZCR5LiK55Sf6ZW/44CN77yI5Zyw5Z2A6YCS5aKe77yJ77yM5ZKM5b6I5aSaIENQVSDnm7jlj43jgIJTUCDliJ3lgLwgMDdI77yMUFVTSCDlkI7lj5ggMDhI44CCPC90ZXh0Pgo8dGV4dCB4PSI3MCIgeT0iNDc2IiBjbGFzcz0ic3MiPuKYhSDlm6DmraTnrKzkuIDmrKEgUFVTSCDkvJrljaDnlKggMDhIIOKAlOKAlCDpgqPmmK/nrKwgMSDnu4Tlr4TlrZjlmaggUjAg55qE5L2N572u44CC5omA5Lul56iL5bqP5byA5aS05bqU6YeN6K6+IFNQ77yI5aaCIE1PViBTUCwjNjBI77yJ44CCPC90ZXh0Pgo8dGV4dCB4PSI3MCIgeT0iNTAyIiBjbGFzcz0iaGwiPuKYhSBQVVNIIOWSjCBQT1Ag5b+F6aG75oiQ5a+577yM5LiU6aG65bqP55u45Y+N77yI5ZCO6L+b5YWI5Ye677yJ77ya5YWIIFBVU0ggQSDlho0gUFVTSCBQU1fvvIzlsLHopoHlhYggUE9QIFBTVyDlho0gUE9QIEHjgII8L3RleHQ+Cjwvc3ZnPgo=" alt="a02_堆栈操作" loading="lazy">
+<table>
+<tr><th>指令</th><th>动作顺序</th><th>SP 变化</th></tr>
+<tr><td><code>PUSH direct</code></td><td>SP = SP + 1，然后 (SP) = direct</td><td>+1</td></tr>
+<tr><td><code>POP direct</code></td><td>direct = (SP)，然后 SP = SP − 1</td><td>−1</td></tr>
+<tr><td><code>LCALL</code></td><td>连续 PUSH 返回地址低字节、高字节</td><td>+2</td></tr>
+<tr><td><code>RET</code></td><td>连续 POP 高字节、低字节到 PC</td><td>−2</td></tr>
+</table>
+<div class="box warn"><b>SP 初值是 07H</b>，第一次 PUSH 会写进 08H —— 那是第 1 组寄存器 R0 的位置！<br>
+所以规范做法：程序开头 <code>MOV SP,#60H</code>，把堆栈挪到 30H~7FH 的安全区。</div>
+
+<h2>9.3 三种返回指令</h2>
+<table>
+<tr><th>指令</th><th>用在哪</th><th>额外动作</th></tr>
+<tr><td><code>RET</code></td><td>普通子程序</td><td>只弹出地址</td></tr>
+<tr><td><code>RETI</code></td><td>中断服务程序</td><td>弹出地址 <b>+ 清中断优先级标志</b></td></tr>
+<tr><td><code>RET</code> 用在中断里</td><td>✗ 错</td><td>中断标志不清，会反复进中断</td></tr>
+</table>
+
+<h2>9.4 实验：带参数的延时子程序</h2>
+<pre class="code">        ORG   0000H
+        LJMP  MAIN
+        ORG   0030H
+MAIN:   MOV   SP,#60H       ; ★ 重设堆栈指针（关键！）
+        MOV   R7,#20        ; 参数：延时 20 个单位
+        LCALL DELAY         ; 调用
+        CPL   P2.0          ; 翻转载 LED
+        SJMP  MAIN
+
+; --- 子程序：入口参数 R7，每次约 10ms ---
+DELAY:  MOV   R5,#200
+D1:     MOV   R6,#50
+D2:     DJNZ  R6,D2
+        DJNZ  R5,D1
+        DJNZ  R7,DELAY      ; 按 R7 的值重复
+        RET
+        END</pre>
+<h3>逐行拆解</h3>
+<table>
+<tr><th>代码</th><th>作用</th></tr>
+<tr><td><code>MOV SP,#60H</code></td><td>堆栈从 60H 开始向上，避开工作寄存器</td></tr>
+<tr><td><code>MOV R7,#20</code></td><td>用 R7 传参数（51 汇编的「约定」：参数放寄存器）</td></tr>
+<tr><td><code>LCALL DELAY</code></td><td>返回地址压栈，SP 从 60H 变 62H</td></tr>
+<tr><td><code>DJNZ R7,DELAY</code></td><td>R7 递减，非 0 就重跑整段</td></tr>
+<tr><td><code>RET</code></td><td>弹出返回地址，SP 回到 60H</td></tr>
+</table>
+
+<h2>9.5 参数怎么传</h2>
+<p>汇编没有「函数参数」的概念，全靠约定：</p>
+<table>
+<tr><th>方式</th><th>例子</th><th>优点</th></tr>
+<tr><td><b>寄存器传</b></td><td>参数放 R7、返回值放 A</td><td>最快，最常用</td></tr>
+<tr><td>RAM 传</td><td>参数放 30H，子程序去读</td><td>参数多时用</td></tr>
+<tr><td>堆栈传</td><td>PUSH 进去，子程序 POP</td><td>麻烦，51 很少用</td></tr>
+</table>
+
+<h2>9.6 易错点</h2>
+<div class="box warn"><b>① 忘了 MOV SP,#60H</b> —— 堆栈和寄存器打架，程序行为诡异。</div>
+<div class="box warn"><b>② PUSH/POP 不成对</b> —— 每多 PUSH 一次，RET 就弹错地址，程序跑飞。</div>
+<div class="box warn"><b>③ 中断里用 RET</b> —— 必须用 RETI。</div>
+<div class="box warn"><b>④ 子程序改了调用者的寄存器</b> —— 汇编没有「局部变量」，要用就先 PUSH 保存。</div>
+
+<h2>9.7 今日练习</h2>
+<ol>
+<li>SP=60H 时执行一次 LCALL，SP 变成多少？</li>
+<li>PUSH 30H 之后紧跟 POP 40H，结果是什么？</li>
+<li>为什么中断服务程序必须用 RETI 而不是 RET？</li>
+</ol>
+<details class="ans"><summary>📖 参考答案（点击展开）</summary><ol><li>SP = 60H + 2 = <b>62H</b>（返回地址占两个字节）。</li><li>把 30H 的内容搬到 <b>40H</b>，SP 回到原值。等价于 <code>MOV A,30H</code> + <code>MOV 40H,A</code>，但指令更短。</li><li>RETI 除了弹出返回地址，还会<b>清除中断优先级触发器</b>（表示该中断已处理完）。用 RET 的话这个标志不清，同级中断永远不会再被响应。</li></ol></details>
+  </div>
+  <div class="daynav"><a href="#d8">← Day 8　无条件转移与循环</a><a class="next" href="#d10">Day 10　查表指令 MOVC →</a></div>
+</article>
+<article class="page" id="d10">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">10</span>
+      <span class="pbtt">Day 10 · 查表指令 MOVC</span></div>
+    <button class="donebtn" data-day="10">标记已学完</button>
+  </div>
+  <div class="body">
+
+<h2>10.1 查表为什么需要专门指令</h2>
+<p>你要显示数字 0~9，得知道每个数字对应哪 8 段亮。这些数据存在 ROM 里，用 <code>MOVC</code> 取。</p>
+<pre class="code">MOVC A,@A+DPTR     ; 实际操作：A ← ROM[DPTR + A]</pre>
+<p>一条指令完成「基址 + 偏移」的寻址 —— 这就是<b>变址寻址</b>。</p>
+
+<h2>10.2 原理图</h2>
+<img class="fig" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NDAiIGhlaWdodD0iNDcwIiB2aWV3Qm94PSIwIDAgOTQwIDQ3MCI+CjxkZWZzPgo8c3R5bGU+Ci53e2ZpbGw6bm9uZTtzdHJva2U6IzFhMWExYTtzdHJva2Utd2lkdGg6Mi40O3N0cm9rZS1saW5lY2FwOnJvdW5kO3N0cm9rZS1saW5lam9pbjpyb3VuZH0KLmN7ZmlsbDojZmZmZmZmO3N0cm9rZTojMWExYTFhO3N0cm9rZS13aWR0aDoyLjQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kfQoubntmaWxsOiMxYTFhMWE7c3Ryb2tlOm5vbmV9Ci50Yntmb250OjcwMCAxOXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojMWExYTFhfQoudHR7Zm9udDo3MDAgMTdweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzFhMWExYX0KLnRze2ZvbnQ6NDAwIDE0LjVweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzZiNzI4MH0KLnRue2ZvbnQ6NDAwIDE2cHggIk1pY3Jvc29mdCBZYUhlaSIsc2Fucy1zZXJpZjtmaWxsOiMxYTFhMWF9Ci5obHtmb250OjQwMCAxNXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojMWE2ZmI1fQouY3Vye2ZpbGw6bm9uZTtzdHJva2U6I2MwMzkyYjtzdHJva2Utd2lkdGg6Mi4yfQouY3VybHtmb250OjQwMCAxNXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojYzAzOTJifQouZGFzaHtmaWxsOm5vbmU7c3Ryb2tlOiM5YWEzYWY7c3Ryb2tlLXdpZHRoOjEuNDtzdHJva2UtZGFzaGFycmF5OjYgNH0KLmdse2ZvbnQ6NjAwIDE1LjVweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzFhMWExYX0KPC9zdHlsZT4KPG1hcmtlciBpZD0iYXIiIHZpZXdCb3g9IjAgMCAxMCAxMCIgcmVmWD0iOSIgcmVmWT0iNSIgbWFya2VyV2lkdGg9IjciIG1hcmtlckhlaWdodD0iNyIgb3JpZW50PSJhdXRvIj4KICA8cGF0aCBkPSJNMCwwIEwxMCw1IEwwLDEwIHoiIGZpbGw9IiMxYTFhMWEiLz48L21hcmtlcj4KPG1hcmtlciBpZD0iYXJyIiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjciIG9yaWVudD0iYXV0byI+CiAgPHBhdGggZD0iTTAsMCBMMTAsNSBMMCwxMCB6IiBmaWxsPSIjYzAzOTJiIi8+PC9tYXJrZXI+CjxtYXJrZXIgaWQ9ImFyYiIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI5IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNyIgbWFya2VySGVpZ2h0PSI3IiBvcmllbnQ9ImF1dG8iPgogIDxwYXRoIGQ9Ik0wLDAgTDEwLDUgTDAsMTAgeiIgZmlsbD0iIzFhNmZiNSIvPjwvbWFya2VyPgo8L2RlZnM+Cjx0ZXh0IHg9IjMwIiB5PSIzNCIgY2xhc3M9InRiIj7mn6XooajvvJpNT1ZDIEEsQEErRFBUUiDmmK/mgI7kuYjnrpflh7rlnLDlnYDnmoQ8L3RleHQ+Cjx0ZXh0IHg9IjMwIiB5PSI1OCIgY2xhc3M9InRzIj7miorjgIzlgY/np7vph4/jgI3mlL7ov5sgQeOAgeihqOmmluWcsOWdgOaUvui/myBEUFRS77yM5Lik6ICF55u45Yqg5bCx5pivIFJPTSDph4znmoTlrp7pmYXlnLDlnYA8L3RleHQ+CjxyZWN0IHg9IjYwIiB5PSIxNDAiIHdpZHRoPSIxNTAiIGhlaWdodD0iNTYiIHJ4PSIzIiBjbGFzcz0iYyIvPgo8dGV4dCB4PSIxMzUuMCIgeT0iMTYwIiBjbGFzcz0idG4iIHRleHQtYW5jaG9yPSJtaWRkbGUiPkEgPSDlgY/np7vph488L3RleHQ+Cjx0ZXh0IHg9IjEzNS4wIiB5PSIxODQiIGNsYXNzPSJ0cyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+5q+U5aaCIDM8L3RleHQ+CjxyZWN0IHg9IjYwIiB5PSIyMjAiIHdpZHRoPSIxNTAiIGhlaWdodD0iNTYiIHJ4PSIzIiBjbGFzcz0iYyIvPgo8dGV4dCB4PSIxMzUuMCIgeT0iMjQwIiBjbGFzcz0idG4iIHRleHQtYW5jaG9yPSJtaWRkbGUiPkRQVFIgPSDooajpppblnYA8L3RleHQ+Cjx0ZXh0IHg9IjEzNS4wIiB5PSIyNjQiIGNsYXNzPSJ0cyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+5q+U5aaCIDAzMDBIPC90ZXh0Pgo8dGV4dCB4PSIxMzUiIHk9IjMwMCIgY2xhc3M9InRzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7vvIjlhYggTU9WIERQVFIsI1RBQkxFIOiuvuWlve+8iTwvdGV4dD4KPGNpcmNsZSBjeD0iMjkwIiBjeT0iMjA4IiByPSIyMiIgY2xhc3M9ImMiLz4KPHRleHQgeD0iMjkwIiB5PSIyMTYiIGNsYXNzPSJ0YiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+KzwvdGV4dD4KPGxpbmUgeDE9IjIxMCIgeTE9IjE2OCIgeDI9IjI2OCIgeTI9IjE5MiIgY2xhc3M9InciIG1hcmtlci1lbmQ9InVybCgjYXIpIi8+CjxsaW5lIHgxPSIyMTAiIHkxPSIyNDgiIHgyPSIyNjgiIHkyPSIyMjQiIGNsYXNzPSJ3IiBtYXJrZXItZW5kPSJ1cmwoI2FyKSIvPgo8bGluZSB4MT0iMzEyIiB5MT0iMjA4IiB4Mj0iMzgwIiB5Mj0iMjA4IiBjbGFzcz0idyIgbWFya2VyLWVuZD0idXJsKCNhcikiLz4KPHJlY3QgeD0iMzgwIiB5PSIxODAiIHdpZHRoPSIxNzAiIGhlaWdodD0iNTYiIHJ4PSIzIiBjbGFzcz0iYyIvPgo8dGV4dCB4PSI0NjUuMCIgeT0iMjAwIiBjbGFzcz0idG4iIHRleHQtYW5jaG9yPSJtaWRkbGUiPuWunumZheWcsOWdgDwvdGV4dD4KPHRleHQgeD0iNDY1LjAiIHk9IjIyNCIgY2xhc3M9InRzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj4wMzAwSCArIDMgPSAwMzAzSDwvdGV4dD4KPGxpbmUgeDE9IjU1MCIgeTE9IjIwOCIgeDI9IjYyMCIgeTI9IjIwOCIgY2xhc3M9InciIG1hcmtlci1lbmQ9InVybCgjYXIpIi8+Cjx0ZXh0IHg9Ijc2MCIgeT0iMTMwIiBjbGFzcz0idHQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlJPTSDph4znmoTooajvvIhEQiDlrprkuYnvvIk8L3RleHQ+CjxyZWN0IHg9IjY0MCIgeT0iMTUwIiB3aWR0aD0iMjQwIiBoZWlnaHQ9IjM2IiByeD0iMyIgY2xhc3M9ImMiIGZpbGw9IiNmZmYiLz4KPHRleHQgeD0iNjUyIiB5PSIxNzQiIGNsYXNzPSJ0cyI+MDMwMEg8L3RleHQ+Cjx0ZXh0IHg9IjcxNiIgeT0iMTc0IiBjbGFzcz0idG4iPjNGSDwvdGV4dD4KPHRleHQgeD0iNzYyIiB5PSIxNzQiIGNsYXNzPSJ0cyI+MCDnmoTmrrXnoIE8L3RleHQ+CjxyZWN0IHg9IjY0MCIgeT0iMTkwIiB3aWR0aD0iMjQwIiBoZWlnaHQ9IjM2IiByeD0iMyIgY2xhc3M9ImMiIGZpbGw9IiNmZmYiLz4KPHRleHQgeD0iNjUyIiB5PSIyMTQiIGNsYXNzPSJ0cyI+MDMwMUg8L3RleHQ+Cjx0ZXh0IHg9IjcxNiIgeT0iMjE0IiBjbGFzcz0idG4iPjA2SDwvdGV4dD4KPHRleHQgeD0iNzYyIiB5PSIyMTQiIGNsYXNzPSJ0cyI+MSDnmoTmrrXnoIE8L3RleHQ+CjxyZWN0IHg9IjY0MCIgeT0iMjMwIiB3aWR0aD0iMjQwIiBoZWlnaHQ9IjM2IiByeD0iMyIgY2xhc3M9ImMiIGZpbGw9IiNmZmYiLz4KPHRleHQgeD0iNjUyIiB5PSIyNTQiIGNsYXNzPSJ0cyI+MDMwMkg8L3RleHQ+Cjx0ZXh0IHg9IjcxNiIgeT0iMjU0IiBjbGFzcz0idG4iPjVCSDwvdGV4dD4KPHRleHQgeD0iNzYyIiB5PSIyNTQiIGNsYXNzPSJ0cyI+MiDnmoTmrrXnoIE8L3RleHQ+CjxyZWN0IHg9IjY0MCIgeT0iMjcwIiB3aWR0aD0iMjQwIiBoZWlnaHQ9IjM2IiByeD0iMyIgY2xhc3M9ImMiIGZpbGw9IiNmZmY3ZTYiLz4KPHRleHQgeD0iNjUyIiB5PSIyOTQiIGNsYXNzPSJ0cyI+MDMwM0g8L3RleHQ+Cjx0ZXh0IHg9IjcxNiIgeT0iMjk0IiBjbGFzcz0idG4iPjRGSDwvdGV4dD4KPHRleHQgeD0iNzYyIiB5PSIyOTQiIGNsYXNzPSJ0cyI+MyDnmoTmrrXnoIE8L3RleHQ+Cjx0ZXh0IHg9Ijg4NiIgeT0iMjk0IiBjbGFzcz0iY3VybCI+4oaQPC90ZXh0Pgo8cmVjdCB4PSI2NDAiIHk9IjMxMCIgd2lkdGg9IjI0MCIgaGVpZ2h0PSIzNiIgcng9IjMiIGNsYXNzPSJjIiBmaWxsPSIjZmZmIi8+Cjx0ZXh0IHg9IjY1MiIgeT0iMzM0IiBjbGFzcz0idHMiPjAzMDRIPC90ZXh0Pgo8dGV4dCB4PSI3MTYiIHk9IjMzNCIgY2xhc3M9InRuIj42Nkg8L3RleHQ+Cjx0ZXh0IHg9Ijc2MiIgeT0iMzM0IiBjbGFzcz0idHMiPjQg55qE5q6156CBPC90ZXh0Pgo8dGV4dCB4PSI3MCIgeT0iNDAwIiBjbGFzcz0idG4iPuKYhSDov5nlsLHmmK/kuLrku4DkuYjmlbDnoIHnrqHmmL7npLropoHnlKjmn6XooajvvJrmioogMH5GIOeahOauteeggeaUvuWcqCBST00g6YeM77yM55So5pWw5a2X5b2T5YGP56e76YeP55u05o6l5Y+W44CCPC90ZXh0Pgo8dGV4dCB4PSI3MCIgeT0iNDI4IiBjbGFzcz0iaGwiPuKYhSDmsYfnvJblhpnms5XvvJpNT1YgRFBUUiwjVEFCTEUg4oaSIE1PViBBLOWBj+enuyDihpIgTU9WQyBBLEBBK0RQVFIg4oaSIOauteeggeWwseWcqCBBIOmHjOS6huOAgjwvdGV4dD4KPC9zdmc+Cg==" alt="a03_查表原理" loading="lazy">
+
+<h2>10.3 数码管段码表（共阴）</h2>
+<pre class="code">SEG_TAB: DB  3FH, 06H, 5BH, 4FH, 66H, 6DH, 7DH, 07H
+         DB  7FH, 6FH, 77H, 7CH, 39H, 5EH, 79H, 71H
+;            0    1    2    3    4    5    6    7
+;            8    9    A    B    C    D    E    F</pre>
+<table>
+<tr><th>数字</th><th>段码</th><th>亮的段</th></tr>
+<tr><td>0</td><td>3FH</td><td>a b c d e f</td></tr>
+<tr><td>1</td><td>06H</td><td>b c</td></tr>
+<tr><td>2</td><td>5BH</td><td>a b d e g</td></tr>
+<tr><td>8</td><td>7FH</td><td>全亮</td></tr>
+</table>
+<div class="box tip"><b>共阳要取反</b>：<code>CPL A</code> 一下就行（3FH → C0H）。</div>
+
+<h2>10.4 实验：数码管循环显示 0~9</h2>
+<pre class="code">        ORG   0000H
+        LJMP  MAIN
+        ORG   0030H
+MAIN:   MOV   SP,#60H
+        MOV   DPTR,#SEG_TAB ; DPTR 指向表首
+        MOV   R2,#0         ; 要显示的数字
+LOOP:   MOV   A,R2          ; A = 偏移量
+        MOVC  A,@A+DPTR     ; 查表 → A = 段码
+        MOV   P0,A          ; 送到数码管段码口
+        LCALL DELAY
+        INC   R2
+        CJNE  R2,#10,LOOP   ; 到 10 就归零
+        MOV   R2,#0
+        SJMP  LOOP
+
+DELAY:  MOV   R5,#100
+D1:     MOV   R6,#250
+D2:     DJNZ  R6,D2
+        DJNZ  R5,D1
+        RET
+
+SEG_TAB: DB   3FH,06H,5BH,4FH,66H,6DH,7DH,07H
+         DB   7FH,6FH,77H,7CH,39H,5EH,79H,71H
+        END</pre>
+
+<h2>10.5 关键点追问：DPTR 会被破坏吗</h2>
+<p><b>不会。</b><code>MOVC A,@A+DPTR</code> 只是「读」，不改 DPTR。所以整个循环只需要设一次 DPTR。</p>
+<div class="box warn"><b>但如果表放在 256 字节以外</b>，<code>@A+DPTR</code> 的偏移 A 只有 8 位（最大 255），表长不能超过 256 字节。超过就要分段处理。</div>
+
+<h2>10.6 另一种查表：@A+PC</h2>
+<pre class="code">        MOV   A,R2
+        MOVC  A,@A+PC       ; 以 PC 为基址
+        ...
+SEG_TAB: DB  3FH,06H,...    ; 表必须紧跟在 MOVC 后 256 字节内</pre>
+<p><code>@A+PC</code> 不用设 DPTR，但表的位置被「绑死」在指令后面，不灵活。<b>一般用 DPTR 版本。</b></p>
+
+<h2>10.7 易错点</h2>
+<div class="box warn"><b>① 忘了 MOV DPTR,#表首址</b> —— 取到随机数据。</div>
+<div class="box warn"><b>② 用 MOV 而不是 MOVC</b> —— MOV 访问 RAM，读不到 ROM 里的表。</div>
+<div class="box warn"><b>③ 偏移量超过 255</b> —— 表太长会绕回开头。</div>
+<div class="box warn"><b>④ 表放在 ORG 0030H 之前</b> —— 会被中断向量区占用。</div>
+
+<h2>10.8 今日练习</h2>
+<ol>
+<li>3FH 对应的数字是几？06H 呢？</li>
+<li>要显示「7」，段码是多少？（只亮 a b c）</li>
+<li>如果数码管是共阳，3FH 应该改成什么？</li>
+</ol>
+<details class="ans"><summary>📖 参考答案（点击展开）</summary><ol><li>3FH → <b>0</b>（亮 a b c d e f）；06H → <b>1</b>（亮 b c）。</li><li>只亮 a b c → bit0、bit1、bit2 置 1 → <b>07H</b>。</li><li>共阳要取反：3FH 按位取反 = <b>C0H</b>。可以在代码里加 <code>CPL A</code> 自动转换。</li></ol></details>
+  </div>
+  <div class="daynav"><a href="#d9">← Day 9　子程序调用与堆栈</a><a class="next" href="#d11">Day 11　定时器汇编编程 →</a></div>
+</article>
+<article class="page" id="d11">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">11</span>
+      <span class="pbtt">Day 11 · 定时器汇编编程</span></div>
+    <button class="donebtn" data-day="11">标记已学完</button>
+  </div>
+  <div class="body">
+
+<h2>11.1 定时器的四个寄存器</h2>
+<table>
+<tr><th>寄存器</th><th>作用</th><th>汇编写法</th></tr>
+<tr><td>TMOD</td><td>工作方式</td><td><code>MOV TMOD,#01H</code>（T0 方式1）</td></tr>
+<tr><td>TH0 / TL0</td><td>初值</td><td><code>MOV TH0,#4CH</code> / <code>MOV TL0,#00H</code></td></tr>
+<tr><td>TCON</td><td>启动位 TR0、标志 TF0</td><td><code>SETB TR0</code></td></tr>
+<tr><td>IE</td><td>中断允许</td><td><code>SETB ET0</code> / <code>SETB EA</code></td></tr>
+</table>
+
+<h2>11.2 初值计算（和 C 完全一样）</h2>
+<pre class="code">机器周期 = 12 / 11.0592MHz = 1.0850694 μs
+
+要 50ms：50 000 / 1.0850694 = 46080 个计数
+初值 = 65536 − 46080 = 19456 = 4C00H
+     TH0 = 4CH，TL0 = 00H</pre>
+<div class="box tip"><b>为什么 50ms 这么整？</b>因为 46080 是整数。换成 1ms 就是 921.6，取 922 后会有 0.04% 误差 —— 这也是为什么老例程都用 50ms 做基准。</div>
+
+<h2>11.3 实验：定时器中断闪灯（每 1 秒翻转）</h2>
+<pre class="code">        ORG   0000H
+        LJMP  MAIN
+        ORG   000BH             ; ★ T0 的中断入口地址
+        LJMP  T0_ISR            ; 放一条跳转（不要直接写服务程序）
+        ORG   0030H
+MAIN:   MOV   SP,#60H
+        MOV   TMOD,#01H         ; T0 方式1（16位）
+        MOV   TH0,#4CH          ; 50ms 初值
+        MOV   TL0,#00H
+        SETB  ET0               ; 允许 T0 中断
+        SETB  EA                ; 开总中断
+        SETB  TR0               ; 启动定时器
+        MOV   R2,#0             ; 软件计数器
+        SJMP  $                 ; 主循环空转
+
+T0_ISR: MOV   TH0,#4CH          ; ★ 方式1 必须重装初值
+        MOV   TL0,#00H
+        PUSH  PSW               ; 保护现场
+        PUSH  ACC
+        INC   R2
+        CJNE  R2,#20,ISR_END    ; 20 × 50ms = 1s
+        MOV   R2,#0
+        CPL   P2.0              ; 翻转 LED
+ISR_END:POP   ACC
+        POP   PSW               ; 恢复现场
+        RETI                    ; ★ 必须用 RETI
+        END</pre>
+
+<h2>11.4 为什么中断入口要放一条跳转</h2>
+<table>
+<tr><th>地址</th><th>中断源</th><th>可用空间</th></tr>
+<tr><td>0003H</td><td>INT0</td><td rowspan="5">相邻入口只隔 8 字节，<b>写不下完整服务程序</b></td></tr>
+<tr><td>000BH</td><td>T0</td></tr>
+<tr><td>0013H</td><td>INT1</td></tr>
+<tr><td>001BH</td><td>T1</td></tr>
+<tr><td>0023H</td><td>串口</td></tr>
+</table>
+<p>所以标准写法是：入口地址放一条 <code>LJMP 服务程序</code>，真正的代码写在 0030H 之后。</p>
+
+<h2>11.5 现场保护：为什么只 PUSH PSW 和 ACC</h2>
+<pre class="code">PUSH  PSW       ; 保存标志位（CY/AC/OV 等）
+PUSH  ACC       ; 保存累加器
+...             ; 如果服务程序用到 R0~R7，也要保护
+POP   ACC
+POP   PSW</pre>
+<div class="box warn"><b>工作寄存器组的保护</b>：如果 ISR 用到了 R0~R7，有两个办法：<br>
+① 逐个 PUSH/POP；② <b>切换寄存器组</b>（<code>SETB RS0</code> 切到第 2 组），更快。<br>
+这个例子只用了 R2，而主程序也在用 R2 —— 严格说要保护，但这里主程序只 <code>SJMP $</code>，不冲突。</div>
+
+<h2>11.6 易错点</h2>
+<div class="box warn"><b>① 忘了在 ISR 里重装初值</b> —— 方式 1 会从 0 开始数，变成 71ms。</div>
+<div class="box warn"><b>② 用 RET 代替 RETI</b> —— 中断标志不清，反复进中断，主程序卡死。</div>
+<div class="box warn"><b>③ 忘了 SETB EA</b> —— 只开 ET0 不开总开关，中断永远不进。</div>
+<div class="box warn"><b>④ TMOD 用 MOV 而不是 ORL</b> —— 会清掉 T1 的设置（串口要用 T1）。</div>
+
+<h2>11.7 今日练习</h2>
+<ol>
+<li>要定时 10ms，TH0/TL0 应该多少？（提示：10000/1.0850694 ≈ 9216）</li>
+<li>中断入口 000BH 对应哪个中断源？</li>
+<li>为什么 ISR 必须用 RETI？</li>
+</ol>
+<details class="ans"><summary>📖 参考答案（点击展开）</summary><ol><li>10ms 需要 10000 / 1.0850694 = 9216 个计数。<br>初值 = 65536 − 9216 = 56320 = <b>DC00H</b> → TH0 = DCH，TL0 = 00H。</li><li>000BH 是 <b>定时器 0（T0）</b>的中断入口。</li><li>RETI 会清中断优先级标志。用 RET 的话标志不清，CPU 会认为中断还没处理完，<b>防止同级中断再次进入</b>，主程序就再也收不到这个中断了。</li></ol></details>
+  </div>
+  <div class="daynav"><a href="#d10">← Day 10　查表指令 MOVC</a><a class="next" href="#d12">Day 12　中断汇编 →</a></div>
+</article>
+<article class="page" id="d12">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">12</span>
+      <span class="pbtt">Day 12 · 中断汇编</span></div>
+    <button class="donebtn" data-day="12">标记已学完</button>
+  </div>
+  <div class="body">
+
+<h2>12.1 外部中断的汇编初始化</h2>
+<table>
+<tr><th>位</th><th>作用</th><th>汇编写法</th></tr>
+<tr><td>IT0</td><td>0=电平，1=下降沿</td><td><code>SETB IT0</code></td></tr>
+<tr><td>EX0</td><td>允许 INT0</td><td><code>SETB EX0</code></td></tr>
+<tr><td>EA</td><td>总允许</td><td><code>SETB EA</code></td></tr>
+</table>
+<p>这三个位都在位寻址区，所以用 <code>SETB</code> 一条搞定，不用读改写整个寄存器。</p>
+
+<h2>12.2 实验：按一下 K3，LED 翻转</h2>
+<pre class="code">        ORG   0000H
+        LJMP  MAIN
+        ORG   0003H             ; INT0 中断入口
+        LJMP  INT0_ISR
+        ORG   0030H
+MAIN:   MOV   SP,#60H
+        SETB  IT0               ; 下降沿触发
+        SETB  EX0               ; 允许 INT0
+        SETB  EA                ; 总中断
+        SJMP  $                 ; 主循环什么都不干
+
+INT0_ISR:
+        PUSH  PSW               ; 保护现场
+        PUSH  ACC
+        LCALL DELAY_10MS        ; 消抖
+        JB    P3.2,ISR_END      ; 还是高电平？说明是干扰，退出
+        CPL   P2.0              ; 确认按下 → 翻转 LED
+ISR_END:POP  ACC
+        POP   PSW
+        RETI
+
+DELAY_10MS:
+        MOV   R5,#40
+D1:     MOV   R6,#115
+D2:     DJNZ  R6,D2
+        DJNZ  R5,D1
+        RET
+        END</pre>
+
+<h2>12.3 中断向量表（背下来）</h2>
+<img class="fig" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NDAiIGhlaWdodD0iNTIwIiB2aWV3Qm94PSIwIDAgOTQwIDUyMCI+CjxkZWZzPgo8c3R5bGU+Ci53e2ZpbGw6bm9uZTtzdHJva2U6IzFhMWExYTtzdHJva2Utd2lkdGg6Mi40O3N0cm9rZS1saW5lY2FwOnJvdW5kO3N0cm9rZS1saW5lam9pbjpyb3VuZH0KLmN7ZmlsbDojZmZmZmZmO3N0cm9rZTojMWExYTFhO3N0cm9rZS13aWR0aDoyLjQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kfQoubntmaWxsOiMxYTFhMWE7c3Ryb2tlOm5vbmV9Ci50Yntmb250OjcwMCAxOXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojMWExYTFhfQoudHR7Zm9udDo3MDAgMTdweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzFhMWExYX0KLnRze2ZvbnQ6NDAwIDE0LjVweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzZiNzI4MH0KLnRue2ZvbnQ6NDAwIDE2cHggIk1pY3Jvc29mdCBZYUhlaSIsc2Fucy1zZXJpZjtmaWxsOiMxYTFhMWF9Ci5obHtmb250OjQwMCAxNXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojMWE2ZmI1fQouY3Vye2ZpbGw6bm9uZTtzdHJva2U6I2MwMzkyYjtzdHJva2Utd2lkdGg6Mi4yfQouY3VybHtmb250OjQwMCAxNXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojYzAzOTJifQouZGFzaHtmaWxsOm5vbmU7c3Ryb2tlOiM5YWEzYWY7c3Ryb2tlLXdpZHRoOjEuNDtzdHJva2UtZGFzaGFycmF5OjYgNH0KLmdse2ZvbnQ6NjAwIDE1LjVweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzFhMWExYX0KPC9zdHlsZT4KPG1hcmtlciBpZD0iYXIiIHZpZXdCb3g9IjAgMCAxMCAxMCIgcmVmWD0iOSIgcmVmWT0iNSIgbWFya2VyV2lkdGg9IjciIG1hcmtlckhlaWdodD0iNyIgb3JpZW50PSJhdXRvIj4KICA8cGF0aCBkPSJNMCwwIEwxMCw1IEwwLDEwIHoiIGZpbGw9IiMxYTFhMWEiLz48L21hcmtlcj4KPG1hcmtlciBpZD0iYXJyIiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjciIG9yaWVudD0iYXV0byI+CiAgPHBhdGggZD0iTTAsMCBMMTAsNSBMMCwxMCB6IiBmaWxsPSIjYzAzOTJiIi8+PC9tYXJrZXI+CjxtYXJrZXIgaWQ9ImFyYiIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI5IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNyIgbWFya2VySGVpZ2h0PSI3IiBvcmllbnQ9ImF1dG8iPgogIDxwYXRoIGQ9Ik0wLDAgTDEwLDUgTDAsMTAgeiIgZmlsbD0iIzFhNmZiNSIvPjwvbWFya2VyPgo8L2RlZnM+Cjx0ZXh0IHg9IjMwIiB5PSIzNCIgY2xhc3M9InRiIj7kuK3mlq3lkJHph4/ooajvvJrmr4/kuKrkuK3mlq3pg73mnInkuIDpl7TjgIzlm7rlrprpl6jniYzlj7fjgI3nmoTmiL/lrZA8L3RleHQ+Cjx0ZXh0IHg9IjMwIiB5PSI1OCIgY2xhc3M9InRzIj41MSDnmoQgNSDkuKrkuK3mlq3lhaXlj6PlnLDlnYDmmK/noazku7blhpnmrbvnmoTvvIzpl7TpmpTlj6rmnIkgOCDlrZfoioLvvIzmiYDku6Xmr4/kuKrlhaXlj6Plj6rog73mlL7kuIDmnaHot7Povaw8L3RleHQ+CjxyZWN0IHg9IjkwIiB5PSIxMjAiIHdpZHRoPSIyMDAiIGhlaWdodD0iMzQiIHJ4PSI0IiBjbGFzcz0iYyIvPgo8cmVjdCB4PSI5MCIgeT0iMTIwIiB3aWR0aD0iNiIgaGVpZ2h0PSIzNCIgZmlsbD0iI2MwMzkyYiIgc3Ryb2tlPSJub25lIi8+Cjx0ZXh0IHg9IjE1NCIgeT0iMTQyLjAiIGNsYXNzPSJ0YiI+MDAwMEg8L3RleHQ+Cjx0ZXh0IHg9IjMxMCIgeT0iMTQyLjAiIGNsYXNzPSJ0biI+5aSN5L2N5YWl5Y+jPC90ZXh0Pgo8cmVjdCB4PSI5MCIgeT0iMTU4IiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjM0IiByeD0iNCIgY2xhc3M9ImMiLz4KPHJlY3QgeD0iOTAiIHk9IjE1OCIgd2lkdGg9IjYiIGhlaWdodD0iMzQiIGZpbGw9IiMxYTZmYjUiIHN0cm9rZT0ibm9uZSIvPgo8dGV4dCB4PSIxNTQiIHk9IjE4MC4wIiBjbGFzcz0idGIiPjAwMDNIPC90ZXh0Pgo8dGV4dCB4PSIzMTAiIHk9IjE4MC4wIiBjbGFzcz0idG4iPklOVDA8L3RleHQ+CjxyZWN0IHg9IjkwIiB5PSIxOTYiIHdpZHRoPSIyMDAiIGhlaWdodD0iMzQiIHJ4PSI0IiBjbGFzcz0iYyIvPgo8cmVjdCB4PSI5MCIgeT0iMTk2IiB3aWR0aD0iNiIgaGVpZ2h0PSIzNCIgZmlsbD0iIzJmODU1YSIgc3Ryb2tlPSJub25lIi8+Cjx0ZXh0IHg9IjE1NCIgeT0iMjE4LjAiIGNsYXNzPSJ0YiI+MDAwQkg8L3RleHQ+Cjx0ZXh0IHg9IjMxMCIgeT0iMjE4LjAiIGNsYXNzPSJ0biI+5a6a5pe25ZmoIDA8L3RleHQ+CjxyZWN0IHg9IjkwIiB5PSIyMzQiIHdpZHRoPSIyMDAiIGhlaWdodD0iMzQiIHJ4PSI0IiBjbGFzcz0iYyIvPgo8cmVjdCB4PSI5MCIgeT0iMjM0IiB3aWR0aD0iNiIgaGVpZ2h0PSIzNCIgZmlsbD0iIzFhNmZiNSIgc3Ryb2tlPSJub25lIi8+Cjx0ZXh0IHg9IjE1NCIgeT0iMjU2LjAiIGNsYXNzPSJ0YiI+MDAxM0g8L3RleHQ+Cjx0ZXh0IHg9IjMxMCIgeT0iMjU2LjAiIGNsYXNzPSJ0biI+SU5UMTwvdGV4dD4KPHJlY3QgeD0iOTAiIHk9IjI3MiIgd2lkdGg9IjIwMCIgaGVpZ2h0PSIzNCIgcng9IjQiIGNsYXNzPSJjIi8+CjxyZWN0IHg9IjkwIiB5PSIyNzIiIHdpZHRoPSI2IiBoZWlnaHQ9IjM0IiBmaWxsPSIjYjc3OTFmIiBzdHJva2U9Im5vbmUiLz4KPHRleHQgeD0iMTU0IiB5PSIyOTQuMCIgY2xhc3M9InRiIj4wMDFCSDwvdGV4dD4KPHRleHQgeD0iMzEwIiB5PSIyOTQuMCIgY2xhc3M9InRuIj7lrprml7blmaggMTwvdGV4dD4KPHJlY3QgeD0iOTAiIHk9IjMxMCIgd2lkdGg9IjIwMCIgaGVpZ2h0PSIzNCIgcng9IjQiIGNsYXNzPSJjIi8+CjxyZWN0IHg9IjkwIiB5PSIzMTAiIHdpZHRoPSI2IiBoZWlnaHQ9IjM0IiBmaWxsPSIjYjc3OTFmIiBzdHJva2U9Im5vbmUiLz4KPHRleHQgeD0iMTU0IiB5PSIzMzIuMCIgY2xhc3M9InRiIj4wMDIzSDwvdGV4dD4KPHRleHQgeD0iMzEwIiB5PSIzMzIuMCIgY2xhc3M9InRuIj7kuLLlj6M8L3RleHQ+CjxyZWN0IHg9IjkwIiB5PSIzNDgiIHdpZHRoPSIyMDAiIGhlaWdodD0iNjQiIHJ4PSI0IiBjbGFzcz0iYyIvPgo8cmVjdCB4PSI5MCIgeT0iMzQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSI2NCIgZmlsbD0iIzk5OSIgc3Ryb2tlPSJub25lIi8+Cjx0ZXh0IHg9IjE1NCIgeT0iMzg1LjAiIGNsYXNzPSJ0YiI+MDAyQkg8L3RleHQ+Cjx0ZXh0IHg9IjMxMCIgeT0iMzg1LjAiIGNsYXNzPSJ0biI+77yI5LuO6L+Z6YeM5byA5aeL5pS+56iL5bqP77yJPC90ZXh0Pgo8dGV4dCB4PSI0NzAiIHk9IjExMiIgY2xhc3M9InR0Ij7lhaXlj6Pph4zmlL7ku4DkuYg8L3RleHQ+CjxyZWN0IHg9IjQ3MCIgeT0iMTMwIiB3aWR0aD0iNDAwIiBoZWlnaHQ9IjE5MCIgcng9IjgiIGNsYXNzPSJkYXNoIi8+Cjx0ZXh0IHg9IjQ5MCIgeT0iMTcwIiBjbGFzcz0idG4iPjAwMDNIOjwvdGV4dD4KPHRleHQgeD0iNTcwIiB5PSIxNzAiIGNsYXNzPSJ0biI+TEpNUCBJTlQwX0lTUjwvdGV4dD4KPHRleHQgeD0iNDkwIiB5PSIxOTIiIGNsYXNzPSJ0cyI+MyDlrZfoioLvvIzljaDmjokgOCDlrZfoioLnqbrpl7TnmoQgMy84PC90ZXh0Pgo8dGV4dCB4PSI0OTAiIHk9IjIyNiIgY2xhc3M9InRuIj4wMDBCSDo8L3RleHQ+Cjx0ZXh0IHg9IjU3MCIgeT0iMjI2IiBjbGFzcz0idG4iPkxKTVAgVDBfSVNSPC90ZXh0Pgo8dGV4dCB4PSI0OTAiIHk9IjI0OCIgY2xhc3M9InRzIj4zIOWtl+iKgjwvdGV4dD4KPHRleHQgeD0iNDkwIiB5PSIyODIiIGNsYXNzPSJ0biI+MDAxM0g6PC90ZXh0Pgo8dGV4dCB4PSI1NzAiIHk9IjI4MiIgY2xhc3M9InRuIj5MSk1QIElOVDFfSVNSPC90ZXh0Pgo8dGV4dCB4PSI0OTAiIHk9IjMwNCIgY2xhc3M9InRzIj4zIOWtl+iKgjwvdGV4dD4KPHRleHQgeD0iNDkwIiB5PSIzNTAiIGNsYXNzPSJobCI+55yf5q2j55qE5pyN5Yqh56iL5bqP5YaZ5ZyoIDAwMzBIIOS5i+WQjjwvdGV4dD4KPHRleHQgeD0iNDkwIiB5PSIzNzgiIGNsYXNzPSJ0cyI+UkVUSSDov5Tlm57ml7boh6rliqjlm57liLDooqvmiZPmlq3nmoTlnLDmlrk8L3RleHQ+Cjx0ZXh0IHg9IjkwIiB5PSI0NTIiIGNsYXNzPSJ0biI+4piFIOS4uuS7gOS5iOS4jeiDveaKiuWujOaVtOeoi+W6j+WGmeWcqCAwMDAzSO+8n+WboOS4uuS4i+S4gOS4quWFpeWPoyAwMDBCSCDlj6rpmpQgOCDkuKrlrZfoioLjgII8L3RleHQ+Cjx0ZXh0IHg9IjkwIiB5PSI0ODAiIGNsYXNzPSJobCI+4piFIOaJgOS7peagh+WHhue7k+aehOaYr++8muWFpeWPo+aUviBMSk1QIOKGkiDmnI3liqHnqIvluo/mlL4gMDAzMEgg5LmL5ZCOIOKGkiDnlKggUkVUSSDov5Tlm57jgII8L3RleHQ+Cjwvc3ZnPgo=" alt="a05_中断向量表" loading="lazy">
+<table>
+<tr><th>地址</th><th>中断源</th><th>中断号</th><th>汇编初始化</th></tr>
+<tr><td>0003H</td><td>INT0（P3.2）</td><td>0</td><td>SETB IT0 / EX0</td></tr>
+<tr><td>000BH</td><td>T0</td><td>1</td><td>SETB ET0</td></tr>
+<tr><td>0013H</td><td>INT1（P3.3）</td><td>2</td><td>SETB IT1 / EX1</td></tr>
+<tr><td>001BH</td><td>T1</td><td>3</td><td>SETB ET1</td></tr>
+<tr><td>0023H</td><td>串口</td><td>4</td><td>SETB ES</td></tr>
+</table>
+<div class="box warn"><b>注意</b>：INT1 的中断号是 <b>2</b> 不是 1 —— 因为 T0 占了 1。写 C 的 <code>interrupt n</code> 时最容易错。</div>
+
+<h2>12.4 中断嵌套与优先级</h2>
+<p>51 有两级优先级，由 IP 寄存器控制：</p>
+<pre class="code">SETB  PX0       ; 把 INT0 设为高优先级
+; 自然优先级顺序（同级时）：
+; INT0 > T0 > INT1 > T1 > 串口</pre>
+<p>高优先级可以打断低优先级（<b>嵌套</b>），同级不能。</p>
+
+<h2>12.5 易错点</h2>
+<div class="box warn"><b>① 中断入口写完整程序</b> —— 0003H 到 000AH 只有 8 字节，写不下。必须放跳转。</div>
+<div class="box warn"><b>② 忘了 PUSH/POP 现场</b> —— 主程序的 ACC/PSW 被改，行为不可预测。</div>
+<div class="box warn"><b>③ ISR 里做长延时</b> —— 拖慢系统，后面的中断可能丢失。</div>
+<div class="box warn"><b>④ 用低电平触发接按键</b> —— 按住会反复进中断卡死。必须 IT0=1。</div>
+
+<h2>12.6 今日练习</h2>
+<ol>
+<li>INT1 的中断入口地址是多少？中断号是几？</li>
+<li>为什么 0003H 处只放一条 LJMP 而不放完整程序？</li>
+<li>如果不写 PUSH PSW / POP PSW 会有什么后果？</li>
+</ol>
+<details class="ans"><summary>📖 参考答案（点击展开）</summary><ol><li>INT1 的入口地址是 <b>0013H</b>，中断号是 <b>2</b>（不是 1，因为 T0 占了 1）。</li><li>因为 0003H 到 000AH 只有 <b>8 个字节</b>，放不下一个完整的服务程序（一条 LJMP 就 3 字节）。所以放跳转，真正的程序写到 0030H 之后。</li><li>PSW 里存着 CY/AC/OV 等标志位。ISR 里执行 ADD、CMP 之类会改掉它们，如果主程序正在做「比较后跳转」就会判断错。所以必须 PUSH PSW / POP PSW。</li></ol></details>
+  </div>
+  <div class="daynav"><a href="#d11">← Day 11　定时器汇编编程</a><a class="next" href="#d13">Day 13　串口汇编 →</a></div>
+</article>
+<article class="page" id="d13">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">13</span>
+      <span class="pbtt">Day 13 · 串口汇编</span></div>
+    <button class="donebtn" data-day="13">标记已学完</button>
+  </div>
+  <div class="body">
+
+<h2>13.1 串口初始化四步</h2>
+<pre class="code">        MOV   TMOD,#20H     ; ① T1 方式2（8位自动重装）
+        MOV   TH1,#0FAH     ; ② 波特率 9600（SMOD=1）
+        MOV   TL1,#0FAH
+        MOV   SCON,#50H     ; ③ 方式1，允许接收
+        MOV   PCON,#80H     ; ④ SMOD=1（波特率加倍）
+        SETB  TR1           ; 启动 T1</pre>
+
+<h2>13.2 波特率怎么算（核验过）</h2>
+<pre class="code">波特率 = (2^SMOD / 32) × (晶振 / (12 × (256 − TH1)))
+
+9600 = (2/32) × (11059200 / (12 × (256 − TH1)))
+9600 = 11059200 / (192 × (256 − TH1))
+256 − TH1 = 6  →  TH1 = 250 = FAH ✓</pre>
+<table>
+<tr><th>波特率</th><th>TH1</th><th>实际误差</th></tr>
+<tr><td>1200</td><td>0D0H</td><td>0</td></tr>
+<tr><td>2400</td><td>0E8H</td><td>0</td></tr>
+<tr><td>4800</td><td>0F4H</td><td>0</td></tr>
+<tr><td><b>9600</b></td><td><b>0FAH</b></td><td><b>0</b></td></tr>
+<tr><td>19200</td><td>0FDH</td><td>0</td></tr>
+</table>
+<p><b>全部零误差</b> —— 这就是 11.0592 MHz 存在的唯一理由。</p>
+
+<h2>13.3 实验一：查询方式发送</h2>
+<pre class="code">        ORG   0000H
+        LJMP  MAIN
+        ORG   0030H
+MAIN:   MOV   SP,#60H
+        MOV   TMOD,#20H
+        MOV   TH1,#0FAH
+        MOV   TL1,#0FAH
+        MOV   SCON,#50H
+        MOV   PCON,#80H
+        SETB  TR1
+
+        MOV   DPTR,#MSG     ; 指向字符串
+SEND:   CLR   A
+        MOVC  A,@A+DPTR     ; 取一个字符
+        JZ    DONE          ; 遇到 0 结束
+        MOV   SBUF,A        ; 写 SBUF 开始发送
+WAIT:   JNB   TI,WAIT       ; 等 TI 置 1（发送完成）
+        CLR   TI            ; ★ 必须手动清
+        INC   DPTR
+        SJMP  SEND
+DONE:   SJMP  $
+
+MSG:    DB    'H','E','L','L','O',0
+        END</pre>
+<h3>逐行拆解</h3>
+<table>
+<tr><th>代码</th><th>作用</th></tr>
+<tr><td><code>MOV DPTR,#MSG</code></td><td>指针指向字符串表</td></tr>
+<tr><td><code>MOVC A,@A+DPTR</code></td><td>从 ROM 取字符（A 要先清 0）</td></tr>
+<tr><td><code>JZ DONE</code></td><td>A=0 说明字符串结束</td></tr>
+<tr><td><code>MOV SBUF,A</code></td><td>写 SBUF 触发发送</td></tr>
+<tr><td><code>JNB TI,WAIT</code></td><td>等发送完成标志</td></tr>
+<tr><td><code>CLR TI</code></td><td><b>硬件不会自动清 TI</b></td></tr>
+</table>
+
+<h2>13.4 实验二：中断方式接收</h2>
+<pre class="code">        ORG   0000H
+        LJMP  MAIN
+        ORG   0023H             ; 串口中断入口
+        LJMP  UART_ISR
+        ORG   0030H
+MAIN:   MOV   SP,#60H
+        MOV   TMOD,#20H
+        MOV   TH1,#0FAH
+        MOV   TL1,#0FAH
+        MOV   SCON,#50H         ; REN=1 允许接收
+        MOV   PCON,#80H
+        SETB  TR1
+        SETB  ES                ; 允许串口中断
+        SETB  EA
+        SJMP  $
+
+UART_ISR:
+        PUSH  PSW
+        PUSH  ACC
+        JNB   RI,ISR_TX         ; RI=0 → 不是接收
+        CLR   RI                ; ★ 手动清接收标志
+        MOV   A,SBUF            ; 读收到的数据
+        MOV   SBUF,A            ; 原样回发（回显）
+ISR_TX: JNB   TI,ISR_END
+        CLR   TI
+ISR_END:POP   ACC
+        POP   PSW
+        RETI
+        END</pre>
+
+<h2>13.5 RI 和 TI 必须手动清</h2>
+<div class="box warn">
+这是串口最容易忘的地方。对比一下：<br>
+• 定时器的 TF0 —— 硬件在响应中断时<b>自动清</b><br>
+• 外部中断的 IE0 —— 硬件<b>自动清</b><br>
+• <b>串口的 RI / TI —— 必须软件清 0</b>，不写就只发/收一次
+</div>
+
+<h2>13.6 易错点</h2>
+<div class="box warn"><b>① 忘了 CLR TI / CLR RI</b> —— 只工作一次。</div>
+<div class="box warn"><b>② 忘了 SETB TR1</b> —— 波特率时钟不走，发不出去。</div>
+<div class="box warn"><b>③ SCON=40H</b> —— 少了 REN 位，能发不能收。</div>
+<div class="box warn"><b>④ TMOD 用 MOV</b> —— 把 T0 的设置清了。</div>
+
+<h2>13.7 今日练习</h2>
+<ol>
+<li>9600 波特、SMOD=1 时 TH1 是多少？</li>
+<li>要 19200 波特，TH1 改成多少？</li>
+<li>为什么串口的 RI/TI 要软件清而定时器不用？</li>
+</ol>
+<details class="ans"><summary>📖 参考答案（点击展开）</summary><ol><li>9600 波特、SMOD=1：256 − 11059200/(192×9600) = 256 − 6 = 250 = <b>0FAH</b>。</li><li>19200：256 − 11059200/(192×19200) = 256 − 3 = 253 = <b>0FDH</b>。</li><li>因为串口的<b>接收和发送共用一个中断向量（0023H）</b>。硬件分不清这次是 RI 还是 TI 引起的，所以两个标志都留给软件去清。定时器只有一个溢出源，硬件可以自动清。</li></ol></details>
+  </div>
+  <div class="daynav"><a href="#d12">← Day 12　中断汇编</a><a class="next" href="#d14">Day 14　综合项目 + C 与汇编混合 →</a></div>
+</article>
+<article class="page" id="d14">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">14</span>
+      <span class="pbtt">Day 14 · 综合项目 + C 与汇编混合</span></div>
+    <button class="donebtn" data-day="14">标记已学完</button>
+  </div>
+  <div class="body">
+
+<h2>14.1 C 和汇编怎么配合</h2>
+<p>实际项目里<b>很少全用汇编</b>。务实的做法是：<b>C 搭框架，汇编写关键部分</b>。</p>
+<table>
+<tr><th>场景</th><th>选择</th></tr>
+<tr><td>主逻辑、协议解析</td><td>C（好写、好改）</td></tr>
+<tr><td>精确时序（单总线、软件 SPI）</td><td>汇编（周期确定）</td></tr>
+<tr><td>高频中断</td><td>汇编（省压栈开销）</td></tr>
+<tr><td>启动代码</td><td>汇编（STARTUP.A51）</td></tr>
+</table>
+
+<h2>14.2 C 调用汇编函数</h2>
+<p>汇编文件里写成这样（注意函数名要加下划线）：</p>
+<pre class="code">        NAME  DELAYMOD
+?PR?MYDELAY?DELAYMOD  SEGMENT CODE
+        RSEG  ?PR?MYDELAY?DELAYMOD
+        PUBLIC _MYDELAY         ; ★ C 里的函数名前面有下划线
+_MYDELAY:
+        MOV   R5,#200
+D1:     MOV   R6,#250
+D2:     DJNZ  R6,D2
+        DJNZ  R5,D1
+        RET
+        END</pre>
+<p>C 文件里正常声明：</p>
+<pre class="code">extern void MyDelay(void);     // 不用写下划线
+
+void main(void)
+{
+    while (1)
+    {
+        P2 = 0xFE;
+        MyDelay();
+        P2 = 0xFF;
+        MyDelay();
+    }
+}</pre>
+<div class="box tip"><b>为什么加下划线？</b>这是 Keil C51 的命名约定 —— C 编译器把 <code>MyDelay</code> 编译成符号 <code>_MyDelay</code>。<br>
+我实测过：<code>void delay_ms()</code> 编译出来的标号就是 <code>_delay_ms:</code>。所以汇编导出时必须写 <code>_MyDelay</code>。</div>
+
+<h2>14.3 汇编调用 C 函数</h2>
+<pre class="code">        EXTRN CODE (_C_FUNC)    ; 声明外部函数（带下划线）
+        ...
+        LCALL _C_FUNC           ; 调用它</pre>
+<p>被调用的 C 函数如果带参数，参数按 C51 约定放在寄存器里（第一个参数在 R7/R6/R5 等，取决于类型）。<b>参数传递很麻烦，建议汇编只调无参函数。</b></p>
+
+<h2>14.4 综合项目：按键计数 + 数码管显示</h2>
+<p>把两周学的东西串起来：</p>
+<ul>
+<li>定时器 0 每 50ms 中断一次（Day 11）</li>
+<li>K1 按下计数 +1（Day 6 位判断 + Day 9 子程序）</li>
+<li>数码管动态扫描显示计数（Day 10 查表 + Day 8 循环）</li>
+</ul>
+<pre class="code">        ORG   0000H
+        LJMP  MAIN
+        ORG   000BH
+        LJMP  T0_ISR
+        ORG   0030H
+MAIN:   MOV   SP,#60H
+        MOV   TMOD,#01H
+        MOV   TH0,#4CH
+        MOV   TL0,#00H
+        SETB  ET0
+        SETB  EA
+        SETB  TR0
+        MOV   R2,#0             ; R2 = 计数值
+        MOV   R3,#0             ; R3 = 扫描位
+DISP:   MOV   A,R2              ; 取计数值
+        MOV   DPTR,#SEG_TAB
+        MOVC  A,@A+DPTR
+        MOV   P0,A              ; 送段码
+        LCALL DELAY_1MS
+        MOV   P0,#00H           ; 消影
+        JB    P3.1,NO_KEY
+        LCALL DELAY_10MS        ; 消抖
+        JB    P3.1,NO_KEY
+        INC   R2
+        CJNE  R2,#10,NO_KEY
+        MOV   R2,#0
+NO_KEY: SJMP  DISP
+
+T0_ISR: MOV   TH0,#4CH
+        MOV   TL0,#00H
+        RETI                    ; 这里先简单返回，扩展见下
+
+DELAY_1MS:  MOV R6,#50
+D1:     DJNZ  R6,D1
+        RET
+
+DELAY_10MS: MOV R5,#40
+D2:     MOV R6,#115
+D3:     DJNZ R6,D3
+        DJNZ R5,D2
+        RET
+
+SEG_TAB: DB   3FH,06H,5BH,4FH,66H,6DH,7DH,07H,7FH,6FH
+        END</pre>
+<div class="box warn"><b>注意</b>：这个例子里 T0 中断其实没派上用场（扫描和消抖都用了软件延时）。真实项目应该把扫描放进定时器中断，这样主循环不会被 delay 卡住 —— 这正是 Day 11 讲的「定时器代替 delay」。</div>
+
+<h2>14.5 两周总复习（15 题）</h2>
+<ol>
+<li><code>MOV A,#30H</code> 与 <code>MOV A,30H</code> 的区别</li>
+<li>位地址 2BH 对应哪个字节哪一位</li>
+<li>SP 初值是多少，为什么开头要重设</li>
+<li>减法前为什么要 CLR C</li>
+<li>MUL AB 的结果怎么分布，几个周期</li>
+<li>RL 和 RLC 的区别</li>
+<li>哪些区域可以位寻址</li>
+<li>DJNZ 的执行顺序（先减还是先判断）</li>
+<li>LCALL 执行时 SP 变化几次</li>
+<li>RET 和 RETI 的区别</li>
+<li>MOVC 和 MOVX 分别访问哪里</li>
+<li>查表时 DPTR 会被修改吗</li>
+<li>定时器方式 1 为什么要在 ISR 里重装初值</li>
+<li>中断入口为什么要放跳转</li>
+<li>串口 TI/RI 为什么要手动清</li>
+</ol>
+
+<h2>14.6 学完之后你应该能</h2>
+<div class="box tip">
+① 看到一条汇编指令，说出它的<b>字节数、周期数、影响哪些标志</b><br>
+② 给出需求，能<b>自己算</b>延时循环的次数、定时器初值、波特率<br>
+③ 能看懂 Keil 反汇编窗口，知道程序跑飞时查什么<br>
+④ 能写带子程序、带中断、带查表的完整汇编程序<br>
+⑤ 知道什么时候该用 C、什么时候该用汇编
+</div>
+<details class="ans"><summary>📖 参考答案（点击展开）</summary><ol><li>① <code>MOV A,#30H</code> 立即数（A=30H）；<code>MOV A,30H</code> 直接寻址（取 RAM 30H 内容）。</li><li>② 2BH = 43 → 20H + 43/8 = 25H，43%8 = 3 → <b>25H.3</b>。</li><li>③ SP 复位值 <b>07H</b>。因为第一次 PUSH 会写进 08H，那是第 1 组 R0 的位置，会踩坏寄存器。所以开头 <code>MOV SP,#60H</code>。</li><li>④ 51 只有带借位减法 SUBB，CY 若为 1 会多减 1。</li><li>⑤ <code>MUL AB</code> 是 <b>4 周期</b>；结果高字节在 B、低字节在 A。</li><li>⑥ RL 是 8 位循环（bit7→bit0）；RLC 是 9 位循环（bit7→CY，CY→bit0）。</li><li>⑦ 20H~2FH 的 128 位 + 地址能被 8 整除的 SFR。</li><li>⑧ <b>先减 1 再判断</b>。初值写 5 就循环 5 次。</li><li>⑨ SP 变化 <b>两次</b>（每次 +1），共 +2（返回地址两个字节）。</li><li>⑩ RET 只弹地址；RETI 还会清中断优先级标志。中断服务程序必须用 RETI。</li><li>⑪ MOVC 访问<b>程序 ROM</b>（PSEN 选通）；MOVX 访问<b>片外 RAM</b>（RD/WR 选通）。</li><li>⑫ <b>不会</b>。MOVC A,@A+DPTR 只读不写，DPTR 保持不变，所以循环里设一次就够。</li><li>⑬ 方式 1 溢出后从 0 开始数（不是从初值），不重装的话下次要数满 65536 个周期（约 71ms）。方式 2 才是硬件自动重装。</li><li>⑭ 因为入口之间只隔 8 字节，放不下完整程序。放一条跳转指令，把真正的代码放到 0030H 之后。</li><li>⑮ RI/TI 有接收和发送两个来源共用一个向量，硬件分不清，所以必须软件清。</li></ol></details>
+  </div>
+  <div class="daynav"><a href="#d13">← Day 13　串口汇编</a><a class="dis next">已是最后一天 →</a></div>
+</article>
+
+</main>
+<script>
+(function(){
+  var IDX = [{"p": "d1", "n": "1", "t": "为什么学汇编 + 建立汇编工程", "k": "汇编 为什么 Keil a51 工程 ORG LJMP END 最小程序"}, {"p": "d2", "n": "2", "t": "存储器结构与七种寻址方式", "k": "存储器 RAM ROM 位寻址 20H 2FH 七种寻址 立即 直接 间接 变址"}, {"p": "d3", "n": "3", "t": "数据传送指令", "k": "MOV MOVX MOVC PUSH POP XCH DPTR 传送"}, {"p": "d4", "n": "4", "t": "算术运算与标志位", "k": "ADD ADDC SUBB INC DEC MUL DIV CY OV AC 标志位 16位加法"}, {"p": "d5", "n": "5", "t": "逻辑运算与移位", "k": "ANL ORL XRL RL RR RLC RRC SWAP 移位 流水灯 BCD"}, {"p": "d6", "n": "6", "t": "位操作与条件转移", "k": "SETB CLR CPL JB JNB JBC JC JNC JZ JNZ 位操作 按键"}, {"p": "d7", "n": "7", "t": "第一周复盘 + 综合实验", "k": "复盘 综合 流水灯 延时计算 指令总表"}, {"p": "d8", "n": "8", "t": "无条件转移与循环", "k": "LJMP AJMP SJMP DJNZ CJNE 循环 延时 子程序"}, {"p": "d9", "n": "9", "t": "子程序调用与堆栈", "k": "LCALL ACALL RET RETI SP 堆栈 PUSH POP 现场保护 参数传递"}, {"p": "d10", "n": "10", "t": "查表指令 MOVC", "k": "MOVC DPTR 查表 数码管 段码 变址 共阴 共阳"}, {"p": "d11", "n": "11", "t": "定时器汇编编程", "k": "定时器 TMOD TH0 TL0 TCON TR0 TF0 初值 50ms 中断"}, {"p": "d12", "n": "12", "t": "中断汇编", "k": "中断 外部中断 INT0 0003H 0013H 向量表 优先级 IP 现场保护"}, {"p": "d13", "n": "13", "t": "串口汇编", "k": "串口 SCON SBUF PCON SMOD 波特率 9600 TH1 TI RI 中断"}, {"p": "d14", "n": "14", "t": "综合项目 + C 与汇编混合", "k": "综合 C 汇编混合 extern PUBLIC 下划线 混合编程 复习"}];
+  var K_DONE="asm_done_v1", K_THEME="asm_theme_v1";
+  function applyTheme(th){
+    document.documentElement.setAttribute("data-theme", th);
+    var b=document.getElementById("themeBtn");
+    if(b) b.textContent = (th==="dark") ? "☀ 浅色模式" : "🌙 深色模式";
+    try{localStorage.setItem(K_THEME, th);}catch(e){}
+  }
+  (function(){
+    var th=null;
+    try{th=localStorage.getItem(K_THEME);}catch(e){}
+    if(!th) th=(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light";
+    document.documentElement.setAttribute("data-theme", th);
+  })();
+  var $=function(s,r){return (r||document).querySelector(s);};
+  var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));};
+  function getDone(){try{return JSON.parse(localStorage.getItem(K_DONE)||"[]");}catch(e){return [];}}
+  function setDone(a){try{localStorage.setItem(K_DONE,JSON.stringify(a));}catch(e){}render();}
+  function render(){
+    var d=getDone(),n=d.length;
+    $$("#sblist .sb-item[data-day]").forEach(function(a){
+      a.classList.toggle("done",d.indexOf(a.getAttribute("data-day"))>=0);});
+    $$(".donebtn[data-day]").forEach(function(b){
+      var on=d.indexOf(b.getAttribute("data-day"))>=0;
+      b.classList.toggle("on",on);b.textContent=on?"✓ 已学完":"标记已学完";});
+    if($("#doneNum"))$("#doneNum").textContent=n;
+    if($("#doneBar"))$("#doneBar").style.width=(n/14*100)+"%";
+  }
+  document.addEventListener("click",function(e){
+    var b=e.target.closest(".donebtn[data-day]");if(!b)return;
+    var day=b.getAttribute("data-day"),d=getDone(),i=d.indexOf(day);
+    if(i>=0)d.splice(i,1);else d.push(day);setDone(d);
+  });
+  function show(id){
+    var ok=false;
+    $$(".page").forEach(function(p){var on=p.id===id;p.classList.toggle("active",on);if(on)ok=true;});
+    if(!ok){$("#home").classList.add("active");id="home";}
+    $$("#sblist .sb-item").forEach(function(a){
+      a.classList.toggle("active",a.getAttribute("href")==="#" + id);});
+    window.scrollTo(0,0);
+    if(window.innerWidth<940)$("#sidebar").classList.remove("open");
+  }
+  function route(){show(location.hash.replace("#","")||"home");}
+  window.addEventListener("hashchange",route);route();
+  document.addEventListener("keydown",function(e){
+    if(e.target.tagName==="INPUT")return;
+    var h=location.hash.replace("#","");if(h[0]!=="d")return;
+    var arr=IDX.map(function(x){return x.p;}),k=arr.indexOf(h);
+    if(e.key==="ArrowRight"&&k>=0&&k<arr.length-1)location.hash=arr[k+1];
+    if(e.key==="ArrowLeft"&&k>0)location.hash=arr[k-1];
+  });
+  $("#menubtn").onclick=function(){$("#sidebar").classList.toggle("open");};
+  $("#q").addEventListener("input",function(){
+    var v=this.value.trim().toLowerCase(),box=$("#results");
+    if(!v){box.innerHTML="";return;}
+    var hit=IDX.filter(function(x){return (x.t+" "+x.k).toLowerCase().indexOf(v)>=0;}).slice(0,10);
+    box.innerHTML=hit.length?hit.map(function(x){
+      return '<a href="#'+x.p+'" style="display:block;padding:4px 8px;font-size:12.5px;'
+        +'color:var(--brand);text-decoration:none">Day '+x.n+' '+x.t+'</a>';}).join("")
+      :'<span style="font-size:12px;color:var(--ink3)">没有匹配</span>';
+  });
+  var tb=document.getElementById("themeBtn");
+  if(tb){
+    applyTheme(document.documentElement.getAttribute("data-theme")||"light");
+    tb.onclick=function(){
+      var cur=document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark";
+      applyTheme(cur);
+    };
+  }
+  render();
+})();
+</script>
+
+<style id="b2p-style">
+.b2p{position:fixed;right:20px;bottom:20px;z-index:99999;display:inline-flex;
+align-items:center;gap:6px;padding:10px 17px;border-radius:24px;text-decoration:none;
+background:#1f5fd0;color:#fff !important;font:600 13.5px/1 "Microsoft YaHei",sans-serif;
+box-shadow:0 4px 16px rgba(31,95,208,.38);opacity:.93;transition:.15s}
+.b2p:hover{opacity:1;transform:translateY(-2px);background:#2c5282}
+@media print{.b2p{display:none}}
+</style>
+<a class="b2p" href="../../electronics.html" title="返回电子与单片机资料库">← 返回教程首页</a>
+<script>
+/* ============================================================
+   DSH 教程 AI 助教 · 悬浮侧栏
+   用法：由站点构建时注入到每个教程页面的 body 结束标签前
+   API Key 保存在浏览器 localStorage，不上传到任何第三方
+   ============================================================ */
+(function () {
+  "use strict";
+  if (window.__dshTutorLoaded) return;
+  window.__dshTutorLoaded = true;
+
+  var LS_KEY = "dsh_tutor_apikey";
+  var LS_HIST = "dsh_tutor_history";
+  var LS_MODEL = "dsh_tutor_model";
+  var API = "https://api.deepseek.com/chat/completions";
+
+  /* ---------- 样式 ---------- */
+  var CSS = [
+    "#tutorFab{position:fixed;right:20px;bottom:76px;z-index:99990;display:flex;align-items:center;gap:7px;",
+    "padding:10px 16px;border-radius:24px;border:none;cursor:pointer;",
+    "background:linear-gradient(135deg,#0f766e,#14b8a6);color:#fff;",
+    "font:600 13.5px/1 'Microsoft YaHei',sans-serif;",
+    "box-shadow:0 4px 16px rgba(20,184,166,.42);transition:.16s}",
+    "#tutorFab:hover{transform:translateY(-2px);box-shadow:0 7px 20px rgba(20,184,166,.5)}",
+    "#tutorPanel{position:fixed;top:0;right:0;bottom:0;width:min(430px,100vw);z-index:100002;",
+    "background:#fff;border-left:1px solid #e3e8f0;display:flex;flex-direction:column;",
+    "transform:translateX(102%);transition:transform .24s cubic-bezier(.4,0,.2,1);",
+    "box-shadow:-8px 0 30px rgba(0,0,0,.12);font:14px/1.65 'Microsoft YaHei',sans-serif}",
+    "#tutorPanel.open{transform:translateX(0)}",
+    "#tutorHead{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid #e3e8f0;background:#f8fafc}",
+    "#tutorHead .t{flex:1;font-weight:700;font-size:14.5px;color:#0f172a}",
+    "#tutorHead .ctx{font-size:11px;color:#64748b;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
+    "#tutorHead button{border:1px solid #e3e8f0;background:#fff;border-radius:7px;width:30px;height:30px;",
+    "cursor:pointer;font-size:15px;line-height:1;color:#475569}",
+    "#tutorHead button:hover{background:#eef4fb;color:#0f766e}",
+    "#tutorBody{flex:1;overflow-y:auto;padding:14px;background:#fbfcfe}",
+    ".tutor-msg{margin-bottom:14px;display:flex;flex-direction:column;gap:5px}",
+    ".tutor-msg .role{font-size:11px;color:#94a3b8}",
+    ".tutor-msg .bubble{padding:9px 12px;border-radius:10px;font-size:13.5px;line-height:1.7;",
+    "white-space:pre-wrap;word-break:break-word}",
+    ".tutor-msg.user .bubble{background:#0f766e;color:#fff;align-self:flex-end;max-width:88%}",
+    ".tutor-msg.user{align-items:flex-end}",
+    ".tutor-msg.bot .bubble{background:#fff;border:1px solid #e3e8f0;color:#1e293b;max-width:100%}",
+    ".tutor-msg.bot .bubble code{background:#eef4fb;border-radius:3px;padding:1px 4px;font-size:.92em;color:#0f766e}",
+    ".tutor-msg.bot .bubble pre{background:#0f172a;color:#e6edf7;padding:9px 11px;border-radius:7px;",
+    "overflow-x:auto;font-size:12px;line-height:1.55;margin:6px 0}",
+    ".tutor-msg.err .bubble{background:#fff5f5;border:1px solid #fecaca;color:#b91c1c;font-size:13px}",
+    "#tutorFoot{border-top:1px solid #e3e8f0;padding:10px 12px;background:#fff}",
+    "#tutorCtxTip{font-size:11px;color:#64748b;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
+    "#tutorInputRow{display:flex;gap:8px;align-items:flex-end}",
+    "#tutorInput{flex:1;min-height:40px;max-height:110px;resize:none;border:1px solid #e3e8f0;border-radius:9px;",
+    "padding:9px 11px;font:13.5px/1.5 'Microsoft YaHei',sans-serif;outline:none;color:#1e293b}",
+    "#tutorInput:focus{border-color:#14b8a6}",
+    "#tutorSend{border:none;border-radius:9px;padding:10px 15px;background:#0f766e;color:#fff;",
+    "font:600 13px/1 'Microsoft YaHei',sans-serif;cursor:pointer}",
+    "#tutorSend:disabled{background:#cbd5e1;cursor:not-allowed}",
+    "#tutorCfg{position:absolute;inset:0;background:#fff;z-index:2;padding:16px;overflow-y:auto;display:none}",
+    "#tutorCfg.show{display:block}",
+    "#tutorCfg h4{margin:0 0 4px;font-size:14px;color:#0f172a}",
+    "#tutorCfg p{font-size:12px;color:#64748b;margin:0 0 12px;line-height:1.6}",
+    "#tutorCfg label{display:block;font-size:12.5px;color:#334155;margin:12px 0 5px;font-weight:600}",
+    "#tutorCfg input,#tutorCfg select{width:100%;padding:9px 11px;border:1px solid #e3e8f0;border-radius:8px;",
+    "font:13px 'Microsoft YaHei',sans-serif;outline:none;color:#1e293b}",
+    "#tutorCfg input:focus,#tutorCfg select:focus{border-color:#14b8a6}",
+    "#tutorCfg .btns{display:flex;gap:8px;margin-top:16px}",
+    "#tutorCfg .btns button{flex:1;padding:10px;border-radius:9px;border:1px solid #e3e8f0;background:#fff;",
+    "cursor:pointer;font:600 13px 'Microsoft YaHei',sans-serif;color:#334155}",
+    "#tutorCfg .btns button.primary{background:#0f766e;color:#fff;border-color:#0f766e}",
+    "#tutorCfg a{color:#0f766e}",
+    "html[data-theme='dark'] #tutorPanel{background:#141d22;border-left-color:#233038}",
+    "html[data-theme='dark'] #tutorHead{background:#111a20;border-bottom-color:#233038}",
+    "html[data-theme='dark'] #tutorHead .t{color:#dceaf0}",
+    "html[data-theme='dark'] #tutorHead button{background:#1a252c;border-color:#233038;color:#9bb2bd}",
+    "html[data-theme='dark'] #tutorBody{background:#0f171c}",
+    "html[data-theme='dark'] .tutor-msg.bot .bubble{background:#141d22;border-color:#233038;color:#dceaf0}",
+    "html[data-theme='dark'] .tutor-msg.bot .bubble code{background:#1a252c;color:#4dd0c1}",
+    "html[data-theme='dark'] #tutorFoot{background:#141d22;border-top-color:#233038}",
+    "html[data-theme='dark'] #tutorInput{background:#111a20;border-color:#233038;color:#dceaf0}",
+    "html[data-theme='dark'] #tutorCfg{background:#141d22}",
+    "html[data-theme='dark'] #tutorCfg h4{color:#dceaf0}",
+    "html[data-theme='dark'] #tutorCfg input,html[data-theme='dark'] #tutorCfg select{background:#111a20;border-color:#233038;color:#dceaf0}",
+    "html[data-theme='dark'] #tutorCfg .btns button{background:#1a252c;border-color:#233038;color:#dceaf0}",
+    "@media(max-width:520px){#tutorPanel{width:100vw}#tutorFab{bottom:70px;right:14px}}",
+    "@media print{#tutorFab,#tutorPanel{display:none!important}}"
+  ].join("");
+
+  var st = document.createElement("style");
+  st.textContent = CSS;
+  document.head.appendChild(st);
+
+  /* ---------- DOM ---------- */
+  var fab = document.createElement("button");
+  fab.id = "tutorFab";
+  fab.type = "button";
+  fab.innerHTML = "🤖 问老师";
+  document.body.appendChild(fab);
+
+  var panel = document.createElement("aside");
+  panel.id = "tutorPanel";
+  panel.innerHTML = [
+    '<div id="tutorHead">',
+    '  <div style="flex:1;min-width:0">',
+    '    <div class="t">问老师 · 教程助教</div>',
+    '    <div class="ctx" id="tutorCtxLabel">当前位置：—</div>',
+    "  </div>",
+    '  <button id="tutorCfgBtn" title="设置">⚙</button>',
+    '  <button id="tutorClose" title="关闭">✕</button>',
+    "</div>",
+    '<div id="tutorBody"></div>',
+    '<div id="tutorFoot">',
+    '  <div id="tutorCtxTip"></div>',
+    '  <div id="tutorInputRow">',
+    '    <textarea id="tutorInput" placeholder="哪里没懂？直接问（Enter 发送，Shift+Enter 换行）"></textarea>',
+    '    <button id="tutorSend">发送</button>',
+    "  </div>",
+    "</div>",
+    '<div id="tutorCfg">',
+    '  <h4>设置</h4>',
+    "  <p>需要一个 DeepSeek API Key（约 ¥1/百万 tokens，问 1000 次大概几块钱）。Key 只保存在你本机浏览器，不会发给我或任何第三方。</p>",
+    '  <label>API Key</label>',
+    '  <input id="tutorKey" type="password" placeholder="sk-..." autocomplete="off">',
+    '  <p style="margin-top:6px">还没有？去 <a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener">platform.deepseek.com</a> 免费注册领取。</p>',
+    '  <label>模型</label>',
+    '  <select id="tutorModel">',
+    '    <option value="deepseek-chat">deepseek-chat（快，够用）</option>',
+    '    <option value="deepseek-reasoner">deepseek-reasoner（更强，慢）</option>',
+    "  </select>",
+    '  <div class="btns">',
+    '    <button id="tutorClear">清空对话</button>',
+    '    <button class="primary" id="tutorSave">保存</button>',
+    "  </div>",
+    "</div>"
+  ].join("");
+  document.body.appendChild(panel);
+
+  var $ = function (id) { return document.getElementById(id); };
+  var body = $("tutorBody"), input = $("tutorInput"), sendBtn = $("tutorSend");
+  var cfg = $("tutorCfg"), cfgLabel = $("tutorCtxLabel"), ctxTip = $("tutorCtxTip");
+
+  function getKey() { try { return localStorage.getItem(LS_KEY) || ""; } catch (e) { return ""; } }
+  function setKey(v) { try { localStorage.setItem(LS_KEY, v); } catch (e) {} }
+  function getModel() { try { return localStorage.getItem(LS_MODEL) || "deepseek-chat"; } catch (e) { return "deepseek-chat"; } }
+  function setModel(v) { try { localStorage.setItem(LS_MODEL, v); } catch (e) {} }
+  function getHist() { try { return JSON.parse(localStorage.getItem(LS_HIST) || "[]"); } catch (e) { return []; } }
+  function setHist(a) { try { localStorage.setItem(LS_HIST, JSON.stringify(a.slice(-20))); } catch (e) {} }
+
+  /* ---------- 提取上下文 ---------- */
+  function ctxInfo() {
+    var page = document.querySelector(".page.active") || document.body;
+    var h1 = page.querySelector("h1");
+    var title = (h1 && h1.innerText.trim()) || document.title || "教程";
+    // 找当前可见的小节标题
+    var heads = page.querySelectorAll("h2, h3");
+    var cur = null, best = -1e9;
+    var mid = window.innerHeight * 0.35;
+    for (var i = 0; i < heads.length; i++) {
+      var r = heads[i].getBoundingClientRect();
+      if (r.top < mid && r.top > best) { best = r.top; cur = heads[i]; }
+    }
+    var section = cur ? cur.innerText.trim() : "";
+    // 取小节附近正文
+    var text = "";
+    if (cur) {
+      var n = cur, buf = [];
+      while (n && buf.join("").length < 1600) {
+        n = n.nextElementSibling;
+        if (!n || /^H[1-6]$/.test(n.tagName)) break;
+        if (n.tagName === "IMG" || n.querySelector && n.querySelector("img") && !n.innerText.trim()) continue;
+        var t = (n.innerText || "").trim();
+        if (t) buf.push(t);
+      }
+      text = buf.join("\n").slice(0, 1600);
+    }
+    return { title: title, section: section, text: text };
+  }
+
+  function refreshCtx() {
+    var c = ctxInfo();
+    cfgLabel.textContent = "当前位置：" + (c.section || c.title);
+    var sel = (window.getSelection ? String(window.getSelection()) : "").trim();
+    if (sel && sel.length > 4) {
+      ctxTip.textContent = "已选中文段，发送时会一并提问：" + sel.slice(0, 40) + (sel.length > 40 ? "…" : "");
+    } else {
+      ctxTip.textContent = c.section ? "会带上「" + c.section.slice(0, 18) + "」的上下文" : "会带上当前页面上下文";
+    }
+  }
+
+  /* ---------- 渲染 ---------- */
+  function addMsg(role, text, cls) {
+    var wrap = document.createElement("div");
+    wrap.className = "tutor-msg " + (cls || (role === "user" ? "user" : "bot"));
+    var r = document.createElement("div");
+    r.className = "role";
+    r.textContent = role === "user" ? "我" : "助教";
+    var b = document.createElement("div");
+    b.className = "bubble";
+    b.innerHTML = mdToHtml(text);
+    if (role === "user") { r.style.display = "none"; }
+    wrap.appendChild(r); wrap.appendChild(b);
+    body.appendChild(wrap);
+    body.scrollTop = body.scrollHeight;
+    return b;
+  }
+
+  function esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+  function mdToHtml(s) {
+    var parts = esc(s).split(/```/);
+    var out = "";
+    for (var i = 0; i < parts.length; i++) {
+      if (i % 2 === 1) {
+        out += "<pre>" + parts[i].replace(/^\w*\n/, "") + "</pre>";
+      } else {
+        out += parts[i]
+          .replace(/`([^`]+)`/g, "<code>$1</code>")
+          .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+      }
+    }
+    return out;
+  }
+
+  function renderHist() {
+    var h = getHist();
+    if (!h.length) {
+      addMsg("bot", "我是这套教程的助教。看到哪一段没懂，直接问我就行。\n\n比如：\n- 「PSC 和 ARR 为什么要减一？」\n- 「这段代码为什么用 ADC 模式？」\n- 「第 5 章的 PWM 图没看懂」\n\n也可以先在正文里选中一句话，再来问。");
+      return;
+    }
+    for (var i = 0; i < h.length; i++) addMsg(h[i].role, h[i].content);
+  }
+
+  /* ---------- 发送 ---------- */
+  var busy = false;
+  async function ask(q) {
+    if (busy) return;
+    var key = getKey();
+    if (!key) {
+      cfg.classList.add("show");
+      $("tutorKey").focus();
+      alert("请先填写 DeepSeek API Key（点击右上角 ⚙ 设置）");
+      return;
+    }
+    busy = true;
+    sendBtn.disabled = true;
+    sendBtn.textContent = "…";
+
+    var c = ctxInfo();
+    var sel = (window.getSelection ? String(window.getSelection()) : "").trim();
+    var hist = getHist();
+    addMsg("user", q);
+    hist.push({ role: "user", content: q });
+
+    var sys = "你是《" + c.title + "》这套教程的助教。这套教程由作者原创，包含自制原理图、课件原图讲解、代码与练习。\n" +
+      "回答要求：\n" +
+      "1. 只用中文，语气像耐心的老师，简洁直接，控制在 350 字以内；\n" +
+      "2. 优先结合下面给出的「当前小节」上下文回答，必要时引用其中的术语和结论；\n" +
+      "3. 涉及代码时给出最小可运行的片段，并指出关键行；\n" +
+      "4. 如果问题超出本教程范围，简短说明后再给通用解答；\n" +
+      "5. 不要编造教程里没有的内容，不确定就说「教程里没讲，我的理解是……」。\n" +
+      (c.section ? "\n【当前小节】" + c.section + "\n【小节正文】\n" + c.text : "");
+    var msgs = [{ role: "system", content: sys }];
+    var recent = hist.slice(-8);
+    if (sel && sel.length > 4) recent[recent.length - 1] = { role: "user", content: "【我选中的原文】" + sel.slice(0, 800) + "\n\n【我的问题】" + q };
+    for (var i = 0; i < recent.length; i++) msgs.push(recent[i]);
+
+    var bubble = addMsg("bot", "（思考中…）");
+    bubble.innerHTML = '<span style="color:#94a3b8">（思考中…）</span>';
+
+    try {
+      var resp = await fetch(API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + key },
+        body: JSON.stringify({ model: getModel(), messages: msgs, stream: true, temperature: 0.3, max_tokens: 1200 })
+      });
+      if (!resp.ok) {
+        var errTxt = "";
+        try { var ej = await resp.json(); errTxt = (ej.error && ej.error.message) || ""; } catch (e) {}
+        throw new Error("HTTP " + resp.status + (errTxt ? " · " + errTxt : ""));
+      }
+      var reader = resp.body.getReader();
+      var dec = new TextDecoder("utf-8");
+      var acc = "", done = false;
+      while (!done) {
+        var r = await reader.read();
+        if (r.done) break;
+        var chunk = dec.decode(r.value, { stream: true });
+        var lines = chunk.split("\n");
+        for (var k = 0; k < lines.length; k++) {
+          var ln = lines[k].trim();
+          if (!ln || ln.indexOf("data:") !== 0) continue;
+          var payload = ln.slice(5).trim();
+          if (payload === "[DONE]") { done = true; break; }
+          try {
+            var j = JSON.parse(payload);
+            var d = j.choices && j.choices[0] && j.choices[0].delta;
+            if (d && d.content) { acc += d.content; bubble.innerHTML = mdToHtml(acc); body.scrollTop = body.scrollHeight; }
+          } catch (e) {}
+        }
+      }
+      if (!acc) acc = "（没有收到回复，请重试）";
+      hist.push({ role: "assistant", content: acc });
+      setHist(hist);
+    } catch (e) {
+      bubble.parentElement.className = "tutor-msg err";
+      bubble.innerHTML = mdToHtml("请求失败：" + e.message +
+        "\n\n常见原因：\n· Key 填错或已失效（点 ⚙ 重新填写）\n· 账户余额不足\n· 网络或跨域问题（用部署到网站的版本更稳）");
+    } finally {
+      busy = false;
+      sendBtn.disabled = false;
+      sendBtn.textContent = "发送";
+    }
+  }
+
+  /* ---------- 事件 ---------- */
+  fab.addEventListener("click", function () {
+    panel.classList.toggle("open");
+    if (panel.classList.contains("open")) {
+      refreshCtx();
+      if (!body.children.length) renderHist();
+      input.focus();
+    }
+  });
+  $("tutorClose").addEventListener("click", function () { panel.classList.remove("open"); });
+  $("tutorCfgBtn").addEventListener("click", function () {
+    $("tutorKey").value = getKey();
+    $("tutorModel").value = getModel();
+    cfg.classList.toggle("show");
+  });
+  $("tutorSave").addEventListener("click", function () {
+    setKey($("tutorKey").value.trim());
+    setModel($("tutorModel").value);
+    cfg.classList.remove("show");
+    if (getKey()) input.focus();
+  });
+  $("tutorClear").addEventListener("click", function () {
+    if (!confirm("清空对话记录？")) return;
+    setHist([]);
+    body.innerHTML = "";
+    renderHist();
+  });
+  sendBtn.addEventListener("click", function () {
+    var q = input.value.trim();
+    if (!q) return;
+    input.value = "";
+    ask(q);
+  });
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendBtn.click(); }
+  });
+  window.addEventListener("scroll", function () {
+    if (panel.classList.contains("open")) refreshCtx();
+  }, { passive: true });
+  window.addEventListener("hashchange", function () { refreshCtx(); });
+
+  refreshCtx();
+})();
+
+</script></body>
+</html>

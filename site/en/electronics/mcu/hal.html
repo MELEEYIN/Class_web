@@ -1,0 +1,3147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>STM32F103C8T6 HAL 库教程</title>
+<style>
+:root{--bg:#f6f8fb;--card:#fff;--ink:#1f2933;--ink2:#52606d;--ink3:#7b8794;
+--line:#e3e8f0;--brand:#7c3aed;--brand2:#0f9d76;--code-bg:#0f172a;--code-fg:#e6edf7;
+--inline:#f1edfd;--warn-bg:#fffaf0;--warn-bd:#f0d9a8;--tip-bg:#f3efff;--tip-bd:#d5c8f7;}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);
+font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;font-size:15px;line-height:1.8;}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:280px;background:var(--card);
+border-right:1px solid var(--line);overflow-y:auto;z-index:40;transform:translateX(-100%);transition:transform .22s}
+.sidebar.open{transform:translateX(0)}
+.brand{padding:16px;border-bottom:1px solid var(--line)}
+.brand h1{margin:0 0 4px;font-size:15.5px}
+.brand .sub{font-size:11.5px;color:var(--ink3)}
+.sb-progress{padding:11px 16px;border-bottom:1px solid var(--line);font-size:12.5px}
+.sb-progress .row{display:flex;justify-content:space-between;color:var(--ink2)}
+.sb-progress .bar{height:6px;background:var(--inline);border-radius:4px;margin-top:6px;overflow:hidden}
+.sb-progress .bar i{display:block;height:100%;width:0;background:var(--brand2);transition:width .3s}
+.themebar{padding:10px 16px;border-bottom:1px solid var(--line)}
+.themebar button{width:100%;padding:6px 12px;border-radius:8px;border:1px solid var(--line);
+background:var(--inline);color:var(--ink2);font-size:12.5px;cursor:pointer;font-family:inherit}
+.themebar button:hover{border-color:var(--brand);color:var(--brand)}
+.sb-search{padding:10px 16px;border-bottom:1px solid var(--line)}
+.sb-search input{width:100%;padding:7px 10px;border:1px solid var(--line);border-radius:7px;
+background:var(--inline);color:var(--ink);font-size:13px;outline:none;font-family:inherit}
+.sb-search input:focus{border-color:var(--brand)}
+.sb-list{padding:6px 0 40px}
+.sb-week{padding:11px 16px 4px;font-size:11px;color:var(--ink3);font-weight:700;line-height:1.5}
+.sb-item{display:flex;align-items:center;gap:8px;padding:7px 16px;text-decoration:none;
+color:var(--ink);font-size:13px;border-left:3px solid transparent;line-height:1.4}
+.sb-item:hover{background:var(--inline)}
+.sb-item.active{background:var(--inline);border-left-color:var(--brand);color:var(--brand);font-weight:700}
+.sb-item .num{flex:none;width:26px;height:26px;border-radius:7px;background:var(--inline);
+display:flex;align-items:center;justify-content:center;font-size:11.5px;color:var(--ink3)}
+.sb-item.active .num{background:var(--brand);color:#fff}
+.sb-item.done .num{background:var(--brand2);color:#fff}
+.sb-item .tt{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-item .chk{opacity:.14;font-size:12px}
+.sb-item.done .chk{opacity:1;color:var(--brand2)}
+.main{padding:0 16px 90px}
+.menubtn{position:fixed;left:12px;top:12px;z-index:60;width:40px;height:40px;border-radius:10px;
+border:1px solid var(--line);background:var(--card);font-size:18px;cursor:pointer}
+.page{display:none;max-width:900px;margin:0 auto}
+.page.active{display:block}
+.pbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;
+margin:0 -16px 18px;padding:9px 18px;background:var(--card);border-bottom:1px solid var(--line)}
+.pb-l{display:flex;align-items:center;gap:9px;flex:1;min-width:0}
+.pbnum{flex:none;width:30px;height:30px;border-radius:8px;background:var(--brand);color:#fff;
+display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700}
+.pbtt{font-size:15px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.donebtn{flex:none;padding:6px 13px;border-radius:8px;border:1px solid var(--line);
+background:var(--inline);color:var(--ink2);font-size:12.5px;cursor:pointer;font-family:inherit}
+.donebtn.on{background:#eafaf4;border-color:var(--brand2);color:var(--brand2);font-weight:700}
+.body{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:24px 28px}
+.body h2{font-size:19px;margin:30px 0 12px;padding-bottom:8px;border-bottom:2px solid var(--line)}
+.body h2:first-child{margin-top:0}
+.body h3{font-size:16px;margin:20px 0 8px;color:var(--ink2)}
+.body p{margin:10px 0}
+.body ul,.body ol{margin:10px 0;padding-left:24px}
+.body li{margin:5px 0}
+.body table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14px}
+.body th,.body td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top}
+.body th{background:var(--inline);font-weight:700}
+.body code{background:var(--inline);border-radius:4px;padding:1px 5px;
+font-family:Consolas,"Courier New",monospace;font-size:.92em;color:#4c1d95}
+pre.code{background:var(--code-bg);color:var(--code-fg);padding:14px 16px;border-radius:10px;
+overflow-x:auto;font-family:Consolas,"Courier New",monospace;font-size:12.8px;line-height:1.65;margin:14px 0}
+.box{border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin:14px 0;background:#fbfcfe;font-size:14px}
+.box.tip{background:var(--tip-bg);border-color:var(--tip-bd)}
+.box.warn{background:var(--warn-bg);border-color:var(--warn-bd)}
+img.fig{display:block;max-width:100%;height:auto;margin:18px auto;border:1px solid var(--line);
+border-radius:10px;background:#fff;padding:6px}
+details.ans{margin:18px 0;border:1px solid var(--line);border-radius:10px;
+background:var(--inline);padding:0 16px}
+details.ans[open]{padding-bottom:10px}
+details.ans summary{cursor:pointer;padding:11px 0;font-size:14px;font-weight:700;
+color:var(--brand);outline:none}
+details.ans ol{margin:6px 0 0;padding-left:24px}
+details.ans li{margin:8px 0;font-size:14px;line-height:1.75}
+.hero{margin:0 -16px 20px;padding:40px 28px 32px;
+background:linear-gradient(135deg,#4c1d95,#7c3aed 55%,#a78bfa);color:#fff}
+.hero .tag{display:inline-block;background:rgba(255,255,255,.2);border-radius:20px;
+padding:3px 14px;font-size:12.5px;margin-bottom:12px}
+.hero h1{margin:0 0 10px;font-size:27px;color:#fff}
+.hero p{margin:0;opacity:.94;font-size:14.5px;max-width:720px}
+.hero .meta{margin-top:14px;font-size:13px;opacity:.92;line-height:2}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin:14px 0}
+.card{display:block;text-decoration:none;background:var(--card);border:1px solid var(--line);
+border-radius:11px;padding:14px 16px}
+.card:hover{border-color:var(--brand)}
+.card .n{font-size:12px;color:var(--brand);font-weight:700}
+.card .t{margin:4px 0;font-size:15px;font-weight:700;color:var(--ink)}
+.daynav{display:flex;justify-content:space-between;gap:10px;margin:18px 0 0;font-size:13.5px}
+.daynav a{flex:1;text-decoration:none;color:var(--brand);background:var(--card);
+border:1px solid var(--line);border-radius:9px;padding:10px 14px}
+.daynav a.next{text-align:right}
+.daynav a.dis{color:var(--ink3);background:var(--inline);pointer-events:none;border-style:dashed}
+html[data-theme="dark"]{
+  --bg:#12101c;--card:#1a1726;--ink:#e2ddf0;--ink2:#a99fc4;--ink3:#877da0;
+  --line:#2d2740;--brand:#a78bfa;--brand2:#3fce9e;--inline:#241f33;
+  --code-bg:#0b0912;--code-fg:#e6edf7;
+  --warn-bg:#241f13;--warn-bd:#453a1e;--tip-bg:#1e1830;--tip-bd:#3a2f57;}
+html[data-theme="dark"] .box{background:#1b1728;border-color:var(--line)}
+html[data-theme="dark"] .body code{color:#c4b5fd}
+html[data-theme="dark"] .donebtn.on{background:#12301f}
+html[data-theme="dark"] .hero{background:linear-gradient(135deg,#2a1259,#5b21b6 55%,#7c3aed)}
+@media (min-width:940px){
+.sidebar{transform:translateX(0)}
+.main{margin-left:280px;padding:0 24px 90px}
+.menubtn{display:none}
+.hero{margin:0 -24px 20px}
+.pbar{margin:0 -24px 18px}
+}
+@media print{
+.sidebar,.menubtn,.pbar,.daynav,.sb-search,.themebar{display:none!important}
+.main{margin:0;padding:0}
+.page{display:block!important;page-break-after:always}
+.body{border:none;padding:0}
+details.ans{display:block!important}
+details.ans>ol{display:block!important}
+}
+</style>
+</head>
+<body>
+<button class="menubtn" id="menubtn">☰</button>
+<aside class="sidebar" id="sidebar">
+  <div class="brand"><h1>STM32F103C8T6 HAL 库教程</h1>
+    <div class="sub">F103C8T6 · HAL · 14 章 · 常用函数与用法</div></div>
+  <div class="sb-progress">
+    <div class="row"><span>学习进度</span><span><b id="doneNum">0</b> / 15</span></div>
+    <div class="bar"><i id="doneBar"></i></div>
+  </div>
+  <div class="themebar"><button id="themeBtn" type="button">🌙 深色模式</button></div>
+  <div class="sb-search">
+    <input id="q" type="search" placeholder="搜索外设或函数名…" autocomplete="off">
+    <div id="results" style="margin-top:6px"></div>
+  </div>
+<nav class="sb-list" id="sblist">
+<a class="sb-item" href="#home" data-page="home"><span class="num">⌂</span><span class="tt">首页 · 学习路线</span></a>
+<div class="sb-week">第一部分 · 认识 HAL　第 1-3 章</div>
+<a class="sb-item" href="#d1" data-page="d1" data-day="1"><span class="num">1</span><span class="tt">HAL 到底是什么，为什么每个外设都要一个「句柄」</span><span class="chk">✓</span></a>
+<a class="sb-item" href="#d2" data-page="d2" data-day="2"><span class="num">2</span><span class="tt">CubeMX 生成的工程里，每个文件是干什么的</span><span class="chk">✓</span></a>
+<a class="sb-item" href="#d3" data-page="d3" data-day="3"><span class="num">3</span><span class="tt">HAL 的通用套路：返回值、状态机与四种工作模式</span><span class="chk">✓</span></a>
+<div class="sb-week">第二部分 · 基础外设　第 4-7 章</div>
+<a class="sb-item" href="#d4" data-page="d4" data-day="4"><span class="num">4</span><span class="tt">GPIO：最常用也最容易小看的外设</span><span class="chk">✓</span></a>
+<a class="sb-item" href="#d5" data-page="d5" data-day="5"><span class="num">5</span><span class="tt">中断与 EXTI：HAL 在这块最反直觉</span><span class="chk">✓</span></a>
+<a class="sb-item" href="#d6" data-page="d6" data-day="6"><span class="num">6</span><span class="tt">时钟 RCC 与延时 SysTick</span><span class="chk">✓</span></a>
+<a class="sb-item" href="#d7" data-page="d7" data-day="7"><span class="num">7</span><span class="tt">USART 串口：阻塞 / 中断 / DMA 与 printf 重定向</span><span class="chk">✓</span></a>
+<div class="sb-week">第三部分 · 进阶外设　第 8-12 章</div>
+<a class="sb-item" href="#d8" data-page="d8" data-day="8"><span class="num">8</span><span class="tt">TIM 定时器：时基 / PWM / 输入捕获三件套</span><span class="chk">✓</span></a>
+<a class="sb-item" href="#d9" data-page="d9" data-day="9"><span class="num">9</span><span class="tt">ADC：轮询 / 中断 / DMA 与校准</span><span class="chk">✓</span></a>
+<a class="sb-item" href="#d10" data-page="d10" data-day="10"><span class="num">10</span><span class="tt">I2C：硬件 I2C 与软件模拟的取舍</span><span class="chk">✓</span></a>
+<a class="sb-item" href="#d11" data-page="d11" data-day="11"><span class="num">11</span><span class="tt">SPI：最快的板级通信</span><span class="chk">✓</span></a>
+<a class="sb-item" href="#d12" data-page="d12" data-day="12"><span class="num">12</span><span class="tt">DMA：让 CPU 从搬运工里解放出来</span><span class="chk">✓</span></a>
+<div class="sb-week">第四部分 · 可靠性与实战　第 13-14 章</div>
+<a class="sb-item" href="#d13" data-page="d13" data-day="13"><span class="num">13</span><span class="tt">看门狗 / Flash 读写 / 低功耗</span><span class="chk">✓</span></a>
+<a class="sb-item" href="#d14" data-page="d14" data-day="14"><span class="num">14</span><span class="tt">综合实战：串口控制的 LED 系统</span><span class="chk">✓</span></a>
+<div class="sb-week">第五部分 · 附录　第 15-15 章</div>
+<a class="sb-item" href="#d15" data-page="d15" data-day="15"><span class="num">15</span><span class="tt">附录：函数速查总表 + 20 个坑</span><span class="chk">✓</span></a>
+  </nav>
+</aside>
+<main class="main">
+
+<article class="page" id="home">
+  <div class="hero">
+    <span class="tag">STM32F103C8T6 · HAL 库 · 14 章 · 常用函数与用法</span>
+    <h1>STM32F103C8T6 HAL 库教程</h1>
+    <p>不堆砌例子。每个外设先给一张<b>函数速查表</b>（函数原型从本机头文件逐条核对），再讲典型的三种用法，最后点出这个外设最容易踩的坑。</p>
+    <div class="meta">
+      <b>14</b> 章 · <b>11</b> 类外设 · 每章配自测<br>
+      单文件离线可用 · 自动记录进度 · 支持深色模式
+    </div>
+  </div>
+  <div class="body">
+
+<h2>这份教程解决什么问题</h2>
+<table>
+<tr><th>你会遇到的问题</th><th>本教程怎么解决</th></tr>
+<tr><td>HAL 函数太多，不知道有哪些</td><td>每个外设一张<b>函数速查表</b>，标出最常用的几个</td></tr>
+<tr><td>照抄例程能跑，看不懂为什么</td><td>讲清「Init 不等于启动」「句柄是干什么的」这些底层逻辑</td></tr>
+<tr><td>外设配好了没反应</td><td>第 14 章给出 <b>20 个坑 + 固定排查顺序</b></td></tr>
+<tr><td>不知道阻塞/中断/DMA 该用哪个</td><td>第 3 章一次讲透三种模式的本质区别</td></tr>
+</table>
+
+<h2>你的起点（本教程的假设）</h2>
+<div class="box tip">
+已经会：C 语言（指针、结构体）、点灯、看过寄存器或者标准库的代码。<br>
+还不会：HAL 的句柄概念、Callback 机制、CubeMX 生成的一堆文件分别干什么。<br>
+<b>本教程从「HAL 到底是什么」讲起，不假设你写过任何 HAL 工程。</b>
+</div>
+
+<h2>资料依据</h2>
+<table>
+<tr><th>内容</th><th>来源</th></tr>
+<tr><td><b>全部函数原型</b></td><td>本机工程里 <code>Drivers\STM32F1xx_HAL_Driver\Inc\*.h</code>（逐条核对签名）</td></tr>
+<tr><td>寄存器行为、时钟树</td><td>STM32F10xxx 参考手册 / F103 数据手册</td></tr>
+<tr><td>工程结构</td><td>CubeMX 生成的 F103 工程实测</td></tr>
+<tr><td>编译验证</td><td>示范工程在本机 Keil AC5 下 0 Error 0 Warning</td></tr>
+</table>
+
+<h2>14 章路线</h2>
+<table>
+<tr><th>部分</th><th>章</th><th>回答什么问题</th></tr>
+<tr><td>认识 HAL</td><td>1-3</td><td>HAL 是什么？句柄干什么？三种模式怎么选？</td></tr>
+<tr><td>基础外设</td><td>4-7</td><td>GPIO / 中断 / 时钟延时 / 串口</td></tr>
+<tr><td>进阶外设</td><td>8-12</td><td>TIM / ADC / I2C / SPI / DMA</td></tr>
+<tr><td>可靠性与附录</td><td>13-14</td><td>看门狗 / Flash / 低功耗 + 函数速查总表 + 20 个坑</td></tr>
+</table>
+
+<div class="box warn">
+<b>建议节奏</b>：每章 40~60 分钟 —— 先读函数表，再把代码敲进工程烧一遍。<br>
+<b>第 3 章（通用套路）务必看懂</b>，后面 10 章都是它的应用。跳过第 3 章直接看外设，会一直「知其然不知其所以然」。
+</div>
+
+  </div>
+</article>
+
+<article class="page" id="d1">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">1</span>
+      <span class="pbtt">第 1 章 · HAL 到底是什么，为什么每个外设都要一个「句柄」</span></div>
+    <button class="donebtn" data-day="1">标记已学完</button>
+  </div>
+  <div class="body">
+
+<h2>1.1 从「操作寄存器」到「调用函数」</h2>
+<div class="box tip"><b>本章目标</b>：搞懂 HAL 的三层结构和「句柄」这个核心概念。不懂句柄，后面每个外设都会糊里糊涂。</div>
+<div class="box warn"><b>和网课的区别</b>：网课会让你「照抄 HAL_GPIO_Init 就行」。它不讲：<b>为什么每个外设都有个 hadc1 / htim2 / huart1</b>，这些名字是谁起的、里面装了什么。</div>
+
+<p><b>HAL</b> = <b>H</b>ardware <b>A</b>bstraction <b>L</b>ayer（硬件抽象层）。它的作用就一句话：<b>把「往寄存器某一位写值」包装成「调用一个有名字的函数」</b>。</p>
+
+<table>
+<tr><th>做法</th><th>点一个 LED 要写什么</th><th>特点</th></tr>
+<tr><td>直接操作寄存器</td><td><code>GPIOC-&gt;BSRR = 0x00002000;</code></td><td>快、但看不懂、换芯片要全改</td></tr>
+<tr><td><b>HAL 库</b></td><td><code>HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);</code></td><td>看得懂、跨型号通用、略慢一点</td></tr>
+</table>
+
+<h2>1.2 三层结构：你的代码 / HAL / 寄存器</h2>
+<table>
+<tr><th>层</th><th>谁写的</th><th>职责</th></tr>
+<tr><td>应用层</td><td><b>你</b></td><td>业务逻辑、状态机、页面显示</td></tr>
+<tr><td>HAL 库</td><td>ST</td><td><code>HAL_xxx_Init()</code> / <code>HAL_xxx_Start()</code> 等函数</td></tr>
+<tr><td>寄存器</td><td>芯片</td><td><code>GPIOA-&gt;CRL</code>、<code>TIM2-&gt;PSC</code> 这些</td></tr>
+</table>
+<div class="box tip"><b>为什么要分层</b>：你写业务时不关心寄存器；ST 改芯片时只改 HAL，你的代码不用动。这叫「解耦」。</div>
+
+<h2>1.3 核心概念：句柄（Handle）</h2>
+<p>HAL 给每个外设维护一个<b>结构体</b>，里面装着这个外设的<b>全部状态</b>：用哪个硬件、当前配置、缓冲区指针、状态标记……</p>
+<pre class="code">UART_HandleTypeDef huart1;    /* 串口 1 的句柄 */
+ADC_HandleTypeDef  hadc1;     /* ADC 1 的句柄 */
+TIM_HandleTypeDef  htim2;     /* 定时器 2 的句柄 */
+I2C_HandleTypeDef  hi2c1;     /* I2C 1 的句柄 */</pre>
+<p>这个名字<b>谁起的</b>？<b>CubeMX 起的</b>。你在 CubeMX 里启用 USART1，它就生成一个叫 <code>huart1</code> 的全局句柄。</p>
+
+<table>
+<tr><th>句柄里有什么（以 UART 为例）</th><th>作用</th></tr>
+<tr><td><code>Instance</code></td><td>指向哪个硬件：<code>USART1</code></td></tr>
+<tr><td><code>Init</code></td><td>波特率、数据位、停止位等参数</td></tr>
+<tr><td><code>pRxBuffPtr</code> / <code>RxXferSize</code></td><td>中断/DMA 接收时，数据往哪放、收多少</td></tr>
+<tr><td><code>State</code> / <code>gState</code></td><td>当前是忙还是闲 —— <b>HAL 靠它防重入</b></td></tr>
+<tr><td><code>ErrorCode</code></td><td>出错时记录错误码</td></tr>
+</table>
+
+<h2>1.4 为什么函数都要传「&amp;huart1」</h2>
+<pre class="code">HAL_UART_Transmit(&amp;huart1, buf, len, 100);   /* 注意 &amp; */
+HAL_ADC_Start(&amp;hadc1);
+HAL_TIM_PWM_Start(&amp;htim2, TIM_CHANNEL_1);</pre>
+<div class="box warn"><b>为什么是 <code>&amp;huart1</code> 而不是 <code>huart1</code></b>：HAL 需要<b>指针</b>才能修改句柄内部的状态（比如把 State 改成 BUSY_TX）。传值的话 HAL 改的是副本，你的句柄永远不知道发送已开始。<br>
+<b>忘了写 <code>&amp;</code> → 编译直接报错</b>（类型不匹配），这是新手第一个必踩的坑。</div>
+
+<h2>1.5 一个外设的完整生命周期（记住这四步，全篇通用）</h2>
+<table>
+<tr><th>步</th><th>函数</th><th>干什么</th><th>谁生成</th></tr>
+<tr><td>①</td><td><code>HAL_xxx_Init(&amp;hxxx)</code></td><td>配置寄存器，让外设「准备好」</td><td>CubeMX 生成</td></tr>
+<tr><td>②</td><td><code>HAL_xxx_Start()</code> 系列</td><td><b>真正启动</b>（Init 只是配置，不启动！）</td><td><b>你自己写</b></td></tr>
+<tr><td>③</td><td>收发 / 读写 / 等待</td><td>业务操作</td><td>你写</td></tr>
+<tr><td>④</td><td><code>HAL_xxx_Callback()</code></td><td>中断/完成后自动调用的回调</td><td>你重写</td></tr>
+</table>
+<div class="box warn"><b>90% 的「外设没反应」死在第 ② 步</b>：只调了 <code>Init</code> 忘了 <code>Start</code>。<br>
+典型：<code>HAL_TIM_Base_Start_IT()</code> / <code>HAL_ADC_Start()</code> / <code>HAL_DAC_Start()</code> / <code>HAL_IWDG_Init()</code>（这个是例外，Init 就生效）</div>
+
+<h2>1.6 本章自测</h2>
+<details class="ans"><summary>📖 参考答案（点击展开）</summary><ol>
+<li><b>问：<code>huart1</code> 这个名字能改吗？</b><br>答：能改，但要全局改（CubeMX 里也能设）。改名后所有引用它的地方都要跟着改，不推荐。</li>
+<li><b>问：Init 和 Start 有什么区别？</b><br>答：Init 是「填好配置、让外设待命」；Start 是「按下启动键」。比如定时器：Init 配好 PSC/ARR，Start_IT 才真正开始计数。</li>
+<li><b>问：为什么 <code>HAL_GPIO_Init</code> 没有对应的 Start？</b><br>答：GPIO 是「被动」外设，配好就直接生效，不需要启动。</li>
+</ol></details>
+
+<h2>1.7 完整案例：从零到「LED 闪起来」</h2>
+<div class="box tip"><b>案例目标</b>：把工具链走通一遍 —— CubeMX 建工程 → Keil 编译 → 下载 → 看到现象。<b>这是所有后续案例的地基，必须先成功一次。</b></div>
+
+<h3>① CubeMX 配置</h3>
+<table>
+<tr><th>项目</th><th>值</th></tr>
+<tr><td>芯片</td><td>STM32F103C8Tx</td></tr>
+<tr><td>SYS → Debug</td><td><b>Serial Wire</b>（🔴 千万别选 No Debug）</td></tr>
+<tr><td>RCC → HSE</td><td>Disable（先用内部 HSI，越简单越好）</td></tr>
+<tr><td>PC13</td><td>GPIO_Output，Push Pull，初始 <b>High</b></td></tr>
+<tr><td>Project Manager → Toolchain</td><td>MDK-ARM V5</td></tr>
+</table>
+
+<h3>② 完整代码（main.c）</h3>
+<pre class="code">/* USER CODE BEGIN 2 */
+HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);   /* 上电先灭 */
+/* USER CODE END 2 */
+
+/* Infinite loop */
+/* USER CODE BEGIN WHILE */
+while (1)
+{
+  /* USER CODE END WHILE */
+
+  /* USER CODE BEGIN 3 */
+  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);   /* 翻转 */
+  HAL_Delay(500);                           /* 等 500ms */
+}
+/* USER CODE END 3 */</pre>
+
+<h3>③ 验证</h3>
+<table>
+<tr><th>现象</th><th>结论</th></tr>
+<tr><td>LED 每 0.5 秒闪一次</td><td>✅ 工具链完全打通，可以学后面了</td></tr>
+<tr><td>LED 常灭不闪</td><td>先查下载是否成功（Build Output 有没有 <code>Verify OK</code>）</td></tr>
+<tr><td>LED 常亮</td><td>PC13 初始电平配成了 Low，或极性理解反了</td></tr>
+</table>
+
+<div class="box warn"><b>易错点</b>：CubeMX 点 <b>GENERATE CODE</b> 后，Keil 里必须按 <b>F7 编译</b>再 <b>F8 下载</b>。只生成不编译，烧进去的是旧程序。</div>
+
+<h2>1.8 本章作业（3 题）</h2>
+<table>
+<tr><th>难度</th><th>题目</th><th>提示</th></tr>
+<tr><td>⭐</td><td><b>闪 3 次然后常亮</b>：上电后 LED 闪 3 次（每次 200ms），之后一直亮着不动。</td><td>用 <code>for</code> 循环 + <code>TogglePin</code> + <code>HAL_Delay</code>；注意循环结束后的状态</td></tr>
+<tr><td>⭐⭐</td><td><b>变速闪</b>：先快闪 10 次（100ms），再慢闪 10 次（1000ms），然后停下来常灭。</td><td>两个 <code>for</code> 循环，参数不同</td></tr>
+<tr><td>⭐⭐⭐</td><td><b>摩斯码 S-O-S</b>：用 LED 播放 <code>... --- ...</code>（短=200ms，长=600ms，间隔=200ms，字母间=600ms），循环播放。</td><td>把"短""长""间隔"封装成小函数，再拼装字符串</td></tr>
+</table>
+<details class="ans"><summary>📖 验收标准 + 思路提示</summary><ol>
+<li>第 1 题：能看到"闪 3 次 → 保持常亮"。<b>常见错误</b>：循环里最后一次翻转后忘了补一句 <code>WritePin(RESET)</code>，导致停在灭的状态。<br>思路：<code>for(i=0;i&lt;3;i++){ LED_On; Delay(200); LED_Off; Delay(200);} LED_On;</code></li>
+<li>第 2 题：能明显看出"快-慢-灭"三段。<b>考点</b>：同一个动作，换个参数就是另一种效果。</li>
+<li>第 3 题：能数出「3 短 3 长 3 短」。<b>思路</b>：
+<code>void short_dot(void){On;Delay(200);Off;Delay(200);}</code>
+<code>void long_dash(void){On;Delay(600);Off;Delay(200);}</code>
+然后 <code>S(){dot;dot;dot;} O(){dash;dash;dash;}</code>，最后 <code>S();O();S();Delay(600);</code></li>
+</ol></details>
+
+  </div>
+  <div class="daynav"><a class="dis prev">已是第一章</a><a class="next" href="#d2">第 2 章　CubeMX 生成的工程里，每个文件是干什么的 →</a></div>
+</article>
+
+<article class="page" id="d2">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">2</span>
+      <span class="pbtt">第 2 章 · CubeMX 生成的工程里，每个文件是干什么的</span></div>
+    <button class="donebtn" data-day="2">标记已学完</button>
+  </div>
+  <div class="body">
+
+<h2>2.1 你需要认识的文件其实只有 5 个</h2>
+<div class="box tip"><b>本章目标</b>：认出 CubeMX 生成的一堆文件里，哪 5 个和你有关，其余全部不用碰。</div>
+<div class="box warn"><b>和网课的区别</b>：网课直接打开 main.c 就写。它不讲：<b>为什么 Cubemx 生成完你要「别动」某些文件</b> —— 动了，下次重新生成就没了。</div>
+
+<h2>2.2 目录结构与职责</h2>
+<pre class="code">工程根/
+├─ Core/
+│  ├─ Src/
+│  │  ├─ main.c              ← 你 90% 的时间在这里
+│  │  ├─ stm32f1xx_it.c      ← 中断入口（CubeMX 生成，USER CODE 区可加）
+│  │  ├─ stm32f1xx_hal_msp.c ← 引脚/时钟的底层初始化
+│  │  └─ system_stm32f1xx.c  ← 系统时钟变量
+│  └─ Inc/
+│     ├─ main.h              ← 引脚宏定义（CubeMX 生成）
+│     └─ stm32f1xx_hal_conf.h← 哪些 HAL 模块参与编译
+├─ Drivers/
+│  ├─ STM32F1xx_HAL_Driver/  ← HAL 库本体（67 个 .h + 源码）
+│  └─ CMSIS/                 ← 内核头文件
+├─ MDK-ARM/
+│  └─ *.uvprojx              ← Keil 工程
+└─ *.ioc                     ← CubeMX 配置文件（双击就能改配置）</pre>
+
+<h2>2.3 五个文件的分工</h2>
+<table>
+<tr><th>文件</th><th>要动吗</th><th>作用</th></tr>
+<tr><td><b>main.c</b></td><td>✅ 天天动</td><td>主循环、业务逻辑。<b>只改 USER CODE 区</b></td></tr>
+<tr><td><b>main.h</b></td><td>🟡 少动</td><td>引脚号宏（<code>LED_Pin</code>、<code>LED_GPIO_Port</code>）。要在 CubeMX 里给引脚起名字才会生成</td></tr>
+<tr><td><b>stm32f1xx_it.c</b></td><td>🟡 看情况</td><td>中断服务函数。<b>CubeMX 已经帮你调好 HAL_xxx_IRQHandler</b>，一般不用动</td></tr>
+<tr><td><b>stm32f1xx_hal_msp.c</b></td><td>🟡 少动</td><td>MSP = MCU Support Package。放「引脚复用、外设时钟使能」这类底层配置</td></tr>
+<tr><td><b>stm32f1xx_hal_conf.h</b></td><td>🔴 别动</td><td>控制哪些 HAL 模块参与编译。改错会链接失败</td></tr>
+</table>
+
+<h2>2.4 为什么「外设初始化」会分成两个文件</h2>
+<p>这是 HAL 设计里最容易困惑的地方。以串口为例：</p>
+<table>
+<tr><th>在哪</th><th>配什么</th></tr>
+<tr><td><code>MX_USART1_UART_Init()</code>（main.c）</td><td><b>逻辑参数</b>：波特率、数据位、停止位、校验</td></tr>
+<tr><td><code>HAL_UART_MspInit()</code>（hal_msp.c）</td><td><b>物理参数</b>：开 USART1 时钟、把 PA9/PA10 配成复用推挽</td></tr>
+</table>
+<div class="box tip"><b>为什么要拆</b>：因为「用哪个引脚」是<b>板级</b>信息，「波特率多少」是<b>应用</b>信息。拆开后 ST 的 HAL 代码不用关心你的板子接线 —— 换块板只要改 MSP。</div>
+
+<h2>2.5 main.c 里 20 个 USER CODE 区（必须记住）</h2>
+<table>
+<tr><th>标记</th><th>写什么</th><th>常用度</th></tr>
+<tr><td><code>USER CODE Includes</code></td><td>额外 <code>#include</code></td><td>⭐⭐</td></tr>
+<tr><td><code>USER CODE PD</code></td><td><code>#define</code> 宏</td><td>⭐⭐</td></tr>
+<tr><td><code>USER CODE PV</code></td><td>全局变量</td><td>⭐⭐</td></tr>
+<tr><td><code>USER CODE 0</code></td><td>自己写的函数</td><td>⭐⭐⭐</td></tr>
+<tr><td><code>USER CODE 2</code></td><td>外设初始化之后的准备（Start、LCD_Init）</td><td>⭐⭐⭐</td></tr>
+<tr><td><b><code>USER CODE 3</code></b></td><td><b>主循环体（最常改）</b></td><td>⭐⭐⭐⭐</td></tr>
+<tr><td><code>USER CODE 4</code></td><td>回调函数实现（如 <code>HAL_TIM_PeriodElapsedCallback</code>）</td><td>⭐⭐⭐</td></tr>
+</table>
+<div class="box warn"><b>铁律</b>：<b>只改 BEGIN 和 END 之间</b>。外面的内容 CubeMX 一重新生成就覆盖。<br>
+<b>验证方法</b>：改完保存 → 回 CubeMX 点 GENERATE CODE → 再看你的代码还在不在。</div>
+
+<h2>2.6 本章自测</h2>
+<details class="ans"><summary>📖 参考答案（点击展开）</summary><ol>
+<li><b>问：我把代码写在 main 函数里、USER CODE 区外，能编过吗？</b><br>答：能编过、能跑。但下次 CubeMX 重新生成就没了 —— 这是最隐蔽的丢代码方式。</li>
+<li><b>问：<code>stm32f1xx_it.c</code> 里的中断函数我要不要重写？</b><br>答：不要。CubeMX 已经生成了 <code>USART1_IRQHandler { HAL_UART_IRQHandler(&amp;huart1); }</code> 这样的调用。<b>你要写的是回调函数</b>，不是中断入口。</li>
+<li><b>问：<code>.ioc</code> 文件能不能直接删？</b><br>答：不能。删了就没法再用 CubeMX 改配置了（相当于丢了设计图纸）。</li>
+</ol></details>
+
+<h2>2.7 完整案例：在 4 个文件里各加一行，看清谁在起作用</h2>
+<div class="box tip"><b>案例目标</b>：不再把 CubeMX 生成的文件当黑盒。我们往 4 个文件里各改一处，用现象证明它们各自负责什么。</div>
+
+<h3>① 四处改动</h3>
+<table>
+<tr><th>文件</th><th>改什么</th><th>证明它负责</th></tr>
+<tr><td><code>main.c</code> · USER CODE PV</td><td>加 <code>volatile uint32_t g_tick_cnt = 0;</code></td><td>业务变量放这里</td></tr>
+<tr><td><code>stm32f1xx_it.c</code> · SysTick_Handler</td><td>加 <code>g_tick_cnt++;</code>（在 <code>HAL_IncTick()</code> 后）</td><td><b>中断入口文件</b>真的在编译</td></tr>
+<tr><td><code>stm32f1xx_hal_msp.c</code> · HAL_MspInit</td><td>不动，只观察它有 <code>__HAL_AFIO_REMAP_SWJ_NOJTAG()</code></td><td><b>底层引脚/时钟</b>在这里配</td></tr>
+<tr><td><code>stm32f1xx_hal_conf.h</code></td><td>不动，只确认 <code>#define HAL_GPIO_MODULE_ENABLED</code> 没被注释</td><td><b>哪些模块参与编译</b>由它决定</td></tr>
+</table>
+
+<h3>② 完整代码</h3>
+<pre class="code">/* ---- main.c · USER CODE BEGIN PV ---- */
+volatile uint32_t g_tick_cnt = 0;     /* 中断里加，主循环里读 → volatile */
+
+/* ---- main.c · USER CODE BEGIN Includes ---- */
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+/* ---- main.c · USER CODE BEGIN 2 ---- */
+/* 需要先按第 7 章配好 USART1；这里只演示结构 */
+char msg[48];
+
+/* ---- main.c · USER CODE BEGIN 3 ---- */
+static uint32_t last = 0;
+if (HAL_GetTick() - last &gt;= 1000)          /* 每 1 秒打印一次 */
+{
+    last = HAL_GetTick();
+    sprintf(msg, "tick=%lu, systick_cnt=%lu\r\n",
+            (unsigned long)HAL_GetTick(), (unsigned long)g_tick_cnt);
+    HAL_UART_Transmit(&amp;huart1, (uint8_t *)msg, strlen(msg), 100);
+}
+
+/* ---- stm32f1xx_it.c · SysTick_Handler 里加一行 ---- */
+void SysTick_Handler(void)
+{
+  HAL_IncTick();
+  g_tick_cnt++;                 /* ← 我们加的，证明 it.c 参与编译 */
+}</pre>
+
+<h3>③ 验证</h3>
+<table>
+<tr><th>现象</th><th>结论</th></tr>
+<tr><td>串口每秒一行，<code>tick</code> 和 <code>systick_cnt</code> <b>数值接近</b></td><td>✅ SysTick_Handler 和主循环变量都通了</td></tr>
+<tr><td><code>systick_cnt</code> 一直是 0</td><td>说明 <code>it.c</code> 的改动没编译进去，或 SysTick 中断没开</td></tr>
+<tr><td>编译报 <code>g_tick_cnt</code> 未定义</td><td>it.c 里要 <code>extern volatile uint32_t g_tick_cnt;</code></td></tr>
+</table>
+
+<div class="box warn"><b>易错点</b>：<code>SysTick_Handler</code> 定义在 <code>stm32f1xx_it.c</code>，<b>不要在 main.c 里再定义一次</b>，否则链接报重复定义。</div>
+
+<h2>2.8 本章作业（3 题）</h2>
+<table>
+<tr><th>难度</th><th>题目</th><th>提示</th></tr>
+<tr><td>⭐</td><td><b>消灭魔法数字</b>：在 <code>main.h</code> 的 USER CODE 区定义 <code>#define LED_PIN GPIO_PIN_13</code> 和 <code>#define LED_PORT GPIOC</code>，把代码里所有 <code>GPIOC</code>/<code>GPIO_PIN_13</code> 换掉。</td><td>以后换板子只改两行</td></tr>
+<tr><td>⭐⭐</td><td><b>自建 BSP 模块</b>：新建 <code>bsp_led.c</code> / <code>bsp_led.h</code>，封装 <code>LED_On()</code> / <code>LED_Off()</code> / <code>LED_Toggle()</code>，加入 Keil 工程并在 main 里调用。</td><td>体会"新增文件要加进工程 + 加 Include Path"</td></tr>
+<tr><td>⭐⭐⭐</td><td><b>结构验证（中断驱动闪灯）</b>：在 <code>stm32f1xx_it.c</code> 的 <code>SysTick_Handler</code> 里累加计数，主循环每满 1000 次（约 1 秒）让 LED 翻转一次。<br><b>要求：不使用 <code>HAL_Delay</code>、不改 CubeMX 配置。</b></td><td>计数变量在 <code>main.c</code> 定义，<code>it.c</code> 用 <code>extern</code> 声明；共享变量必须加 <code>volatile</code></td></tr>
+</table>
+<details class="ans"><summary>📖 验收标准 + 思路提示</summary><ol>
+<li>第 1 题：删掉宏之后编译不报错，且 LED 行为不变。</li>
+<li>第 2 题：Keil 左侧出现 <code>bsp_led.c</code>，编译通过，main 里调 <code>LED_On()</code> 能亮。<b>常见错误</b>：只建文件没 Add to Group → 报 <code>undefined symbol</code>。</li>
+<li>第 3 题：<b>LED 每秒闪一次，且主循环里没有 <code>HAL_Delay</code></b>。三处代码：<br>
+<b>① <code>main.c</code> 的 USER CODE PV：</b><br>
+<code>volatile uint32_t g_systick_cnt = 0;</code>　（定义）<br>
+<b>② <code>stm32f1xx_it.c</code> 的 USER CODE PV：</b><br>
+<code>extern volatile uint32_t g_systick_cnt;</code>　（声明）<br>
+<b>③ <code>stm32f1xx_it.c</code> 的 <code>USER CODE BEGIN SysTick_IRQn 1</code>：</b><br>
+<code>g_systick_cnt++;</code>　（紧跟 <code>HAL_IncTick()</code> 之后）<br>
+<b>④ <code>main.c</code> 的 USER CODE 3：</b><br>
+<code>static uint32_t shown = 0;</code><br>
+<code>if (g_systick_cnt - shown &gt;= 1000) { shown += 1000; LED_Toggle(); }</code><br>
+<b>判读</b>：闪得飞快 → <code>volatile</code> 漏了；完全不闪 → <code>it.c</code> 改动没编译进去，或 <code>extern</code> 写错。</li>
+</ol></details>
+<div class="box tip"><b>进阶挑战（学完第 6、7 章再做）</b>：把这题改成用<b>串口</b>每 500ms 打印 <code>HAL_GetTick()</code> 和 <code>g_systick_cnt</code> 的差值。<br>
+预期：<code>diff</code> 长期为 <b>0</b>，偶尔出现 <b>±1</b>（因为 <code>sprintf</code> 读两个变量的瞬间可能被 SysTick 中断打断）。</div>
+
+  </div>
+  <div class="daynav"><a class="prev" href="#d1">← 第 1 章　HAL 到底是什么，为什么每个外设都要一个「句柄」</a><a class="next" href="#d3">第 3 章　HAL 的通用套路：返回值、状态机与四种工作模式 →</a></div>
+</article>
+
+<article class="page" id="d3">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">3</span>
+      <span class="pbtt">第 3 章 · HAL 的通用套路：返回值、状态机与四种工作模式</span></div>
+    <button class="donebtn" data-day="3">标记已学完</button>
+  </div>
+  <div class="body">
+
+<h2>3.1 学会这一章，后面所有外设都是同一套</h2>
+<div class="box tip"><b>本章目标</b>：掌握 HAL 的「返回值判错」「状态机防重入」「阻塞/中断/DMA 三模式」三件事。这是全篇方法论。</div>
+<div class="box warn"><b>和网课的区别</b>：网课写 <code>HAL_UART_Transmit(...);</code> 就完事，不判断返回值。本章告诉你 <b>为什么不判返回值是坏习惯</b>，以及 <b>三种模式的本质区别</b>。</div>
+
+<h2>3.2 返回值：<code>HAL_StatusTypeDef</code></h2>
+<pre class="code">typedef enum
+{
+  HAL_OK      = 0x00U,   /* 成功 */
+  HAL_ERROR   = 0x01U,   /* 错误（参数错、外设故障）*/
+  HAL_BUSY    = 0x02U,   /* 忙：上一次操作还没完成 */
+  HAL_TIMEOUT = 0x03U    /* 超时：等了 Timeout 还没结果 */
+} HAL_StatusTypeDef;</pre>
+<table>
+<tr><th>返回值</th><th>含义</th><th>常见原因</th></tr>
+<tr><td><code>HAL_OK</code></td><td>成功</td><td>—</td></tr>
+<tr><td><code>HAL_ERROR</code></td><td>失败</td><td>参数非法、外设没初始化、硬件没响应</td></tr>
+<tr><td><b><code>HAL_BUSY</code></b></td><td><b>上一个操作还没完</b></td><td>连续调用太快；中断/DMA 还没结束</td></tr>
+<tr><td><code>HAL_TIMEOUT</code></td><td>等超时了</td><td>从设备没应答（I2C 没接、上拉丢失）</td></tr>
+</table>
+<div class="box warn"><b>新手该养成的习惯</b>：<pre class="code">if (HAL_UART_Transmit(&amp;huart1, buf, len, 100) != HAL_OK)
+{
+    /* 这里至少给个 LED 闪烁或变量 +1，方便调试 */
+    g_err_count++;
+}</pre>
+在<b>学习阶段</b>这样写，比事后猜「为什么没输出」快 10 倍。</div>
+
+<h2>3.3 状态机：为什么会有 HAL_BUSY</h2>
+<p>每个句柄里都有一个 <code>State</code> 字段。HAL 用它保证<b>同一个外设不会同时干两件事</b>。</p>
+<pre class="code">/* 串口发送时 State 的变化 */
+HAL_UART_Transmit()  → State = HAL_UART_STATE_BUSY_TX
+     ...发完...      → State = HAL_UART_STATE_READY</pre>
+<table>
+<tr><th>典型 BUSY 场景</th><th>表现</th></tr>
+<tr><td>连续两次 <code>HAL_UART_Transmit_IT</code></td><td>第二次返回 HAL_BUSY，数据没发出去</td></tr>
+<tr><td>DMA 传输中又调一次启动</td><td>HAL_BUSY</td></tr>
+<tr><td>I2C 还在等 ACK 时发下一条</td><td>HAL_BUSY</td></tr>
+</table>
+<div class="box tip"><b>怎么避免</b>：① 中断/DMA 模式要等回调里再发起下一次；② 阻塞模式不要在多处同时调用同一个外设。</div>
+
+<h2>3.4 三种工作模式：这是 HAL 的核心分野</h2>
+<table>
+<tr><th>模式</th><th>函数后缀</th><th>CPU 占用</th><th>何时返回</th><th>适合</th></tr>
+<tr><td><b>阻塞</b>（Polling）</td><td>无后缀</td><td>🔴 全程占着</td><td>传输完成或超时</td><td>简单场景、调试</td></tr>
+<tr><td><b>中断</b>（IT）</td><td><code>_IT</code></td><td>🟡 中断里占用</td><td><b>立刻</b>返回</td><td>不定时收数据</td></tr>
+<tr><td><b>DMA</b></td><td><code>_DMA</code></td><td>🟢 几乎不占</td><td><b>立刻</b>返回</td><td>大批量、高速</td></tr>
+</table>
+<pre class="code">/* 同一个功能，三种写法 */
+HAL_UART_Transmit(&amp;huart1, buf, len, 100);       /* 阻塞：发完才走 */
+HAL_UART_Transmit_IT(&amp;huart1, buf, len);         /* 中断：立刻返回 */
+HAL_UART_Transmit_DMA(&amp;huart1, buf, len);        /* DMA：立刻返回，CPU 不参与 */</pre>
+
+<h2>3.5 中断模式的关键：回调函数</h2>
+<p>用 <code>_IT</code> 后缀后，HAL 什么时候算「完成」？它会调用一个<b>回调函数</b>：</p>
+<pre class="code">/* 你只需要重写这个函数（放 USER CODE 4 区） */
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+{
+    if (huart-&gt;Instance == USART1)
+    {
+        g_tx_done = 1;      /* 发送完成标志 */
+    }
+}</pre>
+<table>
+<tr><th>行为</th><th>谁负责</th></tr>
+<tr><td>中断向量入口 <code>USART1_IRQHandler</code></td><td>CubeMX 生成，调 <code>HAL_UART_IRQHandler</code></td></tr>
+<tr><td>HAL 内部判断是发送完成还是接收完成</td><td>HAL 库</td></tr>
+<tr><td><b>调用对应的 Callback</b></td><td>HAL 库</td></tr>
+<tr><td><b>Callback 里干什么</b></td><td><b>你写</b></td></tr>
+</table>
+<div class="box warn"><b>重要</b>：HAL 库里的回调函数是<b>弱定义（__weak）空函数</b>。你不重写它，就等于什么都不做 —— 这就是「用了 _IT 但没有任何反应」的原因。</div>
+
+<h2>3.6 全篇通用套路图</h2>
+<pre class="code">① CubeMX 里配好外设  →  生成 MX_xxx_Init()
+② main.c USER CODE 2 里调 HAL_xxx_Start()      ← 最容易漏
+③ 主循环里做业务
+④ 需要异步时：用 _IT / _DMA + 重写 Callback   ← 放 USER CODE 4
+⑤ 每次调用都判返回值</pre>
+
+<h2>3.7 本章自测</h2>
+<details class="ans"><summary>📖 参考答案（点击展开）</summary><ol>
+<li><b>问：阻塞模式下传 1000 字节 @9600 波特率要多久？</b><br>答：9600bps ≈ 960 字节/秒，1000 字节约 <b>1 秒</b>。这一秒 CPU 全被占住 —— 这就是要学 DMA 的原因。</li>
+<li><b>问：<code>_IT</code> 版的函数返回 <code>HAL_OK</code>，是不是代表数据已经发完了？</b><br>答：<b>不是</b>。只代表「已启动」，真正发完要等 <code>TxCpltCallback</code>。</li>
+<li><b>问：回调函数该不该写 <code>HAL_Delay</code>？</b><br>答：<b>不该</b>。回调在中断里执行，死等会阻塞其他中断。</li>
+</ol></details>
+
+<h2>3.8 完整案例：同一个「按一下切换 LED」，三种写法对比</h2>
+<div class="box tip"><b>案例目标</b>：亲手体会「阻塞 / 中断 / DMA」的区别 —— 不看理论，看现象。</div>
+
+<h3>① 三种实现</h3>
+<table>
+<tr><th>方式</th><th>核心代码</th><th>闪烁是否受影响</th></tr>
+<tr><td><b>轮询</b></td><td><code>HAL_GPIO_ReadPin</code> 在主循环里不断读</td><td>不受影响（读很快）</td></tr>
+<tr><td><b>中断</b></td><td>EXTI + <code>HAL_GPIO_EXTI_Callback</code></td><td>不受影响</td></tr>
+<tr><td><b>阻塞（反例）</b></td><td><code>HAL_Delay(500)</code> 做闪烁</td><td>🔴 <b>按键明显迟钝</b></td></tr>
+</table>
+
+<h3>② 完整代码（轮询版）</h3>
+<pre class="code">/* USER CODE BEGIN PV */
+static uint8_t  s_led_on    = 0;
+static uint8_t  s_last_key  = 1;      /* 上电时按键未按下 = 高 */
+static uint32_t s_blink_t   = 0;
+/* USER CODE END PV */
+
+/* USER CODE BEGIN 3 */
+/* ① 按键边沿检测（比"按住就翻转"更可靠）*/
+uint8_t now_key = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0);
+if (s_last_key == 1 &amp;&amp; now_key == 0)    /* 1→0 下降沿 */
+{
+    s_led_on = !s_led_on;
+}
+s_last_key = now_key;
+
+/* ② 非阻塞闪烁：LED 灭时每 500ms 闪一下表示"我活着" */
+if (!s_led_on)
+{
+    if (HAL_GetTick() - s_blink_t &gt;= 500)
+    {
+        s_blink_t = HAL_GetTick();
+        HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+    }
+}
+else
+{
+    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);   /* 常亮 */
+}
+/* USER CODE END 3 */</pre>
+
+<h3>③ 把闪烁改成阻塞版做对比</h3>
+<pre class="code">/* ❌ 反例：这样写，按键响应会被拖慢 500ms */
+HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+HAL_Delay(500);          /* 这 500ms 内按按键，完全没反应 */
+
+/* ✅ 正确：用 HAL_GetTick 差值，不阻塞 */
+if (HAL_GetTick() - s_blink_t &gt;= 500) { s_blink_t = HAL_GetTick(); HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13); }</pre>
+
+<h3>④ 验证</h3>
+<table>
+<tr><th>操作</th><th>正确现象</th></tr>
+<tr><td>不按键</td><td>LED 每 0.5 秒闪</td></tr>
+<tr><td>按一下</td><td>LED 常亮（立刻响应）</td></tr>
+<tr><td>再按一下</td><td>恢复闪烁</td></tr>
+<tr><td>换成 <code>HAL_Delay</code> 版再试</td><td>按键要"按住一会儿"才灵 —— 这就是阻塞的代价</td></tr>
+</table>
+
+<div class="box warn"><b>结论</b>：<b>凡是「等时间」，一律用 <code>HAL_GetTick()</code> 差值，不要用 <code>HAL_Delay</code>。</b>这是从"能跑"到"好用"的分水岭。</div>
+
+<h2>3.9 本章作业（3 题）</h2>
+<table>
+<tr><th>难度</th><th>题目</th><th>提示</th></tr>
+<tr><td>⭐</td><td><b>测一测 <code>HAL_Delay</code> 准不准</b>：记录 <code>HAL_Delay(1000)</code> 前后的 <code>HAL_GetTick()</code>，算出差值串口打印。</td><td>差值可能是 1000 或 1001，想想为什么</td></tr>
+<tr><td>⭐⭐</td><td><b>长按 1 秒才切换</b>：按键按住持续 1 秒以上才改变 LED 状态，短按无效。</td><td>用 <code>HAL_GetTick()</code> 记录按下时刻</td></tr>
+<tr><td>⭐⭐⭐</td><td><b>亲手验证阻塞的代价</b>：写两版闪烁（<code>HAL_Delay</code> 版 / <code>GetTick</code> 版），每版都加按键切换，实测按键响应差异。</td><td>用"按下到 LED 变化"的时间差衡量</td></tr>
+</table>
+<details class="ans"><summary>📖 验收标准 + 思路提示</summary><ol>
+<li>第 1 题：结果通常是 <b>1000 或 1001</b>。因为 <code>HAL_Delay</code> 是"等到计数 ≥ 目标值"，可能多等 1 个 tick。<b>结论</b>：<code>HAL_Delay</code> 不适合精确定时。</li>
+<li>第 2 题：短按（&lt;1s）无效，长按（≥1s）切换一次。<b>思路</b>：
+<code>if(按下 且 未计时){ t=GetTick(); 已计时=1; }</code>
+<code>if(松开){ 已计时=0; }</code>
+<code>if(已计时 且 GetTick()-t&gt;=1000){ 切换; 已计时=0; }</code></li>
+<li>第 3 题：Delay 版按键明显要"按住等下"，GetTick 版立刻响应。<b>这是本章最核心的收获。</b></li>
+</ol></details>
+
+  </div>
+  <div class="daynav"><a class="prev" href="#d2">← 第 2 章　CubeMX 生成的工程里，每个文件是干什么的</a><a class="next" href="#d4">第 4 章　GPIO：最常用也最容易小看的外设 →</a></div>
+</article>
+
+<article class="page" id="d4">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">4</span>
+      <span class="pbtt">第 4 章 · GPIO：最常用也最容易小看的外设</span></div>
+    <button class="donebtn" data-day="4">标记已学完</button>
+  </div>
+  <div class="body">
+
+<h2>4.1 GPIO 常用函数就 5 个</h2>
+<div class="box tip"><b>本章目标</b>：掌握 GPIO 的 5 个函数 + 4 个配置字段，能写出点灯、按键、蜂鸣器这类基础代码。</div>
+<div class="box warn"><b>和网课的区别</b>：网课让你点灯就完了。它不讲 <b><code>Pull</code> 在 F1 上和 F4/G4 的实现差异</b>，也不讲「为什么写多个引脚要用位或」。</div>
+
+<table>
+<tr><th>函数</th><th>作用</th><th>返回</th></tr>
+<tr><td><code>HAL_GPIO_Init(GPIOx, &amp;init)</code></td><td>初始化引脚</td><td>void</td></tr>
+<tr><td><code>HAL_GPIO_WritePin(GPIOx, pin, state)</code></td><td>输出高/低</td><td>void</td></tr>
+<tr><td><code>HAL_GPIO_ReadPin(GPIOx, pin)</code></td><td>读引脚电平</td><td><code>GPIO_PinState</code></td></tr>
+<tr><td><code>HAL_GPIO_TogglePin(GPIOx, pin)</code></td><td>翻转电平</td><td>void</td></tr>
+<tr><td><code>HAL_GPIO_DeInit(GPIOx, pin)</code></td><td>恢复默认（少用）</td><td>void</td></tr>
+</table>
+
+<h2>4.2 初始化：4 个字段（CubeMX 已生成，你只需看懂）</h2>
+<pre class="code">GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+GPIO_InitStruct.Pin   = GPIO_PIN_13;              /* 哪个/哪些脚 */
+GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;      /* 模式 */
+GPIO_InitStruct.Pull  = GPIO_NOPULL;              /* 上下拉 */
+GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;      /* 速度 */
+HAL_GPIO_Init(GPIOC, &amp;GPIO_InitStruct);
+
+/* 别忘了先开时钟！*/
+__HAL_RCC_GPIOC_CLK_ENABLE();</pre>
+<div class="box warn"><b>最常见的坑：忘了开 GPIO 时钟</b>。F1 的 GPIO 挂在 APB2 上，不开时钟，后面所有配置都像「写进空气」。<br>
+CubeMX 生成的 <code>MX_GPIO_Init()</code> 第一行就是 <code>__HAL_RCC_GPIOC_CLK_ENABLE()</code>，别删。</div>
+
+<div class="box tip"><b>📌 重要：上面这段代码 CubeMX 已经替你写好了，<u>不需要自己敲</u>。</b><br><br>
+它就躺在 <code>main.c</code> 的 <code>MX_GPIO_Init()</code> 里。这里列出来是为了让你：<br>
+① <b>读懂</b>那几十行生成代码到底在配什么（否则只能当黑盒）；<br>
+② 出问题时能判断「是 CubeMX 配错了，还是我代码写错了」；<br>
+③ 明白 <code>GPIO_MODE_OUTPUT_PP</code>、<code>GPIO_NOPULL</code> 这些宏到底在选什么。<br><br>
+<b>那什么时候才需要自己调用 <code>HAL_GPIO_Init()</code>？</b>只有这三种情况：<br>
+· <b>运行中动态改引脚功能</b>（比如同一个脚先做输出点亮，之后切成输入读传感器）；<br>
+· 想要 CubeMX 界面上没有的组合（如运行时切换上拉/下拉）；<br>
+· 在中断/回调里临时切换引脚模式（软件模拟 I2C 时 SDA 要反复切输入/输出）。<br><br>
+<b>普通点灯、按键、串口、PWM —— 一律交给 CubeMX，不要手写初始化。</b></div>
+
+<h2>4.3 模式取值（12 种，常用的就 5 个）</h2>
+<table>
+<tr><th>宏</th><th>用途</th><th>频率</th></tr>
+<tr><td><code>GPIO_MODE_INPUT</code></td><td>输入（按键、传感器）</td><td>★★★★</td></tr>
+<tr><td><code>GPIO_MODE_OUTPUT_PP</code></td><td>推挽输出（点灯、驱动）</td><td>★★★★★</td></tr>
+<tr><td><code>GPIO_MODE_OUTPUT_OD</code></td><td>开漏输出（I2C、共享总线）</td><td>★★</td></tr>
+<tr><td><code>GPIO_MODE_ANALOG</code></td><td>模拟（ADC 输入、低功耗）</td><td>★★★</td></tr>
+<tr><td><code>GPIO_MODE_AF_PP</code></td><td>复用推挽（串口、PWM、SPI）</td><td>★★★★</td></tr>
+<tr><td><code>GPIO_MODE_IT_RISING</code> 等</td><td>外部中断（见第 5 章）</td><td>★★★</td></tr>
+</table>
+
+<h2>4.4 位掩码：一次操作多个引脚</h2>
+<pre class="code">/* GPIO_PIN_x 每一位独立：PIN_0=0x0001, PIN_1=0x0002, PIN_8=0x0100 ... */
+GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2;   /* 三个脚一起配 */
+HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0 | GPIO_PIN_1, GPIO_PIN_SET);/* 两个脚一起拉高 */
+HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5 | GPIO_PIN_6);            /* 两个脚一起翻 */</pre>
+<div class="box tip"><b>为什么能这样</b>：<code>HAL_GPIO_WritePin</code> 内部用 BSRR/BRR 寄存器，一次写多位。比「逐个写」快，而且<b>是原子的</b>（不会被中断打断成两半）。</div>
+
+<h2>4.5 输入：上拉/下拉怎么选</h2>
+<table>
+<tr><th>外部电路</th><th>Pull 选</th><th>理由</th></tr>
+<tr><td>按键另一端接 <b>GND</b></td><td><code>GPIO_PULLUP</code></td><td>松开时靠上拉保持高，按下被拉低</td></tr>
+<tr><td>按键另一端接 <b>3.3V</b></td><td><code>GPIO_PULLDOWN</code></td><td>松开时靠下拉保持低，按下被拉高</td></tr>
+<tr><td>外部已有上拉电阻</td><td><code>GPIO_NOPULL</code></td><td>不要重复</td></tr>
+<tr><td>模拟输入（ADC）</td><td>（Pull 无效）</td><td>Mode 一定是 <code>ANALOG</code></td></tr>
+</table>
+<div class="box warn"><b>F1 的实现差异</b>：F1 没有独立的 PUPDR 寄存器，输入模式下的上拉/下拉是<b>靠 ODR 位的值</b>决定的。HAL 已经帮你处理了，<b>代码写法和其他系列一样</b>，但读 <code>gpio.c</code> 源码时会发现它多做了一步 —— 不是 bug。</div>
+
+<h2>4.6 完整示例：按键控制 LED</h2>
+<pre class="code">/* CubeMX 配置：PC13 推挽输出；PA0 输入+上拉 */
+while (1)
+{
+    if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_RESET)  /* 按下=低 */
+    {
+        HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);  /* 灯亮 */
+    }
+    else
+    {
+        HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);    /* 灯灭 */
+    }
+}</pre>
+<div class="box tip"><b>但这段代码有两个问题</b>：① 没有消抖（按一下可能翻好几次）；② 阻塞式写法在复杂项目里会拖慢其他事。第 5 章用中断解决，第 8 章用定时器解决。</div>
+
+<h2>4.7 本章自测</h2>
+<details class="ans"><summary>📖 参考答案（点击展开）</summary><ol>
+<li><b>问：<code>GPIO_PIN_13</code> 的值是多少？</b><br>答：<code>0x2000</code>（第 13 位）。它是位掩码不是序号 —— 所以能用 <code>|</code> 组合。</li>
+<li><b>问：开了 GPIO 时钟但没调 <code>HAL_GPIO_Init</code> 会怎样？</b><br>答：引脚保持复位后的默认状态（浮空输入），你写 ODR 也不会有输出效果。</li>
+<li><b>问：推挽输出能直接驱动 LED 吗？</b><br>答：F1 单脚最大约 25mA，驱动普通 LED（几 mA）没问题。驱动电机、继电器必须加三极管/MOS。</li>
+</ol></details>
+
+<h2>4.8 完整案例：按住按键 LED 亮，松开灭</h2>
+<div class="box tip"><b>案例目标</b>：最小 GPIO 输入 + 输出组合，验证引脚配置、上下拉、电平逻辑。</div>
+
+<h3>① CubeMX 配置</h3>
+<table>
+<tr><th>引脚</th><th>配置</th><th>为什么</th></tr>
+<tr><td>PC13</td><td>GPIO_Output，<b>Output Push Pull</b>，初始 High，Low speed</td><td>推挽才能主动拉高拉低；开漏拉不高</td></tr>
+<tr><td>PA0</td><td>GPIO_Input，<b>Pull-up</b></td><td>按键另一头接 GND，不按=高，按下=低</td></tr>
+</table>
+
+<h3>② 完整代码</h3>
+<pre class="code">/* USER CODE BEGIN 3 */
+if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_RESET)   /* 低 = 按下 */
+{
+    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);   /* 低 = LED 亮 */
+}
+else
+{
+    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);     /* 高 = LED 灭 */
+}
+/* USER CODE END 3 */</pre>
+
+<h3>③ 验证</h3>
+<table>
+<tr><th>操作</th><th>正确现象</th></tr>
+<tr><td>不按</td><td>LED 灭</td></tr>
+<tr><td>按住</td><td>LED 亮</td></tr>
+<tr><td>松开</td><td>LED 灭</td></tr>
+</table>
+
+<div class="box warn"><b>易错点</b>：<br>
+① PC13 配成 <b>Open Drain</b> 时，写高电平其实是"浮空"，LED 行为会变得不可预测 —— 用 <b>Push Pull</b>。<br>
+② PA0 不加上拉，不按键时引脚浮空，读数随机 —— 用 <b>Pull-up</b>。<br>
+③ Blue Pill 的 PA0 有外部下拉电阻（部分版本），如果按键逻辑反了，把判断改成 <code>== GPIO_PIN_SET</code>。</div>
+
+<h2>4.9 本章作业（3 题）</h2>
+<table>
+<tr><th>难度</th><th>题目</th><th>提示</th></tr>
+<tr><td>⭐</td><td><b>两个按键</b>：B1（PA0）按一下 LED 亮，B2（PB0）按一下 LED 灭。</td><td>CubeMX 再加一个输入引脚 + Pull-up</td></tr>
+<tr><td>⭐⭐</td><td><b>软件 PWM 调光</b>：按住 B1 LED 逐渐变亮，按住 B2 逐渐变暗（只用 GPIO，不用定时器）。</td><td>主循环里快速开/关 + 计数，改占空比</td></tr>
+<tr><td>⭐⭐⭐</td><td><b>单击 / 双击识别</b>：单击切换 LED，双击不切换（或切换两次）。</td><td>记录两次按下的时间间隔 &lt; 300ms 判为双击</td></tr>
+</table>
+<details class="ans"><summary>📖 验收标准 + 思路提示</summary><ol>
+<li>第 1 题：两个键分别控制亮/灭，互不干扰。</li>
+<li>第 2 题：能看到亮度渐变（因为人眼有视觉暂留，PWM 频率要 ≥100Hz）。<b>思路</b>：
+<code>for(i=0;i&lt;100;i++){ if(i&lt;duty) LED_On; else LED_Off; }</code> 每轮改 <code>duty</code>。<br><b>注意</b>：这题就是让你体会"为什么需要硬件 PWM"（第 8 章）。</li>
+<li>第 3 题：快速按两下不切换，慢慢按两下切换两次。<b>思路</b>：按下时记 <code>now</code>，若 <code>now - last_press &lt; 300</code> 则判为双击。</li>
+</ol></details>
+
+  </div>
+  <div class="daynav"><a class="prev" href="#d3">← 第 3 章　HAL 的通用套路：返回值、状态机与四种工作模式</a><a class="next" href="#d5">第 5 章　中断与 EXTI：HAL 在这块最反直觉 →</a></div>
+</article>
+
+<article class="page" id="d5">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">5</span>
+      <span class="pbtt">第 5 章 · 中断与 EXTI：HAL 在这块最反直觉</span></div>
+    <button class="donebtn" data-day="5">标记已学完</button>
+  </div>
+  <div class="body">
+
+<h2>5.1 为什么中断比「主循环轮询」强</h2>
+<div class="box tip"><b>本章目标</b>：搞清 HAL 的中断调用链 —— <b>为什么你写 <code>HAL_GPIO_EXTI_Callback</code> 就能收到中断</b>，以及 NVIC 优先级怎么配。</div>
+<div class="box warn"><b>和网课的区别</b>：网课会说「写这个函数就行」。它不讲 <b>中断向量表 → HAL_GPIO_EXTI_IRQHandler → Callback 这条链是谁串起来的</b>，所以出问题时根本无从下手。</div>
+
+<table>
+<tr><th>对比</th><th>轮询（主循环读）</th><th>中断</th></tr>
+<tr><td>响应延迟</td><td>取决于循环周期</td><td>微秒级</td></tr>
+<tr><td>CPU 占用</td><td>一直占着查</td><td>空闲时不占</td></tr>
+<tr><td>会丢事件吗</td><td>脉冲太短会漏</td><td>不会（有挂起位）</td></tr>
+</table>
+
+<h2>5.2 中断调用链（这是本章的核心）</h2>
+<pre class="code">硬件中断触发
+   ↓
+stm32f1xx_it.c:  EXTI0_IRQHandler()
+   ↓                    （CubeMX 生成，只有一行）
+   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0)
+   ↓                    （HAL 库：清标志位、判断是哪个脚）
+   HAL_GPIO_EXTI_Callback(GPIO_PIN_0)
+   ↓                    （⭐ 这个你重写，放 USER CODE 4）
+   你的代码</pre>
+<div class="box tip"><b>所以你要做的只有两件事</b>：① CubeMX 里把引脚配成 EXTI 模式；② 在 main.c 里重写 <code>HAL_GPIO_EXTI_Callback</code>。<b>中间两步 HAL 和 CubeMX 自动接好了。</b></div>
+
+<h2>5.3 外部中断的写法</h2>
+<pre class="code">/* USER CODE BEGIN 4 */
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+    if (GPIO_Pin == GPIO_PIN_0)          /* 判断是哪个引脚触发 */
+    {
+        /* ⚠ 这里在中断里，尽量短：置标志位，回主循环处理 */
+        g_key_pressed = 1;
+    }
+}
+/* USER CODE END 4 */</pre>
+<div class="box warn"><b>中断里绝对不要做这些</b>：<br>
+① <code>HAL_Delay</code>（死等会卡住所有同级/低级中断）<br>
+② 大量计算、浮点运算<br>
+③ <code>printf</code>（串口发送本身就慢，还可能导致阻塞）<br>
+<b>正确做法</b>：中断里只置标志位，主循环里处理。</div>
+
+<h2>5.4 NVIC 优先级：抢占优先级 vs 子优先级</h2>
+<table>
+<tr><th>概念</th><th>作用</th></tr>
+<tr><td><b>抢占优先级</b>（Preempt）</td><td>数值小的能<b>打断</b>数值大的 —— 决定嵌套</td></tr>
+<tr><td><b>子优先级</b>（Sub）</td><td>同时挂起时的<b>排队顺序</b>，不能嵌套</td></tr>
+<tr><td>优先级分组</td><td>决定这 4 个优先级位怎么分给抢占/子。HAL 默认 <code>NVIC_PRIORITYGROUP_4</code>（全给抢占）</td></tr>
+</table>
+<pre class="code">HAL_NVIC_SetPriority(EXTI0_IRQn, 2, 0);   /* 抢占 2，子 0 */
+HAL_NVIC_EnableIRQ(EXTI0_IRQn);           /* 打开该中断通道 */</pre>
+<div class="box tip"><b>数值越小优先级越高</b>（0 最高）。新手常见错误：以为 0 是最低。</div>
+
+<h2>5.5 中断里为什么要 <code>volatile</code></h2>
+<pre class="code">volatile uint8_t g_key_pressed = 0;   /* ⚠ 必须 volatile */</pre>
+<div class="box warn"><b>不加会发生什么</b>：编译器优化时认为「主循环里没改过这个变量」，把它缓存进寄存器，导致<b>中断改了、主循环看不到</b>。而且代码看着完全正确，极难查。<br>
+<b>规则</b>：中断和主循环都会访问的变量，一律加 <code>volatile</code>。</div>
+
+<h2>5.6 中断函数名不能自己起</h2>
+<table>
+<tr><th>外设</th><th>中断入口函数名（必须在 it.c 里，CubeMX 生成）</th></tr>
+<tr><td>EXTI0</td><td><code>EXTI0_IRQHandler</code></td></tr>
+<tr><td>TIM2</td><td><code>TIM2_IRQHandler</code></td></tr>
+<tr><td>USART1</td><td><code>USART1_IRQHandler</code></td></tr>
+<tr><td>ADC1_2</td><td><code>ADC1_2_IRQHandler</code></td></tr>
+</table>
+<div class="box warn"><b>这些名字来自启动文件 <code>startup_stm32f103xb.s</code> 的向量表</b>，写错一个字就进不去中断，而且<b>编译不报错</b>（相当于新定义了一个普通函数）。这是嵌入式最经典的「幽灵 bug」。</div>
+
+<h2>5.7 本章自测</h2>
+<details class="ans"><summary>📖 参考答案（点击展开）</summary><ol>
+<li><b>问：<code>HAL_GPIO_EXTI_Callback</code> 是谁调用的？</b><br>答：HAL 库里的 <code>HAL_GPIO_EXTI_IRQHandler</code> 调用。而它由 CubeMX 生成的中断入口函数调用。</li>
+<li><b>问：抢占优先级 1 和 2 的中断，谁打断谁？</b><br>答：1 能打断 2（数值小优先）。同级之间不嵌套。</li>
+<li><b>问：为什么中断里置的标志位主循环看不到？</b><br>答：没加 <code>volatile</code>，编译器把它优化到寄存器了。</li>
+</ol></details>
+
+<h2>5.8 完整案例：按键中断切换 LED（含软件消抖）</h2>
+<div class="box tip"><b>案例目标</b>：把「中断配置 → 回调函数 → 主循环处理」这条链路完整走一遍。</div>
+
+<h3>① CubeMX 配置</h3>
+<table>
+<tr><th>位置</th><th>配置</th></tr>
+<tr><td>PA0</td><td>GPIO_EXTI0，<b>External Interrupt Mode with Falling edge trigger</b>，Pull-up</td></tr>
+<tr><td>NVIC</td><td>勾选 <b>EXTI line0 interrupt</b>（Enable）</td></tr>
+<tr><td>PC13</td><td>GPIO_Output Push Pull，初始 High</td></tr>
+</table>
+
+<h3>② 完整代码</h3>
+<pre class="code">/* ---- USER CODE BEGIN PV ---- */
+volatile uint8_t  g_key_flag  = 0;        /* 中断置位，主循环清零 */
+volatile uint32_t g_last_irq  = 0;        /* 上次中断时刻，用于消抖 */
+static   uint8_t  s_led_on    = 0;
+
+/* ---- USER CODE BEGIN 3 ---- */
+if (g_key_flag)
+{
+    g_key_flag = 0;
+    s_led_on = !s_led_on;
+    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13,
+                      s_led_on ? GPIO_PIN_RESET : GPIO_PIN_SET);
+}
+
+/* ---- USER CODE BEGIN 4 ---- */
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+    if (GPIO_Pin == GPIO_PIN_0)
+    {
+        uint32_t now = HAL_GetTick();
+        if (now - g_last_irq &lt; 20) return;    /* 20ms 内重复触发 → 抖动，忽略 */
+        g_last_irq = now;
+        g_key_flag = 1;                       /* 只置标志位！ */
+    }
+}</pre>
+
+<h3>③ 验证</h3>
+<table>
+<tr><th>操作</th><th>正确现象</th></tr>
+<tr><td>按一次</td><td>LED 亮</td></tr>
+<tr><td>再按一次</td><td>LED 灭</td></tr>
+<tr><td>快速连按 5 次</td><td>状态正确切换 5 次，<b>不会一次切好几次</b></td></tr>
+</table>
+
+<div class="box warn"><b>易错点</b><br>
+① NVIC 里没勾 EXTI line0 → 中断永远进不去（最常见）。<br>
+② 回调里做耗时操作（串口打印）→ 会阻塞其他中断，<b>只置标志位</b>。<br>
+③ <code>g_key_flag</code> 不加 <code>volatile</code> → 主循环可能永远看不到变化。<br>
+④ 忘了 <code>g_key_flag = 0;</code> → 一次按键触发无数次。</div>
+
+<h2>5.9 本章作业（3 题）</h2>
+<table>
+<tr><th>难度</th><th>题目</th><th>提示</th></tr>
+<tr><td>⭐</td><td><b>按键计数器</b>：每按一次，串口打印"第 N 次按下"。</td><td>中断里 <code>g_cnt++</code>，主循环打印并清零</td></tr>
+<tr><td>⭐⭐</td><td><b>双沿中断</b>：把 EXTI 配成 <b>Rising_Falling</b>，按下打印"DOWN"，松开打印"UP"。</td><td>CubeMX 里触发方式选 <b>External Interrupt Mode with Rising/Falling edge trigger</b></td></tr>
+<tr><td>⭐⭐⭐</td><td><b>中断里绝不打印</b>：故意在 <code>HAL_GPIO_EXTI_Callback</code> 里调用 <code>printf</code>，快速连按 20 次，观察串口是否丢字/卡顿，然后改成"置标志位"再对比。</td><td>体会为什么中断里不能做耗时操作</td></tr>
+</table>
+<details class="ans"><summary>📖 验收标准 + 思路提示</summary><ol>
+<li>第 1 题：N 每次 +1，不会跳号（跳号说明标志位没清）。</li>
+<li>第 2 题：按一次出现 DOWN 和 UP 两行。<b>考点</b>：同一个引脚可以配双沿。</li>
+<li>第 3 题：直接 printf 版会出现<b>丢字、乱码、甚至死机</b>；改成置标志位后完全正常。<b>这是本章最有价值的一课：中断要短。</b></li>
+</ol></details>
+
+  </div>
+  <div class="daynav"><a class="prev" href="#d4">← 第 4 章　GPIO：最常用也最容易小看的外设</a><a class="next" href="#d6">第 6 章　时钟 RCC 与延时 SysTick →</a></div>
+</article>
+
+<article class="page" id="d6">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">6</span>
+      <span class="pbtt">第 6 章 · 时钟 RCC 与延时 SysTick</span></div>
+    <button class="donebtn" data-day="6">标记已学完</button>
+  </div>
+  <div class="body">
+
+<h2>6.1 时钟是一切的时间基准</h2>
+<div class="box tip"><b>本章目标</b>：搞懂 F103 的时钟树怎么到 72MHz，以及 <code>HAL_Delay</code> / <code>HAL_GetTick</code> 的底层依赖。</div>
+<div class="box warn"><b>和网课的区别</b>：网课说「CubeMX 里点一下 72MHz 就行」。它不讲 <b>为什么串口波特率会随时钟变化、为什么改了时钟定时器全错</b>。</div>
+
+<h2>6.2 F103C8T6 的典型时钟链</h2>
+<pre class="code">外部晶振 8MHz (HSE)
+   ↓ ÷1
+  8MHz
+   ↓ ×9 (PLL)
+ 72MHz  = SYSCLK（系统时钟）
+   ├─ AHB  ÷1 → HCLK  = 72MHz   （内核、内存、DMA）
+   └─ APB1 ÷2 → PCLK1 = 36MHz   （定时器 ×2 = 72MHz）
+      APB2 ÷1 → PCLK2 = 72MHz   （GPIO、USART1、ADC）</pre>
+<table>
+<tr><th>总线</th><th>挂什么</th><th>F103C8 典型频率</th></tr>
+<tr><td>AHB (HCLK)</td><td>内核、SRAM、DMA</td><td>72 MHz</td></tr>
+<tr><td>APB1 (PCLK1)</td><td>TIM2~4、USART2/3、I2C、SPI2</td><td>36 MHz（<b>定时器实际 72MHz</b>）</td></tr>
+<tr><td>APB2 (PCLK2)</td><td>GPIO、USART1、ADC1/2、SPI1</td><td>72 MHz</td></tr>
+</table>
+<div class="box warn"><b>重点</b>：APB1 = 36MHz，但挂在上面的<b>定时器时钟是 ×2 = 72MHz</b>。算 PSC/ARR 时用 72MHz，不是 36MHz —— 这是最常算错的地方。</div>
+
+<h2>6.3 RCC 相关的 HAL 函数</h2>
+<table>
+<tr><th>函数</th><th>作用</th><th>要不要自己写</th></tr>
+<tr><td><code>HAL_RCC_OscConfig(&amp;osc)</code></td><td>配振荡器和 PLL</td><td>❌ CubeMX 生成</td></tr>
+<tr><td><code>HAL_RCC_ClockConfig(&amp;clk, latency)</code></td><td>配总线分频、切换系统时钟源</td><td>❌ CubeMX 生成</td></tr>
+<tr><td><code>HAL_RCC_GetHCLKFreq()</code></td><td>读当前 HCLK 频率</td><td>✅ 调试时有用</td></tr>
+<tr><td><code>HAL_RCC_GetPCLK1Freq()</code></td><td>读 APB1 频率</td><td>✅ 算定时器用</td></tr>
+<tr><td><code>__HAL_RCC_GPIOA_CLK_ENABLE()</code></td><td>开 GPIOA 时钟</td><td>✅ 常写</td></tr>
+<tr><td><code>__HAL_RCC_USART1_CLK_ENABLE()</code></td><td>开串口时钟</td><td>✅ 常写（MSP 里）</td></tr>
+</table>
+<div class="box tip"><b>记住命名规律</b>：<code>__HAL_RCC_&lt;外设&gt;_CLK_ENABLE()</code>。<b>用任何外设前都要开它的时钟</b>，否则配置全是空操作。</div>
+
+<h2>6.4 SysTick 与延时</h2>
+<table>
+<tr><th>函数</th><th>作用</th><th>实现</th></tr>
+<tr><td><code>HAL_Init()</code></td><td>初始化 HAL + 配好 SysTick 为 1ms 中断</td><td>CubeMX 生成的第一句</td></tr>
+<tr><td><code>HAL_Delay(ms)</code></td><td>阻塞延时 N 毫秒</td><td>查 SysTick 计数死等</td></tr>
+<tr><td><code>HAL_GetTick()</code></td><td>返回开机以来的毫秒数</td><td>读一个全局计数</td></tr>
+</table>
+<pre class="code">/* 非阻塞延时：记时间戳，先干别的 */
+uint32_t t_last = 0;
+
+while (1)
+{
+    if (HAL_GetTick() - t_last &gt;= 500)     /* 每 500ms 干一次 */
+    {
+        t_last = HAL_GetTick();
+        HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+    }
+    /* 这 500ms 里可以干别的事，不像 HAL_Delay 卡死 */
+}</pre>
+<div class="box warn"><b><code>HAL_Delay</code> 的三个坑</b>：<br>
+① <b>中断里不能用</b>（会卡住其他中断）<br>
+② <b>时钟配置错时它会跟着错</b>（SysTick 按 SysClock 算）<br>
+③ <b>只能延时不能提前退出</b>，需要灵活性就用 <code>HAL_GetTick</code> 自己比</div>
+
+<h2>6.5 时钟错了，症状长什么样</h2>
+<table>
+<tr><th>现象</th><th>说明</th></tr>
+<tr><td>串口全是乱码</td><td>波特率分频算错（时钟和设置不一致）</td></tr>
+<tr><td>定时器周期差固定倍数</td><td>PSC/ARR 按错时钟算的</td></tr>
+<tr><td><code>HAL_Delay(1000)</code> 实际不是 1 秒</td><td>SysTick 基准不对</td></tr>
+<tr><td>一切都「偏大/偏小固定倍数」</td><td><b>几乎一定是时钟问题</b>，不是逻辑问题</td></tr>
+</table>
+
+<h2>6.6 本章自测</h2>
+<details class="ans"><summary>📖 参考答案（点击展开）</summary><ol>
+<li><b>问：72MHz 下要 1ms 定时中断，PSC 和 ARR 怎么配？</b><br>答：先分频到 1MHz：<code>PSC = 72-1 = 71</code>；再数 1000 个：<code>ARR = 1000-1 = 999</code>。</li>
+<li><b>问：APB1 是 36MHz，那 TIM2 的时钟是多少？</b><br>答：<b>72MHz</b>。APB1 分频了，定时器时钟自动 ×2。</li>
+<li><b>问：<code>HAL_GetTick()</code> 溢出（约 49 天）会怎样？</b><br>答：<code>HAL_GetTick() - t_last</code> 这种<b>差值写法</b>不受影响（无符号减法自动回绕）。用 <code>if (tick &gt; t_last)</code> 才有问题。</li>
+</ol></details>
+
+<h2>6.7 完整案例：上电后运行了多少秒（串口打印）</h2>
+<div class="box tip"><b>案例目标</b>：彻底理解 <code>HAL_GetTick()</code> / <code>HAL_Delay()</code> 的来源（SysTick），并学会「非阻塞计时」的标准写法。</div>
+
+<h3>① CubeMX 配置</h3>
+<table>
+<tr><th>位置</th><th>配置</th></tr>
+<tr><td>RCC → HSE</td><td>Crystal/Ceramic Resonator</td></tr>
+<tr><td>Clock Configuration</td><td>PLL ×9 → SYSCLK <b>72MHz</b></td></tr>
+<tr><td>USART1</td><td>Asynchronous，<b>115200</b>，PA9/PA10</td></tr>
+</table>
+
+<h3>② 完整代码</h3>
+<pre class="code">/* ---- USER CODE BEGIN Includes ---- */
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+/* ---- USER CODE BEGIN 2 ---- */
+char buf[64];
+HAL_UART_Transmit(&amp;huart1, (uint8_t *)"clock demo\r\n", 13, 100);
+
+/* ---- USER CODE BEGIN 3 ---- */
+static uint32_t last = 0;
+static uint32_t sec  = 0;
+
+if (HAL_GetTick() - last &gt;= 1000)          /* 每 1000ms 触发一次 */
+{
+    last += 1000;                          /* ⭐ 用 += 而不是 =，避免累积漂移 */
+    sec++;
+    sprintf(buf, "运行 %lu 秒 (tick=%lu)\r\n",
+            (unsigned long)sec, (unsigned long)HAL_GetTick());
+    HAL_UART_Transmit(&amp;huart1, (uint8_t *)buf, strlen(buf), 100);
+}
+/* USER CODE END 3 */</pre>
+
+<h3>③ 验证</h3>
+<table>
+<tr><th>现象</th><th>结论</th></tr>
+<tr><td>串口每秒输出一行，秒数递增</td><td>✅ 72MHz + SysTick 正常</td></tr>
+<tr><td>秒数走得明显偏快或偏慢</td><td>时钟没配到 72MHz（检查 HSE 是否起振）</td></tr>
+<tr><td>完全没有输出</td><td>波特率不是 115200 / 串口接线错</td></tr>
+</table>
+
+<div class="box warn"><b>易错点</b><br>
+① <code>last = HAL_GetTick();</code> 会累积漂移，<code>last += 1000;</code> 不会 —— 做长期计时用后者。<br>
+② <code>HAL_GetTick()</code> 返回 <code>uint32_t</code>，<b>溢出后回绕</b>（约 49.7 天）。用 <code>now - last &gt;= x</code> 的差值写法，溢出也安全；千万别写 <code>now &gt; last + x</code>。<br>
+③ 想改 SysTick 频率？一般不要动，HAL 依赖 1ms。</div>
+
+<h2>6.8 本章作业（3 题）</h2>
+<table>
+<tr><th>难度</th><th>题目</th><th>提示</th></tr>
+<tr><td>⭐</td><td><b>60 秒倒计时</b>：串口每秒打印剩余秒数，到 0 时 LED 常亮。</td><td>用 <code>HAL_GetTick</code> 差值，不要用 Delay</td></tr>
+<tr><td>⭐⭐</td><td><b>微秒级延时</b>：写一个 <code>void delay_us(uint32_t us)</code>，用空循环实现，然后用 <code>HAL_GetTick</code> 校准（让 <code>delay_us(1000000)</code> 接近 1000ms）。</td><td>需要示波器或反复试参数</td></tr>
+<tr><td>⭐⭐⭐</td><td><b>验证时钟精度</b>：让程序跑 10 秒（用 <code>HAL_GetTick</code> 计），同时用手机秒表对比；再把时钟从 72MHz 改成 HSI 8MHz 重测。</td><td>体会"内部 RC 精度差"</td></tr>
+</table>
+<details class="ans"><summary>📖 验收标准 + 思路提示</summary><ol>
+<li>第 1 题：倒计时数字每秒递减，到 0 停住且 LED 亮。<b>易错</b>：用 <code>last = GetTick()</code> 累积漂移，应该 <code>last += 1000</code>。</li>
+<li>第 2 题：<code>delay_us(1000000)</code> 的实测耗时在 990~1010ms 之间就算成功。<b>思路</b>：<code>for(volatile uint32_t i=0;i&lt;n;i++);</code> 然后调 <code>n</code>。</li>
+<li>第 3 题：HSE 72MHz 版误差很小（&lt;0.1%），HSI 8MHz 版误差可能达到 1~2%。<b>结论</b>：串口通信要求高的场景必须用外部晶振。</li>
+</ol></details>
+
+  </div>
+  <div class="daynav"><a class="prev" href="#d5">← 第 5 章　中断与 EXTI：HAL 在这块最反直觉</a><a class="next" href="#d7">第 7 章　USART 串口：阻塞 / 中断 / DMA 与 printf 重定向 →</a></div>
+</article>
+
+<article class="page" id="d7">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">7</span>
+      <span class="pbtt">第 7 章 · USART 串口：阻塞 / 中断 / DMA 与 printf 重定向</span></div>
+    <button class="donebtn" data-day="7">标记已学完</button>
+  </div>
+  <div class="body">
+
+<h2>7.1 串口是调试的第一生产力</h2>
+<div class="box tip"><b>本章目标</b>：掌握串口的三种收发模式、<code>printf</code> 重定向的正确做法，以及接收不丢数据的写法。</div>
+<div class="box warn"><b>和网课的区别</b>：网课给你 <code>HAL_UART_Transmit</code> 就结束。它不讲 <b>为什么 <code>printf</code> 要勾 MicroLIB</b>、<b>为什么 <code>Receive_IT</code> 只收一次就停了</b>。</div>
+
+<h2>7.2 常用函数表</h2>
+<table>
+<tr><th>函数</th><th>模式</th><th>说明</th></tr>
+<tr><td><code>HAL_UART_Init(&amp;huart)</code></td><td>—</td><td>初始化（CubeMX 生成）</td></tr>
+<tr><td><code>HAL_UART_Transmit(&amp;h, buf, n, timeout)</code></td><td>阻塞</td><td>发完才返回，超时返回 TIMEOUT</td></tr>
+<tr><td><code>HAL_UART_Receive(&amp;h, buf, n, timeout)</code></td><td>阻塞</td><td>收够 n 字节或超时</td></tr>
+<tr><td><code>HAL_UART_Transmit_IT(&amp;h, buf, n)</code></td><td>中断</td><td>立刻返回，完成时回调</td></tr>
+<tr><td><code>HAL_UART_Receive_IT(&amp;h, buf, n)</code></td><td>中断</td><td><b>收够 n 字节</b>才回调</td></tr>
+<tr><td><code>HAL_UART_Transmit_DMA(&amp;h, buf, n)</code></td><td>DMA</td><td>CPU 不参与</td></tr>
+<tr><td><code>HAL_UART_IRQHandler(&amp;h)</code></td><td>—</td><td>中断入口调用，你不用管</td></tr>
+<tr><td><code>HAL_UART_RxCpltCallback(&amp;h)</code></td><td>—</td><td><b>你重写</b>：接收完成回调</td></tr>
+</table>
+
+<h2>7.3 printf 重定向：调试神器</h2>
+<table>
+<tr><th>步</th><th>操作</th></tr>
+<tr><td>1</td><td>Keil：<b>Alt+F7</b> → Target 标签 → 勾选 <b><code>Use MicroLIB</code></b></td></tr>
+<tr><td>2</td><td>main.c 里 <code>#include &lt;stdio.h&gt;</code></td></tr>
+<tr><td>3</td><td>USER CODE 4 区加下面的函数</td></tr>
+</table>
+<pre class="code">/* USER CODE BEGIN 4 */
+int fputc(int ch, FILE *f)
+{
+    HAL_UART_Transmit(&amp;huart1, (uint8_t *)&amp;ch, 1, 0xFFFF);
+    return ch;
+}
+/* USER CODE END 4 */
+
+/* 之后就能随便用： */
+printf("adc=%d, vol=%.2fV\r\n", adc, vol);</pre>
+<div class="box warn"><b>三个必踩的坑</b>：<br>
+① <b>没勾 MicroLIB</b> → 卡在 <code>_sys_exit</code> 死循环，程序不跑（不是没输出，是卡死）<br>
+② <b>句柄名写错</b>（比如你的是 <code>huart1</code> 却写成 <code>husart1</code>）→ 编译报未定义<br>
+③ <b>波特率不匹配</b> → 串口助手全是乱码</div>
+
+<h2>7.4 中断接收：<code>Receive_IT</code> 只收一次就停</h2>
+<pre class="code">uint8_t rx_buf[1];
+
+/* 启动接收（只需一次，在 USER CODE 2 里） */
+HAL_UART_Receive_IT(&amp;huart1, rx_buf, 1);
+
+/* 每收到 1 字节自动调用 */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+    if (huart-&gt;Instance == USART1)
+    {
+        g_rx_byte = rx_buf[0];              /* 取走数据 */
+        HAL_UART_Receive_IT(&amp;huart1, rx_buf, 1);  /* ⚠ 必须重新启动！ */
+    }
+}</pre>
+<div class="box warn"><b>「只收一次就停」的原因</b>：<code>HAL_UART_Receive_IT</code> 是<b>一次性</b>的 —— 收完 n 字节就结束。<b>必须在回调里重新调用</b>才能连续接收。这是 HAL 串口第二常见的坑。</div>
+
+<h2>7.5 关键参数：波特率与结构体</h2>
+<table>
+<tr><th>参数</th><th>常用值</th></tr>
+<tr><td>BaudRate</td><td>9600 / 115200</td></tr>
+<tr><td>WordLength</td><td><code>UART_WORDLENGTH_8B</code></td></tr>
+<tr><td>StopBits</td><td><code>UART_STOPBITS_1</code></td></tr>
+<tr><td>Parity</td><td><code>UART_PARITY_NONE</code></td></tr>
+<tr><td>Mode</td><td><code>UART_MODE_TX_RX</code></td></tr>
+</table>
+<div class="box tip"><b>波特率误差</b>：F103 用 72MHz / 波特率 分频，除不尽会有误差。<b>115200 和 9600 在 72MHz 下误差都很小</b>；但像 921600 这种高速率误差会变大，容易出现偶发乱码。</div>
+
+<h2>7.6 <code>sprintf</code>：把变量拼成字符串</h2>
+<div class="box tip"><b>为什么单独讲它</b>：串口调试 90% 的工作是"把变量打印出来看"。<code>HAL_UART_Transmit</code> 只能发字节，**要把数字变成人类能读的文字，就得靠 <code>sprintf</code>**。</div>
+
+<h3>① 原型和返回值</h3>
+<pre class="code">int sprintf(char *str, const char *format, ...);
+/*      ↑          ↑        ↑
+     目标缓冲区   格式串    要填进去的变量（可多个）
+
+   返回值 = 写入的字符数（不含结尾 ' '）*/</pre>
+
+<h3>② 最常用的三种写法</h3>
+<pre class="code">char msg[96];
+int  len;
+
+/* ① 单个整数 */
+len = sprintf(msg, "%d", 42);                       /* "42", len=2 */
+
+/* ② 多变量拼一行（调试最常用）*/
+len = sprintf(msg, "tick=%lu  cnt=%lu
+",
+              (unsigned long)HAL_GetTick(),
+              (unsigned long)g_cnt);
+
+/* ③ 十六进制（看寄存器值）*/
+len = sprintf(msg, "ODR = 0x%08X
+", GPIOA->ODR);
+
+/* 发给串口：直接用 len，不用再 strlen */
+HAL_UART_Transmit(&amp;huart1, (uint8_t *)msg, len, 100);</pre>
+
+<h3>③ 格式说明符（嵌入式常用部分）</h3>
+<table>
+<tr><th>写法</th><th>输出示例</th><th>用于什么类型</th></tr>
+<tr><td><code>%d</code></td><td><code>42</code></td><td><code>int</code></td></tr>
+<tr><td><code>%u</code></td><td><code>42</code></td><td><code>unsigned int</code></td></tr>
+<tr><td><b><code>%lu</code></b></td><td><code>4294967295</code></td><td><b><code>uint32_t</code>（如 <code>HAL_GetTick()</code>）</b></td></tr>
+<tr><td><code>%ld</code></td><td><code>-1</code></td><td><code>long</code>（可能为负时用）</td></tr>
+<tr><td><code>%x</code> / <code>%X</code></td><td><code>ff</code> / <code>FF</code></td><td>十六进制</td></tr>
+<tr><td><b><code>%02X</code></b></td><td><code>05</code></td><td><b>看单个字节（补零 2 位）</b></td></tr>
+<tr><td><code>%08X</code></td><td><code>000000FF</code></td><td>看 32 位寄存器</td></tr>
+<tr><td><code>%c</code> / <code>%s</code></td><td><code>A</code> / <code>abc</code></td><td>单个字符 / 字符串</td></tr>
+<tr><td><code>%5d</code> / <code>%-5d</code> / <code>%05d</code></td><td><code>   42</code> / <code>42   </code> / <code>00042</code></td><td>宽度 / 左对齐 / 补零</td></tr>
+</table>
+
+<h3>④ 三个必须知道的坑</h3>
+<div class="box warn"><b>坑 1：<code>uint32_t</code> 必须用 <code>%lu</code>，不能用 <code>%d</code></b><br>
+<code>uint32_t tick = 3000000000;</code>（30 亿，超过 int 上限 21 亿）<br>
+<code>sprintf(buf, "%d", tick)</code> → 输出 <b>-1294967296</b>（负数！）<br>
+<code>sprintf(buf, "%lu", (unsigned long)tick)</code> → 输出 <b>3000000000</b> ✅<br>
+<b>为什么加 <code>(unsigned long)</code></b>：<code>%lu</code> 要求 <code>unsigned long</code>，强转让类型严格匹配。</div>
+
+<div class="box warn"><b>坑 2：缓冲区不够会踩坏别的变量（编译器不报错）</b><br>
+<code>char buf[8]; sprintf(buf, "value=%lu", 123456789UL);</code> → 需要 16 字节，越界写 8 字节。<br>
+症状：程序莫名死机、变量莫名被改。<b>缓冲区一律给足（≥64 字节），或用 <code>snprintf</code>。</b></div>
+
+<div class="box warn"><b>坑 3：<code>%f</code> 浮点体积大（+2~5KB）</b><br>
+嵌入式推荐"整数拆小数"：<br>
+<code>uint32_t mv = 3142;</code>（毫伏）<br>
+<code>sprintf(buf, "%lu.%03lu V", mv/1000, mv%1000);</code> → <code>"3.142 V"</code> ✅<br>
+<b>体积比 <code>%f</code> 小一个数量级。</b></div>
+
+<h3>⑤ 更安全的 <code>snprintf</code></h3>
+<pre class="code">/* 第二个参数限定最多写多少字节 → 永不溢出 */
+snprintf(buf, sizeof(buf), "value=%lu
+", (unsigned long)val);</pre>
+<table>
+<tr><th></th><th><code>sprintf</code></th><th><code>snprintf</code></th></tr>
+<tr><td>溢出保护</td><td>❌ 无</td><td>✅ 有</td></tr>
+<tr><td>参数</td><td><code>(buf, fmt, ...)</code></td><td><code>(buf, <b>sizeof(buf)</b>, fmt, ...)</code></td></tr>
+<tr><td>推荐度</td><td>缓冲区确定够用时</td><td><b>养成习惯用它</b></td></tr>
+</table>
+
+<h3>⑥ 和 <code>HAL_UART_Transmit</code> 配合的完整套路</h3>
+<pre class="code">/* USER CODE BEGIN Includes */
+#include &lt;stdio.h&gt;      /* sprintf */
+#include &lt;string.h&gt;     /* strlen  */
+/* USER CODE END Includes */
+
+/* USER CODE BEGIN PV */
+static char g_msg[96];              /* 全局缓冲，不占栈 */
+/* USER CODE END PV */
+
+/* USER CODE BEGIN 3 */
+static uint32_t last = 0;
+if (HAL_GetTick() - last &gt;= 500)    /* 每 500ms 打印一次 */
+{
+    last += 500;
+    int len = sprintf(g_msg, "tick=%lu
+", (unsigned long)HAL_GetTick());
+    HAL_UART_Transmit(&amp;huart1, (uint8_t *)g_msg, len, 100);
+    /*                              ↑ 用 len，不用 strlen */
+}
+/* USER CODE END 3 */</pre>
+<div class="box tip"><b>注意</b>：<code>sprintf</code> <b>不需要勾 MicroLIB</b>。MicroLIB 是给 <code>printf</code>（重定向到串口）用的；<code>sprintf</code> 只操作内存，用普通 C 库即可。代价是 Flash 增加约 <b>3~6KB</b>。</div>
+
+<h2>7.7 本章自测</h2>
+<details class="ans"><summary>📖 参考答案（点击展开）</summary><ol>
+<li><b>问：勾了 MicroLIB 但 <code>printf</code> 没输出，先查什么？</b><br>答：① 句柄名对不对 ② 波特率对不对 ③ 有没有真的走到 printf（用 LED 验证）</li>
+<li><b>问：<code>HAL_UART_Transmit</code> 传 100 字节超时设 100ms，@9600 够吗？</b><br>答：不够。9600bps ≈ 960B/s，100 字节约 104ms。<b>超时至少给 200ms</b>。</li>
+<li><b>问：为什么建议接收用中断而不是阻塞？</b><br>答：阻塞接收会一直等，收不到就卡死主循环。中断模式可以先干别的。</li>
+</ol></details>
+
+<h2>7.8 完整案例：串口命令行控制 LED（含 printf 重定向）</h2>
+<div class="box tip"><b>案例目标</b>：把串口从"能发字符"升级到"能当调试终端用"。这也是本教程后面所有案例的调试基础。</div>
+
+<h3>① CubeMX 配置</h3>
+<table>
+<tr><th>位置</th><th>配置</th></tr>
+<tr><td>USART1</td><td>Asynchronous，<b>115200</b>，8N1，PA9=TX / PA10=RX</td></tr>
+<tr><td><b>NVIC</b></td><td>勾选 <b>USART1 global interrupt</b>（中断接收用）</td></tr>
+<tr><td>PC13</td><td>GPIO_Output Push Pull，初始 High</td></tr>
+<tr><td><b>Keil</b></td><td>Alt+F7 → Target → 勾选 <b>Use MicroLIB</b></td></tr>
+</table>
+
+<h3>② 完整代码</h3>
+<pre class="code">/* ---- USER CODE BEGIN Includes ---- */
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+/* ---- USER CODE BEGIN PV ---- */
+volatile uint8_t g_rx_byte  = 0;
+volatile uint8_t g_rx_ready = 0;
+
+/* ---- USER CODE BEGIN 0 ---- */
+/* printf 重定向：fputc 被 printf 调用，我们把它转到 USART1 */
+int fputc(int ch, FILE *f)
+{
+    HAL_UART_Transmit(&amp;huart1, (uint8_t *)&amp;ch, 1, 100);
+    return ch;
+}
+
+/* ---- USER CODE BEGIN 2 ---- */
+HAL_UART_Receive_IT(&amp;huart1, (uint8_t *)&amp;g_rx_byte, 1);
+printf("\r\n=== UART command demo ===\r\n");
+printf("  1 = LED ON, 0 = LED OFF, ? = query\r\n");
+
+/* ---- USER CODE BEGIN 3 ---- */
+if (g_rx_ready)
+{
+    uint8_t c = g_rx_byte;
+    g_rx_ready = 0;
+    HAL_UART_Receive_IT(&amp;huart1, (uint8_t *)&amp;g_rx_byte, 1);   /* ⚠ 必须重启 */
+
+    if (c == '1')
+    {
+        HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+        printf("LED = ON\r\n");
+    }
+    else if (c == '0')
+    {
+        HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+        printf("LED = OFF\r\n");
+    }
+    else if (c == '?')
+    {
+        printf("uptime = %lu ms\r\n", (unsigned long)HAL_GetTick());
+    }
+    else if (c != '\r' &amp;&amp; c != '\n')
+    {
+        printf("unknown '%c' (0x%02X)\r\n", c, c);
+    }
+}
+
+/* ---- USER CODE BEGIN 4 ---- */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+    if (huart-&gt;Instance == USART1) g_rx_ready = 1;
+}</pre>
+
+<h3>③ 验证</h3>
+<table>
+<tr><th>操作</th><th>预期</th></tr>
+<tr><td>上电</td><td>串口出现欢迎信息 + 命令说明</td></tr>
+<tr><td>发 <code>1</code></td><td>回 <code>LED = ON</code>，板载 LED 亮</td></tr>
+<tr><td>发 <code>0</code></td><td>回 <code>LED = OFF</code>，LED 灭</td></tr>
+<tr><td>发 <code>?</code></td><td>回 <code>uptime = ...</code></td></tr>
+<tr><td>发 <code>9</code></td><td>回 <code>unknown '9' (0x39)</code></td></tr>
+</table>
+
+<div class="box warn"><b>易错点</b><br>
+① <b>不加 Use MicroLIB</b> → printf 卡死在 <code>_sys_exit</code> 的 <code>while(1)</code> 里，整个程序假死。<br>
+② <b>回调里忘了重新调 <code>HAL_UART_Receive_IT</code></b> → 只能收到第一条命令。<br>
+③ 串口助手勾了「发送新行」→ 每次多收到 <code>\r\n</code>，代码里要忽略（本案例已处理）。<br>
+④ 发的是 HEX <code>01</code> 不是字符 <code>'1'</code> → 判断不成立，注意串口助手的 HEX/文本模式。</div>
+
+<h2>7.9 本章作业（3 题）</h2>
+<table>
+<tr><th>难度</th><th>题目</th><th>提示</th></tr>
+<tr><td>⭐</td><td><b>串口回环</b>：收到什么字节就原样发回去（echo），并统计总共收到多少字节。</td><td>这是验证串口最省事的办法</td></tr>
+<tr><td>⭐⭐</td><td><b>数字调光</b>：串口发 <code>0</code>~<code>9</code>，对应 LED 闪烁频率从 1000ms 递减到 100ms。</td><td><code>freq = 1000 - (c-'0')*100</code></td></tr>
+<tr><td>⭐⭐⭐</td><td><b>字符串命令</b>：实现 <code>led on</code> / <code>led off</code> / <code>help</code>，需要把收到的字符拼成一行再解析。</td><td>用缓冲区 + 遇 <code>\n</code> 结束；<code>strcmp</code> 比较</td></tr>
+</table>
+<details class="ans"><summary>📖 验收标准 + 思路提示</summary><ol>
+<li>第 1 题：发什么回什么，计数正确。<b>注意</b>：回调里必须重新调 <code>HAL_UART_Receive_IT</code>。</li>
+<li>第 2 题：发 9 时闪得最快，发 0 时最慢。<b>易错</b>：忘了把 ASCII 转成数字（<code>c - '0'</code>）。</li>
+<li>第 3 题：能正确响应三种命令，未知命令打印提示。<b>思路</b>：
+<pre class="code">char line[32]; uint8_t idx = 0;
+if (c == '\n') { line[idx] = 0; idx = 0; 解析(line); }
+else if (idx &lt; 31) line[idx++] = c;</pre>
+<b>考点</b>：这就是所有串口协议的基础。</li>
+</ol></details>
+
+  </div>
+  <div class="daynav"><a class="prev" href="#d6">← 第 6 章　时钟 RCC 与延时 SysTick</a><a class="next" href="#d8">第 8 章　TIM 定时器：时基 / PWM / 输入捕获三件套 →</a></div>
+</article>
+
+<article class="page" id="d8">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">8</span>
+      <span class="pbtt">第 8 章 · TIM 定时器：时基 / PWM / 输入捕获三件套</span></div>
+    <button class="donebtn" data-day="8">标记已学完</button>
+  </div>
+  <div class="body">
+
+<h2>8.1 定时器的三种典型用法</h2>
+<div class="box tip"><b>本章目标</b>：一次搞清定时器的三大用途 —— <b>定时中断、输出 PWM、输入捕获</b>，以及它们的函数差异。</div>
+<div class="box warn"><b>和网课的区别</b>：网课分开讲「定时器中断」「PWM」「输入捕获」三节，你看完还是不知道为什么用 <code>HAL_TIM_Base_Start_IT</code> 和 <code>HAL_TIM_PWM_Start</code>。本章一次讲清楚「启动函数为什么不同」。</div>
+
+<h2>8.2 三个寄存器决定一切</h2>
+<table>
+<tr><th>寄存器</th><th>含义</th><th>类比</th></tr>
+<tr><td><code>PSC</code> 预分频</td><td>把定时器时钟降频</td><td>秒表最小刻度</td></tr>
+<tr><td><code>CNT</code> 计数器</td><td>当前计数值</td><td>秒表读数</td></tr>
+<tr><td><code>ARR</code> 自动重装</td><td>数到多少归零</td><td>一圈多少秒</td></tr>
+</table>
+<pre class="code">计数频率 = 定时器时钟 / (PSC + 1)
+溢出周期 = (PSC + 1) × (ARR + 1) / 定时器时钟</pre>
+<div class="box warn"><b>F103 的定时器时钟</b>：TIM2~TIM4 挂在 APB1（36MHz），但<b>定时器时钟是 72MHz</b>（APB1 分频后 ×2）。<b>算的时候用 72MHz。</b></div>
+
+<h2>8.3 用法一：定时中断（最常用）</h2>
+<table>
+<tr><th>函数</th><th>作用</th></tr>
+<tr><td><code>HAL_TIM_Base_Init(&amp;htim)</code></td><td>配置 PSC/ARR（CubeMX 生成）</td></tr>
+<tr><td><b><code>HAL_TIM_Base_Start_IT(&amp;htim)</code></b></td><td><b>启动 + 开中断（必须调！）</b></td></tr>
+<tr><td><code>HAL_TIM_Base_Stop_IT(&amp;htim)</code></td><td>停止</td></tr>
+<tr><td><code>HAL_TIM_PeriodElapsedCallback(&amp;htim)</code></td><td><b>你重写</b>：溢出回调</td></tr>
+</table>
+<pre class="code">/* USER CODE BEGIN 0 */
+volatile uint32_t g_ms = 0;
+/* USER CODE END 0 */
+
+/* USER CODE BEGIN 4 */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+    if (htim-&gt;Instance == TIM2)     /* ⚠ 实例名必须和配置一致 */
+    {
+        g_ms++;
+    }
+}
+/* USER CODE END 4 */
+
+/* USER CODE BEGIN 2 */
+HAL_TIM_Base_Start_IT(&amp;htim2);    /* ⚠ 忘了这句 = 中断永远不进 */
+/* USER CODE END 2 */</pre>
+<div class="box warn"><b>两个高频错误</b>：① 忘了 <code>Start_IT</code>；② 回调里判断的 <code>Instance</code> 写错（写成别的定时器），中断进了但变量不涨。</div>
+
+<h2>8.4 用法二：输出 PWM</h2>
+<table>
+<tr><th>函数</th><th>作用</th></tr>
+<tr><td><code>HAL_TIM_PWM_Init(&amp;htim)</code></td><td>配置（CubeMX 生成）</td></tr>
+<tr><td><code>HAL_TIM_PWM_ConfigChannel(&amp;htim, &amp;sConfig, TIM_CHANNEL_x)</code></td><td>配通道</td></tr>
+<tr><td><b><code>HAL_TIM_PWM_Start(&amp;htim, TIM_CHANNEL_x)</code></b></td><td><b>启动 PWM 输出</b></td></tr>
+<tr><td><code>__HAL_TIM_SET_COMPARE(&amp;htim, ch, value)</code></td><td><b>改占空比（运行中也能改）</b></td></tr>
+<tr><td><code>__HAL_TIM_SET_AUTORELOAD(&amp;htim, value)</code></td><td>改周期（ARR）</td></tr>
+</table>
+<pre class="code">/* 启动 PWM（在 USER CODE 2） */
+HAL_TIM_PWM_Start(&amp;htim2, TIM_CHANNEL_1);
+
+/* 运行中改占空比（在 USER CODE 3 主循环） */
+__HAL_TIM_SET_COMPARE(&amp;htim2, TIM_CHANNEL_1, 500);   /* CCR = 500 */</pre>
+<div class="box tip"><b>占空比公式</b>：<br>
+<code>占空比 = CCR / (ARR + 1)</code><br>
+比如 ARR=999，CCR=500 → 占空比 ≈ 50%</div>
+<div class="box warn"><b>PWM 没输出的三个原因</b>：① 忘了 <code>HAL_TIM_PWM_Start</code>；② 引脚没配成 <code>AF_PP</code> 复用；③ 该定时器通道的引脚被别的功能占了。</div>
+
+<h2>8.5 用法三：输入捕获（测频率 / 测脉宽）</h2>
+<table>
+<tr><th>函数</th><th>作用</th></tr>
+<tr><td><code>HAL_TIM_IC_Init(&amp;htim)</code></td><td>配置（CubeMX 生成）</td></tr>
+<tr><td><code>HAL_TIM_IC_ConfigChannel(&amp;htim, &amp;sConfig, ch)</code></td><td>配触发边沿</td></tr>
+<tr><td><b><code>HAL_TIM_IC_Start_IT(&amp;htim, ch)</code></b></td><td><b>启动捕获</b></td></tr>
+<tr><td><code>HAL_TIM_ReadCapturedValue(&amp;htim, ch)</code></td><td>读捕获到的计数值</td></tr>
+<tr><td><code>HAL_TIM_IC_CaptureCallback(&amp;htim)</code></td><td><b>你重写</b>：捕获到边沿时回调</td></tr>
+</table>
+<pre class="code">volatile uint32_t t_start = 0, t_end = 0;
+volatile uint8_t  done = 0;
+
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
+{
+    if (htim-&gt;Instance == TIM3 &amp;&amp; htim-&gt;Channel == HAL_TIM_ACTIVE_CHANNEL_1)
+    {
+        if (!done) { t_start = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1); }
+        else       { t_end   = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1); }
+        done = !done;
+    }
+}
+
+/* 周期 = (t_end - t_start) × 计数周期；频率 = 1 / 周期 */</pre>
+
+<h2>8.6 为什么启动函数各不相同</h2>
+<table>
+<tr><th>用途</th><th>启动函数</th><th>为什么</th></tr>
+<tr><td>定时中断</td><td><code>HAL_TIM_Base_Start_IT</code></td><td>只要「计数溢出」这个事件</td></tr>
+<tr><td>PWM</td><td><code>HAL_TIM_PWM_Start</code></td><td>要「输出比较」通道工作</td></tr>
+<tr><td>输入捕获</td><td><code>HAL_TIM_IC_Start_IT</code></td><td>要「捕获通道」工作 + 中断</td></tr>
+</table>
+<div class="box tip"><b>本质</b>：同一个定时器内部有很多「子功能」，你启用的子功能不同，启动函数就不同。<b>不是记不住，是没理解这个结构。</b></div>
+
+<h2>8.7 本章自测</h2>
+<details class="ans"><summary>📖 参考答案（点击展开）</summary><ol>
+<li><b>问：72MHz 要 10ms 中断，PSC/ARR 怎么配？</b><br>答：<code>PSC=71</code>（→1MHz）、<code>ARR=10000-1=9999</code>。</li>
+<li><b>问：PWM 改占空比要不要停掉重启？</b><br>答：不用。<code>__HAL_TIM_SET_COMPARE</code> 运行中直接改 CCR，下一个周期生效。</li>
+<li><b>问：一个定时器能同时做 PWM 输出和输入捕获吗？</b><br>答：能，不同通道各干各的。但要注意启动函数要分别调用。</li>
+</ol></details>
+
+<h2>8.8 完整案例：PWM 呼吸灯</h2>
+<div class="box tip"><b>案例目标</b>：把 TIM 从"定时器"用成"波形发生器"，理解 PSC / ARR / CCR 三个参数的实际效果。</div>
+
+<h3>① CubeMX 配置</h3>
+<table>
+<tr><th>位置</th><th>配置</th><th>算出来是什么</th></tr>
+<tr><td><b>TIM3 → Channel1</b></td><td>PWM Generation CH1</td><td>输出脚自动变 <b>PA6</b></td></tr>
+<tr><td>TIM3 → Parameter</td><td>PSC = <b>72-1</b>，ARR = <b>1000-1</b></td><td>72MHz / 72 = 1MHz；1MHz / 1000 = <b>1kHz PWM</b></td></tr>
+<tr><td>Clock Configuration</td><td>SYSCLK <b>72MHz</b></td><td>PSC 的基准频率</td></tr>
+</table>
+
+<h3>② 完整代码</h3>
+<pre class="code">/* ---- USER CODE BEGIN 2 ---- */
+HAL_TIM_PWM_Start(&amp;htim3, TIM_CHANNEL_1);      /* ⚠ Init 不会输出，必须 Start */
+
+/* ---- USER CODE BEGIN 3 ---- */
+static uint16_t duty = 0;        /* 0 ~ 1000，对应 0% ~ 100% */
+static int8_t   dir  = 1;        /* 1 = 变亮，-1 = 变暗 */
+static uint32_t t    = 0;
+
+if (HAL_GetTick() - t &gt;= 10)     /* 每 10ms 调一次 → 约 1 秒完成一次呼吸 */
+{
+    t = HAL_GetTick();
+
+    duty += dir * 10;
+    if (duty &gt;= 1000) { duty = 1000; dir = -1; }
+    if (duty == 0)    { dir = 1; }
+
+    __HAL_TIM_SET_COMPARE(&amp;htim3, TIM_CHANNEL_1, duty);   /* 改占空比 */
+}
+/* USER CODE END 3 */</pre>
+
+<h3>③ 验证</h3>
+<table>
+<tr><th>接法</th><th>现象</th></tr>
+<tr><td>PA6 → 220Ω → LED → GND</td><td>LED 由暗渐亮再由亮渐暗，约 1 秒一个周期</td></tr>
+<tr><td>没有 LED，用万用表测 PA6 对 GND 电压</td><td>电压在 0V ~ 3.3V 之间缓慢上升下降</td></tr>
+<tr><td>万用表读数不变</td><td>忘了 <code>HAL_TIM_PWM_Start</code>，或没配 PWM Generation 模式</td></tr>
+</table>
+
+<div class="box warn"><b>易错点</b><br>
+① <b>只 Init 不 Start</b>，PA6 一直是低电平 —— 这是 TIM PWM 最高频的错。<br>
+② <code>__HAL_TIM_SET_COMPARE</code> 的值不能超过 <b>ARR</b>（本例 1000），超了不会报错但行为异常。<br>
+③ 想改 PWM 频率要改 <b>PSC/ARR</b>，想改亮度只改 <b>CCR</b>（即 SET_COMPARE）。<br>
+④ 板载 PC13 <b>不是</b>定时器通道，做不了硬件 PWM（只能用软件模拟）。</div>
+
+<h2>8.9 本章作业（3 题）</h2>
+<table>
+<tr><th>难度</th><th>题目</th><th>提示</th></tr>
+<tr><td>⭐</td><td><b>5 档亮度</b>：串口发 1~5，LED 亮度对应 20%/40%/60%/80%/100%。</td><td><code>SET_COMPARE = ARR * pct / 100</code></td></tr>
+<tr><td>⭐⭐</td><td><b>定时器中断做精确 1Hz 闪烁</b>：不用 <code>HAL_GetTick</code>，用 TIM 溢出中断翻转 LED，主循环随便干别的。</td><td><code>HAL_TIM_Base_Start_IT</code> + <code>HAL_TIM_PeriodElapsedCallback</code></td></tr>
+<tr><td>⭐⭐⭐</td><td><b>呼吸灯 + 按键调速</b>：呼吸灯基础上，按键切换呼吸速度（快/中/慢三档）。</td><td>改"每 10ms 调整的步长"</td></tr>
+</table>
+<details class="ans"><summary>📖 验收标准 + 思路提示</summary><ol>
+<li>第 1 题：5 档亮度肉眼可辨。<b>注意</b>：<code>SET_COMPARE</code> 的值不能超过 ARR。</li>
+<li>第 2 题：LED 严格 1 秒翻转一次，主循环里跑别的逻辑（比如串口打印）不影响闪烁。<b>考点</b>：中断比轮询准时。</li>
+<li>第 3 题：三档速度差异明显。<b>思路</b>：<code>step</code> 取 5 / 10 / 25，值越大呼吸越快。</li>
+</ol></details>
+
+  </div>
+  <div class="daynav"><a class="prev" href="#d7">← 第 7 章　USART 串口：阻塞 / 中断 / DMA 与 printf 重定向</a><a class="next" href="#d9">第 9 章　ADC：轮询 / 中断 / DMA 与校准 →</a></div>
+</article>
+
+<article class="page" id="d9">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">9</span>
+      <span class="pbtt">第 9 章 · ADC：轮询 / 中断 / DMA 与校准</span></div>
+    <button class="donebtn" data-day="9">标记已学完</button>
+  </div>
+  <div class="body">
+
+<h2>9.1 ADC 的三种读取方式</h2>
+<div class="box tip"><b>本章目标</b>：掌握 ADC 三种读取方式，理解「为什么要校准」「多通道为什么会串」。</div>
+<div class="box warn"><b>和网课的区别</b>：网课给 <code>HAL_ADC_Start</code> + <code>GetValue</code> 两行。它不讲 <b><code>PollForConversion</code> 是干什么的</b>、<b>为什么多通道读数会乱</b>。</div>
+
+<table>
+<tr><th>函数</th><th>模式</th><th>典型用法</th></tr>
+<tr><td><code>HAL_ADC_Start(&amp;hadc)</code></td><td>启动一次转换</td><td>所有模式都要</td></tr>
+<tr><td><code>HAL_ADC_PollForConversion(&amp;hadc, timeout)</code></td><td>阻塞等转换完成</td><td>轮询模式必用</td></tr>
+<tr><td><code>HAL_ADC_GetValue(&amp;hadc)</code></td><td>取结果</td><td>0 ~ 4095</td></tr>
+<tr><td><code>HAL_ADC_Start_IT(&amp;hadc)</code></td><td>中断模式启动</td><td>转换完成时回调</td></tr>
+<tr><td><code>HAL_ADC_Start_DMA(&amp;hadc, buf, n)</code></td><td>DMA 模式</td><td>多通道连续采样</td></tr>
+<tr><td><code>HAL_ADC_ConvCpltCallback(&amp;hadc)</code></td><td>回调（你重写）</td><td>IT/DMA 完成时</td></tr>
+<tr><td><code>HAL_ADCEx_Calibration_Start(&amp;hadc)</code></td><td><b>校准</b></td><td>Init 之后、Start 之前调一次</td></tr>
+</table>
+
+<h2>9.2 轮询模式：最基础的读法</h2>
+<pre class="code">uint32_t adc;
+float vol;
+
+HAL_ADC_Start(&amp;hadc1);                                  /* ① 启动 */
+if (HAL_ADC_PollForConversion(&amp;hadc1, 10) == HAL_OK)    /* ② 等转换完 */
+{
+    adc = HAL_ADC_GetValue(&amp;hadc1);                     /* ③ 取值 */
+    vol = adc * 3.3f / 4096.0f;                         /* ④ 换算电压 */
+}</pre>
+<table>
+<tr><th>步</th><th>为什么必须有</th></tr>
+<tr><td>① Start</td><td>不启动就一直读到上次的旧值</td></tr>
+<tr><td><b>② PollForConversion</b></td><td><b>转换需要时间（微秒级），不等直接读会读到未完成的值</b></td></tr>
+<tr><td>③ GetValue</td><td>取 12 位结果</td></tr>
+</table>
+<div class="box warn"><b>最常见的错</b>：只写了 Start 就 GetValue，<b>跳过了 PollForConversion</b> —— 读数会是小一个转换周期的旧值，而且看起来「能读、就是不准」，极难发现。</div>
+
+<h2>9.3 校准：为什么必须做</h2>
+<pre class="code">HAL_ADCEx_Calibration_Start(&amp;hadc1);   /* F1 只有一个参数 */</pre>
+<div class="box tip"><b>校准做什么</b>：ADC 内部有电容和比较器，存在制造偏差。校准让芯片自己测量这个偏差并补偿，<b>能显著改善零点误差</b>。<br>
+<b>位置</b>：<code>MX_ADC1_Init()</code> 之后、第一次 Start 之前，<b>调一次就够</b>。</div>
+<div class="box warn"><b>版本差异</b>：F1 是 <code>HAL_ADCEx_Calibration_Start(&amp;hadc)</code> <b>一个参数</b>；G4/F4 是 <code>(&amp;hadc, ADC_SINGLE_ENDED)</code> <b>两个参数</b>。跨系列迁移时必改。</div>
+
+<h2>9.4 中断模式</h2>
+<pre class="code">/* USER CODE BEGIN 2 */
+HAL_ADC_Start_IT(&amp;hadc1);      /* 启动后立刻返回 */
+
+/* USER CODE BEGIN 4 */
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+{
+    if (hadc-&gt;Instance == ADC1)
+    {
+        g_adc_value = HAL_ADC_GetValue(&amp;hadc1);
+    }
+}</pre>
+
+<h2>9.5 多通道：为什么会串</h2>
+<table>
+<tr><th>问题</th><th>原因</th></tr>
+<tr><td>所有通道读出来一样</td><td>通道号写死（<code>sConfig.Channel = ADC_CHANNEL_1</code> 从不改）</td></tr>
+<tr><td>切换通道后第一个值不准</td><td>采样保持电容还残留上一个通道的电压</td></tr>
+<tr><td>通道顺序乱</td><td>没配 <code>Rank</code>（规则组转换顺序）</td></tr>
+</table>
+<pre class="code">/* 单次切换通道的正确写法 */
+ADC_ChannelConfTypeDef sConfig = {0};
+sConfig.Channel = ADC_CHANNEL_4;          /* 每次改这里 */
+sConfig.Rank = ADC_REGULAR_RANK_1;
+sConfig.SamplingTime = ADC_SAMPLETIME_55CYCLES_5;
+HAL_ADC_ConfigChannel(&amp;hadc1, &amp;sConfig);
+
+HAL_ADC_Start(&amp;hadc1);
+HAL_ADC_PollForConversion(&amp;hadc1, 10);
+value = HAL_ADC_GetValue(&amp;hadc1);</pre>
+<div class="box tip"><b>多通道批量采样</b>：配成 <code>ScanConvMode = ENABLE</code> + 多个 Rank，然后 <b>用 DMA 一次性收完</b>（见第 12 章）。这是最规范的做法。</div>
+
+<h2>9.6 换算与滤波</h2>
+<pre class="code">/* 12 位 ADC：0~4095 对应 0~3.3V */
+float vol = adc * 3.3f / 4096.0f;
+
+/* 8 次平均滤波 */
+uint32_t sum = 0;
+for (uint8_t i = 0; i &lt; 8; i++) sum += get_adc();
+uint32_t avg = sum / 8;</pre>
+<div class="box warn"><b>平均滤波只能压随机噪声，压不掉系统偏差</b>（比如采样时间不足导致的整体偏小）。先解决采样时间，再谈滤波。</div>
+
+<h2>9.7 本章自测</h2>
+<details class="ans"><summary>📖 参考答案（点击展开）</summary><ol>
+<li><b>问：码值 2048 对应多少伏？</b><br>答：2048/4096 = 一半量程 → 约 1.65V。</li>
+<li><b>问：为什么除以 4096 而不是 4095？</b><br>答：4096 是刻度总数（2¹²），把量程均分更符合物理意义，官方也这么写。</li>
+<li><b>问：校准要在什么时候调？</b><br>答：ADC Init 之后、第一次 Start 之前，全程调一次。</li>
+</ol></details>
+
+<h2>9.8 完整案例：采集 PA0 电压并串口打印</h2>
+<div class="box tip"><b>案例目标</b>：走通「校准 → 启动 → 等待 → 读值 → 换算」这条 ADC 完整链路。</div>
+
+<h3>① CubeMX 配置</h3>
+<table>
+<tr><th>位置</th><th>配置</th></tr>
+<tr><td><b>ADC1 → IN0</b></td><td>勾选，引脚自动变 <b>PA0</b></td></tr>
+<tr><td>ADC1 → Parameter</td><td>Resolution = 12 bits，Scan = Disable，Continuous = Disable，<b>Sampling Time = 71.5 Cycles</b></td></tr>
+<tr><td>USART1</td><td>115200，用于打印</td></tr>
+</table>
+
+<h3>② 完整代码</h3>
+<pre class="code">/* ---- USER CODE BEGIN Includes ---- */
+#include &lt;stdio.h&gt;
+
+/* ---- USER CODE BEGIN 2 ---- */
+HAL_ADCEx_Calibration_Start(&amp;hadc1);     /* ⭐ 上电必须先校准，否则误差大 */
+char buf[64];
+
+/* ---- USER CODE BEGIN 3 ---- */
+static uint32_t t = 0;
+if (HAL_GetTick() - t &gt;= 300)
+{
+    t = HAL_GetTick();
+
+    uint32_t raw = 0;
+    HAL_ADC_Start(&amp;hadc1);                                   /* 启动转换 */
+    if (HAL_ADC_PollForConversion(&amp;hadc1, 10) == HAL_OK)     /* 等转换完成，最多 10ms */
+    {
+        raw = HAL_ADC_GetValue(&amp;hadc1);                       /* 读 0~4095 */
+    }
+    HAL_ADC_Stop(&amp;hadc1);
+
+    /* 12 位 ADC：0 = 0V，4095 = 3.3V（参考电压）*/
+    uint32_t mv = raw * 3300 / 4095;
+    sprintf(buf, "raw=%4lu  %lu.%03lu V\r\n",
+            (unsigned long)raw, (unsigned long)(mv / 1000), (unsigned long)(mv % 1000));
+    HAL_UART_Transmit(&amp;huart1, (uint8_t *)buf, strlen(buf), 100);
+}
+/* USER CODE END 3 */</pre>
+
+<h3>③ 验证</h3>
+<table>
+<tr><th>把 PA0 接到</th><th>预期读数</th></tr>
+<tr><td>GND</td><td><code>raw≈0</code>，<code>0.000 V</code></td></tr>
+<tr><td>3.3V</td><td><code>raw≈4095</code>，<code>3.300 V</code></td></tr>
+<tr><td>什么都不接（浮空）</td><td>读数乱跳，属正常</td></tr>
+</table>
+
+<div class="box warn"><b>易错点</b><br>
+① <b>忘了 <code>HAL_ADC_Start</code></b> → 一直读 0。<br>
+② <b>忘了校准</b> → 读数偏高/偏低几十个 LSB。<br>
+③ 引脚配成普通 GPIO 输入而不是 <b>Analog</b> → ADC 读到固定值。<br>
+④ 换算公式：<code>电压 = raw / 4095 × 3.3</code>（3.3V 是 VDDA 参考电压，不是 4096）。</div>
+
+<h2>9.9 本章作业（3 题）</h2>
+<table>
+<tr><th>难度</th><th>题目</th><th>提示</th></tr>
+<tr><td>⭐</td><td><b>电压阈值报警</b>：电压 &gt; 2.0V 时 LED 亮，否则灭。</td><td>用 <code>mv</code> 或 <code>raw</code> 判断都行</td></tr>
+<tr><td>⭐⭐</td><td><b>滑动平均滤波</b>：连续采 10 次求平均后再打印，观察读数是否更稳。</td><td>用数组存 10 个值循环累加</td></tr>
+<tr><td>⭐⭐⭐</td><td><b>电压→闪烁频率</b>：0V 时慢闪（2 秒一次），3.3V 时快闪（50ms 一次），中间线性映射。</td><td><code>period = 2000 - mv * (2000-50) / 3300</code></td></tr>
+</table>
+<details class="ans"><summary>📖 验收标准 + 思路提示</summary><ol>
+<li>第 1 题：PA0 接 3.3V 亮、接 GND 灭。</li>
+<li>第 2 题：滤波后读数波动明显变小（尤其浮空时）。<b>注意</b>：采样之间加几毫秒延时，别连续猛采。</li>
+<li>第 3 题：缓慢转动电位器，闪速连续变化。<b>易错</b>：整数除法顺序导致全变 0，先乘后除。</li>
+</ol></details>
+
+  </div>
+  <div class="daynav"><a class="prev" href="#d8">← 第 8 章　TIM 定时器：时基 / PWM / 输入捕获三件套</a><a class="next" href="#d10">第 10 章　I2C：硬件 I2C 与软件模拟的取舍 →</a></div>
+</article>
+
+<article class="page" id="d10">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">10</span>
+      <span class="pbtt">第 10 章 · I2C：硬件 I2C 与软件模拟的取舍</span></div>
+    <button class="donebtn" data-day="10">标记已学完</button>
+  </div>
+  <div class="body">
+
+<h2>10.1 先说结论：初学用软件模拟更稳</h2>
+<div class="box tip"><b>本章目标</b>：掌握 I2C 的常用函数（硬件）和软件模拟的写法，知道什么场景用哪个。</div>
+<div class="box warn"><b>和网课的区别</b>：网课直接教硬件 I2C。它不讲 <b>F103 的硬件 I2C 有已知问题</b>，也不讲为什么很多项目宁愿用软件模拟。</div>
+
+<table>
+<tr><th>方式</th><th>优点</th><th>缺点</th><th>适合</th></tr>
+<tr><td><b>硬件 I2C</b></td><td>CPU 占用低、有中断/DMA</td><td>F103 硬件 I2C 有历史 bug，容易卡死</td><td>稳定后的量产项目</td></tr>
+<tr><td><b>软件模拟</b>（GPIO 模拟时序）</td><td>时序完全可控、换引脚方便、不会卡死</td><td>占 CPU、速率低（一般 100kHz 以下）</td><td><b>学习、调试、大多数小项目</b></td></tr>
+</table>
+
+<h2>10.2 硬件 I2C 常用函数</h2>
+<table>
+<tr><th>函数</th><th>作用</th></tr>
+<tr><td><code>HAL_I2C_Init(&amp;hi2c)</code></td><td>初始化（CubeMX 生成）</td></tr>
+<tr><td><code>HAL_I2C_IsDeviceReady(&amp;hi2c, addr, trials, timeout)</code></td><td><b>探测器件在不在（最有用）</b></td></tr>
+<tr><td><code>HAL_I2C_Master_Transmit(&amp;hi2c, addr, buf, n, timeout)</code></td><td>主机发数据</td></tr>
+<tr><td><code>HAL_I2C_Master_Receive(&amp;hi2c, addr, buf, n, timeout)</code></td><td>主机收数据</td></tr>
+<tr><td><code>HAL_I2C_Mem_Write(&amp;hi2c, addr, mem, memsize, buf, n, timeout)</code></td><td><b>写存储器型器件（EEPROM）</b></td></tr>
+<tr><td><code>HAL_I2C_Mem_Read(...)</code></td><td><b>读存储器型器件</b></td></tr>
+</table>
+
+<h2>10.3 读 EEPROM（AT24C02）标准写法</h2>
+<pre class="code">#define EE_ADDR   (0xA0)              /* AT24C02 的 8 位地址 */
+
+uint8_t buf[1];
+
+/* 写一个字节到地址 0x10 */
+buf[0] = 0x5A;
+HAL_I2C_Mem_Write(&amp;hi2c1, EE_ADDR, 0x10, I2C_MEMADD_SIZE_8BIT, buf, 1, 100);
+HAL_Delay(5);                          /* ⚠ EEPROM 内部擦写约 5ms */
+
+/* 读回来 */
+HAL_I2C_Mem_Read(&amp;hi2c1, EE_ADDR, 0x10, I2C_MEMADD_SIZE_8BIT, buf, 1, 100);</pre>
+<div class="box warn"><b>为什么写完要等 5ms</b>：EEPROM 写入是<b>物理电荷注入</b>过程，期间芯片<b>不响应任何地址</b>。不等就写下一字节 → 丢数据。<b>单次测试正常、连写就崩</b>是这个坑的典型症状。</div>
+
+<h2>10.4 软件模拟 I2C：核心就 6 个动作</h2>
+<pre class="code">/* 引脚：SCL = PB6，SDA = PB7（开漏 + 上拉） */
+#define SCL_H()  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET)
+#define SCL_L()  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET)
+#define SDA_H()  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_SET)
+#define SDA_L()  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_RESET)
+#define SDA_R()  HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_7)
+
+void I2C_Start(void)   { SDA_H(); SCL_H(); delay_us(2); SDA_L(); delay_us(2); SCL_L(); }
+void I2C_Stop(void)    { SDA_L(); SCL_H(); delay_us(2); SDA_H(); delay_us(2); }
+/* 后面依次实现：发送字节 / 等待 ACK / 接收字节 / 发 ACK */</pre>
+<div class="box tip"><b>关键细节</b>：① SDA 要能在「输出」和「输入」之间切换（收数据时改输入模式）；② 每次拉低/拉高之间要加微秒级延时；③ 上拉电阻必须有（外部 4.7k 或内部上拉，内部较弱）。</div>
+
+<h2>10.5 先探测再通信（排查神器）</h2>
+<pre class="code">if (HAL_I2C_IsDeviceReady(&amp;hi2c1, EE_ADDR, 3, 100) == HAL_OK)
+    printf("EEPROM 在线\r\n");
+else
+    printf("EEPROM 没响应：查上拉/接线/地址\r\n");</pre>
+<div class="box tip"><b>调试 I2C 第一件事就是探测</b>。探测不到，后面所有读写都别试 —— 一定是硬件或地址问题。</div>
+
+<h2>10.6 本章自测</h2>
+<details class="ans"><summary>📖 参考答案（点击展开）</summary><ol>
+<li><b>问：AT24C02 的地址为什么是 0xA0 而不是 0x50？</b><br>答：HAL 的 <code>DevAddress</code> 要传 <b>8 位地址</b>（含读写位）。7 位地址 0x50 左移一位 = 0xA0。</li>
+<li><b>问：设备探测返回 HAL_TIMEOUT 说明什么？</b><br>答：没有任何器件应答 —— 上拉电阻缺失、接线错、或地址错。</li>
+<li><b>问：软件模拟 I2C 为什么 SDA 要切换输入/输出方向？</b><br>答：发数据时是输出，收数据时主机的 SDA 必须释放成输入，否则和从机抢总线。</li>
+</ol></details>
+
+<h2>10.7 完整案例：I2C 扫描 + 点亮 OLED</h2>
+<div class="box tip"><b>案例目标</b>：先用扫描确认地址，再用最小命令序列点亮屏幕 —— 这两步做完，I2C 就算通了。</div>
+
+<h3>① CubeMX 配置</h3>
+<table>
+<tr><th>位置</th><th>配置</th></tr>
+<tr><td><b>I2C1</b></td><td>I2C 模式，Pin 自动为 <b>PB6 = SCL，PB7 = SDA</b></td></tr>
+<tr><td>I2C1 → Parameter</td><td>Speed Mode = Standard，Clock Speed = <b>100000</b></td></tr>
+<tr><td>USART1</td><td>115200，用于打印扫描结果</td></tr>
+</table>
+
+<div class="box warn"><b>硬件前提</b>：I2C 必须有<b>上拉电阻</b>（4.7kΩ 到 3.3V）。很多 OLED 模块自带上拉；裸接裸器件必须外接，否则扫描不到任何东西。</div>
+
+<h3>② 完整代码</h3>
+<pre class="code">/* ---- USER CODE BEGIN Includes ---- */
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+/* ---- USER CODE BEGIN 2 ---- */
+char buf[64];
+
+/* ① 扫描总线，确认 OLED 地址 */
+printf("\r\n== I2C Scan ==\r\n");
+uint8_t found = 0;
+for (uint8_t a = 0x08; a &lt; 0x78; a++)
+{
+    if (HAL_I2C_IsDeviceReady(&amp;hi2c1, (uint16_t)(a &lt;&lt; 1), 3, 5) == HAL_OK)
+    {
+        printf("found: 7bit=0x%02X  8bit=0x%02X\r\n", a, a &lt;&lt; 1);
+        found++;
+    }
+}
+if (!found) printf("no device! check pull-up / wiring\r\n");
+
+/* ② 用最小序列点亮 OLED（假设地址 0x78）*/
+uint8_t oled_on[] = {
+    0x00,          /* 控制字节：后面是命令 */
+    0x8D, 0x14,    /* ⭐ 电荷泵使能（不使能屏幕永远不亮）*/
+    0xAF           /* Display ON */
+};
+if (HAL_I2C_Master_Transmit(&amp;hi2c1, 0x78, oled_on, sizeof(oled_on), 100) == HAL_OK)
+{
+    printf("oled init ok\r\n");
+}
+else
+{
+    printf("oled no ack\r\n");
+}
+/* USER CODE END 2 */
+
+/* USER CODE BEGIN 3 */
+/* 什么都不用做，屏幕应该已经亮了（显示的是 GDDRAM 上电随机内容）*/
+/* USER CODE END 3 */</pre>
+
+<h3>③ 验证</h3>
+<table>
+<tr><th>现象</th><th>结论</th></tr>
+<tr><td>扫描打印 <code>found: 7bit=0x3C 8bit=0x78</code></td><td>✅ 地址就是 <b>0x3C</b>（HAL 填 0x78）</td></tr>
+<tr><td>扫描打印多个地址</td><td>总线上还挂了别的器件，正常</td></tr>
+<tr><td><code>no device!</code></td><td>查上拉电阻 / 接线 / 供电（OLED 要 3.3V）</td></tr>
+<tr><td>地址扫到了，但屏幕不亮</td><td>初始化序列不完整，或缺 <code>0x8D 0x14</code></td></tr>
+</table>
+
+<div class="box warn"><b>易错点</b><br>
+① <b>7 位 vs 8 位地址</b>：手册写 0x3C，HAL 要填 <b>0x78</b>（0x3C &lt;&lt; 1）。这是 I2C 头号错误。<br>
+② <b>没有上拉电阻</b> → 扫描不到任何器件。<br>
+③ SSD1306 是<b>只写</b>器件，用 <code>HAL_I2C_Master_Receive</code> 读通常失败；判断在线要用 <code>HAL_I2C_IsDeviceReady</code>。<br>
+④ 所有 I2C 操作把 <code>HAL_MAX_DELAY</code> 换成 <code>100</code>，否则器件不应答时程序卡死。</div>
+
+<h2>10.8 本章作业（3 题）</h2>
+<table>
+<tr><th>难度</th><th>题目</th><th>提示</th></tr>
+<tr><td>⭐</td><td><b>总线体检</b>：扫描 0x08~0x77，把每个应答的地址用 7 位/8 位两种形式打印出来。</td><td><code>HAL_I2C_IsDeviceReady</code></td></tr>
+<tr><td>⭐⭐</td><td><b>清屏</b>：点屏之后发送"全屏清 0"的数据，把屏幕从随机雪花变成全黑。</td><td>控制字节 <code>0x40</code>（数据模式）+ 一串 <code>0x00</code></td></tr>
+<tr><td>⭐⭐⭐</td><td><b>显示一个字符</b>：在 OLED 指定位置画出 5×7 点阵的 'A'。</td><td>需要地址设置命令 <code>0x21/0x22</code> + 字模表</td></tr>
+</table>
+<details class="ans"><summary>📖 验收标准 + 思路提示</summary><ol>
+<li>第 1 题：打印出 <code>0x3C / 0x78</code>（如果是 SSD1306）。</li>
+<li>第 2 题：屏幕全黑。<b>思路</b>：先发 <code>0x00</code>（命令）+ 地址设置，再发 <code>0x40</code>（数据）+ 128×8 个 <code>0x00</code>。</li>
+<li>第 3 题：屏幕左上角出现 'A'。<b>这是移植完整 OLED 驱动的第一步</b>，做完你就理解了"显存+寻址"模型。</li>
+</ol></details>
+
+  </div>
+  <div class="daynav"><a class="prev" href="#d9">← 第 9 章　ADC：轮询 / 中断 / DMA 与校准</a><a class="next" href="#d11">第 11 章　SPI：最快的板级通信 →</a></div>
+</article>
+
+<article class="page" id="d11">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">11</span>
+      <span class="pbtt">第 11 章 · SPI：最快的板级通信</span></div>
+    <button class="donebtn" data-day="11">标记已学完</button>
+  </div>
+  <div class="body">
+
+<h2>11.1 SPI 的定位</h2>
+<div class="box tip"><b>本章目标</b>：掌握 SPI 四个常用函数和「全双工」的特点，能驱动 SPI Flash / 屏幕。</div>
+<div class="box warn"><b>和网课的区别</b>：网课讲完四个引脚就配好了。它不讲 <b>为什么 SPI 收发是同一个函数</b>，也不讲 CPOL/CPHA 这个必踩的坑。</div>
+
+<table>
+<tr><th>对比</th><th>I2C</th><th>SPI</th></tr>
+<tr><td>线数</td><td>2（SCL/SDA）</td><td>4（SCK/MOSI/MISO/CS）</td></tr>
+<tr><td>速率</td><td>100k ~ 400k</td><td>几 MHz ~ 几十 MHz</td></tr>
+<tr><td>多设备</td><td>靠地址</td><td>靠<b>各自独立的 CS</b></td></tr>
+<tr><td>全双工</td><td>半双工</td><td><b>全双工（同时收发）</b></td></tr>
+</table>
+
+<h2>11.2 常用函数</h2>
+<table>
+<tr><th>函数</th><th>作用</th></tr>
+<tr><td><code>HAL_SPI_Init(&amp;hspi)</code></td><td>初始化（CubeMX 生成）</td></tr>
+<tr><td><code>HAL_SPI_Transmit(&amp;hspi, buf, n, timeout)</code></td><td>只发</td></tr>
+<tr><td><code>HAL_SPI_Receive(&amp;hspi, buf, n, timeout)</code></td><td>只收（内部会发 dummy 字节）</td></tr>
+<tr><td><code>HAL_SPI_TransmitReceive(&amp;hspi, txbuf, rxbuf, n, timeout)</code></td><td><b>同时收发</b></td></tr>
+<tr><td><code>HAL_SPI_Transmit_IT / _DMA</code></td><td>中断 / DMA 版本</td></tr>
+</table>
+<div class="box tip"><b>为什么「只收」也要有 Transmit</b>：SPI 是<b>移位寄存器</b>结构，主机必须发时钟（SCK）从机才吐数据。<code>HAL_SPI_Receive</code> 内部会自动发 0xFF 占位来产生时钟。</div>
+
+<h2>11.3 驱动 SPI Flash 的典型流程</h2>
+<pre class="code">/* 1. 拉低 CS 选中器件（CS 通常用普通 GPIO 控制） */
+HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
+
+/* 2. 发命令 */
+uint8_t cmd = 0x9F;                       /* JEDEC ID 命令 */
+HAL_SPI_Transmit(&amp;hspi1, &amp;cmd, 1, 100);
+
+/* 3. 收数据 */
+uint8_t id[3];
+HAL_SPI_Receive(&amp;hspi1, id, 3, 100);
+
+/* 4. 拉高 CS 结束 */
+HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);</pre>
+
+<h2>11.4 CPOL / CPHA：必踩的坑</h2>
+<table>
+<tr><th>模式</th><th>CPOL</th><th>CPHA</th><th>说明</th></tr>
+<tr><td>Mode 0</td><td>0</td><td>0</td><td><b>最常用</b>：空闲低，上升沿采样</td></tr>
+<tr><td>Mode 1</td><td>0</td><td>1</td><td>空闲低，下降沿采样</td></tr>
+<tr><td>Mode 2</td><td>1</td><td>0</td><td>空闲高，下降沿采样</td></tr>
+<tr><td>Mode 3</td><td>1</td><td>1</td><td>空闲高，上升沿采样</td></tr>
+</table>
+<div class="box warn"><b>配错的症状</b>：能通信但数据<b>整体偏移一位</b>（比如读 ID 全是 0x7F / 0xFF）。<b>必须查器件手册的 CPOL/CPHA 要求</b>，不能猜。<br>
+Blue Pill 上常见的 SPI Flash（W25Qxx）和多数屏幕是 <b>Mode 0</b>。</div>
+
+<h2>11.5 本章自测</h2>
+<details class="ans"><summary>📖 参考答案（点击展开）</summary><ol>
+<li><b>问：同一路 SPI 挂两个器件行不行？</b><br>答：行，SCK/MOSI/MISO 共用，<b>各自一根 CS</b>。同一时刻只能拉低一个 CS。</li>
+<li><b>问：<code>HAL_SPI_Receive</code> 收 8 字节要多久？</b><br>答：取决于 SCK 频率。比如 9MHz → 8 字节 ≈ 7µs。</li>
+<li><b>问：SPI 读数据为什么经常是 0xFF？</b><br>答：MISO 空闲被上拉为高；如果是全 0xFF，通常是 CS 没拉低或模式配错。</li>
+</ol></details>
+
+<h2>11.6 完整案例：SPI 回环自测（不需要额外芯片）</h2>
+<div class="box tip"><b>案例目标</b>：用一个<b>杜邦线短接</b>就能完成的测试，验证 SPI 时序和配置是否正确。</div>
+
+<h3>① CubeMX 配置</h3>
+<table>
+<tr><th>位置</th><th>配置</th></tr>
+<tr><td><b>SPI1</b></td><td>Full-Duplex Master，8 bits，<b>CPOL = Low，CPHA = 1 Edge</b>（模式 0）</td></tr>
+<tr><td>SPI1 → Parameter</td><td>Prescaler = <b>16</b>，NSS = <b>Software</b>，FirstBit = MSB</td></tr>
+<tr><td>引脚</td><td>PA5 = SCK，PA6 = MISO，PA7 = MOSI</td></tr>
+<tr><td>USART1</td><td>115200，打印结果</td></tr>
+</table>
+
+<h3>② 接线（关键）</h3>
+<pre class="code">用一根杜邦线把 PA7(MOSI) 和 PA6(MISO) 直接短接
+→ 发出去的数据会被自己收回来 → 验证 SPI 收发环路</pre>
+
+<h3>③ 完整代码</h3>
+<pre class="code">/* ---- USER CODE BEGIN Includes ---- */
+#include &lt;stdio.h&gt;
+
+/* ---- USER CODE BEGIN 2 ---- */
+uint8_t tx[4] = {0x55, 0xAA, 0x01, 0x80};
+uint8_t rx[4] = {0};
+
+HAL_SPI_TransmitReceive(&amp;hspi1, tx, rx, 4, 100);    /* 全双工：边发边收 */
+
+printf("TX: %02X %02X %02X %02X\r\n", tx[0], tx[1], tx[2], tx[3]);
+printf("RX: %02X %02X %02X %02X\r\n", rx[0], rx[1], rx[2], rx[3]);
+
+uint8_t ok = (memcmp(tx, rx, 4) == 0);
+printf(ok ? "PASS: loopback ok\r\n" : "FAIL: check PA6-PA7 jumper\r\n");
+/* USER CODE END 2 */</pre>
+
+<h3>④ 验证</h3>
+<table>
+<tr><th>现象</th><th>结论</th></tr>
+<tr><td><code>RX</code> 和 <code>TX</code> 完全相同，打印 <code>PASS</code></td><td>✅ SPI 配置正确</td></tr>
+<tr><td><code>RX</code> 全是 <code>00</code> 或 <code>FF</code></td><td>PA6/PA7 没短接，或 MISO 配错</td></tr>
+<tr><td><code>RX</code> 是乱码/错位</td><td>CPOL/CPHA 与从机不匹配（本案例对回环不敏感，但接真实器件时必须一致）</td></tr>
+</table>
+
+<div class="box warn"><b>易错点</b><br>
+① 用 <code>HAL_SPI_Transmit</code> 做回环是收不到的 —— 要用 <b><code>TransmitReceive</code></b>。<br>
+② NSS 必须配 <b>Software</b>，否则片选一直无效。<br>
+③ SPI 没有应答机制（不像 I2C），<b>发出去就认为成功</b>，所以调试必须靠回读数据验证。<br>
+④ 接真实 SPI Flash/SD 卡时，注意从机要求的 CPOL/CPHA（模式 0/1/2/3）。</div>
+
+<h2>11.7 本章作业（3 题）</h2>
+<table>
+<tr><th>难度</th><th>题目</th><th>提示</th></tr>
+<tr><td>⭐</td><td><b>回环压测</b>：连续做 100 次回环测试，统计成功率并打印。</td><td>循环 + <code>memcmp</code> + 计数器</td></tr>
+<tr><td>⭐⭐</td><td><b>数据模式测试</b>：分别发 <code>0x00</code> / <code>0xFF</code> / <code>0x55</code> / <code>0xAA</code> 各 8 字节，验证是否有位错。</td><td>这四种是最能暴露时序问题的模式</td></tr>
+<tr><td>⭐⭐⭐</td><td><b>完整双机通信</b>：两块 F103，一块只发、一块只收，用 SPI 传一个递增计数器。</td><td>需要共地 + 主从 NSS 处理</td></tr>
+</table>
+<details class="ans"><summary>📖 验收标准 + 思路提示</summary><ol>
+<li>第 1 题：成功率 100%（允许偶尔 1 次，超过说明线太长/接触不良）。</li>
+<li>第 2 题：全部 PASS。<b>为什么选这四个值</b>：0x00 全 0、0xFF 全 1、0x55=0101、0xAA=1010，能覆盖所有相邻位组合。</li>
+<li>第 3 题：接收端收到的数字连续递增。<b>注意</b>：两块板必须共地，否则电平参考不一致。</li>
+</ol></details>
+
+  </div>
+  <div class="daynav"><a class="prev" href="#d10">← 第 10 章　I2C：硬件 I2C 与软件模拟的取舍</a><a class="next" href="#d12">第 12 章　DMA：让 CPU 从搬运工里解放出来 →</a></div>
+</article>
+
+<article class="page" id="d12">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">12</span>
+      <span class="pbtt">第 12 章 · DMA：让 CPU 从搬运工里解放出来</span></div>
+    <button class="donebtn" data-day="12">标记已学完</button>
+  </div>
+  <div class="body">
+
+<h2>12.1 为什么需要 DMA</h2>
+<div class="box tip"><b>本章目标</b>：理解 DMA 的适用场景，掌握三个最常用外设的 DMA 启动方式。</div>
+<div class="box warn"><b>和网课的区别</b>：网课说「DMA 就是不占 CPU」。它不讲 <b>DMA 什么时候真的比中断快</b>，也不讲忘了「先配 DMA 再配外设」会怎样。</div>
+
+<table>
+<tr><th>方式</th><th>传 1000 字节 @9600 串口</th><th>CPU 占用</th></tr>
+<tr><td>阻塞</td><td>约 1 秒</td><td>🔴 100%</td></tr>
+<tr><td>中断</td><td>约 1 秒</td><td>🟡 每字节一次中断</td></tr>
+<tr><td><b>DMA</b></td><td>约 1 秒</td><td>🟢 <b>只有结束时一次中断</b></td></tr>
+</table>
+<div class="box tip"><b>DMA 的本质</b>：一个「专职搬运工」硬件。CPU 只下命令「把这 1000 字节搬到串口数据寄存器」，然后该干嘛干嘛。<b>适合大批量、连续的数据流</b>。</div>
+
+<h2>12.2 DMA 相关函数</h2>
+<table>
+<tr><th>函数</th><th>作用</th></tr>
+<tr><td><code>HAL_DMA_Init(&amp;hdma)</code></td><td>配置通道（CubeMX 生成，一般不用手动调）</td></tr>
+<tr><td><code>HAL_DMA_Start(&amp;hdma, src, dst, len)</code></td><td>启动一次搬运</td></tr>
+<tr><td><code>HAL_DMA_Start_IT(...)</code></td><td>带完成中断</td></tr>
+<tr><td><code>__HAL_LINKDMA(&amp;huart1, hdmatx, hdma_usart1_tx)</code></td><td><b>把 DMA 和外设句柄绑起来</b>（CubeMX 生成）</td></tr>
+<tr><td><code>HAL_DMA_Abort(&amp;hdma)</code></td><td>中止</td></tr>
+</table>
+
+<h2>12.3 串口 DMA 发送</h2>
+<pre class="code">/* USER CODE BEGIN 2 */
+/* 启动一次 DMA 发送 */
+HAL_UART_Transmit_DMA(&amp;huart1, tx_buf, sizeof(tx_buf));
+
+/* USER CODE BEGIN 4 */
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+{
+    if (huart-&gt;Instance == USART1)
+    {
+        g_tx_done = 1;      /* 真正发完了 */
+    }
+}</pre>
+<div class="box warn"><b>坑</b>：<code>HAL_UART_Transmit_DMA</code> 返回 <code>HAL_OK</code> 只代表「启动成功」，<b>不代表发完</b>。而且 <b>DMA 传输期间你不能改 <code>tx_buf</code> 的内容</b>（DMA 还在读它）。</div>
+
+<h2>12.4 ADC 多通道 DMA（最经典的组合）</h2>
+<pre class="code">uint16_t adc_dma_buf[4];       /* 4 个通道的结果 */
+
+/* 启动：一次触发，DMA 自动填满 4 个元素 */
+HAL_ADC_Start_DMA(&amp;hadc1, (uint32_t *)adc_dma_buf, 4);
+
+/* 之后 adc_dma_buf[0..3] 就自动更新了，不需要再调用任何函数 */</pre>
+<div class="box tip"><b>为什么这是最规范的多通道做法</b>：ADC 扫描模式依次转换 4 个通道，每转换完一个就触发一次 DMA 搬运，<b>CPU 全程不用管</b>。比「切通道 + 等转换 + 读值」循环干净得多。</div>
+
+<h2>12.5 配置顺序（容易配反）</h2>
+<table>
+<tr><th>顺序</th><th>做什么</th><th>配反的后果</th></tr>
+<tr><td>①</td><td>CubeMX 里给外设加 DMA 通道</td><td>—</td></tr>
+<tr><td>②</td><td>生成代码（会自动 <code>__HAL_LINKDMA</code>）</td><td>没有链接 → DMA 不工作</td></tr>
+<tr><td>③</td><td>调用外设的 <code>_DMA</code> 版启动函数</td><td>调普通版 → DMA 根本不参与</td></tr>
+</table>
+<div class="box warn"><b>「配了 DMA 但没效果」的头号原因</b>：调用了 <code>HAL_UART_Transmit</code> 而不是 <code>HAL_UART_Transmit_DMA</code> —— 名字只差 4 个字母，行为天差地别。</div>
+
+<h2>12.6 本章自测</h2>
+<details class="ans"><summary>📖 参考答案（点击展开）</summary><ol>
+<li><b>问：DMA 传 1000 字节和阻塞传 1000 字节，速度一样吗？</b><br>答：<b>一样</b>。DMA 快在「不占 CPU」，不是快在传输速度（速度由外设决定）。</li>
+<li><b>问：DMA 传输中能改源缓冲区吗？</b><br>答：不能。DMA 还在读它，改了会发出错乱数据。</li>
+<li><b>问：为什么 ADC 多通道推荐 DMA？</b><br>答：扫描模式下每个通道转换完都会触发 DMA，一次性收完，CPU 完全不用参与。</li>
+</ol></details>
+
+<h2>12.7 完整案例：ADC + DMA 后台连续采集</h2>
+<div class="box tip"><b>案例目标</b>：体验 DMA 的价值 —— <b>CPU 完全不用管采集</b>，主循环随时读最新值。</div>
+
+<h3>① CubeMX 配置</h3>
+<table>
+<tr><th>位置</th><th>配置</th></tr>
+<tr><td><b>ADC1 → IN0</b></td><td>勾选（PA0）</td></tr>
+<tr><td>ADC1 → Parameter</td><td>Continuous Conversion = <b>Enable</b>，DMA Continuous Requests = <b>Enable</b></td></tr>
+<tr><td>ADC1 → DMA Settings</td><td>Add → <b>ADC1</b>，Mode = <b>Circular</b>，Data Width = Half Word</td></tr>
+<tr><td><b>NVIC</b></td><td>勾选 <b>DMA1 Channel1</b>（可选，本例不用中断）</td></tr>
+<tr><td>USART1</td><td>115200，打印</td></tr>
+</table>
+
+<h3>② 完整代码</h3>
+<pre class="code">/* ---- USER CODE BEGIN Includes ---- */
+#include &lt;stdio.h&gt;
+
+/* ---- USER CODE BEGIN PV ---- */
+/* DMA 会不停往这个数组里写，必须 volatile */
+volatile uint16_t g_adc_buf[16] = {0};
+
+/* ---- USER CODE BEGIN 2 ---- */
+HAL_ADCEx_Calibration_Start(&amp;hadc1);
+
+/* ⭐ 启动后 DMA 自己循环搬运，CPU 完全不用管 */
+HAL_ADC_Start_DMA(&amp;hadc1, (uint32_t *)g_adc_buf, 16);
+
+char buf[64];
+
+/* ---- USER CODE BEGIN 3 ---- */
+static uint32_t t = 0;
+if (HAL_GetTick() - t &gt;= 500)
+{
+    t = HAL_GetTick();
+
+    /* 直接读缓冲区最新值（不需要 Start/Stop）*/
+    uint16_t raw = g_adc_buf[0];
+    uint32_t mv = raw * 3300 / 4095;
+    sprintf(buf, "raw=%4u  %lu.%03lu V\r\n",
+            raw, (unsigned long)(mv / 1000), (unsigned long)(mv % 1000));
+    HAL_UART_Transmit(&amp;huart1, (uint8_t *)buf, strlen(buf), 100);
+}
+/* USER CODE END 3 */</pre>
+
+<h3>③ 验证</h3>
+<table>
+<tr><th>操作</th><th>现象</th></tr>
+<tr><td>PA0 接 GND</td><td>持续打印 <code>raw≈0</code></td></tr>
+<tr><td>PA0 接 3.3V</td><td>持续打印 <code>raw≈4095</code></td></tr>
+<tr><td>PA0 接一个电位器中点</td><td>数值随旋钮实时变化，<b>延迟极低</b></td></tr>
+</table>
+
+<div class="box warn"><b>易错点</b><br>
+① 缓冲区必须 <code>volatile</code>，否则编译器可能把它优化成常量。<br>
+② DMA Mode 必须是 <b>Circular</b>，否则搬完一轮就停。<br>
+③ 启动要用 <b><code>HAL_ADC_Start_DMA</code></b>，不是 <code>HAL_ADC_Start</code>。<br>
+④ 用 DMA 后<b>不要</b>再调 <code>HAL_ADC_PollForConversion</code> —— 两者会打架。</div>
+
+<h2>12.8 本章作业（3 题）</h2>
+<table>
+<tr><th>难度</th><th>题目</th><th>提示</th></tr>
+<tr><td>⭐</td><td><b>DMA 发串口</b>：用 <code>HAL_UART_Transmit_DMA</code> 发一整句字符串，观察 CPU 负载差异。</td><td>和 <code>HAL_UART_Transmit</code> 对比</td></tr>
+<tr><td>⭐⭐</td><td><b>统计极值</b>：ADC+DMA 采集 100 个点，求最大值、最小值、平均值并打印。</td><td>DMA 用 Normal 模式，采集完再算</td></tr>
+<tr><td>⭐⭐⭐</td><td><b>双通道采集</b>：ADC 同时采集 PA0 和 PA1 两个通道，串口打印成两列。</td><td>CubeMX 里 Scan=Enable，DMA 搬 2×N 个点</td></tr>
+</table>
+<details class="ans"><summary>📖 验收标准 + 思路提示</summary><ol>
+<li>第 1 题：发送期间主循环能继续跑（能同时闪灯）。<b>考点</b>：DMA 让 CPU 解放。</li>
+<li>第 2 题：三个统计值正确。<b>注意</b>：Normal 模式下 DMA 搬完就停，需要先等 <code>HAL_ADC_Start_DMA</code> 完成后判断标志。</li>
+<li>第 3 题：两列数值分别跟随两个电位器。<b>关键</b>：多通道要开 <b>Scan</b> 模式，缓冲区排列是"通道0的N个点 + 通道1的N个点"（或交替，取决于配置）。</li>
+</ol></details>
+
+  </div>
+  <div class="daynav"><a class="prev" href="#d11">← 第 11 章　SPI：最快的板级通信</a><a class="next" href="#d13">第 13 章　看门狗 / Flash 读写 / 低功耗 →</a></div>
+</article>
+
+<article class="page" id="d13">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">13</span>
+      <span class="pbtt">第 13 章 · 看门狗 / Flash 读写 / 低功耗</span></div>
+    <button class="donebtn" data-day="13">标记已学完</button>
+  </div>
+  <div class="body">
+
+<h2>13.1 三块「可靠性」外设</h2>
+<div class="box tip"><b>本章目标</b>：掌握看门狗防死机、Flash 存数据、以及低功耗三种模式的入口函数。</div>
+<div class="box warn"><b>和网课的区别</b>：网课常常跳过这三块。但真实项目里，<b>没有看门狗的产品是不敢出货的</b>。</div>
+
+<h2>13.2 独立看门狗 IWDG</h2>
+<table>
+<tr><th>函数</th><th>作用</th></tr>
+<tr><td><code>HAL_IWDG_Init(&amp;hiwdg)</code></td><td>初始化并<b>立即启动</b>（不用 Start）</td></tr>
+<tr><td><code>HAL_IWDG_Refresh(&amp;hiwdg)</code></td><td><b>喂狗</b>（重置计数）</td></tr>
+</table>
+<pre class="code">/* USER CODE BEGIN 2 */
+HAL_IWDG_Init(&amp;hiwdg);          /* 启动后开始倒计时 */
+
+/* USER CODE BEGIN 3 */
+while (1)
+{
+    /* 业务逻辑 */
+    HAL_IWDG_Refresh(&amp;hiwdg);   /* ⚠ 必须在超时前喂一次 */
+}</pre>
+<div class="box warn"><b>看门狗的意义</b>：如果程序跑飞、死循环、硬件异常，<b>没喂狗 → 芯片自动复位</b>，而不是一直卡死。<br>
+<b>常见错误</b>：把 <code>Refresh</code> 放在定时器中断里 —— 那即使主循环死了，中断还在喂狗，看门狗就形同虚设。<b>必须在主循环里喂</b>。</div>
+
+<h2>13.3 Flash 读写（掉电保存）</h2>
+<table>
+<tr><th>函数</th><th>作用</th></tr>
+<tr><td><code>HAL_FLASH_Unlock()</code></td><td>解锁（必须先调）</td></tr>
+<tr><td><code>HAL_FLASH_Program(type, addr, data)</code></td><td>写一个字/半字</td></tr>
+<tr><td><code>HAL_FLASH_Lock()</code></td><td>上锁（写完必须调）</td></tr>
+<tr><td><code>FLASH_Erase(...)</code>（在 <code>hal_flash_ex.h</code>）</td><td><b>擦除页</b></td></tr>
+</table>
+<pre class="code">#define SAVE_ADDR  0x0801FC00      /* F103C8 64KB 的最后一页附近 */
+
+HAL_FLASH_Unlock();
+
+/* ⚠ Flash 写入前必须先擦除整页 */
+FLASH_EraseInitTypeDef erase = {0};
+uint32_t page_err = 0;
+erase.TypeErase = FLASH_TYPEERASE_PAGES;
+erase.PageAddress = SAVE_ADDR;
+erase.NbPages = 1;
+HAL_FLASHEx_Erase(&amp;erase, &amp;page_err);
+
+HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, SAVE_ADDR, 0x1234);
+HAL_FLASH_Lock();</pre>
+<div class="box warn"><b>Flash 的三个铁律</b>：<br>
+① <b>写之前必须先擦</b>（擦成 0xFF 才能写）<br>
+② <b>只能 1→0</b>：擦完是 0xFF，写 0x0F 可以，再想写回 0xFF 必须重新擦<br>
+③ <b>擦除单位是「页」（F103 是 1KB）</b>，写单位是半字（16 位）</div>
+
+<h2>13.4 低功耗三种模式</h2>
+<table>
+<tr><th>模式</th><th>功耗</th><th>唤醒方式</th><th>入口函数</th></tr>
+<tr><td>Sleep</td><td>中</td><td>任意中断</td><td><code>HAL_PWR_EnterSLEEPMode(cmd, sleeponexit)</code></td></tr>
+<tr><td><b>Stop</b></td><td>低</td><td>EXTI 外部中断、RTC</td><td><code>HAL_PWR_EnterSTOPMode(regulator, mode)</code></td></tr>
+<tr><td>Standby</td><td>最低</td><td>WKUP 引脚、RTC、复位</td><td><code>HAL_PWR_EnterSTANDBYMode()</code></td></tr>
+</table>
+<pre class="code">/* Stop 模式：唤醒后时钟会变成 HSI，必须重新配时钟！ */
+HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+SystemClock_Config();     /* ⚠ 唤醒后必须重新配置时钟 */
+/* 唤醒后外设需要重新初始化 */</pre>
+<div class="box warn"><b>Stop 模式最大的坑</b>：唤醒后<b>系统时钟回落为 HSI（8MHz）</b>，串口波特率、定时器全部错乱。必须重新调用 <code>SystemClock_Config()</code> 并把外设重新初始化。</div>
+
+<h2>13.5 本章自测</h2>
+<details class="ans"><summary>📖 参考答案（点击展开）</summary><ol>
+<li><b>问：看门狗 Refresh 放中断里为什么不对？</b><br>答：主循环死了但中断还活着，看门狗一直被喂，永远不复位 —— 失去保护意义。</li>
+<li><b>问：Flash 能直接覆盖写吗？</b><br>答：不能。必须先擦除整页（变成 0xFF）才能写。</li>
+<li><b>问：Stop 模式唤醒后为什么串口乱码？</b><br>答：时钟回落到 HSI 8MHz，波特率分频全变了。要重新配时钟。</li>
+</ol></details>
+
+<h2>13.6 完整案例：独立看门狗喂狗 + 故意让它复位</h2>
+<div class="box tip"><b>案例目标</b>：亲手制造一次看门狗复位，看到「程序跑飞 → 自动重启」的完整过程。</div>
+
+<h3>① CubeMX 配置</h3>
+<table>
+<tr><th>位置</th><th>配置</th><th>算出来</th></tr>
+<tr><td><b>IWDG</b></td><td>Activated</td><td>—</td></tr>
+<tr><td>IWDG → Parameter</td><td>Prescaler = <b>64</b>，Reload = <b>625</b></td><td>LSI 40kHz / 64 = 625Hz；625 / 625 = <b>1 秒超时</b></td></tr>
+<tr><td>PC13</td><td>GPIO_Output Push Pull，初始 High</td><td>复位指示</td></tr>
+<tr><td>PA0</td><td>GPIO_Input，Pull-up</td><td>按住 = 停止喂狗</td></tr>
+</table>
+
+<h3>② 完整代码</h3>
+<pre class="code">/* ---- USER CODE BEGIN 2 ---- */
+/* CubeMX 生成的 MX_IWDG_Init 已经启动了看门狗，这里开始必须定期喂 */
+
+/* ---- USER CODE BEGIN 3 ---- */
+static uint32_t blink_t = 0;
+
+/* 心跳：每 100ms 翻转一次（证明程序活着）*/
+if (HAL_GetTick() - blink_t &gt;= 100)
+{
+    blink_t = HAL_GetTick();
+    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+}
+
+/* 喂狗条件：按键没被按住 */
+if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_SET)   /* 没按 */
+{
+    HAL_IWDG_Refresh(&amp;hiwdg);      /* ⭐ 喂狗 */
+}
+/* 按住按键 → 不喂 → 1 秒后被看门狗复位 */
+/* USER CODE END 3 */</pre>
+
+<h3>③ 验证</h3>
+<table>
+<tr><th>操作</th><th>现象</th></tr>
+<tr><td>不按键</td><td>LED 快闪（每 100ms 翻转 = 5Hz）</td></tr>
+<tr><td><b>按住 PA0 超过 1 秒</b></td><td>LED <b>停止闪烁约 1 秒 → 然后程序重启</b>（LED 重新开始快闪）</td></tr>
+<tr><td>按住后松开</td><td>恢复正常闪烁（说明喂狗恢复了）</td></tr>
+</table>
+
+<div class="box warn"><b>易错点</b><br>
+① <b>看门狗一旦启动就关不掉</b>（只有复位能停）—— 调试时容易反复复位，可在调试阶段先不启用。<br>
+② 喂狗间隔必须 <b>小于超时时间</b>（本例 1 秒），并且在主循环里喂，不要在中断里喂（中断出错时看门狗就失效了）。<br>
+③ IWDG 用 <b>LSI</b>（内部 40kHz），精度差（±50%），所以超时要留足余量。<br>
+④ 如果只想"测试"，用 <code>HAL_IWDG_Refresh</code> 前先加个 <code>for</code> 延时模拟卡死，比按住按键更好复现。</div>
+
+<h2>13.7 本章作业（3 题）</h2>
+<table>
+<tr><th>难度</th><th>题目</th><th>提示</th></tr>
+<tr><td>⭐</td><td><b>改超时时间</b>：把 IWDG 超时从 1 秒改成 2 秒，验证按按键后确实慢了一倍才复位。</td><td>改 Reload 值：<code>LsI/64 × 2s = 1250</code></td></tr>
+<tr><td>⭐⭐</td><td><b>算一算</b>：列表计算 Prescaler=4/8/32/64/256 时，1 秒超时对应的 Reload 各是多少。</td><td><code>Reload = 40000 / Prescaler × 超时秒数</code></td></tr>
+<tr><td>⭐⭐⭐</td><td><b>双重保护</b>：IWDG 喂狗 + 一个"软件看门狗"（主循环里任务超时检测）。</td><td>主循环里记录各任务最后执行时刻，超时则主动复位</td></tr>
+</table>
+<details class="ans"><summary>📖 验收标准 + 思路提示</summary><ol>
+<li>第 1 题：按住按键约 2 秒后复位。注意 LSI 精度 ±50%，实测可能是 1.5~2.5 秒。</li>
+<li>第 2 题答案：
+<table>
+<tr><th>Prescaler</th><th>Reload（1 秒）</th></tr>
+<tr><td>4</td><td>10000</td></tr>
+<tr><td>8</td><td>5000</td></tr>
+<tr><td>32</td><td>1250</td></tr>
+<tr><td>64</td><td>625</td></tr>
+<tr><td>256</td><td>156</td></tr>
+</table>
+公式：<code>40kHz / Prescaler / Reload = 1 / 超时秒数</code>，注意 Reload 是 12 位（最大 4095）。</li>
+<li>第 3 题：硬件看门狗防"程序完全跑飞"，软件看门狗防"某个任务卡住但主循环还在喂狗"。两者互补。</li>
+</ol></details>
+
+  </div>
+  <div class="daynav"><a class="prev" href="#d12">← 第 12 章　DMA：让 CPU 从搬运工里解放出来</a><a class="next" href="#d14">第 14 章　综合实战：串口控制的 LED 系统 →</a></div>
+</article>
+
+<article class="page" id="d14">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">14</span>
+      <span class="pbtt">第 14 章 · 综合实战：串口控制的 LED 系统</span></div>
+    <button class="donebtn" data-day="14">标记已学完</button>
+  </div>
+  <div class="body">
+
+<h2>14.1 为什么需要一个综合案例</h2>
+<div class="box tip"><b>本章目标</b>：把前面 13 章的外设<b>串成一个能交付的完整项目</b>，让你看清「函数怎么配合」而不是「单个函数怎么调」。</div>
+<div class="box warn"><b>和前面章节的区别</b>：前面每章是「一个外设 + 一张函数表」。但真实项目从来不是「一个外设」，而是<b>多个外设 + 状态机 + 中断回调</b>一起工作。本章就是那块拼图。</div>
+
+<h2>14.2 需求（先写清楚，再动手）</h2>
+<table>
+<tr><th>#</th><th>功能</th><th>验收标准</th></tr>
+<tr><td>1</td><td>LED（PC13）三种模式</td><td>常灭 / 常亮 / 每 0.5 秒闪烁</td></tr>
+<tr><td>2</td><td>按键（PA0）切换模式</td><td>每按一次，模式循环切换</td></tr>
+<tr><td>3</td><td>串口命令 <code>m</code></td><td>切换模式（和按键等效）</td></tr>
+<tr><td>4</td><td>串口命令 <code>?</code></td><td>打印当前模式</td></tr>
+<tr><td>5</td><td>未知命令</td><td>打印提示，不影响运行</td></tr>
+<tr><td>6</td><td><b>闪烁不卡主循环</b></td><td>闪烁期间按键/串口依然灵敏</td></tr>
+</table>
+<div class="box warn"><b>第 6 条是最关键的</b>：它直接排除了「用 <code>HAL_Delay</code> 做闪烁」这种写法 —— 那样按键会被卡住 500ms。</div>
+
+<h2>14.3 CubeMX 配置清单（照着勾）</h2>
+<table>
+<tr><th>位置</th><th>配置</th><th>为什么</th></tr>
+<tr><td>RCC → HSE</td><td>Crystal/Ceramic Resonator</td><td>用外部 8MHz 晶振</td></tr>
+<tr><td>Clock Configuration</td><td>PLL ×9 → SYSCLK <b>72MHz</b></td><td>标准频率，波特率误差小</td></tr>
+<tr><td><b>SYS → Debug</b></td><td><b>Serial Wire</b></td><td>🔴 铁律！选 No Debug 会关掉 SWD</td></tr>
+<tr><td>GPIO <b>PC13</b></td><td>Output <b>Push Pull</b>，初始 <b>High</b>，Speed Low</td><td>板载 LED 低电平点亮；初始 High = 灭</td></tr>
+<tr><td>GPIO <b>PA0</b></td><td>EXTI，<b>Falling edge</b>，Pull-up</td><td>按键按下接地，产生下降沿</td></tr>
+<tr><td>NVIC</td><td>勾选 <b>EXTI line0 interrupt</b></td><td>不勾中断进不去</td></tr>
+<tr><td><b>TIM2</b></td><td>PSC=<b>72-1</b>，ARR=<b>1000-1</b>，NVIC 勾 TIM2</td><td>72MHz/72 = 1MHz，数 1000 次 = <b>1ms</b></td></tr>
+<tr><td><b>USART1</b></td><td>115200，8N1，PA9=TX / PA10=RX，<b>NVIC 勾 USART1</b></td><td>串口命令交互</td></tr>
+</table>
+
+<h2>14.4 数据流（先想清楚，再写代码）</h2>
+<pre class="code">按键 → EXTI 中断 → Callback 里置 g_key_event = 1
+                                    ↓
+串口收字节 → UART 中断 → Callback 里置 g_rx_ready = 1
+                                    ↓
+              主循环：检查这两个标志位
+                    ↓
+         切换 s_mode（状态变量）
+                    ↓
+         根据 s_mode 输出 LED 电平</pre>
+<div class="box tip"><b>为什么中断里只置标志位</b>：中断必须尽快返回。把「切换模式」「串口打印」这些耗时操作放到主循环，才不会阻塞其他中断。</div>
+
+<h2>14.5 完整代码（按 USER CODE 区放）</h2>
+
+<h3>① 头文件（USER CODE Includes）</h3>
+<pre class="code">#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;</pre>
+
+<h3>② 全局变量（USER CODE PV）</h3>
+<pre class="code">/* 中断和主循环共享的变量 → 必须 volatile */
+volatile uint8_t  g_key_event = 0;    /* 按键按下标志 */
+volatile uint8_t  g_rx_byte   = 0;    /* 收到的字节 */
+volatile uint8_t  g_rx_ready  = 0;    /* 收到新字节标志 */
+volatile uint32_t g_ms_tick   = 0;    /* 1ms 计数 */
+
+/* 只在主循环里用的状态 → 不需要 volatile */
+static uint8_t  s_mode       = 0;     /* 0=灭 1=亮 2=闪 */
+static uint32_t s_last_blink = 0;     /* 上次翻转的时刻 */</pre>
+
+<h3>③ 辅助函数（USER CODE 0）</h3>
+<pre class="code">#define MODE_OFF    0
+#define MODE_ON     1
+#define MODE_BLINK  2
+#define MODE_MAX    3
+
+static void Uart_Send(const char *s)
+{
+    HAL_UART_Transmit(&amp;huart1, (uint8_t *)s, strlen(s), 100);
+}
+
+static const char *ModeName(uint8_t m)
+{
+    switch (m) {
+    case MODE_OFF:   return "OFF";
+    case MODE_ON:    return "ON";
+    case MODE_BLINK: return "BLINK";
+    default:         return "?";
+    }
+}
+
+static void ReportMode(void)
+{
+    char buf[32];
+    sprintf(buf, "mode = %s\r\n", ModeName(s_mode));
+    Uart_Send(buf);
+}</pre>
+
+<h3>④ 启动外设（USER CODE 2）</h3>
+<pre class="code">HAL_TIM_Base_Start_IT(&amp;htim2);                            /* 启动 1ms 时基 */
+HAL_UART_Receive_IT(&amp;huart1, (uint8_t *)&amp;g_rx_byte, 1);   /* 启动串口中断接收 */
+
+Uart_Send("\r\n=== LED Control Ready ===\r\n");
+Uart_Send("  m : switch mode\r\n  ? : show mode\r\n");
+ReportMode();</pre>
+
+<h3>⑤ 主循环（USER CODE 3）</h3>
+<pre class="code">/* ① 处理按键事件 */
+if (g_key_event)
+{
+    g_key_event = 0;                      /* 先清标志，再处理 */
+    s_mode = (s_mode + 1) % MODE_MAX;
+    Uart_Send("key: ");
+    ReportMode();
+}
+
+/* ② 处理串口命令 */
+if (g_rx_ready)
+{
+    uint8_t c = g_rx_byte;
+    g_rx_ready = 0;
+    HAL_UART_Receive_IT(&amp;huart1, (uint8_t *)&amp;g_rx_byte, 1);   /* ⚠ 必须重启接收 */
+
+    if (c == 'm' || c == 'M')
+    {
+        s_mode = (s_mode + 1) % MODE_MAX;
+        ReportMode();
+    }
+    else if (c == '?')
+    {
+        ReportMode();
+    }
+    else if (c != '\r' &amp;&amp; c != '\n')       /* 忽略「发送新行」带来的换行 */
+    {
+        Uart_Send("unknown cmd (use m or ?)\r\n");
+    }
+}
+
+/* ③ 输出 LED（不阻塞）*/
+switch (s_mode)
+{
+case MODE_OFF:
+    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);     /* 高 = 灭 */
+    break;
+
+case MODE_ON:
+    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);   /* 低 = 亮 */
+    break;
+
+case MODE_BLINK:
+    if (HAL_GetTick() - s_last_blink &gt;= 500)   /* 非阻塞闪烁 */
+    {
+        s_last_blink = HAL_GetTick();
+        HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+    }
+    break;
+
+default:
+    s_mode = MODE_OFF;
+    break;
+}</pre>
+
+<h3>⑥ 回调函数（USER CODE 4）</h3>
+<pre class="code">/* TIM2 溢出（每 1ms 一次）*/
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+    if (htim-&gt;Instance == TIM2)
+    {
+        g_ms_tick++;
+    }
+}
+
+/* 按键下降沿 */
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+    if (GPIO_Pin == GPIO_PIN_0)
+    {
+        g_key_event = 1;          /* 只置标志，不做耗时操作 */
+    }
+}
+
+/* 串口收到 1 字节 */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+    if (huart-&gt;Instance == USART1)
+    {
+        g_rx_ready = 1;
+    }
+}</pre>
+
+<h2>14.6 逐段讲解：每个函数为什么这么调</h2>
+<table>
+<tr><th>代码</th><th>用了哪个 HAL 函数</th><th>关键点</th></tr>
+<tr><td><code>HAL_TIM_Base_Start_IT(&amp;htim2)</code></td><td>TIM 定时中断</td><td>只 Init 不会跑，<b>必须 Start_IT</b></td></tr>
+<tr><td><code>HAL_UART_Receive_IT(...,&amp;g_rx_byte,1)</code></td><td>UART 中断接收</td><td>一次性的，<b>回调里要重新调用</b></td></tr>
+<tr><td><code>HAL_GetTick() - s_last_blink</code></td><td>SysTick 时基</td><td><b>差值写法</b>，计数溢出也安全</td></tr>
+<tr><td><code>HAL_GPIO_TogglePin</code></td><td>GPIO 翻转</td><td>比「读 + 写」简洁</td></tr>
+<tr><td><code>volatile</code></td><td>—</td><td>中断改、主循环读 → <b>必须加</b></td></tr>
+<tr><td><code>HAL_GPIO_EXTI_Callback</code></td><td>EXTI 回调</td><td>CubeMX 已配好中断入口，<b>你只写这个</b></td></tr>
+</table>
+
+<h2>14.7 验证步骤（按顺序做）</h2>
+<table>
+<tr><th>步</th><th>操作</th><th>预期现象</th></tr>
+<tr><td>1</td><td>F7 编译</td><td>0 Error</td></tr>
+<tr><td>2</td><td>F8 下载</td><td><code>Programming Done / Verify OK</code></td></tr>
+<tr><td>3</td><td>打开串口助手（115200）</td><td>看到 <code>=== LED Control Ready ===</code></td></tr>
+<tr><td>4</td><td>发 <code>?</code></td><td>回 <code>mode = OFF</code></td></tr>
+<tr><td>5</td><td>发 <code>m</code></td><td>回 <code>mode = ON</code>，<b>LED 亮</b></td></tr>
+<tr><td>6</td><td>再发 <code>m</code></td><td>回 <code>mode = BLINK</code>，<b>LED 每 0.5 秒闪</b></td></tr>
+<tr><td>7</td><td>闪烁时按按键</td><td><b>立刻响应</b>（证明没被 Delay 卡住）</td></tr>
+<tr><td>8</td><td>发 <code>xyz</code></td><td>三次 <code>unknown cmd</code></td></tr>
+</table>
+<div class="box tip"><b>第 7 步是这个案例的精髓</b>：闪烁期间按按键能立刻响应 = 证明主循环是<b>非阻塞</b>的。如果用 <code>HAL_Delay(500)</code> 写闪烁，第 7 步会明显迟钝甚至丢键。</div>
+
+<h2>14.8 常见问题排查</h2>
+<table>
+<tr><th>现象</th><th>原因</th></tr>
+<tr><td>LED 一直不亮</td><td>① PC13 配成了 Open Drain（应 Push Pull）② 初始电平是 High（灭）</td></tr>
+<tr><td>按键无反应</td><td>① NVIC 没勾 EXTI line0 ② 回调里 <code>GPIO_Pin</code> 判断写错 ③ 没配 Pull-up</td></tr>
+<tr><td>串口只收到第一条命令</td><td>回调里<b>忘了重新</b>调 <code>HAL_UART_Receive_IT</code></td></tr>
+<tr><td>串口打出乱码</td><td>波特率不是 115200 / 时钟没配到 72MHz</td></tr>
+<tr><td>程序卡死不响应</td><td>哪里用了 <code>HAL_MAX_DELAY</code></td></tr>
+<tr><td>按一次键切好几次模式</td><td>EXTI 在抖动时触发多次 → 在回调里加软件消抖</td></tr>
+</table>
+
+<h2>14.9 本章自测</h2>
+<details class="ans"><summary>📖 参考答案（点击展开）</summary><ol>
+<li><b>问：为什么 <code>s_mode</code> 不加 <code>volatile</code>，而 <code>g_key_event</code> 要加？</b><br>答：<code>s_mode</code> 只在主循环里读写；<code>g_key_event</code> 是<b>中断写、主循环读</b>，不加 volatile 编译器可能把它优化进寄存器，导致主循环看不到变化。</li>
+<li><b>问：如果把闪烁改成 <code>HAL_Delay(500)</code> 会怎样？</b><br>答：主循环每圈被卡 500ms，按键响应延迟最高 500ms、串口命令也可能丢 —— 违背需求第 6 条。</li>
+<li><b>问：为什么回调里只置标志位，不直接切模式？</b><br>答：中断里做耗时操作（比如串口打印）会阻塞其他中断，还可能和主循环抢同一个外设（返回 HAL_BUSY）。</li>
+<li><b>问：想再加一个 LED 该怎么改？</b><br>答：CubeMX 里加一个输出引脚 → 生成 → 在 <code>USER CODE 3</code> 的 switch 里加一行 <code>HAL_GPIO_WritePin(...)</code>。这就是分层的好处。</li>
+</ol></details>
+
+<h2>14.10 本章作业（3 题）</h2>
+<table>
+<tr><th>难度</th><th>题目</th><th>提示</th></tr>
+<tr><td>⭐</td><td><b>加第 4 种模式</b>：在常灭/常亮/闪烁之外，加一个"呼吸灯"模式（软件 PWM 模拟）。</td><td>在主循环的 switch 里加 case，不阻塞</td></tr>
+<tr><td>⭐⭐</td><td><b>命令扩展</b>：支持 <code>mode=0/1/2</code> 直接指定模式，而不是只能循环切换。</td><td>用 <code>sscanf(buf, "mode=%d", &amp;m)</code></td></tr>
+<tr><td>⭐⭐⭐</td><td><b>断电记忆</b>：把当前模式存到<b>备份寄存器或 Flash</b>，重新上电自动恢复上次的模式。</td><td>备份域需 PWR 时钟；Flash 写入前要解锁</td></tr>
+</table>
+<details class="ans"><summary>📖 验收标准 + 思路提示</summary><ol>
+<li>第 1 题：按键能循环到第 4 种模式，呼吸效果流畅且不影响按键响应。<b>易错</b>：呼吸用 Delay 会卡住按键 —— 必须用 GetTick 差值。</li>
+<li>第 2 题：发 <code>mode=1</code> 直接变常亮，发 <code>mode=9</code> 提示非法。<b>考点</b>：从"字符命令"升级到"参数命令"。</li>
+<li>第 3 题：切到闪烁模式 → 断电 → 重新上电 → 直接是闪烁模式。<b>两个方案</b>：<br>
+· <b>备份寄存器</b>（BKP_DR1）：简单，但需要 VBAT 或短时掉电才保持；<br>
+· <b>Flash 最后一页</b>：掉电永久保存，但要处理"擦除-写入"和寿命（约 1 万次）。</li>
+</ol></details>
+
+  </div>
+  <div class="daynav"><a class="prev" href="#d13">← 第 13 章　看门狗 / Flash 读写 / 低功耗</a><a class="next" href="#d15">第 15 章　附录：函数速查总表 + 20 个坑 →</a></div>
+</article>
+
+<article class="page" id="d15">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">15</span>
+      <span class="pbtt">第 15 章 · 附录：函数速查总表 + 20 个坑</span></div>
+    <button class="donebtn" data-day="15">标记已学完</button>
+  </div>
+  <div class="body">
+
+<h2>15.1 全库函数速查（按外设）</h2>
+<table>
+<tr><th>外设</th><th>初始化</th><th>启动</th><th>常用操作</th><th>回调</th></tr>
+<tr><td><b>GPIO</b></td><td><code>HAL_GPIO_Init</code></td><td>—</td><td><code>WritePin</code> / <code>ReadPin</code> / <code>TogglePin</code></td><td>—</td></tr>
+<tr><td><b>EXTI</b></td><td>用 GPIO_Init 配 IT 模式</td><td><code>HAL_NVIC_EnableIRQ</code></td><td>—</td><td><code>HAL_GPIO_EXTI_Callback</code></td></tr>
+<tr><td><b>UART</b></td><td><code>HAL_UART_Init</code></td><td><code>Transmit</code>/<code>_IT</code>/<code>_DMA</code></td><td><code>Receive</code> / <code>Receive_IT</code></td><td><code>RxCpltCallback</code> / <code>TxCpltCallback</code></td></tr>
+<tr><td><b>TIM 定时</b></td><td><code>HAL_TIM_Base_Init</code></td><td><code>HAL_TIM_Base_Start_IT</code></td><td><code>__HAL_TIM_SET_AUTORELOAD</code></td><td><code>PeriodElapsedCallback</code></td></tr>
+<tr><td><b>TIM PWM</b></td><td><code>HAL_TIM_PWM_Init</code></td><td><code>HAL_TIM_PWM_Start</code></td><td><code>__HAL_TIM_SET_COMPARE</code></td><td>—</td></tr>
+<tr><td><b>TIM 捕获</b></td><td><code>HAL_TIM_IC_Init</code></td><td><code>HAL_TIM_IC_Start_IT</code></td><td><code>HAL_TIM_ReadCapturedValue</code></td><td><code>IC_CaptureCallback</code></td></tr>
+<tr><td><b>ADC</b></td><td><code>HAL_ADC_Init</code> + 校准</td><td><code>HAL_ADC_Start</code></td><td><code>PollForConversion</code> / <code>GetValue</code></td><td><code>ConvCpltCallback</code></td></tr>
+<tr><td><b>I2C</b></td><td><code>HAL_I2C_Init</code></td><td>—</td><td><code>Mem_Write</code> / <code>Mem_Read</code> / <code>IsDeviceReady</code></td><td>—</td></tr>
+<tr><td><b>SPI</b></td><td><code>HAL_SPI_Init</code></td><td>—</td><td><code>Transmit</code> / <code>Receive</code> / <code>TransmitReceive</code></td><td>—</td></tr>
+<tr><td><b>DMA</b></td><td>CubeMX 自动</td><td>外设的 <code>_DMA</code> 版</td><td><code>HAL_DMA_Start</code></td><td>外设的完成回调</td></tr>
+<tr><td><b>IWDG</b></td><td><code>HAL_IWDG_Init</code>（即启动）</td><td>—</td><td><code>HAL_IWDG_Refresh</code></td><td>—</td></tr>
+<tr><td><b>Flash</b></td><td><code>HAL_FLASH_Unlock</code></td><td><code>HAL_FLASHEx_Erase</code></td><td><code>HAL_FLASH_Program</code> / <code>Lock</code></td><td>—</td></tr>
+</table>
+
+<h2>15.2 命名规律（学会就能猜函数名）</h2>
+<table>
+<tr><th>前缀/后缀</th><th>含义</th><th>例子</th></tr>
+<tr><td><code>HAL_&lt;外设&gt;_Init</code></td><td>初始化</td><td><code>HAL_ADC_Init</code></td></tr>
+<tr><td><code>HAL_&lt;外设&gt;_Start</code></td><td>启动</td><td><code>HAL_TIM_PWM_Start</code></td></tr>
+<tr><td><code>..._IT</code></td><td>中断模式</td><td><code>HAL_UART_Transmit_IT</code></td></tr>
+<tr><td><code>..._DMA</code></td><td>DMA 模式</td><td><code>HAL_UART_Transmit_DMA</code></td></tr>
+<tr><td><code>...Callback</code></td><td>回调（你重写）</td><td><code>HAL_TIM_PeriodElapsedCallback</code></td></tr>
+<tr><td><code>__HAL_&lt;外设&gt;_SET_XXX</code></td><td>宏：直接改寄存器</td><td><code>__HAL_TIM_SET_COMPARE</code></td></tr>
+<tr><td><code>__HAL_RCC_&lt;外设&gt;_CLK_ENABLE</code></td><td>宏：开时钟</td><td><code>__HAL_RCC_GPIOA_CLK_ENABLE</code></td></tr>
+</table>
+
+<h2>15.3 二十个坑（按遇到概率排序）</h2>
+<table>
+<tr><th>#</th><th>现象</th><th>原因 / 解决</th></tr>
+<tr><td>1</td><td>外设完全没反应</td><td><b>忘了调 Start 函数</b>（Init 不等于启动）</td></tr>
+<tr><td>2</td><td>GPIO 写了没效果</td><td>忘了 <code>__HAL_RCC_GPIOx_CLK_ENABLE()</code></td></tr>
+<tr><td>3</td><td>中断永远进不去</td><td>中断函数名写错 / 忘了 <code>HAL_NVIC_EnableIRQ</code></td></tr>
+<tr><td>4</td><td>中断进了但回调没执行</td><td>回调里判断的 <code>Instance</code> 写错</td></tr>
+<tr><td>5</td><td>主循环看不到中断改的变量</td><td>变量没加 <code>volatile</code></td></tr>
+<tr><td>6</td><td>串口乱码</td><td>波特率不匹配 / 时钟配置错</td></tr>
+<tr><td>7</td><td><code>printf</code> 卡死不动</td><td>没勾 <b>Use MicroLIB</b></td></tr>
+<tr><td>8</td><td>串口中断只收一次</td><td>回调里没重新 <code>HAL_UART_Receive_IT</code></td></tr>
+<tr><td>9</td><td>定时器中断不进</td><td>忘了 <code>HAL_TIM_Base_Start_IT</code></td></tr>
+<tr><td>10</td><td>定时时间差整倍数</td><td>APB1 是 36MHz 但定时器时钟 72MHz，算错了</td></tr>
+<tr><td>11</td><td>PWM 无输出</td><td>忘了 <code>HAL_TIM_PWM_Start</code> / 引脚没配 AF</td></tr>
+<tr><td>12</td><td>ADC 读数不变</td><td>忘了 Start / 通道写死 / 跳过 PollForConversion</td></tr>
+<tr><td>13</td><td>ADC 多通道读数一样</td><td><code>sConfig.Channel</code> 没随通道更新</td></tr>
+<tr><td>14</td><td>EEPROM 连写丢数据</td><td>每次写完没等 5ms</td></tr>
+<tr><td>15</td><td>I2C 一直超时</td><td>上拉电阻缺失 / 地址错（8 位 vs 7 位）</td></tr>
+<tr><td>16</td><td>SPI 数据偏移一位</td><td>CPOL/CPHA 模式配错</td></tr>
+<tr><td>17</td><td>DMA 配了没效果</td><td>调了普通版函数，不是 <code>_DMA</code> 版</td></tr>
+<tr><td>18</td><td>Flash 写入失败</td><td>没先擦除 / 没 Unlock / 想 0→1</td></tr>
+<tr><td>19</td><td>Stop 唤醒后串口乱码</td><td>时钟回落到 HSI，要重配时钟</td></tr>
+<tr><td>20</td><td>代码改了现象没变</td><td>烧的是旧 hex —— 先 F7 再 F8</td></tr>
+</table>
+
+<h2>15.4 学完之后你应该能</h2>
+<div class="box ok">
+① 拿到任何外设头文件，能自己查出它有什么函数；<br>
+② 看到一个 HAL 函数调用，能判断它属于阻塞/中断/DMA 哪种模式；<br>
+③ 遇到「外设没反应」，能按 Init→时钟→Start→回调 的顺序排查；<br>
+④ 知道每个 <code>Callback</code> 该写在哪、中断里不该写什么；<br>
+⑤ 能读懂 CubeMX 生成的代码，并且只改 USER CODE 区。
+</div>
+
+<h2>15.5 案例索引：15 个可跑案例速查</h2>
+<table>
+<tr><th>章</th><th>案例</th><th>核心 HAL 函数</th><th>需要的硬件</th></tr>
+<tr><td>1</td><td>LED 闪起来</td><td><code>WritePin</code>/<code>TogglePin</code>/<code>Delay</code></td><td>板载 LED</td></tr>
+<tr><td>2</td><td>四文件各改一处</td><td><code>HAL_GetTick</code></td><td>串口</td></tr>
+<tr><td>3</td><td>轮询/中断/阻塞对比</td><td><code>ReadPin</code>/<code>GetTick</code></td><td>按键 + LED</td></tr>
+<tr><td>4</td><td>按住亮松开灭</td><td><code>ReadPin</code>/<code>WritePin</code></td><td>按键 + LED</td></tr>
+<tr><td>5</td><td>中断切换 LED（消抖）</td><td><code>HAL_GPIO_EXTI_Callback</code></td><td>按键 + LED</td></tr>
+<tr><td>6</td><td>运行秒数</td><td><code>HAL_GetTick</code></td><td>串口</td></tr>
+<tr><td>7</td><td>串口命令行</td><td><code>Transmit</code>/<code>Receive_IT</code>/<code>fputc</code></td><td>串口 + LED</td></tr>
+<tr><td>8</td><td>PWM 呼吸灯</td><td><code>PWM_Start</code>/<code>SET_COMPARE</code></td><td>PA6 接 LED</td></tr>
+<tr><td>9</td><td>采集电压</td><td><code>ADC_Start</code>/<code>GetValue</code></td><td>PA0 接 GND/3.3V</td></tr>
+<tr><td>10</td><td>I2C 扫描 + 点亮 OLED</td><td><code>IsDeviceReady</code>/<code>Master_Transmit</code></td><td>OLED 模块</td></tr>
+<tr><td>11</td><td>SPI 回环自测</td><td><code>TransmitReceive</code></td><td>一根杜邦线</td></tr>
+<tr><td>12</td><td>ADC + DMA 连续采集</td><td><code>ADC_Start_DMA</code></td><td>PA0 接电位器</td></tr>
+<tr><td>13</td><td>看门狗复位</td><td><code>IWDG_Refresh</code></td><td>按键 + LED</td></tr>
+<tr><td><b>14</b></td><td><b>综合实战：串口控制 LED 系统</b></td><td>多外设组合</td><td>按键 + LED + 串口</td></tr>
+</table>
+<div class="box tip"><b>建议顺序</b>：按章依次做，每个案例都<b>先让它跑起来，再故意改坏一处</b>（比如删掉 <code>Start</code>、把 <code>Delay</code> 加进去、把地址改成 0x3C），观察现象 —— <b>改坏一次比看十遍讲解记得牢</b>。</div>
+
+<h2>15.6 结业自测：15 题查漏补缺</h2>
+<div class="box tip">不看笔记，先自己答，答完点开对答案。全部答对说明你已经能独立做 F103 HAL 项目了。</div>
+<table>
+<tr><th>#</th><th>问题</th></tr>
+<tr><td>1</td><td>HAL 句柄（<code>huart1</code>）里存的是什么？为什么每个外设一个？</td></tr>
+<tr><td>2</td><td><code>HAL_xxx_Init()</code> 和 <code>HAL_xxx_Start()</code> 的区别？哪些外设必须 Start？</td></tr>
+<tr><td>3</td><td>CubeMX 的 <code>MX_GPIO_Init()</code> 里第一件事是开时钟，为什么不开时钟会"像写进空气"？</td></tr>
+<tr><td>4</td><td><code>volatile</code> 什么时候必须加？不加会出现什么现象？</td></tr>
+<tr><td>5</td><td>为什么中断回调里不能 <code>printf</code> / <code>HAL_Delay</code>？</td></tr>
+<tr><td>6</td><td><code>HAL_UART_Receive_IT</code> 只调一次为什么只能收到一条？</td></tr>
+<tr><td>7</td><td><code>HAL_Delay(500)</code> 和 <code>HAL_GetTick()</code> 差值写法，本质区别是什么？</td></tr>
+<tr><td>8</td><td>I2C 的 7 位地址 0x3C，在 HAL 里要填什么？为什么？</td></tr>
+<tr><td>9</td><td>I2C 没有上拉电阻会怎样？为什么 SPI 不需要？</td></tr>
+<tr><td>10</td><td>PWM 的 PSC 和 ARR 分别决定什么？改亮度改哪个寄存器？</td></tr>
+<tr><td>11</td><td>ADC 的 <code>raw=2048</code> 对应多少伏？公式里为什么除 4095 而不是 4096？</td></tr>
+<tr><td>12</td><td>为什么 SPI 调试困难，而 I2C 相对容易发现问题？</td></tr>
+<tr><td>13</td><td>DMA 的 Circular 和 Normal 模式区别？ADC 连续采集该用哪个？</td></tr>
+<tr><td>14</td><td>看门狗为什么不能在中断里喂？</td></tr>
+<tr><td>15</td><td>程序"跑飞"了，你的排查顺序是什么？（说出至少 5 步）</td></tr>
+</table>
+<details class="ans"><summary>📖 参考答案</summary><ol>
+<li>存这个外设的<b>全部运行状态和外设寄存器基地址</b>（Init 参数、State、缓冲区指针、错误码）。一个外设一个句柄，因为每个实例（USART1/USART2）状态独立。</li>
+<li><code>Init</code> 只配置（写寄存器参数），<code>Start</code> 才让外设真正工作。必须 Start 的：TIM（PWM/中断/编码器）、ADC、USART 接收、DAC、DMA。</li>
+<li>时钟不开，外设寄存器写的值会丢（时钟停止时不响应写操作）。表现是"配置全对但一点反应没有"。</li>
+<li>变量被<b>中断改、主循环读</b>（或反之）时必须加。不加编译器可能把它常驻寄存器，主循环永远看不到变化。</li>
+<li>中断要尽快返回。printf 可能耗时几毫秒并依赖串口状态，Delay 直接空等几百毫秒 —— 期间其他中断全被拖住，严重时会死锁。</li>
+<li>因为 <code>Receive_IT</code> 是<b>一次性</b>的：收满 Size 个字节就结束并关闭接收中断。想连续收必须在回调里重新调用。</li>
+<li>Delay 是<b>阻塞</b>：CPU 原地等，什么都不能干；GetTick 差值是非阻塞：记个时间戳就往下走，主循环继续转。</li>
+<li>填 <b>0x78</b>（0x3C &lt;&lt; 1）。因为 HAL 的 <code>DevAddress</code> 参数要求<b>8 位地址</b>（最后一位是读写位）。</li>
+<li>没有上拉，SDA/SCL 无法回到高电平（开漏结构），通信必然失败。SPI 是<b>推挽输出 + 单向片选</b>，不需要共用总线仲裁，所以不用上拉。</li>
+<li>PSC 决定<b>计数频率</b>（分频），ARR 决定<b>周期长度</b>（计到多少溢出）→ 两者共同决定频率。改亮度改 <b>CCR</b>（SET_COMPARE）。</li>
+<li>2048/4095×3.3 ≈ <b>1.65V</b>。除 4095 是因为 12 位 ADC 的满量程对应 4095（0~4095 共 4096 个档位，最大值是 4095）。</li>
+<li>SPI 没有应答机制，发出去就认为成功，错了也不知道；I2C 每个字节都有 ACK，没应答立刻能发现。</li>
+<li>Normal：搬完 <b>N 个</b>就停；Circular：搬完自动从头再来。<b>ADC 连续采集用 Circular</b>（否则只能采一轮）。</li>
+<li>中断里喂狗，等于"只要中断还在跑就认为系统正常"。但主循环卡死时中断往往还在跑 → 看门狗失效。喂狗要放在<b>主循环</b>，代表整个系统健康。</li>
+<li>① 确认下载成功（Verify OK）② 确认程序在跑（心跳灯/串口打印）③ 确认外设时钟和 Init 被调用 ④ 确认有没有 Start ⑤ 检查 volatile / 中断标志 ⑥ 换 <code>HAL_MAX_DELAY</code> 为具体超时 ⑦ 用最小代码法逐步注释定位。</li>
+</ol></details>
+
+  </div>
+  <div class="daynav"><a class="prev" href="#d14">← 第 14 章　综合实战：串口控制的 LED 系统</a><a class="dis next">已是最后一章 →</a></div>
+</article>
+</main>
+<script>
+(function(){
+  var IDX = [{"p": "d1", "n": "1", "t": "HAL 到底是什么，为什么每个外设都要一个「句柄」", "k": "HAL 句柄 handle 分层 结构 为什么 & 指针 Init Start"}, {"p": "d2", "n": "2", "t": "CubeMX 生成的工程里，每个文件是干什么的", "k": "工程结构 main.c main.h it.c hal_msp.c hal_conf.h USER CODE"}, {"p": "d3", "n": "3", "t": "HAL 的通用套路：返回值、状态机与四种工作模式", "k": "返回值 HAL_StatusTypeDef HAL_OK HAL_BUSY 状态机 阻塞 中断 DMA 回调"}, {"p": "d4", "n": "4", "t": "GPIO：最常用也最容易小看的外设", "k": "GPIO Init WritePin ReadPin TogglePin 推挽 开漏 上拉 下拉 位掩码"}, {"p": "d5", "n": "5", "t": "中断与 EXTI：HAL 在这块最反直觉", "k": "中断 EXTI NVIC 优先级 volatile Callback 中断入口"}, {"p": "d6", "n": "6", "t": "时钟 RCC 与延时 SysTick", "k": "时钟 RCC HSE PLL 72MHz APB1 SysTick HAL_Delay HAL_GetTick"}, {"p": "d7", "n": "7", "t": "USART 串口：阻塞 / 中断 / DMA 与 printf 重定向", "k": "USART 串口 波特率 printf 重定向 MicroLIB 中断接收 DMA"}, {"p": "d8", "n": "8", "t": "TIM 定时器：时基 / PWM / 输入捕获三件套", "k": "TIM 定时器 PSC ARR PWM 占空比 输入捕获 定时中断"}, {"p": "d9", "n": "9", "t": "ADC：轮询 / 中断 / DMA 与校准", "k": "ADC 采样 校准 12位 4096 多通道 轮询 中断 DMA"}, {"p": "d10", "n": "10", "t": "I2C：硬件 I2C 与软件模拟的取舍", "k": "I2C 硬件 软件模拟 EEPROM AT24C02 上拉 地址 Mem_Write"}, {"p": "d11", "n": "11", "t": "SPI：最快的板级通信", "k": "SPI Flash CPOL CPHA 全双工 TransmitReceive"}, {"p": "d12", "n": "12", "t": "DMA：让 CPU 从搬运工里解放出来", "k": "DMA 搬运 多通道 ADC 串口 链接 LINKDMA"}, {"p": "d13", "n": "13", "t": "看门狗 / Flash 读写 / 低功耗", "k": "看门狗 IWDG Flash 擦除 低功耗 Stop Standby"}, {"p": "d14", "n": "14", "t": "综合实战：串口控制的 LED 系统", "k": "综合实战 完整案例 状态机 串口命令 按键 LED 非阻塞 GetTick 需求 验收"}, {"p": "d15", "n": "15", "t": "附录：函数速查总表 + 20 个坑", "k": "速查 函数表 命名规律 坑 排错"}];
+  var K_DONE="hal103_done_v1", K_THEME="hal103_theme_v1";
+  function applyTheme(th){
+    document.documentElement.setAttribute("data-theme", th);
+    var b=document.getElementById("themeBtn");
+    if(b) b.textContent = (th==="dark") ? "☀ 浅色模式" : "🌙 深色模式";
+    try{localStorage.setItem(K_THEME, th);}catch(e){}
+  }
+  (function(){
+    var th=null;
+    try{th=localStorage.getItem(K_THEME);}catch(e){}
+    if(!th) th=(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light";
+    document.documentElement.setAttribute("data-theme", th);
+  })();
+  var $=function(s,r){return (r||document).querySelector(s);};
+  var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));};
+  function getDone(){try{return JSON.parse(localStorage.getItem(K_DONE)||"[]");}catch(e){return [];}}
+  function setDone(a){try{localStorage.setItem(K_DONE,JSON.stringify(a));}catch(e){}render();}
+  function render(){
+    var d=getDone(),n=d.length;
+    $$("#sblist .sb-item[data-day]").forEach(function(a){
+      a.classList.toggle("done",d.indexOf(a.getAttribute("data-day"))>=0);});
+    $$(".donebtn[data-day]").forEach(function(b){
+      var on=d.indexOf(b.getAttribute("data-day"))>=0;
+      b.classList.toggle("on",on);b.textContent=on?"✓ 已学完":"标记已学完";});
+    if($("#doneNum"))$("#doneNum").textContent=n;
+    if($("#doneBar"))$("#doneBar").style.width=(n/14*100)+"%";
+  }
+  document.addEventListener("click",function(e){
+    var b=e.target.closest(".donebtn[data-day]");if(!b)return;
+    var day=b.getAttribute("data-day"),d=getDone(),i=d.indexOf(day);
+    if(i>=0)d.splice(i,1);else d.push(day);setDone(d);
+  });
+  function show(id){
+    var ok=false;
+    $$(".page").forEach(function(p){var on=p.id===id;p.classList.toggle("active",on);if(on)ok=true;});
+    if(!ok){$("#home").classList.add("active");id="home";}
+    $$("#sblist .sb-item").forEach(function(a){
+      a.classList.toggle("active",a.getAttribute("href")==="#" + id);});
+    window.scrollTo(0,0);
+    if(window.innerWidth<940)$("#sidebar").classList.remove("open");
+  }
+  function route(){show(location.hash.replace("#","")||"home");}
+  window.addEventListener("hashchange",route);route();
+  document.addEventListener("keydown",function(e){
+    if(e.target.tagName==="INPUT")return;
+    var h=location.hash.replace("#","");if(h[0]!=="d")return;
+    var arr=IDX.map(function(x){return x.p;}),k=arr.indexOf(h);
+    if(e.key==="ArrowRight"&&k>=0&&k<arr.length-1)location.hash=arr[k+1];
+    if(e.key==="ArrowLeft"&&k>0)location.hash=arr[k-1];
+  });
+  $("#menubtn").onclick=function(){$("#sidebar").classList.toggle("open");};
+  $("#q").addEventListener("input",function(){
+    var v=this.value.trim().toLowerCase(),box=$("#results");
+    if(!v){box.innerHTML="";return;}
+    var hit=IDX.filter(function(x){return (x.t+" "+x.k).toLowerCase().indexOf(v)>=0;}).slice(0,10);
+    box.innerHTML=hit.length?hit.map(function(x){
+      return '<a href="#'+x.p+'" style="display:block;padding:4px 8px;font-size:12.5px;'
+        +'color:var(--brand);text-decoration:none">Day '+x.n+' '+x.t+'</a>';}).join("")
+      :'<span style="font-size:12px;color:var(--ink3)">没有匹配</span>';
+  });
+  var tb=document.getElementById("themeBtn");
+  if(tb){
+    applyTheme(document.documentElement.getAttribute("data-theme")||"light");
+    tb.onclick=function(){
+      var cur=document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark";
+      applyTheme(cur);
+    };
+  }
+  render();
+})();
+</script>
+
+<style id="b2p-style">
+.b2p{position:fixed;right:20px;bottom:20px;z-index:99999;display:inline-flex;
+align-items:center;gap:6px;padding:10px 17px;border-radius:24px;text-decoration:none;
+background:#1f5fd0;color:#fff !important;font:600 13.5px/1 "Microsoft YaHei",sans-serif;
+box-shadow:0 4px 16px rgba(31,95,208,.38);opacity:.93;transition:.15s}
+.b2p:hover{opacity:1;transform:translateY(-2px);background:#2c5282}
+@media print{.b2p{display:none}}
+</style>
+<a class="b2p" href="../../electronics.html" title="返回电子与单片机资料库">← 返回教程首页</a>
+<script>
+/* ============================================================
+   DSH 教程 AI 助教 · 悬浮侧栏
+   用法：由站点构建时注入到每个教程页面的 body 结束标签前
+   API Key 保存在浏览器 localStorage，不上传到任何第三方
+   ============================================================ */
+(function () {
+  "use strict";
+  if (window.__dshTutorLoaded) return;
+  window.__dshTutorLoaded = true;
+
+  var LS_KEY = "dsh_tutor_apikey";
+  var LS_HIST = "dsh_tutor_history";
+  var LS_MODEL = "dsh_tutor_model";
+  var API = "https://api.deepseek.com/chat/completions";
+
+  /* ---------- 样式 ---------- */
+  var CSS = [
+    "#tutorFab{position:fixed;right:20px;bottom:76px;z-index:99990;display:flex;align-items:center;gap:7px;",
+    "padding:10px 16px;border-radius:24px;border:none;cursor:pointer;",
+    "background:linear-gradient(135deg,#0f766e,#14b8a6);color:#fff;",
+    "font:600 13.5px/1 'Microsoft YaHei',sans-serif;",
+    "box-shadow:0 4px 16px rgba(20,184,166,.42);transition:.16s}",
+    "#tutorFab:hover{transform:translateY(-2px);box-shadow:0 7px 20px rgba(20,184,166,.5)}",
+    "#tutorPanel{position:fixed;top:0;right:0;bottom:0;width:min(430px,100vw);z-index:100002;",
+    "background:#fff;border-left:1px solid #e3e8f0;display:flex;flex-direction:column;",
+    "transform:translateX(102%);transition:transform .24s cubic-bezier(.4,0,.2,1);",
+    "box-shadow:-8px 0 30px rgba(0,0,0,.12);font:14px/1.65 'Microsoft YaHei',sans-serif}",
+    "#tutorPanel.open{transform:translateX(0)}",
+    "#tutorHead{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid #e3e8f0;background:#f8fafc}",
+    "#tutorHead .t{flex:1;font-weight:700;font-size:14.5px;color:#0f172a}",
+    "#tutorHead .ctx{font-size:11px;color:#64748b;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
+    "#tutorHead button{border:1px solid #e3e8f0;background:#fff;border-radius:7px;width:30px;height:30px;",
+    "cursor:pointer;font-size:15px;line-height:1;color:#475569}",
+    "#tutorHead button:hover{background:#eef4fb;color:#0f766e}",
+    "#tutorBody{flex:1;overflow-y:auto;padding:14px;background:#fbfcfe}",
+    ".tutor-msg{margin-bottom:14px;display:flex;flex-direction:column;gap:5px}",
+    ".tutor-msg .role{font-size:11px;color:#94a3b8}",
+    ".tutor-msg .bubble{padding:9px 12px;border-radius:10px;font-size:13.5px;line-height:1.7;",
+    "white-space:pre-wrap;word-break:break-word}",
+    ".tutor-msg.user .bubble{background:#0f766e;color:#fff;align-self:flex-end;max-width:88%}",
+    ".tutor-msg.user{align-items:flex-end}",
+    ".tutor-msg.bot .bubble{background:#fff;border:1px solid #e3e8f0;color:#1e293b;max-width:100%}",
+    ".tutor-msg.bot .bubble code{background:#eef4fb;border-radius:3px;padding:1px 4px;font-size:.92em;color:#0f766e}",
+    ".tutor-msg.bot .bubble pre{background:#0f172a;color:#e6edf7;padding:9px 11px;border-radius:7px;",
+    "overflow-x:auto;font-size:12px;line-height:1.55;margin:6px 0}",
+    ".tutor-msg.err .bubble{background:#fff5f5;border:1px solid #fecaca;color:#b91c1c;font-size:13px}",
+    "#tutorFoot{border-top:1px solid #e3e8f0;padding:10px 12px;background:#fff}",
+    "#tutorCtxTip{font-size:11px;color:#64748b;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
+    "#tutorInputRow{display:flex;gap:8px;align-items:flex-end}",
+    "#tutorInput{flex:1;min-height:40px;max-height:110px;resize:none;border:1px solid #e3e8f0;border-radius:9px;",
+    "padding:9px 11px;font:13.5px/1.5 'Microsoft YaHei',sans-serif;outline:none;color:#1e293b}",
+    "#tutorInput:focus{border-color:#14b8a6}",
+    "#tutorSend{border:none;border-radius:9px;padding:10px 15px;background:#0f766e;color:#fff;",
+    "font:600 13px/1 'Microsoft YaHei',sans-serif;cursor:pointer}",
+    "#tutorSend:disabled{background:#cbd5e1;cursor:not-allowed}",
+    "#tutorCfg{position:absolute;inset:0;background:#fff;z-index:2;padding:16px;overflow-y:auto;display:none}",
+    "#tutorCfg.show{display:block}",
+    "#tutorCfg h4{margin:0 0 4px;font-size:14px;color:#0f172a}",
+    "#tutorCfg p{font-size:12px;color:#64748b;margin:0 0 12px;line-height:1.6}",
+    "#tutorCfg label{display:block;font-size:12.5px;color:#334155;margin:12px 0 5px;font-weight:600}",
+    "#tutorCfg input,#tutorCfg select{width:100%;padding:9px 11px;border:1px solid #e3e8f0;border-radius:8px;",
+    "font:13px 'Microsoft YaHei',sans-serif;outline:none;color:#1e293b}",
+    "#tutorCfg input:focus,#tutorCfg select:focus{border-color:#14b8a6}",
+    "#tutorCfg .btns{display:flex;gap:8px;margin-top:16px}",
+    "#tutorCfg .btns button{flex:1;padding:10px;border-radius:9px;border:1px solid #e3e8f0;background:#fff;",
+    "cursor:pointer;font:600 13px 'Microsoft YaHei',sans-serif;color:#334155}",
+    "#tutorCfg .btns button.primary{background:#0f766e;color:#fff;border-color:#0f766e}",
+    "#tutorCfg a{color:#0f766e}",
+    "html[data-theme='dark'] #tutorPanel{background:#141d22;border-left-color:#233038}",
+    "html[data-theme='dark'] #tutorHead{background:#111a20;border-bottom-color:#233038}",
+    "html[data-theme='dark'] #tutorHead .t{color:#dceaf0}",
+    "html[data-theme='dark'] #tutorHead button{background:#1a252c;border-color:#233038;color:#9bb2bd}",
+    "html[data-theme='dark'] #tutorBody{background:#0f171c}",
+    "html[data-theme='dark'] .tutor-msg.bot .bubble{background:#141d22;border-color:#233038;color:#dceaf0}",
+    "html[data-theme='dark'] .tutor-msg.bot .bubble code{background:#1a252c;color:#4dd0c1}",
+    "html[data-theme='dark'] #tutorFoot{background:#141d22;border-top-color:#233038}",
+    "html[data-theme='dark'] #tutorInput{background:#111a20;border-color:#233038;color:#dceaf0}",
+    "html[data-theme='dark'] #tutorCfg{background:#141d22}",
+    "html[data-theme='dark'] #tutorCfg h4{color:#dceaf0}",
+    "html[data-theme='dark'] #tutorCfg input,html[data-theme='dark'] #tutorCfg select{background:#111a20;border-color:#233038;color:#dceaf0}",
+    "html[data-theme='dark'] #tutorCfg .btns button{background:#1a252c;border-color:#233038;color:#dceaf0}",
+    "@media(max-width:520px){#tutorPanel{width:100vw}#tutorFab{bottom:70px;right:14px}}",
+    "@media print{#tutorFab,#tutorPanel{display:none!important}}"
+  ].join("");
+
+  var st = document.createElement("style");
+  st.textContent = CSS;
+  document.head.appendChild(st);
+
+  /* ---------- DOM ---------- */
+  var fab = document.createElement("button");
+  fab.id = "tutorFab";
+  fab.type = "button";
+  fab.innerHTML = "🤖 问老师";
+  document.body.appendChild(fab);
+
+  var panel = document.createElement("aside");
+  panel.id = "tutorPanel";
+  panel.innerHTML = [
+    '<div id="tutorHead">',
+    '  <div style="flex:1;min-width:0">',
+    '    <div class="t">问老师 · 教程助教</div>',
+    '    <div class="ctx" id="tutorCtxLabel">当前位置：—</div>',
+    "  </div>",
+    '  <button id="tutorCfgBtn" title="设置">⚙</button>',
+    '  <button id="tutorClose" title="关闭">✕</button>',
+    "</div>",
+    '<div id="tutorBody"></div>',
+    '<div id="tutorFoot">',
+    '  <div id="tutorCtxTip"></div>',
+    '  <div id="tutorInputRow">',
+    '    <textarea id="tutorInput" placeholder="哪里没懂？直接问（Enter 发送，Shift+Enter 换行）"></textarea>',
+    '    <button id="tutorSend">发送</button>',
+    "  </div>",
+    "</div>",
+    '<div id="tutorCfg">',
+    '  <h4>设置</h4>',
+    "  <p>需要一个 DeepSeek API Key（约 ¥1/百万 tokens，问 1000 次大概几块钱）。Key 只保存在你本机浏览器，不会发给我或任何第三方。</p>",
+    '  <label>API Key</label>',
+    '  <input id="tutorKey" type="password" placeholder="sk-..." autocomplete="off">',
+    '  <p style="margin-top:6px">还没有？去 <a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener">platform.deepseek.com</a> 免费注册领取。</p>',
+    '  <label>模型</label>',
+    '  <select id="tutorModel">',
+    '    <option value="deepseek-chat">deepseek-chat（快，够用）</option>',
+    '    <option value="deepseek-reasoner">deepseek-reasoner（更强，慢）</option>',
+    "  </select>",
+    '  <div class="btns">',
+    '    <button id="tutorClear">清空对话</button>',
+    '    <button class="primary" id="tutorSave">保存</button>',
+    "  </div>",
+    "</div>"
+  ].join("");
+  document.body.appendChild(panel);
+
+  var $ = function (id) { return document.getElementById(id); };
+  var body = $("tutorBody"), input = $("tutorInput"), sendBtn = $("tutorSend");
+  var cfg = $("tutorCfg"), cfgLabel = $("tutorCtxLabel"), ctxTip = $("tutorCtxTip");
+
+  function getKey() { try { return localStorage.getItem(LS_KEY) || ""; } catch (e) { return ""; } }
+  function setKey(v) { try { localStorage.setItem(LS_KEY, v); } catch (e) {} }
+  function getModel() { try { return localStorage.getItem(LS_MODEL) || "deepseek-chat"; } catch (e) { return "deepseek-chat"; } }
+  function setModel(v) { try { localStorage.setItem(LS_MODEL, v); } catch (e) {} }
+  function getHist() { try { return JSON.parse(localStorage.getItem(LS_HIST) || "[]"); } catch (e) { return []; } }
+  function setHist(a) { try { localStorage.setItem(LS_HIST, JSON.stringify(a.slice(-20))); } catch (e) {} }
+
+  /* ---------- 提取上下文 ---------- */
+  function ctxInfo() {
+    var page = document.querySelector(".page.active") || document.body;
+    var h1 = page.querySelector("h1");
+    var title = (h1 && h1.innerText.trim()) || document.title || "教程";
+    // 找当前可见的小节标题
+    var heads = page.querySelectorAll("h2, h3");
+    var cur = null, best = -1e9;
+    var mid = window.innerHeight * 0.35;
+    for (var i = 0; i < heads.length; i++) {
+      var r = heads[i].getBoundingClientRect();
+      if (r.top < mid && r.top > best) { best = r.top; cur = heads[i]; }
+    }
+    var section = cur ? cur.innerText.trim() : "";
+    // 取小节附近正文
+    var text = "";
+    if (cur) {
+      var n = cur, buf = [];
+      while (n && buf.join("").length < 1600) {
+        n = n.nextElementSibling;
+        if (!n || /^H[1-6]$/.test(n.tagName)) break;
+        if (n.tagName === "IMG" || n.querySelector && n.querySelector("img") && !n.innerText.trim()) continue;
+        var t = (n.innerText || "").trim();
+        if (t) buf.push(t);
+      }
+      text = buf.join("\n").slice(0, 1600);
+    }
+    return { title: title, section: section, text: text };
+  }
+
+  function refreshCtx() {
+    var c = ctxInfo();
+    cfgLabel.textContent = "当前位置：" + (c.section || c.title);
+    var sel = (window.getSelection ? String(window.getSelection()) : "").trim();
+    if (sel && sel.length > 4) {
+      ctxTip.textContent = "已选中文段，发送时会一并提问：" + sel.slice(0, 40) + (sel.length > 40 ? "…" : "");
+    } else {
+      ctxTip.textContent = c.section ? "会带上「" + c.section.slice(0, 18) + "」的上下文" : "会带上当前页面上下文";
+    }
+  }
+
+  /* ---------- 渲染 ---------- */
+  function addMsg(role, text, cls) {
+    var wrap = document.createElement("div");
+    wrap.className = "tutor-msg " + (cls || (role === "user" ? "user" : "bot"));
+    var r = document.createElement("div");
+    r.className = "role";
+    r.textContent = role === "user" ? "我" : "助教";
+    var b = document.createElement("div");
+    b.className = "bubble";
+    b.innerHTML = mdToHtml(text);
+    if (role === "user") { r.style.display = "none"; }
+    wrap.appendChild(r); wrap.appendChild(b);
+    body.appendChild(wrap);
+    body.scrollTop = body.scrollHeight;
+    return b;
+  }
+
+  function esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+  function mdToHtml(s) {
+    var parts = esc(s).split(/```/);
+    var out = "";
+    for (var i = 0; i < parts.length; i++) {
+      if (i % 2 === 1) {
+        out += "<pre>" + parts[i].replace(/^\w*\n/, "") + "</pre>";
+      } else {
+        out += parts[i]
+          .replace(/`([^`]+)`/g, "<code>$1</code>")
+          .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+      }
+    }
+    return out;
+  }
+
+  function renderHist() {
+    var h = getHist();
+    if (!h.length) {
+      addMsg("bot", "我是这套教程的助教。看到哪一段没懂，直接问我就行。\n\n比如：\n- 「PSC 和 ARR 为什么要减一？」\n- 「这段代码为什么用 ADC 模式？」\n- 「第 5 章的 PWM 图没看懂」\n\n也可以先在正文里选中一句话，再来问。");
+      return;
+    }
+    for (var i = 0; i < h.length; i++) addMsg(h[i].role, h[i].content);
+  }
+
+  /* ---------- 发送 ---------- */
+  var busy = false;
+  async function ask(q) {
+    if (busy) return;
+    var key = getKey();
+    if (!key) {
+      cfg.classList.add("show");
+      $("tutorKey").focus();
+      alert("请先填写 DeepSeek API Key（点击右上角 ⚙ 设置）");
+      return;
+    }
+    busy = true;
+    sendBtn.disabled = true;
+    sendBtn.textContent = "…";
+
+    var c = ctxInfo();
+    var sel = (window.getSelection ? String(window.getSelection()) : "").trim();
+    var hist = getHist();
+    addMsg("user", q);
+    hist.push({ role: "user", content: q });
+
+    var sys = "你是《" + c.title + "》这套教程的助教。这套教程由作者原创，包含自制原理图、课件原图讲解、代码与练习。\n" +
+      "回答要求：\n" +
+      "1. 只用中文，语气像耐心的老师，简洁直接，控制在 350 字以内；\n" +
+      "2. 优先结合下面给出的「当前小节」上下文回答，必要时引用其中的术语和结论；\n" +
+      "3. 涉及代码时给出最小可运行的片段，并指出关键行；\n" +
+      "4. 如果问题超出本教程范围，简短说明后再给通用解答；\n" +
+      "5. 不要编造教程里没有的内容，不确定就说「教程里没讲，我的理解是……」。\n" +
+      (c.section ? "\n【当前小节】" + c.section + "\n【小节正文】\n" + c.text : "");
+    var msgs = [{ role: "system", content: sys }];
+    var recent = hist.slice(-8);
+    if (sel && sel.length > 4) recent[recent.length - 1] = { role: "user", content: "【我选中的原文】" + sel.slice(0, 800) + "\n\n【我的问题】" + q };
+    for (var i = 0; i < recent.length; i++) msgs.push(recent[i]);
+
+    var bubble = addMsg("bot", "（思考中…）");
+    bubble.innerHTML = '<span style="color:#94a3b8">（思考中…）</span>';
+
+    try {
+      var resp = await fetch(API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + key },
+        body: JSON.stringify({ model: getModel(), messages: msgs, stream: true, temperature: 0.3, max_tokens: 1200 })
+      });
+      if (!resp.ok) {
+        var errTxt = "";
+        try { var ej = await resp.json(); errTxt = (ej.error && ej.error.message) || ""; } catch (e) {}
+        throw new Error("HTTP " + resp.status + (errTxt ? " · " + errTxt : ""));
+      }
+      var reader = resp.body.getReader();
+      var dec = new TextDecoder("utf-8");
+      var acc = "", done = false;
+      while (!done) {
+        var r = await reader.read();
+        if (r.done) break;
+        var chunk = dec.decode(r.value, { stream: true });
+        var lines = chunk.split("\n");
+        for (var k = 0; k < lines.length; k++) {
+          var ln = lines[k].trim();
+          if (!ln || ln.indexOf("data:") !== 0) continue;
+          var payload = ln.slice(5).trim();
+          if (payload === "[DONE]") { done = true; break; }
+          try {
+            var j = JSON.parse(payload);
+            var d = j.choices && j.choices[0] && j.choices[0].delta;
+            if (d && d.content) { acc += d.content; bubble.innerHTML = mdToHtml(acc); body.scrollTop = body.scrollHeight; }
+          } catch (e) {}
+        }
+      }
+      if (!acc) acc = "（没有收到回复，请重试）";
+      hist.push({ role: "assistant", content: acc });
+      setHist(hist);
+    } catch (e) {
+      bubble.parentElement.className = "tutor-msg err";
+      bubble.innerHTML = mdToHtml("请求失败：" + e.message +
+        "\n\n常见原因：\n· Key 填错或已失效（点 ⚙ 重新填写）\n· 账户余额不足\n· 网络或跨域问题（用部署到网站的版本更稳）");
+    } finally {
+      busy = false;
+      sendBtn.disabled = false;
+      sendBtn.textContent = "发送";
+    }
+  }
+
+  /* ---------- 事件 ---------- */
+  fab.addEventListener("click", function () {
+    panel.classList.toggle("open");
+    if (panel.classList.contains("open")) {
+      refreshCtx();
+      if (!body.children.length) renderHist();
+      input.focus();
+    }
+  });
+  $("tutorClose").addEventListener("click", function () { panel.classList.remove("open"); });
+  $("tutorCfgBtn").addEventListener("click", function () {
+    $("tutorKey").value = getKey();
+    $("tutorModel").value = getModel();
+    cfg.classList.toggle("show");
+  });
+  $("tutorSave").addEventListener("click", function () {
+    setKey($("tutorKey").value.trim());
+    setModel($("tutorModel").value);
+    cfg.classList.remove("show");
+    if (getKey()) input.focus();
+  });
+  $("tutorClear").addEventListener("click", function () {
+    if (!confirm("清空对话记录？")) return;
+    setHist([]);
+    body.innerHTML = "";
+    renderHist();
+  });
+  sendBtn.addEventListener("click", function () {
+    var q = input.value.trim();
+    if (!q) return;
+    input.value = "";
+    ask(q);
+  });
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendBtn.click(); }
+  });
+  window.addEventListener("scroll", function () {
+    if (panel.classList.contains("open")) refreshCtx();
+  }, { passive: true });
+  window.addEventListener("hashchange", function () { refreshCtx(); });
+
+  refreshCtx();
+})();
+
+</script></body>
+</html>

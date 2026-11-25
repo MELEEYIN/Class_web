@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>时序逻辑 · 傻子都听得懂</title>
+<style>
+:root{--bg:#f5f8fb;--card:#fff;--ink:#1f2933;--ink2:#52606d;--ink3:#7b8794;
+--line:#e3e8f0;--brand:#15803d;--brand2:#1f5fd0;--code-bg:#0f172a;--code-fg:#e6edf7;
+--inline:#e6f4f4;--warn-bg:#fffaf0;--warn-bd:#f0d9a8;--tip-bg:#e8f6f6;--tip-bd:#9fd6d6;}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);
+font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;font-size:15px;line-height:1.8;}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:286px;background:var(--card);
+border-right:1px solid var(--line);overflow-y:auto;z-index:40;transform:translateX(-100%);transition:transform .22s}
+.sidebar.open{transform:translateX(0)}
+.brand{padding:16px;border-bottom:1px solid var(--line)}
+.brand h1{margin:0 0 4px;font-size:15.5px}
+.brand .sub{font-size:11.5px;color:var(--ink3)}
+.sb-progress{padding:11px 16px;border-bottom:1px solid var(--line);font-size:12.5px}
+.sb-progress .row{display:flex;justify-content:space-between;color:var(--ink2)}
+.sb-progress .bar{height:6px;background:var(--inline);border-radius:4px;margin-top:6px;overflow:hidden}
+.sb-progress .bar i{display:block;height:100%;width:0;background:var(--brand2);transition:width .3s}
+.themebar{padding:10px 16px;border-bottom:1px solid var(--line)}
+.themebar button{width:100%;padding:6px 12px;border-radius:8px;border:1px solid var(--line);
+background:var(--inline);color:var(--ink2);font-size:12.5px;cursor:pointer;font-family:inherit}
+.sb-search{padding:10px 16px;border-bottom:1px solid var(--line)}
+.sb-search input{width:100%;padding:7px 10px;border:1px solid var(--line);border-radius:7px;
+background:var(--inline);color:var(--ink);font-size:13px;outline:none;font-family:inherit}
+.sb-list{padding:6px 0 40px}
+.sb-week{padding:11px 16px 4px;font-size:11px;color:var(--ink3);font-weight:700;line-height:1.5}
+.sb-item{display:flex;align-items:center;gap:8px;padding:7px 16px;text-decoration:none;
+color:var(--ink);font-size:13px;border-left:3px solid transparent;line-height:1.4}
+.sb-item:hover{background:var(--inline)}
+.sb-item.active{background:var(--inline);border-left-color:var(--brand);color:var(--brand);font-weight:700}
+.sb-item .num{flex:none;width:26px;height:26px;border-radius:7px;background:var(--inline);
+display:flex;align-items:center;justify-content:center;font-size:11.5px;color:var(--ink3)}
+.sb-item.active .num{background:var(--brand);color:#fff}
+.sb-item.done .num{background:var(--brand2);color:#fff}
+.sb-item .tt{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-item .chk{opacity:.14;font-size:12px}
+.sb-item.done .chk{opacity:1;color:var(--brand2)}
+.main{padding:0 16px 90px}
+.menubtn{position:fixed;left:12px;top:12px;z-index:60;width:40px;height:40px;border-radius:10px;
+border:1px solid var(--line);background:var(--card);font-size:18px;cursor:pointer}
+.page{display:none;max-width:900px;margin:0 auto}
+.page.active{display:block}
+.pbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;
+margin:0 -16px 18px;padding:9px 18px;background:var(--card);border-bottom:1px solid var(--line)}
+.pb-l{display:flex;align-items:center;gap:9px;flex:1;min-width:0}
+.pbnum{flex:none;width:30px;height:30px;border-radius:8px;background:var(--brand);color:#fff;
+display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700}
+.pbtt{font-size:15px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.donebtn{flex:none;padding:6px 13px;border-radius:8px;border:1px solid var(--line);
+background:var(--inline);color:var(--ink2);font-size:12.5px;cursor:pointer;font-family:inherit}
+.donebtn.on{background:#fdf1e7;border-color:var(--brand2);color:var(--brand2);font-weight:700}
+.body{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:24px 28px}
+.body h2{font-size:19px;margin:30px 0 12px;padding-bottom:8px;border-bottom:2px solid var(--line)}
+.body h2:first-child{margin-top:0}
+.body h3{font-size:16px;margin:20px 0 8px;color:var(--ink2)}
+.body p{margin:10px 0}
+.body ul,.body ol{margin:10px 0;padding-left:24px}
+.body li{margin:5px 0}
+.body table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14px}
+.body th,.body td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top}
+.body th{background:var(--inline);font-weight:700}
+.body code{background:var(--inline);border-radius:4px;padding:1px 5px;
+font-family:Consolas,"Courier New",monospace;font-size:.92em;color:#0b4f4f}
+pre.code{background:var(--code-bg);color:var(--code-fg);padding:14px 16px;border-radius:10px;
+overflow-x:auto;font-family:Consolas,"Courier New",monospace;font-size:12.8px;line-height:1.65;margin:14px 0}
+.box{border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin:14px 0;background:#fbfcfe;font-size:14px}
+.box.tip{background:var(--tip-bg);border-color:var(--tip-bd)}
+.box.warn{background:var(--warn-bg);border-color:var(--warn-bd)}
+img.pptfig{display:block;max-width:100%;height:auto;margin:14px auto;border:1px solid var(--line);border-radius:8px;background:#fff;padding:8px;
+ box-shadow:0 2px 10px rgba(0,0,0,.05)}
+img.fig{display:block;max-width:100%;height:auto;margin:18px auto;border:1px solid var(--line);
+border-radius:10px;background:#fff;padding:6px}
+details.ans{margin:18px 0;border:1px solid var(--line);border-radius:10px;
+background:var(--inline);padding:0 16px}
+details.ans[open]{padding-bottom:10px}
+details.ans summary{cursor:pointer;padding:11px 0;font-size:14px;font-weight:700;
+color:var(--brand);outline:none}
+details.ans ol{margin:6px 0 0;padding-left:24px}
+details.ans li{margin:8px 0;font-size:14px;line-height:1.75}
+.hero{margin:0 -16px 20px;padding:42px 28px 34px;
+background:linear-gradient(135deg,#14532d,#15803d 55%,#4ade80);color:#fff}
+.hero .tag{display:inline-block;background:rgba(255,255,255,.2);border-radius:20px;
+padding:3px 14px;font-size:12.5px;margin-bottom:12px}
+.hero h1{margin:0 0 10px;font-size:27px;color:#fff}
+.hero p{margin:0;opacity:.94;font-size:14.5px;max-width:720px}
+.hero .meta{margin-top:14px;font-size:13px;opacity:.92;line-height:2}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin:14px 0}
+.card{display:block;text-decoration:none;background:var(--card);border:1px solid var(--line);
+border-radius:11px;padding:14px 16px}
+.card:hover{border-color:var(--brand)}
+.card .n{font-size:12px;color:var(--brand);font-weight:700}
+.card .t{margin:4px 0;font-size:15px;font-weight:700;color:var(--ink)}
+.daynav{display:flex;justify-content:space-between;gap:10px;margin:18px 0 0;font-size:13.5px}
+.daynav a{flex:1;text-decoration:none;color:var(--brand);background:var(--card);
+border:1px solid var(--line);border-radius:9px;padding:10px 14px}
+.daynav a.next{text-align:right}
+.daynav a.dis{color:var(--ink3);background:var(--inline);pointer-events:none;border-style:dashed}
+html[data-theme="dark"]{
+  --bg:#0d1418;--card:#141d22;--ink:#dceaf0;--ink2:#9bb2bd;--ink3:#7a8f99;
+  --line:#233038;--brand:#4dd0c1;--brand2:#fb923c;--inline:#1a252c;
+  --code-bg:#070d10;--code-fg:#e6edf7;
+  --warn-bg:#241d13;--warn-bd:#453a1e;--tip-bg:#12262a;--tip-bd:#1d4a4f;}
+html[data-theme="dark"] .box{background:#141d22;border-color:var(--line)}
+html[data-theme="dark"] .body code{color:#7ee8d8}
+html[data-theme="dark"] .hero{background:linear-gradient(135deg,#062029,#0b5c5c 55%,#0d9488)}
+@media (min-width:940px){
+.sidebar{transform:translateX(0)}
+.main{margin-left:286px;padding:0 24px 90px}
+.menubtn{display:none}
+.hero{margin:0 -24px 20px}
+.pbar{margin:0 -24px 18px}
+}
+@media print{
+.sidebar,.menubtn,.pbar,.daynav,.sb-search,.themebar{display:none!important}
+.main{margin:0;padding:0}
+.page{display:block!important;page-break-after:always}
+.body{border:none;padding:0}
+details.ans{display:block!important}
+details.ans>ol{display:block!important}
+}
+</style>
+</head>
+<body>
+<button class="menubtn" id="menubtn">☰</button>
+<aside class="sidebar" id="sidebar">
+  <div class="brand"><h1>时序逻辑</h1>
+    <div class="sub">12 节 · 7 张手绘图</div></div>
+  <div class="sb-progress">
+    <div class="row"><span>学习进度</span><span><b id="doneNum">0</b> / 12</span></div>
+    <div class="bar"><i id="doneBar"></i></div>
+  </div>
+  <div class="themebar"><button id="themeBtn" type="button">🌙 深色模式</button></div>
+  <div class="sb-search">
+    <input id="q" type="search" placeholder="搜索寄存器或关键词…" autocomplete="off">
+    <div id="results" style="margin-top:6px"></div>
+  </div>
+  <nav class="sb-list" id="sblist">
+<a class="sb-item" href="#home" data-page="home"><span class="num">⌂</span><span class="tt">首页 · 学习路线</span></a>
+<div class="sb-week">第一部分 · 建立概念　第 1-2 章</div>
+<a class="sb-item" href="#p1" data-page="p1" data-day="1"><span class="num">1</span><span class="tt">时序逻辑到底是什么</span><span class="chk">✓</span></a>
+<a class="sb-item" href="#p2" data-page="p2" data-day="2"><span class="num">2</span><span class="tt">记忆是怎么来的</span><span class="chk">✓</span></a>
+<div class="sb-week">第二部分 · 核心原理　第 3-7 章 ★重点</div>
+<a class="sb-item" href="#p3" data-page="p3" data-day="3"><span class="num">3</span><span class="tt">RS 锁存器：两个按钮</span><span class="chk">✓</span></a>
+<a class="sb-item" href="#p4" data-page="p4" data-day="4"><span class="num">4</span><span class="tt">D 锁存器：一个按钮就够了</span><span class="chk">✓</span></a>
+<a class="sb-item" href="#p5" data-page="p5" data-day="5"><span class="num">5</span><span class="tt">电平触发 vs 边沿触发</span><span class="chk">✓</span></a>
+<a class="sb-item" href="#p6" data-page="p6" data-day="6"><span class="num">6</span><span class="tt">D 触发器：怎么做到边沿</span><span class="chk">✓</span></a>
+<a class="sb-item" href="#p7" data-page="p7" data-day="7"><span class="num">7</span><span class="tt">建立时间与保持时间</span><span class="chk">✓</span></a>
+<div class="sb-week">第三部分 · 拼出器件　第 8-10 章</div>
+<a class="sb-item" href="#p8" data-page="p8" data-day="8"><span class="num">8</span><span class="tt">寄存器：8 个触发器</span><span class="chk">✓</span></a>
+<a class="sb-item" href="#p9" data-page="p9" data-day="9"><span class="num">9</span><span class="tt">计数器：会自己加一</span><span class="chk">✓</span></a>
+<a class="sb-item" href="#p10" data-page="p10" data-day="10"><span class="num">10</span><span class="tt">移位寄存器与状态机</span><span class="chk">✓</span></a>
+<div class="sb-week">附录　速查与路线</div>
+<a class="sb-item" href="#pA" data-page="pA" data-day="A"><span class="num">A</span><span class="tt">附录 A · 常用芯片速查</span><span class="chk">✓</span></a>
+<a class="sb-item" href="#pB" data-page="pB" data-day="B"><span class="num">B</span><span class="tt">附录 B · 学习路线与避坑</span><span class="chk">✓</span></a>
+  </nav>
+</aside>
+<main class="main">
+
+<article class="page" id="home">
+  <div class="hero">
+    <span class="tag">从记忆单元到状态机 · 零基础</span>
+    <h1>时序逻辑</h1>
+    <p>不讲「照抄代码能跑就行」。先用 5 章讲透 STM32 由什么组成、程序是怎么从 Flash 跑到 main 的，再进外设。</p>
+    <div class="meta">
+      <b>17 章</b> · <b>6</b> 张原理图 · 对齐 <b>江协科技</b> 教程与 <b>STM32F10xxx 参考手册</b><br>
+      单文件离线可用 · 自动记录进度 · 支持深色模式 · 每题配答案
+    </div>
+  </div>
+  <div class="body">
+    <h2>这份教程的重点</h2>
+    <table>
+      <tr><th>部分</th><th>回答什么问题</th></tr>
+      <tr><td>第一部分（1-4 章）</td><td>STM32 是什么？里面有什么？和 51 差在哪？</td></tr>
+      <tr><td><b>第二部分（5-9 章）★</b></td><td><b>程序烧进 Flash 后，是怎么一步步跑起来的？</b></td></tr>
+      <tr><td>第三部分（10-17 章）</td><td>各个外设怎么用（GPIO/中断/定时器/PWM/ADC/DMA/串口/I2C）</td></tr>
+    </table>
+
+    <h2>你的起点</h2>
+    <div class="box tip">
+      已经会：C 语言、51 单片机（学到步进电机，会 GPIO/数码管/按键/中断/定时器/串口）、电路前三章、数电到 TTL。<br>
+      还不会：STM32 的时钟体系、寄存器配置、启动过程。<b>本教程从「和 51 有什么不同」讲起。</b>
+    </div>
+
+    <h2>资料依据</h2>
+    <table>
+      <tr><th>内容</th><th>来源</th></tr>
+      <tr><td>芯片参数、片上资源、工程架构、存储器映像</td><td>江协科技《STM32 入门教程》课件（207 页）</td></tr>
+      <tr><td>Boot 配置、存储器组织、Flash 页、总线频率、寄存器地址</td><td>STM32F10xxx 参考手册（中文，755 页）§2 存储器和总线架构</td></tr>
+      <tr><td>外设寄存器位域、时钟使能</td><td>同上 §7 RCC / §8 GPIO / §9 EXTI</td></tr>
+    </table>
+    <div class="box warn">
+      <b>建议路线</b>：第 1-9 章按顺序看（这是精髓），然后第 10 章开始就可以边看边动手了。<br>
+      直接从第 10 章点灯开始也行，但你会一直卡在「为什么第一步要开时钟」这个问题上。
+    </div>
+
+<h2>第一部分 · 建立概念　第 1-2 章</h2><div class="cards">
+<a class="card" href="#p1"><div class="n">第 1 章</div><div class="t">时序逻辑到底是什么</div></a>
+<a class="card" href="#p2"><div class="n">第 2 章</div><div class="t">记忆是怎么来的</div></a>
+</div>
+<h2>第二部分 · 核心原理　第 3-7 章 ★重点</h2><div class="cards">
+<a class="card" href="#p3"><div class="n">第 3 章</div><div class="t">RS 锁存器：两个按钮</div></a>
+<a class="card" href="#p4"><div class="n">第 4 章</div><div class="t">D 锁存器：一个按钮就够了</div></a>
+<a class="card" href="#p5"><div class="n">第 5 章</div><div class="t">电平触发 vs 边沿触发</div></a>
+<a class="card" href="#p6"><div class="n">第 6 章</div><div class="t">D 触发器：怎么做到边沿</div></a>
+<a class="card" href="#p7"><div class="n">第 7 章</div><div class="t">建立时间与保持时间</div></a>
+</div>
+<h2>第三部分 · 拼出器件　第 8-10 章</h2><div class="cards">
+<a class="card" href="#p8"><div class="n">第 8 章</div><div class="t">寄存器：8 个触发器</div></a>
+<a class="card" href="#p9"><div class="n">第 9 章</div><div class="t">计数器：会自己加一</div></a>
+<a class="card" href="#p10"><div class="n">第 10 章</div><div class="t">移位寄存器与状态机</div></a>
+</div>
+<h2>附录　速查与路线</h2><div class="cards">
+<a class="card" href="#pA"><div class="n">第 A 章</div><div class="t">附录 A · 常用芯片速查</div></a>
+<a class="card" href="#pB"><div class="n">第 B 章</div><div class="t">附录 B · 学习路线与避坑</div></a>
+</div>
+  </div>
+</article>
+
+
+<article class="page" id="p1">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">1</span>
+      <span class="pbtt">第 1 章 · 时序逻辑到底是什么</span></div>
+    <button class="donebtn" data-day="1">标记已学完</button>
+  </div>
+  <div class="body">
+<div class="box tip">
+<b>这一章只讲一个问题：时序逻辑和组合逻辑，到底差在哪？</b><br>
+答案只有三个字：<b>会记忆</b>。
+</div>
+
+<h2>1.1 先回忆一下你已经会的</h2>
+<p>你学过的「组合逻辑」是什么？就是<b>与门、或门、非门、加法器</b>这些。</p>
+<p>它们有一个共同点：<b>输出只跟「现在的输入」有关。</b></p>
+<pre class="code">输入 2 和 3  →  加法器算一下  →  输出 5
+输入变成 4 和 5 →  输出立刻变 9
+你不输入了 →  它什么都不输出，也什么都不记得</pre>
+<div class="box warn"><b>组合逻辑的致命缺陷</b>：它<b>没有记忆</b>。<br>
+你上午算过 2+3=5，下午它完全不记得 —— 因为中间没有任何地方「存」过这个结果。</div>
+
+<h2>1.2 时序逻辑多了一样东西：记忆</h2>
+<p>时序逻辑 = 组合逻辑 + <b>记忆单元</b>。</p>
+<p>它的输出不只跟「现在的输入」有关，还跟<b>「以前发生过什么」</b>有关。</p>
+<img class="fig" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NDAiIGhlaWdodD0iNDMwIiB2aWV3Qm94PSIwIDAgOTQwIDQzMCI+CjxkZWZzPgo8c3R5bGU+Ci53e2ZpbGw6bm9uZTtzdHJva2U6IzFhMWExYTtzdHJva2Utd2lkdGg6Mi40O3N0cm9rZS1saW5lY2FwOnJvdW5kO3N0cm9rZS1saW5lam9pbjpyb3VuZH0KLmN7ZmlsbDojZmZmZmZmO3N0cm9rZTojMWExYTFhO3N0cm9rZS13aWR0aDoyLjQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kfQoubntmaWxsOiMxYTFhMWE7c3Ryb2tlOm5vbmV9Ci50Yntmb250OjcwMCAxOXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojMWExYTFhfQoudHR7Zm9udDo3MDAgMTdweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzFhMWExYX0KLnRze2ZvbnQ6NDAwIDE0LjVweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzZiNzI4MH0KLnRue2ZvbnQ6NDAwIDE2cHggIk1pY3Jvc29mdCBZYUhlaSIsc2Fucy1zZXJpZjtmaWxsOiMxYTFhMWF9Ci5obHtmb250OjQwMCAxNXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojMWE2ZmI1fQouY3Vye2ZpbGw6bm9uZTtzdHJva2U6I2MwMzkyYjtzdHJva2Utd2lkdGg6Mi4yfQouY3VybHtmb250OjQwMCAxNXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojYzAzOTJifQouZGFzaHtmaWxsOm5vbmU7c3Ryb2tlOiM5YWEzYWY7c3Ryb2tlLXdpZHRoOjEuNDtzdHJva2UtZGFzaGFycmF5OjYgNH0KLmdse2ZvbnQ6NjAwIDE1LjVweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzFhMWExYX0KPC9zdHlsZT4KPG1hcmtlciBpZD0iYXIiIHZpZXdCb3g9IjAgMCAxMCAxMCIgcmVmWD0iOSIgcmVmWT0iNSIgbWFya2VyV2lkdGg9IjciIG1hcmtlckhlaWdodD0iNyIgb3JpZW50PSJhdXRvIj4KICA8cGF0aCBkPSJNMCwwIEwxMCw1IEwwLDEwIHoiIGZpbGw9IiMxYTFhMWEiLz48L21hcmtlcj4KPG1hcmtlciBpZD0iYXJyIiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjciIG9yaWVudD0iYXV0byI+CiAgPHBhdGggZD0iTTAsMCBMMTAsNSBMMCwxMCB6IiBmaWxsPSIjYzAzOTJiIi8+PC9tYXJrZXI+CjxtYXJrZXIgaWQ9ImFyYiIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI5IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNyIgbWFya2VySGVpZ2h0PSI3IiBvcmllbnQ9ImF1dG8iPgogIDxwYXRoIGQ9Ik0wLDAgTDEwLDUgTDAsMTAgeiIgZmlsbD0iIzFhNmZiNSIvPjwvbWFya2VyPgo8L2RlZnM+Cjx0ZXh0IHg9IjMwIiB5PSIzNCIgY2xhc3M9InRiIj7llK/kuIDnmoTljLrliKvvvJrlroPorrDkuI3orrDlvpfkuIrkuIDmrKE8L3RleHQ+Cjx0ZXh0IHg9IjMwIiB5PSI1OCIgY2xhc3M9InRzIj7nu4TlkIjpgLvovpEgPSDorqHnrpflmajvvJvml7bluo/pgLvovpEgPSDkvJrorrDkvY/nrZTmoYjnmoTorqHnrpflmag8L3RleHQ+Cjx0ZXh0IHg9IjI0MCIgeT0iMTA4IiBjbGFzcz0idHQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPue7hOWQiOmAu+i+kTwvdGV4dD4KPHJlY3QgeD0iMTUwIiB5PSIxMzAiIHdpZHRoPSIxODAiIGhlaWdodD0iOTAiIHJ4PSI4IiBjbGFzcz0iYyIgZmlsbD0iI2VlZjRmYiIvPgo8dGV4dCB4PSIyNDAiIHk9IjE2OCIgY2xhc3M9InRuIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7ovpPlhaUg4oaSIOeulyDihpIg6L6T5Ye6PC90ZXh0Pgo8dGV4dCB4PSIyNDAiIHk9IjE5MiIgY2xhc3M9InRzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7nrpflrozlsLHlv5g8L3RleHQ+CjxsaW5lIHgxPSI2MCIgeTE9IjE3NSIgeDI9IjE0NiIgeTI9IjE3NSIgY2xhc3M9InciIG1hcmtlci1lbmQ9InVybCgjYXIpIi8+Cjx0ZXh0IHg9IjQ2IiB5PSIxODAiIGNsYXNzPSJ0biIgdGV4dC1hbmNob3I9ImVuZCI+MiArIDM8L3RleHQ+CjxsaW5lIHgxPSIzMzQiIHkxPSIxNzUiIHgyPSI0MTAiIHkyPSIxNzUiIGNsYXNzPSJ3IiBtYXJrZXItZW5kPSJ1cmwoI2FyKSIvPgo8dGV4dCB4PSI0MjQiIHk9IjE4MCIgY2xhc3M9InR0Ij41PC90ZXh0Pgo8dGV4dCB4PSIyNDAiIHk9IjI0NiIgY2xhc3M9InRzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7miornlLXkuIDmlq3vvIzku4DkuYjpg73msqHnlZnkuIs8L3RleHQ+Cjx0ZXh0IHg9IjcwMCIgeT0iMTA4IiBjbGFzcz0idHQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuaXtuW6j+mAu+i+kTwvdGV4dD4KPHJlY3QgeD0iNTcwIiB5PSIxMzAiIHdpZHRoPSIyNDAiIGhlaWdodD0iOTAiIHJ4PSI4IiBjbGFzcz0iYyIgZmlsbD0iI2ZkZjNlYyIvPgo8dGV4dCB4PSI2OTAiIHk9IjE2MiIgY2xhc3M9InRuIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7ovpPlhaUg4oaSIOeulyDihpIg6L6T5Ye6PC90ZXh0Pgo8dGV4dCB4PSI2OTAiIHk9IjE4NiIgY2xhc3M9InRuIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7vvIsg6K6w5L2P6L+Z5qyh57uT5p6cPC90ZXh0Pgo8cmVjdCB4PSI2NDAiIHk9IjIwNSIgd2lkdGg9IjExMCIgaGVpZ2h0PSIyNiIgcng9IjUiIGNsYXNzPSJjIiBmaWxsPSIjZmZmIi8+Cjx0ZXh0IHg9IjY5NSIgeT0iMjI0IiBjbGFzcz0idHMiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuiusOW/huWNleWFgzwvdGV4dD4KPHBhdGggZD0iTSA4MDAsMTUwIEwgODQwLDE1MCBMIDg0MCwyMTggTCA3NTIsMjE4IiBjbGFzcz0idyIgZmlsbD0ibm9uZSIvPgo8bGluZSB4MT0iNzUyIiB5MT0iMjE4IiB4Mj0iNzAwIiB5Mj0iMjE4IiBjbGFzcz0idyIgbWFya2VyLWVuZD0idXJsKCNhcikiLz4KPHRleHQgeD0iODUyIiB5PSIxNjAiIGNsYXNzPSJ0cyI+5a2Y6LW35p2lPC90ZXh0Pgo8dGV4dCB4PSI2MCIgeT0iMzAwIiBjbGFzcz0idG4iPuKYhSDnu4TlkIjpgLvovpHvvJrovpPlh7rlj6rlj5blhrPkuo7jgJDnjrDlnKjjgJHnmoTovpPlhaXjgILkvaDmjIkgMisz77yM5a6D57uZIDXvvJvkuIvkuIDnp5LkuI3mjInkuobvvIzlroPlsLHkuI3nn6XpgZPliJrmiY3nrpfov4fku4DkuYjjgII8L3RleHQ+Cjx0ZXh0IHg9IjYwIiB5PSIzMzAiIGNsYXNzPSJobCI+4piFIOaXtuW6j+mAu+i+ke+8mui+k+WHuuWPluWGs+S6juOAkOeOsOWcqOOAkeeahOi+k+WFpSArIOOAkOi/h+WOu+OAkeiusOS9j+S6huS7gOS5iOOAgui/meaYr+Wug+S/qeWUr+S4gOeahOacrOi0qOWMuuWIq+OAgjwvdGV4dD4KPHRleHQgeD0iNjAiIHk9IjM2NiIgY2xhc3M9InRzIj7liKTmlq3lj6Por4DvvJrnlLXot6/ph4zlpoLmnpzmnInkuIDmnaHjgIzovpPlh7rnu5Xlm57ljrvlj5jmiJDovpPlhaXjgI3nmoTnur/vvIzlpJrljYrlsLHmmK/ml7bluo/pgLvovpHjgII8L3RleHQ+Cjwvc3ZnPgo=" alt="q01_组合vs时序" loading="lazy">
+<table>
+<tr><th></th><th>组合逻辑</th><th>时序逻辑</th></tr>
+<tr><td>输出取决于</td><td>现在的输入</td><td>现在的输入 + <b>记住的过去</b></td></tr>
+<tr><td>有没有记忆</td><td>没有</td><td><b>有</b></td></tr>
+<tr><td>生活类比</td><td>计算器</td><td>自动售货机、电梯、红绿灯</td></tr>
+<tr><td>典型器件</td><td>与门、或门、加法器</td><td>触发器、寄存器、计数器</td></tr>
+</table>
+
+<h2>1.3 用三个生活例子感受「记忆」</h2>
+<table>
+<tr><th>设备</th><th>如果它没有记忆会怎样</th><th>现实（有记忆）</th></tr>
+<tr><td><b>电梯</b></td><td>你按了 8 楼，手一松它就忘了要停 8 楼</td><td>记住你的请求，到 8 楼才开门</td></tr>
+<tr><td><b>红绿灯</b></td><td>不知道现在是红的还是绿的，无法「接着往下走」</td><td>知道当前状态，到点切换到下一个</td></tr>
+<tr><td><b>密码锁</b></td><td>你输「1」，它给了个结果；输「2」，它又从头算</td><td>记住你输过「1」，再等「2」凑成 12</td></tr>
+</table>
+<div class="box tip"><b>一句话</b>：凡是要「一步一步来」的东西，都必须有记忆。<br>
+而「一步一步来」正是<b>时钟</b>要管的事 —— 所以这类电路叫<b>时序</b>逻辑。</div>
+
+<h2>1.4 怎么一眼认出时序电路</h2>
+<p>有个特别简单的判断方法，看电路图就行：</p>
+<pre class="code">找一条「绕回去」的线
+
+  输出 ──────┐
+             │
+             ↓
+           输入 ──→ 电路 ──→ 输出</pre>
+<p><b>只要电路里有「自己的输出又接回自己的输入」这种线，它就是时序电路。</b></p>
+<p>因为这条回线让电路「自己知道自己刚才是什么状态」—— 这就是记忆。</p>
+<div class="box warn"><b>反面例子</b>：加法器、译码器、多路选择器，全是「左边进、右边出」，没有任何回线 → 都是组合逻辑。</div>
+
+<h2>1.5 本章练习</h2>
+<ol>
+<li>组合逻辑和时序逻辑唯一的本质区别是什么？</li>
+<li>红绿灯为什么必须有记忆？</li>
+<li>看到一个电路里有一条输出绕回输入的线，你能判断它是什么电路吗？</li>
+</ol>
+<details class="ans"><summary>📖 参考答案</summary><ol><li>唯一区别是<b>有没有记忆</b>。组合逻辑的输出只取决于当前输入；时序逻辑的输出还取决于过去记住的状态。</li><li>因为红绿灯必须知道「现在是什么灯」，才能决定「下一个该是什么灯」。没有记忆就不知道当前状态，无法一步一步往下走。</li><li>是<b>时序逻辑</b>。输出绕回输入形成正反馈，电路就能自己维持自己的状态，这就是记忆。</li></ol></details></div>
+  <div class="daynav"><a class="dis">← 已是第一章</a><a class="next" href="#s2">第 2 章　记忆是怎么来的 →</a></div>
+</article>
+<article class="page" id="p2">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">2</span>
+      <span class="pbtt">第 2 章 · 记忆是怎么来的</span></div>
+    <button class="donebtn" data-day="2">标记已学完</button>
+  </div>
+  <div class="body">
+<div class="box tip">
+<b>这一章回答一个问题：用「没有记忆」的门，怎么做出「有记忆」的东西？</b>
+</div>
+
+<h2>2.1 先看一个反相器</h2>
+<p>反相器（非门）就是「输入 1 输出 0，输入 0 输出 1」。它完全是组合逻辑 —— 输入一变，输出立刻跟着变。</p>
+<img class="fig" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NDAiIGhlaWdodD0iNDAwIiB2aWV3Qm94PSIwIDAgOTQwIDQwMCI+CjxkZWZzPgo8c3R5bGU+Ci53e2ZpbGw6bm9uZTtzdHJva2U6IzFhMWExYTtzdHJva2Utd2lkdGg6Mi40O3N0cm9rZS1saW5lY2FwOnJvdW5kO3N0cm9rZS1saW5lam9pbjpyb3VuZH0KLmN7ZmlsbDojZmZmZmZmO3N0cm9rZTojMWExYTFhO3N0cm9rZS13aWR0aDoyLjQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kfQoubntmaWxsOiMxYTFhMWE7c3Ryb2tlOm5vbmV9Ci50Yntmb250OjcwMCAxOXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojMWExYTFhfQoudHR7Zm9udDo3MDAgMTdweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzFhMWExYX0KLnRze2ZvbnQ6NDAwIDE0LjVweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzZiNzI4MH0KLnRue2ZvbnQ6NDAwIDE2cHggIk1pY3Jvc29mdCBZYUhlaSIsc2Fucy1zZXJpZjtmaWxsOiMxYTFhMWF9Ci5obHtmb250OjQwMCAxNXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojMWE2ZmI1fQouY3Vye2ZpbGw6bm9uZTtzdHJva2U6I2MwMzkyYjtzdHJva2Utd2lkdGg6Mi4yfQouY3VybHtmb250OjQwMCAxNXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojYzAzOTJifQouZGFzaHtmaWxsOm5vbmU7c3Ryb2tlOiM5YWEzYWY7c3Ryb2tlLXdpZHRoOjEuNDtzdHJva2UtZGFzaGFycmF5OjYgNH0KLmdse2ZvbnQ6NjAwIDE1LjVweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzFhMWExYX0KPC9zdHlsZT4KPG1hcmtlciBpZD0iYXIiIHZpZXdCb3g9IjAgMCAxMCAxMCIgcmVmWD0iOSIgcmVmWT0iNSIgbWFya2VyV2lkdGg9IjciIG1hcmtlckhlaWdodD0iNyIgb3JpZW50PSJhdXRvIj4KICA8cGF0aCBkPSJNMCwwIEwxMCw1IEwwLDEwIHoiIGZpbGw9IiMxYTFhMWEiLz48L21hcmtlcj4KPG1hcmtlciBpZD0iYXJyIiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjciIG9yaWVudD0iYXV0byI+CiAgPHBhdGggZD0iTTAsMCBMMTAsNSBMMCwxMCB6IiBmaWxsPSIjYzAzOTJiIi8+PC9tYXJrZXI+CjxtYXJrZXIgaWQ9ImFyYiIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI5IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNyIgbWFya2VySGVpZ2h0PSI3IiBvcmllbnQ9ImF1dG8iPgogIDxwYXRoIGQ9Ik0wLDAgTDEwLDUgTDAsMTAgeiIgZmlsbD0iIzFhNmZiNSIvPjwvbWFya2VyPgo8L2RlZnM+Cjx0ZXh0IHg9IjMwIiB5PSIzNCIgY2xhc3M9InRiIj7orrDlv4bmmK/ku47lk6rmnaXnmoTvvJrkuKTkuKrlj43nm7jlmajjgIzmiYvmi4nmiYvjgI08L3RleHQ+Cjx0ZXh0IHg9IjMwIiB5PSI1OCIgY2xhc3M9InRzIj5BIOeahOi+k+WHuuaOpeWIsCBCIOeahOi+k+WFpe+8jEIg55qE6L6T5Ye65Y+I5o6l5ZueIEEg55qE6L6T5YWlIOKAlOKAlCDlroPku6zkvJrmiorlr7nmlrnnmoTnirbmgIHplIHmrbs8L3RleHQ+Cjx0ZXh0IHg9IjgwIiB5PSIxMTgiIGNsYXNzPSJ0dCI+4pGgIOS4gOS4quWPjeebuOWZqO+8mui3n+edgOi+k+WFpeWKqO+8jOayoeacieiusOW/hjwvdGV4dD4KPHBhdGggZD0iTSAxNjAsMTQwIEwgMTYwLDE4MCBMIDIwNCwxNjAuMCB6IiBjbGFzcz0iYyIgZmlsbD0iI2ZmZiIvPgo8Y2lyY2xlIGN4PSIyMDkiIGN5PSIxNjAuMCIgcj0iNSIgY2xhc3M9ImMiIGZpbGw9IiNmZmYiLz4KPHBhdGggZD0iTSA4MCwxNjAgTCAxNTYsMTYwIiBjbGFzcz0idyIvPgo8dGV4dCB4PSI3MCIgeT0iMTY1IiBjbGFzcz0idG4iIHRleHQtYW5jaG9yPSJlbmQiPjE8L3RleHQ+CjxwYXRoIGQ9Ik0gMjE0LDE2MCBMIDI4MCwxNjAiIGNsYXNzPSJ3Ii8+Cjx0ZXh0IHg9IjI5MiIgeT0iMTY1IiBjbGFzcz0idG4iPjA8L3RleHQ+Cjx0ZXh0IHg9IjM2MCIgeT0iMTY1IiBjbGFzcz0idHMiPui+k+WFpSAxIOKGkiDovpPlh7ogMO+8jOi+k+WFpeS4gOWPmOWug+Wwsei3n+edgOWPmDwvdGV4dD4KPHRleHQgeD0iODAiIHk9IjIzMiIgY2xhc3M9InR0Ij7ikaEg5Lik5Liq5Y+N55u45Zmo6aaW5bC+55u45o6l77ya5a6D5byA5aeL44CM6Ieq5bex57u05oyB6Ieq5bex44CNPC90ZXh0Pgo8cGF0aCBkPSJNIDIwMCwyNjIgTCAyMDAsMzAyIEwgMjQ0LDI4Mi4wIHoiIGNsYXNzPSJjIiBmaWxsPSIjZmZmIi8+CjxjaXJjbGUgY3g9IjI0OSIgY3k9IjI4Mi4wIiByPSI1IiBjbGFzcz0iYyIgZmlsbD0iI2ZmZiIvPgo8cGF0aCBkPSJNIDQwMCwyNjIgTCA0MDAsMzAyIEwgNDQ0LDI4Mi4wIHoiIGNsYXNzPSJjIiBmaWxsPSIjZmZmIi8+CjxjaXJjbGUgY3g9IjQ0OSIgY3k9IjI4Mi4wIiByPSI1IiBjbGFzcz0iYyIgZmlsbD0iI2ZmZiIvPgo8cGF0aCBkPSJNIDIwMCwyODIgTCAxNjAsMjgyIiBjbGFzcz0idyIvPgo8cGF0aCBkPSJNIDE2MCwyODIgTCAxNjAsMjIwIiBjbGFzcz0idyIvPgo8cGF0aCBkPSJNIDE2MCwyMjAgTCA0NDQsMjIwIiBjbGFzcz0idyIvPgo8cGF0aCBkPSJNIDQ0NCwyMjAgTCA0NDQsMjgyIiBjbGFzcz0idyIvPgo8bGluZSB4MT0iNDQ0IiB5MT0iMjgyIiB4Mj0iNDQ0IiB5Mj0iMjgyIiBjbGFzcz0idyIgbWFya2VyLWVuZD0idXJsKCNhcikiLz4KPHBhdGggZD0iTSAzNTYsMjgyIEwgNDAwLDI4MiIgY2xhc3M9InciLz4KPGxpbmUgeDE9IjM1NiIgeTE9IjI4MiIgeDI9IjQwMCIgeTI9IjI4MiIgY2xhc3M9InciIG1hcmtlci1lbmQ9InVybCgjYXIpIi8+Cjx0ZXh0IHg9IjE5NiIgeT0iMzAyIiBjbGFzcz0idG4iIHRleHQtYW5jaG9yPSJtaWRkbGUiPlg8L3RleHQ+Cjx0ZXh0IHg9IjQwMCIgeT0iMzAyIiBjbGFzcz0idG4iIHRleHQtYW5jaG9yPSJtaWRkbGUiPlkgPSBYzIQ8L3RleHQ+Cjx0ZXh0IHg9IjE2MCIgeT0iMzQwIiBjbGFzcz0idHMiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlgg5Y+YIDEg4oaSIFkg5Y+YIDAg4oaSIOWPiOiuqSBYIOS/neaMgSAx44CA77yI5q2j5Y+N6aaI77yM6LaK6ZSB6LaK57Sn77yJPC90ZXh0Pgo8dGV4dCB4PSI2MDAiIHk9IjI2MiIgY2xhc3M9InRzIj7kuKTnuqfnmoTovpPlh7rliJrlpb3kupLooaXvvIw8L3RleHQ+Cjx0ZXh0IHg9IjYwMCIgeT0iMjg0IiBjbGFzcz0idHMiPuiwgeS5n+aOqOS4jeWKqOiwgSDigJTigJQ8L3RleHQ+Cjx0ZXh0IHg9IjYwMCIgeT0iMzA2IiBjbGFzcz0idHMiPui/meWwseaYr+acgOWOn+Wni+eahOOAjOiusOW/huOAjTwvdGV4dD4KPHRleHQgeD0iNjAiIHk9IjM3OCIgY2xhc3M9ImhsIj7imIUg5L2G6L+Z5qC35Y+q5pyJ5Lik5Liq5Zu65a6a54q25oCB77yM5rKh5rOV5YaZ5YWl5paw5YC844CC6KaB6IO944CM5YaZ44CN6L+b5Y6777yM5bCx5b6X5pS555So5pyJ56ys5LqM5Liq6L6T5YWl55qE6ZeoIOKAlOKAlCDkuo7mmK/mnInkuobplIHlrZjlmajjgII8L3RleHQ+Cjwvc3ZnPgo=" alt="q02_记忆诞生" loading="lazy">
+<p>它没有任何记忆。你断掉输入，它就不知道刚才是什么。</p>
+
+<h2>2.2 神奇的一步：把两个反相器首尾相接</h2>
+<pre class="code">  ┌──────┐        ┌──────┐
+  │      │        │      │
+  →  非门 A  ──→  非门 B  ──┐
+  ↑                          │
+  └──────────────────────────┘
+       （B 的输出接回 A 的输入）</pre>
+<p>现在假设 A 的输出是 <b>1</b>：</p>
+<ol>
+<li>A 输出 1 → B 的输入是 1 → B 输出 <b>0</b></li>
+<li>B 输出 0 接回 A → A 的输入是 0 → A 输出 <b>1</b></li>
+<li>回到第 1 步 —— <b>状态稳定下来了</b></li>
+</ol>
+<p>反过来假设 A 输出 0，同样会稳定在「A=0、B=1」。</p>
+<div class="box tip"><b>这就是记忆的诞生</b>：两个门互相「撑着」对方的状态，谁也不让谁变。<br>
+你把外部输入撤掉，它照样保持 —— 因为它自己维持自己（这叫<b>正反馈</b>）。</div>
+
+<h2>2.3 但这个「记忆」还不能用</h2>
+<p>问题很明显：它只有两个固定状态，<b>你没法往里面写新值</b>。</p>
+<table>
+<tr><th>想要的能力</th><th>两个反相器能做到吗</th></tr>
+<tr><td>记住一个值</td><td>✓ 能</td></tr>
+<tr><td>把它改成另一个值</td><td>✗ 不能</td></tr>
+</table>
+<div class="box warn"><b>怎么办</b>：把「反相器」换成「有第二个输入的门」—— 与非门或或非门。<br>
+第二个输入就像一个「开关」，能让这个门暂时「听话」或「不听话」，从而把外部信号写进去。</div>
+
+<h2>2.4 需要的材料清单</h2>
+<table>
+<tr><th>材料</th><th>作用</th></tr>
+<tr><td>2 个<b>或非门</b>（NOR）或 2 个<b>与非门</b>（NAND）</td><td>互相交叉连接，形成记忆</td></tr>
+<tr><td>2 个「控制输入」</td><td>用来写入 1 或 0</td></tr>
+</table>
+<p>下一章就用这 4 个东西，做出人类第一个记忆单元。</p>
+
+<h2>2.5 本章练习</h2>
+<ol>
+<li>为什么两个反相器首尾相接就能「记住」？用「1」走一遍这个过程。</li>
+<li>这种两反相器结构有什么不足？</li>
+<li>为什么下一步要换成「或非门」而不是继续用「非门」？</li>
+</ol>
+<details class="ans"><summary>📖 参考答案</summary><ol><li>因为两个反相器互相「撑着」：A 输出 1 让 B 输出 0，B 输出 0 又让 A 保持输出 1，状态锁死，外部撤掉输入也不变。</li><li>它只有两个固定状态，<b>没法写入新值</b>（不能改成另一个状态）。</li><li>因为或非门（与非门）有<b>第二个输入</b>，可以像开关一样控制它听不听话，从而把外部数据写进去。非门只有一根输入，没法控制。</li></ol></details></div>
+  <div class="daynav"><a href="#s1">← 第 1 章　时序逻辑到底是什么</a><a class="next" href="#s3">第 3 章　RS 锁存器：两个按钮 →</a></div>
+</article>
+<article class="page" id="p3">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">3</span>
+      <span class="pbtt">第 3 章 · RS 锁存器：两个按钮</span></div>
+    <button class="donebtn" data-day="3">标记已学完</button>
+  </div>
+  <div class="body">
+<div class="box tip">
+<b>这一章要做出第一个真正能用的记忆单元。</b>它只有两个按钮，却能记住你按过哪个。
+</div>
+
+<h2>3.1 两个按钮：置位和复位</h2>
+<p>我们要的东西可以这样描述：</p>
+<table>
+<tr><th>操作</th><th>想要的结果</th></tr>
+<tr><td>按一下「置位」按钮（S）</td><td>输出变成 <b>1</b>，并一直保持</td></tr>
+<tr><td>按一下「复位」按钮（R）</td><td>输出变成 <b>0</b>，并一直保持</td></tr>
+<tr><td>两个都不按</td><td><b>保持不变</b>（这就是记忆！）</td></tr>
+</table>
+
+<h2>3.2 电路怎么搭</h2>
+<img class="fig" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NDAiIGhlaWdodD0iNDcwIiB2aWV3Qm94PSIwIDAgOTQwIDQ3MCI+CjxkZWZzPgo8c3R5bGU+Ci53e2ZpbGw6bm9uZTtzdHJva2U6IzFhMWExYTtzdHJva2Utd2lkdGg6Mi40O3N0cm9rZS1saW5lY2FwOnJvdW5kO3N0cm9rZS1saW5lam9pbjpyb3VuZH0KLmN7ZmlsbDojZmZmZmZmO3N0cm9rZTojMWExYTFhO3N0cm9rZS13aWR0aDoyLjQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kfQoubntmaWxsOiMxYTFhMWE7c3Ryb2tlOm5vbmV9Ci50Yntmb250OjcwMCAxOXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojMWExYTFhfQoudHR7Zm9udDo3MDAgMTdweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzFhMWExYX0KLnRze2ZvbnQ6NDAwIDE0LjVweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzZiNzI4MH0KLnRue2ZvbnQ6NDAwIDE2cHggIk1pY3Jvc29mdCBZYUhlaSIsc2Fucy1zZXJpZjtmaWxsOiMxYTFhMWF9Ci5obHtmb250OjQwMCAxNXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojMWE2ZmI1fQouY3Vye2ZpbGw6bm9uZTtzdHJva2U6I2MwMzkyYjtzdHJva2Utd2lkdGg6Mi4yfQouY3VybHtmb250OjQwMCAxNXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojYzAzOTJifQouZGFzaHtmaWxsOm5vbmU7c3Ryb2tlOiM5YWEzYWY7c3Ryb2tlLXdpZHRoOjEuNDtzdHJva2UtZGFzaGFycmF5OjYgNH0KLmdse2ZvbnQ6NjAwIDE1LjVweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzFhMWExYX0KPC9zdHlsZT4KPG1hcmtlciBpZD0iYXIiIHZpZXdCb3g9IjAgMCAxMCAxMCIgcmVmWD0iOSIgcmVmWT0iNSIgbWFya2VyV2lkdGg9IjciIG1hcmtlckhlaWdodD0iNyIgb3JpZW50PSJhdXRvIj4KICA8cGF0aCBkPSJNMCwwIEwxMCw1IEwwLDEwIHoiIGZpbGw9IiMxYTFhMWEiLz48L21hcmtlcj4KPG1hcmtlciBpZD0iYXJyIiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjciIG9yaWVudD0iYXV0byI+CiAgPHBhdGggZD0iTTAsMCBMMTAsNSBMMCwxMCB6IiBmaWxsPSIjYzAzOTJiIi8+PC9tYXJrZXI+CjxtYXJrZXIgaWQ9ImFyYiIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI5IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNyIgbWFya2VySGVpZ2h0PSI3IiBvcmllbnQ9ImF1dG8iPgogIDxwYXRoIGQ9Ik0wLDAgTDEwLDUgTDAsMTAgeiIgZmlsbD0iIzFhNmZiNSIvPjwvbWFya2VyPgo8L2RlZnM+Cjx0ZXh0IHg9IjMwIiB5PSIzNCIgY2xhc3M9InRiIj5SUyDplIHlrZjlmajvvJrkuKTkuKrjgIzmjInpkq7jgI3miornirbmgIHmjqjov5vljrs8L3RleHQ+Cjx0ZXh0IHg9IjMwIiB5PSI1OCIgY2xhc3M9InRzIj7lroPlj6rmnInkuKTkuKrovpPlhaXvvIzljbTog73orrDkvY/kvaDmjInov4flk6rkuIDkuKog4oCU4oCUIOi/meWwseaYr+esrOS4gOS4quecn+ato+iDveeUqOeahOiusOW/huWNleWFgzwvdGV4dD4KPHRleHQgeD0iMTIwIiB5PSIxMTgiIGNsYXNzPSJ0dCI+5oqK5a6D5b2T5oiQ5LiA5Liq6buR55uSPC90ZXh0Pgo8cmVjdCB4PSIxMzAiIHk9IjE1MCIgd2lkdGg9IjIzMCIgaGVpZ2h0PSIxMzAiIHJ4PSIxMCIgY2xhc3M9ImMiIGZpbGw9IiNmMGZkZjQiLz4KPHRleHQgeD0iMjQ1LjAiIHk9IjIwMiIgY2xhc3M9InR0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5SUyDplIHlrZjlmag8L3RleHQ+Cjx0ZXh0IHg9IjI0NS4wIiB5PSIyMjgiIGNsYXNzPSJ0cyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+5YaF6YOoID0g5Lik5Liq5oiW6Z2e6ZeoPC90ZXh0Pgo8dGV4dCB4PSIyNDUuMCIgeT0iMjQ4IiBjbGFzcz0idHMiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuS6pOWPiei/nuaOpe+8iOato+WPjemmiO+8iTwvdGV4dD4KPHBhdGggZD0iTSA2MCwxODQgTCAxMjgsMTg0IiBjbGFzcz0idyIvPgo8bGluZSB4MT0iNzAiIHkxPSIxODQiIHgyPSIxMjYiIHkyPSIxODQiIGNsYXNzPSJ3IiBtYXJrZXItZW5kPSJ1cmwoI2FyKSIvPgo8dGV4dCB4PSI1MiIgeT0iMTg5IiBjbGFzcz0idGIiIHRleHQtYW5jaG9yPSJlbmQiPlM8L3RleHQ+Cjx0ZXh0IHg9IjUyIiB5PSIyMTIiIGNsYXNzPSJ0cyIgdGV4dC1hbmNob3I9ImVuZCI+572uMTwvdGV4dD4KPHBhdGggZD0iTSA2MCwyNDYgTCAxMjgsMjQ2IiBjbGFzcz0idyIvPgo8bGluZSB4MT0iNzAiIHkxPSIyNDYiIHgyPSIxMjYiIHkyPSIyNDYiIGNsYXNzPSJ3IiBtYXJrZXItZW5kPSJ1cmwoI2FyKSIvPgo8dGV4dCB4PSI1MiIgeT0iMjUxIiBjbGFzcz0idGIiIHRleHQtYW5jaG9yPSJlbmQiPlI8L3RleHQ+Cjx0ZXh0IHg9IjUyIiB5PSIyNzQiIGNsYXNzPSJ0cyIgdGV4dC1hbmNob3I9ImVuZCI+5riFMDwvdGV4dD4KPGxpbmUgeDE9IjM2MCIgeTE9IjE4NCIgeDI9IjQxOCIgeTI9IjE4NCIgY2xhc3M9InciIG1hcmtlci1lbmQ9InVybCgjYXIpIi8+Cjx0ZXh0IHg9IjQzMCIgeT0iMTkwIiBjbGFzcz0idGIiPlE8L3RleHQ+CjxsaW5lIHgxPSIzNjAiIHkxPSIyNDYiIHgyPSI0MTgiIHkyPSIyNDYiIGNsYXNzPSJ3IiBtYXJrZXItZW5kPSJ1cmwoI2FyKSIvPgo8dGV4dCB4PSI0MzAiIHk9IjI1MiIgY2xhc3M9InRiIj5RzIQ8L3RleHQ+Cjx0ZXh0IHg9IjExMCIgeT0iMzMwIiBjbGFzcz0idHMiPlPjgIFSIOaYr+OAjOi+k+WFpeOAje+8jFEg5piv44CM6L6T5Ye644CNPC90ZXh0Pgo8dGV4dCB4PSIxMTAiIHk9IjM1MiIgY2xhc3M9InRzIj5RzIQg5pivIFEg55qE5Y+N55u477yM5rC46L+c55u45Y+NPC90ZXh0Pgo8dGV4dCB4PSI1MDAiIHk9IjExOCIgY2xhc3M9InR0Ij7nnJ/lgLzooajvvIjlj6rmnIkgNCDooYzvvIzorrDkvY8gMiDooYzlsLHooYzvvIk8L3RleHQ+CjxyZWN0IHg9IjUwMCIgeT0iMTQyIiB3aWR0aD0iMzk4IiBoZWlnaHQ9IjM2IiByeD0iMyIgY2xhc3M9ImMiIGZpbGw9IiNlZWY0ZmIiLz4KPHRleHQgeD0iNTI5LjAiIHk9IjE2NiIgY2xhc3M9InRzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5TPC90ZXh0Pgo8dGV4dCB4PSI1ODcuMCIgeT0iMTY2IiBjbGFzcz0idHMiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlI8L3RleHQ+Cjx0ZXh0IHg9IjY4Mi4wIiB5PSIxNjYiIGNsYXNzPSJ0cyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Ue+8iOaWsOeahO+8iTwvdGV4dD4KPHRleHQgeD0iODIzLjAiIHk9IjE2NiIgY2xhc3M9InRzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7mhI/mgJ08L3RleHQ+CjxyZWN0IHg9IjUwMCIgeT0iMTgyIiB3aWR0aD0iMzk4IiBoZWlnaHQ9IjM2IiByeD0iMyIgY2xhc3M9ImMiIGZpbGw9IiNmN2ZkZjkiLz4KPHRleHQgeD0iNTI5LjAiIHk9IjIwNiIgY2xhc3M9InRzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj4wPC90ZXh0Pgo8dGV4dCB4PSI1ODcuMCIgeT0iMjA2IiBjbGFzcz0idHMiIHRleHQtYW5jaG9yPSJtaWRkbGUiPjA8L3RleHQ+Cjx0ZXh0IHg9IjY4Mi4wIiB5PSIyMDYiIGNsYXNzPSJ0YiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+5LiN5Y+YIOKYhTwvdGV4dD4KPHRleHQgeD0iODIzLjAiIHk9IjIwNiIgY2xhc3M9InRzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7orrDlv4bvvIjkv53mjIHvvIk8L3RleHQ+CjxyZWN0IHg9IjUwMCIgeT0iMjIyIiB3aWR0aD0iMzk4IiBoZWlnaHQ9IjM2IiByeD0iMyIgY2xhc3M9ImMiIGZpbGw9IiNmZmYiLz4KPHRleHQgeD0iNTI5LjAiIHk9IjI0NiIgY2xhc3M9InRzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj4xPC90ZXh0Pgo8dGV4dCB4PSI1ODcuMCIgeT0iMjQ2IiBjbGFzcz0idHMiIHRleHQtYW5jaG9yPSJtaWRkbGUiPjA8L3RleHQ+Cjx0ZXh0IHg9IjY4Mi4wIiB5PSIyNDYiIGNsYXNzPSJ0cyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+MTwvdGV4dD4KPHRleHQgeD0iODIzLjAiIHk9IjI0NiIgY2xhc3M9InRzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7nva7kvY0gU2V0PC90ZXh0Pgo8cmVjdCB4PSI1MDAiIHk9IjI2MiIgd2lkdGg9IjM5OCIgaGVpZ2h0PSIzNiIgcng9IjMiIGNsYXNzPSJjIiBmaWxsPSIjZmZmIi8+Cjx0ZXh0IHg9IjUyOS4wIiB5PSIyODYiIGNsYXNzPSJ0cyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+MDwvdGV4dD4KPHRleHQgeD0iNTg3LjAiIHk9IjI4NiIgY2xhc3M9InRzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj4xPC90ZXh0Pgo8dGV4dCB4PSI2ODIuMCIgeT0iMjg2IiBjbGFzcz0idHMiIHRleHQtYW5jaG9yPSJtaWRkbGUiPjA8L3RleHQ+Cjx0ZXh0IHg9IjgyMy4wIiB5PSIyODYiIGNsYXNzPSJ0cyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+5aSN5L2NIFJlc2V0PC90ZXh0Pgo8cmVjdCB4PSI1MDAiIHk9IjMwMiIgd2lkdGg9IjM5OCIgaGVpZ2h0PSIzNiIgcng9IjMiIGNsYXNzPSJjIiBmaWxsPSIjZmZmN2Y3Ii8+Cjx0ZXh0IHg9IjUyOS4wIiB5PSIzMjYiIGNsYXNzPSJ0cyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+MTwvdGV4dD4KPHRleHQgeD0iNTg3LjAiIHk9IjMyNiIgY2xhc3M9InRzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj4xPC90ZXh0Pgo8dGV4dCB4PSI2ODIuMCIgeT0iMzI2IiBjbGFzcz0idHMiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuKclyDnpoHmraI8L3RleHQ+Cjx0ZXh0IHg9IjgyMy4wIiB5PSIzMjYiIGNsYXNzPSJ0cyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+5Lik6L6T5Ye65omT5p62PC90ZXh0Pgo8dGV4dCB4PSI3MCIgeT0iNDA0IiBjbGFzcz0idG4iPuKYhSDmnIDlhbPplK7nmoTmmK/nrKwgMiDooYzvvJpTPTDjgIFSPTAg5pe26L6T5Ye644CM5L+d5oyB5LiN5Y+Y44CN4oCU4oCUIOi/meadoeWwseaYr+S4gOWIh+aXtuW6j+eUtei3r+eahOenjeWtkOOAgjwvdGV4dD4KPHRleHQgeD0iNzAiIHk9IjQzMiIgY2xhc3M9InRzIj7imIUgUz0x44CBUj0xIOW/hemhu+emgeatou+8muS4pOS4qumXqOiiq+WQjOaXtuaLieS9ju+8jOiwgeaKoui1ouWFqOmdoOi/kOawlO+8jOaYr+eUtei3r+eahOatu+WMuuOAgjwvdGV4dD4KPC9zdmc+Cg==" alt="q03_RS锁存器" loading="lazy">
+<p>做法出奇地简单：<b>两个或非门，输出互相接到对方的输入。</b></p>
+<pre class="code">S ──→ 或非门1 ──→ Q
+        ↑         │
+        │         ↓
+        └── 或非门2 ←── R
+              │
+              ↓
+              Q̄（Q 的反）</pre>
+
+<h2>3.3 把真值表走一遍</h2>
+<table>
+<tr><th>S</th><th>R</th><th>Q（新的）</th><th>说明</th></tr>
+<tr><td>0</td><td>0</td><td><b>保持</b></td><td>★ <b>这就是记忆</b>：不按任何键，它记住上次的状态</td></tr>
+<tr><td>1</td><td>0</td><td>1</td><td>置位（Set）</td></tr>
+<tr><td>0</td><td>1</td><td>0</td><td>复位（Reset）</td></tr>
+<tr><td>1</td><td>1</td><td><b>禁止</b></td><td>✗ 两个门同时被拉低，输出谁抢赢不确定</td></tr>
+</table>
+<div class="box tip"><b>请重点盯着第二行</b>：S=0、R=0 时 Q 保持不变。<br>
+这一个「保持」能力，就是整个时序逻辑的种子 —— 后面所有触发器、寄存器、计数器，本质上都在利用这一行。</div>
+
+<h2>3.4 为什么 S=R=1 必须禁止</h2>
+<p>我们知道<b>或非门</b>的特性是：只要有任意一个输入是 1，输出就是 0。</p>
+<pre class="code">S=1 且 R=1 时：
+  或非门1 被 S 强制输出 0
+  或非门2 被 R 强制输出 0
+  → 两个输出都想当 0，但它们的定义是「互为反相」
+  → 逻辑上矛盾！</pre>
+<p>更麻烦的是：如果这时你同时松开两个按钮（回到 0,0），两个门会「赛跑」，<b>谁先翻转取决于制造误差和温度</b>，结果不可预测。</p>
+<div class="box warn"><b>工程上怎么办</b>：规定这个输入组合禁止使用。<br>
+但「禁止某个输入」本身就是设计缺陷 —— 用户总有手忙脚乱的时候。所以下一步我们把两个按钮合并成一个。</div>
+
+<h2>3.5 这个电路的正式名字</h2>
+<table>
+<tr><th>名字</th><th>说明</th></tr>
+<tr><td>RS 锁存器</td><td>R=Reset（复位）、S=Set（置位）</td></tr>
+<tr><td>也叫 SR 锁存器</td><td>字母顺序不同，是同一个东西</td></tr>
+<tr><td>「锁存」的意思</td><td>把状态「锁」住、「存」起来</td></tr>
+</table>
+
+<h2>3.6 本章练习</h2>
+<ol>
+<li>RS 锁存器在 S=0、R=0 时输出什么？</li>
+<li>为什么 S=1、R=1 被视为禁止？</li>
+<li>「锁存」这个词，你觉得它是在描述什么动作？</li>
+</ol>
+<details class="ans"><summary>📖 参考答案</summary><ol><li><b>保持不变</b>。这正是记忆的体现，也是整个时序逻辑的种子。</li><li>因为两个或非门会同时被强制输出 0，而它们的输出定义上必须互为反相，逻辑矛盾。更要紧的是同时松开时两个门会「赛跑」，结果不可预测。</li><li>「锁存」描述的是<b>把某个状态锁住、存起来</b>的动作 —— 门一关，值就固定了。</li></ol></details></div>
+  <div class="daynav"><a href="#s2">← 第 2 章　记忆是怎么来的</a><a class="next" href="#s4">第 4 章　D 锁存器：一个按钮就够了 →</a></div>
+</article>
+<article class="page" id="p4">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">4</span>
+      <span class="pbtt">第 4 章 · D 锁存器：一个按钮就够了</span></div>
+    <button class="donebtn" data-day="4">标记已学完</button>
+  </div>
+  <div class="body">
+<div class="box tip">
+<b>上一章留下的问题</b>：两个按钮容易按错（同时按就出事）。<br>
+<b>这一章的办法</b>：只留一个按钮，再加一个「允许写入」的开关。
+</div>
+
+<h2>4.1 思路：把「置位/复位」变成「数据 + 使能」</h2>
+<table>
+<tr><th></th><th>RS 锁存器</th><th>D 锁存器</th></tr>
+<tr><td>输入</td><td>S（置1）、R（清0）</td><td><b>D（数据）、EN（允许）</b></td></tr>
+<tr><td>会不会按错</td><td>会（S=R=1 禁止）</td><td><b>不会</b>，D 只能是 0 或 1</td></tr>
+<tr><td>用户要做什么</td><td>先想清楚该按 S 还是 R</td><td>把数据放 D 上，拉高 EN 就行</td></tr>
+</table>
+<p>这个改动看着小，但意义很大：<b>输入从「两个互相打架的信号」变成了「一个数据 + 一个开关」</b>，人不可能再按错。</p>
+
+<h2>4.2 名字里的 D 是什么意思</h2>
+<table>
+<tr><th>缩写</th><th>全称</th><th>中文</th></tr>
+<tr><td><b>D</b></td><td>Data</td><td>数据</td></tr>
+<tr><td><b>EN</b></td><td>Enable</td><td>使能 / 允许</td></tr>
+</table>
+<p>也有书把 EN 写成 <b>LE</b>（Latch Enable，锁存允许）或 <b>G</b>（Gate，门）。<b>都是同一根线</b>。</p>
+
+<h2>4.3 它的工作规则只有两条</h2>
+<pre class="code">EN = 1（门开着）：Q 跟着 D 变 —— 相当于「透明」，所以叫「透明锁存器」
+EN = 0（门关上）：Q 保持不变 —— 把刚才的值锁住了</pre>
+<div class="box tip"><b>「透明」这个说法很形象</b>：EN=1 时，输入端到输出端像一块玻璃，数据能直接透过来看见；EN=0 时玻璃变成墙，里面保持原样。</div>
+
+<h2>4.4 生活类比：带门的传达室</h2>
+<pre class="code">EN = 1：门开着
+        外面的人（D）可以直接走进屋里（Q）
+
+EN = 0：门关上
+        屋里保持最后进来那个人，外面怎么变都不影响</pre>
+<p>所以 D 锁存器的记忆，本质是「<b>关门那一瞬间屋里是谁</b>」。</p>
+
+<h2>4.5 但它还有个隐患</h2>
+<p>注意上面那句：<b>EN=1 期间，Q 一直跟着 D 变。</b></p>
+<p>这意味着如果 EN 的高电平持续很久，而 D 在这段时间里变化了多次，<b>Q 就会跟着变化多次</b>。</p>
+<div class="box warn"><b>这会带来什么问题</b>：<br>
+如果下一级电路也在「门开着」状态，信号就会一级一级「透」下去，最后整个电路的状态取决于「谁的延迟更短」，完全失控。<br><br>
+下一章我们会详细看这个翻车现场，以及解决办法。</div>
+
+<h2>4.6 本章练习</h2>
+<ol>
+<li>D 锁存器的两个输入分别是什么？</li>
+<li>EN=1 时输出是什么？EN=0 时呢？</li>
+<li>「透明」这个说法是在比喻什么？</li>
+</ol>
+<details class="ans"><summary>📖 参考答案</summary><ol><li><b>D（数据）</b>和 <b>EN（使能/允许）</b>。</li><li>EN=1 时输出跟着 D 变（透明）；EN=0 时输出保持不变（锁住）。</li><li>比喻 EN=1 时输入端和输出端之间像一块<b>透明玻璃</b>，数据能直接透过来；EN=0 时玻璃变成墙，里面保持原样。</li></ol></details></div>
+  <div class="daynav"><a href="#s3">← 第 3 章　RS 锁存器：两个按钮</a><a class="next" href="#s5">第 5 章　电平触发 vs 边沿触发 →</a></div>
+</article>
+<article class="page" id="p5">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">5</span>
+      <span class="pbtt">第 5 章 · 电平触发 vs 边沿触发</span></div>
+    <button class="donebtn" data-day="5">标记已学完</button>
+  </div>
+  <div class="body">
+<div class="box tip">
+<b>全教程最重要的一章。</b>理解了这个，后面的触发器、寄存器、计数器就全通了。<br>
+不理解的后果：后面永远在背「这个器件是边沿触发」，却说不出为什么。
+</div>
+
+<h2>5.1 先看翻车现场</h2>
+<p>假设时钟高电平持续 1 毫秒（这在人看起来很短，但对电路来说漫长得像一整天）。</p>
+<pre class="code">时钟高电平持续期间（门一直开着）：
+  t=0ms    数据 = 0  → 输出 0
+  t=0.2ms  数据 = 1  → 输出立刻变 1
+  t=0.5ms  数据 = 0  → 输出又变 0
+  t=0.8ms  数据 = 1  → 输出又变 1
+  t=1ms    时钟变低，门关上，输出停在 1
+
+★ 一个周期里，输出被改了 4 次。
+★ 最后停在几，取决于「时钟下降前最后一刻数据是几」——
+  而那一刻如果数据正在跳变呢？结果就是随机的。</pre>
+
+<h2>5.2 两个致命问题</h2>
+<table>
+<tr><th>问题</th><th>后果</th></tr>
+<tr><td><b>① 毛刺被吃进去</b></td><td>数据线上任何一个短暂干扰，只要落在高电平期间，就会被当成真的信号存下来</td></tr>
+<tr><td><b>② 多级串联失控</b></td><td>几个锁存器串起来，门都开着时信号会「穿透」，最终状态取决于各器件延迟的细微差别</td></tr>
+</table>
+
+<h2>5.3 解决办法：只在「一瞬间」采样</h2>
+<p>既然「门开太久」是问题根源，那最直接的想法就是：<b>把开门时间缩到最短 —— 短到只有一个瞬间。</b></p>
+<p>这个「瞬间」，就是时钟从 0 跳到 1 的那一刹那（叫<b>上升沿</b>）。</p>
+<img class="fig" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NDAiIGhlaWdodD0iNzgwIiB2aWV3Qm94PSIwIDAgOTQwIDc4MCI+CjxkZWZzPgo8c3R5bGU+Ci53e2ZpbGw6bm9uZTtzdHJva2U6IzFhMWExYTtzdHJva2Utd2lkdGg6Mi40O3N0cm9rZS1saW5lY2FwOnJvdW5kO3N0cm9rZS1saW5lam9pbjpyb3VuZH0KLmN7ZmlsbDojZmZmZmZmO3N0cm9rZTojMWExYTFhO3N0cm9rZS13aWR0aDoyLjQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kfQoubntmaWxsOiMxYTFhMWE7c3Ryb2tlOm5vbmV9Ci50Yntmb250OjcwMCAxOXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojMWExYTFhfQoudHR7Zm9udDo3MDAgMTdweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzFhMWExYX0KLnRze2ZvbnQ6NDAwIDE0LjVweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzZiNzI4MH0KLnRue2ZvbnQ6NDAwIDE2cHggIk1pY3Jvc29mdCBZYUhlaSIsc2Fucy1zZXJpZjtmaWxsOiMxYTFhMWF9Ci5obHtmb250OjQwMCAxNXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojMWE2ZmI1fQouY3Vye2ZpbGw6bm9uZTtzdHJva2U6I2MwMzkyYjtzdHJva2Utd2lkdGg6Mi4yfQouY3VybHtmb250OjQwMCAxNXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojYzAzOTJifQouZGFzaHtmaWxsOm5vbmU7c3Ryb2tlOiM5YWEzYWY7c3Ryb2tlLXdpZHRoOjEuNDtzdHJva2UtZGFzaGFycmF5OjYgNH0KLmdse2ZvbnQ6NjAwIDE1LjVweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzFhMWExYX0KPC9zdHlsZT4KPG1hcmtlciBpZD0iYXIiIHZpZXdCb3g9IjAgMCAxMCAxMCIgcmVmWD0iOSIgcmVmWT0iNSIgbWFya2VyV2lkdGg9IjciIG1hcmtlckhlaWdodD0iNyIgb3JpZW50PSJhdXRvIj4KICA8cGF0aCBkPSJNMCwwIEwxMCw1IEwwLDEwIHoiIGZpbGw9IiMxYTFhMWEiLz48L21hcmtlcj4KPG1hcmtlciBpZD0iYXJyIiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjciIG9yaWVudD0iYXV0byI+CiAgPHBhdGggZD0iTTAsMCBMMTAsNSBMMCwxMCB6IiBmaWxsPSIjYzAzOTJiIi8+PC9tYXJrZXI+CjxtYXJrZXIgaWQ9ImFyYiIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI5IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNyIgbWFya2VySGVpZ2h0PSI3IiBvcmllbnQ9ImF1dG8iPgogIDxwYXRoIGQ9Ik0wLDAgTDEwLDUgTDAsMTAgeiIgZmlsbD0iIzFhNmZiNSIvPjwvbWFya2VyPgo8L2RlZnM+Cjx0ZXh0IHg9IjMwIiB5PSIzNCIgY2xhc3M9InRiIj7lhajmlZnnqIvmnIDph43opoHnmoTkuIDlvKDlm77vvJrnlLXlubPop6blj5EgdnMg6L655rK/6Kem5Y+RPC90ZXh0Pgo8dGV4dCB4PSIzMCIgeT0iNTgiIGNsYXNzPSJ0cyI+5ZCM5LiA5q616auY55S15bmz77yM5bem6L6544CM5LiA6Lev6Lef552A5pWw5o2u6LWw44CN77yM5Y+z6L6544CM5Y+q5Zyo5LiK5Y2H5rK/6YKj5LiA5LiL55yL5LiA55y844CNPC90ZXh0Pgo8dGV4dCB4PSI3MCIgeT0iMTEyIiBjbGFzcz0idHQiPuaDheWGteS4gCDCtyDnlLXlubPop6blj5HvvIjplIHlrZjlmajvvInvvJrml7bpkp/mmK/pq5jnlLXlubPvvIzpl6jlsLHmlZ7nnYA8L3RleHQ+CjxyZWN0IHg9IjI3NCIgeT0iMTI2IiB3aWR0aD0iMTA0IiBoZWlnaHQ9IjIyOCIgZmlsbD0iI2U4ZjRlOCIgb3BhY2l0eT0iMC41NSIgc3Ryb2tlPSJub25lIi8+CjxwYXRoIGQ9Ik0gMTcwLjAsMTcwIEwgMjIyLjAsMTcwIEwgMjIyLjAsMTcwIEwgMjc0LjAsMTcwIEwgMjc0LjAsMTcwIEwgMjc0LjAsMTQwIEwgMzI2LjAsMTQwIEwgMzI2LjAsMTQwIEwgMzc4LjAsMTQwIEwgMzc4LjAsMTQwIEwgMzc4LjAsMTcwIEwgNDMwLjAsMTcwIEwgNDMwLjAsMTcwIEwgNDgyLjAsMTcwIEwgNDgyLjAsMTcwIEwgNTM0LjAsMTcwIEwgNTM0LjAsMTcwIEwgNTg2LjAsMTcwIiBmaWxsPSJub25lIiBzdHJva2U9IiMxYTZmYjUiIHN0cm9rZS13aWR0aD0iMi4yIi8+Cjx0ZXh0IHg9IjE1OCIgeT0iMTYwLjAiIGNsYXNzPSJ0biIgdGV4dC1hbmNob3I9ImVuZCI+5pe26ZKfPC90ZXh0Pgo8dGV4dCB4PSIzMjYiIHk9IjEzNCIgY2xhc3M9InRzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7pq5jnlLXlubPmnJ/pl7QgPSDpl6jlvIDnnYA8L3RleHQ+CjxwYXRoIGQ9Ik0gMTcwLjAsMjU2IEwgMjIyLjAsMjU2IEwgMjIyLjAsMjU2IEwgMjIyLjAsMjI2IEwgMjc0LjAsMjI2IEwgMjc0LjAsMjI2IEwgMzI2LjAsMjI2IEwgMzI2LjAsMjI2IEwgMzI2LjAsMjU2IEwgMzc4LjAsMjU2IEwgMzc4LjAsMjU2IEwgMzc4LjAsMjI2IEwgNDMwLjAsMjI2IEwgNDMwLjAsMjI2IEwgNDMwLjAsMjU2IEwgNDgyLjAsMjU2IEwgNDgyLjAsMjU2IEwgNTM0LjAsMjU2IEwgNTM0LjAsMjU2IEwgNTg2LjAsMjU2IiBmaWxsPSJub25lIiBzdHJva2U9IiMxYTFhMWEiIHN0cm9rZS13aWR0aD0iMi4yIi8+Cjx0ZXh0IHg9IjE1OCIgeT0iMjQ2LjAiIGNsYXNzPSJ0biIgdGV4dC1hbmNob3I9ImVuZCI+5pWw5o2uPC90ZXh0Pgo8cGF0aCBkPSJNIDE3MC4wLDM0MiBMIDIyMi4wLDM0MiBMIDIyMi4wLDM0MiBMIDI3NC4wLDM0MiBMIDI3NC4wLDM0MiBMIDI3NC4wLDMxMiBMIDMyNi4wLDMxMiBMIDMyNi4wLDMxMiBMIDMyNi4wLDM0MiBMIDM3OC4wLDM0MiBMIDM3OC4wLDM0MiBMIDQzMC4wLDM0MiBMIDQzMC4wLDM0MiBMIDQ4Mi4wLDM0MiBMIDQ4Mi4wLDM0MiBMIDUzNC4wLDM0MiBMIDUzNC4wLDM0MiBMIDU4Ni4wLDM0MiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMmY4NTVhIiBzdHJva2Utd2lkdGg9IjIuMiIvPgo8dGV4dCB4PSIxNTgiIHk9IjMzMi4wIiBjbGFzcz0idG4iIHRleHQtYW5jaG9yPSJlbmQiPui+k+WHujwvdGV4dD4KPHRleHQgeD0iNjAwIiB5PSIyOTIiIGNsYXNzPSJ0cyI+5pWw5o2u5LiA5Y+Y77yM6L6T5Ye6PC90ZXh0Pgo8dGV4dCB4PSI2MDAiIHk9IjMxNCIgY2xhc3M9ImN1cmwiPueri+WIu+i3n+edgOWPmDwvdGV4dD4KPHRleHQgeD0iNjAwIiB5PSIzMzYiIGNsYXNzPSJ0cyI+77yI5Lik5qyh6YO96KKr6YeH5Yiw77yJPC90ZXh0Pgo8bGluZSB4MT0iNjAiIHkxPSIzOTIiIHgyPSI4ODAiIHkyPSIzOTIiIHN0cm9rZT0iIzlhYTNhZiIgc3Ryb2tlLXdpZHRoPSIxIiBzdHJva2UtZGFzaGFycmF5PSI2IDUiLz4KPHRleHQgeD0iNzAiIHk9IjQxOCIgY2xhc3M9InR0Ij7mg4XlhrXkuowgwrcg6L655rK/6Kem5Y+R77yI6Kem5Y+R5Zmo77yJ77ya5Y+q5Zyo5pe26ZKf44CM6Lez5LiK5Y6744CN6YKj5LiA556s6Ze06YeH5qC3PC90ZXh0Pgo8cGF0aCBkPSJNIDE3MC4wLDUwMCBMIDIyMi4wLDUwMCBMIDIyMi4wLDUwMCBMIDI3NC4wLDUwMCBMIDI3NC4wLDUwMCBMIDI3NC4wLDQ3MCBMIDMyNi4wLDQ3MCBMIDMyNi4wLDQ3MCBMIDM3OC4wLDQ3MCBMIDM3OC4wLDQ3MCBMIDM3OC4wLDUwMCBMIDQzMC4wLDUwMCBMIDQzMC4wLDUwMCBMIDQ4Mi4wLDUwMCBMIDQ4Mi4wLDUwMCBMIDQ4Mi4wLDQ3MCBMIDUzNC4wLDQ3MCBMIDUzNC4wLDQ3MCBMIDU4Ni4wLDQ3MCBMIDU4Ni4wLDQ3MCBMIDU4Ni4wLDUwMCBMIDYzOC4wLDUwMCBMIDYzOC4wLDUwMCBMIDY5MC4wLDUwMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMWE2ZmI1IiBzdHJva2Utd2lkdGg9IjIuMiIvPgo8dGV4dCB4PSIxNTgiIHk9IjQ5MC4wIiBjbGFzcz0idG4iIHRleHQtYW5jaG9yPSJlbmQiPuaXtumSnzwvdGV4dD4KPHBhdGggZD0iTSAxNzAuMCw1ODYgTCAyMjIuMCw1ODYgTCAyMjIuMCw1ODYgTCAyMjIuMCw1NTYgTCAyNzQuMCw1NTYgTCAyNzQuMCw1NTYgTCAzMjYuMCw1NTYgTCAzMjYuMCw1NTYgTCAzMjYuMCw1ODYgTCAzNzguMCw1ODYgTCAzNzguMCw1ODYgTCAzNzguMCw1NTYgTCA0MzAuMCw1NTYgTCA0MzAuMCw1NTYgTCA0MzAuMCw1ODYgTCA0ODIuMCw1ODYgTCA0ODIuMCw1ODYgTCA1MzQuMCw1ODYgTCA1MzQuMCw1ODYgTCA1ODYuMCw1ODYgTCA1ODYuMCw1ODYgTCA2MzguMCw1ODYgTCA2MzguMCw1ODYgTCA2OTAuMCw1ODYiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzFhMWExYSIgc3Ryb2tlLXdpZHRoPSIyLjIiLz4KPHRleHQgeD0iMTU4IiB5PSI1NzYuMCIgY2xhc3M9InRuIiB0ZXh0LWFuY2hvcj0iZW5kIj7mlbDmja48L3RleHQ+CjxwYXRoIGQ9Ik0gMTcwLjAsNjc4IEwgMjIyLjAsNjc4IEwgMjIyLjAsNjc4IEwgMjc0LjAsNjc4IEwgMjc0LjAsNjc4IEwgMjc0LjAsNjQ4IEwgMzI2LjAsNjQ4IEwgMzI2LjAsNjQ4IEwgMzc4LjAsNjQ4IEwgMzc4LjAsNjQ4IEwgNDMwLjAsNjQ4IEwgNDMwLjAsNjQ4IEwgNDgyLjAsNjQ4IEwgNDgyLjAsNjQ4IEwgNTM0LjAsNjQ4IEwgNTM0LjAsNjQ4IEwgNTg2LjAsNjQ4IEwgNTg2LjAsNjQ4IEwgNjM4LjAsNjQ4IEwgNjM4LjAsNjQ4IEwgNjkwLjAsNjQ4IiBmaWxsPSJub25lIiBzdHJva2U9IiMyZjg1NWEiIHN0cm9rZS13aWR0aD0iMi4yIi8+Cjx0ZXh0IHg9IjE1OCIgeT0iNjY4LjAiIGNsYXNzPSJ0biIgdGV4dC1hbmNob3I9ImVuZCI+6L6T5Ye6PC90ZXh0Pgo8bGluZSB4MT0iMjc0IiB5MT0iNDU4IiB4Mj0iMjc0IiB5Mj0iNzAyIiBzdHJva2U9IiNjMDM5MmIiIHN0cm9rZS13aWR0aD0iMS40IiBzdHJva2UtZGFzaGFycmF5PSI1IDQiLz4KPHRleHQgeD0iMjc0IiB5PSI0NTAiIGNsYXNzPSJjdXJsIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7ihpEg6YeH5qC3PC90ZXh0Pgo8bGluZSB4MT0iNDgyIiB5MT0iNDU4IiB4Mj0iNDgyIiB5Mj0iNzAyIiBzdHJva2U9IiNjMDM5MmIiIHN0cm9rZS13aWR0aD0iMS40IiBzdHJva2UtZGFzaGFycmF5PSI1IDQiLz4KPHRleHQgeD0iNDgyIiB5PSI0NTAiIGNsYXNzPSJjdXJsIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7ihpEg6YeH5qC3PC90ZXh0Pgo8dGV4dCB4PSIzMzYiIHk9IjYwNiIgY2xhc3M9InRzIj7ov5nmnJ/pl7TmlbDmja7lj4jlj5jkuobkuIDmrKHvvIw8L3RleHQ+Cjx0ZXh0IHg9IjMzNiIgeT0iNjI4IiBjbGFzcz0iY3VybCI+5L2G6ISJ5Yay5rKh5p2l77yM6L6T5Ye657q55Lid5LiN5YqoPC90ZXh0Pgo8dGV4dCB4PSI3MDQiIHk9IjY5MiIgY2xhc3M9InRzIj7lj6rlnKjovrnmsr/ot7PkuIDmraU8L3RleHQ+Cjx0ZXh0IHg9IjcwIiB5PSI3MjAiIGNsYXNzPSJ0biI+4piFIOS4uuS7gOS5iOmdnuimgeeUqOi+ueayv++8mueUteW5s+inpuWPkeaXtuOAjOmrmOeUteW5s+acieWkmuS5he+8jOi+k+WHuuWwseiDveiiq+aUueWkmuS5heOAje+8jOS/oeWPt+S4gOacieavm+WIuuWwseiiq+WQg+i/m+WOu++8mzwvdGV4dD4KPHRleHQgeD0iNzAiIHk9Ijc0NiIgY2xhc3M9ImhsIj4gICDovrnmsr/op6blj5Hmr4/lkajmnJ/lj6rph4fkuIDmrKHvvIzooYzkuLrlrozlhajlj6/pooTmtYsg4oCU4oCUIOi/meWwseaYr+eOsOS7o+aVsOWtl+eUtei3r+WHoOS5juWFqOeUqOinpuWPkeWZqOOAgeS4jeeUqOmUgeWtmOWZqOeahOWOn+WboOOAgjwvdGV4dD4KPC9zdmc+Cg==" alt="q04_电平vs边沿" loading="lazy">
+<table>
+<tr><th></th><th>电平触发（锁存器）</th><th>边沿触发（触发器）</th></tr>
+<tr><td>什么时候看数据</td><td>整个高电平期间一直看</td><td><b>只在上升沿那一下看</b></td></tr>
+<tr><td>高电平期间数据变了</td><td>输出跟着变（可能变很多次）</td><td><b>输出纹丝不动</b></td></tr>
+<tr><td>抗干扰</td><td>差</td><td><b>好</b></td></tr>
+<tr><td>典型器件名</td><td>锁存器（Latch）</td><td>触发器（Flip-Flop）</td></tr>
+</table>
+<div class="box tip"><b>这张图请反复看</b>：左图时钟高电平那段（绿色阴影），输出跟着数据抖了两下；右图数据在中间又变了一次，但因为「没有上升沿」，输出完全不动。<br><br>
+<b>这就是「锁存器」和「触发器」的全部区别。</b></div>
+
+<h2>5.4 一个必须记住的术语对照</h2>
+<table>
+<tr><th>中文</th><th>英文</th><th>触发方式</th><th>数量对比</th></tr>
+<tr><td><b>锁存器</b></td><td>Latch</td><td><b>电平</b>触发</td><td>少用</td></tr>
+<tr><td><b>触发器</b></td><td>Flip-Flop</td><td><b>边沿</b>触发</td><td><b>几乎全部数字电路都用它</b></td></tr>
+</table>
+<div class="box warn"><b>考试最常见的扣分点</b>：把「锁存器」和「触发器」当同一个东西。<br>
+它们功能相似（都能存 1 位），但<b>触发方式完全不同</b> —— 这是两个概念。</div>
+
+<h2>5.5 「边沿」还有两种</h2>
+<table>
+<tr><th>名称</th><th>符号</th><th>含义</th></tr>
+<tr><td>上升沿</td><td>↑</td><td>时钟从 0 变 1 的那一瞬</td></tr>
+<tr><td>下降沿</td><td>↓</td><td>时钟从 1 变 0 的那一瞬</td></tr>
+</table>
+<p>大部分芯片用上升沿，少数用下降沿。看芯片手册里时钟引脚有没有小圆圈，有圆圈表示<b>下降沿有效</b>。</p>
+
+<h2>5.6 本章练习</h2>
+<ol>
+<li>为什么电平触发在高电平期间输出可能变很多次？</li>
+<li>「锁存器」和「触发器」最本质的区别是什么？</li>
+<li>看图 4，右图数据在中间变化了一次，为什么输出没变？</li>
+</ol>
+<details class="ans"><summary>📖 参考答案</summary><ol><li>因为高电平期间门一直开着，数据每变一次输出就跟着变一次，一个周期里可能被改很多次。</li><li><b>锁存器是电平触发（透明），触发器是边沿触发（只在跳变瞬间采样）</b>。这是两个不同的概念，不是同一个东西的两种叫法。</li><li>因为第二个上升沿没有到来 —— 边沿触发器只在时钟跳变那一瞬间看数据，其余时间数据怎么变都不理会。</li></ol></details></div>
+  <div class="daynav"><a href="#s4">← 第 4 章　D 锁存器：一个按钮就够了</a><a class="next" href="#s6">第 6 章　D 触发器：怎么做到边沿 →</a></div>
+</article>
+<article class="page" id="p6">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">6</span>
+      <span class="pbtt">第 6 章 · D 触发器：怎么做到边沿</span></div>
+    <button class="donebtn" data-day="6">标记已学完</button>
+  </div>
+  <div class="body">
+<div class="box tip">
+<b>这一章解决</b>：为什么把两个锁存器串起来，就变成了「只在边沿采样」？<br>
+这是全教程唯一需要动点脑子的地方，但只要抓住「一个开一个关」就够了。
+</div>
+
+<h2>6.1 核心思路：两个人接力，交接那一刻只有一个瞬间</h2>
+<p>一个锁存器太「坦诚」——门开着的时候外面什么都看得见。那就在它后面再加一个，<b>两个门永远一开一关</b>。</p>
+<pre class="code">数据 D ──→ [锁存器1：主] ──→ [锁存器2：从] ──→ 输出 Q
+              ↑                    ↑
+          时钟低电平时开        时钟高电平时开
+          时钟高电平时关        时钟低电平时关</pre>
+<div class="box tip"><b>关键就在这两句</b>：<br>
+· 时钟是低电平时：主开着（接收 D）、从关着（输出保持）<br>
+· 时钟是高电平时：主关着（保持刚才的值）、从开着（把这个值送出去）</div>
+
+<h2>6.2 走一遍完整过程</h2>
+<table>
+<tr><th>时刻</th><th>主锁存器</th><th>从锁存器</th><th>输出 Q</th></tr>
+<tr><td>时钟 = 0</td><td>开着，跟着 D 变</td><td>关着，保持</td><td>不变</td></tr>
+<tr><td><b>时钟上升沿 ↑</b></td><td><b>立刻关上</b>，锁住此刻的 D</td><td><b>立刻打开</b></td><td><b>变成刚才锁住的 D</b></td></tr>
+<tr><td>时钟 = 1</td><td>关着，不受 D 影响</td><td>开着，但主没变化</td><td>保持不变</td></tr>
+<tr><td>时钟下降沿 ↓</td><td>打开，重新跟 D</td><td>关上</td><td>保持不变</td></tr>
+</table>
+<p><b>所以输出只在上升沿那一下变化，其余时间纹丝不动。</b>这就是边沿触发的实现方式，叫<b>主从结构</b>。</p>
+
+<h2>6.3 为什么 D 在高电平期间变化不影响输出</h2>
+<pre class="code">时钟 = 1 期间：
+  主锁存器已经关上（锁住了边沿那一刻的值）
+  后面再怎么变，都进不去
+  → 主从之间的这堵墙，把上半周期的数据隔在外面</pre>
+<div class="box warn"><b>所以「主从」不是为了增加记忆，而是为了制造「隔离」</b>。两个锁存器一开一关，就像两道交替的闸门，保证每一次时钟周期只有一批数据通过。</div>
+
+<h2>6.4 它叫什么名字</h2>
+<table>
+<tr><th>名字</th><th>说明</th></tr>
+<tr><td><b>D 触发器</b></td><td>D = Data，最常用的触发器</td></tr>
+<tr><td>D 边沿触发器</td><td>强调是边沿触发，区别于 D 锁存器</td></tr>
+<tr><td>上升沿触发 D 触发器</td><td>最完整准确的叫法</td></tr>
+</table>
+<div class="box warn"><b>看教材写法</b>：<code>74HC74</code> 就是双 D 触发器，时钟脚旁边画个小三角，表示<b>边沿触发</b>。如果画的是小圆圈，那是下降沿。</div>
+
+<h2>6.5 除了主从，还有一种做法：传输门</h2>
+<p>现代芯片里更常用「传输门」—— 用 MOS 管当开关，靠时钟控制通断，效果一样但更快、更省电。</p>
+<table>
+<tr><th>实现方式</th><th>特点</th></tr>
+<tr><td>主从结构</td><td>概念清楚，教科书常用，但面积大、慢一点</td></tr>
+<tr><td>传输门结构</td><td>实际芯片里最常见，快、省电</td></tr>
+</table>
+<p>初学只需理解<b>它们都实现了同一件事</b>：输出只在时钟边沿更新一次。</p>
+
+<h2>6.6 本章练习</h2>
+<ol>
+<li>主从结构里，主锁存器和从锁存器的开门时间是什么关系？</li>
+<li>时钟高电平期间 D 变了，输出为什么会保持不变？</li>
+<li>为什么说「主从」的作用是隔离而不是记忆？</li>
+</ol>
+<details class="ans"><summary>📖 参考答案</summary><ol><li><b>一开一关，永远相反</b>：时钟低电平时主开从关；时钟高电平时主关从开。两者互补。</li><li>因为主锁存器在上升沿那一刻已经关上了，锁住了当时的值；D 后面再怎么变都进不去。主从之间的「墙」把上半周期的变化隔在外面。</li><li>因为记忆本身一个锁存器就够了。加第二个锁存器的目的是<b>制造隔离</b>：靠一开一关阻断数据穿透，从而实现「只在边沿更新」。</li></ol></details></div>
+  <div class="daynav"><a href="#s5">← 第 5 章　电平触发 vs 边沿触发</a><a class="next" href="#s7">第 7 章　建立时间与保持时间 →</a></div>
+</article>
+<article class="page" id="p7">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">7</span>
+      <span class="pbtt">第 7 章 · 建立时间与保持时间</span></div>
+    <button class="donebtn" data-day="7">标记已学完</button>
+  </div>
+  <div class="body">
+<div class="box tip">
+<b>这一章讲一个看起来很吓人、其实一句话就能说清的东西。</b><br>
+建立时间、保持时间 —— 本质就是：<b>数据不能在时钟边沿前后乱动。</b>
+</div>
+
+<h2>7.1 想象地铁门</h2>
+<pre class="code">地铁门开的那一刻（= 时钟上升沿），
+你要上车（= 数据被采走）
+
+规则：
+  门开之前你必须已经站在门口     → 建立时间 t_su
+  门开之后你还不能走            → 保持时间 t_h
+
+如果你踩着关门的边缘冲进来 → 可能被夹住 → 采到一半，数据是坏的</pre>
+<img class="fig" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NDAiIGhlaWdodD0iNDAwIiB2aWV3Qm94PSIwIDAgOTQwIDQwMCI+CjxkZWZzPgo8c3R5bGU+Ci53e2ZpbGw6bm9uZTtzdHJva2U6IzFhMWExYTtzdHJva2Utd2lkdGg6Mi40O3N0cm9rZS1saW5lY2FwOnJvdW5kO3N0cm9rZS1saW5lam9pbjpyb3VuZH0KLmN7ZmlsbDojZmZmZmZmO3N0cm9rZTojMWExYTFhO3N0cm9rZS13aWR0aDoyLjQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kfQoubntmaWxsOiMxYTFhMWE7c3Ryb2tlOm5vbmV9Ci50Yntmb250OjcwMCAxOXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojMWExYTFhfQoudHR7Zm9udDo3MDAgMTdweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzFhMWExYX0KLnRze2ZvbnQ6NDAwIDE0LjVweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzZiNzI4MH0KLnRue2ZvbnQ6NDAwIDE2cHggIk1pY3Jvc29mdCBZYUhlaSIsc2Fucy1zZXJpZjtmaWxsOiMxYTFhMWF9Ci5obHtmb250OjQwMCAxNXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojMWE2ZmI1fQouY3Vye2ZpbGw6bm9uZTtzdHJva2U6I2MwMzkyYjtzdHJva2Utd2lkdGg6Mi4yfQouY3VybHtmb250OjQwMCAxNXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojYzAzOTJifQouZGFzaHtmaWxsOm5vbmU7c3Ryb2tlOiM5YWEzYWY7c3Ryb2tlLXdpZHRoOjEuNDtzdHJva2UtZGFzaGFycmF5OjYgNH0KLmdse2ZvbnQ6NjAwIDE1LjVweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzFhMWExYX0KPC9zdHlsZT4KPG1hcmtlciBpZD0iYXIiIHZpZXdCb3g9IjAgMCAxMCAxMCIgcmVmWD0iOSIgcmVmWT0iNSIgbWFya2VyV2lkdGg9IjciIG1hcmtlckhlaWdodD0iNyIgb3JpZW50PSJhdXRvIj4KICA8cGF0aCBkPSJNMCwwIEwxMCw1IEwwLDEwIHoiIGZpbGw9IiMxYTFhMWEiLz48L21hcmtlcj4KPG1hcmtlciBpZD0iYXJyIiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjciIG9yaWVudD0iYXV0byI+CiAgPHBhdGggZD0iTTAsMCBMMTAsNSBMMCwxMCB6IiBmaWxsPSIjYzAzOTJiIi8+PC9tYXJrZXI+CjxtYXJrZXIgaWQ9ImFyYiIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI5IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNyIgbWFya2VySGVpZ2h0PSI3IiBvcmllbnQ9ImF1dG8iPgogIDxwYXRoIGQ9Ik0wLDAgTDEwLDUgTDAsMTAgeiIgZmlsbD0iIzFhNmZiNSIvPjwvbWFya2VyPgo8L2RlZnM+Cjx0ZXh0IHg9IjMwIiB5PSIzNCIgY2xhc3M9InRiIj7lu7rnq4vml7bpl7TkuI7kv53mjIHml7bpl7TvvJrmlbDmja7kuI3og73ov5/liLDvvIzkuZ/kuI3og73ml6npgIA8L3RleHQ+Cjx0ZXh0IHg9IjMwIiB5PSI1OCIgY2xhc3M9InRzIj7lnKjml7bpkp/ovrnmsr/nmoTjgIzliY3lkI7lkITmnInkuIDlsI/mrrXml7bpl7TjgI3vvIzmlbDmja7lv4XpobvnurnkuJ3kuI3liqg8L3RleHQ+Cjx0ZXh0IHg9IjE1MCIgeT0iMTUwIiBjbGFzcz0idG4iIHRleHQtYW5jaG9yPSJlbmQiPuaXtumSnzwvdGV4dD4KPHBhdGggZD0iTSAyMDAuMCwxNjQgTCAyNjAuMCwxNjQgTCAyNjAuMCwxNjQgTCAyNjAuMCwxMzAgTCAzMjAuMCwxMzAgTCAzMjAuMCwxMzAgTCAzMjAuMCwxNjQgTCAzODAuMCwxNjQgTCAzODAuMCwxNjQgTCAzODAuMCwxMzAgTCA0NDAuMCwxMzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzFhNmZiNSIgc3Ryb2tlLXdpZHRoPSIyLjIiLz4KPHRleHQgeD0iMTUwIiB5PSIyMzAiIGNsYXNzPSJ0biIgdGV4dC1hbmNob3I9ImVuZCI+5pWw5o2uPC90ZXh0Pgo8cGF0aCBkPSJNIDIwMC4wLDI0NCBMIDI2MC4wLDI0NCBMIDI2MC4wLDI0NCBMIDI2MC4wLDIxMCBMIDMyMC4wLDIxMCBMIDMyMC4wLDIxMCBMIDM4MC4wLDIxMCBMIDM4MC4wLDIxMCBMIDM4MC4wLDI0NCBMIDQ0MC4wLDI0NCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMWExYTFhIiBzdHJva2Utd2lkdGg9IjIuMiIvPgo8cmVjdCB4PSIxOTAiIHk9IjExMCIgd2lkdGg9IjE0MCIgaGVpZ2h0PSIxNjAiIGZpbGw9IiNmZmYzZTAiIG9wYWNpdHk9IjAuNiIgc3Ryb2tlPSJub25lIi8+CjxsaW5lIHgxPSIyNjAiIHkxPSIxMTAiIHgyPSIyNjAiIHkyPSIyNzAiIHN0cm9rZT0iI2MwMzkyYiIgc3Ryb2tlLXdpZHRoPSIxLjYiLz4KPHRleHQgeD0iMjYwIiB5PSIxMDAiIGNsYXNzPSJjdXJsIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7ihpEg6YeH5qC35pe25Yi7PC90ZXh0Pgo8bGluZSB4MT0iMTkwIiB5MT0iMjkwIiB4Mj0iMjYwIiB5Mj0iMjkwIiBzdHJva2U9IiNjMjQxMGMiIHN0cm9rZS13aWR0aD0iMS42Ii8+Cjx0ZXh0IHg9IjIyNSIgeT0iMzEyIiBjbGFzcz0idHMiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuW7uueri+aXtumXtCB0X3N1PC90ZXh0Pgo8bGluZSB4MT0iMjYwIiB5MT0iMjkwIiB4Mj0iMzMwIiB5Mj0iMjkwIiBzdHJva2U9IiMyZjg1NWEiIHN0cm9rZS13aWR0aD0iMS42Ii8+Cjx0ZXh0IHg9IjI5NSIgeT0iMzEyIiBjbGFzcz0idHMiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuS/neaMgeaXtumXtCB0X2g8L3RleHQ+Cjx0ZXh0IHg9IjE5MCIgeT0iMzM2IiBjbGFzcz0idHMiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuKGkSDlnKjov5nkuYvliY3mlbDmja7lsLHopoHnqLPlrpo8L3RleHQ+Cjx0ZXh0IHg9IjMzMCIgeT0iMzM2IiBjbGFzcz0idHMiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuKGkSDlnKjov5nkuYvlkI7ov5jkuI3og73lj5g8L3RleHQ+Cjx0ZXh0IHg9IjcwIiB5PSIzNzIiIGNsYXNzPSJ0biI+4piFIOi/neWPjeeahOWQjuaenO+8mumHh+WIsOeahOaYr+OAjOWPmOWMluS4reeahOS4remXtOWAvOOAje+8jOWPr+iDveaYryAwIOS5n+WPr+iDveaYryAxIOKAlOKAlCDov5nlsLHmmK/lhbjlnovnmoTjgIzkuprnqLPmgIHjgI3vvIzns7vnu5/kvJrpmo/mnLrmir3po47jgII8L3RleHQ+Cjx0ZXh0IHg9IjcwIiB5PSIzOTYiIGNsYXNzPSJ0cyI+4piFIOWunumZheaVsOWtl++8mjc0SEMg57O75YiXIHRfc3Ug57qmIDIwbnPjgIF0X2gg57qmIDVuc+OAguaJgOS7peaXtumSn+i2iuW/q++8jOeVmee7meaVsOaNrueahOaXtumXtOi2iuWwkeOAgjwvdGV4dD4KPC9zdmc+Cg==" alt="q05_建立保持" loading="lazy">
+<h2>7.2 为什么会有这两个时间</h2>
+<p>因为触发器内部不是「瞬间」完成的。从时钟边沿进来，到内部的门真正锁住数据，中间要走一段电路（有延迟）。</p>
+<pre class="code">时钟边沿到来的那一刻 →
+  内部要经过几个门 → 才真正把数据锁住
+
+所以：数据必须在边沿「之前」就已经稳定好（t_su）
+      并且在边沿「之后」还要再稳一会儿（t_h）</pre>
+
+<h2>7.3 违反会怎样：亚稳态</h2>
+<table>
+<tr><th>情况</th><th>后果</th></tr>
+<tr><td>数据在边沿前后恰好变化</td><td>触发器可能采到「中间值」，输出在 0 和 1 之间摇摆</td></tr>
+<tr><td>这种状态持续多久</td><td>不确定，可能几纳秒，也可能卡住很久</td></tr>
+<tr><td>表现</td><td>系统偶尔死机、数据随机错乱、复位后才恢复</td></tr>
+</table>
+<div class="box warn"><b>亚稳态是数字电路里最阴险的问题</b>：它不是每次都会错，可能运行几小时才错一次，极难复现。所以设计时<b>必须留够余量</b>，不能指望「大概没事」。</div>
+
+<h2>7.4 实际数字</h2>
+<table>
+<tr><th>器件系列</th><th>建立时间 t_su</th><th>保持时间 t_h</th></tr>
+<tr><td>74HC 系列（高中教材常用的）</td><td>约 20 ns</td><td>约 5 ns</td></tr>
+<tr><td>74LS 系列（老的 TTL）</td><td>约 20 ns</td><td>约 5 ns</td></tr>
+<tr><td>现代高速芯片</td><td>几 ns 甚至更小</td><td>可能接近 0</td></tr>
+</table>
+<div class="box tip"><b>一句话记住</b>：时钟频率越高，一个周期越短，留给「数据稳定」的时间就越少。<br>
+当周期短到小于 t_su + t_h + 电路延迟时，电路就会出错 —— <b>这就是为什么超频会不稳</b>。</div>
+
+<h2>7.5 学习时需要注意的坑</h2>
+<div class="box warn">
+① 很多教材一上来就推公式 <code>T ≥ t_co + t_logic + t_su</code>，会把人吓退。先理解「数据不能迟到也不能早退」，公式自然就有了。<br>
+② t_su 和 t_h 是<b>芯片参数</b>，在手册里查，不是算出来的。<br>
+③ 这两个时间对软件开发者也有意义 —— CPU 超频、外设时序（如 SPI 采样边沿）都要看它们。
+</div>
+
+<h2>7.6 本章练习</h2>
+<ol>
+<li>建立时间说的是数据在什么时候之前必须稳定？</li>
+<li>为什么时钟频率越高越容易违反建立时间？</li>
+<li>「亚稳态」为什么难查？</li>
+</ol>
+<details class="ans"><summary>📖 参考答案</summary><ol><li>数据必须在时钟边沿<b>之前</b>就已经稳定（并且提前 t_su 那么久）。</li><li>因为频率越高，一个周期越短，留给「电路传播 + 数据稳定」的时间就越少。当周期短到小于 t_co + t_logic + t_su 时就会出错。</li><li>因为它<b>不是每次都错</b>，可能运行几小时才错一次，很难复现；而且现象是数据随机错乱，容易被误判成别的问题。</li></ol></details></div>
+  <div class="daynav"><a href="#s6">← 第 6 章　D 触发器：怎么做到边沿</a><a class="next" href="#s8">第 8 章　寄存器：8 个触发器 →</a></div>
+</article>
+<article class="page" id="p8">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">8</span>
+      <span class="pbtt">第 8 章 · 寄存器：8 个触发器</span></div>
+    <button class="donebtn" data-day="8">标记已学完</button>
+  </div>
+  <div class="body">
+<div class="box tip">
+<b>从这一章开始，都是「用前面的原理拼出有用的东西」。</b><br>
+寄存器 = 8 个 D 触发器并排。
+</div>
+
+<h2>8.1 一个触发器存 1 位，8 个就存一个字节</h2>
+<pre class="code">D0 ─→ [触发器] ─→ Q0   ┐
+D1 ─→ [触发器] ─→ Q1   │
+D2 ─→ [触发器] ─→ Q2   │  它们共用同一个时钟
+D3 ─→ [触发器] ─→ Q3   ├─ 所以 8 位同时更新
+D4 ─→ [触发器] ─→ Q4   │
+D5 ─→ [触发器] ─→ Q5   │
+D6 ─→ [触发器] ─→ Q6   │
+D7 ─→ [触发器] ─→ Q7   ┘
+              ↑
+           时钟（8 个都接这一根）</pre>
+
+<h2>8.2 为什么必须共用一个时钟</h2>
+<table>
+<tr><th>做法</th><th>结果</th></tr>
+<tr><td>8 个触发器共用时钟</td><td><b>8 位同时更新</b>，输出的值总是一个完整的字节 ✓</td></tr>
+<tr><td>各自用不同时钟</td><td>更新有先后，中间会出现「半新半旧」的错值 ✗</td></tr>
+</table>
+<div class="box tip"><b>这就是「原子性」</b>：要么整体更新，要么整体不变，绝不允许中间状态。<br>
+软件里的「事务」概念，在硬件里就靠这个实现。</div>
+
+<h2>8.3 它和锁存器的区别（很重要）</h2>
+<table>
+<tr><th></th><th>D 锁存器</th><th>D 触发器（寄存器）</th></tr>
+<tr><td>什么时候更新</td><td>电平期间一直通</td><td><b>只在边沿更新一次</b></td></tr>
+<tr><td>数据能否穿透</td><td>能（透明）</td><td><b>不能</b></td></tr>
+<tr><td>典型芯片</td><td>74HC373</td><td><b>74HC374</b></td></tr>
+</table>
+<div class="box warn"><b>这两个型号只差一个数字，功能完全不同</b>：373 是锁存器，374 是触发器。<b>考试和选型时最容易搞混</b>。</div>
+
+<h2>8.4 实际能用来干什么</h2>
+<table>
+<tr><th>用途</th><th>说明</th></tr>
+<tr><td><b>暂存数据</b></td><td>CPU 算完一个值，先放寄存器里，等需要时再取</td></tr>
+<tr><td><b>同步信号</b></td><td>把外部来的乱糟糟的信号「对齐」到自己的时钟上</td></tr>
+<tr><td><b>流水线</b></td><td>长计算拆成几步，每步之间用寄存器隔开</td></tr>
+<tr><td><b>输出锁存</b></td><td>单片机引脚输出的值，其实就存在一个寄存器里</td></tr>
+</table>
+
+<h2>8.5 一个你其实早就用过的例子</h2>
+<p>在 51 单片机里写 <code>P2 = 0xFE;</code> —— 这句话背后发生了什么？</p>
+<pre class="code">① CPU 把 0xFE 放到数据总线上
+② 一个写信号（相当于时钟）出现
+③ P2 端口对应的【寄存器】在边沿把这 8 位锁住
+④ 引脚电平随之改变，并一直保持
+
+★ 所以「端口」本质上就是一组 D 触发器。</pre>
+<div class="box tip"><b>软件里说的「寄存器」，硬件上就是 8 个或 32 个触发器并排</b>。你写 <code>P2 = 0xFE</code> 时，就是在给这些触发器输入数据。</div>
+
+<h2>8.6 本章练习</h2>
+<ol>
+<li>8 位寄存器里有几个 D 触发器？</li>
+<li>为什么它们必须共用一个时钟？</li>
+<li>74HC373 和 74HC374 有什么区别？</li>
+</ol>
+<details class="ans"><summary>📖 参考答案</summary><ol><li><b>8 个</b>（一个触发器存 1 位）。</li><li>为了保证 8 位<b>同时更新</b>。如果各自用不同时钟，更新会有先后，中间会出现「半新半旧」的错误值。这就是硬件的「原子性」。</li><li><b>373 是 8 位锁存器（电平触发、透明），374 是 8 位触发器（边沿触发、不透明）</b>。型号只差一个数字，功能完全不同，最容易选错。</li></ol></details></div>
+  <div class="daynav"><a href="#s7">← 第 7 章　建立时间与保持时间</a><a class="next" href="#s9">第 9 章　计数器：会自己加一 →</a></div>
+</article>
+<article class="page" id="p9">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">9</span>
+      <span class="pbtt">第 9 章 · 计数器：会自己加一</span></div>
+    <button class="donebtn" data-day="9">标记已学完</button>
+  </div>
+  <div class="body">
+<div class="box tip">
+<b>计数器就是「会自己加一的寄存器」。</b>它把触发器接成「每来一拍就翻转」，然后串起来数数。
+</div>
+
+<h2>9.1 从 T 触发器说起</h2>
+<p>有一种触发器叫 <b>T 触发器</b>（T = Toggle，翻转）：每来一个时钟边沿，输出就<b>翻一次</b>。</p>
+<pre class="code">输入时钟： _|‾|_|‾|_|‾|_|‾|_
+输出 Q0 ： __|‾‾‾|___|‾‾‾|__
+
+观察：输入变了 4 次，输出只变了 2 次
+→ 输出频率 = 输入频率 ÷ 2</pre>
+<div class="box tip"><b>翻转一次，就是「除以 2」</b>。这个特性是计数器的核心：把多个 T 触发器串起来，就能得到 ÷2、÷4、÷8、÷16……</div>
+
+<h2>9.2 串起来就是计数器</h2>
+<img class="fig" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NDAiIGhlaWdodD0iNDMwIiB2aWV3Qm94PSIwIDAgOTQwIDQzMCI+CjxkZWZzPgo8c3R5bGU+Ci53e2ZpbGw6bm9uZTtzdHJva2U6IzFhMWExYTtzdHJva2Utd2lkdGg6Mi40O3N0cm9rZS1saW5lY2FwOnJvdW5kO3N0cm9rZS1saW5lam9pbjpyb3VuZH0KLmN7ZmlsbDojZmZmZmZmO3N0cm9rZTojMWExYTFhO3N0cm9rZS13aWR0aDoyLjQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kfQoubntmaWxsOiMxYTFhMWE7c3Ryb2tlOm5vbmV9Ci50Yntmb250OjcwMCAxOXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojMWExYTFhfQoudHR7Zm9udDo3MDAgMTdweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzFhMWExYX0KLnRze2ZvbnQ6NDAwIDE0LjVweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzZiNzI4MH0KLnRue2ZvbnQ6NDAwIDE2cHggIk1pY3Jvc29mdCBZYUhlaSIsc2Fucy1zZXJpZjtmaWxsOiMxYTFhMWF9Ci5obHtmb250OjQwMCAxNXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojMWE2ZmI1fQouY3Vye2ZpbGw6bm9uZTtzdHJva2U6I2MwMzkyYjtzdHJva2Utd2lkdGg6Mi4yfQouY3VybHtmb250OjQwMCAxNXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojYzAzOTJifQouZGFzaHtmaWxsOm5vbmU7c3Ryb2tlOiM5YWEzYWY7c3Ryb2tlLXdpZHRoOjEuNDtzdHJva2UtZGFzaGFycmF5OjYgNH0KLmdse2ZvbnQ6NjAwIDE1LjVweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzFhMWExYX0KPC9zdHlsZT4KPG1hcmtlciBpZD0iYXIiIHZpZXdCb3g9IjAgMCAxMCAxMCIgcmVmWD0iOSIgcmVmWT0iNSIgbWFya2VyV2lkdGg9IjciIG1hcmtlckhlaWdodD0iNyIgb3JpZW50PSJhdXRvIj4KICA8cGF0aCBkPSJNMCwwIEwxMCw1IEwwLDEwIHoiIGZpbGw9IiMxYTFhMWEiLz48L21hcmtlcj4KPG1hcmtlciBpZD0iYXJyIiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjciIG9yaWVudD0iYXV0byI+CiAgPHBhdGggZD0iTTAsMCBMMTAsNSBMMCwxMCB6IiBmaWxsPSIjYzAzOTJiIi8+PC9tYXJrZXI+CjxtYXJrZXIgaWQ9ImFyYiIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI5IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNyIgbWFya2VySGVpZ2h0PSI3IiBvcmllbnQ9ImF1dG8iPgogIDxwYXRoIGQ9Ik0wLDAgTDEwLDUgTDAsMTAgeiIgZmlsbD0iIzFhNmZiNSIvPjwvbWFya2VyPgo8L2RlZnM+Cjx0ZXh0IHg9IjMwIiB5PSIzNCIgY2xhc3M9InRiIj7orqHmlbDlmajvvJrmiorop6blj5HlmajkuLLotbfmnaXmlbDmlbA8L3RleHQ+Cjx0ZXh0IHg9IjMwIiB5PSI1OCIgY2xhc3M9InRzIj7mr4/kuIDnuqfmioroh6rlt7HjgIznv7vovazjgI3nmoTnu5PmnpzkuqTnu5nkuIvkuIDnuqcg4oCU4oCUIOWwseWDj+mHjOeoi+ihqOeahOS4quS9jea7mua7oeWNge+8jOWNgeS9jeaJjeWKqOS4gOagvDwvdGV4dD4KPHJlY3QgeD0iOTAiIHk9IjEzMCIgd2lkdGg9IjE0MCIgaGVpZ2h0PSI4NiIgcng9IjciIGNsYXNzPSJjIiBmaWxsPSIjZWVmNGZiIi8+Cjx0ZXh0IHg9IjE2MCIgeT0iMTYwIiBjbGFzcz0idG4iIHRleHQtYW5jaG9yPSJtaWRkbGUiPuesrCA0IOS9jTwvdGV4dD4KPHRleHQgeD0iMTYwIiB5PSIxODQiIGNsYXNzPSJ0cyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+VCDop6blj5Hlmag8L3RleHQ+Cjx0ZXh0IHg9IjE2MCIgeT0iMjA0IiBjbGFzcz0idHMiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuavj+adpeS4gOS4i+Wwsee/u+i9rDwvdGV4dD4KPHJlY3QgeD0iMjkwIiB5PSIxMzAiIHdpZHRoPSIxNDAiIGhlaWdodD0iODYiIHJ4PSI3IiBjbGFzcz0iYyIgZmlsbD0iI2VlZjRmYiIvPgo8dGV4dCB4PSIzNjAiIHk9IjE2MCIgY2xhc3M9InRuIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7nrKwgMyDkvY08L3RleHQ+Cjx0ZXh0IHg9IjM2MCIgeT0iMTg0IiBjbGFzcz0idHMiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlQg6Kem5Y+R5ZmoPC90ZXh0Pgo8dGV4dCB4PSIzNjAiIHk9IjIwNCIgY2xhc3M9InRzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7mr4/mnaXkuIDkuIvlsLHnv7vovaw8L3RleHQ+CjxyZWN0IHg9IjQ5MCIgeT0iMTMwIiB3aWR0aD0iMTQwIiBoZWlnaHQ9Ijg2IiByeD0iNyIgY2xhc3M9ImMiIGZpbGw9IiNlZWY0ZmIiLz4KPHRleHQgeD0iNTYwIiB5PSIxNjAiIGNsYXNzPSJ0biIgdGV4dC1hbmNob3I9Im1pZGRsZSI+56ysIDIg5L2NPC90ZXh0Pgo8dGV4dCB4PSI1NjAiIHk9IjE4NCIgY2xhc3M9InRzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5UIOinpuWPkeWZqDwvdGV4dD4KPHRleHQgeD0iNTYwIiB5PSIyMDQiIGNsYXNzPSJ0cyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+5q+P5p2l5LiA5LiL5bCx57+76L2sPC90ZXh0Pgo8cmVjdCB4PSI2OTAiIHk9IjEzMCIgd2lkdGg9IjE0MCIgaGVpZ2h0PSI4NiIgcng9IjciIGNsYXNzPSJjIiBmaWxsPSIjZWVmNGZiIi8+Cjx0ZXh0IHg9Ijc2MCIgeT0iMTYwIiBjbGFzcz0idG4iIHRleHQtYW5jaG9yPSJtaWRkbGUiPuesrCAxIOS9jTwvdGV4dD4KPHRleHQgeD0iNzYwIiB5PSIxODQiIGNsYXNzPSJ0cyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+VCDop6blj5Hlmag8L3RleHQ+Cjx0ZXh0IHg9Ijc2MCIgeT0iMjA0IiBjbGFzcz0idHMiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuavj+adpeS4gOS4i+Wwsee/u+i9rDwvdGV4dD4KPGxpbmUgeDE9IjIzMCIgeTE9IjE3MyIgeDI9IjI4OCIgeTI9IjE3MyIgY2xhc3M9InciIG1hcmtlci1lbmQ9InVybCgjYXIpIi8+CjxsaW5lIHgxPSI0MzAiIHkxPSIxNzMiIHgyPSI0ODgiIHkyPSIxNzMiIGNsYXNzPSJ3IiBtYXJrZXItZW5kPSJ1cmwoI2FyKSIvPgo8bGluZSB4MT0iNjMwIiB5MT0iMTczIiB4Mj0iNjg4IiB5Mj0iMTczIiBjbGFzcz0idyIgbWFya2VyLWVuZD0idXJsKCNhcikiLz4KPHBhdGggZD0iTSA2MCwxNzMgTCA4OCwxNzMiIGNsYXNzPSJ3Ii8+Cjx0ZXh0IHg9IjUwIiB5PSIxNzgiIGNsYXNzPSJ0biIgdGV4dC1hbmNob3I9ImVuZCI+5pe26ZKfPC90ZXh0Pgo8cGF0aCBkPSJNIDE2MCwyMTYgTCAxNjAsMjQ2IiBjbGFzcz0idyIvPgo8dGV4dCB4PSIxNjAiIHk9IjI2NiIgY2xhc3M9InRzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5RMzwvdGV4dD4KPHBhdGggZD0iTSAzNjAsMjE2IEwgMzYwLDI0NiIgY2xhc3M9InciLz4KPHRleHQgeD0iMzYwIiB5PSIyNjYiIGNsYXNzPSJ0cyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UTI8L3RleHQ+CjxwYXRoIGQ9Ik0gNTYwLDIxNiBMIDU2MCwyNDYiIGNsYXNzPSJ3Ii8+Cjx0ZXh0IHg9IjU2MCIgeT0iMjY2IiBjbGFzcz0idHMiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlExPC90ZXh0Pgo8cGF0aCBkPSJNIDc2MCwyMTYgTCA3NjAsMjQ2IiBjbGFzcz0idyIvPgo8dGV4dCB4PSI3NjAiIHk9IjI2NiIgY2xhc3M9InRzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5RMDwvdGV4dD4KPHRleHQgeD0iOTAiIHk9IjMwNiIgY2xhc3M9InR0Ij5RMyBRMiBRMSBRMCDnmoTlj5jljJbvvIjku44gMCDmlbDliLAgMTUg5YaN5ZueIDDvvIk8L3RleHQ+CjxyZWN0IHg9IjkwIiB5PSIzMjIiIHdpZHRoPSI0MiIgaGVpZ2h0PSIyNiIgcng9IjMiIGNsYXNzPSJjIiBmaWxsPSIjZmZmIi8+Cjx0ZXh0IHg9IjExMSIgeT0iMzQxIiBjbGFzcz0idHMiIHRleHQtYW5jaG9yPSJtaWRkbGUiPjAwMDA8L3RleHQ+CjxyZWN0IHg9IjEzOCIgeT0iMzIyIiB3aWR0aD0iNDIiIGhlaWdodD0iMjYiIHJ4PSIzIiBjbGFzcz0iYyIgZmlsbD0iI2ZmZiIvPgo8dGV4dCB4PSIxNTkiIHk9IjM0MSIgY2xhc3M9InRzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj4wMDAxPC90ZXh0Pgo8cmVjdCB4PSIxODYiIHk9IjMyMiIgd2lkdGg9IjQyIiBoZWlnaHQ9IjI2IiByeD0iMyIgY2xhc3M9ImMiIGZpbGw9IiNmZmYiLz4KPHRleHQgeD0iMjA3IiB5PSIzNDEiIGNsYXNzPSJ0cyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+MDAxMDwvdGV4dD4KPHJlY3QgeD0iMjM0IiB5PSIzMjIiIHdpZHRoPSI0MiIgaGVpZ2h0PSIyNiIgcng9IjMiIGNsYXNzPSJjIiBmaWxsPSIjZmZmIi8+Cjx0ZXh0IHg9IjI1NSIgeT0iMzQxIiBjbGFzcz0idHMiIHRleHQtYW5jaG9yPSJtaWRkbGUiPjAwMTE8L3RleHQ+CjxyZWN0IHg9IjI4MiIgeT0iMzIyIiB3aWR0aD0iNDIiIGhlaWdodD0iMjYiIHJ4PSIzIiBjbGFzcz0iYyIgZmlsbD0iI2ZmZiIvPgo8dGV4dCB4PSIzMDMiIHk9IjM0MSIgY2xhc3M9InRzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj4wMTAwPC90ZXh0Pgo8cmVjdCB4PSIzMzAiIHk9IjMyMiIgd2lkdGg9IjQyIiBoZWlnaHQ9IjI2IiByeD0iMyIgY2xhc3M9ImMiIGZpbGw9IiNmZmYiLz4KPHRleHQgeD0iMzUxIiB5PSIzNDEiIGNsYXNzPSJ0cyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+MDEwMTwvdGV4dD4KPHJlY3QgeD0iMzc4IiB5PSIzMjIiIHdpZHRoPSI0MiIgaGVpZ2h0PSIyNiIgcng9IjMiIGNsYXNzPSJjIiBmaWxsPSIjZmZmIi8+Cjx0ZXh0IHg9IjM5OSIgeT0iMzQxIiBjbGFzcz0idHMiIHRleHQtYW5jaG9yPSJtaWRkbGUiPjAxMTA8L3RleHQ+CjxyZWN0IHg9IjQyNiIgeT0iMzIyIiB3aWR0aD0iNDIiIGhlaWdodD0iMjYiIHJ4PSIzIiBjbGFzcz0iYyIgZmlsbD0iI2ZmZiIvPgo8dGV4dCB4PSI0NDciIHk9IjM0MSIgY2xhc3M9InRzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj4wMTExPC90ZXh0Pgo8cmVjdCB4PSI0NzQiIHk9IjMyMiIgd2lkdGg9IjQyIiBoZWlnaHQ9IjI2IiByeD0iMyIgY2xhc3M9ImMiIGZpbGw9IiNmZmYiLz4KPHRleHQgeD0iNDk1IiB5PSIzNDEiIGNsYXNzPSJ0cyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+MTAwMDwvdGV4dD4KPHJlY3QgeD0iNTIyIiB5PSIzMjIiIHdpZHRoPSI0MiIgaGVpZ2h0PSIyNiIgcng9IjMiIGNsYXNzPSJjIiBmaWxsPSIjZmZmIi8+Cjx0ZXh0IHg9IjU0MyIgeT0iMzQxIiBjbGFzcz0idHMiIHRleHQtYW5jaG9yPSJtaWRkbGUiPjEwMDE8L3RleHQ+CjxyZWN0IHg9IjU3MCIgeT0iMzIyIiB3aWR0aD0iNDIiIGhlaWdodD0iMjYiIHJ4PSIzIiBjbGFzcz0iYyIgZmlsbD0iI2ZmZiIvPgo8dGV4dCB4PSI1OTEiIHk9IjM0MSIgY2xhc3M9InRzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj4xMDEwPC90ZXh0Pgo8cmVjdCB4PSI2MTgiIHk9IjMyMiIgd2lkdGg9IjQyIiBoZWlnaHQ9IjI2IiByeD0iMyIgY2xhc3M9ImMiIGZpbGw9IiNmZmYiLz4KPHRleHQgeD0iNjM5IiB5PSIzNDEiIGNsYXNzPSJ0cyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+MTAxMTwvdGV4dD4KPHJlY3QgeD0iNjY2IiB5PSIzMjIiIHdpZHRoPSI0MiIgaGVpZ2h0PSIyNiIgcng9IjMiIGNsYXNzPSJjIiBmaWxsPSIjZmZmIi8+Cjx0ZXh0IHg9IjY4NyIgeT0iMzQxIiBjbGFzcz0idHMiIHRleHQtYW5jaG9yPSJtaWRkbGUiPjExMDA8L3RleHQ+CjxyZWN0IHg9IjcxNCIgeT0iMzIyIiB3aWR0aD0iNDIiIGhlaWdodD0iMjYiIHJ4PSIzIiBjbGFzcz0iYyIgZmlsbD0iI2ZmZiIvPgo8dGV4dCB4PSI3MzUiIHk9IjM0MSIgY2xhc3M9InRzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj4xMTAxPC90ZXh0Pgo8cmVjdCB4PSI3NjIiIHk9IjMyMiIgd2lkdGg9IjQyIiBoZWlnaHQ9IjI2IiByeD0iMyIgY2xhc3M9ImMiIGZpbGw9IiNmZmYiLz4KPHRleHQgeD0iNzgzIiB5PSIzNDEiIGNsYXNzPSJ0cyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+MTExMDwvdGV4dD4KPHJlY3QgeD0iODEwIiB5PSIzMjIiIHdpZHRoPSI0MiIgaGVpZ2h0PSIyNiIgcng9IjMiIGNsYXNzPSJjIiBmaWxsPSIjZmZmIi8+Cjx0ZXh0IHg9IjgzMSIgeT0iMzQxIiBjbGFzcz0idHMiIHRleHQtYW5jaG9yPSJtaWRkbGUiPjExMTE8L3RleHQ+Cjx0ZXh0IHg9Ijg3MCIgeT0iMzQwIiBjbGFzcz0idG4iPuKGkiAwPC90ZXh0Pgo8dGV4dCB4PSI3MCIgeT0iMzg0IiBjbGFzcz0idG4iPuKYhSBRMCDmr4/mnaXkuIDkuKrml7bpkp/nv7vovazkuIDmrKEg4oaSIOmikeeOh+aYr+aXtumSn+eahOS4gOWNiu+8m1ExIOaYr+Wbm+WIhuS5i+S4gOKApuKApiDmiYDku6XorqHmlbDlmajlpKnnhLbkuZ/mmK/kuKrjgIzliIbpopHlmajjgI3jgII8L3RleHQ+Cjx0ZXh0IHg9IjcwIiB5PSI0MTAiIGNsYXNzPSJobCI+4piFIOaDs+aVsOWIsCA5IOWwseWBnO+8n+WKoOS4qumXqOeUtei3r++8muS4gOaXpuajgOa1i+WIsCAxMDAxIOWwseeri+WIu+a4hembtu+8jOi/meWwseaYr+OAjOaooSAxMCDorqHmlbDlmajjgI3jgII8L3RleHQ+Cjwvc3ZnPgo=" alt="q06_计数器" loading="lazy">
+<pre class="code">时钟 ─→ [Q0] ─→ [Q1] ─→ [Q2] ─→ [Q3]
+
+Q0 每拍翻转一次      → 周期是时钟的 2 倍
+Q1 跟着 Q0 的输出装   → 周期是 Q0 的 2 倍
+Q2 跟着 Q1 的输出装   → 周期是 Q1 的 2 倍
+Q3 跟着 Q2 的输出装   → 周期是 Q2 的 2 倍
+
+于是 Q3 Q2 Q1 Q0 从 0000 数到 1111（0~15）再回到 0</pre>
+<p>这就是最典型的 <b>4 位二进制计数器</b>，也叫「<b>行波计数器</b>」或「<b>异步计数器</b>」。</p>
+
+<h2>9.3 异步和同步的区别</h2>
+<table>
+<tr><th></th><th>异步计数器（行波）</th><th>同步计数器</th></tr>
+<tr><td>时钟怎么接</td><td>前一级的输出当后一级的时钟</td><td><b>所有触发器共用一个时钟</b></td></tr>
+<tr><td>更新是否同时</td><td>不同时，有先后延迟</td><td><b>同时</b></td></tr>
+<tr><td>速度</td><td>慢（延迟会累加）</td><td>快</td></tr>
+<tr><td>电路</td><td>简单</td><td>复杂一点</td></tr>
+<tr><td>典型芯片</td><td>74HC393</td><td><b>74HC161、74HC160</b></td></tr>
+</table>
+<div class="box warn"><b>为什么会有「异步」这种东西</b>：早期为了省芯片面积，就这么干了。现在同步计数器更常用，因为异步在高位会产生「尖峰」（几个位不同时翻转，中间出现错误码）。</div>
+
+<h2>9.4 怎么数到 9 就停（模 10 计数器）</h2>
+<p>4 位自然能数到 15。但我们要的是「数到 9 归零」，怎么办？</p>
+<pre class="code">思路：加一个「检测电路」
+
+  一旦发现当前值是 1001（也就是 9）
+  → 立刻产生一个清零信号
+  → 下一拍回到 0000
+
+于是计数顺序变成：
+  0 → 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 0 → 1 …</pre>
+<table>
+<tr><th>名称</th><th>能数到几</th><th>典型芯片</th></tr>
+<tr><td>模 2 计数器</td><td>0~1</td><td>1 个 T 触发器</td></tr>
+<tr><td>模 10 计数器（BCD）</td><td>0~9</td><td><b>74HC160</b></td></tr>
+<tr><td>模 16 计数器</td><td>0~15</td><td><b>74HC161</b></td></tr>
+<tr><td>可预置计数器</td><td>任意</td><td>74HC161（可加载初值）</td></tr>
+</table>
+
+<h2>9.5 计数器的实际用途</h2>
+<table>
+<tr><th>用途</th><th>说明</th></tr>
+<tr><td><b>分频</b></td><td>把 1MHz 变成 1kHz（÷1000），这是最常见用途</td></tr>
+<tr><td><b>计时</b></td><td>数到某个值就是一段时间，比如 1 秒</td></tr>
+<tr><td><b>地址发生器</b></td><td>逐个地址读存储器</td></tr>
+<tr><td><b>产生节拍</b></td><td>控制流水灯的移动</td></tr>
+</table>
+<div class="box tip"><b>你其实天天在用</b>：单片机里的定时器，本质就是一个计数器 —— 只不过它数的是「时钟脉冲」，数到设定值就产生中断。<br>
+所以 TIM 定时器那一章里的 PSC/ARR，换个角度看就是「计数器 + 分频」。</div>
+
+<h2>9.6 本章练习</h2>
+<ol>
+<li>T 触发器每来一个时钟，输出会怎样？</li>
+<li>把 4 个 T 触发器串起来，能数到几？</li>
+<li>异步计数器和同步计数器最主要区别是什么？</li>
+</ol>
+<details class="ans"><summary>📖 参考答案</summary><ol><li>输出<b>翻转一次</b>（0 变 1，1 变 0），所以输出频率是输入时钟的一半。</li><li>4 个串起来能从 <b>0000 数到 1111</b>，也就是 0~15（共 16 个数）后回到 0。</li><li>异步计数器用前一级的输出当后一级的时钟（有延迟累加，速度慢，高位会出现尖峰）；同步计数器所有触发器共用同一个时钟（同时更新，速度快）。</li></ol></details></div>
+  <div class="daynav"><a href="#s8">← 第 8 章　寄存器：8 个触发器</a><a class="next" href="#s10">第 10 章　移位寄存器与状态机 →</a></div>
+</article>
+<article class="page" id="p10">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">10</span>
+      <span class="pbtt">第 10 章 · 移位寄存器与状态机</span></div>
+    <button class="donebtn" data-day="10">标记已学完</button>
+  </div>
+  <div class="body">
+<div class="box tip">
+<b>最后两种器件，也是最实用的两种。</b>移位寄存器负责「搬」，状态机负责「做决定」。
+</div>
+
+<h2>10.1 移位寄存器：把数据一个一个传过去</h2>
+<p>把多个 D 触发器<b>首尾相连</b>，每个时钟节拍，数据就往后挪一位。</p>
+<pre class="code">时钟每来一拍：
+
+  [Q0] → [Q1] → [Q2] → [Q3]
+    ↑
+  串行输入
+
+第1拍：D 进入 Q0
+第2拍：Q0 的值进 Q1，新的 D 进 Q0
+第3拍：Q1→Q2、Q0→Q1、新 D→Q0
+…
+结果：串行输入的数据，被「排」成了并行输出</pre>
+
+<h2>10.2 串行和并行：两种数据流动方式</h2>
+<table>
+<tr><th></th><th>串行</th><th>并行</th></tr>
+<tr><td>线数</td><td>1 根</td><td>8 根</td></tr>
+<tr><td>速度</td><td>慢（要 8 拍才送完一个字节）</td><td>快（1 拍送完）</td></tr>
+<tr><td>省线</td><td><b>省 7 根线</b></td><td>费线</td></tr>
+<tr><td>移位寄存器作用</td><td colspan="2"><b>在两者之间转换</b></td></tr>
+</table>
+<div class="box tip"><b>74HC595 就是干这个的</b>：单片机用 2 根线（数据+时钟）串行送 8 位进去，595 内部用移位寄存器接收，然后并行输出到 8 个引脚。<br>
+你在 51 教程第 14 章用的就是这个芯片 —— 它在硬件上就是「移位寄存器 + 输出锁存器」。</div>
+
+<h2>10.3 状态机：数字电路的「程序」</h2>
+<p>前面所有器件都是「存数据」或「数数」。而状态机是「<b>根据当前状态决定下一步</b>」。</p>
+<img class="fig" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NDAiIGhlaWdodD0iNDYwIiB2aWV3Qm94PSIwIDAgOTQwIDQ2MCI+CjxkZWZzPgo8c3R5bGU+Ci53e2ZpbGw6bm9uZTtzdHJva2U6IzFhMWExYTtzdHJva2Utd2lkdGg6Mi40O3N0cm9rZS1saW5lY2FwOnJvdW5kO3N0cm9rZS1saW5lam9pbjpyb3VuZH0KLmN7ZmlsbDojZmZmZmZmO3N0cm9rZTojMWExYTFhO3N0cm9rZS13aWR0aDoyLjQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kfQoubntmaWxsOiMxYTFhMWE7c3Ryb2tlOm5vbmV9Ci50Yntmb250OjcwMCAxOXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojMWExYTFhfQoudHR7Zm9udDo3MDAgMTdweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzFhMWExYX0KLnRze2ZvbnQ6NDAwIDE0LjVweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzZiNzI4MH0KLnRue2ZvbnQ6NDAwIDE2cHggIk1pY3Jvc29mdCBZYUhlaSIsc2Fucy1zZXJpZjtmaWxsOiMxYTFhMWF9Ci5obHtmb250OjQwMCAxNXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojMWE2ZmI1fQouY3Vye2ZpbGw6bm9uZTtzdHJva2U6I2MwMzkyYjtzdHJva2Utd2lkdGg6Mi4yfQouY3VybHtmb250OjQwMCAxNXB4ICJNaWNyb3NvZnQgWWFIZWkiLHNhbnMtc2VyaWY7ZmlsbDojYzAzOTJifQouZGFzaHtmaWxsOm5vbmU7c3Ryb2tlOiM5YWEzYWY7c3Ryb2tlLXdpZHRoOjEuNDtzdHJva2UtZGFzaGFycmF5OjYgNH0KLmdse2ZvbnQ6NjAwIDE1LjVweCAiTWljcm9zb2Z0IFlhSGVpIixzYW5zLXNlcmlmO2ZpbGw6IzFhMWExYX0KPC9zdHlsZT4KPG1hcmtlciBpZD0iYXIiIHZpZXdCb3g9IjAgMCAxMCAxMCIgcmVmWD0iOSIgcmVmWT0iNSIgbWFya2VyV2lkdGg9IjciIG1hcmtlckhlaWdodD0iNyIgb3JpZW50PSJhdXRvIj4KICA8cGF0aCBkPSJNMCwwIEwxMCw1IEwwLDEwIHoiIGZpbGw9IiMxYTFhMWEiLz48L21hcmtlcj4KPG1hcmtlciBpZD0iYXJyIiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjciIG9yaWVudD0iYXV0byI+CiAgPHBhdGggZD0iTTAsMCBMMTAsNSBMMCwxMCB6IiBmaWxsPSIjYzAzOTJiIi8+PC9tYXJrZXI+CjxtYXJrZXIgaWQ9ImFyYiIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI5IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNyIgbWFya2VySGVpZ2h0PSI3IiBvcmllbnQ9ImF1dG8iPgogIDxwYXRoIGQ9Ik0wLDAgTDEwLDUgTDAsMTAgeiIgZmlsbD0iIzFhNmZiNSIvPjwvbWFya2VyPgo8L2RlZnM+Cjx0ZXh0IHg9IjMwIiB5PSIzNCIgY2xhc3M9InRiIj7nirbmgIHmnLrvvJrmiorjgIznjrDlnKjor6XlubLku4DkuYjjgI3lj5jmiJDlh6DkuKrmoLzlrZA8L3RleHQ+Cjx0ZXh0IHg9IjMwIiB5PSI1OCIgY2xhc3M9InRzIj7kuqTpgJrnga/lsLHmmK/mnIDlhbjlnovnmoTkvovlrZAg4oCU4oCUIOWug+WPquaciSA0IOS4queKtuaAge+8jOmdoOS4gOS4quaXtumSn+S4jeWBnOWcsOW+gOS4i+i1sDwvdGV4dD4KPGNpcmNsZSBjeD0iMzgwIiBjeT0iMTMyIiByPSI1MiIgY2xhc3M9ImMiIGZpbGw9IiNmZmYiLz4KPGNpcmNsZSBjeD0iMzgwIiBjeT0iMTMyIiByPSI1MiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMmY4NTVhIiBzdHJva2Utd2lkdGg9IjIuNSIvPgo8dGV4dCB4PSIzODAuMCIgeT0iMTM0LjAiIGNsYXNzPSJ0biIgdGV4dC1hbmNob3I9Im1pZGRsZSI+57u/54Gv5LquPC90ZXh0Pgo8dGV4dCB4PSIzODAuMCIgeT0iMTU2LjAiIGNsYXNzPSJ0cyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+6Ieq5bex6L6T5Ye654Gv6ImyPC90ZXh0Pgo8Y2lyY2xlIGN4PSI0OTgiIGN5PSIyNTAiIHI9IjUyIiBjbGFzcz0iYyIgZmlsbD0iI2ZmZiIvPgo8Y2lyY2xlIGN4PSI0OTgiIGN5PSIyNTAiIHI9IjUyIiBmaWxsPSJub25lIiBzdHJva2U9IiNjMjQxMGMiIHN0cm9rZS13aWR0aD0iMi41Ii8+Cjx0ZXh0IHg9IjQ5OC4wIiB5PSIyNTIuMCIgY2xhc3M9InRuIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7pu4Tnga/kuq48L3RleHQ+Cjx0ZXh0IHg9IjQ5OC4wIiB5PSIyNzQuMCIgY2xhc3M9InRzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7oh6rlt7HovpPlh7rnga/oibI8L3RleHQ+CjxjaXJjbGUgY3g9IjM4MCIgY3k9IjM2OCIgcj0iNTIiIGNsYXNzPSJjIiBmaWxsPSIjZmZmIi8+CjxjaXJjbGUgY3g9IjM4MCIgY3k9IjM2OCIgcj0iNTIiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2MwMzkyYiIgc3Ryb2tlLXdpZHRoPSIyLjUiLz4KPHRleHQgeD0iMzgwLjAiIHk9IjM3MC4wIiBjbGFzcz0idG4iIHRleHQtYW5jaG9yPSJtaWRkbGUiPue6oueBr+S6rjwvdGV4dD4KPHRleHQgeD0iMzgwLjAiIHk9IjM5Mi4wIiBjbGFzcz0idHMiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuiHquW3sei+k+WHuueBr+iJsjwvdGV4dD4KPGNpcmNsZSBjeD0iMjYyIiBjeT0iMjUwIiByPSI1MiIgY2xhc3M9ImMiIGZpbGw9IiNmZmYiLz4KPGNpcmNsZSBjeD0iMjYyIiBjeT0iMjUwIiByPSI1MiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNmI0NmMxIiBzdHJva2Utd2lkdGg9IjIuNSIvPgo8dGV4dCB4PSIyNjIuMCIgeT0iMjUyLjAwMDAwMDAwMDAwMDAzIiBjbGFzcz0idG4iIHRleHQtYW5jaG9yPSJtaWRkbGUiPue6oueBryvlt6bovaw8L3RleHQ+Cjx0ZXh0IHg9IjI2Mi4wIiB5PSIyNzQuMCIgY2xhc3M9InRzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7oh6rlt7HovpPlh7rnga/oibI8L3RleHQ+CjxsaW5lIHgxPSI0MjEiIHkxPSIxNzMiIHgyPSI0NTciIHkyPSIyMDkiIGNsYXNzPSJ3IiBtYXJrZXItZW5kPSJ1cmwoI2FyKSIvPgo8bGluZSB4MT0iNDU3IiB5MT0iMjkxIiB4Mj0iNDIxIiB5Mj0iMzI3IiBjbGFzcz0idyIgbWFya2VyLWVuZD0idXJsKCNhcikiLz4KPGxpbmUgeDE9IjMzOSIgeTE9IjMyNyIgeDI9IjMwMyIgeTI9IjI5MSIgY2xhc3M9InciIG1hcmtlci1lbmQ9InVybCgjYXIpIi8+CjxsaW5lIHgxPSIzMDMiIHkxPSIyMDkiIHgyPSIzMzkiIHkyPSIxNzMiIGNsYXNzPSJ3IiBtYXJrZXItZW5kPSJ1cmwoI2FyKSIvPgo8dGV4dCB4PSIzODAiIHk9IjI0MCIgY2xhc3M9InRzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7ml7bpkp/mr4/mnaXkuIDmi408L3RleHQ+Cjx0ZXh0IHg9IjM4MCIgeT0iMjYyIiBjbGFzcz0idHMiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuWwsei1sOWIsOS4i+S4gOS4quagvOWtkDwvdGV4dD4KPHRleHQgeD0iNjAwIiB5PSIxMjAiIGNsYXNzPSJ0dCI+54q25oCB5py65LiJ5Lu25aWXPC90ZXh0Pgo8cmVjdCB4PSI2MDAiIHk9IjE0OCIgd2lkdGg9IjMwMCIgaGVpZ2h0PSI1MCIgcng9IjYiIGNsYXNzPSJjIiBmaWxsPSIjZmZmIi8+Cjx0ZXh0IHg9IjYxNCIgeT0iMTY5IiBjbGFzcz0idG4iPuKRoCDnirbmgIE8L3RleHQ+Cjx0ZXh0IHg9IjYxNCIgeT0iMTg5IiBjbGFzcz0idHMiPuacieWTquWHoOS4quagvOWtkO+8iOe7v+eBry/pu4Tnga8v57qi54Gv77yJPC90ZXh0Pgo8cmVjdCB4PSI2MDAiIHk9IjIxMCIgd2lkdGg9IjMwMCIgaGVpZ2h0PSI1MCIgcng9IjYiIGNsYXNzPSJjIiBmaWxsPSIjZmZmIi8+Cjx0ZXh0IHg9IjYxNCIgeT0iMjMxIiBjbGFzcz0idG4iPuKRoSDovaznp7vmnaHku7Y8L3RleHQ+Cjx0ZXh0IHg9IjYxNCIgeT0iMjUxIiBjbGFzcz0idHMiPuS7gOS5iOaDheWGteS4i+W+gOWTqui1sO+8iOaXtumXtOWIsO+8iTwvdGV4dD4KPHJlY3QgeD0iNjAwIiB5PSIyNzIiIHdpZHRoPSIzMDAiIGhlaWdodD0iNTAiIHJ4PSI2IiBjbGFzcz0iYyIgZmlsbD0iI2ZmZiIvPgo8dGV4dCB4PSI2MTQiIHk9IjI5MyIgY2xhc3M9InRuIj7ikaIg6L6T5Ye6PC90ZXh0Pgo8dGV4dCB4PSI2MTQiIHk9IjMxMyIgY2xhc3M9InRzIj7mr4/kuKrmoLzlrZDph4znga/mgI7kuYjkuq48L3RleHQ+Cjx0ZXh0IHg9IjcwIiB5PSI0MjAiIGNsYXNzPSJobCI+4piFIOeKtuaAgeacuueahOacrOi0qO+8mueUqOWHoOS4quinpuWPkeWZqOiusOS9j+OAjOaIkeeOsOWcqOWcqOesrOWHoOagvOOAje+8jOWGjeeUqOe7hOWQiOmAu+i+keeul+WHuuOAjOS4i+S4gOS4quivpeWOu+WTquOAjeOAgjwvdGV4dD4KPHRleHQgeD0iNzAiIHk9IjQ0NiIgY2xhc3M9InRzIj7imIUg5YaZ5Luj56CB5pe25a6D5bCx5pivIHN3aXRjaC1jYXNlICsg5LiA5Liq5Y+Y6YePIOKAlOKAlCDnoazku7blkozova/ku7blnKjov5nph4zmmK/lkIzkuIDku7bkuovjgII8L3RleHQ+Cjwvc3ZnPgo=" alt="q07_状态机" loading="lazy">
+<p>交通灯是最典型的例子：</p>
+<pre class="code">4 个状态：
+  绿灯亮 → 黄灯亮 → 红灯亮 → 红灯+左转 → 回到绿灯
+
+转移条件：时间到（由计数器提供）
+
+输出：每个状态下哪几盏灯亮</pre>
+
+<h2>10.4 状态机的三件套</h2>
+<table>
+<tr><th>要素</th><th>要回答的问题</th><th>交通灯的例子</th></tr>
+<tr><td><b>① 状态</b></td><td>有哪几个格子？</td><td>绿灯、黄灯、红灯、左转</td></tr>
+<tr><td><b>② 转移条件</b></td><td>什么情况下往哪走？</td><td>计时到就进下一个</td></tr>
+<tr><td><b>③ 输出</b></td><td>每个格子里做什么？</td><td>每个状态点亮对应的灯</td></tr>
+</table>
+
+<h2>10.5 硬件怎么实现状态机</h2>
+<pre class="code">状态存在哪 → 用几个 D 触发器（比如 4 个状态用 2 个触发器）
+下一状态怎么算 → 组合逻辑（根据当前状态和输入算出来）
+输出怎么给 → 组合逻辑（或者直接用触发器输出解码）</pre>
+<div class="box tip"><b>所以状态机 = 触发器（存状态）+ 组合逻辑（算下一步）</b>。<br>
+这正好把整个教程串起来了：<b>时序逻辑 = 触发器 + 组合逻辑</b>。</div>
+
+<h2>10.6 软件里的状态机长什么样</h2>
+<p>同样的东西用 C 语言写，就是：</p>
+<pre class="code">enum { GREEN, YELLOW, RED, LEFT } state = GREEN;
+
+while (1) {
+    switch (state) {
+    case GREEN:  light(GREEN_LED);  if (timer_done()) state = YELLOW;  break;
+    case YELLOW: light(YELLOW_LED); if (timer_done()) state = RED;     break;
+    case RED:    light(RED_LED);    if (timer_done()) state = LEFT;    break;
+    case LEFT:   light(LEFT_LED);   if (timer_done()) state = GREEN;   break;
+    }
+}</pre>
+<div class="box tip"><b>看到没有</b>：硬件和软件在「状态机」这件事上是<b>完全相同</b>的思维。<br>
+一个变量 <code>state</code> 就是触发器，<code>switch-case</code> 就是组合逻辑。学懂这个，你写单片机的状态会清楚很多。</div>
+
+<h2>10.7 本章练习</h2>
+<ol>
+<li>移位寄存器的主要作用是什么？</li>
+<li>74HC595 为什么能「用 2 根线控制 8 个引脚」？</li>
+<li>状态机的三个要素是什么？</li>
+</ol>
+<details class="ans"><summary>📖 参考答案</summary><ol><li>把串行数据转成并行，或反过来；也可以用来延时、产生流水效果。</li><li>因为它内部是「<b>移位寄存器 + 输出锁存器</b>」：单片机用 2 根线串行送 8 位进去，595 在内部把它们排成 8 位，再一次性并行输出到 8 个引脚。</li><li><b>① 状态（有哪几个格子）② 转移条件（什么情况往哪走）③ 输出（每个格子里做什么）</b>。</li></ol></details></div>
+  <div class="daynav"><a href="#s9">← 第 9 章　计数器：会自己加一</a><a class="next" href="#sA">第 A 章　附录 A · 常用芯片速查 →</a></div>
+</article>
+<article class="page" id="pA">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">A</span>
+      <span class="pbtt">第 A 章 · 附录 A · 常用芯片速查</span></div>
+    <button class="donebtn" data-day="A">标记已学完</button>
+  </div>
+  <div class="body">
+<h2>附录 A · 常用芯片速查</h2>
+<p>学时序逻辑，认得这几个芯片就够了。它们的<b>型号只差几个数字，功能完全不同</b>，是考试和选型的重灾区。</p>
+<table>
+<tr><th>型号</th><th>名称</th><th>关键点</th><th>易混提醒</th></tr>
+<tr><td><b>74HC74</b></td><td>双 D 触发器</td><td>2 个独立 D 触发器，带置位/复位端，<b>边沿触发</b></td><td>两个触发器共用一个时钟的话，就是 2 位寄存器</td></tr>
+<tr><td><b>74HC73</b></td><td>双 JK 触发器</td><td>JK 触发器带翻转功能</td><td>JK 是新器件设计里几乎不用的老结构</td></tr>
+<tr><td><b>74HC373</b></td><td>8 位 D <b>锁存器</b></td><td><b>电平触发</b>，透明</td><td>⚠️ 和 374 只差一个数字</td></tr>
+<tr><td><b>74HC374</b></td><td>8 位 D <b>触发器</b></td><td><b>边沿触发</b>，不是透明</td><td>⚠️ 373 是锁存器，374 是触发器</td></tr>
+<tr><td><b>74HC595</b></td><td>8 位移位寄存器</td><td>串入并出，带输出锁存</td><td>2 根线控 8 个引脚，51 教程第 14 章用过</td></tr>
+<tr><td><b>74HC165</b></td><td>8 位移位寄存器</td><td>并入串出</td><td>和 595 方向相反</td></tr>
+<tr><td><b>74HC160</b></td><td>模 10（BCD）同步计数器</td><td>数 0~9</td><td>160 = 十进制，161 = 十六进制</td></tr>
+<tr><td><b>74HC161</b></td><td>模 16 同步计数器</td><td>数 0~15，可预置</td><td>161 比 160 多 6 个数</td></tr>
+<tr><td><b>74HC393</b></td><td>双 4 位二进制计数器</td><td><b>异步</b>（行波）</td><td>便宜，但高速时会有尖峰</td></tr>
+</table>
+
+<h2>三个最容易搞混的对照</h2>
+<table>
+<tr><th>容易混</th><th>区别</th></tr>
+<tr><td>373 vs 374</td><td><b>373 锁存器（电平）、374 触发器（边沿）</b>。名字只差一个数字，触发方式完全不同</td></tr>
+<tr><td>160 vs 161</td><td><b>160 数 0~9，161 数 0~15</b>。160 是十进制，161 是十六进制</td></tr>
+<tr><td>595 vs 165</td><td><b>595 串入并出</b>（往外送），<b>165 并入串出</b>（往里收）</td></tr>
+</table>
+</div>
+  <div class="daynav"><a href="#s10">← 第 10 章　移位寄存器与状态机</a><a class="next" href="#sB">第 B 章　附录 B · 学习路线与避坑 →</a></div>
+</article>
+<article class="page" id="pB">
+  <div class="pbar">
+    <div class="pb-l"><span class="pbnum">B</span>
+      <span class="pbtt">第 B 章 · 附录 B · 学习路线与避坑</span></div>
+    <button class="donebtn" data-day="B">标记已学完</button>
+  </div>
+  <div class="body">
+<h2>附录 B · 学习路线与避坑</h2>
+
+<h3>建议顺序</h3>
+<table>
+<tr><th>阶段</th><th>学什么</th><th>大概用时</th><th>检验标准</th></tr>
+<tr><td>① 建立概念</td><td>第 1~2 章：为什么需要记忆、记忆从哪来</td><td>1 小时</td><td>能说出组合逻辑和时序逻辑的区别</td></tr>
+<tr><td>② 搞懂核心</td><td>第 3~5 章：RS 锁存器 → D 锁存器 → 边沿触发</td><td>3 小时</td><td><b>能讲清「锁存器 vs 触发器」</b></td></tr>
+<tr><td>③ 补齐细节</td><td>第 6~7 章：主从结构、建立/保持时间</td><td>2 小时</td><td>能解释为什么时钟太快会出错</td></tr>
+<tr><td>④ 会拼器件</td><td>第 8~9 章：寄存器、计数器</td><td>2 小时</td><td>能画出 4 位计数器</td></tr>
+<tr><td>⑤ 会做设计</td><td>第 10 章：移位寄存器、状态机</td><td>2 小时</td><td>能画出交通灯状态图</td></tr>
+</table>
+
+<h3>四个最常见的误区</h3>
+<div class="box warn">
+<b>① 把锁存器和触发器当同一个东西。</b><br>
+这是最大的坑。两者都能存 1 位，但<b>锁存器是电平触发（透明），触发器是边沿触发（不透明）</b>。型号只差一个数字（373/374），用错了电路会随机出错。<br><br>
+<b>② 死记「边沿触发」但不知道为什么。</b><br>
+不知道「电平触发会穿透」这个毛病，就理解不了为什么全世界的芯片都用边沿触发。<b>第 5 章那张对比图是全部关键</b>。<br><br>
+<b>③ 一上来就背建立时间公式。</b><br>
+先理解「地铁门」的比喻：数据不能迟到也不能早退。理解了这个，<code>T ≥ t_co + t_logic + t_su</code> 这个公式就是自然结果。<br><br>
+<b>④ 只在纸上画，不动手。</b><br>
+时序逻辑的时序图必须自己画一遍。建议拿 74HC74 或 74HC161 在面包板上接一次，用示波器看时钟和输出的关系，一次就懂了。
+</div>
+
+<h3>接下来学什么</h3>
+<table>
+<tr><th>方向</th><th>内容</th><th>依赖本教程哪部分</th></tr>
+<tr><td><b>时序图分析</b></td><td>给电路图，画输出波形</td><td>第 5、6 章</td></tr>
+<tr><td><b>同步时序电路设计</b></td><td>给需求，设计状态图和电路</td><td>第 10 章</td></tr>
+<tr><td><b>硬件描述语言</b></td><td>Verilog / VHDL 写触发器、计数器</td><td>全篇的硬件思维</td></tr>
+<tr><td><b>FPGA / CPLD</b></td><td>把时序逻辑真正做成芯片</td><td>第 8~10 章</td></tr>
+<tr><td><b>CPU 原理</b></td><td>寄存器、流水线、状态机都用得上</td><td>全篇</td></tr>
+</table>
+
+<h3>最后一句</h3>
+<div class="box tip">
+整个时序逻辑，其实就三句话：<br><br>
+<b>① 记忆来自「正反馈」</b> —— 两个门互相撑住对方。<br>
+<b>② 边沿触发解决了「穿透」</b> —— 只在时钟跳变那一瞬采一次。<br>
+<b>③ 把触发器拼起来</b> —— 并排是寄存器，串联是计数器/移位寄存器，加上组合逻辑就是状态机。<br><br>
+剩下的，都是这三句话的细节。
+</div>
+</div>
+  <div class="daynav"><a href="#sA">← 第 A 章　附录 A · 常用芯片速查</a><a class="dis next">已是最后一章 →</a></div>
+</article>
+
+</main>
+<script>
+(function(){
+  var IDX = [{"p": "p1", "n": "1", "t": "时序逻辑到底是什么", "k": "时序逻辑 组合逻辑 记忆 时钟 回线 判断 红绿灯 电梯"}, {"p": "p2", "n": "2", "t": "记忆是怎么来的", "k": "反相器 非门 正反馈 首尾相接 记忆 诞生 循环"}, {"p": "p3", "n": "3", "t": "RS 锁存器：两个按钮", "k": "RS 锁存器 或非门 置位 复位 禁止 保持 真值表"}, {"p": "p4", "n": "4", "t": "D 锁存器：一个按钮就够了", "k": "D 锁存器 数据 使能 EN LE 透明 传达室"}, {"p": "p5", "n": "5", "t": "电平触发 vs 边沿触发", "k": "电平触发 边沿触发 上升沿 下降沿 锁存器 触发器 区别 毛刺 穿透"}, {"p": "p6", "n": "6", "t": "D 触发器：怎么做到边沿", "k": "主从结构 D 触发器 主锁存器 从锁存器 隔离 传输门"}, {"p": "p7", "n": "7", "t": "建立时间与保持时间", "k": "建立时间 保持时间 tsu th 亚稳态 超频 时序余量"}, {"p": "p8", "n": "8", "t": "寄存器：8 个触发器", "k": "寄存器 8位 触发器 共用时钟 原子性 373 374 端口"}, {"p": "p9", "n": "9", "t": "计数器：会自己加一", "k": "计数器 T触发器 翻转 分频 异步 同步 模10 模16 160 161 393"}, {"p": "p10", "n": "10", "t": "移位寄存器与状态机", "k": "移位寄存器 串行 并行 595 165 状态机 交通灯 三要素"}, {"p": "pA", "n": "A", "t": "附录 A · 常用芯片速查", "k": "芯片 速查 74HC74 373 374 595 165 160 161 393 容易混"}, {"p": "pB", "n": "B", "t": "附录 B · 学习路线与避坑", "k": "学习路线 误区 阶段 下一步 Verilog FPGA"}];
+  var K_DONE="stm_done_v1", K_THEME="stm_theme_v1";
+  function applyTheme(th){
+    document.documentElement.setAttribute("data-theme", th);
+    var b=document.getElementById("themeBtn");
+    if(b) b.textContent = (th==="dark") ? "☀ 浅色模式" : "🌙 深色模式";
+    try{localStorage.setItem(K_THEME, th);}catch(e){}
+  }
+  (function(){
+    var th=null;
+    try{th=localStorage.getItem(K_THEME);}catch(e){}
+    if(!th) th=(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light";
+    document.documentElement.setAttribute("data-theme", th);
+  })();
+  var $=function(s,r){return (r||document).querySelector(s);};
+  var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));};
+  function getDone(){try{return JSON.parse(localStorage.getItem(K_DONE)||"[]");}catch(e){return [];}}
+  function setDone(a){try{localStorage.setItem(K_DONE,JSON.stringify(a));}catch(e){}render();}
+  function render(){
+    var d=getDone(),n=d.length;
+    $$("#sblist .sb-item[data-day]").forEach(function(a){
+      a.classList.toggle("done",d.indexOf(a.getAttribute("data-day"))>=0);});
+    $$(".donebtn[data-day]").forEach(function(b){
+      var on=d.indexOf(b.getAttribute("data-day"))>=0;
+      b.classList.toggle("on",on);b.textContent=on?"✓ 已学完":"标记已学完";});
+    if($("#doneNum"))$("#doneNum").textContent=n;
+    if($("#doneBar"))$("#doneBar").style.width=(n/12*100)+"%";
+  }
+  document.addEventListener("click",function(e){
+    var b=e.target.closest(".donebtn[data-day]");if(!b)return;
+    var day=b.getAttribute("data-day"),d=getDone(),i=d.indexOf(day);
+    if(i>=0)d.splice(i,1);else d.push(day);setDone(d);
+  });
+  function show(id){
+    var ok=false;
+    $$(".page").forEach(function(p){var on=p.id===id;p.classList.toggle("active",on);if(on)ok=true;});
+    if(!ok){$("#home").classList.add("active");id="home";}
+    $$("#sblist .sb-item").forEach(function(a){
+      a.classList.toggle("active",a.getAttribute("href")==="#" + id);});
+    window.scrollTo(0,0);
+    if(window.innerWidth<940)$("#sidebar").classList.remove("open");
+  }
+  function route(){show(location.hash.replace("#","")||"home");}
+  window.addEventListener("hashchange",route);route();
+  document.addEventListener("keydown",function(e){
+    if(e.target.tagName==="INPUT")return;
+    var h=location.hash.replace("#","");return;
+    var arr=IDX.map(function(x){return x.p;}),k=arr.indexOf(h);
+    if(e.key==="ArrowRight"&&k>=0&&k<arr.length-1)location.hash=arr[k+1];
+    if(e.key==="ArrowLeft"&&k>0)location.hash=arr[k-1];
+  });
+  $("#menubtn").onclick=function(){$("#sidebar").classList.toggle("open");};
+  $("#q").addEventListener("input",function(){
+    var v=this.value.trim().toLowerCase(),box=$("#results");
+    if(!v){box.innerHTML="";return;}
+    var hit=IDX.filter(function(x){return (x.t+" "+x.k).toLowerCase().indexOf(v)>=0;}).slice(0,10);
+    box.innerHTML=hit.length?hit.map(function(x){
+      return '<a href="#'+x.p+'" style="display:block;padding:4px 8px;font-size:12.5px;'
+        +'color:var(--brand);text-decoration:none">第 '+x.n+' 章 '+x.t+'</a>';}).join("")
+      :'<span style="font-size:12px;color:var(--ink3)">没有匹配</span>';
+  });
+  var tb=document.getElementById("themeBtn");
+  if(tb){
+    applyTheme(document.documentElement.getAttribute("data-theme")||"light");
+    tb.onclick=function(){
+      var cur=document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark";
+      applyTheme(cur);
+    };
+  }
+  render();
+})();
+</script>
+
+<style id="b2p-style">
+.b2p{position:fixed;right:20px;bottom:20px;z-index:99999;display:inline-flex;
+align-items:center;gap:6px;padding:10px 17px;border-radius:24px;text-decoration:none;
+background:#1f5fd0;color:#fff !important;font:600 13.5px/1 "Microsoft YaHei",sans-serif;
+box-shadow:0 4px 16px rgba(31,95,208,.38);opacity:.93;transition:.15s}
+.b2p:hover{opacity:1;transform:translateY(-2px);background:#2c5282}
+@media print{.b2p{display:none}}
+</style>
+<a class="b2p" href="../../electronics.html" title="返回电子与单片机资料库">← 返回教程首页</a>
+<script>
+/* ============================================================
+   DSH 教程 AI 助教 · 悬浮侧栏
+   用法：由站点构建时注入到每个教程页面的 body 结束标签前
+   API Key 保存在浏览器 localStorage，不上传到任何第三方
+   ============================================================ */
+(function () {
+  "use strict";
+  if (window.__dshTutorLoaded) return;
+  window.__dshTutorLoaded = true;
+
+  var LS_KEY = "dsh_tutor_apikey";
+  var LS_HIST = "dsh_tutor_history";
+  var LS_MODEL = "dsh_tutor_model";
+  var API = "https://api.deepseek.com/chat/completions";
+
+  /* ---------- 样式 ---------- */
+  var CSS = [
+    "#tutorFab{position:fixed;right:20px;bottom:76px;z-index:99990;display:flex;align-items:center;gap:7px;",
+    "padding:10px 16px;border-radius:24px;border:none;cursor:pointer;",
+    "background:linear-gradient(135deg,#0f766e,#14b8a6);color:#fff;",
+    "font:600 13.5px/1 'Microsoft YaHei',sans-serif;",
+    "box-shadow:0 4px 16px rgba(20,184,166,.42);transition:.16s}",
+    "#tutorFab:hover{transform:translateY(-2px);box-shadow:0 7px 20px rgba(20,184,166,.5)}",
+    "#tutorPanel{position:fixed;top:0;right:0;bottom:0;width:min(430px,100vw);z-index:100002;",
+    "background:#fff;border-left:1px solid #e3e8f0;display:flex;flex-direction:column;",
+    "transform:translateX(102%);transition:transform .24s cubic-bezier(.4,0,.2,1);",
+    "box-shadow:-8px 0 30px rgba(0,0,0,.12);font:14px/1.65 'Microsoft YaHei',sans-serif}",
+    "#tutorPanel.open{transform:translateX(0)}",
+    "#tutorHead{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid #e3e8f0;background:#f8fafc}",
+    "#tutorHead .t{flex:1;font-weight:700;font-size:14.5px;color:#0f172a}",
+    "#tutorHead .ctx{font-size:11px;color:#64748b;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
+    "#tutorHead button{border:1px solid #e3e8f0;background:#fff;border-radius:7px;width:30px;height:30px;",
+    "cursor:pointer;font-size:15px;line-height:1;color:#475569}",
+    "#tutorHead button:hover{background:#eef4fb;color:#0f766e}",
+    "#tutorBody{flex:1;overflow-y:auto;padding:14px;background:#fbfcfe}",
+    ".tutor-msg{margin-bottom:14px;display:flex;flex-direction:column;gap:5px}",
+    ".tutor-msg .role{font-size:11px;color:#94a3b8}",
+    ".tutor-msg .bubble{padding:9px 12px;border-radius:10px;font-size:13.5px;line-height:1.7;",
+    "white-space:pre-wrap;word-break:break-word}",
+    ".tutor-msg.user .bubble{background:#0f766e;color:#fff;align-self:flex-end;max-width:88%}",
+    ".tutor-msg.user{align-items:flex-end}",
+    ".tutor-msg.bot .bubble{background:#fff;border:1px solid #e3e8f0;color:#1e293b;max-width:100%}",
+    ".tutor-msg.bot .bubble code{background:#eef4fb;border-radius:3px;padding:1px 4px;font-size:.92em;color:#0f766e}",
+    ".tutor-msg.bot .bubble pre{background:#0f172a;color:#e6edf7;padding:9px 11px;border-radius:7px;",
+    "overflow-x:auto;font-size:12px;line-height:1.55;margin:6px 0}",
+    ".tutor-msg.err .bubble{background:#fff5f5;border:1px solid #fecaca;color:#b91c1c;font-size:13px}",
+    "#tutorFoot{border-top:1px solid #e3e8f0;padding:10px 12px;background:#fff}",
+    "#tutorCtxTip{font-size:11px;color:#64748b;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
+    "#tutorInputRow{display:flex;gap:8px;align-items:flex-end}",
+    "#tutorInput{flex:1;min-height:40px;max-height:110px;resize:none;border:1px solid #e3e8f0;border-radius:9px;",
+    "padding:9px 11px;font:13.5px/1.5 'Microsoft YaHei',sans-serif;outline:none;color:#1e293b}",
+    "#tutorInput:focus{border-color:#14b8a6}",
+    "#tutorSend{border:none;border-radius:9px;padding:10px 15px;background:#0f766e;color:#fff;",
+    "font:600 13px/1 'Microsoft YaHei',sans-serif;cursor:pointer}",
+    "#tutorSend:disabled{background:#cbd5e1;cursor:not-allowed}",
+    "#tutorCfg{position:absolute;inset:0;background:#fff;z-index:2;padding:16px;overflow-y:auto;display:none}",
+    "#tutorCfg.show{display:block}",
+    "#tutorCfg h4{margin:0 0 4px;font-size:14px;color:#0f172a}",
+    "#tutorCfg p{font-size:12px;color:#64748b;margin:0 0 12px;line-height:1.6}",
+    "#tutorCfg label{display:block;font-size:12.5px;color:#334155;margin:12px 0 5px;font-weight:600}",
+    "#tutorCfg input,#tutorCfg select{width:100%;padding:9px 11px;border:1px solid #e3e8f0;border-radius:8px;",
+    "font:13px 'Microsoft YaHei',sans-serif;outline:none;color:#1e293b}",
+    "#tutorCfg input:focus,#tutorCfg select:focus{border-color:#14b8a6}",
+    "#tutorCfg .btns{display:flex;gap:8px;margin-top:16px}",
+    "#tutorCfg .btns button{flex:1;padding:10px;border-radius:9px;border:1px solid #e3e8f0;background:#fff;",
+    "cursor:pointer;font:600 13px 'Microsoft YaHei',sans-serif;color:#334155}",
+    "#tutorCfg .btns button.primary{background:#0f766e;color:#fff;border-color:#0f766e}",
+    "#tutorCfg a{color:#0f766e}",
+    "html[data-theme='dark'] #tutorPanel{background:#141d22;border-left-color:#233038}",
+    "html[data-theme='dark'] #tutorHead{background:#111a20;border-bottom-color:#233038}",
+    "html[data-theme='dark'] #tutorHead .t{color:#dceaf0}",
+    "html[data-theme='dark'] #tutorHead button{background:#1a252c;border-color:#233038;color:#9bb2bd}",
+    "html[data-theme='dark'] #tutorBody{background:#0f171c}",
+    "html[data-theme='dark'] .tutor-msg.bot .bubble{background:#141d22;border-color:#233038;color:#dceaf0}",
+    "html[data-theme='dark'] .tutor-msg.bot .bubble code{background:#1a252c;color:#4dd0c1}",
+    "html[data-theme='dark'] #tutorFoot{background:#141d22;border-top-color:#233038}",
+    "html[data-theme='dark'] #tutorInput{background:#111a20;border-color:#233038;color:#dceaf0}",
+    "html[data-theme='dark'] #tutorCfg{background:#141d22}",
+    "html[data-theme='dark'] #tutorCfg h4{color:#dceaf0}",
+    "html[data-theme='dark'] #tutorCfg input,html[data-theme='dark'] #tutorCfg select{background:#111a20;border-color:#233038;color:#dceaf0}",
+    "html[data-theme='dark'] #tutorCfg .btns button{background:#1a252c;border-color:#233038;color:#dceaf0}",
+    "@media(max-width:520px){#tutorPanel{width:100vw}#tutorFab{bottom:70px;right:14px}}",
+    "@media print{#tutorFab,#tutorPanel{display:none!important}}"
+  ].join("");
+
+  var st = document.createElement("style");
+  st.textContent = CSS;
+  document.head.appendChild(st);
+
+  /* ---------- DOM ---------- */
+  var fab = document.createElement("button");
+  fab.id = "tutorFab";
+  fab.type = "button";
+  fab.innerHTML = "🤖 问老师";
+  document.body.appendChild(fab);
+
+  var panel = document.createElement("aside");
+  panel.id = "tutorPanel";
+  panel.innerHTML = [
+    '<div id="tutorHead">',
+    '  <div style="flex:1;min-width:0">',
+    '    <div class="t">问老师 · 教程助教</div>',
+    '    <div class="ctx" id="tutorCtxLabel">当前位置：—</div>',
+    "  </div>",
+    '  <button id="tutorCfgBtn" title="设置">⚙</button>',
+    '  <button id="tutorClose" title="关闭">✕</button>',
+    "</div>",
+    '<div id="tutorBody"></div>',
+    '<div id="tutorFoot">',
+    '  <div id="tutorCtxTip"></div>',
+    '  <div id="tutorInputRow">',
+    '    <textarea id="tutorInput" placeholder="哪里没懂？直接问（Enter 发送，Shift+Enter 换行）"></textarea>',
+    '    <button id="tutorSend">发送</button>',
+    "  </div>",
+    "</div>",
+    '<div id="tutorCfg">',
+    '  <h4>设置</h4>',
+    "  <p>需要一个 DeepSeek API Key（约 ¥1/百万 tokens，问 1000 次大概几块钱）。Key 只保存在你本机浏览器，不会发给我或任何第三方。</p>",
+    '  <label>API Key</label>',
+    '  <input id="tutorKey" type="password" placeholder="sk-..." autocomplete="off">',
+    '  <p style="margin-top:6px">还没有？去 <a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener">platform.deepseek.com</a> 免费注册领取。</p>',
+    '  <label>模型</label>',
+    '  <select id="tutorModel">',
+    '    <option value="deepseek-chat">deepseek-chat（快，够用）</option>',
+    '    <option value="deepseek-reasoner">deepseek-reasoner（更强，慢）</option>',
+    "  </select>",
+    '  <div class="btns">',
+    '    <button id="tutorClear">清空对话</button>',
+    '    <button class="primary" id="tutorSave">保存</button>',
+    "  </div>",
+    "</div>"
+  ].join("");
+  document.body.appendChild(panel);
+
+  var $ = function (id) { return document.getElementById(id); };
+  var body = $("tutorBody"), input = $("tutorInput"), sendBtn = $("tutorSend");
+  var cfg = $("tutorCfg"), cfgLabel = $("tutorCtxLabel"), ctxTip = $("tutorCtxTip");
+
+  function getKey() { try { return localStorage.getItem(LS_KEY) || ""; } catch (e) { return ""; } }
+  function setKey(v) { try { localStorage.setItem(LS_KEY, v); } catch (e) {} }
+  function getModel() { try { return localStorage.getItem(LS_MODEL) || "deepseek-chat"; } catch (e) { return "deepseek-chat"; } }
+  function setModel(v) { try { localStorage.setItem(LS_MODEL, v); } catch (e) {} }
+  function getHist() { try { return JSON.parse(localStorage.getItem(LS_HIST) || "[]"); } catch (e) { return []; } }
+  function setHist(a) { try { localStorage.setItem(LS_HIST, JSON.stringify(a.slice(-20))); } catch (e) {} }
+
+  /* ---------- 提取上下文 ---------- */
+  function ctxInfo() {
+    var page = document.querySelector(".page.active") || document.body;
+    var h1 = page.querySelector("h1");
+    var title = (h1 && h1.innerText.trim()) || document.title || "教程";
+    // 找当前可见的小节标题
+    var heads = page.querySelectorAll("h2, h3");
+    var cur = null, best = -1e9;
+    var mid = window.innerHeight * 0.35;
+    for (var i = 0; i < heads.length; i++) {
+      var r = heads[i].getBoundingClientRect();
+      if (r.top < mid && r.top > best) { best = r.top; cur = heads[i]; }
+    }
+    var section = cur ? cur.innerText.trim() : "";
+    // 取小节附近正文
+    var text = "";
+    if (cur) {
+      var n = cur, buf = [];
+      while (n && buf.join("").length < 1600) {
+        n = n.nextElementSibling;
+        if (!n || /^H[1-6]$/.test(n.tagName)) break;
+        if (n.tagName === "IMG" || n.querySelector && n.querySelector("img") && !n.innerText.trim()) continue;
+        var t = (n.innerText || "").trim();
+        if (t) buf.push(t);
+      }
+      text = buf.join("\n").slice(0, 1600);
+    }
+    return { title: title, section: section, text: text };
+  }
+
+  function refreshCtx() {
+    var c = ctxInfo();
+    cfgLabel.textContent = "当前位置：" + (c.section || c.title);
+    var sel = (window.getSelection ? String(window.getSelection()) : "").trim();
+    if (sel && sel.length > 4) {
+      ctxTip.textContent = "已选中文段，发送时会一并提问：" + sel.slice(0, 40) + (sel.length > 40 ? "…" : "");
+    } else {
+      ctxTip.textContent = c.section ? "会带上「" + c.section.slice(0, 18) + "」的上下文" : "会带上当前页面上下文";
+    }
+  }
+
+  /* ---------- 渲染 ---------- */
+  function addMsg(role, text, cls) {
+    var wrap = document.createElement("div");
+    wrap.className = "tutor-msg " + (cls || (role === "user" ? "user" : "bot"));
+    var r = document.createElement("div");
+    r.className = "role";
+    r.textContent = role === "user" ? "我" : "助教";
+    var b = document.createElement("div");
+    b.className = "bubble";
+    b.innerHTML = mdToHtml(text);
+    if (role === "user") { r.style.display = "none"; }
+    wrap.appendChild(r); wrap.appendChild(b);
+    body.appendChild(wrap);
+    body.scrollTop = body.scrollHeight;
+    return b;
+  }
+
+  function esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+  function mdToHtml(s) {
+    var parts = esc(s).split(/```/);
+    var out = "";
+    for (var i = 0; i < parts.length; i++) {
+      if (i % 2 === 1) {
+        out += "<pre>" + parts[i].replace(/^\w*\n/, "") + "</pre>";
+      } else {
+        out += parts[i]
+          .replace(/`([^`]+)`/g, "<code>$1</code>")
+          .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+      }
+    }
+    return out;
+  }
+
+  function renderHist() {
+    var h = getHist();
+    if (!h.length) {
+      addMsg("bot", "我是这套教程的助教。看到哪一段没懂，直接问我就行。\n\n比如：\n- 「PSC 和 ARR 为什么要减一？」\n- 「这段代码为什么用 ADC 模式？」\n- 「第 5 章的 PWM 图没看懂」\n\n也可以先在正文里选中一句话，再来问。");
+      return;
+    }
+    for (var i = 0; i < h.length; i++) addMsg(h[i].role, h[i].content);
+  }
+
+  /* ---------- 发送 ---------- */
+  var busy = false;
+  async function ask(q) {
+    if (busy) return;
+    var key = getKey();
+    if (!key) {
+      cfg.classList.add("show");
+      $("tutorKey").focus();
+      alert("请先填写 DeepSeek API Key（点击右上角 ⚙ 设置）");
+      return;
+    }
+    busy = true;
+    sendBtn.disabled = true;
+    sendBtn.textContent = "…";
+
+    var c = ctxInfo();
+    var sel = (window.getSelection ? String(window.getSelection()) : "").trim();
+    var hist = getHist();
+    addMsg("user", q);
+    hist.push({ role: "user", content: q });
+
+    var sys = "你是《" + c.title + "》这套教程的助教。这套教程由作者原创，包含自制原理图、课件原图讲解、代码与练习。\n" +
+      "回答要求：\n" +
+      "1. 只用中文，语气像耐心的老师，简洁直接，控制在 350 字以内；\n" +
+      "2. 优先结合下面给出的「当前小节」上下文回答，必要时引用其中的术语和结论；\n" +
+      "3. 涉及代码时给出最小可运行的片段，并指出关键行；\n" +
+      "4. 如果问题超出本教程范围，简短说明后再给通用解答；\n" +
+      "5. 不要编造教程里没有的内容，不确定就说「教程里没讲，我的理解是……」。\n" +
+      (c.section ? "\n【当前小节】" + c.section + "\n【小节正文】\n" + c.text : "");
+    var msgs = [{ role: "system", content: sys }];
+    var recent = hist.slice(-8);
+    if (sel && sel.length > 4) recent[recent.length - 1] = { role: "user", content: "【我选中的原文】" + sel.slice(0, 800) + "\n\n【我的问题】" + q };
+    for (var i = 0; i < recent.length; i++) msgs.push(recent[i]);
+
+    var bubble = addMsg("bot", "（思考中…）");
+    bubble.innerHTML = '<span style="color:#94a3b8">（思考中…）</span>';
+
+    try {
+      var resp = await fetch(API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + key },
+        body: JSON.stringify({ model: getModel(), messages: msgs, stream: true, temperature: 0.3, max_tokens: 1200 })
+      });
+      if (!resp.ok) {
+        var errTxt = "";
+        try { var ej = await resp.json(); errTxt = (ej.error && ej.error.message) || ""; } catch (e) {}
+        throw new Error("HTTP " + resp.status + (errTxt ? " · " + errTxt : ""));
+      }
+      var reader = resp.body.getReader();
+      var dec = new TextDecoder("utf-8");
+      var acc = "", done = false;
+      while (!done) {
+        var r = await reader.read();
+        if (r.done) break;
+        var chunk = dec.decode(r.value, { stream: true });
+        var lines = chunk.split("\n");
+        for (var k = 0; k < lines.length; k++) {
+          var ln = lines[k].trim();
+          if (!ln || ln.indexOf("data:") !== 0) continue;
+          var payload = ln.slice(5).trim();
+          if (payload === "[DONE]") { done = true; break; }
+          try {
+            var j = JSON.parse(payload);
+            var d = j.choices && j.choices[0] && j.choices[0].delta;
+            if (d && d.content) { acc += d.content; bubble.innerHTML = mdToHtml(acc); body.scrollTop = body.scrollHeight; }
+          } catch (e) {}
+        }
+      }
+      if (!acc) acc = "（没有收到回复，请重试）";
+      hist.push({ role: "assistant", content: acc });
+      setHist(hist);
+    } catch (e) {
+      bubble.parentElement.className = "tutor-msg err";
+      bubble.innerHTML = mdToHtml("请求失败：" + e.message +
+        "\n\n常见原因：\n· Key 填错或已失效（点 ⚙ 重新填写）\n· 账户余额不足\n· 网络或跨域问题（用部署到网站的版本更稳）");
+    } finally {
+      busy = false;
+      sendBtn.disabled = false;
+      sendBtn.textContent = "发送";
+    }
+  }
+
+  /* ---------- 事件 ---------- */
+  fab.addEventListener("click", function () {
+    panel.classList.toggle("open");
+    if (panel.classList.contains("open")) {
+      refreshCtx();
+      if (!body.children.length) renderHist();
+      input.focus();
+    }
+  });
+  $("tutorClose").addEventListener("click", function () { panel.classList.remove("open"); });
+  $("tutorCfgBtn").addEventListener("click", function () {
+    $("tutorKey").value = getKey();
+    $("tutorModel").value = getModel();
+    cfg.classList.toggle("show");
+  });
+  $("tutorSave").addEventListener("click", function () {
+    setKey($("tutorKey").value.trim());
+    setModel($("tutorModel").value);
+    cfg.classList.remove("show");
+    if (getKey()) input.focus();
+  });
+  $("tutorClear").addEventListener("click", function () {
+    if (!confirm("清空对话记录？")) return;
+    setHist([]);
+    body.innerHTML = "";
+    renderHist();
+  });
+  sendBtn.addEventListener("click", function () {
+    var q = input.value.trim();
+    if (!q) return;
+    input.value = "";
+    ask(q);
+  });
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendBtn.click(); }
+  });
+  window.addEventListener("scroll", function () {
+    if (panel.classList.contains("open")) refreshCtx();
+  }, { passive: true });
+  window.addEventListener("hashchange", function () { refreshCtx(); });
+
+  refreshCtx();
+})();
+
+</script></body>
+</html>

@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>邱关源《电路》第 4 章 · 30 分钟速通</title>
+<style>
+:root{--ink:#1c1c1c;--line:#dcdcdc}
+*{box-sizing:border-box}
+body{margin:0;padding:26px 16px 70px;background:#eef0f3;color:var(--ink);font-family:"Sarasa Mono SC","NSimSun","MS Gothic",Consolas,"Microsoft YaHei",monospace}
+.sheet{max-width:1040px;margin:0 auto;background:#fff;padding:34px 30px 46px;border-radius:8px;box-shadow:0 2px 14px rgba(0,0,0,.09)}
+pre{margin:0;white-space:pre;overflow-x:auto;font-family:inherit;font-size:14.5px;line-height:1.62}
+img.fig{display:block;margin:22px auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:6px;background:#fff;padding:4px}
+@media print{
+body{background:#fff;padding:0}
+.sheet{box-shadow:none;max-width:none;padding:0;border-radius:0}
+pre{font-size:10pt;line-height:1.45}
+img.fig{break-inside:avoid;page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="sheet">
+<pre>========================================================================
+      邱关源《电路》第 6 版 · 第 4 章
+      电路定理 —— 30 分钟速通
+========================================================================
+
+适用对象：学完第 1~3 章（会标方向、会等效变换、会节点法/网孔法）
+预计用时：30 分钟（第 3、4 站是重点，占一半时间）
+教材对应：第 4 章 4-1 ~ 4-4（4-5~4-7 只需了解）
+
+
+========================================================================
+  全章地图：这一章到底在讲什么
+========================================================================
+
+前三章的路子是"把方程列对，然后解"。
+这一章换了个路子：不列方程，靠几个定理直接看出来。
+
+差别在哪？
+    节点法解一个五节点电路，要解 4 元一次方程组；
+    用戴维南定理，可能只要求一个开路电压、除一下，就完了。
+
+代价是：定理有【适用条件】。用错了条件，答案会错得很自然
+—— 看起来算得挺顺，结果全错，这是本章最大的坑。
+
+这一章五件事：
+
+   ① 叠加定理：多个源 → 拆成一个一个算         （4-1）   ← 每年必考
+   ② 替代定理：已知的电压/电流 → 换成源        （4-2）   ← 会用就行
+   ③ 戴维南 / 诺顿定理：含源单口塌缩成两个元件 （4-3）   ← 全章核心
+   ④ 最大功率传输：负载取多大最划算           （4-4）   ← 选择题高频
+   ⑤ 特勒根 / 互易 / 对偶：了解概念即可        （4-5~4-7）
+
+时间表：
+
+   0 - 4  min   第 1 站  叠加定理：三个禁令比公式更重要
+   4 - 7  min   第 2 站  替代定理：三句话讲完
+   7 - 15 min   第 3 站  戴维南定理：本章的发动机
+  15 - 20 min   第 4 站  求等效电阻 Req 的三种方法
+  20 - 26 min   第 5 站  诺顿定理 + 最大功率传输
+  26 - 30 min   第 6 站  贯穿实例收尾 + 自测
+
+
+★★ 贯穿全章的实例（还是那张桥式电路）★★
+
+    这一章给它加一个电源：
+    在 A、D 之间接一个 10V 电压源（A 端为 +），R₁=1Ω、R₂=2Ω、
+    R₃=3Ω、R₄=4Ω、R₅=5Ω，求【R₅ 中的电流】。
+
+    为什么换成这个问题：
+    第 2 章用 Y-Δ、第 3 章用节点法，求的都是"等效电阻"；
+    这一次求的是某一条支路的电流 —— 这正是戴维南定理最擅长的题型。
+
+    答案预告：I₅ = 4/31 ≈ 0.1290A。
+    后面会用【戴维南定理】和【直接节点法】两条路分别算，必须相等。
+
+
+========================================================================
+  第 1 站（0-4 min）  叠加定理：三个禁令比公式更重要
+                                对应教材 4-1
+------------------------------------------------------------------------
+
+【定理本身，一句话】
+
+    线性电路中，多个独立源共同作用时在某处产生的响应（电压或电流），
+    等于各独立源【单独作用】时在该处产生的响应的【代数和】。
+
+    数学上就是：把一个多源电路拆成 n 个单源电路，分别求解，然后相加。
+
+【三个禁令 —— 这才是考点】
+
+    ① 只能用于【线性】电路
+       电路里有非线性元件（二极管、非线性电阻）就不能用。
+
+    ② 不作用的源必须【置零】，不是"拿掉"
+       电压源置零 = 用【导线】代替（短路）
+       电流源置零 = 用【开路】代替（断开）
+       这一步做错，后面全错。判断口诀：源的"特性"是什么就让它变成什么
+       —— 电压源电压为 0 就是两端等电位，即导线；
+          电流源电流为 0 就是没有电流通过，即断开。
+
+    ③ 【功率不能叠加】
+       因为 P = I²R、P = U²/R 都是二次的，线性关系不成立。
+
+    ④ 补充一条（也是考点）：【受控源不能置零】
+       受控源不是独立源，它在每个分电路里都要原样保留。
+
+【例题：拆开算一遍】
+
+    U₁ = 12V 串 R₁ = 3Ω，U₂ = 6V 串 R₂ = 6Ω，两者共同接到 R₃ = 2Ω 上。
+
+    U₁ 单独作用（U₂ 短路 → 把 U₂ 换成导线）：
+        V_A′ = 12 × (6∥2) / (3 + 6∥2) = 12 × 1.5 / 4.5 = 4V
+
+    U₂ 单独作用（U₁ 短路）：
+        V_A″ = 6 × (3∥2) / (6 + 3∥2) = 6 × 1.2 / 7.2 = 1V
+
+    叠加：V_A = 4 + 1 = 5V     （直接用节点法校验：(12/3 + 6/6)/1 = 5 ✓）
+
+    但功率不能叠加：
+        真实功率 P = V_A²/R₃ = 25/2 = 12.5W
+        两分量的功率之和 = 4²/2 + 1²/2 = 8 + 0.5 = 8.5W  ≠ 12.5W
+
+<img class="fig" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NjAiIGhlaWdodD0iNTAwIiB2aWV3Qm94PSIwIDAgOTYwIDUwMCI+CjxkZWZzPjxzdHlsZT4KLnd7c3Ryb2tlOiMzMzM7c3Ryb2tlLXdpZHRoOjIuNTtmaWxsOm5vbmU7c3Ryb2tlLWxpbmVjYXA6cm91bmR9Ci5je2ZpbGw6I2ZmZjtzdHJva2U6IzMzMztzdHJva2Utd2lkdGg6Mi41fQoudGJ7Zm9udC1mYW1pbHk6Ik1pY3Jvc29mdCBZYUhlaSIsIlNpbUhlaSIsc2Fucy1zZXJpZjtmb250LXNpemU6MTlweDtmaWxsOiMxMTE7Zm9udC13ZWlnaHQ6Ym9sZH0KLnRze2ZvbnQtZmFtaWx5OiJNaWNyb3NvZnQgWWFIZWkiLCJTaW1IZWkiLHNhbnMtc2VyaWY7Zm9udC1zaXplOjE1cHg7ZmlsbDojNTU1fQoudG57Zm9udC1mYW1pbHk6Ik1pY3Jvc29mdCBZYUhlaSIsIlNpbUhlaSIsc2Fucy1zZXJpZjtmb250LXNpemU6MTdweDtmaWxsOiMxMTE7Zm9udC13ZWlnaHQ6Ym9sZH0KLmN1cntzdHJva2U6I2MwMzkyYjtzdHJva2Utd2lkdGg6Mi42O2ZpbGw6bm9uZTtzdHJva2UtbGluZWNhcDpyb3VuZH0KLmN1cmx7Zm9udC1mYW1pbHk6Ik1pY3Jvc29mdCBZYUhlaSIsIlNpbUhlaSIsc2Fucy1zZXJpZjtmb250LXNpemU6MThweDtmaWxsOiNjMDM5MmI7Zm9udC13ZWlnaHQ6Ym9sZH0KLmhse2ZvbnQtZmFtaWx5OiJNaWNyb3NvZnQgWWFIZWkiLCJTaW1IZWkiLHNhbnMtc2VyaWY7Zm9udC1zaXplOjE2cHg7ZmlsbDojMWE2ZmI1O2ZvbnQtd2VpZ2h0OmJvbGR9Ci5od3tzdHJva2U6IzFhNmZiNTtzdHJva2Utd2lkdGg6My42O2ZpbGw6bm9uZTtzdHJva2UtbGluZWNhcDpyb3VuZH0KLmRhc2h7c3Ryb2tlOiM5OTk7c3Ryb2tlLXdpZHRoOjEuNjtmaWxsOm5vbmU7c3Ryb2tlLWRhc2hhcnJheTo2IDV9Ci5kYXNoYntzdHJva2U6IzFhNmZiNTtzdHJva2Utd2lkdGg6Mi4wO2ZpbGw6bm9uZTtzdHJva2UtZGFzaGFycmF5OjggNn0KPC9zdHlsZT4KPG1hcmtlciBpZD0iYXIiIG1hcmtlcldpZHRoPSIxMiIgbWFya2VySGVpZ2h0PSIxMCIgcmVmWD0iMTAiIHJlZlk9IjUiIG9yaWVudD0iYXV0byI+CiAgPHBhdGggZD0iTTAsMCBMMTIsNSBMMCwxMCB6IiBmaWxsPSIjYzAzOTJiIi8+PC9tYXJrZXI+CjxtYXJrZXIgaWQ9ImFyYiIgbWFya2VyV2lkdGg9IjEyIiBtYXJrZXJIZWlnaHQ9IjEwIiByZWZYPSIxMCIgcmVmWT0iNSIgb3JpZW50PSJhdXRvIj4KICA8cGF0aCBkPSJNMCwwIEwxMiw1IEwwLDEwIHoiIGZpbGw9IiMxYTZmYjUiLz48L21hcmtlcj4KPC9kZWZzPgo8dGV4dCB4PSIzMCIgeT0iMzQiIGNsYXNzPSJ0YiI+5Zu+MSAg5Y+g5Yqg5a6a55CG77ya5LiA5Liq5rqQ5LiA5Liq5rqQ5Zyw566X77yM5YaN5Luj5pWw55u45YqgPC90ZXh0Pgo8dGV4dCB4PSIzMCIgeT0iNTgiIGNsYXNzPSJ0cyI+VeKCgSA9IDEyVuOAgVLigoEgPSAzzqnvvJtV4oKCID0gNlbjgIFS4oKCID0gNs6p77ybUuKCgyA9IDLOqSDmjqXlnKggQSDkuI7lnLDkuYvpl7Q8L3RleHQ+CjxsaW5lIHgxPSIyNTAiIHkxPSIxOTAiIHgyPSI2OTAiIHkyPSIxOTAiIGNsYXNzPSJ3Ii8+CjxyZWN0IHg9IjI5MCIgeT0iMTc2IiB3aWR0aD0iODAiIGhlaWdodD0iMjgiIHJ4PSIzIiBjbGFzcz0iYyIvPgo8dGV4dCB4PSIzMzAiIHk9IjE2NCIgY2xhc3M9InRuIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5S4oKBID0gM86pPC90ZXh0Pgo8cmVjdCB4PSI1NzAiIHk9IjE3NiIgd2lkdGg9IjgwIiBoZWlnaHQ9IjI4IiByeD0iMyIgY2xhc3M9ImMiLz4KPHRleHQgeD0iNjEwIiB5PSIxNjQiIGNsYXNzPSJ0biIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UuKCgiA9IDbOqTwvdGV4dD4KPGxpbmUgeDE9IjI1MCIgeTE9IjE5MCIgeDI9IjI1MCIgeTI9IjI2MCIgY2xhc3M9InciLz4KPGNpcmNsZSBjeD0iMjUwIiBjeT0iMjg2IiByPSIyNiIgY2xhc3M9ImMiLz4KPHRleHQgeD0iMjUwIiB5PSIyODIiIGNsYXNzPSJ0YiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+KzwvdGV4dD4KPHRleHQgeD0iMjUwIiB5PSIzMTAiIGNsYXNzPSJ0YiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+4oiSPC90ZXh0Pgo8dGV4dCB4PSIyODkiIHk9IjI5NCIgY2xhc3M9InRuIj48L3RleHQ+Cjx0ZXh0IHg9IjIwOCIgeT0iMjk0IiBjbGFzcz0idG4iIHRleHQtYW5jaG9yPSJlbmQiPlXigoEgPSAxMlY8L3RleHQ+CjxsaW5lIHgxPSIyNTAiIHkxPSIzMTIiIHgyPSIyNTAiIHkyPSIzNzAiIGNsYXNzPSJ3Ii8+CjxsaW5lIHgxPSI2OTAiIHkxPSIxOTAiIHgyPSI2OTAiIHkyPSIyNjAiIGNsYXNzPSJ3Ii8+CjxjaXJjbGUgY3g9IjY5MCIgY3k9IjI4NiIgcj0iMjYiIGNsYXNzPSJjIi8+Cjx0ZXh0IHg9IjY5MCIgeT0iMjgyIiBjbGFzcz0idGIiIHRleHQtYW5jaG9yPSJtaWRkbGUiPis8L3RleHQ+Cjx0ZXh0IHg9IjY5MCIgeT0iMzEwIiBjbGFzcz0idGIiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuKIkjwvdGV4dD4KPHRleHQgeD0iNzI5IiB5PSIyOTQiIGNsYXNzPSJ0biI+PC90ZXh0Pgo8dGV4dCB4PSI3MzIiIHk9IjI5NCIgY2xhc3M9InRuIj5V4oKCID0gNlY8L3RleHQ+CjxsaW5lIHgxPSI2OTAiIHkxPSIzMTIiIHgyPSI2OTAiIHkyPSIzNzAiIGNsYXNzPSJ3Ii8+CjxsaW5lIHgxPSIyNTAiIHkxPSIzNzAiIHgyPSI2OTAiIHkyPSIzNzAiIGNsYXNzPSJ3Ii8+CjxsaW5lIHgxPSI0NzAiIHkxPSIxOTAiIHgyPSI0NzAiIHkyPSIyNDAiIGNsYXNzPSJ3Ii8+CjxyZWN0IHg9IjQ1NiIgeT0iMjQwIiB3aWR0aD0iMjgiIGhlaWdodD0iODAiIHJ4PSIzIiBjbGFzcz0iYyIvPgo8dGV4dCB4PSI0OTUiIHk9IjI4NiIgY2xhc3M9InRuIj5S4oKDID0gMs6pPC90ZXh0Pgo8bGluZSB4MT0iNDcwIiB5MT0iMzIwIiB4Mj0iNDcwIiB5Mj0iMzcwIiBjbGFzcz0idyIvPgo8Y2lyY2xlIGN4PSI0NzAiIGN5PSIxOTAiIHI9IjUuNSIgZmlsbD0iIzIyMiIvPgo8dGV4dCB4PSI0NzAiIHk9IjE3NCIgY2xhc3M9InRuIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5BPC90ZXh0Pgo8dGV4dCB4PSI0NTIiIHk9IjIzMCIgY2xhc3M9ImhsIiB0ZXh0LWFuY2hvcj0iZW5kIj5WX0EgPSA1VjwvdGV4dD4KPGxpbmUgeDE9IjQ3MCIgeTE9IjM3MCIgeDI9IjQ3MCIgeTI9IjM4MiIgY2xhc3M9InciLz4KPGxpbmUgeDE9IjQ1NCIgeTE9IjM4MiIgeDI9IjQ4NiIgeTI9IjM4MiIgY2xhc3M9InciLz4KPGxpbmUgeDE9IjQ2MCIgeTE9IjM4OSIgeDI9IjQ4MCIgeTI9IjM4OSIgY2xhc3M9InciLz4KPGxpbmUgeDE9IjQ2NSIgeTE9IjM5NiIgeDI9IjQ3NSIgeTI9IjM5NiIgY2xhc3M9InciLz4KPHRleHQgeD0iNDcwIiB5PSI0MTYiIGNsYXNzPSJ0cyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+MDwvdGV4dD4KPHJlY3QgeD0iNjAiIHk9IjQxOCIgd2lkdGg9Ijg0MCIgaGVpZ2h0PSI2NiIgcng9IjgiIGNsYXNzPSJkYXNoIi8+Cjx0ZXh0IHg9Ijg0IiB5PSI0NDYiIGNsYXNzPSJ0cyI+VeKCgSDljZXni6zkvZznlKjvvIhV4oKCIOefrei3ryDihpIg55So5a+857q/5Luj5pu/77yJ77yaVl9B4oCyID0gNFY8L3RleHQ+Cjx0ZXh0IHg9Ijg0IiB5PSI0NzAiIGNsYXNzPSJ0cyI+VeKCgiDljZXni6zkvZznlKjvvIhV4oKBIOefrei3r++8ie+8mlZfQeKAsyA9IDFW44CA44CA44CANCArIDEgPSA1ViDinJM8L3RleHQ+Cjx0ZXh0IHg9IjU2MCIgeT0iNDQ2IiBjbGFzcz0iaGwiPuS9huWKn+eOh+S4jeiDveWPoOWKoO+8mjwvdGV4dD4KPHRleHQgeD0iNTYwIiB5PSI0NzAiIGNsYXNzPSJjdXJsIj40wrIvMiArIDHCsi8yID0gOC41VyDiiaAgNcKyLzIgPSAxMi41VzwvdGV4dD4KPC9zdmc+Cg==">
+
+【什么时候用它】
+
+    · 电路里有多个源、且要求某一处的响应
+    · 想单独看"某个源对这个量贡献了多少"（灵敏度分析）
+    · 电路对称、拆开以后每一半都很好算
+
+    不适合：源很多（拆成 5 个电路更累）、含非线性元件。
+
+
+========================================================================
+  第 2 站（4-7 min）  替代定理：三句话讲完
+                                对应教材 4-2
+------------------------------------------------------------------------
+
+    ① 如果已知某条支路的电压 Uk，那么这条支路可以整个换成一个
+       电压为 Uk 的【独立电压源】，电路其它部分的电压电流全都不变。
+
+    ② 同理，已知某支路电流 Ik，可换成电流为 Ik 的【独立电流源】。
+
+    ③ 前提：替代之后电路仍然【有唯一解】。
+
+    【为什么要它】
+    它常常和叠加定理、戴维南定理配合使用 ——
+    把"不好处理的支路"换成一个源，整个电路就变成"纯源 + 电阻"的
+    标准形状，后面怎么算都方便。
+
+    【注意】
+    替代定理对线性和非线性电路都成立（这是它比叠加定理更广的地方），
+    但替代源的方向、大小必须和原来完全一致（包括参考方向）。
+
+
+========================================================================
+  第 3 站（7-15 min）  戴维南定理：本章的发动机
+                                对应教材 4-3
+------------------------------------------------------------------------
+
+【定理本身】
+
+    任何一个【含源线性单口网络】，对外都可以等效为：
+        一个电压源 Uoc（等于端口开路电压）【串联】一个电阻 Req
+        （Req = 把内部独立源全部置零后的端口等效电阻）
+
+    换成诺顿定理就是：并联形式 ——
+        一个电流源 Isc（等于端口短路电流）【并联】同一个 Req
+        （Isc = Uoc / Req）
+
+    两个定理是同一件事的两种写法，做题时任选一个。
+
+<img class="fig" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NjAiIGhlaWdodD0iNDcwIiB2aWV3Qm94PSIwIDAgOTYwIDQ3MCI+CjxkZWZzPjxzdHlsZT4KLnd7c3Ryb2tlOiMzMzM7c3Ryb2tlLXdpZHRoOjIuNTtmaWxsOm5vbmU7c3Ryb2tlLWxpbmVjYXA6cm91bmR9Ci5je2ZpbGw6I2ZmZjtzdHJva2U6IzMzMztzdHJva2Utd2lkdGg6Mi41fQoudGJ7Zm9udC1mYW1pbHk6Ik1pY3Jvc29mdCBZYUhlaSIsIlNpbUhlaSIsc2Fucy1zZXJpZjtmb250LXNpemU6MTlweDtmaWxsOiMxMTE7Zm9udC13ZWlnaHQ6Ym9sZH0KLnRze2ZvbnQtZmFtaWx5OiJNaWNyb3NvZnQgWWFIZWkiLCJTaW1IZWkiLHNhbnMtc2VyaWY7Zm9udC1zaXplOjE1cHg7ZmlsbDojNTU1fQoudG57Zm9udC1mYW1pbHk6Ik1pY3Jvc29mdCBZYUhlaSIsIlNpbUhlaSIsc2Fucy1zZXJpZjtmb250LXNpemU6MTdweDtmaWxsOiMxMTE7Zm9udC13ZWlnaHQ6Ym9sZH0KLmN1cntzdHJva2U6I2MwMzkyYjtzdHJva2Utd2lkdGg6Mi42O2ZpbGw6bm9uZTtzdHJva2UtbGluZWNhcDpyb3VuZH0KLmN1cmx7Zm9udC1mYW1pbHk6Ik1pY3Jvc29mdCBZYUhlaSIsIlNpbUhlaSIsc2Fucy1zZXJpZjtmb250LXNpemU6MThweDtmaWxsOiNjMDM5MmI7Zm9udC13ZWlnaHQ6Ym9sZH0KLmhse2ZvbnQtZmFtaWx5OiJNaWNyb3NvZnQgWWFIZWkiLCJTaW1IZWkiLHNhbnMtc2VyaWY7Zm9udC1zaXplOjE2cHg7ZmlsbDojMWE2ZmI1O2ZvbnQtd2VpZ2h0OmJvbGR9Ci5od3tzdHJva2U6IzFhNmZiNTtzdHJva2Utd2lkdGg6My42O2ZpbGw6bm9uZTtzdHJva2UtbGluZWNhcDpyb3VuZH0KLmRhc2h7c3Ryb2tlOiM5OTk7c3Ryb2tlLXdpZHRoOjEuNjtmaWxsOm5vbmU7c3Ryb2tlLWRhc2hhcnJheTo2IDV9Ci5kYXNoYntzdHJva2U6IzFhNmZiNTtzdHJva2Utd2lkdGg6Mi4wO2ZpbGw6bm9uZTtzdHJva2UtZGFzaGFycmF5OjggNn0KPC9zdHlsZT4KPG1hcmtlciBpZD0iYXIiIG1hcmtlcldpZHRoPSIxMiIgbWFya2VySGVpZ2h0PSIxMCIgcmVmWD0iMTAiIHJlZlk9IjUiIG9yaWVudD0iYXV0byI+CiAgPHBhdGggZD0iTTAsMCBMMTIsNSBMMCwxMCB6IiBmaWxsPSIjYzAzOTJiIi8+PC9tYXJrZXI+CjxtYXJrZXIgaWQ9ImFyYiIgbWFya2VyV2lkdGg9IjEyIiBtYXJrZXJIZWlnaHQ9IjEwIiByZWZYPSIxMCIgcmVmWT0iNSIgb3JpZW50PSJhdXRvIj4KICA8cGF0aCBkPSJNMCwwIEwxMiw1IEwwLDEwIHoiIGZpbGw9IiMxYTZmYjUiLz48L21hcmtlcj4KPC9kZWZzPgo8dGV4dCB4PSIzMCIgeT0iMzQiIGNsYXNzPSJ0YiI+5Zu+MiAg5oi057u05Y2X5a6a55CG77ya5Lu75L2V5ZCr5rqQ57q/5oCn5Y2V5Y+j572R57uc77yM5a+55aSW5bCx5piv5LiA5Liq55S15Y6L5rqQ5Liy5LiA5Liq55S16Zi7PC90ZXh0Pgo8dGV4dCB4PSIzMCIgeT0iNTgiIGNsYXNzPSJ0cyI+5Y+q6KaB5rGC5Ye6IFVvY++8iOW8gOi3r+eUteWOi++8ieWSjCBSZXHvvIjnrYnmlYjnlLXpmLvvvInvvIzlpI3mnYLnvZHnu5zlsLHloYznvKnmiJDkuKTkuKrlhYPku7Y8L3RleHQ+CjxyZWN0IHg9IjExMCIgeT0iMTUwIiB3aWR0aD0iMjUwIiBoZWlnaHQ9IjIyMCIgcng9IjgiIGNsYXNzPSJkYXNoIi8+Cjx0ZXh0IHg9IjIzNSIgeT0iMjAwIiBjbGFzcz0idGIiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuWQq+a6kOe6v+aApzwvdGV4dD4KPHRleHQgeD0iMjM1IiB5PSIyMjgiIGNsYXNzPSJ0YiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+5Y2V5Y+j572R57ucPC90ZXh0Pgo8dGV4dCB4PSIyMzUiIHk9IjI1NiIgY2xhc3M9InRuIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5OX1M8L3RleHQ+Cjx0ZXh0IHg9IjIzNSIgeT0iMzAwIiBjbGFzcz0idHMiIHRleHQtYW5jaG9yPSJtaWRkbGUiPu+8iOWGhemDqOWkmuWkjeadgumDveihjO+8iTwvdGV4dD4KPGxpbmUgeDE9IjM2MCIgeTE9IjIxMCIgeDI9IjQ3MCIgeTI9IjIxMCIgY2xhc3M9InciLz4KPGxpbmUgeDE9IjM2MCIgeTE9IjMzMCIgeDI9IjQ3MCIgeTI9IjMzMCIgY2xhc3M9InciLz4KPGNpcmNsZSBjeD0iNDcwIiBjeT0iMjEwIiByPSI1LjUiIGZpbGw9IiMyMjIiLz4KPGNpcmNsZSBjeD0iNDcwIiBjeT0iMzMwIiByPSI1LjUiIGZpbGw9IiMyMjIiLz4KPHRleHQgeD0iNDgyIiB5PSIyMDAiIGNsYXNzPSJ0biI+YTwvdGV4dD4KPHRleHQgeD0iNDgyIiB5PSIzNTAiIGNsYXNzPSJ0biI+YjwvdGV4dD4KPGxpbmUgeDE9IjUxMiIgeTE9IjIxMCIgeDI9IjUxMiIgeTI9IjMzMCIgY2xhc3M9ImN1ciIvPgo8cGF0aCBkPSJNIDUwNSwyMTQgTCA1MTksMjE0IEwgNTEyLDIwMyB6IiBmaWxsPSIjYzAzOTJiIi8+CjxwYXRoIGQ9Ik0gNTA1LDMyNiBMIDUxOSwzMjYgTCA1MTIsMzM3IHoiIGZpbGw9IiNjMDM5MmIiLz4KPHRleHQgeD0iNTI4IiB5PSIyNzUiIGNsYXNzPSJjdXJsIj5Vb2M8L3RleHQ+Cjx0ZXh0IHg9IjYwMCIgeT0iMjgyIiBjbGFzcz0idGIiIHRleHQtYW5jaG9yPSJtaWRkbGUiPiYjODY1Mjs8L3RleHQ+Cjx0ZXh0IHg9IjYwMCIgeT0iMzE2IiBjbGFzcz0iaGwiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuWvueWkluetieaViDwvdGV4dD4KPGxpbmUgeDE9IjY2MCIgeTE9IjIxMCIgeDI9Ijc4MCIgeTI9IjIxMCIgY2xhc3M9InciLz4KPGNpcmNsZSBjeD0iNzAwIiBjeT0iMjc1IiByPSIyNCIgY2xhc3M9ImMiLz4KPHRleHQgeD0iNzAwIiB5PSIyNzEiIGNsYXNzPSJ0YiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+KzwvdGV4dD4KPHRleHQgeD0iNzAwIiB5PSIyOTkiIGNsYXNzPSJ0YiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+4oiSPC90ZXh0Pgo8dGV4dCB4PSI3MzciIHk9IjI4MyIgY2xhc3M9InRuIj48L3RleHQ+Cjx0ZXh0IHg9IjcwMCIgeT0iMzUwIiBjbGFzcz0idG4iIHRleHQtYW5jaG9yPSJtaWRkbGUiPlVvYzwvdGV4dD4KPGxpbmUgeDE9IjcwMCIgeTE9IjI5OSIgeDI9IjcwMCIgeTI9IjMzMCIgY2xhc3M9InciLz4KPGxpbmUgeDE9IjY2MCIgeTE9IjMzMCIgeDI9Ijc4MCIgeTI9IjMzMCIgY2xhc3M9InciLz4KPHJlY3QgeD0iNzI2IiB5PSIxOTciIHdpZHRoPSI2OCIgaGVpZ2h0PSIyNiIgcng9IjMiIGNsYXNzPSJjIi8+Cjx0ZXh0IHg9Ijc2MCIgeT0iMTg1IiBjbGFzcz0idG4iIHRleHQtYW5jaG9yPSJtaWRkbGUiPjwvdGV4dD4KPGxpbmUgeDE9Ijc4MCIgeTE9IjIxMCIgeDI9Ijg2MCIgeTI9IjIxMCIgY2xhc3M9InciLz4KPGxpbmUgeDE9Ijc4MCIgeTE9IjMzMCIgeDI9Ijg2MCIgeTI9IjMzMCIgY2xhc3M9InciLz4KPHRleHQgeD0iNzAwIiB5PSIyMDAiIGNsYXNzPSJ0cyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+PC90ZXh0Pgo8dGV4dCB4PSI3NjAiIHk9IjE5MCIgY2xhc3M9InRuIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5SZXE8L3RleHQ+CjxjaXJjbGUgY3g9Ijg2MCIgY3k9IjIxMCIgcj0iNS41IiBmaWxsPSIjMjIyIi8+CjxjaXJjbGUgY3g9Ijg2MCIgY3k9IjMzMCIgcj0iNS41IiBmaWxsPSIjMjIyIi8+Cjx0ZXh0IHg9Ijg3MiIgeT0iMjAwIiBjbGFzcz0idG4iPmE8L3RleHQ+Cjx0ZXh0IHg9Ijg3MiIgeT0iMzUwIiBjbGFzcz0idG4iPmI8L3RleHQ+CjxyZWN0IHg9IjY0MCIgeT0iMTYwIiB3aWR0aD0iMjYwIiBoZWlnaHQ9IjIwMCIgcng9IjgiIGNsYXNzPSJkYXNoIi8+Cjx0ZXh0IHg9Ijc3MCIgeT0iMzkwIiBjbGFzcz0iaGwiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuS4gOS4queUteWOi+a6kCArIOS4gOS4queUtemYuzwvdGV4dD4KPHJlY3QgeD0iNjAiIHk9IjQxMiIgd2lkdGg9Ijg0MCIgaGVpZ2h0PSI0NiIgcng9IjgiIGNsYXNzPSJkYXNoIi8+Cjx0ZXh0IHg9Ijg0IiB5PSI0NDIiIGNsYXNzPSJ0biI+4piFIOWFs+mUru+8muWPquaYr+OAjOWvueWkluOAjeetieaViCDigJTigJQg5YaF6YOo55S15rWB44CB5Yqf546H5YWo6YO95LiN562J5pWI77yM6KaB566X5YaF6YOo55qE5Lic6KW/5b+F6aG75Zue5Yiw5Y6f55S16LevPC90ZXh0Pgo8L3N2Zz4K">
+
+【三步走（背下来）】
+
+    第 1 步  求 Uoc：把负载拿掉，算端口上的开路电压
+    第 2 步  求 Req：把内部独立源置零，算端口的等效电阻
+    第 3 步  画等效电路，接上负载，算你要的量
+
+【必须理解的一句话】
+
+    戴维南等效【只是对外等效】。
+    外部看到的 U-I 关系一模一样，但内部的电流分布、各电阻的功率
+    完全变了。所以：
+        · 求外部负载的电流电压 → 可以用等效电路
+        · 求内部某个电阻消耗的功率 → 必须回到原电路
+
+    这一点和 2.3 节"对外等效 ≠ 对内等效"是同一句话，别忘。
+
+【例题：把桥式电路塌缩成两个元件】
+
+    拿掉 R₅，求 B、C 之间的戴维南等效。
+
+    第 1 步 求 Uoc（此时 B、C 之间开路）
+        A、D 之间是 10V。上支路 A—R₁—B—R₂—D 是一条串联分压：
+            V_B = 10 × R₂/(R₁+R₂) = 10 × 2/3 = 20/3 ≈ 6.667V
+        下支路 A—R₃—C—R₄—D 同理：
+            V_C = 10 × R₄/(R₃+R₄) = 10 × 4/7 = 40/7 ≈ 5.714V
+        所以 Uoc = V_B − V_C = 20/3 − 40/7 = 20/21 ≈ 0.9524V
+
+    第 2 步 求 Req（把 10V 源置零 = A、D 短接）
+        从 B 看进去：R₁ 到 A、R₂ 到 D，而 A、D 现在是同一个点，
+                    所以 R₁ 与 R₂ 并联。
+        从 C 看进去：R₃ 与 R₄ 并联。
+        两部分串联：
+            Req = (1∥2) + (3∥4) = 2/3 + 12/7 = 50/21 ≈ 2.381Ω
+
+<img class="fig" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NjAiIGhlaWdodD0iNTQwIiB2aWV3Qm94PSIwIDAgOTYwIDU0MCI+CjxkZWZzPjxzdHlsZT4KLnd7c3Ryb2tlOiMzMzM7c3Ryb2tlLXdpZHRoOjIuNTtmaWxsOm5vbmU7c3Ryb2tlLWxpbmVjYXA6cm91bmR9Ci5je2ZpbGw6I2ZmZjtzdHJva2U6IzMzMztzdHJva2Utd2lkdGg6Mi41fQoudGJ7Zm9udC1mYW1pbHk6Ik1pY3Jvc29mdCBZYUhlaSIsIlNpbUhlaSIsc2Fucy1zZXJpZjtmb250LXNpemU6MTlweDtmaWxsOiMxMTE7Zm9udC13ZWlnaHQ6Ym9sZH0KLnRze2ZvbnQtZmFtaWx5OiJNaWNyb3NvZnQgWWFIZWkiLCJTaW1IZWkiLHNhbnMtc2VyaWY7Zm9udC1zaXplOjE1cHg7ZmlsbDojNTU1fQoudG57Zm9udC1mYW1pbHk6Ik1pY3Jvc29mdCBZYUhlaSIsIlNpbUhlaSIsc2Fucy1zZXJpZjtmb250LXNpemU6MTdweDtmaWxsOiMxMTE7Zm9udC13ZWlnaHQ6Ym9sZH0KLmN1cntzdHJva2U6I2MwMzkyYjtzdHJva2Utd2lkdGg6Mi42O2ZpbGw6bm9uZTtzdHJva2UtbGluZWNhcDpyb3VuZH0KLmN1cmx7Zm9udC1mYW1pbHk6Ik1pY3Jvc29mdCBZYUhlaSIsIlNpbUhlaSIsc2Fucy1zZXJpZjtmb250LXNpemU6MThweDtmaWxsOiNjMDM5MmI7Zm9udC13ZWlnaHQ6Ym9sZH0KLmhse2ZvbnQtZmFtaWx5OiJNaWNyb3NvZnQgWWFIZWkiLCJTaW1IZWkiLHNhbnMtc2VyaWY7Zm9udC1zaXplOjE2cHg7ZmlsbDojMWE2ZmI1O2ZvbnQtd2VpZ2h0OmJvbGR9Ci5od3tzdHJva2U6IzFhNmZiNTtzdHJva2Utd2lkdGg6My42O2ZpbGw6bm9uZTtzdHJva2UtbGluZWNhcDpyb3VuZH0KLmRhc2h7c3Ryb2tlOiM5OTk7c3Ryb2tlLXdpZHRoOjEuNjtmaWxsOm5vbmU7c3Ryb2tlLWRhc2hhcnJheTo2IDV9Ci5kYXNoYntzdHJva2U6IzFhNmZiNTtzdHJva2Utd2lkdGg6Mi4wO2ZpbGw6bm9uZTtzdHJva2UtZGFzaGFycmF5OjggNn0KPC9zdHlsZT4KPG1hcmtlciBpZD0iYXIiIG1hcmtlcldpZHRoPSIxMiIgbWFya2VySGVpZ2h0PSIxMCIgcmVmWD0iMTAiIHJlZlk9IjUiIG9yaWVudD0iYXV0byI+CiAgPHBhdGggZD0iTTAsMCBMMTIsNSBMMCwxMCB6IiBmaWxsPSIjYzAzOTJiIi8+PC9tYXJrZXI+CjxtYXJrZXIgaWQ9ImFyYiIgbWFya2VyV2lkdGg9IjEyIiBtYXJrZXJIZWlnaHQ9IjEwIiByZWZYPSIxMCIgcmVmWT0iNSIgb3JpZW50PSJhdXRvIj4KICA8cGF0aCBkPSJNMCwwIEwxMiw1IEwwLDEwIHoiIGZpbGw9IiMxYTZmYjUiLz48L21hcmtlcj4KPC9kZWZzPgo8dGV4dCB4PSIzMCIgeT0iMzQiIGNsYXNzPSJ0YiI+5Zu+MyAg6LSv56m/5a6e5L6L77ya5oqKIFLigoUg5ou/5o6J77yM5rGCIELjgIFDIOS5i+mXtOeahOaItOe7tOWNl+etieaViDwvdGV4dD4KPHRleHQgeD0iMzAiIHk9IjU4IiBjbGFzcz0idHMiPkHjgIFEIOS5i+mXtOaOpSAxMFYg55S15Y6L5rqQ77yIQSDkuLogK++8ieOAglLigoE9Mc6p44CBUuKCgj0yzqnjgIFS4oKDPTPOqeOAgVLigoQ9NM6p44CBUuKChT01zqk8L3RleHQ+CjxsaW5lIHgxPSIxMTAiIHkxPSIyNjUiIHgyPSIzMzAiIHkyPSIxMzAiIGNsYXNzPSJ3Ii8+CjxsaW5lIHgxPSIzMzAiIHkxPSIxMzAiIHgyPSI1NjAiIHkyPSIyNjUiIGNsYXNzPSJ3Ii8+CjxsaW5lIHgxPSIxMTAiIHkxPSIyNjUiIHgyPSIzMzAiIHkyPSI0MDAiIGNsYXNzPSJ3Ii8+CjxsaW5lIHgxPSIzMzAiIHkxPSI0MDAiIHgyPSI1NjAiIHkyPSIyNjUiIGNsYXNzPSJ3Ii8+CjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDIyMC4wLDE5Ny41KSByb3RhdGUoLTMxLjUpIj48cmVjdCB4PSItMzgiIHk9Ii0xMyIgd2lkdGg9Ijc2IiBoZWlnaHQ9IjI2IiByeD0iMyIgY2xhc3M9ImMiLz48L2c+Cjx0ZXh0IHg9IjE5MCIgeT0iMTc4IiBjbGFzcz0idG4iIHRleHQtYW5jaG9yPSJtaWRkbGUiPlLigoEgPSAxzqk8L3RleHQ+CjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDQ0NS4wLDE5Ny41KSByb3RhdGUoMzAuNCkiPjxyZWN0IHg9Ii0zOCIgeT0iLTEzIiB3aWR0aD0iNzYiIGhlaWdodD0iMjYiIHJ4PSIzIiBjbGFzcz0iYyIvPjwvZz4KPHRleHQgeD0iNDc4IiB5PSIxNzgiIGNsYXNzPSJ0biIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UuKCgiA9IDLOqTwvdGV4dD4KPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMjIwLjAsMzMyLjUpIHJvdGF0ZSgzMS41KSI+PHJlY3QgeD0iLTM4IiB5PSItMTMiIHdpZHRoPSI3NiIgaGVpZ2h0PSIyNiIgcng9IjMiIGNsYXNzPSJjIi8+PC9nPgo8dGV4dCB4PSIxOTAiIHk9IjM2MCIgY2xhc3M9InRuIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5S4oKDID0gM86pPC90ZXh0Pgo8ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSg0NDUuMCwzMzIuNSkgcm90YXRlKC0zMC40KSI+PHJlY3QgeD0iLTM4IiB5PSItMTMiIHdpZHRoPSI3NiIgaGVpZ2h0PSIyNiIgcng9IjMiIGNsYXNzPSJjIi8+PC9nPgo8dGV4dCB4PSI0NzgiIHk9IjM2MCIgY2xhc3M9InRuIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5S4oKEID0gNM6pPC90ZXh0Pgo8bGluZSB4MT0iMzMwIiB5MT0iMTMwIiB4Mj0iMzMwIiB5Mj0iNDAwIiBjbGFzcz0iZGFzaCIvPgo8dGV4dCB4PSIzMTYiIHk9IjI1MCIgY2xhc3M9InRzIiB0ZXh0LWFuY2hvcj0iZW5kIj5S4oKFIOW3suaLv+aOiTwvdGV4dD4KPHRleHQgeD0iMzE2IiB5PSIyNzQiIGNsYXNzPSJ0cyIgdGV4dC1hbmNob3I9ImVuZCI+77yI5byA6Lev77yJPC90ZXh0Pgo8Y2lyY2xlIGN4PSIxMTAiIGN5PSIyNjUiIHI9IjUuNSIgZmlsbD0iIzIyMiIvPgo8Y2lyY2xlIGN4PSIzMzAiIGN5PSIxMzAiIHI9IjUuNSIgZmlsbD0iIzIyMiIvPgo8Y2lyY2xlIGN4PSIzMzAiIGN5PSI0MDAiIHI9IjUuNSIgZmlsbD0iIzIyMiIvPgo8Y2lyY2xlIGN4PSI1NjAiIGN5PSIyNjUiIHI9IjUuNSIgZmlsbD0iIzIyMiIvPgo8dGV4dCB4PSI4MCIgeT0iMjczIiBjbGFzcz0idG4iIHRleHQtYW5jaG9yPSJlbmQiPkE8L3RleHQ+Cjx0ZXh0IHg9IjM0OCIgeT0iMTIyIiBjbGFzcz0idG4iPkI8L3RleHQ+Cjx0ZXh0IHg9IjM0OCIgeT0iNDI4IiBjbGFzcz0idG4iPkM8L3RleHQ+Cjx0ZXh0IHg9IjU4MCIgeT0iMjczIiBjbGFzcz0idG4iPkQ8L3RleHQ+CjxsaW5lIHgxPSIxMTAiIHkxPSIyNjUiIHgyPSIxMTAiIHkyPSI0ODAiIGNsYXNzPSJ3Ii8+CjxsaW5lIHgxPSIxMTAiIHkxPSI0ODAiIHgyPSI0NTYiIHkyPSI0ODAiIGNsYXNzPSJ3Ii8+CjxsaW5lIHgxPSI1MDQiIHkxPSI0ODAiIHgyPSI1NjAiIHkyPSI0ODAiIGNsYXNzPSJ3Ii8+CjxsaW5lIHgxPSI1NjAiIHkxPSI0ODAiIHgyPSI1NjAiIHkyPSIyNjUiIGNsYXNzPSJ3Ii8+CjxjaXJjbGUgY3g9IjQ4MCIgY3k9IjQ4MCIgcj0iMjQiIGNsYXNzPSJjIi8+Cjx0ZXh0IHg9IjQ2NiIgeT0iNDg3IiBjbGFzcz0idGIiIHRleHQtYW5jaG9yPSJtaWRkbGUiPis8L3RleHQ+Cjx0ZXh0IHg9IjQ5NiIgeT0iNDg3IiBjbGFzcz0idGIiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuKIkjwvdGV4dD4KPHRleHQgeD0iNTE3IiB5PSI0ODgiIGNsYXNzPSJ0biI+PC90ZXh0Pgo8dGV4dCB4PSI0ODAiIHk9IjUyNCIgY2xhc3M9InRuIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj4xMFY8L3RleHQ+CjxsaW5lIHgxPSI2MDAiIHkxPSIxMzAiIHgyPSI2MDAiIHkyPSI0MDAiIGNsYXNzPSJjdXIiLz4KPHBhdGggZD0iTSA1OTMsMTQwIEwgNjA3LDE0MCBMIDYwMCwxMjggeiIgZmlsbD0iI2MwMzkyYiIvPgo8cGF0aCBkPSJNIDU5MywzOTAgTCA2MDcsMzkwIEwgNjAwLDQwMiB6IiBmaWxsPSIjYzAzOTJiIi8+Cjx0ZXh0IHg9IjYxNCIgeT0iMjQ0IiBjbGFzcz0iY3VybCI+VW9jPC90ZXh0Pgo8dGV4dCB4PSI2MTQiIHk9IjI2OCIgY2xhc3M9ImhsIj7iiYggMC45NTI0VjwvdGV4dD4KPHJlY3QgeD0iNzUwIiB5PSI5NiIgd2lkdGg9IjE5NiIgaGVpZ2h0PSIyMzYiIHJ4PSI4IiBjbGFzcz0iZGFzaCIvPgo8dGV4dCB4PSI3NjgiIHk9IjEzMCIgY2xhc3M9InRiIj7lvIDot6/ml7Y8L3RleHQ+Cjx0ZXh0IHg9Ijc2OCIgeT0iMTYwIiBjbGFzcz0idHMiPlZfQiDiiYggNi42NjdWPC90ZXh0Pgo8dGV4dCB4PSI3NjgiIHk9IjE4NCIgY2xhc3M9InRzIj5WX0Mg4omIIDUuNzE0VjwvdGV4dD4KPHRleHQgeD0iNzY4IiB5PSIyMTIiIGNsYXNzPSJobCI+VW9jIOKJiCAwLjk1MjRWPC90ZXh0Pgo8dGV4dCB4PSI3NjgiIHk9IjI0NiIgY2xhc3M9InRiIj7nva7pm7bvvIhBLUQg55+t5o6l77yJPC90ZXh0Pgo8dGV4dCB4PSI3NjgiIHk9IjI3NCIgY2xhc3M9ImhsIj5SZXEg4omIIDIuMzgxzqk8L3RleHQ+Cjwvc3ZnPgo=">
+
+    第 3 步 接上 R₅ = 5Ω
+        I₅ = Uoc / (Req + R₅) = (20/21) / (50/21 + 5)
+           = (20/21) / (155/21) = 20/155 = 4/31 ≈ 0.1290A
+
+    ★ 用第 3 章的节点法直接算这个电路：
+        V_B = 204/31 ≈ 6.5806V，V_C = 184/31 ≈ 5.9355V
+        I₅ = (V_B − V_C)/5 = (20/31)/5 = 4/31 ✓ 完全一致
+      一条路是"塌缩成两个元件"，一条路是"解 2 元方程组"，
+      得到同一个 4/31，说明定理用对了。
+
+【戴维南定理最典型的三种考法】
+
+    ① 只求某一条支路的电流/电压（像上面这样）
+    ② 含受控源的电路求等效电路（必须用外加电源法求 Req）
+    ③ 最大功率传输（求 Req 再套公式，见第 5 站）
+
+    第 ③ 种几乎每年出选择题，且计算量小，是性价比最高的得分点。
+
+
+========================================================================
+  第 4 站（15-20 min）  求等效电阻 Req 的三种方法
+                                对应教材 4-3 后半
+------------------------------------------------------------------------
+
+    三种方法选错，答案就错。判断标准只有一个：电路里有没有受控源。
+
+【方法一：置零法（源置零后串并联）】
+
+    适用：纯电阻电路（不含受控源）
+    做法：把独立源置零，然后串并联、Y-Δ 一路化简下去。
+    例：（上面那个）Req = (1∥2) + (3∥4) = 50/21Ω
+
+【方法二：外加电源法】
+
+    适用：任何情况，含受控源时必须用它
+    做法：内部独立源置零（受控源保留），在端口外加一个电压 U，
+          求出端口电流 I（或反过来外加电流求电压），则
+              Req = U / I
+    为什么必须用到它：受控源不能置零，所以没法"纯串并联化简"，
+          只能外加电源硬算。
+
+【方法三：开路短路法】
+
+    适用：任何情况
+    做法：Req = Uoc / Isc
+          Uoc 是端口开路电压，Isc 是端口短路电流。
+    优点：两个量都是"实测"式的，不容易绕晕。
+    缺点：要算两次；如果短路电流恰为 0（比如对称电桥），就失效。
+
+<img class="fig" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NjAiIGhlaWdodD0iNDcwIiB2aWV3Qm94PSIwIDAgOTYwIDQ3MCI+CjxkZWZzPjxzdHlsZT4KLnd7c3Ryb2tlOiMzMzM7c3Ryb2tlLXdpZHRoOjIuNTtmaWxsOm5vbmU7c3Ryb2tlLWxpbmVjYXA6cm91bmR9Ci5je2ZpbGw6I2ZmZjtzdHJva2U6IzMzMztzdHJva2Utd2lkdGg6Mi41fQoudGJ7Zm9udC1mYW1pbHk6Ik1pY3Jvc29mdCBZYUhlaSIsIlNpbUhlaSIsc2Fucy1zZXJpZjtmb250LXNpemU6MTlweDtmaWxsOiMxMTE7Zm9udC13ZWlnaHQ6Ym9sZH0KLnRze2ZvbnQtZmFtaWx5OiJNaWNyb3NvZnQgWWFIZWkiLCJTaW1IZWkiLHNhbnMtc2VyaWY7Zm9udC1zaXplOjE1cHg7ZmlsbDojNTU1fQoudG57Zm9udC1mYW1pbHk6Ik1pY3Jvc29mdCBZYUhlaSIsIlNpbUhlaSIsc2Fucy1zZXJpZjtmb250LXNpemU6MTdweDtmaWxsOiMxMTE7Zm9udC13ZWlnaHQ6Ym9sZH0KLmN1cntzdHJva2U6I2MwMzkyYjtzdHJva2Utd2lkdGg6Mi42O2ZpbGw6bm9uZTtzdHJva2UtbGluZWNhcDpyb3VuZH0KLmN1cmx7Zm9udC1mYW1pbHk6Ik1pY3Jvc29mdCBZYUhlaSIsIlNpbUhlaSIsc2Fucy1zZXJpZjtmb250LXNpemU6MThweDtmaWxsOiNjMDM5MmI7Zm9udC13ZWlnaHQ6Ym9sZH0KLmhse2ZvbnQtZmFtaWx5OiJNaWNyb3NvZnQgWWFIZWkiLCJTaW1IZWkiLHNhbnMtc2VyaWY7Zm9udC1zaXplOjE2cHg7ZmlsbDojMWE2ZmI1O2ZvbnQtd2VpZ2h0OmJvbGR9Ci5od3tzdHJva2U6IzFhNmZiNTtzdHJva2Utd2lkdGg6My42O2ZpbGw6bm9uZTtzdHJva2UtbGluZWNhcDpyb3VuZH0KLmRhc2h7c3Ryb2tlOiM5OTk7c3Ryb2tlLXdpZHRoOjEuNjtmaWxsOm5vbmU7c3Ryb2tlLWRhc2hhcnJheTo2IDV9Ci5kYXNoYntzdHJva2U6IzFhNmZiNTtzdHJva2Utd2lkdGg6Mi4wO2ZpbGw6bm9uZTtzdHJva2UtZGFzaGFycmF5OjggNn0KPC9zdHlsZT4KPG1hcmtlciBpZD0iYXIiIG1hcmtlcldpZHRoPSIxMiIgbWFya2VySGVpZ2h0PSIxMCIgcmVmWD0iMTAiIHJlZlk9IjUiIG9yaWVudD0iYXV0byI+CiAgPHBhdGggZD0iTTAsMCBMMTIsNSBMMCwxMCB6IiBmaWxsPSIjYzAzOTJiIi8+PC9tYXJrZXI+CjxtYXJrZXIgaWQ9ImFyYiIgbWFya2VyV2lkdGg9IjEyIiBtYXJrZXJIZWlnaHQ9IjEwIiByZWZYPSIxMCIgcmVmWT0iNSIgb3JpZW50PSJhdXRvIj4KICA8cGF0aCBkPSJNMCwwIEwxMiw1IEwwLDEwIHoiIGZpbGw9IiMxYTZmYjUiLz48L21hcmtlcj4KPC9kZWZzPgo8dGV4dCB4PSIzMCIgeT0iMzQiIGNsYXNzPSJ0YiI+5Zu+NCAg5rGC562J5pWI55S16Zi7IFJlcSDnmoTkuKTnp43mlrnms5XvvIhSZXEg5piv44CM5YaF6YOo54us56uL5rqQ572u6Zu244CN5ZCO55qE55S16Zi777yJPC90ZXh0Pgo8dGV4dCB4PSIzMCIgeT0iNTgiIGNsYXNzPSJ0cyI+5pa55rOV5LiA77ya5aSW5Yqg55S15rqQ5rOV77yb5pa55rOV5LqM77ya5byA6Lev55+t6Lev5rOV44CC572u6Zu25rOV5Y+q6YCC55So5LqO57qv55S16Zi777yM5ZCr5Y+X5o6n5rqQ5pe25LiN6IO955SoPC90ZXh0Pgo8cmVjdCB4PSI3MCIgeT0iMTUwIiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE5MCIgcng9IjgiIGNsYXNzPSJkYXNoIi8+Cjx0ZXh0IHg9IjE2MCIgeT0iMTkwIiBjbGFzcz0idGIiIHRleHQtYW5jaG9yPSJtaWRkbGUiPk5fUzwvdGV4dD4KPHRleHQgeD0iMTYwIiB5PSIyMTYiIGNsYXNzPSJ0cyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+77yI54us56uL5rqQ572u6Zu277yJPC90ZXh0Pgo8bGluZSB4MT0iMjUwIiB5MT0iMTk1IiB4Mj0iMzgwIiB5Mj0iMTk1IiBjbGFzcz0idyIvPgo8bGluZSB4MT0iMjUwIiB5MT0iMzAwIiB4Mj0iMzgwIiB5Mj0iMzAwIiBjbGFzcz0idyIvPgo8Y2lyY2xlIGN4PSIzMjAiIGN5PSIzMDAiIHI9IjIyIiBjbGFzcz0iYyIvPgo8dGV4dCB4PSIzMjAiIHk9IjI5NiIgY2xhc3M9InRiIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj4rPC90ZXh0Pgo8dGV4dCB4PSIzMjAiIHk9IjMyNCIgY2xhc3M9InRiIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7iiJI8L3RleHQ+Cjx0ZXh0IHg9IjMyMCIgeT0iMzUyIiBjbGFzcz0idG4iPjwvdGV4dD4KPHRleHQgeD0iMzIwIiB5PSIzNTIiIGNsYXNzPSJ0biIgdGV4dC1hbmNob3I9Im1pZGRsZSI+5aSW5YqgIFU8L3RleHQ+CjxsaW5lIHgxPSIzODAiIHkxPSIxOTUiIHgyPSIzODAiIHkyPSIzMDAiIGNsYXNzPSJ3Ii8+CjxjaXJjbGUgY3g9IjI1MCIgY3k9IjE5NSIgcj0iNS41IiBmaWxsPSIjMjIyIi8+CjxjaXJjbGUgY3g9IjI1MCIgY3k9IjMwMCIgcj0iNS41IiBmaWxsPSIjMjIyIi8+CjxsaW5lIHgxPSIzMDAiIHkxPSIxOTUiIHgyPSIzNTYiIHkyPSIxOTUiIGNsYXNzPSJjdXIiLz4KPHBhdGggZD0iTSAzNTcsMTg5IEwgMzU3LDIwMSBMIDM2OCwxOTUgeiIgZmlsbD0iI2MwMzkyYiIvPgo8dGV4dCB4PSIzMTAiIHk9IjE3NiIgY2xhc3M9ImN1cmwiPkk8L3RleHQ+Cjx0ZXh0IHg9IjIzMCIgeT0iMzcyIiBjbGFzcz0idGIiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuaWueazleS4gO+8muWkluWKoOeUtea6kOazlTwvdGV4dD4KPHRleHQgeD0iMjMwIiB5PSIzOTgiIGNsYXNzPSJobCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UmVxID0gVSAvIEk8L3RleHQ+CjxyZWN0IHg9IjU2MCIgeT0iMTUwIiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE5MCIgcng9IjgiIGNsYXNzPSJkYXNoIi8+Cjx0ZXh0IHg9IjY1MCIgeT0iMTkwIiBjbGFzcz0idGIiIHRleHQtYW5jaG9yPSJtaWRkbGUiPk5fUzwvdGV4dD4KPHRleHQgeD0iNjUwIiB5PSIyMTYiIGNsYXNzPSJ0cyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+77yI54us56uL5rqQ572u6Zu277yJPC90ZXh0Pgo8bGluZSB4MT0iNzQwIiB5MT0iMTk1IiB4Mj0iODMwIiB5Mj0iMTk1IiBjbGFzcz0idyIvPgo8bGluZSB4MT0iNzQwIiB5MT0iMzAwIiB4Mj0iODMwIiB5Mj0iMzAwIiBjbGFzcz0idyIvPgo8bGluZSB4MT0iODMwIiB5MT0iMTk1IiB4Mj0iODMwIiB5Mj0iMzAwIiBjbGFzcz0idyIvPgo8Y2lyY2xlIGN4PSI3NDAiIGN5PSIxOTUiIHI9IjUuNSIgZmlsbD0iIzIyMiIvPgo8Y2lyY2xlIGN4PSI3NDAiIGN5PSIzMDAiIHI9IjUuNSIgZmlsbD0iIzIyMiIvPgo8bGluZSB4MT0iNzkwIiB5MT0iMTk1IiB4Mj0iNzkwIiB5Mj0iMjcwIiBjbGFzcz0iY3VyIi8+CjxwYXRoIGQ9Ik0gNzg0LDI2NCBMIDc5NiwyNjQgTCA3OTAsMjc2IHoiIGZpbGw9IiNjMDM5MmIiLz4KPHRleHQgeD0iODA2IiB5PSIyNDAiIGNsYXNzPSJjdXJsIj5Jc2M8L3RleHQ+Cjx0ZXh0IHg9IjcyMCIgeT0iMzcyIiBjbGFzcz0idGIiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuaWueazleS6jO+8muW8gOi3r+efrei3r+azlTwvdGV4dD4KPHRleHQgeD0iNzIwIiB5PSIzOTgiIGNsYXNzPSJobCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UmVxID0gVW9jIC8gSXNjPC90ZXh0Pgo8cmVjdCB4PSI2MCIgeT0iNDEyIiB3aWR0aD0iODQwIiBoZWlnaHQ9IjQ2IiByeD0iOCIgY2xhc3M9ImRhc2giLz4KPHRleHQgeD0iODQiIHk9IjQ0MiIgY2xhc3M9InRuIj7imIUg5ZCr5Y+X5o6n5rqQ55qE55S16Lev77ya5Y+X5o6n5rqQ5LiN6IO9572u6Zu277yM5Y+q6IO955So5aSW5Yqg55S15rqQ5rOV5oiW5byA6Lev55+t6Lev5rOVPC90ZXh0Pgo8L3N2Zz4K">
+
+【用三种方法核对同一个 Req（50/21Ω）】
+
+    置零法：   (1∥2) + (3∥4) = 2/3 + 12/7 = 50/21 ≈ 2.3810Ω
+    开路短路法：把 B、C 短接，两节点并成一点 V = 32/5 = 6.4V
+               Isc = (10−6.4)/1 − 6.4/2 = 3.6 − 3.2 = 0.4A
+               Req = Uoc/Isc = (20/21)/0.4 = (20/21)×(5/2) = 50/21 ✓
+    外加电源法：留给你自己练（答案同样是 50/21）
+
+    三种方法收敛到同一个数，是检查 Req 有没有算错的最好办法。
+
+
+========================================================================
+  第 5 站（20-26 min）  诺顿定理 + 最大功率传输
+                                对应教材 4-3、4-4
+------------------------------------------------------------------------
+
+【诺顿定理】
+
+    同一个含源单口网络，也可以等效为【电流源 Isc 并联 Req】。
+        Isc = Uoc / Req          （就是端口的短路电流）
+        Req 和戴维南的 Req 是【同一个】电阻
+
+    什么时候用诺顿：负载是并联结构、或者题目直接给的是电流源时更好算。
+    戴维南和诺顿之间可以随时互换 —— 这就是第 2 章的"电源等效变换"，
+    只不过这里的"内阻"是 Req。
+
+【最大功率传输定理】
+
+    一个含源单口网络接上可变负载 R_L，当
+            R_L = Req
+    时，负载获得的功率最大，最大值为
+            P_max = Uoc² / (4 Req)
+
+    用贯穿实例的数：Uoc = 20/21V、Req = 50/21Ω
+        P_max = (20/21)² / (4 × 50/21) = (400/441) × (21/200) = 2/21
+              ≈ 0.0952W
+
+<img class="fig" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NjAiIGhlaWdodD0iNDcwIiB2aWV3Qm94PSIwIDAgOTYwIDQ3MCI+CjxkZWZzPjxzdHlsZT4KLnd7c3Ryb2tlOiMzMzM7c3Ryb2tlLXdpZHRoOjIuNTtmaWxsOm5vbmU7c3Ryb2tlLWxpbmVjYXA6cm91bmR9Ci5je2ZpbGw6I2ZmZjtzdHJva2U6IzMzMztzdHJva2Utd2lkdGg6Mi41fQoudGJ7Zm9udC1mYW1pbHk6Ik1pY3Jvc29mdCBZYUhlaSIsIlNpbUhlaSIsc2Fucy1zZXJpZjtmb250LXNpemU6MTlweDtmaWxsOiMxMTE7Zm9udC13ZWlnaHQ6Ym9sZH0KLnRze2ZvbnQtZmFtaWx5OiJNaWNyb3NvZnQgWWFIZWkiLCJTaW1IZWkiLHNhbnMtc2VyaWY7Zm9udC1zaXplOjE1cHg7ZmlsbDojNTU1fQoudG57Zm9udC1mYW1pbHk6Ik1pY3Jvc29mdCBZYUhlaSIsIlNpbUhlaSIsc2Fucy1zZXJpZjtmb250LXNpemU6MTdweDtmaWxsOiMxMTE7Zm9udC13ZWlnaHQ6Ym9sZH0KLmN1cntzdHJva2U6I2MwMzkyYjtzdHJva2Utd2lkdGg6Mi42O2ZpbGw6bm9uZTtzdHJva2UtbGluZWNhcDpyb3VuZH0KLmN1cmx7Zm9udC1mYW1pbHk6Ik1pY3Jvc29mdCBZYUhlaSIsIlNpbUhlaSIsc2Fucy1zZXJpZjtmb250LXNpemU6MThweDtmaWxsOiNjMDM5MmI7Zm9udC13ZWlnaHQ6Ym9sZH0KLmhse2ZvbnQtZmFtaWx5OiJNaWNyb3NvZnQgWWFIZWkiLCJTaW1IZWkiLHNhbnMtc2VyaWY7Zm9udC1zaXplOjE2cHg7ZmlsbDojMWE2ZmI1O2ZvbnQtd2VpZ2h0OmJvbGR9Ci5od3tzdHJva2U6IzFhNmZiNTtzdHJva2Utd2lkdGg6My42O2ZpbGw6bm9uZTtzdHJva2UtbGluZWNhcDpyb3VuZH0KLmRhc2h7c3Ryb2tlOiM5OTk7c3Ryb2tlLXdpZHRoOjEuNjtmaWxsOm5vbmU7c3Ryb2tlLWRhc2hhcnJheTo2IDV9Ci5kYXNoYntzdHJva2U6IzFhNmZiNTtzdHJva2Utd2lkdGg6Mi4wO2ZpbGw6bm9uZTtzdHJva2UtZGFzaGFycmF5OjggNn0KPC9zdHlsZT4KPG1hcmtlciBpZD0iYXIiIG1hcmtlcldpZHRoPSIxMiIgbWFya2VySGVpZ2h0PSIxMCIgcmVmWD0iMTAiIHJlZlk9IjUiIG9yaWVudD0iYXV0byI+CiAgPHBhdGggZD0iTTAsMCBMMTIsNSBMMCwxMCB6IiBmaWxsPSIjYzAzOTJiIi8+PC9tYXJrZXI+CjxtYXJrZXIgaWQ9ImFyYiIgbWFya2VyV2lkdGg9IjEyIiBtYXJrZXJIZWlnaHQ9IjEwIiByZWZYPSIxMCIgcmVmWT0iNSIgb3JpZW50PSJhdXRvIj4KICA8cGF0aCBkPSJNMCwwIEwxMiw1IEwwLDEwIHoiIGZpbGw9IiMxYTZmYjUiLz48L21hcmtlcj4KPC9kZWZzPgo8dGV4dCB4PSIzMCIgeT0iMzQiIGNsYXNzPSJ0YiI+5Zu+NSAg5pyA5aSn5Yqf546H5Lyg6L6T77ya6LSf6L295Y+WIFJlcSDml7blip/njofmnIDlpKfvvIzkvYbmlYjnjoflj6rmnIkgNTAlPC90ZXh0Pgo8dGV4dCB4PSIzMCIgeT0iNTgiIGNsYXNzPSJ0cyI+55So5Zu+IDMg55qE5oi057u05Y2X562J5pWI77yaVW9jID0gMjAvMjEgVuOAgVJlcSA9IDUwLzIxIM6p77yMUF9tYXggPSBVb2PCsi8oNFJlcSkgPSAyLzIxIOKJiCAwLjA5NTIgVzwvdGV4dD4KPGxpbmUgeDE9IjE0MCIgeTE9IjM4MCIgeDI9IjgzMCIgeTI9IjM4MCIgY2xhc3M9InciLz4KPGxpbmUgeDE9IjE0MCIgeTE9IjM4MCIgeDI9IjE0MCIgeTI9IjEyMCIgY2xhc3M9InciLz4KPHBhdGggZD0iTSA4MzIsMzgwIEwgODI0LDM3NSBMIDgyNCwzODUgeiIgZmlsbD0iIzMzMyIvPgo8cGF0aCBkPSJNIDE0MCwxMTggTCAxMzUsMTI2IEwgMTQ1LDEyNiB6IiBmaWxsPSIjMzMzIi8+Cjx0ZXh0IHg9IjgyNCIgeT0iMzY0IiBjbGFzcz0idG4iIHRleHQtYW5jaG9yPSJlbmQiPlJfTDwvdGV4dD4KPHRleHQgeD0iMTI0IiB5PSIxMjYiIGNsYXNzPSJ0biIgdGV4dC1hbmNob3I9ImVuZCI+UDwvdGV4dD4KPGxpbmUgeDE9IjI3Ni45IiB5MT0iMzgwIiB4Mj0iMjc2LjkiIHkyPSIzODciIGNsYXNzPSJ3Ii8+Cjx0ZXh0IHg9IjI3Ni45MDQ3NjE5MDQ3NjE5IiB5PSI0MDYiIGNsYXNzPSJobCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UmVx4omIMi4zODwvdGV4dD4KPGxpbmUgeDE9IjM3MC4wIiB5MT0iMzgwIiB4Mj0iMzcwLjAiIHkyPSIzODciIGNsYXNzPSJ3Ii8+Cjx0ZXh0IHg9IjM3MC4wIiB5PSI0MDYiIGNsYXNzPSJ0cyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+NDwvdGV4dD4KPGxpbmUgeDE9IjYwMC4wIiB5MT0iMzgwIiB4Mj0iNjAwLjAiIHkyPSIzODciIGNsYXNzPSJ3Ii8+Cjx0ZXh0IHg9IjYwMC4wIiB5PSI0MDYiIGNsYXNzPSJ0cyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+ODwvdGV4dD4KPGxpbmUgeDE9IjgzMC4wIiB5MT0iMzgwIiB4Mj0iODMwLjAiIHkyPSIzODciIGNsYXNzPSJ3Ii8+Cjx0ZXh0IHg9IjgzMC4wIiB5PSI0MDYiIGNsYXNzPSJ0cyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+MTI8L3RleHQ+Cjxwb2x5bGluZSBwb2ludHM9IjE0MC4wLDM4MC4wIDE0NS44LDM0NS4yIDE1MS41LDMxNS42IDE1Ny4yLDI5MC41IDE2My4wLDI2OS4xIDE2OC44LDI1MC44IDE3NC41LDIzNS4yIDE4MC4yLDIyMS45IDE4Ni4wLDIxMC41IDE5MS44LDIwMC44IDE5Ny41LDE5Mi40IDIwMy4yLDE4NS40IDIwOS4wLDE3OS40IDIxNC44LDE3NC4zIDIyMC41LDE3MC4wIDIyNi4yLDE2Ni41IDIzMi4wLDE2My42IDIzNy44LDE2MS4yIDI0My41LDE1OS4yIDI0OS4yLDE1Ny43IDI1NS4wLDE1Ni42IDI2MC44LDE1NS44IDI2Ni41LDE1NS4yIDI3Mi4yLDE1NS4wIDI3OC4wLDE1NC45IDI4My44LDE1NS4wIDI4OS41LDE1NS4zIDI5NS4yLDE1NS44IDMwMS4wLDE1Ni40IDMwNi44LDE1Ny4xIDMxMi41LDE1Ny45IDMxOC4yLDE1OC44IDMyNC4wLDE1OS43IDMyOS44LDE2MC44IDMzNS41LDE2MS45IDM0MS4yLDE2My4wIDM0Ny4wLDE2NC4yIDM1Mi44LDE2NS41IDM1OC41LDE2Ni44IDM2NC4yLDE2OC4xIDM3MC4wLDE2OS40IDM3NS44LDE3MC43IDM4MS41LDE3Mi4xIDM4Ny4yLDE3My41IDM5My4wLDE3NC44IDM5OC44LDE3Ni4yIDQwNC41LDE3Ny42IDQxMC4yLDE3OS4wIDQxNi4wLDE4MC40IDQyMS44LDE4MS44IDQyNy41LDE4My4yIDQzMy4yLDE4NC42IDQzOS4wLDE4Ni4wIDQ0NC44LDE4Ny40IDQ1MC41LDE4OC44IDQ1Ni4yLDE5MC4yIDQ2Mi4wLDE5MS41IDQ2Ny44LDE5Mi45IDQ3My41LDE5NC4yIDQ3OS4yLDE5NS41IDQ4NS4wLDE5Ni45IDQ5MC44LDE5OC4yIDQ5Ni41LDE5OS41IDUwMi4yLDIwMC44IDUwOC4wLDIwMi4wIDUxMy44LDIwMy4zIDUxOS41LDIwNC42IDUyNS4yLDIwNS44IDUzMS4wLDIwNy4wIDUzNi44LDIwOC4zIDU0Mi41LDIwOS41IDU0OC4yLDIxMC43IDU1NC4wLDIxMS44IDU1OS44LDIxMy4wIDU2NS41LDIxNC4yIDU3MS4yLDIxNS4zIDU3Ny4wLDIxNi40IDU4Mi44LDIxNy42IDU4OC41LDIxOC43IDU5NC4yLDIxOS44IDYwMC4wLDIyMC44IDYwNS44LDIyMS45IDYxMS41LDIyMy4wIDYxNy4yLDIyNC4wIDYyMy4wLDIyNS4xIDYyOC44LDIyNi4xIDYzNC41LDIyNy4xIDY0MC4yLDIyOC4xIDY0Ni4wLDIyOS4xIDY1MS44LDIzMC4xIDY1Ny41LDIzMS4wIDY2My4yLDIzMi4wIDY2OS4wLDIzMi45IDY3NC44LDIzMy45IDY4MC41LDIzNC44IDY4Ni4yLDIzNS43IDY5Mi4wLDIzNi42IDY5Ny43LDIzNy41IDcwMy41LDIzOC40IDcwOS4yLDIzOS4zIDcxNS4wLDI0MC4xIDcyMC44LDI0MS4wIDcyNi41LDI0MS44IDczMi4yLDI0Mi43IDczOC4wLDI0My41IDc0My44LDI0NC4zIDc0OS41LDI0NS4xIDc1NS4yLDI0NS45IDc2MS4wLDI0Ni43IDc2Ni44LDI0Ny41IDc3Mi41LDI0OC4zIDc3OC4yLDI0OS4xIDc4NC4wLDI0OS44IDc4OS44LDI1MC42IDc5NS41LDI1MS4zIDgwMS4yLDI1Mi4wIDgwNy4wLDI1Mi44IDgxMi44LDI1My41IDgxOC41LDI1NC4yIDgyNC4yLDI1NC45IDgzMC4wLDI1NS42IiBmaWxsPSJub25lIiBzdHJva2U9IiMxYTZmYjUiIHN0cm9rZS13aWR0aD0iMyIvPgo8bGluZSB4MT0iMjc2LjkiIHkxPSIzODAiIHgyPSIyNzYuOSIgeTI9IjE1NC45IiBjbGFzcz0iZGFzaCIvPgo8bGluZSB4MT0iMTQwIiB5MT0iMTU0LjkiIHgyPSIyNzYuOSIgeTI9IjE1NC45IiBjbGFzcz0iZGFzaCIvPgo8Y2lyY2xlIGN4PSIyNzYuOSIgY3k9IjE1NC45IiByPSI2IiBmaWxsPSIjYzAzOTJiIi8+Cjx0ZXh0IHg9IjI5OC45MDQ3NjE5MDQ3NjE5IiB5PSIyMDIuODkxNzc0ODkxNzc0OSIgY2xhc3M9ImN1cmwiPlBfbWF4ID0gMC4wOTUyIFc8L3RleHQ+Cjx0ZXh0IHg9IjI5OC45MDQ3NjE5MDQ3NjE5IiB5PSIyMjYuODkxNzc0ODkxNzc0OSIgY2xhc3M9ImN1cmwiPuatpOaXtiBSX0wgPSBSZXE8L3RleHQ+Cjx0ZXh0IHg9IjYyMCIgeT0iMTMwIiBjbGFzcz0iaGwiPlBfbWF4ID0gVW9jwrIgLyAoNFJlcSk8L3RleHQ+Cjx0ZXh0IHg9IjYyMCIgeT0iMTU2IiBjbGFzcz0idHMiPuaViOeOhyA9IDUwJe+8iOWPpuS4gOWNiua2iOiAl+WcqOWGhemYu+S4iu+8iTwvdGV4dD4KPHRleHQgeD0iNjIwIiB5PSIxODIiIGNsYXNzPSJ0cyI+Ul9MICZsdDsgUmVx77ya5Yqf546H5LiN6LazPC90ZXh0Pgo8dGV4dCB4PSI2MjAiIHk9IjIwNiIgY2xhc3M9InRzIj5SX0wgJmd0OyBSZXHvvJrlip/njofkuZ/kuIvpmY08L3RleHQ+CjxyZWN0IHg9IjYwIiB5PSI0MTIiIHdpZHRoPSI4NDAiIGhlaWdodD0iNDYiIHJ4PSI4IiBjbGFzcz0iZGFzaCIvPgo8dGV4dCB4PSI4NCIgeT0iNDQyIiBjbGFzcz0idG4iPuKYhSDmnIDlpKflip/njocg4omgIOaViOeOh+acgOmrmO+8muWMuemFjeaXtueUtea6kOato+WlveaKiuS4gOWNiuWKn+eOh+a1qui0ueWcqCBSZXEg5LiKPC90ZXh0Pgo8L3N2Zz4K">
+
+【三个必须说清的点（选择题就考这些）】
+
+    ① 最大功率 ≠ 效率最高
+       匹配时 R_L = Req，两者各分一半电压，各消耗一半功率，
+       所以【效率只有 50%】。要求高效率就不能匹配（比如电力系统）。
+
+    ② 公式里的 Req 是"从负载两端看进去"的等效电阻，不是随便一个电阻。
+
+    ③ 如果 R_L 不可变（固定负载），想让它拿到最大功率，
+       就要反过来改【内阻】—— 让 Req = R_L（这叫"模匹配"，考试少见）。
+
+    ④ P_max = Uoc²/(4Req) 只在"负载可调、内阻固定"时直接用。
+
+
+========================================================================
+  第 6 站（26-30 min）  贯穿实例收尾 + 常见错误
+------------------------------------------------------------------------
+
+【把整条链路串一遍】
+
+    要求：桥式电路 + 10V 电源，求 I₅
+
+    第 1 步  识别：只有一个负载支路 R₅ 是我们关心的 → 想到戴维南
+    第 2 步  拿掉 R₅，求 Uoc：
+             上支路分压 V_B = 20/3，下支路分压 V_C = 40/7
+             Uoc = 20/3 − 40/7 = 20/21 ≈ 0.9524V
+    第 3 步  源置零（A、D 短接），求 Req：
+             Req = (R₁∥R₂) + (R₃∥R₄) = 2/3 + 12/7 = 50/21 ≈ 2.381Ω
+    第 4 步  接上负载：I₅ = Uoc/(Req + R₅) = 4/31 ≈ 0.1290A
+    第 5 步  验算：节点法得 V_B = 204/31、V_C = 184/31，
+             I₅ = 4/31 ✓
+
+【本章最容易犯的 8 个错】
+
+  1. 不作用的源"拿掉"而不是"置零"
+     电压源要换成导线，电流源要断开。拿掉电压源 = 断路，错。
+
+  2. 用叠加定理算功率
+     功率不能叠加。只能先用叠加求电压/电流，再用 P = I²R 算功率。
+
+  3. 把受控源也置零
+     受控源不是独立源，不能置零，每个分电路里都要保留。
+
+  4. 求 Req 时忘了把独立源置零
+     不置零算出来的是"带源"的等效电阻，数值必然错。
+
+  5. 认为戴维南等效"对内也等效"
+     只对外等效。求内部功率必须回原电路。
+
+  6. 开路短路法里 Isc 的方向搞反
+     Req 是正数。若算出负数，多半是 Isc 的参考方向和 Uoc 不一致。
+
+  7. 最大功率公式里用了错的 Req
+     必须是从负载两端看进去的 Req，不是电路里随便哪个电阻。
+
+  8. 认为"最大功率传输"时效率最高
+     效率只有 50%，一半功率消耗在内阻上。
+
+【三种方法怎么选（一张表记完）】
+
+    工具            什么时候用                    方程量级
+    --------------------------------------------------------------------
+    叠加定理        多个独立源、求某处响应          n 个单源电路
+    替代定理        已知某支路电压/电流            配合其它定理
+    戴维南/诺顿     只关心某一条支路                1 次开路 + 1 次求 Req
+    最大功率        负载可调、问功率最值            建立在戴维南之上
+    节点法/网孔法   源多、要全部支路电流            第 3 章那套
+
+
+========================================================================
+  自测：10 题检验这一章
+========================================================================
+
+  1. 叠加定理里，不作用的电压源和电流源分别怎么处理？
+  2. 为什么功率不能叠加？举一个数字例子。
+  3. 受控源在叠加定理的各分电路里怎么处理？
+  4. 替代定理的前提条件是什么？
+  5. 戴维南等效电路的两个参数分别是什么？怎么求？
+  6. 戴维南等效是"对外等效"还是"对内等效"？这对做题有什么影响？
+  7. 含受控源的电路，求 Req 为什么不能用置零法？
+  8. 诺顿等效的 Isc 和戴维南的 Uoc 是什么关系？
+  9. 负载获得最大功率时，效率是多少？
+ 10. 用贯穿实例的数算出 P_max（Uoc = 20/21V、Req = 50/21Ω）。
+
+------------------------------------------------------------------------
+  参考答案
+------------------------------------------------------------------------
+
+  1. 电压源置零 = 用导线短路；电流源置零 = 断开（开路）。
+  2. 因为 P = I²R 是电流的二次函数，不满足线性关系。
+     例：U₁、U₂ 单独作用时 R₃ 上功率是 8W 和 0.5W，同时作用为 12.5W，
+     而 8 + 0.5 = 8.5 ≠ 12.5。
+  3. 受控源不能置零，在每个分电路里都原样保留。
+  4. 替代后的电路必须有唯一解（一般线性电路都满足）。
+  5. Uoc（端口开路电压）和 Req（内部独立源置零后的端口等效电阻）。
+  6. 只对外等效。求外部负载的电压电流可以用等效电路；
+     求内部元件的功率、电流分布必须回到原电路。
+  7. 因为受控源不能置零，电路无法化简成纯串并联，只能外加电源法
+     （或开路短路法）。
+  8. Isc = Uoc / Req，两者对应同一个 Req。
+  9. 50%（另一半消耗在 Req 上）。
+ 10. P_max = Uoc²/(4Req) = (20/21)²/(4×50/21) = 2/21 ≈ 0.0952W。
+
+
+========================================================================
+  这一章和后面的关系
+========================================================================
+
+    · 第 5 章（运放）：虚短虚断之后，剩下的常是"求戴维南等效电阻"。
+    · 第 7 章（一阶电路）：三要素法里的"稳态值"和"时间常数"，
+      求稳态值时经常要把电路化成戴维南等效再看。
+    · 第 8 章以后：所有这些定理在相量域完全照搬，只是 R 变 Z。
+    · 第 16 章（二端口）：戴维南/诺顿的思想直接推广成二端口参数。
+
+    一句话：这一章的定理不是为了"多做一种题"，
+    而是为了【后面每一章都能少算一半】。
+
+
+========================================================================
+  打印提示
+========================================================================
+
+    单个 HTML 文件，Ctrl+P 直接打印或存 PDF。
+    电路图已设置避免跨页断开，正文按 10pt 排版。
+</pre>
+</div>
+
+<style id="b2p-style">
+.b2p{position:fixed;right:20px;bottom:20px;z-index:99999;display:inline-flex;
+align-items:center;gap:6px;padding:10px 17px;border-radius:24px;text-decoration:none;
+background:#1f5fd0;color:#fff !important;font:600 13.5px/1 "Microsoft YaHei",sans-serif;
+box-shadow:0 4px 16px rgba(31,95,208,.38);opacity:.93;transition:.15s}
+.b2p:hover{opacity:1;transform:translateY(-2px);background:#2c5282}
+@media print{.b2p{display:none}}
+</style>
+<a class="b2p" href="../../electronics.html" title="返回电子与单片机资料库">← 返回教程首页</a>
+<script>
+/* ============================================================
+   DSH 教程 AI 助教 · 悬浮侧栏
+   用法：由站点构建时注入到每个教程页面的 body 结束标签前
+   API Key 保存在浏览器 localStorage，不上传到任何第三方
+   ============================================================ */
+(function () {
+  "use strict";
+  if (window.__dshTutorLoaded) return;
+  window.__dshTutorLoaded = true;
+
+  var LS_KEY = "dsh_tutor_apikey";
+  var LS_HIST = "dsh_tutor_history";
+  var LS_MODEL = "dsh_tutor_model";
+  var API = "https://api.deepseek.com/chat/completions";
+
+  /* ---------- 样式 ---------- */
+  var CSS = [
+    "#tutorFab{position:fixed;right:20px;bottom:76px;z-index:99990;display:flex;align-items:center;gap:7px;",
+    "padding:10px 16px;border-radius:24px;border:none;cursor:pointer;",
+    "background:linear-gradient(135deg,#0f766e,#14b8a6);color:#fff;",
+    "font:600 13.5px/1 'Microsoft YaHei',sans-serif;",
+    "box-shadow:0 4px 16px rgba(20,184,166,.42);transition:.16s}",
+    "#tutorFab:hover{transform:translateY(-2px);box-shadow:0 7px 20px rgba(20,184,166,.5)}",
+    "#tutorPanel{position:fixed;top:0;right:0;bottom:0;width:min(430px,100vw);z-index:100002;",
+    "background:#fff;border-left:1px solid #e3e8f0;display:flex;flex-direction:column;",
+    "transform:translateX(102%);transition:transform .24s cubic-bezier(.4,0,.2,1);",
+    "box-shadow:-8px 0 30px rgba(0,0,0,.12);font:14px/1.65 'Microsoft YaHei',sans-serif}",
+    "#tutorPanel.open{transform:translateX(0)}",
+    "#tutorHead{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid #e3e8f0;background:#f8fafc}",
+    "#tutorHead .t{flex:1;font-weight:700;font-size:14.5px;color:#0f172a}",
+    "#tutorHead .ctx{font-size:11px;color:#64748b;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
+    "#tutorHead button{border:1px solid #e3e8f0;background:#fff;border-radius:7px;width:30px;height:30px;",
+    "cursor:pointer;font-size:15px;line-height:1;color:#475569}",
+    "#tutorHead button:hover{background:#eef4fb;color:#0f766e}",
+    "#tutorBody{flex:1;overflow-y:auto;padding:14px;background:#fbfcfe}",
+    ".tutor-msg{margin-bottom:14px;display:flex;flex-direction:column;gap:5px}",
+    ".tutor-msg .role{font-size:11px;color:#94a3b8}",
+    ".tutor-msg .bubble{padding:9px 12px;border-radius:10px;font-size:13.5px;line-height:1.7;",
+    "white-space:pre-wrap;word-break:break-word}",
+    ".tutor-msg.user .bubble{background:#0f766e;color:#fff;align-self:flex-end;max-width:88%}",
+    ".tutor-msg.user{align-items:flex-end}",
+    ".tutor-msg.bot .bubble{background:#fff;border:1px solid #e3e8f0;color:#1e293b;max-width:100%}",
+    ".tutor-msg.bot .bubble code{background:#eef4fb;border-radius:3px;padding:1px 4px;font-size:.92em;color:#0f766e}",
+    ".tutor-msg.bot .bubble pre{background:#0f172a;color:#e6edf7;padding:9px 11px;border-radius:7px;",
+    "overflow-x:auto;font-size:12px;line-height:1.55;margin:6px 0}",
+    ".tutor-msg.err .bubble{background:#fff5f5;border:1px solid #fecaca;color:#b91c1c;font-size:13px}",
+    "#tutorFoot{border-top:1px solid #e3e8f0;padding:10px 12px;background:#fff}",
+    "#tutorCtxTip{font-size:11px;color:#64748b;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
+    "#tutorInputRow{display:flex;gap:8px;align-items:flex-end}",
+    "#tutorInput{flex:1;min-height:40px;max-height:110px;resize:none;border:1px solid #e3e8f0;border-radius:9px;",
+    "padding:9px 11px;font:13.5px/1.5 'Microsoft YaHei',sans-serif;outline:none;color:#1e293b}",
+    "#tutorInput:focus{border-color:#14b8a6}",
+    "#tutorSend{border:none;border-radius:9px;padding:10px 15px;background:#0f766e;color:#fff;",
+    "font:600 13px/1 'Microsoft YaHei',sans-serif;cursor:pointer}",
+    "#tutorSend:disabled{background:#cbd5e1;cursor:not-allowed}",
+    "#tutorCfg{position:absolute;inset:0;background:#fff;z-index:2;padding:16px;overflow-y:auto;display:none}",
+    "#tutorCfg.show{display:block}",
+    "#tutorCfg h4{margin:0 0 4px;font-size:14px;color:#0f172a}",
+    "#tutorCfg p{font-size:12px;color:#64748b;margin:0 0 12px;line-height:1.6}",
+    "#tutorCfg label{display:block;font-size:12.5px;color:#334155;margin:12px 0 5px;font-weight:600}",
+    "#tutorCfg input,#tutorCfg select{width:100%;padding:9px 11px;border:1px solid #e3e8f0;border-radius:8px;",
+    "font:13px 'Microsoft YaHei',sans-serif;outline:none;color:#1e293b}",
+    "#tutorCfg input:focus,#tutorCfg select:focus{border-color:#14b8a6}",
+    "#tutorCfg .btns{display:flex;gap:8px;margin-top:16px}",
+    "#tutorCfg .btns button{flex:1;padding:10px;border-radius:9px;border:1px solid #e3e8f0;background:#fff;",
+    "cursor:pointer;font:600 13px 'Microsoft YaHei',sans-serif;color:#334155}",
+    "#tutorCfg .btns button.primary{background:#0f766e;color:#fff;border-color:#0f766e}",
+    "#tutorCfg a{color:#0f766e}",
+    "html[data-theme='dark'] #tutorPanel{background:#141d22;border-left-color:#233038}",
+    "html[data-theme='dark'] #tutorHead{background:#111a20;border-bottom-color:#233038}",
+    "html[data-theme='dark'] #tutorHead .t{color:#dceaf0}",
+    "html[data-theme='dark'] #tutorHead button{background:#1a252c;border-color:#233038;color:#9bb2bd}",
+    "html[data-theme='dark'] #tutorBody{background:#0f171c}",
+    "html[data-theme='dark'] .tutor-msg.bot .bubble{background:#141d22;border-color:#233038;color:#dceaf0}",
+    "html[data-theme='dark'] .tutor-msg.bot .bubble code{background:#1a252c;color:#4dd0c1}",
+    "html[data-theme='dark'] #tutorFoot{background:#141d22;border-top-color:#233038}",
+    "html[data-theme='dark'] #tutorInput{background:#111a20;border-color:#233038;color:#dceaf0}",
+    "html[data-theme='dark'] #tutorCfg{background:#141d22}",
+    "html[data-theme='dark'] #tutorCfg h4{color:#dceaf0}",
+    "html[data-theme='dark'] #tutorCfg input,html[data-theme='dark'] #tutorCfg select{background:#111a20;border-color:#233038;color:#dceaf0}",
+    "html[data-theme='dark'] #tutorCfg .btns button{background:#1a252c;border-color:#233038;color:#dceaf0}",
+    "@media(max-width:520px){#tutorPanel{width:100vw}#tutorFab{bottom:70px;right:14px}}",
+    "@media print{#tutorFab,#tutorPanel{display:none!important}}"
+  ].join("");
+
+  var st = document.createElement("style");
+  st.textContent = CSS;
+  document.head.appendChild(st);
+
+  /* ---------- DOM ---------- */
+  var fab = document.createElement("button");
+  fab.id = "tutorFab";
+  fab.type = "button";
+  fab.innerHTML = "🤖 问老师";
+  document.body.appendChild(fab);
+
+  var panel = document.createElement("aside");
+  panel.id = "tutorPanel";
+  panel.innerHTML = [
+    '<div id="tutorHead">',
+    '  <div style="flex:1;min-width:0">',
+    '    <div class="t">问老师 · 教程助教</div>',
+    '    <div class="ctx" id="tutorCtxLabel">当前位置：—</div>',
+    "  </div>",
+    '  <button id="tutorCfgBtn" title="设置">⚙</button>',
+    '  <button id="tutorClose" title="关闭">✕</button>',
+    "</div>",
+    '<div id="tutorBody"></div>',
+    '<div id="tutorFoot">',
+    '  <div id="tutorCtxTip"></div>',
+    '  <div id="tutorInputRow">',
+    '    <textarea id="tutorInput" placeholder="哪里没懂？直接问（Enter 发送，Shift+Enter 换行）"></textarea>',
+    '    <button id="tutorSend">发送</button>',
+    "  </div>",
+    "</div>",
+    '<div id="tutorCfg">',
+    '  <h4>设置</h4>',
+    "  <p>需要一个 DeepSeek API Key（约 ¥1/百万 tokens，问 1000 次大概几块钱）。Key 只保存在你本机浏览器，不会发给我或任何第三方。</p>",
+    '  <label>API Key</label>',
+    '  <input id="tutorKey" type="password" placeholder="sk-..." autocomplete="off">',
+    '  <p style="margin-top:6px">还没有？去 <a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener">platform.deepseek.com</a> 免费注册领取。</p>',
+    '  <label>模型</label>',
+    '  <select id="tutorModel">',
+    '    <option value="deepseek-chat">deepseek-chat（快，够用）</option>',
+    '    <option value="deepseek-reasoner">deepseek-reasoner（更强，慢）</option>',
+    "  </select>",
+    '  <div class="btns">',
+    '    <button id="tutorClear">清空对话</button>',
+    '    <button class="primary" id="tutorSave">保存</button>',
+    "  </div>",
+    "</div>"
+  ].join("");
+  document.body.appendChild(panel);
+
+  var $ = function (id) { return document.getElementById(id); };
+  var body = $("tutorBody"), input = $("tutorInput"), sendBtn = $("tutorSend");
+  var cfg = $("tutorCfg"), cfgLabel = $("tutorCtxLabel"), ctxTip = $("tutorCtxTip");
+
+  function getKey() { try { return localStorage.getItem(LS_KEY) || ""; } catch (e) { return ""; } }
+  function setKey(v) { try { localStorage.setItem(LS_KEY, v); } catch (e) {} }
+  function getModel() { try { return localStorage.getItem(LS_MODEL) || "deepseek-chat"; } catch (e) { return "deepseek-chat"; } }
+  function setModel(v) { try { localStorage.setItem(LS_MODEL, v); } catch (e) {} }
+  function getHist() { try { return JSON.parse(localStorage.getItem(LS_HIST) || "[]"); } catch (e) { return []; } }
+  function setHist(a) { try { localStorage.setItem(LS_HIST, JSON.stringify(a.slice(-20))); } catch (e) {} }
+
+  /* ---------- 提取上下文 ---------- */
+  function ctxInfo() {
+    var page = document.querySelector(".page.active") || document.body;
+    var h1 = page.querySelector("h1");
+    var title = (h1 && h1.innerText.trim()) || document.title || "教程";
+    // 找当前可见的小节标题
+    var heads = page.querySelectorAll("h2, h3");
+    var cur = null, best = -1e9;
+    var mid = window.innerHeight * 0.35;
+    for (var i = 0; i < heads.length; i++) {
+      var r = heads[i].getBoundingClientRect();
+      if (r.top < mid && r.top > best) { best = r.top; cur = heads[i]; }
+    }
+    var section = cur ? cur.innerText.trim() : "";
+    // 取小节附近正文
+    var text = "";
+    if (cur) {
+      var n = cur, buf = [];
+      while (n && buf.join("").length < 1600) {
+        n = n.nextElementSibling;
+        if (!n || /^H[1-6]$/.test(n.tagName)) break;
+        if (n.tagName === "IMG" || n.querySelector && n.querySelector("img") && !n.innerText.trim()) continue;
+        var t = (n.innerText || "").trim();
+        if (t) buf.push(t);
+      }
+      text = buf.join("\n").slice(0, 1600);
+    }
+    return { title: title, section: section, text: text };
+  }
+
+  function refreshCtx() {
+    var c = ctxInfo();
+    cfgLabel.textContent = "当前位置：" + (c.section || c.title);
+    var sel = (window.getSelection ? String(window.getSelection()) : "").trim();
+    if (sel && sel.length > 4) {
+      ctxTip.textContent = "已选中文段，发送时会一并提问：" + sel.slice(0, 40) + (sel.length > 40 ? "…" : "");
+    } else {
+      ctxTip.textContent = c.section ? "会带上「" + c.section.slice(0, 18) + "」的上下文" : "会带上当前页面上下文";
+    }
+  }
+
+  /* ---------- 渲染 ---------- */
+  function addMsg(role, text, cls) {
+    var wrap = document.createElement("div");
+    wrap.className = "tutor-msg " + (cls || (role === "user" ? "user" : "bot"));
+    var r = document.createElement("div");
+    r.className = "role";
+    r.textContent = role === "user" ? "我" : "助教";
+    var b = document.createElement("div");
+    b.className = "bubble";
+    b.innerHTML = mdToHtml(text);
+    if (role === "user") { r.style.display = "none"; }
+    wrap.appendChild(r); wrap.appendChild(b);
+    body.appendChild(wrap);
+    body.scrollTop = body.scrollHeight;
+    return b;
+  }
+
+  function esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+  function mdToHtml(s) {
+    var parts = esc(s).split(/```/);
+    var out = "";
+    for (var i = 0; i < parts.length; i++) {
+      if (i % 2 === 1) {
+        out += "<pre>" + parts[i].replace(/^\w*\n/, "") + "</pre>";
+      } else {
+        out += parts[i]
+          .replace(/`([^`]+)`/g, "<code>$1</code>")
+          .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+      }
+    }
+    return out;
+  }
+
+  function renderHist() {
+    var h = getHist();
+    if (!h.length) {
+      addMsg("bot", "我是这套教程的助教。看到哪一段没懂，直接问我就行。\n\n比如：\n- 「PSC 和 ARR 为什么要减一？」\n- 「这段代码为什么用 ADC 模式？」\n- 「第 5 章的 PWM 图没看懂」\n\n也可以先在正文里选中一句话，再来问。");
+      return;
+    }
+    for (var i = 0; i < h.length; i++) addMsg(h[i].role, h[i].content);
+  }
+
+  /* ---------- 发送 ---------- */
+  var busy = false;
+  async function ask(q) {
+    if (busy) return;
+    var key = getKey();
+    if (!key) {
+      cfg.classList.add("show");
+      $("tutorKey").focus();
+      alert("请先填写 DeepSeek API Key（点击右上角 ⚙ 设置）");
+      return;
+    }
+    busy = true;
+    sendBtn.disabled = true;
+    sendBtn.textContent = "…";
+
+    var c = ctxInfo();
+    var sel = (window.getSelection ? String(window.getSelection()) : "").trim();
+    var hist = getHist();
+    addMsg("user", q);
+    hist.push({ role: "user", content: q });
+
+    var sys = "你是《" + c.title + "》这套教程的助教。这套教程由作者原创，包含自制原理图、课件原图讲解、代码与练习。\n" +
+      "回答要求：\n" +
+      "1. 只用中文，语气像耐心的老师，简洁直接，控制在 350 字以内；\n" +
+      "2. 优先结合下面给出的「当前小节」上下文回答，必要时引用其中的术语和结论；\n" +
+      "3. 涉及代码时给出最小可运行的片段，并指出关键行；\n" +
+      "4. 如果问题超出本教程范围，简短说明后再给通用解答；\n" +
+      "5. 不要编造教程里没有的内容，不确定就说「教程里没讲，我的理解是……」。\n" +
+      (c.section ? "\n【当前小节】" + c.section + "\n【小节正文】\n" + c.text : "");
+    var msgs = [{ role: "system", content: sys }];
+    var recent = hist.slice(-8);
+    if (sel && sel.length > 4) recent[recent.length - 1] = { role: "user", content: "【我选中的原文】" + sel.slice(0, 800) + "\n\n【我的问题】" + q };
+    for (var i = 0; i < recent.length; i++) msgs.push(recent[i]);
+
+    var bubble = addMsg("bot", "（思考中…）");
+    bubble.innerHTML = '<span style="color:#94a3b8">（思考中…）</span>';
+
+    try {
+      var resp = await fetch(API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + key },
+        body: JSON.stringify({ model: getModel(), messages: msgs, stream: true, temperature: 0.3, max_tokens: 1200 })
+      });
+      if (!resp.ok) {
+        var errTxt = "";
+        try { var ej = await resp.json(); errTxt = (ej.error && ej.error.message) || ""; } catch (e) {}
+        throw new Error("HTTP " + resp.status + (errTxt ? " · " + errTxt : ""));
+      }
+      var reader = resp.body.getReader();
+      var dec = new TextDecoder("utf-8");
+      var acc = "", done = false;
+      while (!done) {
+        var r = await reader.read();
+        if (r.done) break;
+        var chunk = dec.decode(r.value, { stream: true });
+        var lines = chunk.split("\n");
+        for (var k = 0; k < lines.length; k++) {
+          var ln = lines[k].trim();
+          if (!ln || ln.indexOf("data:") !== 0) continue;
+          var payload = ln.slice(5).trim();
+          if (payload === "[DONE]") { done = true; break; }
+          try {
+            var j = JSON.parse(payload);
+            var d = j.choices && j.choices[0] && j.choices[0].delta;
+            if (d && d.content) { acc += d.content; bubble.innerHTML = mdToHtml(acc); body.scrollTop = body.scrollHeight; }
+          } catch (e) {}
+        }
+      }
+      if (!acc) acc = "（没有收到回复，请重试）";
+      hist.push({ role: "assistant", content: acc });
+      setHist(hist);
+    } catch (e) {
+      bubble.parentElement.className = "tutor-msg err";
+      bubble.innerHTML = mdToHtml("请求失败：" + e.message +
+        "\n\n常见原因：\n· Key 填错或已失效（点 ⚙ 重新填写）\n· 账户余额不足\n· 网络或跨域问题（用部署到网站的版本更稳）");
+    } finally {
+      busy = false;
+      sendBtn.disabled = false;
+      sendBtn.textContent = "发送";
+    }
+  }
+
+  /* ---------- 事件 ---------- */
+  fab.addEventListener("click", function () {
+    panel.classList.toggle("open");
+    if (panel.classList.contains("open")) {
+      refreshCtx();
+      if (!body.children.length) renderHist();
+      input.focus();
+    }
+  });
+  $("tutorClose").addEventListener("click", function () { panel.classList.remove("open"); });
+  $("tutorCfgBtn").addEventListener("click", function () {
+    $("tutorKey").value = getKey();
+    $("tutorModel").value = getModel();
+    cfg.classList.toggle("show");
+  });
+  $("tutorSave").addEventListener("click", function () {
+    setKey($("tutorKey").value.trim());
+    setModel($("tutorModel").value);
+    cfg.classList.remove("show");
+    if (getKey()) input.focus();
+  });
+  $("tutorClear").addEventListener("click", function () {
+    if (!confirm("清空对话记录？")) return;
+    setHist([]);
+    body.innerHTML = "";
+    renderHist();
+  });
+  sendBtn.addEventListener("click", function () {
+    var q = input.value.trim();
+    if (!q) return;
+    input.value = "";
+    ask(q);
+  });
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendBtn.click(); }
+  });
+  window.addEventListener("scroll", function () {
+    if (panel.classList.contains("open")) refreshCtx();
+  }, { passive: true });
+  window.addEventListener("hashchange", function () { refreshCtx(); });
+
+  refreshCtx();
+})();
+
+</script></body>
+</html>

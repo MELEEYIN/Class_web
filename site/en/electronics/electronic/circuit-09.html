@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>邱关源《电路》第 9 章 · 30 分钟速通</title>
+<style>
+:root{--ink:#1c1c1c;--line:#dcdcdc}
+*{box-sizing:border-box}
+body{margin:0;padding:26px 16px 70px;background:#eef0f3;color:var(--ink);font-family:"Sarasa Mono SC","NSimSun","MS Gothic",Consolas,"Microsoft YaHei",monospace}
+.sheet{max-width:1040px;margin:0 auto;background:#fff;padding:34px 30px 46px;border-radius:8px;box-shadow:0 2px 14px rgba(0,0,0,.09)}
+pre{margin:0;white-space:pre;overflow-x:auto;font-family:inherit;font-size:14.5px;line-height:1.62}
+img.fig{display:block;margin:22px auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:6px;background:#fff;padding:4px}
+@media print{
+body{background:#fff;padding:0}
+.sheet{box-shadow:none;max-width:none;padding:0;border-radius:0}
+pre{font-size:10pt;line-height:1.45}
+img.fig{break-inside:avoid;page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="sheet">
+<pre>========================================================================
+      邱关源《电路》第 6 版 · 第 9 章（教材第 10 章）
+      含耦合电感的电路与变压器 —— 30 分钟速通
+========================================================================
+
+适用对象：学完第 1~8 章（尤其第 8 章的相量法）
+预计用时：30 分钟（同名端的符号是本章唯一的新东西）
+教材对应：第 10 章 10-1 ~ 10-5
+
+
+========================================================================
+  全章地图：这一章到底在讲什么
+========================================================================
+
+前面所有元件都是"各自独立"的：电阻就是电阻，电感就是电感，
+互不影响。
+
+这一章的第一个新东西是【互感】：两个线圈靠得近，一个的电流变化
+会在另一个里感应出电压。从此两个线圈"拴在一起"，不能分开算。
+
+第二个新东西是【理想变压器】：它只变换电压、电流和阻抗，
+自己不耗能、不储能 —— 是工程上最常用的"变换器"。
+
+这一章只回答三个问题：
+
+    ① 两个线圈耦合了，方程怎么列？        → 同名端定符号
+    ② 耦合太麻烦，能不能化简？            → 去耦等效（T 形）
+    ③ 变压器怎么用？                      → 三个变换关系 + 阻抗变换
+
+一共五件事：
+
+   ① 互感与同名端：M 的正负怎么定              （10-1）
+   ② 串联：顺串与反串                          （10-2）
+   ③ 去耦等效：化成不含互感的 T 形网络          （10-2）
+   ④ 变压器原理与理想变压器                    （10-4、10-5）
+   ⑤ 阻抗变换：变比 n 的平方关系                （10-5）
+
+时间表：
+
+   0 - 5  min   第 1 站  互感与同名端
+   5 - 11 min   第 2 站  顺串与反串（最容易记反的地方）
+  11 - 17 min   第 3 站  去耦等效
+  17 - 22 min   第 4 站  变压器与理想变压器
+  22 - 26 min   第 5 站  阻抗变换与耦合电感的功率
+  26 - 30 min   第 6 站  贯穿实例：把 8Ω 喇叭变成 800Ω
+
+
+★★ 贯穿全章的实例（一个真实的工程场景）★★
+
+    L₁ = 4H、L₂ = 1H、k = 0.5 的一对耦合线圈；
+    再加一个 N₁ = 1000、N₂ = 100 的变压器。
+
+    · 互感系数：M = k√(L₁L₂) = 0.5×2 = 1H
+    · 顺串：L = 4+1+2 = 7H；反串：L = 4+1−2 = 3H
+    · 去耦（同名端相连）：L₁−M = 3H、L₂−M = 0H、M = 1H
+    · 变压器：n = 10，8Ω 喇叭 → 原边看到 800Ω
+
+    最后这一条是真实用途：输出变压器把 8Ω 喇叭变换成电子管放大器
+    需要的 800Ω —— 功率才能送得出去。
+
+
+========================================================================
+  第 1 站（0-5 min）  互感与同名端
+                                对应教材 10-1
+------------------------------------------------------------------------
+
+【互感是什么】
+
+    两个线圈放在一起，线圈 1 的电流 i₁ 产生的磁通有一部分穿过线圈 2。
+    当 i₁ 变化时，穿过线圈 2 的磁通也变，于是在线圈 2 中感应出电压。
+
+    这就是【互感】，用 M 表示（单位 H），和自感是同一个单位。
+
+【伏安关系：多了一项】
+
+        u₁ = L₁·di₁/dt + M·di₂/dt
+        u₂ = M·di₁/dt + L₂·di₂/dt
+
+    相量形式（和第 8 章一样，把 d/dt 换成 jω）：
+
+        U̇₁ = jωL₁·İ₁ + jωM·İ₂
+        U̇₂ = jωM·İ₁ + jωL₂·İ₂
+
+    每一项都是"jω 乘以某个电感再乘以某个电流"，形状完全统一 ——
+    所以相量法在这一章照样能用。
+
+【M 的正负：全靠同名端】
+
+    M 那一项前面的符号可正可负，判断依据是【同名端】：
+
+        · 两个电流都从同名端流入（或都流出）→ 互感电压取【+】
+        · 一个流入、一个流出                      → 互感电压取【−】
+
+    同名端在电路图上用一个实心圆点标出，表示"这两个端子绕向相同"。
+    点画在哪一端由线圈的绕法决定，做题时题目会给。
+
+<img class="fig" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NjAiIGhlaWdodD0iNDcwIiB2aWV3Qm94PSIwIDAgOTYwIDQ3MCI+CjxkZWZzPjxzdHlsZT4KLnd7c3Ryb2tlOiMzMzM7c3Ryb2tlLXdpZHRoOjIuNTtmaWxsOm5vbmU7c3Ryb2tlLWxpbmVjYXA6cm91bmR9Ci5je2ZpbGw6I2ZmZjtzdHJva2U6IzMzMztzdHJva2Utd2lkdGg6Mi41fQoudGJ7Zm9udC1mYW1pbHk6Ik1pY3Jvc29mdCBZYUhlaSIsIlNpbUhlaSIsc2Fucy1zZXJpZjtmb250LXNpemU6MTlweDtmaWxsOiMxMTE7Zm9udC13ZWlnaHQ6Ym9sZH0KLnRze2ZvbnQtZmFtaWx5OiJNaWNyb3NvZnQgWWFIZWkiLCJTaW1IZWkiLHNhbnMtc2VyaWY7Zm9udC1zaXplOjE1cHg7ZmlsbDojNTU1fQoudG57Zm9udC1mYW1pbHk6Ik1pY3Jvc29mdCBZYUhlaSIsIlNpbUhlaSIsc2Fucy1zZXJpZjtmb250LXNpemU6MTdweDtmaWxsOiMxMTE7Zm9udC13ZWlnaHQ6Ym9sZH0KLmN1cntzdHJva2U6I2MwMzkyYjtzdHJva2Utd2lkdGg6Mi42O2ZpbGw6bm9uZTtzdHJva2UtbGluZWNhcDpyb3VuZH0KLmN1cmx7Zm9udC1mYW1pbHk6Ik1pY3Jvc29mdCBZYUhlaSIsIlNpbUhlaSIsc2Fucy1zZXJpZjtmb250LXNpemU6MThweDtmaWxsOiNjMDM5MmI7Zm9udC13ZWlnaHQ6Ym9sZH0KLmhse2ZvbnQtZmFtaWx5OiJNaWNyb3NvZnQgWWFIZWkiLCJTaW1IZWkiLHNhbnMtc2VyaWY7Zm9udC1zaXplOjE2cHg7ZmlsbDojMWE2ZmI1O2ZvbnQtd2VpZ2h0OmJvbGR9Ci5od3tzdHJva2U6IzFhNmZiNTtzdHJva2Utd2lkdGg6My42O2ZpbGw6bm9uZTtzdHJva2UtbGluZWNhcDpyb3VuZH0KLmRhc2h7c3Ryb2tlOiM5OTk7c3Ryb2tlLXdpZHRoOjEuNjtmaWxsOm5vbmU7c3Ryb2tlLWRhc2hhcnJheTo2IDV9Ci5kYXNoYntzdHJva2U6IzFhNmZiNTtzdHJva2Utd2lkdGg6Mi4wO2ZpbGw6bm9uZTtzdHJva2UtZGFzaGFycmF5OjggNn0KPC9zdHlsZT4KPG1hcmtlciBpZD0iYXIiIG1hcmtlcldpZHRoPSIxMiIgbWFya2VySGVpZ2h0PSIxMCIgcmVmWD0iMTAiIHJlZlk9IjUiIG9yaWVudD0iYXV0byI+CiAgPHBhdGggZD0iTTAsMCBMMTIsNSBMMCwxMCB6IiBmaWxsPSIjYzAzOTJiIi8+PC9tYXJrZXI+CjxtYXJrZXIgaWQ9ImFyYiIgbWFya2VyV2lkdGg9IjEyIiBtYXJrZXJIZWlnaHQ9IjEwIiByZWZYPSIxMCIgcmVmWT0iNSIgb3JpZW50PSJhdXRvIj4KICA8cGF0aCBkPSJNMCwwIEwxMiw1IEwwLDEwIHoiIGZpbGw9IiMxYTZmYjUiLz48L21hcmtlcj4KPC9kZWZzPgo8dGV4dCB4PSIzMCIgeT0iMzQiIGNsYXNzPSJ0YiI+5Zu+MSAg5LqS5oSf77ya5LiA5Liq57q/5ZyI55qE55S15rWB5Y+Y5YyW77yM5Zyo5Y+m5LiA5Liq57q/5ZyI6YeM5oSf5bqU5Ye655S15Y6LPC90ZXh0Pgo8dGV4dCB4PSIzMCIgeT0iNTgiIGNsYXNzPSJ0cyI+deKCgSA9IEzigoHCt2Rp4oKBL2R0ICsgTcK3ZGnigoIvZHTvvJt14oKCID0gTcK3ZGnigoEvZHQgKyBM4oKCwrdkaeKCgi9kdO+8iE0g55qE56ym5Y+355yL5ZCM5ZCN56uv77yJPC90ZXh0Pgo8cGF0aCBkPSJNIDMwMCwyNDUgQSAxMCwxMCAwIDAsMSAzMDAsMjY1IEEgMTAsMTAgMCAwLDEgMzAwLDI4NSBBIDEwLDEwIDAgMCwxIDMwMCwzMDUgQSAxMCwxMCAwIDAsMSAzMDAsMzI1ICIgY2xhc3M9InciLz4KPHBhdGggZD0iTSA1NjAsMjQ1IEEgMTAsMTAgMCAwLDAgNTYwLDI2NSBBIDEwLDEwIDAgMCwwIDU2MCwyODUgQSAxMCwxMCAwIDAsMCA1NjAsMzA1IEEgMTAsMTAgMCAwLDAgNTYwLDMyNSAiIGNsYXNzPSJ3Ii8+CjxsaW5lIHgxPSIzMDAiIHkxPSIyNDUiIHgyPSIzMDAiIHkyPSIxOTUiIGNsYXNzPSJ3Ii8+CjxsaW5lIHgxPSIzMDAiIHkxPSIzMjUiIHgyPSIzMDAiIHkyPSIzNzUiIGNsYXNzPSJ3Ii8+CjxsaW5lIHgxPSI1NjAiIHkxPSIyNDUiIHgyPSI1NjAiIHkyPSIxOTUiIGNsYXNzPSJ3Ii8+CjxsaW5lIHgxPSI1NjAiIHkxPSIzMjUiIHgyPSI1NjAiIHkyPSIzNzUiIGNsYXNzPSJ3Ii8+CjxjaXJjbGUgY3g9IjMwMCIgY3k9IjE5NSIgcj0iNS41IiBmaWxsPSIjMjIyIi8+CjxjaXJjbGUgY3g9IjMwMCIgY3k9IjM3NSIgcj0iNS41IiBmaWxsPSIjMjIyIi8+CjxjaXJjbGUgY3g9IjU2MCIgY3k9IjE5NSIgcj0iNS41IiBmaWxsPSIjMjIyIi8+CjxjaXJjbGUgY3g9IjU2MCIgY3k9IjM3NSIgcj0iNS41IiBmaWxsPSIjMjIyIi8+CjxjaXJjbGUgY3g9IjI4NCIgY3k9IjIwNyIgcj0iNSIgZmlsbD0iIzIyMiIvPgo8Y2lyY2xlIGN4PSI1NzYiIGN5PSIyMDciIHI9IjUiIGZpbGw9IiMyMjIiLz4KPHRleHQgeD0iMjc0IiB5PSIyMTEiIGNsYXNzPSJ0cyIgdGV4dC1hbmNob3I9ImVuZCI+5ZCM5ZCN56uvPC90ZXh0Pgo8dGV4dCB4PSI1ODYiIHk9IjIxMSIgY2xhc3M9InRzIj7lkIzlkI3nq688L3RleHQ+CjxsaW5lIHgxPSIzMDAiIHkxPSIxODkiIHgyPSIzMDAiIHkyPSIxNTUiIGNsYXNzPSJjdXIiIG1hcmtlci1lbmQ9InVybCgjYXIpIi8+Cjx0ZXh0IHg9IjMxMCIgeT0iMTY3IiBjbGFzcz0iY3VybCI+aeKCgTwvdGV4dD4KPHRleHQgeD0iNjAwIiB5PSIzMTUiIGNsYXNzPSJ0cyI+aeKCgiA9IDA8L3RleHQ+CjxsaW5lIHgxPSIzMzAiIHkxPSIyODUiIHgyPSI1MzAiIHkyPSIyODUiIGNsYXNzPSJkYXNoIi8+Cjx0ZXh0IHg9IjQzMC4wIiB5PSIyNzUiIGNsYXNzPSJ0YiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+TTwvdGV4dD4KPHRleHQgeD0iMzAwIiB5PSI0MDEiIGNsYXNzPSJ0biIgdGV4dC1hbmNob3I9Im1pZGRsZSI+57q/5ZyIIDHvvIhM4oKB77yJPC90ZXh0Pgo8dGV4dCB4PSI1NjAiIHk9IjQwMSIgY2xhc3M9InRuIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7nur/lnIggMu+8iEzigoLvvIk8L3RleHQ+CjxyZWN0IHg9IjY1MCIgeT0iOTYiIHdpZHRoPSIyODAiIGhlaWdodD0iMzAwIiByeD0iOCIgY2xhc3M9ImRhc2giLz4KPHRleHQgeD0iNjcyIiB5PSIxMzAiIGNsYXNzPSJ0YiI+5LyP5a6J5YWz57O7PC90ZXh0Pgo8dGV4dCB4PSI2NzIiIHk9IjE2NCIgY2xhc3M9InRuIj514oKBID0gTOKCgWRp4oKBL2R0ICsgTcK3ZGnigoIvZHQ8L3RleHQ+Cjx0ZXh0IHg9IjY3MiIgeT0iMTk2IiBjbGFzcz0idG4iPnXigoIgPSBNwrdkaeKCgS9kdCArIEzigoJkaeKCgi9kdDwvdGV4dD4KPHRleHQgeD0iNjcyIiB5PSIyMzIiIGNsYXNzPSJobCI+TSDnmoTnrKblj7fnlLHjgJDlkIzlkI3nq6/jgJHlhrPlrprvvJo8L3RleHQ+Cjx0ZXh0IHg9IjY3MiIgeT0iMjU4IiBjbGFzcz0idHMiPuS4pOeUtea1gemDveS7juWQjOWQjeerr+a1geWFpSDihpIg5Y+WICs8L3RleHQ+Cjx0ZXh0IHg9IjY3MiIgeT0iMjgyIiBjbGFzcz0idHMiPuS4gOi/m+S4gOWHuiDihpIg5Y+WIOKIkjwvdGV4dD4KPHRleHQgeD0iNjcyIiB5PSIzMTYiIGNsYXNzPSJ0biI+TSA9IGviiJooTOKCgUzigoIp77yMMCDiiaQgayDiiaQgMTwvdGV4dD4KPHRleHQgeD0iNjcyIiB5PSIzNDQiIGNsYXNzPSJ0cyI+ayA9IDEg5Y+r5YWo6ICm5ZCI77yI5peg5ryP56OB77yJPC90ZXh0Pgo8dGV4dCB4PSI2NzIiIHk9IjM3NiIgY2xhc3M9ImhsIj7nm7jph4/lvaLlvI/vvJpVzIfigoIgPSBqz4lNwrfEsOKCgTwvdGV4dD4KPHRleHQgeD0iNjAiIHk9IjQ0MCIgY2xhc3M9InRuIj7imIUg5LqS5oSf5LiN5piv44CM6aKd5aSW55qE5YWD5Lu244CN77yM6ICM5piv5Lik5Liq57q/5ZyI5LmL6Ze055qE56OB6ICm5ZCIIOKAlOKAlCDlroPlj6rmlLnlj5jkvI/lronlhbPns7vvvIznlLXot6/nhafmoLfnlKjoioLngrnms5Uv572R5a2U5rOVPC90ZXh0Pgo8L3N2Zz4K">
+
+【M 的最大值：耦合系数 k】
+
+        M = k·√(L₁L₂)        0 ≤ k ≤ 1
+
+    k 叫耦合系数：
+        k = 1    全耦合（磁通一点不漏，理想变压器就是这种）
+        k = 0    完全没有耦合（离得很远）
+        实际变压器 k 在 0.9 ~ 0.99；空心线圈只有 0.1 左右
+
+    这条式子还有个用处：知道 M 和两个自感，就能算出 k。
+
+【一条重要的提醒】
+
+    互感不是"多了一个元件"，它只改变【伏安关系】。
+    所以电路定理（KCL、KVL、节点法、网孔法、戴维南）全都不变，
+    只是列方程时每个线圈的电压要多算一项 jωM·İ。
+
+    这也是第 8 章那句话的延续：相量法一开，前面所有工具照搬。
+
+
+========================================================================
+  第 2 站（5-11 min）  顺串与反串：最容易记反的地方
+                                对应教材 10-2
+------------------------------------------------------------------------
+
+    两个线圈串联，只有两种接法，等效电感差 4M。
+
+【顺串：磁通相加】
+
+        L = L₁ + L₂ + 2M
+
+    接法特点：【异名端相连】——把线圈 1 的"无点端"接到线圈 2 的"有点端"。
+    这样电流从线圈 1 的同名端流入、从线圈 2 的同名端流入，
+    两个磁通方向相同，互相加强。
+
+【反串：磁通相减】
+
+        L = L₁ + L₂ − 2M
+
+    接法特点：【同名端相连】——把两个"有点端"接在一起。
+    这样电流从线圈 1 的同名端流入、却从线圈 2 的"无点端"流入，
+    两个磁通方向相反，互相抵消。
+
+<img class="fig" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NjAiIGhlaWdodD0iNDcwIiB2aWV3Qm94PSIwIDAgOTYwIDQ3MCI+CjxkZWZzPjxzdHlsZT4KLnd7c3Ryb2tlOiMzMzM7c3Ryb2tlLXdpZHRoOjIuNTtmaWxsOm5vbmU7c3Ryb2tlLWxpbmVjYXA6cm91bmR9Ci5je2ZpbGw6I2ZmZjtzdHJva2U6IzMzMztzdHJva2Utd2lkdGg6Mi41fQoudGJ7Zm9udC1mYW1pbHk6Ik1pY3Jvc29mdCBZYUhlaSIsIlNpbUhlaSIsc2Fucy1zZXJpZjtmb250LXNpemU6MTlweDtmaWxsOiMxMTE7Zm9udC13ZWlnaHQ6Ym9sZH0KLnRze2ZvbnQtZmFtaWx5OiJNaWNyb3NvZnQgWWFIZWkiLCJTaW1IZWkiLHNhbnMtc2VyaWY7Zm9udC1zaXplOjE1cHg7ZmlsbDojNTU1fQoudG57Zm9udC1mYW1pbHk6Ik1pY3Jvc29mdCBZYUhlaSIsIlNpbUhlaSIsc2Fucy1zZXJpZjtmb250LXNpemU6MTdweDtmaWxsOiMxMTE7Zm9udC13ZWlnaHQ6Ym9sZH0KLmN1cntzdHJva2U6I2MwMzkyYjtzdHJva2Utd2lkdGg6Mi42O2ZpbGw6bm9uZTtzdHJva2UtbGluZWNhcDpyb3VuZH0KLmN1cmx7Zm9udC1mYW1pbHk6Ik1pY3Jvc29mdCBZYUhlaSIsIlNpbUhlaSIsc2Fucy1zZXJpZjtmb250LXNpemU6MThweDtmaWxsOiNjMDM5MmI7Zm9udC13ZWlnaHQ6Ym9sZH0KLmhse2ZvbnQtZmFtaWx5OiJNaWNyb3NvZnQgWWFIZWkiLCJTaW1IZWkiLHNhbnMtc2VyaWY7Zm9udC1zaXplOjE2cHg7ZmlsbDojMWE2ZmI1O2ZvbnQtd2VpZ2h0OmJvbGR9Ci5od3tzdHJva2U6IzFhNmZiNTtzdHJva2Utd2lkdGg6My42O2ZpbGw6bm9uZTtzdHJva2UtbGluZWNhcDpyb3VuZH0KLmRhc2h7c3Ryb2tlOiM5OTk7c3Ryb2tlLXdpZHRoOjEuNjtmaWxsOm5vbmU7c3Ryb2tlLWRhc2hhcnJheTo2IDV9Ci5kYXNoYntzdHJva2U6IzFhNmZiNTtzdHJva2Utd2lkdGg6Mi4wO2ZpbGw6bm9uZTtzdHJva2UtZGFzaGFycmF5OjggNn0KPC9zdHlsZT4KPG1hcmtlciBpZD0iYXIiIG1hcmtlcldpZHRoPSIxMiIgbWFya2VySGVpZ2h0PSIxMCIgcmVmWD0iMTAiIHJlZlk9IjUiIG9yaWVudD0iYXV0byI+CiAgPHBhdGggZD0iTTAsMCBMMTIsNSBMMCwxMCB6IiBmaWxsPSIjYzAzOTJiIi8+PC9tYXJrZXI+CjxtYXJrZXIgaWQ9ImFyYiIgbWFya2VyV2lkdGg9IjEyIiBtYXJrZXJIZWlnaHQ9IjEwIiByZWZYPSIxMCIgcmVmWT0iNSIgb3JpZW50PSJhdXRvIj4KICA8cGF0aCBkPSJNMCwwIEwxMiw1IEwwLDEwIHoiIGZpbGw9IiMxYTZmYjUiLz48L21hcmtlcj4KPC9kZWZzPgo8dGV4dCB4PSIzMCIgeT0iMzQiIGNsYXNzPSJ0YiI+5Zu+MiAg5Liy6IGU55qE5Lik56eN5o6l5rOV77ya6aG65Liy6L+Y5piv5Y+N5Liy77yM5YWo55yL5ZCM5ZCN56uv5oCO5LmI5o6lPC90ZXh0Pgo8dGV4dCB4PSIzMCIgeT0iNTgiIGNsYXNzPSJ0cyI+5ZCM5LiA5a+557q/5ZyI77yITOKCgT00SOOAgUzigoI9MUjjgIFNPTFI77yJ77yM5o6l5rOV5LiN5ZCM562J5pWI55S15oSf5beuIDRNPC90ZXh0Pgo8Y2lyY2xlIGN4PSIxMTAiIGN5PSIxNzUiIHI9IjUuNSIgZmlsbD0iIzIyMiIvPgo8bGluZSB4MT0iMTEwIiB5MT0iMTc1IiB4Mj0iMTUwIiB5Mj0iMTc1IiBjbGFzcz0idyIvPgo8cGF0aCBkPSJNIDE1NCwxNzUgQSAxMCwxMCAwIDAsMCAxNzQsMTc1IEEgMTAsMTAgMCAwLDAgMTk0LDE3NSBBIDEwLDEwIDAgMCwwIDIxNCwxNzUgQSAxMCwxMCAwIDAsMCAyMzQsMTc1ICIgY2xhc3M9InciLz4KPGxpbmUgeDE9IjIzOCIgeTE9IjE3NSIgeDI9IjMwMCIgeTI9IjE3NSIgY2xhc3M9InciLz4KPHBhdGggZD0iTSAzMDQsMTc1IEEgMTAsMTAgMCAwLDAgMzI0LDE3NSBBIDEwLDEwIDAgMCwwIDM0NCwxNzUgQSAxMCwxMCAwIDAsMCAzNjQsMTc1IEEgMTAsMTAgMCAwLDAgMzg0LDE3NSAiIGNsYXNzPSJ3Ii8+CjxsaW5lIHgxPSIzODgiIHkxPSIxNzUiIHgyPSI0MzAiIHkyPSIxNzUiIGNsYXNzPSJ3Ii8+CjxjaXJjbGUgY3g9IjQzMCIgY3k9IjE3NSIgcj0iNS41IiBmaWxsPSIjMjIyIi8+CjxjaXJjbGUgY3g9IjE1MCIgY3k9IjE1OSIgcj0iNSIgZmlsbD0iIzIyMiIvPgo8Y2lyY2xlIGN4PSIzMDAiIGN5PSIxNTkiIHI9IjUiIGZpbGw9IiMyMjIiLz4KPHRleHQgeD0iMTk0IiB5PSIyMDkiIGNsYXNzPSJ0biIgdGV4dC1hbmNob3I9Im1pZGRsZSI+TOKCgTwvdGV4dD4KPHRleHQgeD0iMzQ0IiB5PSIyMDkiIGNsYXNzPSJ0biIgdGV4dC1hbmNob3I9Im1pZGRsZSI+TOKCgjwvdGV4dD4KPHRleHQgeD0iMTEwIiB5PSIxMzUiIGNsYXNzPSJobCI+5byC5ZCN56uv55u46L+ePC90ZXh0Pgo8dGV4dCB4PSI0NzAiIHk9IjE4MSIgY2xhc3M9InRuIj7pobrkuLLvvJpMID0gTOKCgSArIEzigoIgKyAyTSA9IDQrMSsyID0gN0g8L3RleHQ+Cjx0ZXh0IHg9IjQ3MCIgeT0iMjA3IiBjbGFzcz0idHMiPuejgemAmuebuOWKoDwvdGV4dD4KPGNpcmNsZSBjeD0iMTEwIiBjeT0iMzEwIiByPSI1LjUiIGZpbGw9IiMyMjIiLz4KPGxpbmUgeDE9IjExMCIgeTE9IjMxMCIgeDI9IjE1MCIgeTI9IjMxMCIgY2xhc3M9InciLz4KPHBhdGggZD0iTSAxNTQsMzEwIEEgMTAsMTAgMCAwLDAgMTc0LDMxMCBBIDEwLDEwIDAgMCwwIDE5NCwzMTAgQSAxMCwxMCAwIDAsMCAyMTQsMzEwIEEgMTAsMTAgMCAwLDAgMjM0LDMxMCAiIGNsYXNzPSJ3Ii8+CjxsaW5lIHgxPSIyMzgiIHkxPSIzMTAiIHgyPSIzMDAiIHkyPSIzMTAiIGNsYXNzPSJ3Ii8+CjxwYXRoIGQ9Ik0gMzA0LDMxMCBBIDEwLDEwIDAgMCwwIDMyNCwzMTAgQSAxMCwxMCAwIDAsMCAzNDQsMzEwIEEgMTAsMTAgMCAwLDAgMzY0LDMxMCBBIDEwLDEwIDAgMCwwIDM4NCwzMTAgIiBjbGFzcz0idyIvPgo8bGluZSB4MT0iMzg4IiB5MT0iMzEwIiB4Mj0iNDMwIiB5Mj0iMzEwIiBjbGFzcz0idyIvPgo8Y2lyY2xlIGN4PSI0MzAiIGN5PSIzMTAiIHI9IjUuNSIgZmlsbD0iIzIyMiIvPgo8Y2lyY2xlIGN4PSIxNTAiIGN5PSIyOTQiIHI9IjUiIGZpbGw9IiMyMjIiLz4KPGNpcmNsZSBjeD0iMzg4IiBjeT0iMjk0IiByPSI1IiBmaWxsPSIjMjIyIi8+Cjx0ZXh0IHg9IjE5NCIgeT0iMzQ0IiBjbGFzcz0idG4iIHRleHQtYW5jaG9yPSJtaWRkbGUiPkzigoE8L3RleHQ+Cjx0ZXh0IHg9IjM0NCIgeT0iMzQ0IiBjbGFzcz0idG4iIHRleHQtYW5jaG9yPSJtaWRkbGUiPkzigoI8L3RleHQ+Cjx0ZXh0IHg9IjExMCIgeT0iMjcwIiBjbGFzcz0iaGwiPuWQjOWQjeerr+ebuOi/njwvdGV4dD4KPHRleHQgeD0iNDcwIiB5PSIzMTYiIGNsYXNzPSJ0biI+5Y+N5Liy77yaTCA9IEzigoEgKyBM4oKCIOKIkiAyTSA9IDQrMeKIkjIgPSAzSDwvdGV4dD4KPHRleHQgeD0iNDcwIiB5PSIzNDIiIGNsYXNzPSJ0cyI+56OB6YCa55u45YePPC90ZXh0Pgo8cmVjdCB4PSI2MCIgeT0iMzk2IiB3aWR0aD0iODYwIiBoZWlnaHQ9IjU2IiByeD0iOCIgY2xhc3M9ImRhc2giLz4KPHRleHQgeD0iODQiIHk9IjQyNCIgY2xhc3M9InRuIj7imIUg6K6w5b+G77ya55yL44CQ6L+e5o6l54K56YKj5Lik5Liq56uv5piv5LiN5piv5ZCM5ZCN56uv44CR4oCU4oCU5piv5ZCM5ZCN56uv5bCx55u45YeP77yI5Y+N5Liy77yJ77yM5piv5byC5ZCN56uv5bCx55u45Yqg77yI6aG65Liy77yJPC90ZXh0Pgo8dGV4dCB4PSI4NCIgeT0iNDQ0IiBjbGFzcz0idHMiPuOAgCDmnoHnq6/moKHpqozvvJprPTEg5LiU5Lik57q/5ZyI55u45ZCM77yM5ZCM5ZCN56uv55u46L+e5pe2IEwgPSAyTOKIkjJMID0gMO+8iOejgemAmuWujOWFqOaKtea2iO+8iTwvdGV4dD4KPC9zdmc+Cg==">
+
+【★ 记忆口诀（很多人背反，请务必记这条）】
+
+        异名端相连 → 顺串 → +2M → 磁通相加 → 等效电感【变大】
+        同名端相连 → 反串 → −2M → 磁通相减 → 等效电感【变小】
+
+    怎么检查自己记没记反？用一个极端例子验证：
+
+        若 k = 1 且 L₁ = L₂ = M，则某一种接法应得到 L = 0
+        （磁通完全抵消，相当于两根线绕在一起互相抵消）
+        代入：L₁+L₂−2M = 2L − 2L = 0 ✓ 这就是【同名端相连】
+        所以"同名端相连 → 相减"是对的 ✓
+
+【用贯穿实例算一遍】
+
+    L₁ = 4H、L₂ = 1H、M = 1H：
+
+        顺串（异名端相连）：L = 4 + 1 + 2 = 7H
+        反串（同名端相连）：L = 4 + 1 − 2 = 3H
+
+    差值 4M = 4H。工程上正是用这个性质测 M：
+    两种接法各测一次电感，L_顺 − L_反 = 4M，就能反解出 M。
+
+
+========================================================================
+  第 3 站（11-17 min）  去耦等效：把 M 消掉
+                                对应教材 10-2
+------------------------------------------------------------------------
+
+【为什么要去耦】
+
+    含互感的电路列方程很别扭：两个线圈的电压互相牵扯。
+    如果两线圈有一端连在一起，就能把它换成【不含互感的 T 形网络】，
+    之后按普通电路算，M 彻底消失。
+
+【两种情况的等效（记这两行）】
+
+    ① 同名端相连 → T 形：L₁ − M、L₂ − M、M
+    ② 异名端相连 → T 形：L₁ + M、L₂ + M、−M
+
+    注意第二种会出现【负电感】，数学上完全允许，不用怕。
+
+<img class="fig" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NjAiIGhlaWdodD0iNDcwIiB2aWV3Qm94PSIwIDAgOTYwIDQ3MCI+CjxkZWZzPjxzdHlsZT4KLnd7c3Ryb2tlOiMzMzM7c3Ryb2tlLXdpZHRoOjIuNTtmaWxsOm5vbmU7c3Ryb2tlLWxpbmVjYXA6cm91bmR9Ci5je2ZpbGw6I2ZmZjtzdHJva2U6IzMzMztzdHJva2Utd2lkdGg6Mi41fQoudGJ7Zm9udC1mYW1pbHk6Ik1pY3Jvc29mdCBZYUhlaSIsIlNpbUhlaSIsc2Fucy1zZXJpZjtmb250LXNpemU6MTlweDtmaWxsOiMxMTE7Zm9udC13ZWlnaHQ6Ym9sZH0KLnRze2ZvbnQtZmFtaWx5OiJNaWNyb3NvZnQgWWFIZWkiLCJTaW1IZWkiLHNhbnMtc2VyaWY7Zm9udC1zaXplOjE1cHg7ZmlsbDojNTU1fQoudG57Zm9udC1mYW1pbHk6Ik1pY3Jvc29mdCBZYUhlaSIsIlNpbUhlaSIsc2Fucy1zZXJpZjtmb250LXNpemU6MTdweDtmaWxsOiMxMTE7Zm9udC13ZWlnaHQ6Ym9sZH0KLmN1cntzdHJva2U6I2MwMzkyYjtzdHJva2Utd2lkdGg6Mi42O2ZpbGw6bm9uZTtzdHJva2UtbGluZWNhcDpyb3VuZH0KLmN1cmx7Zm9udC1mYW1pbHk6Ik1pY3Jvc29mdCBZYUhlaSIsIlNpbUhlaSIsc2Fucy1zZXJpZjtmb250LXNpemU6MThweDtmaWxsOiNjMDM5MmI7Zm9udC13ZWlnaHQ6Ym9sZH0KLmhse2ZvbnQtZmFtaWx5OiJNaWNyb3NvZnQgWWFIZWkiLCJTaW1IZWkiLHNhbnMtc2VyaWY7Zm9udC1zaXplOjE2cHg7ZmlsbDojMWE2ZmI1O2ZvbnQtd2VpZ2h0OmJvbGR9Ci5od3tzdHJva2U6IzFhNmZiNTtzdHJva2Utd2lkdGg6My42O2ZpbGw6bm9uZTtzdHJva2UtbGluZWNhcDpyb3VuZH0KLmRhc2h7c3Ryb2tlOiM5OTk7c3Ryb2tlLXdpZHRoOjEuNjtmaWxsOm5vbmU7c3Ryb2tlLWRhc2hhcnJheTo2IDV9Ci5kYXNoYntzdHJva2U6IzFhNmZiNTtzdHJva2Utd2lkdGg6Mi4wO2ZpbGw6bm9uZTtzdHJva2UtZGFzaGFycmF5OjggNn0KPC9zdHlsZT4KPG1hcmtlciBpZD0iYXIiIG1hcmtlcldpZHRoPSIxMiIgbWFya2VySGVpZ2h0PSIxMCIgcmVmWD0iMTAiIHJlZlk9IjUiIG9yaWVudD0iYXV0byI+CiAgPHBhdGggZD0iTTAsMCBMMTIsNSBMMCwxMCB6IiBmaWxsPSIjYzAzOTJiIi8+PC9tYXJrZXI+CjxtYXJrZXIgaWQ9ImFyYiIgbWFya2VyV2lkdGg9IjEyIiBtYXJrZXJIZWlnaHQ9IjEwIiByZWZYPSIxMCIgcmVmWT0iNSIgb3JpZW50PSJhdXRvIj4KICA8cGF0aCBkPSJNMCwwIEwxMiw1IEwwLDEwIHoiIGZpbGw9IiMxYTZmYjUiLz48L21hcmtlcj4KPC9kZWZzPgo8dGV4dCB4PSIzMCIgeT0iMzQiIGNsYXNzPSJ0YiI+5Zu+MyAg5Y676ICm562J5pWI77ya5oqK6ICm5ZCI55S15oSf5YyW5oiQ5LiN5ZCr5LqS5oSf55qEIFQg5b2i572R57ucPC90ZXh0Pgo8dGV4dCB4PSIzMCIgeT0iNTgiIGNsYXNzPSJ0cyI+5Lik57q/5ZyI5pyJ5LiA56uv55u46L+e5pe277yM5bCx6IO944CM5Y676ICm44CN4oCU4oCU5LmL5ZCO5b2T5pmu6YCa55S16Lev566X77yM5YaN5Lmf5LiN55So566hIE08L3RleHQ+CjxjaXJjbGUgY3g9IjE0MCIgY3k9IjE1MCIgcj0iNS41IiBmaWxsPSIjMjIyIi8+CjxsaW5lIHgxPSIxNDAiIHkxPSIxNTAiIHgyPSIxOTUiIHkyPSIxNTAiIGNsYXNzPSJ3Ii8+CjxyZWN0IHg9IjE5NSIgeT0iMTM2IiB3aWR0aD0iOTAiIGhlaWdodD0iMjgiIHJ4PSIzIiBjbGFzcz0iYyIvPgo8dGV4dCB4PSIyNDAiIHk9IjEyNCIgY2xhc3M9InRuIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj48L3RleHQ+Cjx0ZXh0IHg9IjI0MCIgeT0iMTIwIiBjbGFzcz0iaGwiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkzigoEg4oiSIE0gPSAzSDwvdGV4dD4KPGxpbmUgeDE9IjI4NSIgeTE9IjE1MCIgeDI9IjQwMCIgeTI9IjE1MCIgY2xhc3M9InciLz4KPGNpcmNsZSBjeD0iNDAwIiBjeT0iMTUwIiByPSI1LjUiIGZpbGw9IiMyMjIiLz4KPGxpbmUgeDE9IjQwMCIgeTE9IjE1MCIgeDI9IjUxNSIgeTI9IjE1MCIgY2xhc3M9InciLz4KPHJlY3QgeD0iNTE1IiB5PSIxMzYiIHdpZHRoPSI5MCIgaGVpZ2h0PSIyOCIgcng9IjMiIGNsYXNzPSJjIi8+Cjx0ZXh0IHg9IjU2MCIgeT0iMTI0IiBjbGFzcz0idG4iIHRleHQtYW5jaG9yPSJtaWRkbGUiPjwvdGV4dD4KPHRleHQgeD0iNTYwIiB5PSIxMjAiIGNsYXNzPSJobCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+TOKCgiDiiJIgTSA9IDBIPC90ZXh0Pgo8bGluZSB4MT0iNjA1IiB5MT0iMTUwIiB4Mj0iNzAwIiB5Mj0iMTUwIiBjbGFzcz0idyIvPgo8Y2lyY2xlIGN4PSI3MDAiIGN5PSIxNTAiIHI9IjUuNSIgZmlsbD0iIzIyMiIvPgo8bGluZSB4MT0iNDAwIiB5MT0iMTUwIiB4Mj0iNDAwIiB5Mj0iMjEyIiBjbGFzcz0idyIvPgo8cGF0aCBkPSJNIDQwMCwyMTIgQSAxMSwxMSAwIDAsMSA0MDAsMjM0IEEgMTEsMTEgMCAwLDEgNDAwLDI1NiBBIDExLDExIDAgMCwxIDQwMCwyNzggQSAxMSwxMSAwIDAsMSA0MDAsMzAwICIgY2xhc3M9InciLz4KPGxpbmUgeDE9IjQwMCIgeTE9IjMwMCIgeDI9IjQwMCIgeTI9IjMzMCIgY2xhc3M9InciLz4KPGNpcmNsZSBjeD0iNDAwIiBjeT0iMzMwIiByPSI1LjUiIGZpbGw9IiMyMjIiLz4KPHRleHQgeD0iNDMwIiB5PSIyNjIiIGNsYXNzPSJobCI+TSA9IDFIPC90ZXh0Pgo8dGV4dCB4PSIxMTIiIHk9IjE1OCIgY2xhc3M9InRuIiB0ZXh0LWFuY2hvcj0iZW5kIj5hPC90ZXh0Pgo8dGV4dCB4PSI3MjgiIHk9IjE1OCIgY2xhc3M9InRuIj5iPC90ZXh0Pgo8dGV4dCB4PSI0MjQiIHk9IjM0NCIgY2xhc3M9InRuIj5jPC90ZXh0Pgo8cmVjdCB4PSI2MCIgeT0iMzU2IiB3aWR0aD0iODQwIiBoZWlnaHQ9IjYyIiByeD0iOCIgY2xhc3M9ImRhc2giLz4KPHRleHQgeD0iODQiIHk9IjM4MiIgY2xhc3M9InRzIj7ljp/nlLXot6/vvJpM4oKBID0gNEjjgIFM4oKCID0gMUjjgIFNID0gMUjvvIzkuKTnur/lnIjjgJDlkIzlkI3nq6/jgJHnm7jov54g4oaSIOWMluaIkOS4iumdoueahCBUIOW9ojwvdGV4dD4KPHRleHQgeD0iODQiIHk9IjQwNiIgY2xhc3M9InRzIj7moKHpqozvvJrkuK3pl7Tnq68gYyDnqbrnva7jgIHlj6rnlKggYeOAgWIg5Liy6IGUIOKGkiAoTOKCgeKIkk0pKyhM4oKC4oiSTSkgPSAzKzAgPSAzSCA9IOWPjeS4suWFrOW8jyBM4oKBK0zigoLiiJIyTSDinJM8L3RleHQ+Cjx0ZXh0IHg9IjYwIiB5PSI0NDQiIGNsYXNzPSJ0biI+4piFIOW8guWQjeerr+ebuOi/nuaXtuaUueeUqCBM4oKBK03jgIFM4oKCK03jgIHiiJJN77yM5Liy6IGU5b6XIDUrMiA9IDdI77yM5q2j5aW95piv6aG65LiyIOKck+OAgOWOu+iApuWPquWvueOAjOacieS4gOerr+ebuOi/nuOAjeeahOS4pOe6v+WciOaIkOerizwvdGV4dD4KPC9zdmc+Cg==">
+
+【为什么这两个等效是对的：用串联结果反推】
+
+    拿贯穿实例（L₁=4、L₂=1、M=1）验证第 ① 种：
+
+        T 形三个臂：L₁−M = 3H、L₂−M = 0H、M = 1H
+        如果中间端空置、只用两端串联：
+            L = (L₁−M) + (L₂−M) = 3 + 0 = 3H
+        而第 2 站说"同名端相连 = 反串 = 3H" ✓ 一致
+
+    再验证第 ② 种（异名端相连）：
+
+        T 形：L₁+M = 5H、L₂+M = 2H、−M = −1H
+        串联（中间端空置）：L = 5 + 2 = 7H
+        与"异名端相连 = 顺串 = 7H" ✓ 一致
+
+    两种去耦公式都能还原第 2 站的串联结论 ——
+    这说明公式记对了，也说明第 2 站那个"最容易记反"的口诀是自洽的。
+
+【去耦的适用条件（很重要）】
+
+    · 必须【有一端相连】。完全隔离的两线圈之间无法去耦，
+      只能在方程里保留 jωM·İ 那一项。
+    · 去耦只对【外部等效】，内部的电流分布会变 ——
+      和第 2 章"对外等效"、第 4 章戴维南"只对外等效"是同一个道理。
+
+【含耦合电感的电路怎么算（通用步骤）】
+
+    ① 标出同名端，据此刻 M 的正负
+    ② 能去耦就先化成 T 形（有一端相连时）
+    ③ 去耦后按第 8 章的方法：写阻抗、列 KCL/KVL、解复数方程
+    ④ 回时域（如果需要）
+
+
+========================================================================
+  第 4 站（17-22 min）  变压器与理想变压器
+                                对应教材 10-4、10-5
+------------------------------------------------------------------------
+
+【实际变压器】
+
+    两个绕组套在同一个铁芯上，靠磁通耦合 —— 本质上就是 k 接近 1 的互感。
+    所以实际变压器可以用"互感 + 自感 + 负载"的电路来建模。
+
+【理想变压器：三条理想化】
+
+    ① 无损耗（绕组电阻为零、铁芯无涡流损耗）
+    ② 全耦合（k = 1，没有漏磁）
+    ③ 自感、互感都趋于无穷（但比值有限）
+
+    于是伏安关系变得极简单：
+
+        u₁/u₂ = N₁/N₂ = n
+
+    注意：理想变压器【不是】互感元件 ——
+    它的电压比和频率无关、和负载无关，只是匝数比。
+
+<img class="fig" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NjAiIGhlaWdodD0iNDcwIiB2aWV3Qm94PSIwIDAgOTYwIDQ3MCI+CjxkZWZzPjxzdHlsZT4KLnd7c3Ryb2tlOiMzMzM7c3Ryb2tlLXdpZHRoOjIuNTtmaWxsOm5vbmU7c3Ryb2tlLWxpbmVjYXA6cm91bmR9Ci5je2ZpbGw6I2ZmZjtzdHJva2U6IzMzMztzdHJva2Utd2lkdGg6Mi41fQoudGJ7Zm9udC1mYW1pbHk6Ik1pY3Jvc29mdCBZYUhlaSIsIlNpbUhlaSIsc2Fucy1zZXJpZjtmb250LXNpemU6MTlweDtmaWxsOiMxMTE7Zm9udC13ZWlnaHQ6Ym9sZH0KLnRze2ZvbnQtZmFtaWx5OiJNaWNyb3NvZnQgWWFIZWkiLCJTaW1IZWkiLHNhbnMtc2VyaWY7Zm9udC1zaXplOjE1cHg7ZmlsbDojNTU1fQoudG57Zm9udC1mYW1pbHk6Ik1pY3Jvc29mdCBZYUhlaSIsIlNpbUhlaSIsc2Fucy1zZXJpZjtmb250LXNpemU6MTdweDtmaWxsOiMxMTE7Zm9udC13ZWlnaHQ6Ym9sZH0KLmN1cntzdHJva2U6I2MwMzkyYjtzdHJva2Utd2lkdGg6Mi42O2ZpbGw6bm9uZTtzdHJva2UtbGluZWNhcDpyb3VuZH0KLmN1cmx7Zm9udC1mYW1pbHk6Ik1pY3Jvc29mdCBZYUhlaSIsIlNpbUhlaSIsc2Fucy1zZXJpZjtmb250LXNpemU6MThweDtmaWxsOiNjMDM5MmI7Zm9udC13ZWlnaHQ6Ym9sZH0KLmhse2ZvbnQtZmFtaWx5OiJNaWNyb3NvZnQgWWFIZWkiLCJTaW1IZWkiLHNhbnMtc2VyaWY7Zm9udC1zaXplOjE2cHg7ZmlsbDojMWE2ZmI1O2ZvbnQtd2VpZ2h0OmJvbGR9Ci5od3tzdHJva2U6IzFhNmZiNTtzdHJva2Utd2lkdGg6My42O2ZpbGw6bm9uZTtzdHJva2UtbGluZWNhcDpyb3VuZH0KLmRhc2h7c3Ryb2tlOiM5OTk7c3Ryb2tlLXdpZHRoOjEuNjtmaWxsOm5vbmU7c3Ryb2tlLWRhc2hhcnJheTo2IDV9Ci5kYXNoYntzdHJva2U6IzFhNmZiNTtzdHJva2Utd2lkdGg6Mi4wO2ZpbGw6bm9uZTtzdHJva2UtZGFzaGFycmF5OjggNn0KPC9zdHlsZT4KPG1hcmtlciBpZD0iYXIiIG1hcmtlcldpZHRoPSIxMiIgbWFya2VySGVpZ2h0PSIxMCIgcmVmWD0iMTAiIHJlZlk9IjUiIG9yaWVudD0iYXV0byI+CiAgPHBhdGggZD0iTTAsMCBMMTIsNSBMMCwxMCB6IiBmaWxsPSIjYzAzOTJiIi8+PC9tYXJrZXI+CjxtYXJrZXIgaWQ9ImFyYiIgbWFya2VyV2lkdGg9IjEyIiBtYXJrZXJIZWlnaHQ9IjEwIiByZWZYPSIxMCIgcmVmWT0iNSIgb3JpZW50PSJhdXRvIj4KICA8cGF0aCBkPSJNMCwwIEwxMiw1IEwwLDEwIHoiIGZpbGw9IiMxYTZmYjUiLz48L21hcmtlcj4KPC9kZWZzPgo8dGV4dCB4PSIzMCIgeT0iMzQiIGNsYXNzPSJ0YiI+5Zu+NCAg55CG5oOz5Y+Y5Y6L5Zmo77ya5Y+q5Y+Y55S15Y6L44CB55S15rWB5ZKM6Zi75oqX77yM5LiN6ICX6IO95Lmf5LiN5YKo6IO9PC90ZXh0Pgo8dGV4dCB4PSIzMCIgeT0iNTgiIGNsYXNzPSJ0cyI+deKCgS914oKCID0gbu+8iOWMneaVsOavlO+8ie+8jGnigoEvaeKCgiA9IDEvbu+8jFppbiA9IG7CssK3Wkw8L3RleHQ+CjxwYXRoIGQ9Ik0gMzMwLDIzNiBBIDExLDExIDAgMCwxIDMzMCwyNTggQSAxMSwxMSAwIDAsMSAzMzAsMjgwIEEgMTEsMTEgMCAwLDEgMzMwLDMwMiBBIDExLDExIDAgMCwxIDMzMCwzMjQgIiBjbGFzcz0idyIvPgo8cGF0aCBkPSJNIDYzMCwyMzYgQSAxMSwxMSAwIDAsMCA2MzAsMjU4IEEgMTEsMTEgMCAwLDAgNjMwLDI4MCBBIDExLDExIDAgMCwwIDYzMCwzMDIgQSAxMSwxMSAwIDAsMCA2MzAsMzI0ICIgY2xhc3M9InciLz4KPGxpbmUgeDE9IjQ3MCIgeTE9IjIyNCIgeDI9IjQ3MCIgeTI9IjMzNiIgY2xhc3M9InciLz4KPGxpbmUgeDE9IjQ4NyIgeTE9IjIyNCIgeDI9IjQ4NyIgeTI9IjMzNiIgY2xhc3M9InciLz4KPGxpbmUgeDE9IjMzMCIgeTE9IjIzNiIgeDI9IjMzMCIgeTI9IjE3MCIgY2xhc3M9InciLz4KPGxpbmUgeDE9IjMzMCIgeTE9IjMyNCIgeDI9IjMzMCIgeTI9IjM5MCIgY2xhc3M9InciLz4KPGxpbmUgeDE9IjYzMCIgeTE9IjIzNiIgeDI9IjYzMCIgeTI9IjE3MCIgY2xhc3M9InciLz4KPGxpbmUgeDE9IjYzMCIgeTE9IjMyNCIgeDI9IjYzMCIgeTI9IjM5MCIgY2xhc3M9InciLz4KPGNpcmNsZSBjeD0iMzMwIiBjeT0iMTcwIiByPSI1LjUiIGZpbGw9IiMyMjIiLz4KPGNpcmNsZSBjeD0iMzMwIiBjeT0iMzkwIiByPSI1LjUiIGZpbGw9IiMyMjIiLz4KPGNpcmNsZSBjeD0iNjMwIiBjeT0iMTcwIiByPSI1LjUiIGZpbGw9IiMyMjIiLz4KPGNpcmNsZSBjeD0iNjMwIiBjeT0iMzkwIiByPSI1LjUiIGZpbGw9IiMyMjIiLz4KPGNpcmNsZSBjeD0iMzQ2IiBjeT0iMTg0IiByPSI1IiBmaWxsPSIjMjIyIi8+CjxjaXJjbGUgY3g9IjYxNCIgY3k9IjE4NCIgcj0iNSIgZmlsbD0iIzIyMiIvPgo8dGV4dCB4PSIzMzAiIHk9IjE0NCIgY2xhc3M9InRuIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj514oKBPC90ZXh0Pgo8dGV4dCB4PSIzMzAiIHk9IjQyMiIgY2xhc3M9InRuIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5p4oKBPC90ZXh0Pgo8dGV4dCB4PSI2MzAiIHk9IjE0NCIgY2xhc3M9InRuIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj514oKCPC90ZXh0Pgo8dGV4dCB4PSI2MzAiIHk9IjQyMiIgY2xhc3M9InRuIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5p4oKCPC90ZXh0Pgo8dGV4dCB4PSIzMDQiIHk9IjI4MCIgY2xhc3M9InRuIiB0ZXh0LWFuY2hvcj0iZW5kIj5O4oKBPC90ZXh0Pgo8dGV4dCB4PSI2NTYiIHk9IjI4MCIgY2xhc3M9InRuIj5O4oKCPC90ZXh0Pgo8dGV4dCB4PSI0ODgiIHk9IjIwNCIgY2xhc3M9InRzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7pk4Hoiq88L3RleHQ+Cjx0ZXh0IHg9IjM5MCIgeT0iMTg0IiBjbGFzcz0idGIiPis8L3RleHQ+Cjx0ZXh0IHg9IjU1MiIgeT0iMTg0IiBjbGFzcz0idGIiPis8L3RleHQ+CjxyZWN0IHg9IjcwMCIgeT0iOTYiIHdpZHRoPSIyMzAiIGhlaWdodD0iMzAwIiByeD0iOCIgY2xhc3M9ImRhc2giLz4KPHRleHQgeD0iNzIwIiB5PSIxMzAiIGNsYXNzPSJ0YiI+5LiJ5Liq5Y+Y5o2i5YWz57O7PC90ZXh0Pgo8dGV4dCB4PSI3MjAiIHk9IjE2OCIgY2xhc3M9ImhsIj7nlLXljovvvJpV4oKBL1XigoIgPSBuPC90ZXh0Pgo8dGV4dCB4PSI3MjAiIHk9IjE5NiIgY2xhc3M9InRzIj7jgIDjgIDjgIBuID0gTuKCgS9O4oKCPC90ZXh0Pgo8dGV4dCB4PSI3MjAiIHk9IjIzMiIgY2xhc3M9ImhsIj7nlLXmtYHvvJpJ4oKBL0nigoIgPSAxL248L3RleHQ+Cjx0ZXh0IHg9IjcyMCIgeT0iMjYwIiBjbGFzcz0idHMiPuOAgOOAgOOAgO+8iOWMneaVsOWkmueahOS4gOS+p+eUtea1geWwj++8iTwvdGV4dD4KPHRleHQgeD0iNzIwIiB5PSIyOTYiIGNsYXNzPSJobCI+6Zi75oqX77yaWmluID0gbsKywrdaTDwvdGV4dD4KPHRleHQgeD0iNzIwIiB5PSIzMjQiIGNsYXNzPSJ0cyI+44CA44CA44CA77yI5LuO5Y6f6L6555yL6L+b5Y6777yJPC90ZXh0Pgo8dGV4dCB4PSI3MjAiIHk9IjM2MiIgY2xhc3M9InRuIj5Q4oKBID0gUOKCgu+8iOS4jeiAl+iDveS4jeWCqOiDve+8iTwvdGV4dD4KPHRleHQgeD0iNjAiIHk9IjQ0MCIgY2xhc3M9InRuIj7imIUg5LiJ5Liq5YWz57O76K6w5rOV77ya55S15Y6L6Lef5Yyd5pWw44CQ5q2j5q+U44CR77yM55S15rWB44CQ5Y+N5q+U44CR77yM6Zi75oqX5piv44CQ5bmz5pa544CR4oCU4oCUIOWPquaciemYu+aKl+W4puW5s+aWuTwvdGV4dD4KPC9zdmc+Cg==">
+
+【三个变换关系（全章最该背的三条）】
+
+        电压：U₁/U₂ = n = N₁/N₂        （电压跟着匝数【正比】）
+        电流：I₁/I₂ = 1/n              （电流【反比】）
+        阻抗：Zin = n²·ZL              （阻抗是【平方】）
+
+    Zin 是"从原边看进去"的等效阻抗。
+
+    记忆：只有阻抗带平方，电压电流都是一次方。
+    为什么阻抗是平方？因为 Z = U/I，电压乘了 n，电流又除了 n，
+    两次叠加就变成 n²。
+
+【功率关系】
+
+        P₁ = U₁I₁ = U₂I₂ = P₂
+
+    理想变压器不耗能、不储能，只是"搬运"功率。
+    所以它既不是耗能元件，也不是储能元件 —— 这是它和 R、L、C 的本质区别。
+
+
+========================================================================
+  第 5 站（22-26 min）  阻抗变换与耦合电感的功率
+------------------------------------------------------------------------
+
+【阻抗变换的用处：阻抗匹配】
+
+    很多信号源（放大器、传感器、天线）都有一个"最佳负载"，
+    负载不匹配，功率就送不出去、甚至反射回来。
+
+    变压器的 Zin = n²·ZL 就是用来"造出"想要的负载：
+
+        想要 800Ω，手上只有 8Ω 喇叭 → 选 n = √(800/8) = 10
+
+    这就是老式电子管收音机输出变压器的作用。
+
+【耦合电感的功率（了解即可）】
+
+    · 两个耦合线圈之间通过磁场传递能量，但【不消耗】能量
+    · 互感本身既不产生也不消耗功率，只是把能量在两个线圈间倒来倒去
+    · 所以含耦合电感的电路，有功功率仍然只由电阻消耗
+
+    考试里如果问"互感元件吸收的功率"，答案通常是 0（纯无功），
+    或者说它只在两个线圈之间交换。
+
+【变压器的实际限制（了解）】
+
+    · 只能变换【交流】。直流时磁通不变，副边没有感应电压 ——
+      变压器不能用于直流（这是变压器与开关电源的分界）
+    · 实际变压器有损耗（铜损、铁损）、有漏磁（k < 1）
+    · 频率越高，铁芯越要用铁氧体（避免涡流）
+
+
+========================================================================
+  第 6 站（26-30 min）  贯穿实例：把 8Ω 喇叭变成 800Ω
+------------------------------------------------------------------------
+
+【题目】
+
+    一对耦合线圈：L₁ = 4H、L₂ = 1H、k = 0.5。
+    一个变压器：N₁ = 1000、N₂ = 100。
+    变压器副边接 8Ω 喇叭，原边接放大器（最佳负载 800Ω）。
+
+【第 1 步：互感系数】
+
+    M = k√(L₁L₂) = 0.5 × √(4×1) = 1H
+
+【第 2 步：耦合线圈的等效电感（两种接法）】
+
+    顺串（异名端相连）：L = 4 + 1 + 2×1 = 7H
+    反串（同名端相连）：L = 4 + 1 − 2×1 = 3H
+
+    注意：题目若问"哪种接法电感大"，答案是异名端相连（顺串）。
+
+【第 3 步：去耦（若同名端相连）】
+
+    化成 T 形：L₁−M = 3H、L₂−M = 0H、M = 1H
+    校验：3 + 0 = 3H = 反串 ✓
+    （L₂−M = 0 表示那一臂相当于导线，正常）
+
+【第 4 步：变压器的阻抗变换】
+
+    n = N₁/N₂ = 1000/100 = 10
+    Zin = n²·ZL = 10² × 8 = 800Ω
+
+    → 放大器看到的就是 800Ω，正好匹配 ✓
+
+<img class="fig" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NjAiIGhlaWdodD0iNDcwIiB2aWV3Qm94PSIwIDAgOTYwIDQ3MCI+CjxkZWZzPjxzdHlsZT4KLnd7c3Ryb2tlOiMzMzM7c3Ryb2tlLXdpZHRoOjIuNTtmaWxsOm5vbmU7c3Ryb2tlLWxpbmVjYXA6cm91bmR9Ci5je2ZpbGw6I2ZmZjtzdHJva2U6IzMzMztzdHJva2Utd2lkdGg6Mi41fQoudGJ7Zm9udC1mYW1pbHk6Ik1pY3Jvc29mdCBZYUhlaSIsIlNpbUhlaSIsc2Fucy1zZXJpZjtmb250LXNpemU6MTlweDtmaWxsOiMxMTE7Zm9udC13ZWlnaHQ6Ym9sZH0KLnRze2ZvbnQtZmFtaWx5OiJNaWNyb3NvZnQgWWFIZWkiLCJTaW1IZWkiLHNhbnMtc2VyaWY7Zm9udC1zaXplOjE1cHg7ZmlsbDojNTU1fQoudG57Zm9udC1mYW1pbHk6Ik1pY3Jvc29mdCBZYUhlaSIsIlNpbUhlaSIsc2Fucy1zZXJpZjtmb250LXNpemU6MTdweDtmaWxsOiMxMTE7Zm9udC13ZWlnaHQ6Ym9sZH0KLmN1cntzdHJva2U6I2MwMzkyYjtzdHJva2Utd2lkdGg6Mi42O2ZpbGw6bm9uZTtzdHJva2UtbGluZWNhcDpyb3VuZH0KLmN1cmx7Zm9udC1mYW1pbHk6Ik1pY3Jvc29mdCBZYUhlaSIsIlNpbUhlaSIsc2Fucy1zZXJpZjtmb250LXNpemU6MThweDtmaWxsOiNjMDM5MmI7Zm9udC13ZWlnaHQ6Ym9sZH0KLmhse2ZvbnQtZmFtaWx5OiJNaWNyb3NvZnQgWWFIZWkiLCJTaW1IZWkiLHNhbnMtc2VyaWY7Zm9udC1zaXplOjE2cHg7ZmlsbDojMWE2ZmI1O2ZvbnQtd2VpZ2h0OmJvbGR9Ci5od3tzdHJva2U6IzFhNmZiNTtzdHJva2Utd2lkdGg6My42O2ZpbGw6bm9uZTtzdHJva2UtbGluZWNhcDpyb3VuZH0KLmRhc2h7c3Ryb2tlOiM5OTk7c3Ryb2tlLXdpZHRoOjEuNjtmaWxsOm5vbmU7c3Ryb2tlLWRhc2hhcnJheTo2IDV9Ci5kYXNoYntzdHJva2U6IzFhNmZiNTtzdHJva2Utd2lkdGg6Mi4wO2ZpbGw6bm9uZTtzdHJva2UtZGFzaGFycmF5OjggNn0KPC9zdHlsZT4KPG1hcmtlciBpZD0iYXIiIG1hcmtlcldpZHRoPSIxMiIgbWFya2VySGVpZ2h0PSIxMCIgcmVmWD0iMTAiIHJlZlk9IjUiIG9yaWVudD0iYXV0byI+CiAgPHBhdGggZD0iTTAsMCBMMTIsNSBMMCwxMCB6IiBmaWxsPSIjYzAzOTJiIi8+PC9tYXJrZXI+CjxtYXJrZXIgaWQ9ImFyYiIgbWFya2VyV2lkdGg9IjEyIiBtYXJrZXJIZWlnaHQ9IjEwIiByZWZYPSIxMCIgcmVmWT0iNSIgb3JpZW50PSJhdXRvIj4KICA8cGF0aCBkPSJNMCwwIEwxMiw1IEwwLDEwIHoiIGZpbGw9IiMxYTZmYjUiLz48L21hcmtlcj4KPC9kZWZzPgo8dGV4dCB4PSIzMCIgeT0iMzQiIGNsYXNzPSJ0YiI+5Zu+NSAg6LSv56m/5a6e5L6L77ya55So5Y+Y5Y6L5Zmo5oqKIDjOqSDlloflj63lj5jmiJDmlL7lpKflmajopoHnmoQgODAwzqk8L3RleHQ+Cjx0ZXh0IHg9IjMwIiB5PSI1OCIgY2xhc3M9InRzIj5O4oKBID0gMTAwMOOAgU7igoIgPSAxMDDvvIhuID0gMTDvvInjgILnkIbmg7Plj5jljovlmajlj6rlj5jmjaLpmLvmipfvvIzkuI3mtojogJflip/njoc8L3RleHQ+CjxyZWN0IHg9IjgwIiB5PSIxNzAiIHdpZHRoPSIxODAiIGhlaWdodD0iMTYwIiByeD0iOCIgY2xhc3M9ImRhc2giLz4KPHRleHQgeD0iMTcwIiB5PSIyMjAiIGNsYXNzPSJ0YiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+5pS+5aSn5ZmoPC90ZXh0Pgo8dGV4dCB4PSIxNzAiIHk9IjI1MCIgY2xhc3M9InRzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7mnIDkvbPotJ/ovb08L3RleHQ+Cjx0ZXh0IHg9IjE3MCIgeT0iMjc2IiBjbGFzcz0iaGwiIHRleHQtYW5jaG9yPSJtaWRkbGUiPjgwMM6pPC90ZXh0Pgo8cGF0aCBkPSJNIDQzMCwyMTAgQSAxMCwxMCAwIDAsMSA0MzAsMjMwIEEgMTAsMTAgMCAwLDEgNDMwLDI1MCBBIDEwLDEwIDAgMCwxIDQzMCwyNzAgQSAxMCwxMCAwIDAsMSA0MzAsMjkwICIgY2xhc3M9InciLz4KPHBhdGggZD0iTSA1OTAsMjEwIEEgMTAsMTAgMCAwLDAgNTkwLDIzMCBBIDEwLDEwIDAgMCwwIDU5MCwyNTAgQSAxMCwxMCAwIDAsMCA1OTAsMjcwIEEgMTAsMTAgMCAwLDAgNTkwLDI5MCAiIGNsYXNzPSJ3Ii8+CjxsaW5lIHgxPSI1MDAiIHkxPSIyMDIiIHgyPSI1MDAiIHkyPSIyOTgiIGNsYXNzPSJ3Ii8+CjxsaW5lIHgxPSI1MTQiIHkxPSIyMDIiIHgyPSI1MTQiIHkyPSIyOTgiIGNsYXNzPSJ3Ii8+CjxsaW5lIHgxPSI0MzAiIHkxPSIyMTAiIHgyPSI0MzAiIHkyPSIxNjAiIGNsYXNzPSJ3Ii8+CjxsaW5lIHgxPSI0MzAiIHkxPSIyOTAiIHgyPSI0MzAiIHkyPSIzNDAiIGNsYXNzPSJ3Ii8+CjxsaW5lIHgxPSI1OTAiIHkxPSIyMTAiIHgyPSI1OTAiIHkyPSIxNjAiIGNsYXNzPSJ3Ii8+CjxsaW5lIHgxPSI1OTAiIHkxPSIyOTAiIHgyPSI1OTAiIHkyPSIzNDAiIGNsYXNzPSJ3Ii8+Cjx0ZXh0IHg9IjQxMCIgeT0iMjUwIiBjbGFzcz0idHMiIHRleHQtYW5jaG9yPSJlbmQiPk7igoE9MTAwMDwvdGV4dD4KPHRleHQgeD0iNjEwIiB5PSIyNTAiIGNsYXNzPSJ0cyI+TuKCgj0xMDA8L3RleHQ+CjxsaW5lIHgxPSIyNjAiIHkxPSIxNjAiIHgyPSI0MzAiIHkyPSIxNjAiIGNsYXNzPSJ3Ii8+CjxsaW5lIHgxPSIyNjAiIHkxPSIzNDAiIHgyPSI0MzAiIHkyPSIzNDAiIGNsYXNzPSJ3Ii8+CjxsaW5lIHgxPSI1OTAiIHkxPSIxNjAiIHgyPSI3ODAiIHkyPSIxNjAiIGNsYXNzPSJ3Ii8+CjxsaW5lIHgxPSI1OTAiIHkxPSIzNDAiIHgyPSI3ODAiIHkyPSIzNDAiIGNsYXNzPSJ3Ii8+CjxyZWN0IHg9Ijc4MCIgeT0iMTgwIiB3aWR0aD0iNjAiIGhlaWdodD0iMTQwIiByeD0iNiIgY2xhc3M9ImMiLz4KPHRleHQgeD0iODEwIiB5PSIyNTYiIGNsYXNzPSJ0biIgdGV4dC1hbmNob3I9Im1pZGRsZSI+OM6pPC90ZXh0Pgo8dGV4dCB4PSI4MTAiIHk9IjI4MCIgY2xhc3M9InRzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7lloflj608L3RleHQ+Cjx0ZXh0IHg9IjQzMCIgeT0iMTMwIiBjbGFzcz0iaGwiIHRleHQtYW5jaG9yPSJtaWRkbGUiPm4gPSBO4oKBL07igoIgPSAxMDwvdGV4dD4KPHRleHQgeD0iODEwIiB5PSIxMzAiIGNsYXNzPSJobCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+WmluID0gbsKywrc4ID0gODAwzqk8L3RleHQ+CjxyZWN0IHg9IjgwIiB5PSIzNTAiIHdpZHRoPSI4MDAiIGhlaWdodD0iOTYiIHJ4PSI4IiBjbGFzcz0iZGFzaCIvPgo8dGV4dCB4PSIxMDQiIHk9IjM3OCIgY2xhc3M9InRiIj7kuLrku4DkuYjpnIDopoHlroPvvJo8L3RleHQ+Cjx0ZXh0IHg9IjEwNCIgeT0iNDA2IiBjbGFzcz0idHMiPuaUvuWkp+WZqOeahOi+k+WHuue6p+W4jOacm+aOpSA4MDDOqe+8jOiAjOWWh+WPreWPquaciSA4zqnjgILnm7TmjqXmjqUg4oaSIOWKn+eOh+mAgeS4jeWHuuWOu++8iOS4pemHjeWksemFje+8iTwvdGV4dD4KPHRleHQgeD0iMTA0IiB5PSI0MzAiIGNsYXNzPSJ0cyI+5Liy5LiA5LiqIDEwOjEg55qE5Y+Y5Y6L5ZmoIOKGkiDlloflj63jgIzlj5jmiJDjgI04MDDOqe+8jOWKn+eOh+WFqOmDqOmAgeWIsOWWh+WPreS4iu+8iOiAjOS4lOWPmOWOi+WZqOacrOi6q+S4jeiAl+iDve+8iTwvdGV4dD4KPC9zdmc+Cg==">
+
+【第 5 步：算一算电压电流（假设原边 100V）】
+
+    U₁ = 100V
+    U₂ = U₁/n = 10V
+    I₂ = U₂/ZL = 10/8 = 1.25A
+    I₁ = I₂/n = 0.125A
+
+    校验功率：
+        P₁ = U₁I₁ = 100 × 0.125 = 12.5W
+        P₂ = U₂I₂ = 10 × 1.25 = 12.5W     相等 ✓
+
+    → 理想变压器确实不耗能。如果这 12.5W 全部进了喇叭，
+      那么用 10:1 的变压器比直接接（8Ω 对 800Ω 严重失配）能多送上十几倍功率。
+
+【结果一览】
+
+        M = 1H
+        顺串 7H / 反串 3H（异名端相连为顺串）
+        去耦 T 形：3H、0H、1H
+        n = 10，Zin = 800Ω，P₁ = P₂ = 12.5W
+
+
+========================================================================
+  自测：12 题检验这一章
+========================================================================
+
+  1. 含互感时，线圈的伏安关系比普通电感多了什么项？
+  2. 互感电压的符号由什么决定？怎么判断？
+  3. 耦合系数 k 的定义和范围？k = 1 意味着什么？
+  4. 顺串和反串的等效电感公式分别是什么？
+  5. 哪种接法是顺串？为什么（从磁通角度解释）？
+  6. 两线圈同名端相连，去耦后的 T 形三个臂是什么？
+  7. 去耦等效的适用条件是什么？
+  8. 理想变压器的三条理想化假设是什么？
+  9. 理想变压器的电压比、电流比、阻抗比分别是什么？
+ 10. 为什么阻抗比是 n 的平方？
+ 11. 变压器能用于直流吗？为什么？
+ 12. L₁=4H、L₂=1H、M=1H，求顺串和反串的等效电感。
+
+------------------------------------------------------------------------
+  参考答案
+------------------------------------------------------------------------
+
+  1. 多了互感项 jωM·İ（或时域的 M·di/dt）。
+  2. 由【同名端】决定：两电流都从同名端流入取 +，一进一出取 −。
+  3. k = M/√(L₁L₂)，0 ≤ k ≤ 1；k = 1 表示全耦合、无漏磁。
+  4. 顺串 L = L₁+L₂+2M；反串 L = L₁+L₂−2M。
+  5. 异名端相连为顺串。因为这样两个电流都从各自的同名端流入，
+     产生的磁通方向相同、互相加强，所以等效电感变大。
+  6. L₁−M、L₂−M、M（三个臂构成 T 形）。
+  7. 必须【有一端相连】；完全隔离的两线圈不能去耦。
+  8. 无损耗、全耦合（k=1）、自感互感趋于无穷但比值有限。
+  9. U₁/U₂ = n；I₁/I₂ = 1/n；Zin/ZL = n²。
+ 10. 因为 Z = U/I，电压乘了 n，电流又除了 n，两次叠加就是 n²。
+ 11. 不能。直流时磁通不变化，副边没有感应电压，变压器不工作。
+ 12. 顺串 4+1+2 = 7H；反串 4+1−2 = 3H。
+
+
+========================================================================
+  本章最容易犯的 6 个错
+========================================================================
+
+  1. 顺串/反串与同名端/异名端的对应关系记反
+     正确：异名端相连 = 顺串 = +2M；同名端相连 = 反串 = −2M。
+     用"k=1 时某接法得 L=0"去验证，就不会错。
+
+  2. 互感电压的符号随手写
+     必须先找到同名端，再判断"电流是从同名端流入还是流出"。
+
+  3. 去耦公式用错场合
+     同名端相连用 L₁−M、L₂−M、M；异名端相连用 L₁+M、L₂+M、−M。
+     两套公式别混。
+
+  4. 对完全隔离的两线圈去耦
+     没有公共端就不能去耦，必须保留 jωM·İ。
+
+  5. 阻抗比漏掉平方
+     Zin = n²ZL，不是 n·ZL。电压电流是一次，阻抗是二次。
+
+  6. 认为变压器可以变直流
+     变压器靠磁通变化工作，直流时副边没电压。
+
+
+========================================================================
+  这一章和后面的关系
+========================================================================
+
+    · 第 10 章（频率响应与谐振）：互感线圈和电容一起会形成"耦合谐振"，
+      是滤波器设计的核心。
+    · 第 11 章（三相电路）：三相变压器有 Y/Δ 接法，本章的变比关系
+      对每一相都成立。
+    · 第 12 章（非正弦周期）：互感对每个谐波的作用不同（jωM 含 ω），
+      所以变压器对不同频率的响应不一样。
+    · 第 13 章（二端口）：变压器本质就是一个二端口网络，
+      它的 T 参数、Z 参数都能写出来。
+
+    一句话：这一章只有"同名端定符号"这一个新知识点，
+    剩下的全是第 8 章相量法的直接应用。
+
+
+========================================================================
+  打印提示
+========================================================================
+
+    单个 HTML 文件，Ctrl+P 直接打印或存 PDF。
+    电路图已设置避免跨页断开，正文按 10pt 排版。
+</pre>
+</div>
+
+<style id="b2p-style">
+.b2p{position:fixed;right:20px;bottom:20px;z-index:99999;display:inline-flex;
+align-items:center;gap:6px;padding:10px 17px;border-radius:24px;text-decoration:none;
+background:#1f5fd0;color:#fff !important;font:600 13.5px/1 "Microsoft YaHei",sans-serif;
+box-shadow:0 4px 16px rgba(31,95,208,.38);opacity:.93;transition:.15s}
+.b2p:hover{opacity:1;transform:translateY(-2px);background:#2c5282}
+@media print{.b2p{display:none}}
+</style>
+<a class="b2p" href="../../electronics.html" title="返回电子与单片机资料库">← 返回教程首页</a>
+<script>
+/* ============================================================
+   DSH 教程 AI 助教 · 悬浮侧栏
+   用法：由站点构建时注入到每个教程页面的 body 结束标签前
+   API Key 保存在浏览器 localStorage，不上传到任何第三方
+   ============================================================ */
+(function () {
+  "use strict";
+  if (window.__dshTutorLoaded) return;
+  window.__dshTutorLoaded = true;
+
+  var LS_KEY = "dsh_tutor_apikey";
+  var LS_HIST = "dsh_tutor_history";
+  var LS_MODEL = "dsh_tutor_model";
+  var API = "https://api.deepseek.com/chat/completions";
+
+  /* ---------- 样式 ---------- */
+  var CSS = [
+    "#tutorFab{position:fixed;right:20px;bottom:76px;z-index:99990;display:flex;align-items:center;gap:7px;",
+    "padding:10px 16px;border-radius:24px;border:none;cursor:pointer;",
+    "background:linear-gradient(135deg,#0f766e,#14b8a6);color:#fff;",
+    "font:600 13.5px/1 'Microsoft YaHei',sans-serif;",
+    "box-shadow:0 4px 16px rgba(20,184,166,.42);transition:.16s}",
+    "#tutorFab:hover{transform:translateY(-2px);box-shadow:0 7px 20px rgba(20,184,166,.5)}",
+    "#tutorPanel{position:fixed;top:0;right:0;bottom:0;width:min(430px,100vw);z-index:100002;",
+    "background:#fff;border-left:1px solid #e3e8f0;display:flex;flex-direction:column;",
+    "transform:translateX(102%);transition:transform .24s cubic-bezier(.4,0,.2,1);",
+    "box-shadow:-8px 0 30px rgba(0,0,0,.12);font:14px/1.65 'Microsoft YaHei',sans-serif}",
+    "#tutorPanel.open{transform:translateX(0)}",
+    "#tutorHead{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid #e3e8f0;background:#f8fafc}",
+    "#tutorHead .t{flex:1;font-weight:700;font-size:14.5px;color:#0f172a}",
+    "#tutorHead .ctx{font-size:11px;color:#64748b;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
+    "#tutorHead button{border:1px solid #e3e8f0;background:#fff;border-radius:7px;width:30px;height:30px;",
+    "cursor:pointer;font-size:15px;line-height:1;color:#475569}",
+    "#tutorHead button:hover{background:#eef4fb;color:#0f766e}",
+    "#tutorBody{flex:1;overflow-y:auto;padding:14px;background:#fbfcfe}",
+    ".tutor-msg{margin-bottom:14px;display:flex;flex-direction:column;gap:5px}",
+    ".tutor-msg .role{font-size:11px;color:#94a3b8}",
+    ".tutor-msg .bubble{padding:9px 12px;border-radius:10px;font-size:13.5px;line-height:1.7;",
+    "white-space:pre-wrap;word-break:break-word}",
+    ".tutor-msg.user .bubble{background:#0f766e;color:#fff;align-self:flex-end;max-width:88%}",
+    ".tutor-msg.user{align-items:flex-end}",
+    ".tutor-msg.bot .bubble{background:#fff;border:1px solid #e3e8f0;color:#1e293b;max-width:100%}",
+    ".tutor-msg.bot .bubble code{background:#eef4fb;border-radius:3px;padding:1px 4px;font-size:.92em;color:#0f766e}",
+    ".tutor-msg.bot .bubble pre{background:#0f172a;color:#e6edf7;padding:9px 11px;border-radius:7px;",
+    "overflow-x:auto;font-size:12px;line-height:1.55;margin:6px 0}",
+    ".tutor-msg.err .bubble{background:#fff5f5;border:1px solid #fecaca;color:#b91c1c;font-size:13px}",
+    "#tutorFoot{border-top:1px solid #e3e8f0;padding:10px 12px;background:#fff}",
+    "#tutorCtxTip{font-size:11px;color:#64748b;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
+    "#tutorInputRow{display:flex;gap:8px;align-items:flex-end}",
+    "#tutorInput{flex:1;min-height:40px;max-height:110px;resize:none;border:1px solid #e3e8f0;border-radius:9px;",
+    "padding:9px 11px;font:13.5px/1.5 'Microsoft YaHei',sans-serif;outline:none;color:#1e293b}",
+    "#tutorInput:focus{border-color:#14b8a6}",
+    "#tutorSend{border:none;border-radius:9px;padding:10px 15px;background:#0f766e;color:#fff;",
+    "font:600 13px/1 'Microsoft YaHei',sans-serif;cursor:pointer}",
+    "#tutorSend:disabled{background:#cbd5e1;cursor:not-allowed}",
+    "#tutorCfg{position:absolute;inset:0;background:#fff;z-index:2;padding:16px;overflow-y:auto;display:none}",
+    "#tutorCfg.show{display:block}",
+    "#tutorCfg h4{margin:0 0 4px;font-size:14px;color:#0f172a}",
+    "#tutorCfg p{font-size:12px;color:#64748b;margin:0 0 12px;line-height:1.6}",
+    "#tutorCfg label{display:block;font-size:12.5px;color:#334155;margin:12px 0 5px;font-weight:600}",
+    "#tutorCfg input,#tutorCfg select{width:100%;padding:9px 11px;border:1px solid #e3e8f0;border-radius:8px;",
+    "font:13px 'Microsoft YaHei',sans-serif;outline:none;color:#1e293b}",
+    "#tutorCfg input:focus,#tutorCfg select:focus{border-color:#14b8a6}",
+    "#tutorCfg .btns{display:flex;gap:8px;margin-top:16px}",
+    "#tutorCfg .btns button{flex:1;padding:10px;border-radius:9px;border:1px solid #e3e8f0;background:#fff;",
+    "cursor:pointer;font:600 13px 'Microsoft YaHei',sans-serif;color:#334155}",
+    "#tutorCfg .btns button.primary{background:#0f766e;color:#fff;border-color:#0f766e}",
+    "#tutorCfg a{color:#0f766e}",
+    "html[data-theme='dark'] #tutorPanel{background:#141d22;border-left-color:#233038}",
+    "html[data-theme='dark'] #tutorHead{background:#111a20;border-bottom-color:#233038}",
+    "html[data-theme='dark'] #tutorHead .t{color:#dceaf0}",
+    "html[data-theme='dark'] #tutorHead button{background:#1a252c;border-color:#233038;color:#9bb2bd}",
+    "html[data-theme='dark'] #tutorBody{background:#0f171c}",
+    "html[data-theme='dark'] .tutor-msg.bot .bubble{background:#141d22;border-color:#233038;color:#dceaf0}",
+    "html[data-theme='dark'] .tutor-msg.bot .bubble code{background:#1a252c;color:#4dd0c1}",
+    "html[data-theme='dark'] #tutorFoot{background:#141d22;border-top-color:#233038}",
+    "html[data-theme='dark'] #tutorInput{background:#111a20;border-color:#233038;color:#dceaf0}",
+    "html[data-theme='dark'] #tutorCfg{background:#141d22}",
+    "html[data-theme='dark'] #tutorCfg h4{color:#dceaf0}",
+    "html[data-theme='dark'] #tutorCfg input,html[data-theme='dark'] #tutorCfg select{background:#111a20;border-color:#233038;color:#dceaf0}",
+    "html[data-theme='dark'] #tutorCfg .btns button{background:#1a252c;border-color:#233038;color:#dceaf0}",
+    "@media(max-width:520px){#tutorPanel{width:100vw}#tutorFab{bottom:70px;right:14px}}",
+    "@media print{#tutorFab,#tutorPanel{display:none!important}}"
+  ].join("");
+
+  var st = document.createElement("style");
+  st.textContent = CSS;
+  document.head.appendChild(st);
+
+  /* ---------- DOM ---------- */
+  var fab = document.createElement("button");
+  fab.id = "tutorFab";
+  fab.type = "button";
+  fab.innerHTML = "🤖 问老师";
+  document.body.appendChild(fab);
+
+  var panel = document.createElement("aside");
+  panel.id = "tutorPanel";
+  panel.innerHTML = [
+    '<div id="tutorHead">',
+    '  <div style="flex:1;min-width:0">',
+    '    <div class="t">问老师 · 教程助教</div>',
+    '    <div class="ctx" id="tutorCtxLabel">当前位置：—</div>',
+    "  </div>",
+    '  <button id="tutorCfgBtn" title="设置">⚙</button>',
+    '  <button id="tutorClose" title="关闭">✕</button>',
+    "</div>",
+    '<div id="tutorBody"></div>',
+    '<div id="tutorFoot">',
+    '  <div id="tutorCtxTip"></div>',
+    '  <div id="tutorInputRow">',
+    '    <textarea id="tutorInput" placeholder="哪里没懂？直接问（Enter 发送，Shift+Enter 换行）"></textarea>',
+    '    <button id="tutorSend">发送</button>',
+    "  </div>",
+    "</div>",
+    '<div id="tutorCfg">',
+    '  <h4>设置</h4>',
+    "  <p>需要一个 DeepSeek API Key（约 ¥1/百万 tokens，问 1000 次大概几块钱）。Key 只保存在你本机浏览器，不会发给我或任何第三方。</p>",
+    '  <label>API Key</label>',
+    '  <input id="tutorKey" type="password" placeholder="sk-..." autocomplete="off">',
+    '  <p style="margin-top:6px">还没有？去 <a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener">platform.deepseek.com</a> 免费注册领取。</p>',
+    '  <label>模型</label>',
+    '  <select id="tutorModel">',
+    '    <option value="deepseek-chat">deepseek-chat（快，够用）</option>',
+    '    <option value="deepseek-reasoner">deepseek-reasoner（更强，慢）</option>',
+    "  </select>",
+    '  <div class="btns">',
+    '    <button id="tutorClear">清空对话</button>',
+    '    <button class="primary" id="tutorSave">保存</button>',
+    "  </div>",
+    "</div>"
+  ].join("");
+  document.body.appendChild(panel);
+
+  var $ = function (id) { return document.getElementById(id); };
+  var body = $("tutorBody"), input = $("tutorInput"), sendBtn = $("tutorSend");
+  var cfg = $("tutorCfg"), cfgLabel = $("tutorCtxLabel"), ctxTip = $("tutorCtxTip");
+
+  function getKey() { try { return localStorage.getItem(LS_KEY) || ""; } catch (e) { return ""; } }
+  function setKey(v) { try { localStorage.setItem(LS_KEY, v); } catch (e) {} }
+  function getModel() { try { return localStorage.getItem(LS_MODEL) || "deepseek-chat"; } catch (e) { return "deepseek-chat"; } }
+  function setModel(v) { try { localStorage.setItem(LS_MODEL, v); } catch (e) {} }
+  function getHist() { try { return JSON.parse(localStorage.getItem(LS_HIST) || "[]"); } catch (e) { return []; } }
+  function setHist(a) { try { localStorage.setItem(LS_HIST, JSON.stringify(a.slice(-20))); } catch (e) {} }
+
+  /* ---------- 提取上下文 ---------- */
+  function ctxInfo() {
+    var page = document.querySelector(".page.active") || document.body;
+    var h1 = page.querySelector("h1");
+    var title = (h1 && h1.innerText.trim()) || document.title || "教程";
+    // 找当前可见的小节标题
+    var heads = page.querySelectorAll("h2, h3");
+    var cur = null, best = -1e9;
+    var mid = window.innerHeight * 0.35;
+    for (var i = 0; i < heads.length; i++) {
+      var r = heads[i].getBoundingClientRect();
+      if (r.top < mid && r.top > best) { best = r.top; cur = heads[i]; }
+    }
+    var section = cur ? cur.innerText.trim() : "";
+    // 取小节附近正文
+    var text = "";
+    if (cur) {
+      var n = cur, buf = [];
+      while (n && buf.join("").length < 1600) {
+        n = n.nextElementSibling;
+        if (!n || /^H[1-6]$/.test(n.tagName)) break;
+        if (n.tagName === "IMG" || n.querySelector && n.querySelector("img") && !n.innerText.trim()) continue;
+        var t = (n.innerText || "").trim();
+        if (t) buf.push(t);
+      }
+      text = buf.join("\n").slice(0, 1600);
+    }
+    return { title: title, section: section, text: text };
+  }
+
+  function refreshCtx() {
+    var c = ctxInfo();
+    cfgLabel.textContent = "当前位置：" + (c.section || c.title);
+    var sel = (window.getSelection ? String(window.getSelection()) : "").trim();
+    if (sel && sel.length > 4) {
+      ctxTip.textContent = "已选中文段，发送时会一并提问：" + sel.slice(0, 40) + (sel.length > 40 ? "…" : "");
+    } else {
+      ctxTip.textContent = c.section ? "会带上「" + c.section.slice(0, 18) + "」的上下文" : "会带上当前页面上下文";
+    }
+  }
+
+  /* ---------- 渲染 ---------- */
+  function addMsg(role, text, cls) {
+    var wrap = document.createElement("div");
+    wrap.className = "tutor-msg " + (cls || (role === "user" ? "user" : "bot"));
+    var r = document.createElement("div");
+    r.className = "role";
+    r.textContent = role === "user" ? "我" : "助教";
+    var b = document.createElement("div");
+    b.className = "bubble";
+    b.innerHTML = mdToHtml(text);
+    if (role === "user") { r.style.display = "none"; }
+    wrap.appendChild(r); wrap.appendChild(b);
+    body.appendChild(wrap);
+    body.scrollTop = body.scrollHeight;
+    return b;
+  }
+
+  function esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+  function mdToHtml(s) {
+    var parts = esc(s).split(/```/);
+    var out = "";
+    for (var i = 0; i < parts.length; i++) {
+      if (i % 2 === 1) {
+        out += "<pre>" + parts[i].replace(/^\w*\n/, "") + "</pre>";
+      } else {
+        out += parts[i]
+          .replace(/`([^`]+)`/g, "<code>$1</code>")
+          .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+      }
+    }
+    return out;
+  }
+
+  function renderHist() {
+    var h = getHist();
+    if (!h.length) {
+      addMsg("bot", "我是这套教程的助教。看到哪一段没懂，直接问我就行。\n\n比如：\n- 「PSC 和 ARR 为什么要减一？」\n- 「这段代码为什么用 ADC 模式？」\n- 「第 5 章的 PWM 图没看懂」\n\n也可以先在正文里选中一句话，再来问。");
+      return;
+    }
+    for (var i = 0; i < h.length; i++) addMsg(h[i].role, h[i].content);
+  }
+
+  /* ---------- 发送 ---------- */
+  var busy = false;
+  async function ask(q) {
+    if (busy) return;
+    var key = getKey();
+    if (!key) {
+      cfg.classList.add("show");
+      $("tutorKey").focus();
+      alert("请先填写 DeepSeek API Key（点击右上角 ⚙ 设置）");
+      return;
+    }
+    busy = true;
+    sendBtn.disabled = true;
+    sendBtn.textContent = "…";
+
+    var c = ctxInfo();
+    var sel = (window.getSelection ? String(window.getSelection()) : "").trim();
+    var hist = getHist();
+    addMsg("user", q);
+    hist.push({ role: "user", content: q });
+
+    var sys = "你是《" + c.title + "》这套教程的助教。这套教程由作者原创，包含自制原理图、课件原图讲解、代码与练习。\n" +
+      "回答要求：\n" +
+      "1. 只用中文，语气像耐心的老师，简洁直接，控制在 350 字以内；\n" +
+      "2. 优先结合下面给出的「当前小节」上下文回答，必要时引用其中的术语和结论；\n" +
+      "3. 涉及代码时给出最小可运行的片段，并指出关键行；\n" +
+      "4. 如果问题超出本教程范围，简短说明后再给通用解答；\n" +
+      "5. 不要编造教程里没有的内容，不确定就说「教程里没讲，我的理解是……」。\n" +
+      (c.section ? "\n【当前小节】" + c.section + "\n【小节正文】\n" + c.text : "");
+    var msgs = [{ role: "system", content: sys }];
+    var recent = hist.slice(-8);
+    if (sel && sel.length > 4) recent[recent.length - 1] = { role: "user", content: "【我选中的原文】" + sel.slice(0, 800) + "\n\n【我的问题】" + q };
+    for (var i = 0; i < recent.length; i++) msgs.push(recent[i]);
+
+    var bubble = addMsg("bot", "（思考中…）");
+    bubble.innerHTML = '<span style="color:#94a3b8">（思考中…）</span>';
+
+    try {
+      var resp = await fetch(API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + key },
+        body: JSON.stringify({ model: getModel(), messages: msgs, stream: true, temperature: 0.3, max_tokens: 1200 })
+      });
+      if (!resp.ok) {
+        var errTxt = "";
+        try { var ej = await resp.json(); errTxt = (ej.error && ej.error.message) || ""; } catch (e) {}
+        throw new Error("HTTP " + resp.status + (errTxt ? " · " + errTxt : ""));
+      }
+      var reader = resp.body.getReader();
+      var dec = new TextDecoder("utf-8");
+      var acc = "", done = false;
+      while (!done) {
+        var r = await reader.read();
+        if (r.done) break;
+        var chunk = dec.decode(r.value, { stream: true });
+        var lines = chunk.split("\n");
+        for (var k = 0; k < lines.length; k++) {
+          var ln = lines[k].trim();
+          if (!ln || ln.indexOf("data:") !== 0) continue;
+          var payload = ln.slice(5).trim();
+          if (payload === "[DONE]") { done = true; break; }
+          try {
+            var j = JSON.parse(payload);
+            var d = j.choices && j.choices[0] && j.choices[0].delta;
+            if (d && d.content) { acc += d.content; bubble.innerHTML = mdToHtml(acc); body.scrollTop = body.scrollHeight; }
+          } catch (e) {}
+        }
+      }
+      if (!acc) acc = "（没有收到回复，请重试）";
+      hist.push({ role: "assistant", content: acc });
+      setHist(hist);
+    } catch (e) {
+      bubble.parentElement.className = "tutor-msg err";
+      bubble.innerHTML = mdToHtml("请求失败：" + e.message +
+        "\n\n常见原因：\n· Key 填错或已失效（点 ⚙ 重新填写）\n· 账户余额不足\n· 网络或跨域问题（用部署到网站的版本更稳）");
+    } finally {
+      busy = false;
+      sendBtn.disabled = false;
+      sendBtn.textContent = "发送";
+    }
+  }
+
+  /* ---------- 事件 ---------- */
+  fab.addEventListener("click", function () {
+    panel.classList.toggle("open");
+    if (panel.classList.contains("open")) {
+      refreshCtx();
+      if (!body.children.length) renderHist();
+      input.focus();
+    }
+  });
+  $("tutorClose").addEventListener("click", function () { panel.classList.remove("open"); });
+  $("tutorCfgBtn").addEventListener("click", function () {
+    $("tutorKey").value = getKey();
+    $("tutorModel").value = getModel();
+    cfg.classList.toggle("show");
+  });
+  $("tutorSave").addEventListener("click", function () {
+    setKey($("tutorKey").value.trim());
+    setModel($("tutorModel").value);
+    cfg.classList.remove("show");
+    if (getKey()) input.focus();
+  });
+  $("tutorClear").addEventListener("click", function () {
+    if (!confirm("清空对话记录？")) return;
+    setHist([]);
+    body.innerHTML = "";
+    renderHist();
+  });
+  sendBtn.addEventListener("click", function () {
+    var q = input.value.trim();
+    if (!q) return;
+    input.value = "";
+    ask(q);
+  });
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendBtn.click(); }
+  });
+  window.addEventListener("scroll", function () {
+    if (panel.classList.contains("open")) refreshCtx();
+  }, { passive: true });
+  window.addEventListener("hashchange", function () { refreshCtx(); });
+
+  refreshCtx();
+})();
+
+</script></body>
+</html>

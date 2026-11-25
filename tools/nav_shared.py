@@ -194,6 +194,43 @@ STM32_HAL_PARTS = [
 
 STM32_HAL_APPENDIX = ("apx", "速查表：HAL API · CubeMX · 报错")
 
+# ---------------------------------------------------------------- 电子与单片机资料库
+# 整站镜像：site/en/electronics/{electronic,mcu}/*.html
+# 12 套教程 / 23 个页面（《电路》12 章各一页）。
+ELEC_COURSES = [
+    ("01", "邱关源《电路》· 12 章", "electronic/circuit-02.html", "电子"),
+    ("02", "数字电子技术基础", "electronic/digital.html", "电子"),
+    ("03", "时序逻辑 · 傻子都听得懂", "electronic/seq.html", "电子"),
+    ("04", "51 单片机详细教程", "mcu/51mcu.html", "微机"),
+    ("05", "STM32 入门 · 深度版", "mcu/stm32.html", "微机"),
+    ("06", "STM32 入门 · 江协科技版", "mcu/stm32-jx.html", "微机"),
+    ("07", "STM32 TIM 定时器", "mcu/tim.html", "微机"),
+    ("08", "蓝桥杯嵌入式 G431", "mcu/g431.html", "微机"),
+    ("09", "STM32F103C8T6 HAL 库", "mcu/hal.html", "微机"),
+    ("10", "51 单片机汇编语言", "mcu/asm.html", "微机"),
+    ("11", "微机原理与接口技术", "mcu/micro.html", "微机"),
+    ("12", "51 入门前置知识", "mcu/prep.html", "微机"),
+]
+
+
+def stm32_elec_box(open_by_default=False, href="./electronics/"):
+    """侧栏里的「电子与单片机资料库」一栏。href 是到资料库目录的前缀。"""
+    mod = "nv-mod" if open_by_default else "nv-mod fold"
+    out = ['<!--elec-nav--><div class="' + mod + '" data-mod="elec">'
+           '<button class="nv-h" type="button" data-fold="elec"><span class="chev">' + CHEV + '</span>'
+           '<b>电子与单片机</b><em>12</em></button><div class="nv-list">']
+    groups = (("电子信息基础", "电子"), ("微机与单片机", "微机"))
+    for label, key in groups:
+        out.append('<div class="nv-grp">' + label + '</div>')
+        for no, title, path, kind in ELEC_COURSES:
+            if kind == key:
+                out.append(_item(href + path, no, title))
+    out.append('<div class="nv-grp">相关课程</div>')
+    out.append(_item("./stm32.html", "STD", "STM32 标准库 · 19 课"))
+    out.append(_item("./stm32-hal.html", "HAL", "STM32 HAL 库 · 24 课"))
+    out.append('</div></div><!--/elec-nav-->')
+    return "".join(out)
+
 
 def stm32_box(open_by_default=False, href="./stm32.html", unit_prefix=""):
     """侧栏里的 STM32 标准库一栏。open_by_default=True 用在标准库页自己那页。"""
@@ -213,6 +250,7 @@ def stm32_box(open_by_default=False, href="./stm32.html", unit_prefix=""):
                      unit=(unit_prefix + STM32_APPENDIX[0] if unit_prefix else STM32_APPENDIX[0])))
     out.append('<div class="nv-grp">相关课程</div>')
     out.append(_item("./stm32-hal.html", "HAL", "HAL 库课程 · 24 课"))
+    out.append(_item("./electronics.html", "ELC", "电子与单片机资料库 · 12 套"))
     out.append('</div></div><!--/stm32-nav-->')
     return "".join(out)
 
@@ -252,11 +290,11 @@ def _item(href, no, title, on=False, unit=None):
             '<span class="tt">' + title + '</span><span class="mk"></span></a>')
 
 
-def build_nav(unit_prefix="", active="math", cur=""):
+def build_nav(unit_prefix="", active="math", cur="", elec_prefix="./electronics/"):
     """unit_prefix 为空 → 单元用页内锚点；否则拼成跨页链接。
-    active：当前页属于哪一栏，那一栏排前面并默认展开，另一栏收起来
-            （侧栏只有两栏，不来回滚动）。
+    active：当前页属于哪一栏，那一栏排前面并默认展开。
     cur：当前页在侧栏里的标识（如 "m750-3"），用于高亮同一页的条目。
+    elec_prefix：资料库页在 electronics/ 目录下时传 "./"，其余页面用默认。
     """
     up = "".join(_item("./math.html#m%d" % n, "%02d" % n, t) for n, t in MATH_CH[:7])
     dn = "".join(_item("./math.html#m%d" % n, "%02d" % n, t) for n, t in MATH_CH[7:])
@@ -380,6 +418,7 @@ def build_nav(unit_prefix="", active="math", cur=""):
                         unit_prefix=("std-" if active == "stm32hal" else ""))
     hal_box = stm32_hal_box(open_by_default=(active == "stm32hal"),
                             unit_prefix=("hal-" if active == "stm32" else ""))
+    elec_box = stm32_elec_box(open_by_default=(active == "elec"), href=elec_prefix)
 
     if active == "cet4":
         order = cet4_box + cet6_box + de_box + ae_box + en_box + draw_box + math_box + stm_box
@@ -397,6 +436,8 @@ def build_nav(unit_prefix="", active="math", cur=""):
         order = stm_box + hal_box + de_box + ae_box + math_box + en_box + cet4_box + cet6_box + draw_box
     elif active == "stm32hal":
         order = hal_box + stm_box + de_box + ae_box + math_box + en_box + cet4_box + cet6_box + draw_box
+    elif active == "elec":
+        order = elec_box + stm_box + hal_box + de_box + ae_box + math_box + en_box + cet4_box + cet6_box + draw_box
     else:
         order = math_box + en_box + cet4_box + cet6_box + de_box + ae_box + draw_box + stm_box
     return '<nav class="side-nav" id="nav" aria-label="站点目录">' + order + '</nav>'

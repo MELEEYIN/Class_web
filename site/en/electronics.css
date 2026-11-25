@@ -1,0 +1,141 @@
+/* ==========================================================================
+   electronics.css — /en/electronics.html（电子与单片机资料库导览页）
+   --------------------------------------------------------------------------
+   只给导览页用：分区卡片、教程卡片、电路 12 章小格。
+   子页面（/en/electronics/electronic 与 /mcu）保留原站自带的样式，
+   不加载这个文件，也不受本站主题影响。
+   ========================================================================== */
+
+/* 两张分区大卡 */
+.elc-split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin: 16px 0 30px;
+}
+
+.elc-mapcard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgb(var(--panel-rgb) / var(--panel-a));
+  text-decoration: none;
+  color: inherit;
+  overflow: hidden;
+  transition: border-color .2s ease, transform .2s ease;
+}
+
+.elc-mapcard::after {
+  content: "";
+  position: absolute;
+  right: -50px;
+  top: -50px;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(var(--accent-rgb) / .14), transparent 68%);
+}
+
+.elc-mapcard:hover { border-color: rgb(var(--accent-rgb) / .42); transform: translateY(-2px); }
+.elc-mapcard b { font-size: 17px; line-height: 1.4; }
+.elc-mapcard p { margin: 0; font-size: 13px; line-height: 1.7; color: var(--ink-3); }
+
+/* 教程卡片 */
+.elc-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 16px 0 30px;
+}
+
+.elc-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 17px 15px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgb(var(--panel-rgb) / var(--panel-a));
+  text-decoration: none;
+  color: inherit;
+  transition: border-color .2s ease, transform .2s ease;
+}
+
+.elc-card:hover { border-color: rgb(var(--accent-rgb) / .42); transform: translateY(-2px); }
+.elc-wide { grid-column: 1 / -1; }
+
+.elc-kicker {
+  font-family: var(--mono, monospace);
+  font-size: 10.5px;
+  letter-spacing: .06em;
+  color: rgb(var(--accent-rgb));
+}
+
+.elc-card h3 { margin: 0; font-size: 15.5px; line-height: 1.5; color: var(--ink); }
+.elc-card p { margin: 0; font-size: 12.8px; line-height: 1.75; color: var(--ink-3); }
+
+.elc-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; }
+
+.elc-tags span {
+  font-size: 11px;
+  line-height: 1.6;
+  padding: 1px 7px;
+  border-radius: 6px;
+  color: var(--ink-3);
+  background: rgb(var(--panel-rgb) / .7);
+  border: 1px solid var(--line);
+}
+
+.elc-go {
+  margin-top: 2px;
+  font-size: 12.5px;
+  font-weight: 650;
+  color: rgb(var(--accent-rgb));
+  text-decoration: none;
+}
+
+/* 电路 12 章小格 */
+.elc-chapters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  margin: 4px 0 6px;
+}
+
+.elc-ch {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgb(var(--panel-rgb) / .55);
+  text-decoration: none;
+  color: var(--ink-2);
+  transition: border-color .2s ease, color .2s ease;
+}
+
+.elc-ch:hover { border-color: rgb(var(--accent-rgb) / .4); color: var(--ink); }
+.elc-ch-no { flex: none; font-family: var(--mono, monospace); font-size: 11px; color: rgb(var(--accent-rgb)); }
+.elc-ch-tt { font-size: 12px; line-height: 1.5; }
+
+/* 表格与正文在窄屏 */
+@media (max-width: 1100px) {
+  .elc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .elc-chapters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 720px) {
+  .elc-grid, .elc-split { grid-template-columns: 1fr; }
+  .elc-chapters { grid-template-columns: 1fr; }
+  .elc-card, .elc-mapcard { padding: 14px; }
+}
+
+@media print {
+  .elc-grid { grid-template-columns: repeat(2, 1fr); }
+  .elc-card, .elc-mapcard { break-inside: avoid; }
+}
